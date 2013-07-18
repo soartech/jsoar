@@ -1,0 +1,58 @@
+sp {clean-house-new*propose*select-mission
+   (state <s> ^name robot
+             -^current-mission.status << executing initiated >>
+              ^missions.mission <m>)
+   (<m> ^status << suspended initiated proposed >>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name select-mission
+         ^mission <m>)
+}
+
+sp {clean-house-new*propose*select-mission*urgent
+   (state <s> ^name robot
+             -^current-mission.status urgent
+              ^missions.mission <m>)
+   (<m> ^status urgent)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name select-mission
+         ^mission <m>)
+}
+
+sp {apply*select-mission*first
+   (state <s> ^operator <op>
+             -^current-mission <cm>)
+   (<op> ^name select-mission
+         ^mission <m>)
+   (<m> ^status { <status> << suspended initiated proposed >> })
+-->
+   (<s> ^current-mission <m>)
+   (<m> ^status <status> -
+                executing)
+}
+
+sp {apply*select-mission
+   (state <s> ^operator <op>
+              ^current-mission <cm>)
+   (<op> ^name select-mission
+         ^mission <m>)
+   (<m> ^status { <status> << suspended initiated proposed >> })
+-->
+   (<s> ^current-mission <m>
+                         <cm> -)
+   (<m> ^status <status> -
+                executing)
+}
+
+sp {apply*select-mission*suspent
+   (state <s> ^operator <op>
+              ^current-mission <cm>)
+   (<cm> ^status { <status> << initiated executing >> })
+   (<op> ^name select-mission
+         ^mission <> <cm>)
+-->
+   (<cm> ^status <status> -
+                 suspended)
+}
+

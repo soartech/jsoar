@@ -1,0 +1,24 @@
+sp {apply*goto-gateway
+   (state <s> ^name evaluate-operator
+              ^top-state.areas.area { <> <ca> <area> }
+              ^current-area <ca>
+              ^operator <op>)
+   (<area> ^id <id>)
+   (<op> ^name goto-gateway
+         ^gateway.to <id>)
+-->
+   (<s> ^current-area <ca> -
+                      <area>)
+}
+
+sp {apply*goto-gateway*visited
+   (state <s> ^name evaluate-operator
+              ^top-state.areas.area { <> <ca> <area> }
+              ^current-area <ca>
+              ^operator <op>)
+   (<area> ^id <id>)
+   (<op> ^name goto-gateway
+         ^gateway.to <id>)
+-->
+   (<s> ^visited-area <ca>)
+}

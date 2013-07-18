@@ -1,0 +1,19 @@
+
+
+#
+# get an (unlocked) book and read (use) it
+#
+sp {haunt*propose*read
+   (state <s> ^name haunt
+              ^available.text-source <book>)
+   (<book> ^locked false
+          -^finished-reading) #FIXME: quick hack to 
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name read
+        ^type acquire-and-x
+        ^target <book>
+        ^next-action <na>)
+   (<na> ^name use-object
+         ^type use-object)
+}

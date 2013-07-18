@@ -1,0 +1,3 @@
+pushd Robot
+source Robot_source.soar
+popd

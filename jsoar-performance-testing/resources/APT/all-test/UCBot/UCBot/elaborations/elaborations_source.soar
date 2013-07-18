@@ -1,0 +1,5 @@
+source _all.soar
+source canvas.soar
+source flag.soar
+source map.soar
+source top-state.soar

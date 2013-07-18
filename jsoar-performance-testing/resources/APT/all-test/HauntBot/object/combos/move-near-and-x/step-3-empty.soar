@@ -1,0 +1,38 @@
+
+# For now, make sure that agent's heading is within
+# ten degrees of target object, so that it looks like the
+# agent is facing the target object
+# (Must convert heading-orientation to unreal-orientation)
+sp {move-near-and-x*propose*step-3a-face-away
+   (state <s> ^type move-near-and-x
+              ^io.input-link.agent.position <apos>
+              ^at-target yes
+              ^need-to-discard yes
+             -^facing-away
+              ^target.position <tpos>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>)
+-->
+   (write (crlf) |Heading: | (compute-heading <agent-x> <agent-y> <target-x> <target-y>))
+   (<s> ^operator <o> + >)
+   (<o> ^name step-3a-face-away
+        ^actions.face-abs (* -1 (+ 90 (compute-heading <agent-x> <agent-y> <target-x> <target-y>))))
+}
+
+
+
+# For now, make sure that agent's heading is within
+# ten degrees of target object, so that it looks like the
+# agent is facing the target object
+sp {move-near-and-x*propose*step-3b-discard
+   (state <s> ^type move-near-and-x
+              ^at-target yes
+              ^need-to-discard
+              ^facing-away yes)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name step-3b-discard
+        ^type drop-object)
+}

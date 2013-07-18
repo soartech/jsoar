@@ -1,0 +1,19 @@
+# ACTION: use-object
+#
+# REQUIRED ATTRIBUTES:
+#             ^type use-object
+#
+
+# use an object... will check to see if agent posesses the decoration
+sp {use-object*propose*use
+   (state <s> ^operator <o>
+              ^io.input-link.agent.decoration <name>)
+   (<o> ^type use-object)
+   -->
+#  (write (crlf) |Using object | <name> )
+   (<o> ^actions.use <name>)
+}
+
+
+
+

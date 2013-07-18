@@ -1,0 +1,21 @@
+##################################### 
+# file: attack.soar 
+# created: REW: 2001-10-02
+## 
+# Leader attack
+# We use a separate file/proposal here because the leder in some cases
+# should choose leadership responsibilities (direction) over attack
+#
+# Change history: 
+# 
+
+# Same conditions as for regualr attack-squad except the leader
+# does not atop attack on being hit.
+sp {propose*attack*lead-squad
+   (state <s> ^name lead-squad
+              ^top-state <ts>)
+   (<ts> ^self.weapons.selected-weapon.rounds-available
+         ^threats.attackable yes)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name attack)}

@@ -1,0 +1,136 @@
+#IF:
+#  1. I see an entry node directly in front of me that's in another area
+#THEN:
+#  Record an entryway between the two nodes
+#
+sp {record-entryway*propose*record
+   (state <s> ^name record-entryway
+              ^top-state.map.in-front-node { <yonder-node> <> <via-node> }
+              ^via-node <via-node>)
+   (<via-node> ^area <my-area>)
+   (<yonder-node> ^area <> <my-area>
+                  ^type << door connector >>
+                  ^entryway-recorded *no*)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <yonder-node>)
+}
+
+#Elaborate record proposals with the distance to the target node
+sp {record-entryway*elaborate*record-with-range
+   (state <s> ^name record-entryway
+              ^operator <o> +
+              ^io.input-link <il>)
+   (<o> ^name record
+        ^dest-node.name <dest-node-name>)
+   (<il> ^entities.node <visnode>)
+   (<visnode> ^name <dest-node-name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+#Select the nearest node for the new entryway
+sp {record-entryway*compare*record*select-nearest
+   (state <s> ^name record-entryway
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record
+         ^range <range>)
+   (<o2> ^name record
+         ^range > <range>)
+   -->
+   (<s> ^operator <o2> -)
+}
+
+#Record a new entryway
+sp {record-entryway*apply*record
+   (state <s> ^name record-entryway
+              ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^name <via-node-name>
+               ^area <src-area>)
+   (<dest-node> ^name <dest-node-name>
+                ^area <dest-area>)
+   (<src-area> ^name <src-area-name>)
+   (<dest-area> ^name <dest-area-name>)
+-->
+   (<via-node> ^connected-node <dest-node>)
+   (<dest-node> ^connected-node <via-node>)
+   
+   (<src-area> ^path <newpath1>)
+   (<newpath1> ^destination-area <dest-area>
+               ^via-node <via-node>
+               ^distance 1)
+   
+   #Record the same path in the opposite direction
+   (<dest-area> ^path <newpath2>)
+   (<newpath2> ^destination-area <src-area>
+               ^via-node <dest-node>
+               ^distance 1)
+                  
+   (write (crlf) <o> |: Record entryway between | <src-area-name> | and | <dest-area-name> | via | <via-node-name> | and | <dest-node-name>)
+}
+
+
+#Mark entryway as recorded
+#FIXME:  See next rule
+sp {record-entryway*apply*record*mark-recorded
+   (state <s> ^name record-entryway
+              ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node.area <dest-area>)
+   (<via-node> ^area.path <path>)
+   (<path> ^destination-area <dest-area>
+           ^via-node <via-node>)
+   (<via-node> ^entryway-recorded *no*
+               ^connected-node <dest-node>)
+   (<dest-node> ^entryway-recorded *no*)
+-->
+   (<via-node> ^entryway-recorded *no* -)
+   (<via-node> ^entryway-recorded *yes*)
+   (<dest-node> ^entryway-recorded *no* -)
+   (<dest-node> ^entryway-recorded *yes*)
+
+}
+
+#Update paths when a new entryway is found
+#FIXME:  This production is too long and relies on the kludgey "mark recorded" rule above.  
+#       Make this its own operator?  How to fix?
+sp {record-entryway*update-path
+   (state <s> ^name record-entryway
+              ^operator <o>
+              ^top-state.map.area { <src-area> <> <via-area> <> <dest-area> } )
+   (<o> ^name record
+        ^via-node.area <via-area>
+        ^dest-node <dest-node>             
+        ^range <range>)
+   (<via-area> ^name <via-area-name>)
+   (<dest-node> ^area <dest-area>)
+   (<dest-area> ^name <dest-area-name>)
+   (<src-area> ^name <src-area-name>
+               ^path <path>)   
+   (<path> ^destination-area <via-area>
+           ^via-node <src-via-node>
+           ^distance <distance>)
+  -{(<src-area> ^path <path2>)
+    (<path2> ^destination-area <dest-area>
+             ^via-node <src-via-node>)}
+-->
+   (<src-area> ^path <newpath1>)
+   (<newpath1> ^destination-area <dest-area>
+               ^distance (+ 1 <distance>)
+               ^via-node <src-via-node>)
+   (write (crlf) |Record a path(1) between | <src-area-name> | and | <dest-area-name>)
+   
+   (<dest-area> ^path <newpath2>)
+   (<newpath2> ^destination-area <src-area>
+               ^distance (+ 1 <distance>)
+               ^via-node <dest-node>)
+   (write (crlf) |Record a path(1) between | <dest-area-name> | and | <src-area-name>)
+}

@@ -1,0 +1,29 @@
+sp {convert-input-to-clause-form*elaborate*state*parse-status-post-right
+   (state <s> ^top-state.problem.parse-clause <pc>)
+   (<pc> ^right-side)
+-->
+   (<pc> ^parse-status post-right)
+}
+
+sp {convert-input-to-clause-form*elaborate*state*parse-status-post-operation
+   (state <s> ^top-state.problem.parse-clause <pc>)
+   (<pc> ^operation
+        -^right-side)
+-->
+   (<pc> ^parse-status post-operation)
+}
+
+sp {convert-input-to-clause-form*elaborate*state*parse-status-post-left
+   (state <s> ^top-state.problem.parse-clause <pc>)
+   (<pc> -^operation
+          ^left-side)
+-->
+   (<pc> ^parse-status post-left)
+}
+
+sp {convert-input-to-clause-form*elaborate*state*parse-status-clause-beginning
+   (state <s> ^top-state.problem.parse-clause <pc>)
+   (<pc> -^left-side)
+-->
+   (<pc> ^parse-status clause-beginning)
+}

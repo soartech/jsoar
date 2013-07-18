@@ -1,0 +1,246 @@
+#####################################
+# file: change-active-objective.soar
+# created: REW: 2002-08-27
+##
+# Determine what the active objective should be.
+#
+# Note: For now, this is really change the achieved sentry-watch to defensieve-position (and back), but the general idea
+# is to make this the operator that handles new objectives.
+#
+# Change history:
+#
+#  [1] JEL: 2002-11-18 Add in change-active-objective proposal and application
+#                      for if roaming and contact-with-enemy true
+#  [2] REW: 2003-01-26 Created new "contact-with-enemy" change
+#                      objective type to take care of situation in which
+#                      the agent must construct its own objective, rather
+#                      than receiving one.
+
+echo "\nLoading execute-mission/change-active-objective.soar"
+
+
+## If roaming and there is contact-with-enemy, then determine objective
+
+sp {execute-mossion*propose*change-active-objective*roaming-contact-with-enemy
+   (state <s> ^name execute-mission
+              ^mission.active-objective <ao>
+              ^top-state.map.current-area.name <narea-name>
+              ^top-state.threats.contact-with-enemy true)
+   (<ao> ^type roam)
+-->
+   #(write (crlf) |Made contact with entity.... proposing new objective....|)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name change-active-objective
+        ^type contact-with-enemy
+        ^new-objective <obj>
+        ^current-objective <ao>)
+   (<obj> ^defensive-position <ndp>
+          ^status active
+          ^type defensive
+          ^area-type room)
+   (<ndp> ^area-name <narea-name>
+          ^type room)
+}
+
+
+# REW: 2002-10-07
+# New objective received
+
+sp {execute-mission*propose*change-active-objective*new-objective-received
+   (state <s> ^name execute-mission
+              ^mission <m>)
+   (<m> ^active-objective <ao>
+        ^new-objective <obj>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name change-active-objective
+        ^type received-new-objective
+        ^new-objective <obj>
+        ^current-objective <ao>)
+}
+
+# This will change active-objective after 1 more elaboration....
+sp {apply*change-active-objective*received-new-objective*deprecate-current-objective
+   (state <s> ^operator <o1>
+              ^mission <m>)
+   (<m> ^active-objective <co>)
+   (<o1> ^name change-active-objective
+         ^type << received-new-objective contact-with-enemy >>
+         ^current-objective <co>)
+   (<co> ^status active)
+-->
+   #(write (crlf) |Changing current active objective to abandoned|)
+   (<co> ^status active - abandoned +)
+}
+
+# This assumes that the new objective is active
+sp {apply*change-active-objective*received-new-objective*make-active
+   (state <s> ^operator <o1>
+              ^mission <m>)
+   (<m> ^new-objective <no>)
+   (<o1> ^name change-active-objective
+         ^type received-new-objective
+         ^new-objective <no>)
+-->
+   (<m> ^new-objective <no> -
+        ^objective <no> +)
+}
+
+# REW: 2003-01-27
+# Add new objective type: contact-with-enemy
+#   - requires objective structure to be created on the operator
+# This assumes that the new objective is active
+sp {apply*change-active-objective*received-new-objective*make-active2
+   (state <s> ^operator <o1>
+              ^mission <m>)
+   (<o1> ^name change-active-objective
+         ^type contact-with-enemy
+         ^new-objective <no>)
+-->
+   (<m> 
+        ^objective <no> +)
+}
+
+
+
+
+
+# SEARCH CONTROL
+# Changing the active objective should take precedence over everything else
+
+sp {execute-mission*compare*change-active-objective
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name change-active-objective)
+   (<o2> ^name <> change-active-objective)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+
+
+# REW: 2002-10-07
+# I believe the remainder of this file is no longer necessary
+
+# When a sentry-watch is achieved and there are no other pending or suspended
+# objectives, then go to a defensive objective at the location of the
+# sentry watch
+sp {execute-mission*propose*change-active-objective*watch-terminated
+   (state <s> ^name execute-mission
+              ^mission <m>)
+   (<m> -^active-objective
+         ^objective <obj>
+        -^objective.status << active pending suspended >>)
+   (<obj> ^type sentry-watch
+          ^status achieved)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name change-active-objective
+        ^type sentry-watch-achieved
+        ^new-objective <obj>)
+}
+
+# If threats level is high or greater and we've suspended a sentry-watch, then make the active objective defend
+sp {execute-mission*propose*change-active-objective*watch*threat-level-high
+   (state <s> ^name execute-mission
+              ^mission <m>
+              ^top-state.threats.level << high very-high >>)
+   (<m>  -^active-objective
+          ^objective <obj>)
+   (<obj> ^type sentry-watch
+          ^status suspended)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name change-active-objective
+        ^type sentry-watch-suspended
+        ^new-objective <obj>)
+}
+
+# REW: No immediate threats and have suspended the watch, so return to it
+sp {execute-mission*propose*change-active-objective*resume-suspended-watch
+   (state <s> ^name execute-mission
+              ^mission.active-objective <obj>
+             -^top-state.threats.level << high very-high >> )
+   (<obj> ^type defensive
+          ^status active
+          ^sentry-watch.status << executing suspended >> )
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name change-active-objective
+        ^type resume-suspended-watch
+        ^new-objective <obj>)
+}
+
+# This covers the case that the threat level is high only for a brief moment
+sp {execute-mission*propose*change-active-objective*resume-suspended-watch2
+   (state <s> ^name execute-mission
+              ^mission <m>
+             -^top-state.threats.level << high very-high >> )
+   (<m> -^active-objective
+         ^objective <obj>)
+   (<obj> ^type sentry-watch
+          ^status suspended
+          ^sentry-watch.status << executing suspended >> )
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name change-active-objective
+        ^type resume-suspended-watch
+        ^new-objective <obj>)
+}
+
+
+# If the sentry-watch is acheived, there's no need to retain any of its information.
+sp {apply*change-active-objective*sentry-watch-achieved
+   (state <s> ^operator <o1>)
+   (<o1> ^name change-active-objective
+         ^type sentry-watch-achieved
+         ^new-objective <obj>)
+   (<obj> ^type <sentry>
+          ^status <achieved>
+          ^sentry-watch <sw>)
+-->
+   (<obj> ^status <achieved> - active +
+          ^type <sentry> - defensive
+          ^sentry-watch <sw> -)
+}
+
+sp {apply*change-active-objective*sentry-watch-suspended
+   (state <s> ^operator <o1>)
+   (<o1> ^name change-active-objective
+         ^type sentry-watch-suspended
+         ^new-objective <obj>)
+   (<obj> ^type <sentry>
+          ^status <achieved>)
+-->
+   (<obj> ^status <achieved> - active +
+          ^type <sentry> - defensive)
+}
+
+# Change the objective-type to sentry-watch if it isn't already
+sp {apply*change-active-objective*resume-suspended-watch*type
+   (state <s> ^operator <o1>)
+   (<o1> ^name change-active-objective
+         ^type resume-suspended-watch
+         ^new-objective <obj>)
+   (<obj> ^type { <> sentry-watch <type>}  )
+-->
+   (<obj> ^type <type> - sentry-watch +)
+}
+
+# Change the status to active if it isn't already
+sp {apply*change-active-objective*resume-suspended-watch*active
+   (state <s> ^operator <o1>)
+   (<o1> ^name change-active-objective
+         ^type resume-suspended-watch
+         ^new-objective <obj>)
+   (<obj> ^status { <> active <type>}  )
+-->
+   (<obj> ^status <type> - active +)
+}
+
+
+
+
+

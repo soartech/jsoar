@@ -1,0 +1,99 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/cross-room"
+
+#AMN: 2002-07-26
+#IF:
+#1.  The stack position is outside the room 
+#    (i.e., a corner door)
+#THEN:
+#    Propose crossing to the other side of the room
+sp {goto-next-room*propose*cross-room*east
+   (state <s> ^name goto-next-room
+              ^door-axis x
+              ^stack-position.x <sx>
+              ^exit-node.position.x <ex>
+              ^top-state.map.current-area.min-x >= <sx>
+              ^io.input-link.agent.position <pos>)
+   (<pos> ^y <y>
+          ^z <z>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name cross-room
+        ^type move-to-xyz
+        ^position <newp>)
+   (<newp> ^x (+ <ex> 100)
+           ^y <y>
+           ^z <z>)
+}
+
+#AMN: 2002-07-26
+sp {goto-next-room*propose*cross-room*west
+   (state <s> ^name goto-next-room
+              ^door-axis x
+              ^stack-position.x <sx>
+              ^exit-node.position.x <ex>
+              ^top-state.map.current-area.max-x <= <sx>
+              ^io.input-link.agent.position <pos>)
+   (<pos> ^y <y>
+          ^z <z>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name cross-room
+        ^type move-to-xyz
+        ^position <newp>)
+   (<newp> ^x (- <ex> 100)
+           ^y <y>
+           ^z <z>)
+}
+
+#AMN: 2002-07-26
+sp {goto-next-room*propose*cross-room*north
+   (state <s> ^name goto-next-room
+              ^door-axis y
+              ^stack-position.y <sy>
+              ^exit-node.position.y <ey>
+              ^top-state.map.current-area.max-y <= <sy>
+              ^io.input-link.agent.position <pos>)
+   (<pos> ^x <x>
+          ^z <z>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name cross-room
+        ^type move-to-xyz
+        ^position <newp>)
+   (<newp> ^x <x>
+           ^y (- <ey> 100)
+           ^z <z>)
+}
+
+#AMN: 2002-07-26
+sp {goto-next-room*propose*cross-room*south
+   (state <s> ^name goto-next-room
+              ^door-axis y
+              ^stack-position.y <sy>
+              ^exit-node.position.y <ey>
+              ^top-state.map.current-area.min-y >= <sy>
+              ^io.input-link.agent.position <pos>)
+   (<pos> ^x <x>
+          ^z <z>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name cross-room
+        ^type move-to-xyz
+        ^position <newp>)
+   (<newp> ^x <x>
+           ^y (+ <ey> 100)
+           ^z <z>)
+}
+
+#AMN: 2002-07-26
+#Cross the room before moving to the stack position
+sp {goto-next-room*compare*cross-room*beats*move-to-stack-pos
+   (state <s> ^name goto-next-room
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name cross-room)
+   (<o2> ^name move-to-stack-position)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+

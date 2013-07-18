@@ -1,0 +1,17 @@
+sp {propose*initialize-problem
+   (state <s> ^name instruct
+              ^current-problem <cp>)
+   (<cp> -^current-step)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-problem)
+}
+
+sp {apply*initialize-problem
+   (state <s> ^operator.name initialize-problem
+              ^current-problem <cp>
+              ^instructions.first-step <s1>)
+-->
+   (<cp> ^current-step <s1>
+         ^result <r>
+         ^initialized true)}

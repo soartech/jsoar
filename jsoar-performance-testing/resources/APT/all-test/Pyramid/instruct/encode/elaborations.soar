@@ -1,0 +1,25 @@
+### BOGUS WEIRD
+
+sp {elaborate-variable
+   (state <s> ^name encode
+              ^superstate.current-problem <cp>
+              ^top-state.instructions.definitions <d2>)
+   (<cp> ^<variable> <val> 
+        -^minimum-math-computations)
+   (<d2>^term <variable>
+        ^function length-add)
+-->
+   (<cp> ^minimum-math-computations <val>)}
+
+
+sp {elaborate-variable*2
+   (state <s> ^name encode
+              ^superstate.current-problem <cp>
+              ^top-state.instructions.relations <r1>)
+   (<r1>  ^<var2> 0 
+          ^minimum-math-computations double
+          ^arg <var1>)
+   (<cp> ^<var1>  <val> ^<var2> < 0 - 
+         ^minimum-math-computations)
+-->
+   (<cp> ^minimum-math-computations (* <val> 2))}

@@ -1,0 +1,89 @@
+#echo "\nLoading create-enemy-state"
+
+sp {predict-enemy*propose*create-enemy-state
+   (state <s> ^name predict-enemy
+             -^map.current-room)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name create-enemy-state)}
+
+sp {predict-enemy*apply*create-enemy-state*game
+   (state <s> ^operator.name create-enemy-state
+              ^io.input-link.game <game>
+              ^superstate.io.input-link.game.mapname <mname>)
+   -->
+   (<game> ^mapname <mname>)}
+
+sp {predict-enemy*apply*create-enemy-state*create-prediction-structure
+   (state <s> ^operator.name create-enemy-state
+              ^superstate.operator.enemy <enemy>)
+   -->
+#   (<enemy> ^prediction-structure none)
+   (<s> ^predicted-distance 0
+        ^last-door none)}
+
+sp {predict-enemy*apply*create-enemy-state*agent
+   (state <s> ^operator.name create-enemy-state
+              ^io.input-link.agent <agent>
+              ^superstate.operator.enemy <enemy>)
+   (<enemy> ^health <health>
+            ^name <name>
+            ^skin <skin>
+            ^team <team>
+            ^weapon <wname>)
+  -->
+  (<agent>  ^armor-amount 0
+            ^deadflag alive
+            ^health <health>
+            ^origin <nor>
+            ^name <name>
+            ^skin <skin>
+            ^team <team>
+            ^weapon <nwid>
+            ^weapon-selected <wname>)
+  (<nwid> ^classname <wname>)
+}
+
+sp {predict-enemy*apply*create-enemy-state*agent*origin
+   (state <s> ^operator.name create-enemy-state
+              ^io.input-link.agent.origin <nor>
+              ^superstate.operator.enemy <enemy>)
+   (<enemy> ^x <x>
+            ^y <y> 
+            ^z <z>)
+  -->
+  (<nor> ^x <x>
+        ^y <y> 
+        ^z <z>)
+}
+
+sp {predict-enemy*apply*create-enemy-state*agent*yaw
+   (state <s> ^operator.name create-enemy-state
+              ^io.input-link.agent <agent>
+              ^superstate.operator.enemy.old-aspect-h <ah>)
+  -->
+  (<agent>  ^angle.yaw <ah>)
+}
+
+sp {predict-enemy*apply*create-enemy-state*current-room
+   (state <s> ^operator.name create-enemy-state
+              ^top-state.map <map>
+              ^superstate.operator.enemy.old-room.room-number <rn>)
+   (<map> ^room <room>
+         -^current-room)
+   (<room> ^room-number <rn>)
+   -->
+   (<map> ^current-room <room>)}
+
+### Create following based on enemy-data parameters that have
+### been adjusted based on observations of the enemy
+
+sp {predict-enemy*apply*create-enemy-state*self-parameters
+   (state <s> ^operator.name create-enemy-state
+              ^self <self>              
+              ^real-top-state.enemy-data.parameters <param>)
+   -->
+   (<self> ^parameters <param>)}
+
+

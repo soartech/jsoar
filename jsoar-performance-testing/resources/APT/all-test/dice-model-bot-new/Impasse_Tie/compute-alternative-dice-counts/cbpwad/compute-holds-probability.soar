@@ -1,0 +1,103 @@
+## Compute probability that the holds value is possible
+##
+
+sp {compute-bid-probability-with-assumed-dice*propose*compute-holds-probabilty
+   (state <s> ^name compute-bid-probability-with-assumed-dice
+              ^superstate <ss>)
+   (<ss> ^operator <sop>
+         ^last-bid <lb>)
+   (<lb> ^face <face>
+         ^player.cup.count <count>)
+   (<sop> ^holds <hold>
+         -^holds-probability)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name compute-holds-probability
+         ^holds <hold>
+         ^face <face>
+         ^undercup <count>)
+}
+## 1 bid
+sp {apply*compute-holds-probability*1*bid
+   (state <s> ^name compute-bid-probability-with-assumed-dice
+              ^operator <op>
+              ^top-state.io.output-link <out>)
+   (<op> ^name compute-holds-probability
+         ^face 1
+         ^holds <hold>
+         ^face <face>
+         ^undercup <undercup>)
+-->
+   (<out> ^qna-query <qq>)
+   (<s> ^holds-evaluation <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count <hold>
+          ^number-of-dice <undercup>
+          ^number-of-faces 6
+          ^predicate ge)
+}
+
+# Special Rules
+sp {apply*compute-holds-probability*special-rules*bid
+   (state <s> ^name compute-bid-probability-with-assumed-dice
+              ^operator <op>
+              ^top-state.io <io>)
+   (<io> ^input-link.state.special true
+         ^output-link <out>)
+   (<op> ^name compute-holds-probability
+         ^face <> 1
+         ^holds <hold>
+         ^face <face>
+         ^undercup <undercup>)
+-->
+   (<out> ^qna-query <qq>)
+   (<s> ^holds-evaluation <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count <hold>
+          ^number-of-dice <undercup>
+          ^number-of-faces 6
+          ^predicate ge)
+}
+
+## No 1's no Special Rules
+
+sp {apply*compute-holds-probability*not-special-rules*bid
+   (state <s> ^name compute-bid-probability-with-assumed-dice
+              ^operator <op>
+              ^top-state <ts>)
+   (<ts> ^io.input-link.state.special false
+         ^io.output-link <out>)
+   (<op> ^name compute-holds-probability
+         ^face <> 1
+         ^holds <hold>
+         ^face <face>
+         ^undercup <undercup>)
+-->
+   (<out> ^qna-query <qq>)
+   (<s> ^holds-evaluation <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count <hold>
+          ^number-of-dice <undercup>
+          ^number-of-faces 3
+          ^predicate ge)
+}
+
+sp {compute-holds-probability-assumed-dice*apply*compute-challenge-probability*use-result
+   (state <s> ^operator <op>
+              ^holds-evaluation <qq>
+              ^superstate.operator <so>)
+   (<op> ^name compute-holds-probability)
+   (<qq> ^result.features.probability <prob>)
+-->
+   (write (crlf) |>Hold Probability: | <prob>)
+   (<so> ^holds-probability <prob>)
+}

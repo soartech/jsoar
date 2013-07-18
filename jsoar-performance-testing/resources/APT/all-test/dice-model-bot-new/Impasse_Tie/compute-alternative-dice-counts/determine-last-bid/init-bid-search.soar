@@ -1,0 +1,16 @@
+sp {determine-last-bid*propose*init-bid-search
+   (state <s> ^name determine-last-bid
+             -^current-bid)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name init-bid-search)
+}
+
+sp {apply*init-bid-search
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.history <last-bid>)
+   (<op> ^name init-bid-search)
+-->
+   (<s> ^current-bid <last-bid>
+        ^found-prior-bid false)
+}

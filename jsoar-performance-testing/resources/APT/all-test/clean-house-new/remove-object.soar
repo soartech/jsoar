@@ -1,0 +1,22 @@
+sp {clean-house-new*propose*remove-object
+   (state <s> ^name robot
+              ^parameters.objects-held-in smem
+              ^objects.object <obj>
+              ^current-location <cl>)
+   (<obj> ^area <> <cl>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name remove-object
+         ^object <obj>)
+}
+
+sp {apply*remove-object
+   (state <s> ^operator <op>
+              ^objects <objs>)
+   (<objs> ^object <obj>)
+   (<op> ^name remove-object
+         ^object <obj>)
+-->
+   (write (crlf) |Remove | <obj> | because doesn't belong in current room.|)
+   (<objs> ^object <obj> -)
+}

@@ -1,0 +1,60 @@
+echo "\nLoading chase"
+## Propose chase if there is a recorded sound
+##   but no reason to retreat
+##   and no detected enemy
+
+sp {quake*propose*chase
+    (state <s> ^name quake
+               ^map.explored true
+               ^sound
+               ^self.aggressiveness << passive standard >>
+              -^self.need health
+              -^enemy-detected 
+              -^enemy.prediction-final-room-number <frn>
+              -^io.input-link.agent.weapon-selected weapon_blaster)
+    -->   
+ #   #tcl |tsiDisplayAndSendCommand stop-soar|)
+    (<s> ^operator <o> + =)
+    (<o> ^name chase)}
+
+sp {quake*propose*chase*aggressive
+    (state <s> ^name quake
+               ^map.explored true
+               ^self.aggressiveness aggressive
+               ^sound
+              -^enemy-detected)
+    -->   
+ #   #tcl |tsiDisplayAndSendCommand stop-soar|)
+    (<s> ^operator <o> + =)
+    (<o> ^name chase)}
+
+sp {quake*select*chase
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name chase)
+   (<o2> ^name << wander collect-powerups explore >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {quake*apply*chase*update*sound*yaw
+   (state <s> ^operator.name chase
+              ^top-state.parameters.sound-remember-time <ert>
+              ^io.input-link.agent.cycle <ct>
+              ^io.input-link.sound.sound <iosound>
+              ^sound <sound>)
+   (<iosound> ^range <r>
+              ^angle-yaw <nay>
+              ^type <type>)
+   (<sound> ^range { <> <r> <or> }
+            ^type <type>
+            ^forget-time <ft>
+            ^angle-yaw { <> <nay> <ay> })
+   -->
+  # (write (crlf) |Update sound: | <ay> | --> | <nay>)
+   (<sound> ^forget-time <ft> -
+            ^forget-time (+ <ct> <ert>)
+            ^angle-yaw <ay> -
+            ^angle-yaw <nay>
+            ^range <or> -
+            ^range <r>)}

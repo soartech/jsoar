@@ -1,0 +1,109 @@
+#echo "\nLoading wander/hide-item-missing"
+
+################################
+### Propose notice-item-missing operator
+################################
+
+sp {wander*propose*notice-item-missing*search
+   (state <s> ^name wander
+              ^top-state.map <m>
+              ^top-state.self.get-object <cname>
+              ^io.input-link <il>)
+   (<m> ^current-room <cr>)
+   (<cr> ^item <item>
+         ^search <ss>)
+   (<il> -^entity.item.classname <cname>
+         -^agent.cycle < <rt>)
+   (<ss> -^recorded.classname <cname>
+          ^turned-right true
+          ^turned-left true)
+   (<item> ^classname <cname>
+           ^regeneration-time <rt>)
+   -->
+#  (tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |ITEM Missing: | <item> | - | <cname>)
+   (<s> ^operator <o> + =)
+   (<o> ^name notice-item-missing
+        ^item <item>)}
+
+sp {wander*propose*notice-item-missing*search*health
+   (state <s> ^name wander
+              ^top-state.map <m>
+              ^top-state.self.need health
+              ^io.input-link <il>)
+   (<m> ^current-room <cr>)
+   (<cr> ^item <item>
+         ^search <ss>)
+   (<il> ^agent.health <current-health>)
+   (<ss> ^health { < <current-health> <old-health> })
+   (<item> ^type health)
+   -->
+   (write (crlf) |ITEM Missing: | <item> | - Health|)
+   (<s> ^operator <o> + =)
+   (<o> ^name notice-item-missing
+        ^item <item>
+        ^type health)}
+
+sp {wander*propose*notice-item-missing*search*armor
+   (state <s> ^name wander
+              ^top-state.map.current-room <cr>
+              ^top-state.self.get-object.type armor
+              ^io.input-link <il>)
+   (<cr> ^item <item>
+         ^search <ss>)
+   (<il> ^agent.armor-amount <current-armor>)
+   (<ss> ^armor { < <current-armor> <old-armor> })
+   (<item> ^type armor)
+   -->
+   (write (crlf) |ITEM Missing: | <item> | - Armor|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name notice-item-missing
+        ^item <item>
+        ^type armor)}
+
+sp {wander*apply*notice-item-missing
+   (state <s> ^operator <o>
+              ^top-state.parameters.item-regeneration-time <irt>
+              ^io.input-link.agent.cycle <ct>)
+   (<o> ^name notice-item-missing
+        ^item <item>)
+   (<item> ^regeneration-time <rt>)
+   -->
+   (<item> ^regeneration-time <rt> -
+           ^regeneration-time (+ <ct> <irt>))
+}
+
+sp {wander*apply*notice-item-missing*health
+   (state <s> ^operator <o>
+              ^current-room.search <ss>
+              ^io.input-link.agent.health <current-health>)
+   (<ss> ^health { <> <current-health> <old-health> })
+   (<o> ^name notice-item-missing
+        ^type health)
+   -->
+   (<ss> ^health <current-health>
+         ^health <old-health> -)
+}
+
+sp {wander*apply*notice-item-missing*armor
+   (state <s> ^operator <o>
+              ^current-room.search <ss>
+              ^io.input-link.agent.armor-amount <current-armor>)
+   (<ss> ^armor { <> <current-armor> <old-armor> })
+   (<o> ^name notice-item-missing
+        ^type armor)
+   -->
+   (<ss> ^armor <current-armor>
+         ^armor <old-armor> -)
+}
+
+sp {wander*select*notice-item-missing
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name notice-item-missing
+         ^item.classname <cname>)
+   (<o2> ^name get-item
+         ^item.classname <cname>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

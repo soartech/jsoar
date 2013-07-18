@@ -1,0 +1,19 @@
+
+################################
+### Propose goto-item operator
+################################
+
+sp {retreat*propose*goto-item*need
+   (state <s> ^name retreat
+         ^top-state.self.get-object <go>
+         ^io.input-link.entity.item <item-x>)
+   (<go> ^classname <cname>
+         ^need true)
+   (<item-x> ^classname <cname>)
+-->
+   (write (crlf) |Go pick up | <cname>)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name goto-item
+        ^item <item-x>)
+	}
+

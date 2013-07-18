@@ -1,0 +1,152 @@
+echo "\nLoading internal-simulation"
+
+sp {predict-enemy*apply*goto-next-room*internal-simulation
+   (state <s> ^name { <> predict-enemy <name> }
+              ^predicting true
+              ^top-state.map <m> 
+              ^operator <o>)
+   (<o> ^name goto-next-room
+        ^door <idoor>)
+   (<m> ^current-room { <> <nr> <cr> })
+   (<cr> ^path <p>)
+   (<p> ^destination-room <nr>
+        ^distance 1
+        ^in-room-door <idoor>)
+-->
+   (write (crlf) | path | <p> | door | <idoor> | current-room | <cr> | map | <m> )
+   (write (crlf) |+++++++++ Change room to | <nr>)
+   (<m> ^current-room <cr> -
+        ^current-room <nr>)}
+
+sp {predict-enemy*apply*goto-next-room*internal-simulation*last-door
+   (state <s> ^name <name>
+              ^predicting true
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^last-door { <> <door> <old-ld> }
+         ^map <m>)
+   (<o> ^name goto-next-room
+        ^door <door>)
+-->
+   (<ts> ^last-door <old-ld> -
+                    <door>)}
+
+sp {predict-enemy*apply*goto-next-room*internal-simulation*distance
+   (state <s> ^name { <> predict-enemy <name> }
+              ^predicting true
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^predicted-distance <pd>
+         ^map <m>)
+   (<o> ^name goto-next-room)
+-->
+   (write (crlf) |+++++++++ Distance traveled | (+ <pd> 1))
+   (<ts> ^predicted-distance <pd> -
+                            (+ <pd> 1))}
+
+#excise predict-enemy*apply*goto-next-room*internal-simulation
+
+########
+sp {predict-enemy*apply*goto-item*internal-simulation
+   (state <s> ^name get-item
+              ^predicting true
+              ^top-state.self <se>
+              ^operator <o>)
+   (<se> ^get-object <go>)
+   (<go> ^classname <cname>)
+   (<o> ^name goto-item
+        ^item <item>)
+   (<item> ^classname <cname>)
+-->
+   (write (crlf) |+++++++++ Got Object | <cname>)
+   (<se> ^get-object <go> -)}
+
+sp {predict-enemy*apply*goto-item*in-room*weapon*internal-simulation
+   (state <s> ^name get-item
+              ^predicting true
+              ^top-state.map.current-room.item <it>
+              ^io.input-link.agent <a>
+              ^operator <o>)
+   (<a> ^weapon-selected <> <cname>)
+   (<it> ^classname <cname>
+         ^type weapon
+         ^available true)
+   (<o> ^name goto-item
+        ^item.classname <cname>)
+-->
+   (write (crlf) |+++++++++ Select Weapon | <cname>)
+   (<a> ^weapon-selected <ws> -
+        ^weapon-selected <nws>
+        ^weapon <nws>)
+   (<nws> ^classname <cname>)}
+
+sp {predict-enemy*apply*goto-item*in-room*health*internal-simulation
+   (state <s> ^name get-item
+              ^predicting true
+              ^top-state.map.current-room.item <it>
+              ^io.input-link.agent <a>
+              ^operator <o>)
+   (<a> ^health <h>)
+   (<it> ^classname <cname>
+         ^type health
+         ^available true)
+   (<o> ^name goto-item
+        ^item.classname <cname>)
+-->
+   (write (crlf) |+++++++++ Improve Health | <cname>)
+   (<a> ^health <h> -
+                100)} 
+
+sp {predict-enemy*apply*goto-item*in-room*armor*internal-simulation
+   (state <s> ^name get-item
+              ^predicting true
+              ^top-state.map.current-room.item <it>
+              ^io.input-link.agent <a>
+              ^operator <o>)
+   (<a> ^armor-amount <h>)
+   (<it> ^classname <cname>
+         ^type armor
+         ^available true)
+   (<o> ^name goto-item
+        ^item.classname <cname>)
+-->
+   (write (crlf) |+++++++++ Improve armor | <cname>)
+   (<a> ^armor-amount <h> -
+                     100)} 
+
+
+sp {predict-enemy*apply*goto-item*in-room*internal-simulation
+   (state <s> ^name get-item
+              ^predicting true
+              ^top-state.map.current-room.item <it>
+              ^operator <o>)
+   (<it> ^classname <cname>)
+   (<o> ^name goto-item
+        ^item.classname <cname>)
+-->
+   (<it> ^available true -)
+   (write (crlf) |+++++++++ Mark  | <cname> | as unavailable.|)}
+ 
+excise predict-enemy*apply*goto-item*in-room*internal-simulation
+######
+sp {predict-enemy*apply*hide*internal-simulation
+   (state <s> ^name quake
+              ^predicting true
+              ^current-room.hiding-place <hp>
+              ^io.input-link.agent <a>
+              ^operator.name ambush)
+   (<hp> ^x <x>
+         ^y <y>
+         ^final-facing <ff>)
+   (<a> ^origin <or>)
+   (<or> ^x <ox>
+         ^y <oy>)
+-->
+   (<or> ^x <ox> -
+            <x>
+         ^y <oy> -
+            <y>)
+   (<a> ^angle.yaw <ff>)}
+
+
+

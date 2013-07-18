@@ -1,0 +1,12 @@
+sp {goto-gateway*propose*move-around-wall
+   (state <s> ^name goto-gateway
+              ^move-direction <dir>
+              ^top-state.directions <dirs>)
+   (<dirs> ^value <dir>
+           ^heading <heading>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-around-wall
+         ^direction <dir>)
+}
+

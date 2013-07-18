@@ -1,0 +1,341 @@
+## Patches file for Bob's changes
+
+echo "\nLoading PATCHES: bob.soar "
+                 #  
+
+sp {testing*only*determine-body-position*MOUTBOt1*scenario-2002-10
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type stand)
+   (<ts> ^scenario.name scenario-2002-10
+         ^self.name |MOUTBot1|)
+-->
+   (write (crlf) |MOUTBot1 should stand|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt2*scenario-2002-10
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type stand)
+   (<ts> ^scenario.name scenario-2002-10
+         ^self.name |MOUTBot2|)
+-->
+   (write (crlf) |MOUTBot2 stand|)
+   (<s> ^operator <o> >)
+}
+
+
+sp {testing*only*determine-body-position*MOUTBOt1*scenario-ambush
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type stand)
+   (<ts> ^scenario.name scenario-ambush
+         ^self.name |MOUTBot1|)
+-->
+   (write (crlf) |MOUTBot1 should stand|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt2*scenario-ambush
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type stand)
+   (<ts> ^scenario.name scenario-2002-10
+         ^self.name |MOUTBot2|)
+-->
+   (write (crlf) |MOUTBot2 stand|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt1*scenario-lhall
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type kneel)
+   (<ts> ^scenario.name scenario-lhall
+         ^self.name |MOUTBot1|)
+-->
+   (write (crlf) |MOUTBot1 should kneel|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt2*scenario-lhall
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type lie-prone)
+   (<ts> ^scenario.name scenario-lhall
+         ^self.name |MOUTBot2|)
+-->
+   (write (crlf) |MOUTBot2 prone|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt1*scenario-thall
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type kneel)
+   (<ts> ^scenario.name scenario-thall
+         ^self.name |MOUTBot1|)
+-->
+   (write (crlf) |MOUTBot1 should kneel|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt2*scenario-thall
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type lie-prone)
+   (<ts> ^scenario.name scenario-thall
+         ^self.name |MOUTBot2|)
+-->
+   (write (crlf) |MOUTBot2 prone|)
+   (<s> ^operator <o> >)
+}
+
+sp {testing*only*determine-body-position*MOUTBOt1*scenario-lroom
+   (state <s> ^top-state <ts>
+              ^name defend
+              ^operator <o> +)
+   (<o> ^name determine-body-position 
+        ^type lie-prone)
+   (<ts> ^scenario.name scenario-lroom
+         ^self.name |MOUTBot1|)
+-->
+   (write (crlf) |MOUTBot1 should not go prone|)
+   (<s> ^operator <o> <)
+}
+
+
+
+
+
+# w/o :o-support, fires as IE
+#sp {apply*change-body-position*debug
+#:o-support
+#   (state <s> ^operator <o>
+#              ^top-state <ts>)
+#   (<ts> ^self <self>              )
+#   (<self> ^body-position <something>
+#           ^changing-body-position <pos> )
+#   (<o> ^name { << lie-prone stand kneel >> <name> }
+#        ^actions <a>)
+#-->
+#   (write (crlf) | ERROR ERROR ERROR ERROR ERROR ERROR |)
+#   (write (crlf) | Executing change body position to | <name> | but body position is already changing: | <pos> )
+#   (write (crlf) | ERROR ERROR ERROR ERROR ERROR ERROR |)
+#}
+#
+#sp {monitor*agent*posture
+#   (state <s> ^superstate nil
+#              ^top-state.io.input-link.agent.posture <pos>)
+#-->
+#   (write (crlf) | *********************************** |)
+#   (write (crlf) | Agent's input link posture is now | <pos> )
+#   (write (crlf) | *********************************** |)
+#}
+#
+#
+#sp {monitor*self*body-position
+#   (state <s> ^superstate nil
+#              ^top-state.self.body-position <pos>)
+#-->
+#   (write (crlf) | *********************************** |)
+#   (write (crlf) | Agent's internal body posture is now | <pos> )
+#   (write (crlf) | *********************************** |)
+#}
+#
+#
+#
+# Delete all the test stuff (UnitTest/z-patch-backup)
+
+#sp {z-patches*propose*switch-weapon
+#   (state <s> ^name unreal
+#              ^initialized true
+#             -^switched-to-grenade true)
+#-->
+#   (<s> ^operator <o> +, = 50 >)
+#   (<o> ^name switch-weapon
+#        ^actions.alert true)
+#}
+#
+#
+## Must change output command to correct group or
+## whatever is required for switching to grenades
+#sp {apply*switch-weapon
+#   (state <s> ^operator <o>
+#              ^top-state.io.output-link <ol>)
+#   (<o> ^name switch-weapon)
+#-->
+#   (write (crlf) |Issuing output command to change weapon to grenade|)
+#   (<ol>  ^choose-weapon |M_67|)
+#   (<s> ^switched-to-grenade true)
+#}
+#
+##Throw a grenade if grenades are selected
+#sp {z-patches*propose*throw-grenade
+#   (state <s> ^name unreal
+#              ^switched-to-grenade true
+#             -^threw-grenade true)
+#-->
+#   (<s> ^operator <o> +, = 50 >)
+#   (<o> ^name throw-grenade)
+#}
+#
+#sp {apply*throw-grenade
+#   (state <s> ^operator <o>
+#              ^top-state.io.output-link <ol> )
+#   (<o> ^name throw-grenade)
+#-->
+#   (<ol> ^attack <a>                 )
+#   (<a> ^value normal
+#        ^strength 10)
+#   (<s> ^threw-grenade true)
+#}
+#
+
+#sp {retreat*propose*surrender*test
+#   (state <s> ^name execute-mission
+#              )
+#   -->
+#   (<s> ^operator <o> +, = 50 >)
+#   (<o> ^name surrender
+#        ^type wait
+#        ^actions.surrender true
+#        ^actions.alert true)
+#}
+
+
+
+
+
+# Test message for alert
+#sp {create-test-message4
+#  (state <s> ^superstate nil)
+#  -->
+#  (<s> ^io.input-link.messages <m>)
+#  (<m> ^message <m1>)
+#  (<m1> ^phrase <p>)
+#  (<p> ^word |MOUTBot3| ^next <n1>)
+#  (<n1> ^word enemy-approaching ^next <n2>)
+#  (<n2> ^word number ^next <n3>)
+#  (<n3> ^word 2 ^next <n4>)
+#  (<n4> ^word direction ^next <n5>)
+#  (<n5> ^word 220)
+#}
+
+
+
+
+
+
+
+sp {monitor*alert-action-while-at-ease
+   (state <s> ^superstate nil
+              ^top-state <ts>)
+   (<ts> ^parameters.error-codes.alert-action-while-at-ease <val>
+         ^io.output-link <ol>)
+   (<ol> ^<action>.error-code <val>)
+-->
+   (<ol> ^alert.value true)
+   (write (crlf) |========================================================|)
+   (write (crlf) |Alert action | <action> | failed because currently at-ease.... changing to alert.|)
+   (write (crlf) |========================================================|)
+}
+
+#sp {play-sound*test1
+#   (state <s> ^name unreal ^top-state.initialized true
+#              ^top-state.io.output-link <ol>
+#              ^self.posture alert)
+#   -->
+#   (write (crlf) |Generating play-sound test on output-link|)
+#   (<ol> ^play-sound <p>)
+#   (<p> ^sound |"C:\VIRTE\UnrealTournament\Male1Voice"|)
+#   }
+
+#sp {monitor*output-link*reload*unjam
+#   (state <s> ^superstate nil
+#              ^top-state.io.output-link.{<< reload unjam >>  <foo> } <val>)
+#   -->
+#   (write (crlf) |========================================================|)
+#   (write (crlf) |Saw | <foo> | command on output-link with value | <val>)
+#   (write (crlf) |========================================================|)
+#}
+#
+## REW: 2002-09-26
+## For now, become alert after x decisions.
+#sp {unreal*apply*initialize*alert
+#   (state <s> ^operator.name initialize
+#              ^top-state.io.output-link <ol>)
+#-->
+#   (<ol> ^actions.alert true)
+#}
+#
+#
+#sp {monitor*input-link*underfire*true
+#   (state <s> ^superstate nil
+#              ^top-state.io.input-link.agent.underfire true)
+#   -->
+#   (write (crlf) |********** Underfire true ***************|)
+#   }
+#
+#sp {monitor*input-link*underfire*false
+#   (state <s> ^superstate nil
+#              ^top-state.io.input-link.agent.underfire false)
+#   -->
+#   (write (crlf) |********** Underfire false ***************|)
+#   }
+#
+#sp {monitor*self*underfire
+#   (state <s> ^superstate nil
+#              ^self.underfire <uf>)
+#   (<uf> ^value <val> ^expires <exp>)
+#-->
+#   (write (crlf) | Underfire value: | <val> | Expires: | <exp> )
+#}
+#
+#sp {monitor*self*underfire*no-expires
+#   (state <s> ^superstate nil
+#              ^self.underfire <uf>)
+#   (<uf> ^value <val> -^expires )
+#-->
+#   (write (crlf) | Underfire value: | <val> | But NO EXPIRES!!!| )
+#}
+#
+## First word in a message is the sender
+#sp "monitor*messages
+#   (state <s> ^superstate nil
+#           ^io.input-link.messages <m>)
+#   (<m> ^message <m1>)
+#   (<m1> ^phrase <p>)
+#   (<p> ^word <val>)
+#-->
+#(write (crlf) |Message available from | <val> (crlf))
+#(tcl |print -dep 20 | <m1>)
+#"
+#
+#sp {monitor*remove*additional*information*position
+#   (state <s> ^operator <o>)
+#   (<o> ^name <name>
+#        ^actions.face <f>)
+#   (<f> ^x <x> ^y <y> ^z <z> ^speed <spd>)
+#   -->
+#   (write (crlf) |**********************************************|)
+#   (write (crlf) |ERROR! ERROR! Cannot accept face with a speed on position|)
+#   (write (crlf) | Operator | <o> <name> | (| <x> <y> <z> |) Speed: | <spd>)
+#   }

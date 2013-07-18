@@ -1,0 +1,55 @@
+echo "\nLoading explore/move-to-node"
+
+#propose moving to any unvisited node in current area
+#NOTE: Since pathnodes are automatically marked as visited 
+#      as soon as they are seen, they do not trigger this rule.
+sp {explore*propose*move-to-node*unvisited
+   (state <s> ^type explore
+              ^top-state.map.current-area.node <node>)   
+   (<node> ^visited 0)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name move-to-unvisited-node
+        ^type move-to-node
+        ^node <node>)
+}
+
+#Propose moving to any node whose entryway has not been recorded
+sp {explore*propose*move-to-node*unrecorded-entryway
+   (state <s> ^type explore
+              ^top-state.map <map>)
+   (<map> ^current-area.node <node>
+         -^near-node <node>)
+   (<node> ^entryway-recorded *no*)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name move-to-unvisited-node
+        ^type move-to-node
+        ^node <node>)
+}
+
+
+sp {explore*elaborate*move-to-node
+   (state <s> ^type explore
+              ^operator <o> +
+              ^io.input-link.objects.node <visnode>)
+   (<o> ^type move-to-node
+        ^node.name <name>)
+   (<visnode> ^name <name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+#prefer closer nodes
+sp {explore*compare*move-to-node
+   (state <s> ^type explore  
+              ^operator <o1> +
+                        { <> <o1> <o2> } +)
+   (<o1> ^type move-to-node
+         ^range <range>)
+   (<o2> ^type move-to-node
+         ^range > <range>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

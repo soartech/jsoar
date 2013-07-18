@@ -1,0 +1,13 @@
+sp {Impasse__Operator_Tie*elaborate*state*stop
+   (state <s> ^impasse tie
+              ^quiescence t
+              ^top-state.io.output-link <out>)
+-->
+   (<out> ^move.direction stop)
+}
+
+sp {Impasse__Operator_Tie*elaborate*learn*on
+   (state <s> ^impasse tie)
+-->
+   (force-learn <s>)
+}

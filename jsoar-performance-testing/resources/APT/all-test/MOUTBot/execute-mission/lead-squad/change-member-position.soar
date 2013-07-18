@@ -1,0 +1,42 @@
+##################################### 
+# file: change-member-position.soar 
+# created: REW: 2001-10-08
+## 
+# Leader moves team members into position 
+#
+# Change history: 
+# [1] REW: 2002-10-08
+#     For now, this is just a hack to get MOUTBot3 from the window to the door
+
+sp {lead-squad*propose*change-member-position*move-sentry
+   (state <s> ^name lead-squad
+              ^top-state <ts>)
+   (<ts> ^threats.contact-with-enemy true
+        -^mission.active-objective.lead-squad.moved-sentry)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name change-member-position
+        ^type move-sentry )
+}
+
+# REW: 2002-10-08
+# major-league-hack
+# For now, just hard code the message to MOUTBot3
+
+sp {apply*change-member-position*move-sentry
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<ts> ^mission.active-objective.lead-squad <ls>
+         ^comm <cc>)
+   (<o1> ^name change-member-position
+         ^type move-sentry)
+   -->
+   (<ls> ^moved-sentry true)
+   (<cc> ^communicate <c>)
+   (<c> ^name go-to-door
+        ^content <con>)
+   (<con> ^agent-name |MOUTBot3|
+          ^primary-door |CentralHall|
+          ^secondary-door room4)
+}
+

@@ -1,0 +1,86 @@
+# REW: 2002-07-09
+# Removed say action from proposal to reflect communications
+#    infrastructure.  
+# REW: 2002-09-25
+# Issue the output command to play the surrender animation.  For now, that's it.
+
+sp {retreat*propose*surrender
+   (state <s> ^name execute-mission
+              ^top-state.map.current-area.retreat-door none)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name surrender
+        ^type wait
+        ^actions.surrender true)
+}
+
+# once surrender - stay that way
+sp {retreat*propose*surrender*always
+   (state <s> ^name execute-mission
+              ^top-state.self.surrender true)
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name surrender
+        ^type wait)
+}
+
+sp {execute-mission*compare*surrender
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name surrender)
+   (<o2> ^name choose-weapon)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+# REW: 2003-01-26
+# Surrender is always an option
+sp {retreat*propose*surrender*nothing-else-proposed
+   (state <s> ^name execute-mission
+              ^impossible)
+   -->
+   (<s> ^operator <o> +, <)
+   (<o> ^name surrender
+        ^type wait
+        ^actions.surrender true)
+}
+
+# REW: 2003-01-26
+# Record that agent has surrendered on the state
+sp {surrender*apply
+   (state <s> ^operator.name surrender
+              ^top-state <ts>)
+   (<ts> ^self <self> )
+  -(<self> ^surrender true)
+   -->
+   (<self> ^surrender true)
+   }
+
+
+# REW: 2002-07-09
+# Use the communications structure for indicating surrender
+# JEL had this as the communications interface:
+#   (<say> ^target |MOUTInterface|
+#          ^phrase |I give up!|)
+
+sp {surrender*apply*broadcast-surrender
+   (state <s> ^operator.name surrender
+              ^top-state <ts>)
+   (<ts> ^self <self> 
+         ^comm <c>)
+  (<self> -^surrender true)
+   -->
+   (<c> ^communicate <cc>)
+   (<cc> ^name i-surrender)
+   }
+
+# REW: If I have a weapon selected, then toss it when surrendering
+sp {surrender*apply*toss-selected-weapon
+   (state <s> ^operator <o> 
+              ^top-state.self.weapons.selected-weapon.name <name>)
+   (<o> ^name surrender)
+-->
+   (write (crlf) |Tossing selected weapon to surrender: | <name>)
+   (<o> ^actions.toss-weapon <name> )
+   }

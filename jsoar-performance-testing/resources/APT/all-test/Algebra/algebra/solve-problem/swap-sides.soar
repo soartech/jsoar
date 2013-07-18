@@ -1,0 +1,34 @@
+## Swap-sides (communative)
+## (A +/* B) ==> (B +/* A)
+
+sp {algebra*propose*swap-sides
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << add multiply >>
+        -^swapped yes
+         ^right-side <rs>
+         ^left-side <ls>)
+   (<rs> ^type <> variable)
+-->
+   (<s> ^operator <op> + = 5)
+   (<op> ^name swap-sides)
+}
+
+sp {algebra*apply*swap-sides
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<o> ^name swap-sides)
+   (<cc> ^operation << add multiply >>
+         ^right-side <rs>
+         ^left-side <ls>)
+-->
+   (write (crlf) |Swap : | <rs> | | <ls> )
+   (<cc> ^swapped yes
+         ^right-side <rs> -
+         ^right-side <ls>
+         ^left-side <ls> -
+         ^left-side <rs>)
+}
+
+
+

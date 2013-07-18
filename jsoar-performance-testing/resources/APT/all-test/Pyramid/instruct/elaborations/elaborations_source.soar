@@ -1,0 +1,5 @@
+source _all.soar
+source current-step.soar
+source problem-success.soar
+source result.soar
+source top-state.soar

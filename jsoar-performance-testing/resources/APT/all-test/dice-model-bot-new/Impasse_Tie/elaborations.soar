@@ -1,0 +1,205 @@
+
+
+### Control knowledge for selecting evaluate-operator operators
+
+sp {selection*prefer*worst*pass
+   (state <s> ^name selection
+              ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator.name pass)
+-->
+   (<s> ^operator <o> <)}
+
+sp {selection*prefer*worst*push
+   (state <s> ^name selection
+              ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <so>)
+   (<so> ^name bid
+         ^push-face)
+-->
+   (<s> ^operator <o> <)}
+
+
+## Convert evaluations to preferences in superstate
+#####
+sp {selection*prefer*best*bid*pass*certain*no-push
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e>)
+   (<e> ^superoperator <so>
+        ^symbolic-value certain)
+   (<so> ^name << bid pass >>
+        -^push-face)
+-->
+   (<ss> ^operator <so> >)}
+
+                   ## Don't trust model for certain challenge - should be same as safe.
+sp {selection*prefer*best*bid*challenge*certain*no-model
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e>)
+   (<e> ^superoperator <so>
+        ^use-model false
+        ^symbolic-value certain)
+   (<so> ^name challenge)
+-->
+   (<ss> ^operator <so> >)}
+
+sp {selection*convert*probability*numeric-value
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^probability <nv>
+         ^desired <d>)
+-->
+   (<e1> ^numeric-value <nv>)}
+
+sp {selection*convert*numeric-value*symbolic*certain
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^probability 1.0
+         ^desired <d>)
+-->
+   (<e1> ^symbolic-value certain)}
+
+sp {selection*convert*numeric-value*symbolic*safe
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^probability > 0.75
+         ^desired <d>)
+-->
+   (<e1> ^symbolic-value safe)}
+
+sp {selection*compare*risk-evaluation-better-than-very-risky
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value risky
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value very-risky
+        -^symbolic-value << risky safe certain >>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*compare*safe*equal*certain
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value safe
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value << safe certain >>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> = <y>)}
+
+sp {selection*compare*safe-evaluation-better-than-risk-very-risky
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value << safe certain >>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value << risky very-risky >>
+        -^symbolic-value << safe certain >>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*compare*safe-evaluation-better-than-pass # don't do certain pass if there is another safe or certain bid
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value << safe certain >>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^desired <d>)
+   (<x> -^name challenge)
+   (<y> ^name pass)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*select*lose-evaluation-becomes-worst-preference # invalid pass
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <eb>)
+   (<e1> ^symbolic-value lose
+         ^desired <eb>
+         ^superoperator <o1>)
+-->
+   (<ss> ^operator <o1> <)}
+
+sp {selection*compare*bid-better-than-push # don't push if non-push is same symbolic value
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value <sv>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value <sv>
+         ^desired <d>)
+   (<x> ^name bid
+       -^push-face-count)
+   (<y> ^name bid
+        ^push-face-count)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*compare*bid-better-than-push*safe*certain # don't push if non-push is safe or certain
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value << safe certain >>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value <sv>
+         ^desired <d>)
+   (<x> ^name bid
+       -^push-face-count)
+   (<y> ^name bid
+        ^push-face-count)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+
+sp {selection*compare*bid-better-challenge*symbolic
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^symbolic-value << safe certain >>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+        -^symbolic-value certain
+         ^desired <d>)
+   (<x> ^name << bid pass >>)
+   (<y> ^name challenge)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+

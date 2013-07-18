@@ -1,0 +1,45 @@
+#echo "\nLoading search-room/turn-left"
+
+sp {search-room*propose*turn-left
+   (state <s> ^name search-room
+              ^item <item>
+              ^current-room.search <ss>)
+   (<ss> -^turned-left <item>
+          ^turned-right <item>
+          ^left-heading <h>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name turn-left
+        ^actions.sidestep off
+        ^actions.faceabs <h>)}
+        
+sp {search-room*apply*turn-left*item
+   (state <s> ^name search-room
+              ^item <item>
+              ^operator.name turn-left
+              ^left-heading-difference { < 40 > -40 }
+              ^current-room.search <ss>)
+   -->
+   (<ss> ^turned-left <item>)}
+
+sp {search-room*apply*turn-left*expire
+   (state <s> ^name search-room
+             ^io.input-link.agent.cycle <ct>
+              ^operator.name turn-left
+              ^current-room.search <ss>)
+  -(<ss> ^turn-left-expire)
+   -->
+   (<ss> ^turn-left-expire (+ <ct> 1000))}
+        
+sp {search-room*apply*turn-left*expire2
+   (state <s> ^name search-room
+              ^item <item>
+            -^io.input-link.agent.cycle < <et>
+              ^operator.name turn-left
+              ^current-room.search <ss>)
+  (<ss> ^turn-left-expire <et>)
+   -->
+  (<ss> ^turned-left <item>)}
+
+
+

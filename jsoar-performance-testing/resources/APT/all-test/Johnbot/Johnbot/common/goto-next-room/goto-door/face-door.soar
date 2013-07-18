@@ -1,0 +1,47 @@
+#echo "\nLoading goto-door/face-door"
+
+## door-facing and door-facing-check computed in elaborations.soar
+
+sp {goto-door*propose*face-door
+   (state <s> ^name goto-door
+             -^door-distance-check true
+             -^door-angle-off-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name face-door)}
+
+sp {goto-door*propose*face-door*retreat
+   (state <s> ^name goto-door
+              ^mode << retreat attack >>
+             -^door-angle-off-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name face-door)}
+
+sp {goto-door*apply*face-door*careful
+   :i-support
+   (state <s> ^operator <o>
+              ^mode explore
+              ^door-heading <dd>)
+   (<o> ^name face-door)
+   -->
+   (<o> ^actions <a>)
+   (<a> ^faceabs <dd>
+        ^facetarget off
+        ^thrust off
+        ^sidestep off)}
+
+sp {goto-door*apply*face-door*other
+   :i-support
+   (state <s> ^name goto-door
+              ^operator <o>
+             -^mode explore 
+              ^door-heading <dd>)
+   (<o> ^name face-door)
+   -->
+   (<o> ^actions <a>)
+   (<a> ^faceabs <dd>
+        ^facetarget off
+        ^sidestep off)}
+
+

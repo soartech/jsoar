@@ -1,0 +1,27 @@
+sp {arithmetic*propose*initialize-arithmetic
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-arithmetic)
+}
+
+sp {arithmetic*apply*initialize-arithmetic
+   (state <s> ^operator.name initialize-arithmetic)
+-->
+   (<s> ^name arithmetic
+        ^arithmetic-problem <ap>)
+   (<ap> ^operation subtraction
+         ^operation-symbol |-|
+         ^columns <c1> <c2>
+         ^current-column <c1>
+         ^one-column <c1>)
+   (<c1> ^digit1 8
+         ^digit2 9
+         ^next-column <c2>)
+   (<c2> ^digit1 0
+         ^digit2 7
+         ^next-column <c3>)
+   (<c3> ^digit1 5
+         ^digit2 4
+         ^next-column nil)}

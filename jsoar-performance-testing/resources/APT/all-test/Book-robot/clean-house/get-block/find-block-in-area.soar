@@ -1,0 +1,14 @@
+sp {get-block*propose*find-block-in-area
+   (state <s> ^name get-block
+              ^quiescence t
+              ^top-state.desired.storage-area-id <id>
+              ^current-area <ca>
+              ^io.input-link <io>)
+   (<ca> -^cleaned yes
+         -^id <id>
+         -^gateway-area yes)
+   (<io> -^self.carry)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-block-in-area)
+}

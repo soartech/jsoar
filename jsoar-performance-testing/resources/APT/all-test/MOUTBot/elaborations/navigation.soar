@@ -1,0 +1,275 @@
+echo "\nLoading elaborations/navigation"
+
+# set up the map on the top level
+
+sp {navigation*elaborate*map
+   (state <s> ^superstate nil)
+-->
+   (<s> ^map <map>)
+   (<map> ^area-names <an>)
+   (<an> ^name |Outside|)
+}
+
+#record that we are near a node; will
+#disappear as soon as agent moves away
+sp {navigation*elaborate*map-near-node
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link <il>
+              ^parameters.near-node-range <range-unit>)
+   (<il> ^objects.node <visnode>)
+   (<visnode> -^range > <range-unit>
+               ^name <node-name>
+               ^area-name <my-area>)
+   (<map> ^area <area>)
+   (<area> ^name <my-area>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^near-node <node>)
+#   (write (crlf) |I am NEAR node | <node-name>)
+}
+
+## JEL - must support both area and area-name to access area for now.
+sp {navigation*elaborate*map-near-node2
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link <il>
+              ^parameters.near-node-range <range-unit>)
+   (<il> ^objects.node <visnode>)
+   (<visnode> -^range > <range-unit>
+               ^name <node-name>
+               ^area <my-area>)
+   (<map> ^area <area>)
+   (<area> ^name <my-area>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^near-node <node>)
+#   (write (crlf) |I am NEAR node | <node-name>)
+}
+
+## JEL: 2002-08-13
+# Had to change so would have i-support - means lots of calculations.
+#AMN: 2002-08-02
+#If the agent is moving to a _derived_ corner node
+#(rather than one actually seen on the input-link)
+#then these rule will identify when the agent is near it
+#and elaborate the map accordingly.
+sp {navigation*elaborate*derived-node*range
+   (state <s> ^name unreal
+              ^map.current-area.node <node>
+              ^io.input-link.agent.position <pos>)
+   (<node> ^derived yes
+           ^position <npos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<npos> ^x <nx>
+           ^y <ny>)
+-->
+   (<node> ^range (compute-range <x> <y> <nx> <ny>))
+}
+
+sp {navigation*elaborate*map-near-node*derived
+   (state <s> ^name unreal
+              ^map <map>
+              ^parameters.near-xy-range <near-range>)
+   (<map> ^current-area.node <node>)
+   (<node> ^derived yes
+          -^range > <near-range>)
+-->
+   (<map> ^near-node <node>)
+}
+
+#record the current nearest visible node in my area
+sp {navigation*elaborate*nearest-node
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link.objects <objects>)
+   (<map> ^current-area <area>)
+   (<area> ^name <my-area-name>
+           ^node <node>)
+   (<node> ^name <node-name>)
+   (<objects> ^node <visnode>)
+   (<visnode> ^name <node-name>
+              ^area-name <my-area-name>
+              ^range <range>)
+  -{
+   (<objects> ^node <othervisnode>)
+   (<othervisnode> ^name { <> <node-name> }
+                   ^area-name <my-area-name>
+                  -^range >= <range>)
+}
+-->
+   (<map> ^nearest-node <node>)
+}
+
+sp {navigation*elaborate*map-nearest-node*derived
+   (state <s> ^map <map>)
+   (<map> ^current-area.node <node>
+         -^current-area.node.range < <range> )
+   (<node> ^derived yes
+           ^range  <range>)
+-->
+   (<map> ^nearest-node <node>)
+}
+#Record what nodes are in front of me
+sp {navigation*elaborate*nodes-in-front
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link.objects.node <visnode>
+              ^parameters <p>)
+   (<p> ^right-angle-threshold <right-thresh>
+        ^left-angle-threshold <left-thresh>)
+   (<visnode> -^angle-off.h { <h> > <right-thresh> < <left-thresh> }
+               ^name <node-name>)
+   (<map> ^area <area>)
+   (<area> # ^name <area-name>  # Doesn't work for outside nodes
+          ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^in-front-node <node>)
+#   (write (crlf) |I see | <node> |: | <node-name> | in front of me.|)
+}
+
+sp {navigation*elaborate*nodes-in-front2
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link.objects.node <visnode>
+              ^parameters <p>)
+   (<p> ^right-angle-threshold <right-thresh>
+        ^left-angle-threshold <left-thresh>)
+   (<visnode> -^angle-off.h { <h> > <right-thresh> < <left-thresh> }
+               ^name <node-name>
+               ^area <area-name>)
+   (<map> ^area <area>)
+   (<area> ^name <area-name>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^in-front-node <node>)
+#   (write (crlf) |I see  |<node> |: | <node-name> | in front of me.|)
+}
+## Required for Area drawing
+sp {elaborations*area*mid
+   (state <s> ^superstate nil
+              ^map.area <area>)
+   (<area> ^max-x <max-x>
+           ^min-x <min-x>
+           ^max-y <max-y>
+           ^min-y <min-y>
+           ^max-z <max-z>
+           ^min-z <min-z>)
+-->
+   (<area> ^mid-x (/ (+ <max-x> <min-x>) 2)
+           ^mid-y (/ (+ <max-y> <min-y>) 2)
+           ^mid-z (/ (+ <max-z> <min-z>) 2))
+}
+## Maintain current-area and previous area.
+##
+## JEL 8/8/2002
+## Reimplemented way we keep track of current area because
+## it no longer comes in from the input link but must be computed from
+## x, y location.
+
+sp {unreal*initialize*current-area*previous-area
+   :o-support
+   (state <s> ^name unreal
+              ^top-state.map <map>
+              ^io.input-link.agent.position <p>)
+   (<map> ^area <current-area>
+         -^current-area)
+   (<current-area> ^name <new-area-name>
+                   ^min-x <min-x>
+                   ^min-y <min-y>
+                   ^max-x <max-x>
+                   ^max-y <max-y>
+                   ^min-z <min-z>
+                   ^max-z <max-z>)
+   (<p> -^x > <max-x>
+        -^x < <min-x>
+        -^y > <max-y>
+        -^y < <min-y>
+        -^z < <min-z>
+        -^z > <max-z>)
+-->
+   (<map> ^current-area <current-area>
+          ^previous-area none)
+}
+
+sp {unreal*elaborate*current-area
+   :o-support
+   (state <s> ^name unreal
+              ^top-state.map <map>
+              ^io.input-link.agent.position <p>)
+   (<map> ^area <current-area>
+          ^current-area { <> <current-area> <old-current-area> }
+          ^previous-area <previous-area>)
+   (<current-area> ^name { <> |EntryNode| <> none <> |None| <new-area-name> }
+                   ^min-x <min-x>
+                   ^min-y <min-y>
+                   ^max-x <max-x>
+                   ^max-y <max-y>
+                   ^min-z <min-z>
+                   ^max-z <max-z>)
+   (<p> ^x <= <max-x>
+        ^x >= <min-x>
+        ^y <= <max-y>
+        ^y > <min-y>
+        ^z > <min-z>
+        ^z <= <max-z>)
+-->
+   (<map> ^current-area <current-area>
+                        <old-current-area> -
+          ^previous-area <previous-area> -
+                         <old-current-area>)
+}
+
+#AMN - 2002 Aug 27
+#How fast the bot should travel based upon its range
+#to destination
+# REW: 2003-06-09
+# Is this used?  This shoudl go into params
+sp {navigation*elaborate*speed-lookup-table
+   (state <s> ^superstate nil
+              ^self <self>
+              ^parameters.default-walk-speed <spd>)
+-->
+   (<self> ^speed-lookup-table <slt>)
+   (<slt> ^entry <e1>
+          ^entry <e2>
+          ^entry <e3>)
+   (<e1> ^name far
+         ^min-thresh 500
+         ^max-thresh 99999999
+         ^speed <spd>)
+   (<e2> ^name close
+         ^min-thresh 150
+         ^max-thresh 500
+         ^speed (* 0.5 <spd>) )
+   (<e3> ^name very-close
+         ^min-thresh 0
+         ^max-thresh 150
+         ^speed (* 0.1 <spd> ) )
+}
+# Compute an inner wall for navigation
+sp {unreal*elaborate*area*inner-wall
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^parameters.wall-edge <we>)
+   (<area> ^name { <> |EntryNode| <> none <> |None| }
+           ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>)
+-->
+   (<area> ^min-edge-x (+ <we> <min-x>)
+           ^min-edge-y (+ <we> <min-y>)
+           ^min-edge-z (+ <we> <min-z>)
+           ^max-edge-x (- <max-x> <we>)
+           ^max-edge-y (- <max-y> <we>)
+           ^max-edge-z (- <max-z> <we>))}
+
+

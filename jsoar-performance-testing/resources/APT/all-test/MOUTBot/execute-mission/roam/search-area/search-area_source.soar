@@ -1,0 +1,4 @@
+source elaborations.soar
+source mark-entrance.soar
+source search-completed.soar
+source search-entrance.soar

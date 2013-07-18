@@ -1,0 +1,10 @@
+sp {retreat*propose*move-to-retreat-door
+   (state <s> ^name retreat
+              ^mission.active-objective.threat.retreat-door.node <node>
+             -^top-state.map.near-node <node>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-retreat-door
+        ^type move-to-node
+        ^node <node>)
+}

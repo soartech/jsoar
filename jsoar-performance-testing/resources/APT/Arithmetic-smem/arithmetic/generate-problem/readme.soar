@@ -1,0 +1,7 @@
+### If there is a current-problem, use that to control generation of the problem.
+### Otherwise, generate randomly.
+
+### First pick the operation - addition/subtraction generate-operation
+### Then use random selection of generate digit operators to fill in the numbers
+
+

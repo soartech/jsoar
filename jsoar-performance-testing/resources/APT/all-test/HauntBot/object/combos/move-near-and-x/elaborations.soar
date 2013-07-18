@@ -1,0 +1,112 @@
+# determine if agent is at target location
+sp {move-near-and-x*elaborate*at-target
+   (state <s> ^type move-near-and-x
+              ^parameters <p>
+              ^range <= <max> >= <min>)
+   (<p> ^max-grab-distance <max>
+        ^min-grab-distance <min>)
+-->
+   (<s> ^at-target yes)
+}
+
+# determine if agent is facing the target
+# (only needed if at target location)
+sp {move-near-and-x*elaborate*facing-target
+   (state <s> ^type move-near-and-x
+              ^at-target yes
+              ^target-angle < 10 > -10)
+-->
+   (<s> ^facing-target yes)
+}
+
+
+
+# determine if agent is facing directly away from target
+# (only needed if at target location, and agent should
+# empty out his hands)
+sp {move-near-and-x*elaborate*facing-away
+   (state <s> ^type move-near-and-x
+              ^at-target yes
+             -^target-angle < 170 > -170)
+-->
+   (<s> ^facing-away yes)
+}
+
+
+
+# determine if agent is carrying an object
+# other than the target object
+sp {move-near-and-x*elaborate*need-to-discard
+   (state <s> ^type move-near-and-x
+              ^target.name <name>
+              ^io.input-link.agent.decoration <> <name> <> |none|
+              ^should-empty-hand yes)
+-->
+   (<s> ^need-to-discard yes)
+}
+
+
+#calculate object distance for each operator
+#this allows all higher-level operators to avoid having specific
+#and redundant code to calculate ranges
+#redundantly re-calculating the nearest food item
+sp {move-near-and-x*elaborate*target-range
+   (state <s> ^operator <o> +
+              ^io.input-link.agent.position <pos>)
+   (<o> ^type move-near-and-x       
+        ^target.position <ipos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<ipos> ^x <ix>
+           ^y <iy>)
+   -->
+   (<o> ^range (compute-range <x> <y> <ix> <iy>))
+}
+
+
+# compute angle of object from agent's forward direction... used to make sure that agent
+# is facing the target object (for realism)
+sp {move-near-and-x*elaborate*target-angle
+   (state <s> ^type move-near-and-x
+              ^io.input-link.agent <agent>
+              ^target.position <target-pos>)
+   (<agent> ^position <agent-pos>
+            ^angle.yaw <agent-angle>)
+   (<agent-pos> ^x <agent-x>
+                ^y <agent-y>)
+   (<target-pos> ^x <target-x>
+                 ^y <target-y>
+)
+-->
+#   (write (crlf) |Agent Heading: | (- 90 <agent-angle> ))
+#   (write (crlf) |Target Heading: | (compute-heading <agent-x> <agent-y> <target-x> <target-y>))
+#  (write (crlf) |Angle: | (round-off-heading ( - (- 90 <agent-angle>) (compute-heading <agent-x> <agent-y> <target-x> <target-y>)) 1))
+  (<s> ^target-angle (round-off-heading ( - (- 90 <agent-angle>) (compute-heading <agent-x> <agent-y> <target-x> <target-y>)) 1))
+}
+
+
+
+
+# copy down the computed "range" and "target" info
+sp {move-near-and-x*elaborate*subgoal*target-info
+   (state <s> ^type move-near-and-x            
+              ^superstate.operator <o>)
+   (<o> ^target <target>
+        ^range <range>)
+   -->
+   #(write (crlf) |move-near-and-x: Updating Range!|)
+   (<s> ^target <target>
+        ^range <range>)
+}
+
+# copy down optional specifier to have agent safely
+# empty hands near target (ie drop object w/out having it
+# land on top of target object & cover it up)
+sp {move-near-and-x*elaborate*subgoal*should-empty-hand
+   (state <s> ^type move-near-and-x
+              ^superstate.operator <o>)
+   (<o> ^should-empty-hand yes)
+-->
+   (<s> ^should-empty-hand yes)
+}
+

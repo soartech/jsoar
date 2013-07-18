@@ -1,0 +1,17 @@
+#echo "\nLoading explore-room/elaborations"
+
+sp {explore-room*elaborate*room-explored
+   (state <s> ^name explore-room
+              ^explore-room <cr>)
+   (<cr> ^axis <a1> <a2>
+        -^explored true)
+   (<a1> ^orientation east-west
+         ^mapped true
+        -^retry)
+   (<a2> ^orientation north-south
+        -^retry
+         ^mapped true)
+   -->
+   (<s> ^room-explored true)}
+
+

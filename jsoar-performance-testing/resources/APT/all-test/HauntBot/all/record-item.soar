@@ -1,0 +1,55 @@
+## NEED TO UPDATE TO WORK WITH DECORATIONS
+
+echo "\nLoading record-item"
+
+## Record the location of items for future reference
+
+sp {all*propose*record-item
+   (state <s> ^name haunt
+              ^io.input-link.objects.item <newitem>)
+   (<newitem> ^name <new-name>)
+   (<s> -^top-state.item-list.item.name <new-name>)
+   -->
+#   (write (crlf) |Propose record item: | <new-name>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-item
+        ^item <newitem>)
+}
+
+## Treat decorations in the same way as items
+sp {all*propose*record-decoration
+   (state <s> ^name haunt
+              ^io.input-link.objects.decoration <newitem>)
+   (<newitem> ^name <new-name>)
+   (<s> -^top-state.item-list.item.name <new-name>)
+   -->
+#   (write (crlf) |Propose record item: | <new-name>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-item
+        ^item <newitem>)
+}
+
+sp {all*apply*record-item
+   (state <s> ^operator <o>
+              ^top-state.item-list <items>)
+   (<o> ^name record-item
+        ^item <newitem>)
+   (<newitem> ^name <new-name>
+              ^class <newclass>
+              ^area <newarea>
+              ^position <pos>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record item: | <newitem> | name | <new-name>)
+   (<items> ^item <nitem>)
+   (<nitem> ^name <new-name>
+            ^class <newclass>
+            ^area <newarea>
+            ^position <newpos>)
+   (<newpos> ^x <x>
+             ^y <y> 
+             ^z <z>)
+}
+

@@ -1,0 +1,18 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source ascribe-knowledge.soar
+source assign.soar
+source complement.soar
+source consider-knows.soar
+source contradiction.soar
+source deduce-bbw.soar
+source detect-done.soar
+source guess-own-mark.soar
+source initialize-wizards.soar
+source knows-own-mind.soar
+source self-unknown.soar

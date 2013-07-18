@@ -1,0 +1,35 @@
+echo "\nLoading get-item/goto-item"
+
+################################
+### Propose goto-item operator
+################################
+
+sp {get-item*propose*goto-item
+   (state <s> ^name get-item
+              ^item <item-x>)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) | Try to pick up selected-item | <item-x> )
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-item
+        ^item <item-x>)
+   }
+
+sp {get-item*select*goto-item*closest
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name goto-item
+         ^item.range <r>)
+   (<o2> ^name goto-item
+         ^item.range > <r>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {get-item*select*goto-item*goto-door
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name goto-item)
+   (<o2> ^name goto-next-room)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

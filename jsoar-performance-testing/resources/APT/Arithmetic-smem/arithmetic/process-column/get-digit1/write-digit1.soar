@@ -1,0 +1,30 @@
+sp {process-column*propose*write-digit1
+   (state <s> ^name get-digit1
+              ^result <a>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-digit1)
+}
+
+sp {process-column*apply*write-digit1-carry1
+   (state <s> ^operator.name write-digit1
+              ^result <a>
+              ^top-state.one <one>
+              ^carry-borrow <one>
+              ^superstate <ss>)
+-->
+   (<ss> ^digit1 <a>
+         ^carry-borrow <one>)
+}
+
+
+sp {process-column*apply*write-digit1*carry0
+   (state <s> ^operator.name write-digit1
+              ^result <a>
+              ^top-state.zero <zero>
+              ^carry-borrow <zero>
+              ^superstate <ss>)
+-->
+   (<ss> ^digit1 <a>)
+}
+

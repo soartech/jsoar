@@ -1,0 +1,18 @@
+sp {add-column*propose*get-adden1
+   (state <s> ^name add-column
+             -^adden1)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name get-adden1)
+}
+
+sp {add-column*apply*get-adden1
+   (state <s> ^operator.name get-adden1
+              ^current-column <cc>)
+   (<cc> ^adden1 <a>
+        -^carry 1)
+-->
+   (<s> ^adden1 <a>)
+}
+
+

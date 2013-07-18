@@ -1,0 +1,58 @@
+echo "\nLoading initialize/record-path-node"
+
+### Drastically change so records all nodes at beginning based on
+## list of nodes on map.nodes
+
+# record all new nodes on the map
+sp {all*propose*record-path-node
+   (state <s> ^name initialize
+              ^io.input-link.map.nodes.node <node>)
+   (<node> ^area <> none <> |None| <> |none| <> |Entrynode| <> |PathNode|
+           ^type << none |None| |none| >>   # Changed 10-17-02 by JEL because not consistent in name none
+           ^name <name>
+           ^position <p>)
+   (<p> ^x { <> 0 <x> }            # Avoid bad nodes
+        ^y { <> 0 <y> }
+        ^z { <> 0 <z> })
+  -{(<s> ^top-state.map.area.node <node2>)
+    (<node2> ^position <p2>)
+    (<p2> ^x  <x>
+          ^y <y>
+          ^z <z>)}
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-path-node
+        ^node <node>)
+}
+
+#Record a pathnode
+sp {all*apply*record-path-node*pathnode
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-path-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area <area-name>)
+   (<map> ^area <area>)
+   (<area> ^name <area-name>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write |: | <node> |, Name: | <name> |, Area: | <area-name>)
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^type none
+           ^name <name>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 1)
+   (<newpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+}
+
+
+
+

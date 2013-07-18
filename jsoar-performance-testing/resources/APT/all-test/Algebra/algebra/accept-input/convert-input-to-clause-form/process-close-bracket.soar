@@ -1,0 +1,33 @@
+sp {convert-input-to-clause-form*propose*process-close-bracket
+   (state <s> ^name convert-input-to-clause-form
+              ^top-state.problem.current-input-value.value |]|)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-close-bracket)
+}
+
+sp {convert-input-to-clause-form*apply*process-close-bracket*clause-beginning
+   (state <s> ^operator.name process-close-bracket
+              ^top-state <ts>)
+   (<ts> ^problem <p>)
+   (<p> ^current-input-value <cw>
+        ^parse-clause <pc>)
+   (<pc>  ^parse-status post-right
+          ^parent-clause <parent>
+          ^right-side <rs>)
+   (<cw> ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<p> ^parse-clause <pc> -
+                      <parent>)
+}
+
+sp {convert-input-to-clause-form*apply*process-close-bracket*failure
+   (state <s> ^operator.name process-close-bracket
+              ^top-state.problem <p>)
+   (<p> ^parse-clause.parse-status <> post-right)
+-->
+   (write (crlf) |Error - incorrect position for ]|)
+   (<p> ^failed true)
+}

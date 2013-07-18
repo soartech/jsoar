@@ -1,0 +1,57 @@
+sp {get-object*propose*go-to-seen-block
+   (state <s> ^name get-object
+              ^object <block>
+              ^top-state <ts>
+              ^current-location <carea>)
+   (<carea> ^cleaned yes)
+   (<ts> ^current-mission.object <object>)
+   (<object> ^type <obj>
+             ^color <color>)
+   (<block> ^area { <> <carea> <area> }
+            ^type <obj>
+            ^color <color>
+           -^in-storage-room yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name go-to-seen-block
+         ^type go-to-area
+         ^area <area>)
+}
+sp {get-object*propose*go-to-seen-block*door
+   (state <s> ^name get-object
+              ^top-state <ts>
+              ^object <block>
+              ^current-location <carea>)
+   (<carea> ^type door)
+   (<ts> ^current-mission.object <object>)
+   (<object> ^color <color> 
+             ^type <obj>)
+   (<block> ^area { <> <carea> <area> }
+            ^type <obj>
+            ^color <color>
+           -^in-storage-room yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name go-to-seen-block
+         ^type go-to-area
+         ^area <area>)
+}
+sp {get-object*propose*go-to-seen-block*when-in-storage-area
+   (state <s> ^name get-object
+              ^object <block>
+              ^top-state <ts>
+              ^current-location.storage-area yes)
+   (<ts> ^areas.area <area>
+         ^current-mission.object <object>)
+   (<object> ^type <obj>
+             ^color <color>)
+   (<block> ^area <area>
+            ^color <color>
+            ^type <obj>)
+   (<area> -^storage-area yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name go-to-seen-block
+         ^type go-to-area
+         ^area <area>)
+}

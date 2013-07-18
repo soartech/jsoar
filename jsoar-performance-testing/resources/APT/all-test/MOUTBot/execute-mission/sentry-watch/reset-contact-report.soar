@@ -1,0 +1,35 @@
+##################################### 
+# file: reset-threat-report.soar 
+# created: REW: 2001-08-26
+## 
+# Delete contact reports when no more enemy are visible
+#
+# Not a complete solution but addresses the problem of one ememy appearing and then disappearing and then 
+# another enememy appearing and not being reported.  Likely, since names are available, we should just 
+# not report enemies with the same name in the same quadrant,range but that's a lot of information to 
+# track.  This will due until we decide more precise reporting is necessary.
+#
+# Change history: 
+# 
+#  [1] 
+
+sp {sentry-watch*propose*reset-contact-report
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.contacts <th>)
+   (<th> ^last-report <lr> ^total-contacts 0)
+   (<lr> ^count { > 0 <count> })
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name reset-contact-report
+        ^last-report <lr>)
+}
+
+
+sp {apply*reset-contact-report
+   (state <s> ^operator <o1>)
+   (<o1> ^name reset-contact-report
+         ^last-report <lr>)
+   (<lr> ^count <count>)
+   -->
+   (<lr> ^count <count> - 0 + )
+}

@@ -1,0 +1,17 @@
+echo "\nLoading flee/selection"
+                
+
+#
+# select move-to-area operator that with the largest away-vector
+# (simulating the agent's desire to run in a direction as directly away
+# from the threat as possible)
+#
+sp {flee*select*greatest-away-angle
+   (state <s> ^name flee
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^away-angle <a>)
+   (<o2> ^away-angle < <a>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

@@ -1,0 +1,26 @@
+echo "\nLoading explore/move-to-area"
+
+#propose moving to any known area
+sp {explore*propose*move-to-known-area
+   (state <s> ^type explore
+              ^top-state.map <map>)
+   (<map> ^current-area.path <path>)
+   (<path> ^destination-area <area2>
+           ^distance {<dist> <= 1})
+  -(<area2> ^name |Outside|)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-new-area
+        ^type move-to-area
+        ^area <area2>
+        ^path-length <dist>) 
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,30 @@
+sp {robot-pickup-block*propose*pickup-block
+   (state <s> ^name robot
+              ^at-block <id>
+             -^io.input-link.self.carry.id)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name pickup-block
+         ^block-id <id>)
+}
+
+sp {robot*RL*pickup-block
+   :template
+   (state <s> ^name robot
+              ^operator <o> +)
+   (<o> ^name pickup-block
+        ^block-id <id>)
+-->
+   (<s> ^operator <o> = 0)}
+
+
+sp {apply*pickup-block
+   (state <s> ^operator <op>
+              ^io.output-link <out>)
+   (<op> ^name pickup-block
+         ^block-id <id>)
+-->
+   (<out> ^get.id <id>
+          ^rotate.direction stop
+          ^move.direction stop)
+}

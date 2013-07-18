@@ -1,0 +1,49 @@
+#sp {instruct*propose*reflect
+#   (state <s> ^name instruct
+#              ^current-problem <cp>)
+#   (<cp> -^reflect true
+#          ^complete true)
+#-->
+#   (<s> ^operator <op> + =)
+#   (<op> ^name reflect)
+#}
+#
+sp {propose*reflect
+   (state <s> ^name instruct
+              ^instructions <i>
+             -^reflect
+              ^current-problem <p>)
+   (<p> ^complete true)
+   (<i> ^facts <fact> 
+        ^definitions <d1> <d2> <d3>)
+   (<p> ^<t1> <sum> ^<t2> <a1> ^<t3> <a2> ^success true)
+   (<fact> ^name addition-fact ^addend1 <a1> ^addend2 <a2> ^sum <sum>)
+   (<d1> ^term <t1> ^function <f1>)
+   (<d2> ^term <t2> ^function <f2>)
+   (<d3> ^term <t3> ^function <f3>)
+  -{(<i> ^relations <r>)
+    (<r> ^term <f2> ^arg1 <f1> ^relation minus ^arg2 <f3>)}
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name reflect)
+}
+
+sp {apply*relation
+   (state <s> ^name instruct ^instructions <i>
+              ^operator.name reflect
+              ^current-problem <p>)
+   (<i> ^facts <fact> ^definitions <d1> <d2> <d3>)
+   (<p> ^<t1> <sum> ^<t2> <a1> ^<t3> <a2> ^success true)
+   (<fact> ^name addition-fact ^addend1 <a1> ^addend2 <a2> ^sum <sum>)
+   (<d1> ^term <t1> ^function <f1>)
+   (<d2> ^term <t2> ^function <f2>)
+   (<d3> ^term <t3> ^function <f3>)
+  -{(<i> ^relations <r>)
+    (<r> ^term <f2> ^arg1 <f1> ^relation minus ^arg2 <f3>)}
+-->
+   (<s> ^reflect true)
+   (<i> ^relations <r1> <r2>)
+   (<r1> ^term <f2> ^arg1 <f1> ^relation minus ^arg2 <f3>)
+   (<r2> ^term <f3> ^arg1 <f1> ^relation minus ^arg2 <f2>)
+}
+

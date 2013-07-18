@@ -1,0 +1,53 @@
+sp {clean-house*propose*init-robot
+   (state <s> ^name robot
+             -^directions)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name init-robot)
+}
+
+sp {robot*apply*init-robot*directions
+   (state <s> ^name robot
+              ^operator.name init-robot)
+-->
+   (<s> ^problem-space <ps>
+        ^desired <d>
+        ^directions <n> <ss> <e> <w>
+        ^numbers.number.value 0
+        ^wall-obstacle <wo>)
+   (<d> ^storage-area-id 12)
+   (<n>  ^value north ^opposite south ^move-in-rectangle y ^heading 4.71
+         ^move-in-rectangle-delta pos ^move-in-rectangle-num 10)
+   (<ss> ^value south ^opposite north ^move-in-rectangle y ^heading 1.57
+         ^move-in-rectangle-delta neg ^move-in-rectangle-num -10)
+   (<e>  ^value east  ^opposite west  ^move-in-rectangle x ^heading 0.0
+         ^move-in-rectangle-delta neg ^move-in-rectangle-num -10)
+   (<w>  ^value west  ^opposite east  ^move-in-rectangle x  ^heading 3.14
+         ^move-in-rectangle-delta pos ^move-in-rectangle-num 10)
+   (<ps> ^name clean-house
+         ^default-state-copy yes
+         ^one-level-attributes areas current-area destination-area type
+         ^one-level-attributes visited-area)
+   (<wo> ^info <wo1> <wo2> <wo3> <wo4>)
+   (<wo1> ^direction east west
+          ^one-less-than row
+          ^against-wall north)
+   (<wo2> ^direction east west
+          ^one-greater-than row
+          ^against-wall south)
+   (<wo3> ^direction north south
+          ^one-greater-than col
+          ^against-wall east)
+   (<wo4> ^direction north south
+          ^one-less-than col
+          ^against-wall west)
+}
+
+sp {robot*apply*init-robot*areas
+   (state <s> ^name robot
+              ^io.input-link.self.area <area-id>
+              ^operator.name init-robot)
+-->
+   (<s> ^areas.area.id <area-id>
+        ^blocks <b>)}
+   

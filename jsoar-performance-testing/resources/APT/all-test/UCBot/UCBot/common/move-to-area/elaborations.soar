@@ -1,0 +1,82 @@
+# Idea:
+#  To move to a new area, the agent begins by moving in the direction of the
+#  midpoint of the gateway.  When the agent is within the endpoints of the gateway
+#  (i.e. the projection of the agent onto the line connecting the two endpoints
+#  of the gateway falls between the two endpoints), then ^within-gateway is
+#  elaborated as true and the agent turns to face orthogonally to the gateway and
+#  walks straight through.
+# Elaborates several things:
+#  1. line-through-gateway, a vector corresponding to the line connecting the
+#     two endpoints.
+#  2. trans-x and trans-y, values with which to perform a translation on the
+#     agent's position when comparing to the gateway (used to translate the
+#     line-through-gateway such that it passes through the origin).
+
+# Uses the within-gateway RHS rule to determine if the agent is within a gateway.
+# The RHS rule should probably be rewritten at some point to return something other
+# than 0/1, possibly something more informative such as which side of the gateway
+# the agent is on if it isn't within the acceptable range.
+# NAG: Is it true that RHS rules can only return numerical values, and not strings
+# or enumerated values?
+#sp {move-to-area*elaborate*within-gateway*int
+#   (state <s> ^name move-to-area
+#              ^superstate.operator.path.gateway.vertices <vertices>
+#              ^io.input-link.location <loc>
+#              ^top-state.parameters.gateway-buffer <margin>)
+#   (<vertices> ^vertex1 <v1> ^vertex2 <v2>)
+#   (<v1> ^x <x1> ^y <y1>)
+#   (<v2> ^x <x2> ^y <y2>)
+#   (<loc> ^x <x> ^y <y>)
+#-->
+#   (<s> ^within-gateway-int (within-gateway <x> <y> <x1> <y1> <x2> <y2> <margin>))
+#}
+
+# Converts the result of the above elaboration into a boolean enumeration
+sp {move-to-area*elaborate*within-gateway*true
+   (state <s> ^within-gateway-int 1)
+-->
+   (<s> ^within-gateway true)
+}
+
+sp {move-to-area*elaborate*within-gateway*false
+   (state <s> ^within-gateway-int <> 1)
+-->
+   (<s> ^within-gateway false)
+}
+
+# Elaborates the line through the gateway points for the move-through-gateway
+# elaborations.
+sp {move-to-area*elaborate*line-through-gateway*x1-bigger
+   (state <s> ^name move-to-area
+              ^superstate.operator.path.gateway.vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> <= <x1>
+         ^y <y2>)
+-->
+   (<s> ^line-through-gateway <d>
+        ^trans-x <x2> ^trans-y <y2>)
+   (<d> ^x (- <x1> <x2>)
+        ^y (- <y1> <y2>))
+}
+
+sp {move-to-area*elaborate*line-through-gateway*x2-bigger
+   (state <s> ^name move-to-area
+              ^superstate.operator.path.gateway.vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> > <x1>
+         ^y <y2>)
+-->
+   (<s> ^line-through-gateway <d>
+        ^trans-x <x1> ^trans-y <y1>)
+   (<d> ^x (- <x2> <x1>)
+        ^y (- <y2> <y1>))
+}
+
+sp {move-to-area*elaborate*speed
+   (state <s> ^name move-to-area
+              ^superstate.operator.speed <speed>)
+-->
+   (<s> ^speed <speed>)
+}

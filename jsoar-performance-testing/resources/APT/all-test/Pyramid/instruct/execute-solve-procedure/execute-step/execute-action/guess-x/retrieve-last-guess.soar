@@ -1,0 +1,33 @@
+sp {guess-x*propose*retrieve-last-guess
+   (state <s> ^name guess-x
+              ^superstate.operator.prior-x-guess <x>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name retrieve-last-guess
+         ^last-guess <x>)
+}
+
+
+sp {apply*retrieve-last-guess*too-large
+   (state <s> ^operator.name retrieve-last-guess
+              ^superstate <ss>)
+   (<ss> ^operator.prior-x-guess <x>)
+   (<x> ^value <v>
+        ^failed too-large)
+-->
+   (<ss> ^x-guess <nx>)
+   (<nx> ^value (- <v> 1))
+   (<x> ^newer-x-guess true)
+}
+
+sp {apply*retrieve-last-guess*too-small
+   (state <s> ^operator.name retrieve-last-guess
+              ^superstate <ss>)
+   (<ss> ^operator.prior-x-guess <x>)
+   (<x> ^value <v>
+        ^failed too-small)
+-->
+   (<ss> ^x-guess <nx>)
+   (<nx> ^value (+ <v> 1))
+   (<x> ^newer-x-guess true)
+}

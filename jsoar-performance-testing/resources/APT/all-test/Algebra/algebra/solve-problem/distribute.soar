@@ -1,0 +1,100 @@
+## Distribute
+ 
+## A * [B + C] ==> [A * B] + [A * C]
+sp {algebra*propose*distribute*from-left*multiply
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^operation multiply
+         ^right-side <rs>)
+   (<rs> ^operation << add subtract >>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name distribute
+         ^side left)
+}
+
+## [B + C] * A ==> [B * A] + [C * A]
+sp {algebra*propose*distribute*from-right*multiply
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^operation << divide multiply >>
+         ^right-side <rs>)
+   (<ls> ^operation << add subtract >>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name distribute
+         ^side right)
+}
+## Can do the general case because if create two points to same structure can
+##  cause problems later.
+
+## A * [B + C] ==> [A * B] + [A * C]
+sp {algebra*apply*distribute*value-variable*left
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<op> ^name distribute
+         ^side left)
+   (<cc> ^right-side <rs>
+         ^operation multiply
+         ^left-side <ls>)
+   (<rs> ^operation <oper>
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<ls> ^value <v>
+         ^type <t>)
+-->
+   (write (crlf) | A * [B + C] ==> [A * B] + [A * C]|)
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^operation multiply -
+                    <oper>)
+   (<nls> ^left-side <nls2>
+          ^operation multiply
+          ^right-side <ls2>)
+   (<nls2> ^value <v>
+           ^type <t>)
+   (<rs> ^left-side <ls2> -
+         ^left-side <nls3>
+         ^failed yes -
+         ^operation <oper> -
+                    multiply)
+   (<nls3> ^value <v>
+           ^type <t>)
+}
+
+## [B + C] * A ==> [B * A] + [C * A]
+sp {algebra*apply*distribute*value-variable*right
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<op> ^name distribute
+         ^side right)
+   (<cc> ^right-side <rs>
+         ^operation <op1>
+         ^left-side <ls>)
+   (<ls> ^operation <op2>
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<rs> ^value <v>
+         ^type <t>)
+-->
+   (write (crlf) |[B + C] * A ==> [B * A] + [C * A]|)
+   (<cc> ^right-side <rs> -
+                     <nrs>
+         ^operation <op1> -
+                    <op2>)
+   (<nrs> ^left-side <nrs2>
+          ^operation <op1>
+          ^right-side <rs2>)
+   (<nrs2> ^value <v>
+           ^type <t>)
+   (<ls> ^right-side <rs2> -
+         ^right-side <nrs3>
+         ^operation <op2> -
+                    <op1>
+         ^failed yes -)
+   (<nrs3> ^value <v>
+           ^type <t>)
+}
+

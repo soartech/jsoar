@@ -1,0 +1,24 @@
+echo "\nLoading record-controlled-area"
+## Mark all areas that the enemy is seen in.
+
+sp {unreal*propose*record-controlled-area
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^threats <th>)
+   (<area> ^name <area-name>)
+   (<th> -^controlled-area <area>
+          ^threat.entity.area <area-name>)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name record-controlled-area
+        ^area <area>)}
+
+sp {apply*record-controlled-area
+   (state <s> ^operator <o>
+              ^threats <th>)
+   (<o> ^name record-controlled-area
+        ^area <area>)
+-->
+#   (write | | <area>)
+   (<th> ^controlled-area <area>)
+}

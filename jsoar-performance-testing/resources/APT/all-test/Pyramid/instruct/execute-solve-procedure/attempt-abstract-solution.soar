@@ -1,0 +1,7 @@
+sp {execute-solve-procedure*propose*attempt-abstract-solution
+   (state <s> ^name execute-solve-procedure
+              ^execute-step fail)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name attempt-abstract-solution)
+}

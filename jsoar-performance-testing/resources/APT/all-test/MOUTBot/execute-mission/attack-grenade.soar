@@ -1,0 +1,43 @@
+echo "\nLoading attack-grenade"
+
+## REW: 2003-06-15
+# Simside broke for gernades so just disable proposals
+
+## Attack with grenade -
+sp {propose*attack-grenade
+   (state <s> ^name execute-mission ^impossible
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state <ts>)
+   (<ts> ^self <self>
+         ^map.current-area <ca>
+         ^threats.selected-threat <threat>)
+   (<threat> ^entity.visible false
+            -^not-visible <ca>)
+   (<self> ^weapons.selected-weapon <w>
+          -^hurt true
+          -^threw-grenade.active true
+          -^posture at-ease)
+   (<w> ^type grenade
+       )# ^rounds-available true)  # Seems not to be getting set correctly
+-->
+   (<s> ^operator <o> +, = 90)
+   (<o> ^name attack-grenade)}
+
+sp {propose*attack-grenade*hurt
+   (state <s> ^name execute-mission ^impossible 
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state <ts>)
+   (<ts> ^self <self>
+         ^map.current-area <ca>
+         ^threats.selected-threat <threat>)
+   (<threat> ^entity.visible false
+            -^not-visible <ca>)
+   (<self> ^weapons.selected-weapon <w>
+           ^hurt true
+          -^threw-grenade.active true
+          -^posture at-ease)
+   (<w> ^type grenade
+        ^rounds-available true)
+-->
+   (<s> ^operator <o> +, = 90)
+   (<o> ^name attack-grenade)}

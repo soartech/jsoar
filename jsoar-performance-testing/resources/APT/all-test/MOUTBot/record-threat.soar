@@ -1,0 +1,405 @@
+echo "\nLoading record-threat"
+
+## Create link to a new enemy
+# [1] REW: 2002-07-27wr
+#     Don't record a threat for an agent for any friendly team members
+#     Note that MOUT under ^entity.agent.name is not upcased.  They have
+#     to be |MoutBot1| to match here.
+# AMN: 2002-08-02 - Added |Player| as a friendly team member so agent will
+#                   ignore the "ghost" that shows up.  (Devvan's working on it...)
+# [3] REW: 2002-08-26
+#     Added production to copy new threats to the sentry-watch structure
+# [4] REW: 2002-08-28
+#     Evidently the MoutBot names are now MOUTBot so I added these to the record-threat proposal
+# [5] REW: 2002-09-11
+#     Made basic proposal depend on active objective other than sentry-watch
+#     Must assume that sentry-watch will terminate if it's ever true that a threat is present
+#     (ie, where a threat is different from a contact).
+#     Basic idea is to not use record threat for contacts made during sentry-watch
+#     This means that sentry-watch will not record threats.
+# [6] REW: 2002-09-25
+#     Completed and tested changes described in [6].
+#     Note that the threat is never deleted unless we can't determine
+#     it's name.  The ^threat.entity is deleted/re-added as threats change
+#     from visible to not visible and back again.
+# [7] REW: 2003-05-27
+#     Make the determination of threat be someone not on IGNORE or REDFOR scenario list
+#     IF we use ^team then we can't ignore non-combatants/just ignore the player
+# [8] REW: 2003-06-04
+#     Only record threat based on vision (input-link.entity) if the bot is not behind
+#     (this simulates peripheral vision; sensor is ready but we need sound too)
+# [9] REW: 2003-06-05
+#     record-threats that are behind when also underfire (not tested)
+
+
+# REW: This should fire both when the active objective is not sentry-watch and also
+# when there is no active objective at all.
+# REW: 2003-05-27.  Added red and bvlue prods. Collapse to one production somaday
+sp {unreal*propose*record-threat*red
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <enemy>
+              ^self.force |Red|
+             -^threats.threat.entity.name <enemy-name>
+              # [5]: Make proposal specific to active objectives other than sentry-watch
+             -^mission.active-objective.type sentry-watch
+              # [7]: Determine who's on my team or who to ignore
+             -^scenario.<< REDFOR IGNORE >>.name <enemy-name>
+                           # [8]
+              ^entity <enemy>)
+   (<enemy> ^name <enemy-name>
+                  # [8]
+            ^egocentric-location <> behind)
+  # (<enemy>  ^name { <> |Player| <> |MoutBot1| <> |MoutBot2| <> |MoutBot3| <> |MoutBot4| <> |MoutBot5|
+  #                   <> |MOUTBot1| <> |MOUTBot2| <> |MOUTBot3| <> |MOUTBot4| <> |MOUTBot5|          <enemy-name> } )
+-->
+#   (write (crlf) | Recording threat for new enemy | <enemy-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-threat
+        ^type new
+        ^entity <enemy>)}
+
+sp {unreal*propose*record-threat*red*behind*underfire
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <enemy>
+              ^self.force |Red|
+             -^threats.threat.entity.name <enemy-name>
+              # [5]: Make proposal specific to active objectives other than sentry-watch
+             -^mission.active-objective.type sentry-watch
+              # [7]: Determine who's on my team or who to ignore
+             -^scenario.<< REDFOR IGNORE >>.name <enemy-name>
+                           # 2003-06-04
+              ^entity <enemy>
+              ^self.underfire.value <> none)
+   (<enemy> ^name <enemy-name>
+                  #2003-06-04
+            ^egocentric-location behind)
+-->
+#   (write (crlf) | Recording threat for new enemy | <enemy-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-threat
+        ^type new
+        ^entity <enemy>)}
+
+sp {unreal*propose*record-threat*blue
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <enemy>
+              ^self.force |Blue|
+             -^threats.threat.entity.name <enemy-name>
+              # [5]: Make proposal specific to active objectives other than sentry-watch
+             -^mission.active-objective.type sentry-watch
+              # [7]: Determine who's on my team or who to ignore
+             -^scenario.<< BLUEFOR IGNORE >>.name <enemy-name>)
+   (<enemy> ^name <enemy-name>)
+  # (<enemy>  ^name { <> |Player| <> |MoutBot1| <> |MoutBot2| <> |MoutBot3| <> |MoutBot4| <> |MoutBot5|
+  #                   <> |MOUTBot1| <> |MOUTBot2| <> |MOUTBot3| <> |MOUTBot4| <> |MOUTBot5|          <enemy-name> } )
+-->
+#   (write (crlf) | Recording threat for new enemy | <enemy-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-threat
+        ^type new
+        ^entity <enemy>)}
+
+## If have saved a threat and the enemy reappears on vision - replace the
+## saved version with the new enemey
+
+sp {unreal*propose*enemy-record*replace
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <enemy>
+              ^threats.threat.entity { <> <enemy> <old-enemy> })
+   (<old-enemy> ^name <enemy-name>
+                ^visible false)
+   (<enemy> ^name <enemy-name>
+            ^visible true
+            # [8]
+            ^egocentric-location <> behind)
+-->
+#   (write (crlf) | Recording threat for no longer visible enemy that is now visible | <enemy-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-threat
+        ^entity <enemy>
+        ^old-enemy <old-enemy>
+        ^type replace)}
+
+
+## If the enemy disappears off vision, then create a record of him
+
+sp {unreal*propose*enemy-record*save
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <enemy>
+              ^threats.threat <th>)
+   (<th> ^entity <enemy>)
+   (<enemy>  ^name <enemy-name>
+             ^visible false)
+-->
+#   (write (crlf) | Recording threat for no longer visible enemy | <enemy-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-threat
+        ^entity <enemy>
+        ^type save)}
+                     
+###### ELABORATIONS ######
+       
+# The production below does not work for agents that are outside.
+# If there's not an area that's consistent with the threat's (x,y,z), assume it is outside
+
+sp {unreal*record-threat*area*Outside
+   (state <s> ^name unreal
+              ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-threat
+        ^entity <enemy>)
+   (<enemy> ^position <pos>)
+   (<map>
+            ^area <outside>)
+  -{ (<map> ^area <area>)
+     (<area> ^min-x <= <x>
+             ^min-y <= <y>
+             ^max-x >= <x>
+             ^max-y >= <y>
+             ^min-z <= <z>
+             ^max-z >= <z>) }
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z> )
+   (<outside> ^name |Outside|)
+-->
+  # (write (crlf) |Recording area Outside: | <outside> | for this threat.|)
+   (<o> ^area-id <outside>)
+}
+
+#Elaborate the enemy with the area that it currently resides in.
+sp {unreal*record-threat*area
+   (state <s> ^name unreal
+              ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-threat
+        ^entity <enemy>)
+   (<enemy> ^position <pos>)
+   (<map> ^area <area>)
+   (<area> ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>)
+   (<pos> ^x < <max-x>
+          ^x > <min-x>
+          ^y < <max-y>
+          ^y > <min-y>
+          ^z > <min-z>
+          ^z < <max-z>)
+-->
+ #  (write (crlf) |Recording area: | <area> | for this threat.|)
+   (<o> ^area-id <area>)
+}
+
+
+###### APPLICATIONS #####
+
+#### NEW
+
+sp {apply*record-threat*new
+   (state <s> ^operator <o1>
+              ^threats <th>)
+   (<o1> ^name record-threat
+         ^type new
+         ^entity <enemy>
+         ^area-id <area>)
+-->
+   (<th> ^threat <x1> )
+   (<x1> ^entity <enemy>
+         ^area-id <area>)
+}
+
+
+# REW: 2002-10-08
+# Record that contact has been made with the enemy
+sp {apply*record-threat*new*contact-with-enemy
+   (state <s> ^operator <o1>
+              ^threats <th>)
+   (<o1> ^name record-threat
+         ^type new)
+   (<th> -^contact-with-enemy)
+-->
+   (<th> ^contact-with-enemy true)
+}
+
+
+# REW: 2002-08-26
+# If there is a sentry-watch going on and we record a threat, then also record that it has not been
+# reported (not all threats will be reported but we generally want to report threats observed while
+# on sentry-watch)
+# REW: 2002-09-26 (deleted: apply*record-threat*sentry-watch*new-threat)
+
+## Mark all areas that the enemy is seen in.
+
+sp {apply*record-threat*area
+   (state <s> ^operator <o>
+              ^threats <th>)
+   (<o> ^name record-threat
+        ^area-id <area>)
+   (<th> -^controlled-area <area>)
+-->
+  # (write (crlf) |Adding controlled-area | <area>  | to the threats structure.|)
+   (<th> ^controlled-area <area>)
+}
+
+#### SAVE
+
+## REW: Not sure what this is supposed to do:
+## Just delete a threat that doesn't have a name?
+sp {unreal*apply*record-threat*clean-up
+   (state <s> ^operator <o>
+              ^threats <threats>)
+   (<o> ^name record-threat)
+   (<threats> ^threat <th>)
+   (<th> -^entity.name)
+-->
+#   (write (crlf) |Deleting threat |  <th> | because it lacks enemy name|)
+   (<threats> ^threat <th> -)}
+
+# REW: 2002-09-30
+# Must not remove the old threat until the new one is created, so test for this situation.
+sp {unreal*apply*record-threat*save*remove-old-enemy
+   (state <s> ^operator <o>
+              ^io.input-link.objects.entity <enemy>
+              ^threats <threats>)
+   (<o> ^name record-threat
+        ^type save
+        ^entity <enemy>)
+   (<threats> ^threat <th>)
+   (<th> ^entity <enemy>
+         ^entity {<> <enemy> <new-enemy> })
+-->
+   (<th> ^entity <enemy> -)}
+
+# REW: 2002-09-30
+# If threats.area-id different than one on the current operator, replace old value
+sp {unreal*apply*record-threat*save*remove-old-area-id
+   (state <s> ^operator <o>
+              ^threats <threats>)
+   (<o> ^name record-threat
+        ^type << save replace >>
+        ^area-id <area>)
+   (<threats> ^threat <th>)
+   (<th> ^area-id {<> <area> <old-area>})
+-->
+ #  (write (crlf) |Creating new area-id for this threat: | <area> )
+   (<th> ^area-id <area> + <old-area> -)}
+
+
+# REW: 2002-09-30
+# REmoved area-name addition.  This is now elaborated from the area-id (elaborations/threats.soar)
+# Must make sure that the area-id on the threat is the same as the area-id on the operator before this fires.
+sp {unreal*apply*record-threat*save
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^parameters.enemy-remember-time <ert>
+              ^threats <threats>)
+   (<threats> ^threat <th>)
+   (<th> ^entity <enemy>
+         ^area-id <area>)
+   (<o> ^name record-threat
+        ^type save
+        ^entity <enemy>
+        ^area-id <area>)
+   (<enemy> ^range <r>
+            ^aspect <a>
+            ^angle-off <ay>
+            ^health <health>
+            ^weapon <wcname>
+            ^position <p>
+            ^team <team>
+            ^name <name>)
+   (<area> ^name <area-name>)
+   (<ay> ^v <av>
+         ^h <ah>)
+   (<p> ^x <x>
+        ^y <y>
+        ^z <z>)
+   (<a> ^v <asv>
+        ^h <ash>)
+-->
+#   (write (crlf) |Saving information about disappearing threat: | <name>)
+   (<th> ^entity <enemy-new>
+         ^last-seen-time <ct>)
+   (<enemy-new> ^name <name>
+                ^area <area>
+                ^team <team>
+                ^position <p1>
+                ^health <health>
+                ^weapon <wcname>
+                ^range <r>
+                ^aspect <asp>
+                ^angle-off <an-off>
+                ^visible false
+                         )
+   (<an-off> ^h <ah>
+             ^v <av>)
+   (<p1>    ^x <x>
+            ^y <y>
+            ^z <z>)
+   (<asp> ^v <asv>
+          ^h <ash>)
+}
+#### REPLACE
+
+# REW: 2002-09-30
+# Don't replace the old-enemy and the new onw unless the area-id on the threat is the same as on the operator.
+sp {unreal*apply*record-threat*replace
+   (state <s> ^operator <o>
+              ^threats <threats>)
+   (<o> ^name record-threat
+        ^type replace
+        ^entity <enemy>
+        ^old-enemy <old-enemy>
+        ^area-id <area>)
+   (<threats> ^threat <th>)
+   (<th> ^entity <old-enemy>
+         ^area-id <area>)
+-->
+   (<th> ^entity <old-enemy> - <enemy> +)}
+
+# REW: 2002-09-25
+# When replacing a threat, delete the last-seen-time, area-id, and area-name
+sp {unreal*apply*record-threat*replace*delete*last-seen-time
+   (state <s> ^operator <o>
+              ^threats <threats>)
+   (<o> ^name record-threat
+        ^type replace
+        ^entity <enemy>
+        ^old-enemy <old-enemy>)
+   (<threats> ^threat <th>)
+   (<th> ^entity <old-enemy>
+         ^last-seen-time <val>)
+-->
+   (<th> ^last-seen-time <val> -)}
+
+sp {unreal*apply*record-threat*replace*delete*not-visible
+   (state <s> ^operator <o>
+              ^threats <threats>)
+   (<o> ^name record-threat
+        ^type replace
+        ^old-enemy <old-enemy>)
+   (<threats> ^threat <th>)
+   (<th> ^entity <old-enemy>
+         ^not-visible <val>)
+-->
+   (<th> ^not-visible <val> -)}
+
+# REW: 2002-08-26
+# When a threat appears that we have previously seen, record it on the
+# sentry-watch structure iff it hasn't been reported before for this
+# sentry-watch objective.
+# REW: 2002-09-26 (delete: apply*record-threat*sentry-watch*new-threat*replace)
+
+### SEARCH CONTROL
+sp {unreal*select*record-threat
+   (state <s> ^name unreal
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name record-threat)
+   (<o2> ^name << execute-mission explore >>)
+-->
+   (<s> ^operator <o1> > <o2>)}
+

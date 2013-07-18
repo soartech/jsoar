@@ -1,0 +1,48 @@
+#
+# set up initial list of available objects
+# This list will be arranged by classification
+# (ie food-source, heat-source, etc)
+#
+sp {available*elaborate*initialize
+   (state <s> ^name haunt)
+-->
+   (<s> ^available <a>)
+}
+
+
+
+# 
+# build up a list of all available objects by classification
+#
+sp {available*elaborate*sources
+   (state <s> ^name haunt
+              ^ontology <ont>
+              ^available <a>
+              ^object-list.<< decoration item >> <obj>)
+   (<obj> ^class <class>
+        -^area-id.haunted)  #MJP: added to avoid using objects in 'haunted' areas
+   (<ont> ^<type>.class <class>)
+-->
+   (<a> ^<type> <obj>)
+}
+
+#
+# copy additional info stored in ontoloty 
+# to every object in the list
+#
+# (Example: ^must-cook, ^height, etc)
+#
+sp {available*elaborate*additional-info
+   (state <s> ^name haunt
+              ^ontology.<type> <entry> 
+              ^available.<type> <obj>)
+   (<entry> ^class <class>
+            ^{<info> <> class} <value>)
+   (<obj> ^class <class>)
+-->
+   (<obj> ^<info> <value>)
+}
+
+
+
+                                                                          

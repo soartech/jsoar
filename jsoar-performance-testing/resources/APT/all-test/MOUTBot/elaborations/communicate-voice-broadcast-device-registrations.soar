@@ -1,0 +1,44 @@
+##################################### 
+# file: voice-message-control.soar 
+# created: 2002-07-08
+## 
+# Change history: 
+# 
+# [1] Created REW
+
+#       This file indicates what messages of message-type should be
+#       voiced by the agent. This should just be a lookup table.  Eventually,
+#       we probably will want to make a distinction between messages sent to
+#       the agent communication pane and messages with actual recordings.
+#       This will be trivial to do -- all we have to do is create two
+#       classes of things of type voice (whereas now there is only the 
+#       single name: unreal-interface)
+
+# [2] REW: 2002-09-27
+#     Only speak messages if current random number is less than parameter associated with message.
+
+##################################### 
+
+echo "\nLoading ./elaborations/communicate-voice-broadcast-device-registrations.soar "
+
+# If there is no speak-message-random, say this message always
+sp {apply*communicate*register*voice*unreal-text-box*always
+   (state <s> ^comm.communicate <message> )
+   (<message> ^name  <anything> 
+             -^speak-message-random)
+-->
+   (<message> ^device <d>  )
+   (<d> ^type voice 
+        ^name unreal-interface)
+}
+
+sp {apply*communicate*register*voice*unreal-text-box*random
+   (state <s> ^comm.communicate <message> 
+              ^top-state.io.input-link.agent.rand < <smr>)
+   (<message> ^name  <anything> 
+              ^speak-message-random <smr>)
+-->
+   (<message> ^device <d>  )
+   (<d> ^type voice 
+        ^name unreal-interface)
+}

@@ -1,0 +1,8 @@
+source elaborations.soar
+source go-to.soar
+source grasp-block.soar
+source grasp-ied.soar
+pushd grasp-ied
+source grasp-ied_source.soar
+popd
+source spin.soar

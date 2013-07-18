@@ -1,0 +1,108 @@
+sp {evaluate-operator*propose*compute-exact-probability
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name exact
+              ^top-state.probabilities true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-exact-probability)
+}
+
+sp {apply*compute-exact-probability*bid*no-model
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-exact-probability)
+   (<ts> ^io.input-link.state <state>
+         ^model-enabled false
+         ^io.output-link <out>)
+   (<state> ^last-bid <lb>)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (<s> ^total-possible (- (+ <multi-unknown> <multi-1> ) <bid-multi>))
+   (write (crlf) |  Exact: | <bid-multi> | | <face> |'s. Looking for | (- <bid-multi> <multi-1>) | out of | <multi-unknown>)
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate eq)}
+
+sp {apply*compute-exact-probability*bid*model
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2> <dc3>)
+   (<op> ^name compute-exact-probability)
+   (<ts> ^io.input-link.state <state>
+         ^model-enabled true
+         ^io.output-link <out>)
+   (<state> ^last-bid <lb>)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<dc3> ^face special
+          ^count <special>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (<s> ^total-possible (- (+ <multi-unknown> <multi-1> ) <bid-multi>))
+   (write (crlf) |  Exact: | <bid-multi> | | <face> |'s. Looking for | (- <bid-multi> <multi-1>) | out of | (+ <multi-unknown> <special>) | MODEL - special: | <special> )
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice (+ <special> <multi-unknown>)
+          ^number-of-faces 6
+          ^predicate eq)}
+
+sp {apply*compute-exact-probability*bid*model*no-alternative
+   (state <s> ^operator <op>
+              ^superstate.alternative-dice-counts failure
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-exact-probability)
+   (<ts> ^io.input-link.state <state>
+         ^model-enabled true
+         ^io.output-link <out>)
+   (<state> ^last-bid <lb>)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (<s> ^total-possible (- (+ <multi-unknown> <multi-1> ) <bid-multi>))
+   (write (crlf) |  Exact: | <bid-multi> | | <face> |'s. Looking for | (- <bid-multi> <multi-1>) | out of | <multi-unknown> | MODEL - no special|)
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate eq)}
+

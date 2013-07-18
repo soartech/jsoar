@@ -1,0 +1,37 @@
+### Not an operator in Soar - just an elaboration
+### If a wizard another wizard knows about (is thinking about) 
+### knows something, then the original wizard knows it
+
+sp {wizards*deduce*knows-own-mind*mark
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^knows <k2>
+         ^name <kname>
+         ^wizard <ww>)
+   (<ww> ^name <name>)
+   (<k2> ^wizard <w>
+         ^name <k2name>)
+   (<w> ^name <name>
+       -^contradiction true
+        ^mark { << black white >> <mark> })
+-->
+   (write (crlf) | MARK: From | <kname> |'s view wizard of | <k2name> |'s view, wizard | <name> | is | <mark> )
+   (<ww> ^mark <mark>)
+}
+
+sp {wizards*deduce*knows-own-mind*guessed
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^knows <k2>
+         ^name <kname>
+         ^wizard <ww>)
+   (<ww> ^name <name>)
+   (<k2> ^wizard <w>
+         ^name <k2name>)
+   (<w> ^name <name>
+       -^contradiction true
+        ^guessed { << black white >> <guessed> })
+-->
+   (write (crlf) | GUESS: From | <kname> |'s view wizard of | <k2name> |'s view, wizard | <name> | will guess | <guessed> )
+   (<ww> ^guessed <guessed>)
+}

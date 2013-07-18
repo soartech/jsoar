@@ -1,0 +1,41 @@
+## If there is a contradiction, then throw out value that
+## originally led to contradiction - it is always a value
+## that led to a guess. Because contradiction and knows-own-mind are
+## elaborations, everything unwinds appropriately.
+
+sp {wizards*propose*complement
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^wizard <w>
+         ^knows <k2>)
+   (<w> ^contradiction true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name complement
+         ^knows <k1>
+         ^wizard <w>)
+}
+
+sp {apply*complement
+   (state <s> ^operator <op>)
+   (<op> ^name complement
+         ^wizard <w1>
+         ^knows <k>)
+   (<w1> ^contradiction true
+         ^name <name>
+         ^guessed { <guessed> << white black >> } )
+   (<k> ^knows <k2>
+        ^name <kname>)
+   (<k2> ^wizard <w2>
+         ^name <k2name>)
+   (<w2> ^mark <m>
+         ^name <name2>)
+   (<m> ^value <v>
+        ^untried-value <uv>
+        ^assigned <k2>)
+-->
+   (write (crlf) |Because of contradiction, in | <kname> |'s guesses - in | <k2name> |'s view, wizard | <name2> | must have mark | <uv> )
+   (<w2> ^mark <m> -
+         ^mark <uv>)
+   (<w1> ^contradiction true -
+         ^guessed <guessed> -)}

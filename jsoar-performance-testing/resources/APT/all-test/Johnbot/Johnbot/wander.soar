@@ -1,0 +1,34 @@
+echo "\nLoading wander"
+
+################################
+### Propose wander operator
+###  Wander after level has been explored and no enemy
+################################
+
+sp {propose*wander
+   (state <s> ^name quake
+              ^map.explored true)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name wander
+        ^actions <a>)
+   (<a> ^attack off
+        ^climb off
+        ^centerview on
+        )}
+
+sp {elaborate*wander*aggressive
+   :i-support
+   (state <s> ^self.aggressiveness aggressive
+              ^operator <o>)
+   (<o> ^name wander)
+-->
+   (<o> ^actions.speed on)}
+
+sp {elaborate*wander*standard-passive
+   :i-support
+   (state <s> ^self.aggressiveness << standard passive >>
+              ^operator <o>)
+   (<o> ^name wander)
+-->
+   (<o> ^actions.speed off)}

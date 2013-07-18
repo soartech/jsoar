@@ -1,0 +1,42 @@
+
+#
+# Choose an area to run to. This is done by
+#
+#   1. Examining all possible entry-nodes in current area
+#   2. Determine the angle between player (ghost) and each entry node ( 0 - 180 degrees)
+#   3. Choose the area/entry-node combo with the highest angle. This simulates
+#      the agents desire to run directly AWAY from ghost/player.
+#   4. If best area/entry-node is less than a given value (ex 40 degrees)
+#      then the agent will stand still, as he is "cornered"
+#
+#
+
+## Propose moving to each adjacent area
+## NOTE: When locks are added, will need to break up
+## into two separate rules, one for connectors & one for doors
+sp {flee*propose*move-to-area
+   (state <s> ^name flee
+              ^map.current-area.node <node>
+              ^io.input-link.agent.position <apos>)
+   (<node> ^type << connector door >>
+           ^connected-node <connector>)
+   (<connector> ^area <newarea>
+                ^position <npos>)
+   (<apos> ^x <ax>     # used to compute angle b/t agent and node
+           ^y <ay>)
+   (<npos> ^x <nx>
+           ^y <ny>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name run-to-furthest-area
+        ^type move-to-area
+        ^node <node>  # for debugging output only
+        ^area <newarea>
+        ^node-angle (compute-heading <ax> <ay> <nx> <ny>))
+}
+
+         
+
+
+
+

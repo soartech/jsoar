@@ -1,0 +1,76 @@
+sp {die*propose*raise-difficulty-level
+   (state <s> ^name die
+              ^death-sum > 5
+              ^death-quotient > .7)
+   --> 
+   (write (crlf) |Raise difficulty level.|)
+   (<s> ^operator <o> +)
+   (<o> ^name raise-difficulty-level)}
+
+sp {die*apply*raise-difficulty-level*reaction-time-delay
+   (state <s> ^operator.name raise-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay { <> 0 <rtd> })
+   -->
+   (write (crlf) |Decrement reaction time to | (- <rtd> 50))
+   (<se> ^reaction-time-delay <rtd> -
+                              (- <rtd> 50))
+   #tcl |set real_time_per_decision | (- <rtd> 50))
+}
+
+sp {die*apply*raise-difficulty-level*reaction-time*medium-good
+   (state <s> ^operator.name raise-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay 0
+         ^reaction-time medium)
+   -->
+   (write (crlf) |Set reaction time to fast.|)
+   (<se> ^reaction-time fast
+                        medium -)
+}
+
+sp {die*apply*raise-difficulty-level*aiming-skill*medium-good
+   (state <s> ^operator.name raise-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay 0
+         ^reaction-time fast
+         ^aiming-skill medium)
+   -->
+   (write (crlf) |Bump up aiming skill to good, rt medium, rtd 100|)
+   (<se> ^aiming-skill good
+                       medium -
+         ^reaction-time-delay 100
+                              0 -
+         ^reaction-time medium
+                        fast -)
+   #tcl |set real_time_per_decision 100|)
+}
+
+sp {die*apply*raise-difficulty-level*reaction-time-delay*wow
+   (state <s> ^operator.name raise-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay 0
+         ^reaction-time fast
+         ^aiming-skill good)
+   -->
+   (write (crlf) (crlf) |***********WOW You are good******| 
+          (crlf) (crlf))
+}
+  
+sp {die*apply*raise-difficulty-level*reset-edeaths
+   (state <s> ^operator.name << raise-difficulty-level lower-difficulty-level >>
+             ^top-state.enemy-data <ed>)
+   (<ed> ^deaths { <> 0 <edeaths> })
+   -->
+   (<ed> ^deaths <edeaths> -
+                 0)
+}  
+sp {die*apply*raise-difficulty-level*reset-sdeaths
+   (state <s> ^operator.name  << raise-difficulty-level lower-difficulty-level >>
+             ^top-state.self <se>)
+   (<se> ^deaths { <> 0 <sdeaths> })
+   -->
+   (<se> ^deaths <sdeaths> -
+                 0)
+}
+

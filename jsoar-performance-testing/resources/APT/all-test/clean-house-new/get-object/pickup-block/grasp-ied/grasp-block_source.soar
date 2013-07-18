@@ -1,0 +1,7 @@
+source elaborations.soar
+source grasp-confirm.soar
+source grasp-diffuse.soar
+source grasp-get.soar
+source grasp-help.soar
+source grasp-plan.soar
+source grasp-warn.soar

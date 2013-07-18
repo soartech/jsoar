@@ -1,0 +1,40 @@
+sp {get-block*propose*goto-not-clean-area*cleaned
+   (state <s> ^name get-block
+              ^top-state.areas.area <area>
+              ^top-state.desired.storage-area-id <id>
+              ^current-area.cleaned yes)
+   (<area> -^cleaned yes
+            ^id <> <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name goto-not-clean-area
+         ^type goto-area
+         ^area <area>)
+}
+sp {get-block*propose*goto-not-clean-area*gateway
+   (state <s> ^name get-block
+              ^top-state.areas.area <area>
+              ^top-state.desired.storage-area-id <id>
+              ^current-area.gateway-area yes)
+   (<area> -^cleaned yes
+            ^id <> <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name goto-not-clean-area
+         ^type goto-area
+         ^area <area>)
+}
+
+sp {get-block*propose*goto-not-clean-area*storage
+   (state <s> ^name get-block
+              ^top-state.areas.area <area>
+              ^top-state.desired.storage-area-id <id>
+              ^current-area.id <id>)
+   (<area> -^cleaned yes
+            ^id <> <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name goto-not-clean-area
+         ^type goto-area
+         ^area <area>)
+}

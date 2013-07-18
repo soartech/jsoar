@@ -1,0 +1,15 @@
+sp {retreat*propose*detect-no-retreat-door
+   (state <s> ^name retreat 
+             -^current-area.retreat-door)
+   -->
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name detect-no-retreat-door)
+}
+
+sp {apply*detect-no-retreat-door
+   (state <s> ^current-area <ca>
+              ^operator <o>)
+   (<o> ^name detect-no-retreat-door)
+   -->
+   (<ca> ^retreat-door none)
+}

@@ -1,0 +1,15 @@
+#rete-net --load "../maps/l1s1_go-to-flag_1.soarx"
+
+#rete-net --load "../maps/l2s1_source_full.soarx"
+
+source "../maps/l2s1_source_partial_4.soar"
+# a general apply rule that strips anything off of the output-link that has a status-complete attribute
+sp {apply*clean-output
+   :o-support
+   (state <s> ^superstate nil
+              ^io.output-link <ol>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^status complete)
+-->
+   (<ol> ^<att> <valuex> -)
+}

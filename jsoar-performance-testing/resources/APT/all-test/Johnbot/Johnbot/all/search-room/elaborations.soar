@@ -1,0 +1,117 @@
+sp {search-room*elaborate*state*direction
+   (state <s> ^name search-room
+              ^superstate.operator.direction <dir>)
+   -->
+   (<s> ^direction <dir>)}
+
+sp {search-room*elaborate*left-side-search*ns
+   (state <s> ^name search-room
+              ^direction { << north south >> <dir> }
+              ^io.input-link.agent.origin.x <x1>
+              ^top-state.direction-map.<dir>.right <ndir>
+              ^current-room <rm>) 
+   (<rm> ^wall <w1>)
+   (<w1> ^side <ndir>
+         ^x <x2>)
+   -->
+   (<s> ^left-side-size (round-off (abs (- <x1> <x2>)) 100))}
+
+sp {search-room*elaborate*left-side-search*ew
+   (state <s> ^name search-room
+              ^direction { << east west >> <dir> }
+              ^io.input-link.agent.origin.y <x1>
+              ^top-state.direction-map.<dir>.right <ndir>
+              ^current-room <rm>) 
+   (<rm> ^wall <w1>)
+   (<w1> ^side <ndir>
+         ^y <x2>)
+   -->
+   (<s> ^left-side-size (round-off (abs (- <x1> <x2>)) 100))}
+
+sp {search-room*elaborate*right-side-search*ns
+   (state <s> ^name search-room
+              ^direction { << north south >> <dir> }
+              ^io.input-link.agent.origin.x <x1>
+              ^top-state.direction-map.<dir>.left <ndir>
+              ^current-room <rm>) 
+   (<rm> ^wall <w1>)
+   (<w1> ^side <ndir>
+         ^x <x2>)
+   -->
+   (<s> ^right-side-size (round-off (abs (- <x1> <x2>)) 100))}
+
+sp {search-room*elaborate*right-side-search*ew
+   (state <s> ^name search-room
+              ^direction { << east west >> <dir> }
+              ^io.input-link.agent.origin.y <x1>
+              ^top-state.direction-map.<dir>.left <ndir>
+              ^current-room <rm>) 
+   (<rm> ^wall <w1>)
+   (<w1> ^side <ndir>
+         ^y <x2>)
+   -->
+   (<s> ^right-side-size (round-off (abs (- <x1> <x2>)) 100))}
+
+
+sp {search-room*elaborate*state*searched*turn-left
+   (state <s> ^name search-room
+              ^current-room.search <ss>
+              ^left-side-size <= 400)
+   -->
+   (<ss> ^searched turn-left)
+}
+
+
+sp {search-room*elaborate*state*searched*turn-right
+   (state <s> ^name search-room
+              ^current-room.search <ss>
+              ^right-side-size <= 400)
+   -->
+   (<ss> ^searched turn-right)
+}
+
+sp {search-room*elaborate*state*turn-left
+   (state <s> ^name search-room
+              ^top-state.direction-map.<dir>.angle <ang>
+              ^direction <dir>)
+   -->
+   (<s> ^turn-left-angle (round-off-heading (- <ang> 140) 1))}
+
+sp {search-room*elaborate*state*turn-right
+   (state <s> ^name search-room
+              ^top-state.direction-map.<dir>.angle <ang>
+              ^direction <dir>)
+   -->
+   (<s> ^turn-right-angle (round-off-heading (+ <ang> 140) 1))}
+
+
+sp {search-room*elaborate*state*turn-left-difference
+   (state <s> ^name search-room
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^turn-left-angle <tla>)
+   -->
+   (<s> ^turn-left-difference (round-off-heading (- <yaw> <tla>) 1))
+}
+
+sp {search-room*elaborate*state*turn-right-difference
+   (state <s> ^name search-room
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^turn-right-angle <tla>)
+   -->
+   (<s> ^turn-right-difference (round-off-heading (- <yaw> <tla>) 1))
+}
+
+
+sp {search-room*elaborate*state*turn-left-achieved
+   (state <s> ^name search-room
+              ^turn-left-difference > -10 < 10)
+   -->
+   (<s> ^turn-left-achieved true)
+}
+
+sp {search-room*elaborate*state*turn-right-achieved
+   (state <s> ^name search-room
+              ^turn-right-difference > -10 < 10)
+   -->
+   (<s> ^turn-right-achieved true)
+}

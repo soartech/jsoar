@@ -1,0 +1,9 @@
+source elaborations.soar
+source move-around-wall.soar
+pushd move-around-wall
+source move-around-wall_source.soar
+popd
+source move-directly-to-gateway.soar
+pushd move-directly-to-gateway
+source move-directly-to-gateway_source.soar
+popd

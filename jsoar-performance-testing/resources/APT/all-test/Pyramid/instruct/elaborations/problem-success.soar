@@ -1,0 +1,24 @@
+sp {elaborations*elaborate*state*success
+   (state <s> ^current-problem <cp>)
+   (<cp> ^result <r>)
+   (<r> ^retrieved success
+        ^complete true)
+-->
+   (<cp> ^success true)
+}
+
+
+#### BUG BUG ?? #####
+## Might not want this for all types of problems such as x $ 3 = 6
+##   Depends on whether goal test is really success of just termination
+##   Some termination tests really are failure not success.
+
+sp {elaborations*elaborate*state*sucess2
+   (state <s> ^current-problem <cp>
+              ^superstate <ss>)
+   (<cp> ^goal-test-success 
+         ^completed-action <a>)
+  -(<ss> ^alternate-action <a>)
+-->
+   (<cp> ^success true)
+}

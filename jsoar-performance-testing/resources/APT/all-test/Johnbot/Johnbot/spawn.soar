@@ -1,0 +1,38 @@
+#echo "\nLoading spawn"
+
+sp {quake*propose*spawn
+   (state <s> ^name quake
+              ^died true
+              ^io.input-link.agent.deadflag alive)
+   -->
+#  (write (crlf) |!!!!!!!!!!!^^^^^^^^^!!!!!!!!!!!!!!|)
+   (<s> ^operator <o> !)
+   (<o> ^name spawn)}
+
+sp {quake*apply*spawn
+   (state <s> ^operator.name spawn
+              ^map <map>)
+   -->
+   (<map> ^last-room none)}
+
+sp {quake*apply*spawn*create*resurrection
+   (state <s> ^operator.name spawn
+              ^io.input-link.agent.origin <o>
+              ^map.current-room <cr>
+              ^died true)
+   (<o> ^x <x>
+        ^y <y>)
+   (<cr> -^resurrect)
+   --> 
+   (<cr> ^resurrect <r>)
+   (<r> ^x <x>
+        ^y <y>)}
+
+sp {quake*apply*spawn*remove*died
+   (state <s> ^operator.name spawn
+              ^map.current-room.resurrect <r>
+              ^died true)
+   -->
+   (<s> ^died true -)}
+
+

@@ -1,0 +1,41 @@
+sp {solve-problem*elaborate*substate
+   (state <s> ^name solve-problem
+              ^superstate <ss>)
+   (<ss> ^current-clause <cc>
+         ^operator.name solve-problem
+         ^problem <p> )
+-->
+   (<s> ^current-clause <cc>
+        ^problem <p>)
+}
+
+
+sp {algebra*compare*across-level-swap
+   (state <s> ^name solve-problem
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name << associate convert-subtract-to-add multiply-both-sides across-level-swap >>)
+   (<op2> ^name fail)
+-->
+   (<s> ^operator <op1> > <op2>)}
+
+sp {elaborations*compare*search-control
+   (state <s> ^name solve-problem
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name associate)
+   (<op2> ^name convert-subtract-to-add)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+
+sp {algebra*compare*fail
+   (state <s> ^name solve-problem
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name fail)
+   (<op2> ^name << swap-sides associate >>)
+-->
+   (<s> ^operator <op1> < <op2>)
+}

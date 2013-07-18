@@ -1,0 +1,154 @@
+
+## Select a grenade if a threat is not visible and
+## not in the current room and there is no visible threat
+## Should check distance, but doesn't
+
+sp {execute-mission*propose*choose-weapon*grenade
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^parameters <p>
+        -^mission.objective.defensive-position.threat-door-range < 200
+        -^self.posture at-ease
+        -^self.threw-grenade.active true
+         ^self.weapons <w>
+         ^threats.threat <t>
+        -^threats.threat.entity.visible true
+         ^map.current-area.name <> <an>)
+   (<p> ^min-grenade-range <mingr>
+        ^max-grenade-range <maxgr>)
+   (<t> ^area-name <an>
+        ^entity.visible false)
+   (<w> ^selected-weapon <w1>
+        ^weapon <w2>)
+   (<w1> ^type <> grenade)
+   (<w2> ^type grenade
+         ^rounds-available true
+         ^class <class>)
+-->
+   (write (crlf) |Proposing operator choose-weapon grenade: M_67... |)
+   (<s> ^operator <o> +, = 10)
+   (<o> ^name choose-weapon
+        ^weapon <w2>
+        ^actions.choose-weapon <class>)
+}
+
+sp {execute-mission*propose*choose-weapon*gun
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.weapons <w>
+         ^threats.threat.entity.visible true)
+   (<w> ^selected-weapon.type grenade
+        ^weapon <w2>)
+   (<w2> ^type <> grenade
+         ^class <class>
+         ^rounds-available true)
+-->
+   (write (crlf) |Proposing operator choose-weapon | <class> |... |)
+   (<s> ^operator <o> +, = 90)
+   (<o> ^name choose-weapon
+        ^weapon <w2>
+        ^actions.choose-weapon <class>)
+}
+
+## Switch back to gun after throw grenade
+sp {execute-mission*propose*choose-weapon*gun*grenade
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self <self>)
+   (<self> ^weapons <w>
+           ^hiding <h>
+           ^threw-grenade <tg>)
+   (<w> ^selected-weapon.type grenade
+        ^weapon <w2>)
+   (<w2> ^type <> grenade
+         ^class <class>
+         ^rounds-available true)
+-->
+   (write (crlf) |Proposing operator choose-weapon | <class> |... |)
+   (<s> ^operator <o> +, = 70)
+   (<o> ^name choose-weapon
+        ^weapon <w2>
+        ^actions.choose-weapon <class>)
+}
+sp {execute-mission*propose*choose-weapon*change-no-enemy
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.weapons <w>
+        -^threats.threat.entity.visible true)
+   (<w> -^selected-weapon.rounds-available true
+         ^weapon <w2>)
+   (<w2> ^class <class>
+         ^rounds-available true)
+-->
+   (write (crlf) |Proposing operator choose-weapon | <class> |... |)
+   (<s> ^operator <o> +, = 80)
+   (<o> ^name choose-weapon
+        ^weapon <w2>
+        ^reason empty
+        ^actions.choose-weapon <class>)
+}
+
+sp {execute-mission*propose*choose-weapon*change-no-ammo
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.weapons <w>
+         ^threats.threat.entity.visible true)
+   (<w> -^selected-weapon.rounds-available true
+         ^weapon <w2>)
+   (<w2> ^class <class>
+         ^rounds-available true)
+-->
+   (write (crlf) |Proposing operator choose-weapon | <class> |... |)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name choose-weapon
+        ^reason empty
+        ^weapon <w2>
+        ^actions.choose-weapon <class>)
+}
+
+sp {execute-mission*propose*choose-weapon*reload-error
+   (state <s> ^name execute-mission
+              ^io.input-link.agent <a>
+              ^io.output-link.reload.error-code <ec>)
+   (<a> ^weapon.selected yes
+        ^weapon <w2>)
+   (<w2> -^selected yes
+          ^ammo-amount > 0
+          ^class <class>
+          ^name <name>)
+-->
+   (write (crlf) |Proposing operator choose-weapon reload error.. | <ec> |weapon | <w2> | | <class> | | <name>)
+   (<s> ^operator <o> +, = 80)
+   (<o> ^name choose-weapon
+        ^weapon <w2>
+        ^reason reload
+        ^actions.choose-weapon <class>)
+}
+
+# REW: 2003-01-24
+# drop handgun out of this, address in a variability production
+sp {execute-mission*compare*choose-weapon*guns-better-than-knife
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name choose-weapon
+         ^weapon.type << assault-rifle handgun >>)
+   (<o2> ^name choose-weapon
+         ^weapon.type knife)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+# REW: 2003-01-24
+# Add this production to make handgun less likely than rifle, but possible
+sp {execute-mission*compare*choose-weapon*handgun-not-a-great-choice
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name choose-weapon
+         ^weapon.type assault-rifle)
+   (<o2> ^name choose-weapon
+         ^weapon.type handgun)
+-->
+   (<s> ^operator <o2> = 0)
+}

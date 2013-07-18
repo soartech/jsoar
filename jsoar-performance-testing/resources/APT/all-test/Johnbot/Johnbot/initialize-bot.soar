@@ -1,0 +1,39 @@
+sp {propose*initialize-bot
+   (state <s> ^superstate nil
+             -^map.initialized true)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> <)
+   (<o> ^name initialize-bot)}
+
+sp {apply*initialize-bot*map
+   (state <s> ^operator.name initialize-bot)
+   -->
+   (<s> ^map <m>)} 
+ 
+sp {apply*initialize-bot*rooms
+   (state <s> ^operator.name initialize-bot
+              ^map <m>)
+   (<m> -^last-room)
+   -->
+   (<m> ^initialized true
+        ^unexplored-rooms none
+        ^saved-room none
+        ^last-room none)}
+
+sp {apply*initialize-bot*room-count
+   (state <s> ^operator.name initialize-bot
+              ^map <m>)
+   (<m> -^room-count)
+   -->
+   (<m> ^room-count 1
+        ^door-count 1)}
+
+sp {apply*initialize-bot*deaths
+   (state <s> ^operator.name initialize-bot
+              ^self <se>)
+   (<se> -^deaths)
+   -->
+   (<se> ^deaths 0
+         ^last-die-time 0)}
+

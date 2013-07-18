@@ -1,0 +1,35 @@
+sp {accept-input*propose*use-default-equation
+   (state <s> ^name accept-input
+              ^top-state.io.input-link.text.next.value << no never |No| |Never| |Nope| >> )
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name use-default-equation)
+}
+
+sp {accept-input*apply*use-default-equation
+   (state <s> ^operator.name use-default-equation
+              ^top-state <ts>)
+   (<ts> ^problem <p>)
+-->
+   (<ts> ^current-clause <tc>)
+   (<p> ^status defined
+        ^top-clause <tc>)
+   (<tc> ^operation equal
+         ^right-side <ls>
+         ^left-side <rs>)
+   (<rs> ^operation multiply
+         ^right-side <rs1>
+         ^left-side <ls1>)
+   (<ls1> ^type number
+          ^value 4)
+   (<rs1> ^operation add
+          ^right-side <rsc>
+          ^left-side <ls2>)
+   (<ls2> ^type number
+          ^value 23)
+   (<rsc> ^type variable
+          ^value x)
+   (<ls> ^type number
+         ^value 4)
+}
+

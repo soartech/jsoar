@@ -1,0 +1,36 @@
+sp {evaluate-operator*monitor
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name <op-name>)
+-->
+   (write  |   *** | <op-name> | ***|)
+}
+
+sp {evaluate-operator*monitor*model
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.use-model true)
+-->
+   (write  |   *** using model for these calculations ***|)
+}
+
+sp {evaluate-operator*monitor*nomodel
+   (state <s> ^name evaluate-operator
+             -^superstate.operator.use-model true)
+-->
+   (write  |   --- no model for these calculations ---|)
+}
+
+sp {evaluate-operator*elaborate*state*dice-counts
+   (state <s> ^name evaluate-operator
+             -^superstate.operator.use-model true
+              ^superstate.superstate.true-dice-counts <tdc>)
+-->
+   (<s> ^dice-counts <tdc>)
+}
+
+sp {evaluate-operator*elaborate*state*model-dice-counts
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.use-model true
+              ^superstate.alternative-dice-counts <tdc>)
+-->
+   (<s> ^dice-counts <tdc>)
+}

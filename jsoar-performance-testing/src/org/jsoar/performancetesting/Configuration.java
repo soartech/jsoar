@@ -12,9 +12,9 @@ public class Configuration
 {
     public class ConfigurationTest
     {
-        private final String testName;
-        private final String testFile;
-        private final String testCategory;
+        private String testName;
+        private String testFile;
+        private String testCategory;
         
         public ConfigurationTest(String testName, String testFile, String testCategory)
         {
@@ -36,6 +36,11 @@ public class Configuration
         public String getTestCategory()
         {
             return testCategory;
+        }
+        
+        public void setTestCategory(String testCategory)
+        {
+            this.testCategory = testCategory;
         }
     }
     
@@ -205,6 +210,11 @@ public class Configuration
                 
                 for (String potential : potentialCategories)
                 {
+                    if (potential.startsWith("\"") && potential.endsWith("\""))
+                    {
+                        potential = potential.substring(1, potential.length()-1);
+                    }
+                    
                     if (potential.startsWith("\""))
                     {
                         if (temporaryBuffer.length() != 0)
@@ -213,7 +223,7 @@ public class Configuration
                         }
                         
                         //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     else if (potential.endsWith("\""))
@@ -234,7 +244,7 @@ public class Configuration
                     }
                     else if (temporaryBuffer.length() != 0)
                     {
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     
@@ -246,7 +256,8 @@ public class Configuration
                     throw new MalformedTestCategory(key);
                 }
                 
-                configurationCategories.add(new ConfigurationCategory(key.substring(9), actualCategories));
+                ConfigurationCategory category = new ConfigurationCategory(key.substring(9), actualCategories);
+                configurationCategories.add(category);
             }
             else if (key.startsWith("Test_"))
             {
@@ -304,7 +315,7 @@ public class Configuration
                         }
                         
                         //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     else if (potential.endsWith("\""))
@@ -325,7 +336,7 @@ public class Configuration
                     }
                     else if (temporaryBuffer.length() != 0)
                     {
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     
@@ -353,7 +364,7 @@ public class Configuration
                         }
                         
                         //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     else if (potential.endsWith("\""))
@@ -374,7 +385,7 @@ public class Configuration
                     }
                     else if (temporaryBuffer.length() != 0)
                     {
-                        temporaryBuffer += potential;
+                        temporaryBuffer += potential + " ";
                         continue;
                     }
                     
@@ -414,11 +425,31 @@ public class Configuration
     
     public List<ConfigurationTest> getConfigurationTests()
     {
+        //Do one final check to make sure everything is right
+        for (ConfigurationCategory category : configurationCategories)
+        {
+            for (ConfigurationTest test : configurationTests)
+            {
+                if (category.containsTest(test.getTestName()))
+                    test.setTestCategory(category.getCategoryName());
+            }
+        }
+        
         return configurationTests;
     }
     
     public List<ConfigurationCategory> getConfigurationCategories()
     {
+        // Do one final check to make sure everything is right
+        for (ConfigurationCategory category : configurationCategories)
+        {
+            for (ConfigurationTest test : configurationTests)
+            {
+                if (category.containsTest(test.getTestName()))
+                    test.setTestCategory(category.getCategoryName());
+            }
+        }
+
         return configurationCategories;
     }
     

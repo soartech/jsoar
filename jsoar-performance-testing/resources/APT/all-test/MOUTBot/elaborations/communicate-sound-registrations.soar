@@ -1,0 +1,25 @@
+##################################### 
+# file: communicate-sound-registrations.soar 
+# created: 2002-10-04
+#
+# Register any message with a ^sound-available in the message defintion
+## 
+# Change history: 
+# 
+# [1] Created REW
+
+##################################### 
+
+# For now, we ignore speak-message-random.  Once play-sound is
+# debugged, then we can mirror the productions in broadcast applications.
+sp {apply*communicate*register*sound-file*always
+   (state <s> ^comm.communicate <message> )
+   (<message> ^name  <anything> 
+             #-^speak-message-random
+               ^definition.sound-available true)
+-->
+#   (write (crlf) |Register sound file for | <anything> )
+   (<message> ^device <d>  )
+   (<d> ^type voice 
+        ^name sound-file)
+}

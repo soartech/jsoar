@@ -1,0 +1,10 @@
+sp {instruct*propose*describe
+   (state <s> ^name instruct
+              ^current-problem <p>)
+   (<p> -^described true 
+         ^type describe-plus
+         ^initialized true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name describe)
+}

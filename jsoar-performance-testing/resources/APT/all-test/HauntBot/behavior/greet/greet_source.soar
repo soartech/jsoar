@@ -1,0 +1,4 @@
+source elaborations.soar
+source selection.soar
+source step-1-move.soar
+source step-2-speak.soar

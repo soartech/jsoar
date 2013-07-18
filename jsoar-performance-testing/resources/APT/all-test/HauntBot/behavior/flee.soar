@@ -1,0 +1,22 @@
+echo "\nLoading behavior/flee"
+              
+#
+# This operator will make the agent run away from the player (ghost)
+#
+
+#
+# simple behavior to walk near and greet player
+#
+sp {behavior*propose*flee
+   (state <s> ^name haunt
+              ^map.area <area>
+              ^entity-list.entity <entity>)
+   (<area> ^name <area-name>)
+   (<entity> ^name |Bob|
+             ^position <pos>
+             ^area-name <area-name>)
+-->
+   (write (crlf) |I'm gonna run away!|)
+   (<s> ^operator <o> + =)
+   (<o> ^name flee)
+}

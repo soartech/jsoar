@@ -1,0 +1,10 @@
+source elaborations.soar
+source find-block-in-area.soar
+pushd find-block-in-area
+source find-block-in-area_source.soar
+popd
+source goto-not-clean-area.soar
+source pickup-block.soar
+pushd pickup-block
+source pickup-block_source.soar
+popd

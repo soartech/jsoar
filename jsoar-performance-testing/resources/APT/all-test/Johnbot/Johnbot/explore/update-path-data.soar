@@ -1,0 +1,24 @@
+#echo "\nLoading explore/update-path-data"
+
+
+## Updates all of the path data for the current room
+## Selected after moving to a new room by explore-room or unexplored-room
+ 
+sp {explore*propose*update-path-data
+   (state <s> ^name explore
+              ^top-state.map <m>)
+  (<m> ^room <room>
+       ^last-room <> none)
+  (<room> ^explored true
+         -^updated-paths true)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |UPDATE PATH DATA.|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-path-data
+        ^room <room>
+        ^actions <a>)
+   (<a> ^thrust off
+        ^sidestep off)}
+
+

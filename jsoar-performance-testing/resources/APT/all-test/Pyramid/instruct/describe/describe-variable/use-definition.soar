@@ -1,0 +1,35 @@
+
+sp {propose*use-definition-to-describe
+   (state <s> ^name describe-variable
+             -^role
+              ^superstate <ss>)
+   (<ss> ^operator.arg <arg>
+        -^<arg>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name use-definition)
+}
+
+sp {attempt*use-definition-to-describe
+   (state <s> ^name describe-variable 
+              ^operator.name use-definition
+              ^superstate <ss> 
+              ^top-state <ts>)
+   (<ss> ^operator.arg <arg>)
+   (<ts> ^instructions.definitions <d1> 
+         ^current-problem <p>)
+   (<d1> ^term <arg> 
+         ^function <role>)
+-->
+   (<s> ^role <role>)
+}
+
+sp {first-term
+   (state <s> ^name describe-variable 
+              ^role first-term 
+              ^superstate <ss>)
+   (<ss>  ^current-problem-ptr.element.value <val> 
+          ^operator.arg <arg>)
+-->
+   (<ss> ^<arg> <val>)
+}

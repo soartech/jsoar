@@ -1,0 +1,10 @@
+source elaborations.soar
+source compute-alternative-dice-counts.soar
+pushd compute-alternative-dice-counts
+source compute-alternative-dice-counts_source.soar
+popd
+source create-preferences.soar
+source evaluate-operator.soar
+pushd evaluate-operator
+source evaluate-operator_source.soar
+popd

@@ -1,0 +1,60 @@
+sp {print-out-equation*propose*print-value
+   (state <s> ^type print-out-equation
+              ^print-id <id>
+              ^current-clause <cc>)
+   (<cc> ^type << number variable >>
+        -^print.print-id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name print-value)
+}
+
+sp {print-out-equation*apply*print-value
+   (state <s> ^operator.name print-value
+              ^top-state.problem.problem-list <pl>
+              ^print-id <pn>
+              ^current-clause <cc>)
+   (<cc> ^value <v>)
+   (<pl> ^count <c>
+         ^pointer <pp>)
+-->
+   (<pl> ^count <c> -
+                (+ <c> 1)
+         ^pointer <pp> -
+                  <next>)
+   (<pp> ^next <next>)
+   (<next> ^value <v>)
+   (<cc> ^print <pi>)
+   (<pi> ^print-id <pn>
+         ^flag complete)
+}
+
+#
+#sp {print-out-equation*apply*print-value
+#   (state <s> ^operator.name print-value
+#              ^top-state.problem.problem-list <pl>
+#              ^current-clause <cc>)
+#   (<cc> ^value <v>)
+#   (<pl> ^count <c>
+#         ^pointer <pp>)
+#-->
+#   (<pl> ^count <c> -
+#                (+ <c> 1)
+#         ^pointer <pp> -
+#                  <next>)
+#   (<pp> ^next <next>)
+#   (<next> ^value <v>)
+#}
+#
+#sp {print-out-equation*apply*print-value2
+#   (state <s> ^operator.name print-value
+#              ^top-state.problem.problem-list <pl>
+#              ^print-id <pn>
+#              ^current-clause <cc>)
+#   (<pl> ^count <c>
+#         ^pointer <pr>)
+#-->
+#   (<cc> ^print <pp>)
+#   (<pp> ^print-id <pn>
+#         ^flag complete)
+#}

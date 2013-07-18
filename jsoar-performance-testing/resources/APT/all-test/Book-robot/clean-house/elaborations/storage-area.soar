@@ -1,0 +1,9 @@
+sp {clean-house*elaborate*no-storage-area
+   (state <s> ^name robot
+              ^desired.storage-area-id <id>
+             -^areas.area.id <id>)
+  -{(<s> ^areas.area <area>)
+    (<area> -^visited yes)}
+-->
+   (<s> ^no-storage-area yes)
+}

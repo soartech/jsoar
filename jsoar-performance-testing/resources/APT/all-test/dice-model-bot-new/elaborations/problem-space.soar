@@ -1,0 +1,8 @@
+sp {dice*elaborate*problem-space
+   (state <s> ^name dice)
+-->
+   (<s> ^problem-space <p>
+        ^desired <d>)
+   (<p> ^name dice
+        ^default-state-copy yes
+        ^dont-copy top-state)}

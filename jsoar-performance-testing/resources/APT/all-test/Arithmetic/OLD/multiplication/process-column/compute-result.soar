@@ -1,0 +1,55 @@
+sp {process-column*propose*compute-result
+   (state <s> ^name process-column
+              ^digit1 <a1>
+              ^digit2 <a2>
+             -^result)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-result)
+}
+
+sp {process-column*apply*compute-result*addition
+   (state <s> ^operator.name compute-result
+              ^arithmetic.facts <af>
+              ^arithmetic-problem.operation addition
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a1>
+         ^digit2 <a2>
+         ^sum <result>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}
+
+sp {process-column*apply*compute-result*subtraction
+   (state <s> ^operator.name compute-result
+              ^arithmetic.facts <af>
+              ^arithmetic-problem.operation subtraction
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a2>
+         ^digit2 <result>
+         ^sum <a1>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}
+
+sp {process-column*apply*compute-result*multiplication
+   (state <s> ^name process-column
+              ^operator.name compute-result
+              ^arithmetic.multiplication <af>
+              ^arithmetic-problem.operation multiplication
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a1>
+         ^digit2 <a2>
+         ^product <result>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}

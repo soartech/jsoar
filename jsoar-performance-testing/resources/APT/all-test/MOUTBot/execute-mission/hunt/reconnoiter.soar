@@ -1,0 +1,20 @@
+echo "\nLoading execute-mission/hunt/reconnoiter"
+
+#The reconnoiter subgoal is designed to simulate the 
+#actions of a U.S. trained soldier entering an
+#uncleared room during a MOUT exercise.  The movements
+#are to spec but the agent will stop and fire on 
+#an enemy as soon as it is detected.
+
+#IF:
+#1.  My current area has not been marked as cleared
+#THEN:
+#    Propose recording the features of this area
+sp {hunt*propose*reconnoiter
+   (state <s> ^name hunt
+              ^top-state.map.current-area <my-area>)
+   (<my-area> -^cleared yes)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name reconnoiter)
+}

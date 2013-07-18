@@ -1,0 +1,9 @@
+echo "\nLoading object/find-and-acquire-object"
+                
+#
+# This operator is responsible for finding, moving to, and grabbing 
+# an object of class ^class. 
+#
+
+
+

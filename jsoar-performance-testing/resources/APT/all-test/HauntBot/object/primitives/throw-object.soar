@@ -1,0 +1,15 @@
+# ACTION: throw-object
+#
+# REQUIRED ATTRIBUTES:
+#             ^type throw-object
+#
+#
+
+# throw the currently held object
+sp {throw-object*propose*throw-current-object
+   (state <s> ^operator <o>)
+   (<o> ^type throw-object)
+   -->
+#   (write (crlf) |Gonna throw it!!|)
+   (<o> ^actions.throw foo) # any value is usable, so long as the 'throw' attribute is created
+}

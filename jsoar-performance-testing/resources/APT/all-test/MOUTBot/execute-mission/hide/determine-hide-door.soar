@@ -1,0 +1,212 @@
+sp {retreat*propose*determine-hide-door
+   (state <s> ^name hide 
+              ^current-area <ca>)
+   (<ca> ^node <door>
+        -^hide-door)
+   (<door> ^type << door connector >>)
+   -->
+   (write (crlf) |Propose hide-door: | <door>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+}
+
+### Base Decision on the following:
+
+###   hide-objective - if hide-objective is defined, prefer door that leads to hide-objective.
+###   Angle-off - reject hide toward the threat (within 40 degrees on each side of forward)
+###   Range - if no hide-objective, prefer doors that are further from the threat
+###   Will surender (or stand and fight) if there are no acceptable hide doors
+
+### hide OBJECTIVE
+sp {hide*select*determine-hide-door*hide-objective
+   (state <s> ^operator <o> +
+              ^top-state.mission.retreat-objective.area <r-area>
+              ^current-area.path <path>)
+   (<path> ^destination-area <r-area>
+           ^via-node <door>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   -->
+#   (write (crlf) |hide-objective door: | <door> )
+   (<s> ^operator <o> >)}
+
+##### Reject doors that take it back to area already retreated from
+sp {hide*elaborate*determine-hide-door*reject-abandonend-area
+   (state <s> ^operator <o> +
+              ^top-state.mission.abandoned-area <aa>
+              ^current-area.path <path>)
+   (<path> ^destination-area <aa>
+           ^via-node <door>
+           ^distance 1)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+-->
+#   (write (crlf) |REJECT hide-door: | <door> | abandoned area|)
+   (<s> ^operator <o> -)}
+
+##### Reject doors that take it back to area already hideed from
+sp {hide*elaborate*determine-hide-door*reject-abandonend-area2
+   (state <s> ^operator <o> +
+              ^current-area <ca>)
+   (<ca> ^path <path>)
+   (<path> ^destination-area.hide-door.connected-node.area <ca>
+           ^via-node <door>
+           ^distance 1)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+-->
+#   (write (crlf) |REJECT hide-door: | <door> | abandoned area|)
+   (<s> ^operator <o> -)}
+############## angle-off
+sp {hide*elaborate*determine-hide-door*a-o*door
+   (state <s> ^operator <o> +
+              ^top-state.io.input-link <il>)
+   (<il> ^agent.position <ap>
+         ^objects.node <node>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<node> ^name <node-name>
+           ^position <p2>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   (<door> ^name <node-name>)
+   -->
+#   (write (crlf) |hide-door: | <door> |, door a-o: | (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))
+   (<o> ^door-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {hide*elaborate*determine-hide-door*a-o*threat-door
+   (state <s> ^operator <o> +
+              ^current-area.threat-door.node.connected-node.position <p2>
+              ^top-state.io.input-link <il>)
+   (<il> ^agent.position <ap>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+-->
+   #(write (crlf) |hide-door: | <door> |, threat-door a-o:| (- 180 (compute-heading <x1> <y1> <x2> <y2>)))
+   (<o> ^threat-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {hide*elaborate*determine-hide-door*a-o*enemy
+   (state <s> ^operator <o> +            
+             -^current-area.threat-door <td>
+              ^top-state <ts>)
+   (<ts> ^threats.selected-threat.entity.position <p2>
+         ^io.input-link.agent.position <ap>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+-->
+#   (write (crlf) |hide-door: | <door> |, selected-threat a-o:| (- 180 (compute-heading <x1> <y1> <x2> <y2>)))
+   (<o> ^threat-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {hide*elaborate*determine-hide-door*a-o*diff
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-hide-door
+        ^door <door>
+        ^threat-a-o <tao>
+        ^door-a-o <dao>)
+-->
+#   (write (crlf) |hide-door: | <door> |, a-o diff:| (round-off-heading (- <dao> <tao>) 1))
+   (<o> ^a-o-diff  (round-off-heading (- <dao> <tao>) 1))}
+
+sp {hide*elaborate*determine-hide-door*min-ao-diff
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-hide-door
+        ^a-o-diff { > -40 < 40 <aodiff> }
+       -^a-o-diff { > -40 < <aodiff> })
+   -->
+   (<o> ^min-a-o-diff <aodiff>)}
+
+sp {hide*elaborate*determine-hide-door*a-o*reject
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-hide-door
+        ^door <door>
+       -^door-range { <drange> <= 60 }
+        ^min-a-o-diff { > -40 < 40 <a-o-diff>})
+-->
+#   (write (crlf) |REJECT hide-door: | <door> |, a-o diff:| <a-o-diff>)
+   (<s> ^operator <o> -)}
+
+### DOOR RANGE
+
+sp {hide*elaborate*determine-hide-door*door-range
+   (state <s> ^operator <o> +
+              ^io.input-link.agent.position <tp>)
+   (<tp> ^x <tx>
+         ^y <ty>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+#   (write (crlf) |hide-door: | <door> |,  door range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^door-range (compute-range <x> <y> <tx> <ty>))}
+
+############## Ranges
+
+sp {hide*elaborate*determine-hide-door*range*no-threat-door
+   (state <s> ^operator <o> +
+             -^current-area.threat-door
+              ^top-state.threats.selected-threat.entity.position <tp>)  # Not clear what the right thing is here
+   (<tp> ^x <tx> 
+         ^y <ty>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+#   (write (crlf) |hide-door: | <door> |,  threat range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^range (compute-range <x> <y> <tx> <ty>))}
+
+sp {hide*elaborate*determine-hide-door*threat-door
+   (state <s> ^operator <o> +
+              ^current-area.threat-door.node.position <tp>)  # Not clear what the right thing is here
+   (<tp> ^x <tx> 
+         ^y <ty>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+#   (write (crlf) |hide-door: | <door> |,  threat-door range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^range (compute-range <x> <y> <tx> <ty>))}
+
+sp {hide*elaborate*determine-hide-door*closest-range
+   (state <s> ^operator <o1> +)
+   (<o1> ^name determine-hide-door
+         ^range <range>
+        -^range { < <range> })
+   -->
+   (<o1> ^closest-range <range>)}          
+
+sp {hide*compare*determine-hide-door*range
+   (state <s> ^name hide
+             -^top-state.mission.retreat-objective  # ignore range if there is a hide-objective
+              ^operator <o1> +
+                        { <> <o1> <o2> } +)
+   (<o1> ^name determine-hide-door
+         ^closest-range <range>)
+   (<o2> ^name determine-hide-door 
+        -^closest-range >= <range>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {apply*determine-hide-door
+   (state <s> ^current-area <ca>
+              ^operator <o>)
+   (<o> ^name determine-hide-door
+        ^door <door>)
+   -->
+   #(write <door>)
+   (<ca> ^hide-door <door>)
+}
+
+
+

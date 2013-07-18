@@ -1,0 +1,9 @@
+sp {goto-gateway*propose*move-directly-to-gateway
+   (state <s> ^name goto-gateway
+              ^current-gateway <cg>
+             -^move-direction)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-directly-to-gateway
+         ^gateway <cg>)
+}

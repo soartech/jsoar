@@ -1,0 +1,137 @@
+## Add two variables - four cases
+## 1. x + x
+## 2. n * x + x
+## 3. x + n * x
+## 4. n * x + m * x - handled by undistribute
+
+
+sp {algebra*propose*add-varialbe*x*x
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name add-variable-simple)
+}
+
+sp {algebra*apply*add-variable-simple
+   (state <s> ^operator.name add-variable-simple
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (write (crlf) |Add | <rv> |+| <rv> | = 2 * | <rv> )
+   (<cc> ^operation add -
+                    multiply)
+   (<ls> ^type variable -
+               number
+         ^value <rv> -
+                2)
+}
+
+sp {algebra*propose*add-varialbe*nx*x
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name add-variable-nx-x)
+}
+
+sp {algebra*apply*add-variable-nx
+   (state <s> ^operator.name add-variable-nx-x
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^value <lv>
+          ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (write (crlf) |Add | <lv> | * | <rv> | + | <rv> | = | (+ 1 <lv> ) | * | <rv> )
+   (<cc> ^operation add -
+                    multiply)
+   (<ls> ^left-side <ls2> -
+         ^right-side <rs2> -
+         ^operation multiply -
+         ^type number
+         ^value (+ 1 <lv>))
+}
+
+
+
+sp {algebra*propose*add-varialbe*x-nx
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<ls> ^type variable
+         ^value <rv>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name add-variable-x-nx)
+}
+
+sp {algebra*apply*add-variable-x-nx
+   (state <s> ^operator.name add-variable-x-nx
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<ls> ^type variable
+         ^value <rv>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^value <lv>
+          ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (write (crlf) |Add | <lv> | * | <rv> | + | <rv> | = | (+ 1 <lv> ) | * | <rv> )
+   (<cc> ^operation add -
+                    multiply)
+   (<rs> ^left-side <ls2> -
+         ^right-side <rs2> -
+         ^operation multiply -
+         ^type variable
+         ^value <rv>)
+   (<ls> ^type variable -
+               number
+         ^value  <rv> -
+                 (+ 1 <lv>))
+}

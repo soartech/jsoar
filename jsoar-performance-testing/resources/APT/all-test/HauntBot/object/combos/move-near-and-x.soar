@@ -1,0 +1,18 @@
+echo "\nLoading move-near-and-x"
+
+#
+# compound command that moves to a specific distance from the target object, faces the object,
+# and then executes a secondary action, such as 'grab-object'. The distance is specified
+# in "elaborations/parameters.soar" as min-grab-distance and max-grab-distance. 
+# Due to the slight inaccuracy in the native Unreal function MoveTo, only an 
+# approximate location can be moved to (approximately  +- 15 units, I'm still verifying
+# the exact value -MJP 6/3/03)
+#
+#
+# required attributes
+#            ^target  (the item to be moved near)
+#            ^next-action
+#                  ^name
+#                  ^type
+#                  ^(OPTIONAL)     --> any other attributes for the next action
+#

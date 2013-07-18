@@ -1,0 +1,49 @@
+##################################### 
+# file: count-threats.soar 
+# created: REW: 2001-08-26
+## 
+# Count any threats that need to be reported
+#
+# Change history: 
+# 
+#  [1]
+
+echo "\nLoading execute-mission/sentry-watch/count-threats.soar"
+                
+# If there is a new threat, then it hasn't previously been counted
+
+sp {sentry-watch*propose*count-threats
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.threats.new-threat <nt>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name count-threats
+        ^threat <nt>)
+}
+
+sp {apply*count-threats*no-count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.threats <th>)
+   (<o1> ^name count-threats)
+   (<th> -^total-threats)
+   -->
+   (<th> ^total-threats 0)
+}
+
+sp {apply*count-threats*increment-count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.threats <th>)
+   (<o1> ^name count-threats
+         ^threat <nt>)
+   (<th> ^total-threats <count>
+         ^new-threat <nt>)
+   -->
+   (<th> ^total-threats <count> - (+ <count> 1) 
+         ^new-threat <nt> -
+         ^reported-threat <nt> )
+}
+
+
+
+
+

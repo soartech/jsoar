@@ -1,0 +1,7 @@
+multi-attributes area 10 
+#cd ../..
+#cd default
+#source selection.soar
+#cd ..
+#cd Book-robot/clean-house
+#learn --only

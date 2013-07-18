@@ -1,0 +1,37 @@
+
+# Prefers area 5 when starting in area 2, so as to create reproduceable behavior.
+#sp {DEBUG*common*compare*prefer-area-5
+#   (state <s> ^name explore
+#              ^operator <op1> +
+#                        <op2> +)
+#   (<op1> ^name move-to-area
+#          ^path <p1>)
+#   (<op2> ^name move-to-area
+#          ^path <p2>)
+#   (<p1> ^to-area <a>)
+#   (<p2> -^to-area.id 5)
+#   (<a> ^id 5
+#       -^recorded true)
+#-->
+#   (<s> ^operator <op1> > <op2>)
+#}
+
+#sp {DEBUG*common*set-blocked
+#   (state <s> ^superstate nil
+#              ^parameters.internal-simulation true
+#              ^map.areas.area.path.gateway <gw>)
+#   (<gw> ^id 202)
+#-->
+#   (<gw> ^blocked true)}
+
+#sp {update-all-paths*elaborate*substate
+#  (state <s> ^map.areas.area <a>)
+#  (<a> ^path <p> { <> <p> <p2> })
+#  (<p> ^to-area <t1> ^area-count <a1>)
+#  (<p2> ^to-area <t1> ^area-count <a2>)
+#  (<t1> ^id <id>)
+#-->
+#  (write (crlf) |*_*_*_*_*_*_* DUPLICATE PATH: | <t1> |: | <id> | ,| <p>  |(| <a1> |) |
+#<p2> |(| <a2> |) |)
+#  (halt)
+#}

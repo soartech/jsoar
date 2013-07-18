@@ -1,0 +1,19 @@
+# determine if agent is carrying the specified tool
+sp {use-tool*elaborate*has-tool
+   (state <s> ^type use-tool
+              ^tool.name <name>
+              ^top-state.status.decoration.name <name>)
+-->
+   (<s> ^has-tool yes)
+}
+
+# copy down tool and lock info
+sp {use-tool*elaborate*copy*info
+   (state <s> ^type use-tool
+              ^superstate.operator <o>)
+   (<o> ^target <target>
+        ^tool <tool>)
+-->
+   (<s> ^target <target>
+        ^tool <tool>)
+}

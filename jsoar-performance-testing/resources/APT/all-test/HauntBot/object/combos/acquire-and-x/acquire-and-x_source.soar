@@ -1,0 +1,7 @@
+source elaborations.soar
+source select.soar
+source clear-area.soar
+source place-step.soar
+source step-1a-acquire.soar
+source step-1b-acquire.soar
+source step-2-x.soar

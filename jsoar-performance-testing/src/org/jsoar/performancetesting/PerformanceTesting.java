@@ -54,6 +54,9 @@ public class PerformanceTesting
     private boolean jsoarEnabled = true;
 
     private boolean csoarEnabled = false;
+    
+    private List<String> categoriesToRun;
+    private List<String> testsToRun;
 
     private static final int EXIT_SUCCESS = 0;
 
@@ -169,6 +172,9 @@ public class PerformanceTesting
                 out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
                 jsoarEnabled = true;
             }
+            
+            categoriesToRun = config.getCategoriesToRun();
+            testsToRun = config.getTestsToRun();
 
             String csoarDirectory = config.getCSoarDirectory();
             String csoarLabel = config.getCSoarLabel();
@@ -323,6 +329,12 @@ public class PerformanceTesting
             // - ALT
 
             TestCategory category = testCategories.get(i);
+            
+            if (categoriesToRun.size() != 0)
+            {
+                if (categoriesToRun.contains(category.getCategoryName()) == false)
+                    continue;
+            }
 
             out.println("Starting " + category.getCategoryName() + ": \n");
             out.flush();
@@ -338,8 +350,17 @@ public class PerformanceTesting
             {
                 // Same thing as the above comment
                 // - ALT
+                
+                if (testsToRun.size() != 0)
+                {
+                    if (testsToRun.contains(tests.get(j).getTestName()) == false)
+                        continue;
+                }
+                
+                if (category.containsTest(tests.get(j)) == false)
+                        continue;
 
-                out.println("Starting Test: " + tests.get(i).getTestName());
+                out.println("Starting Test: " + tests.get(j).getTestName());
                 out.flush();
 
                 // Run JSoar First
@@ -348,7 +369,7 @@ public class PerformanceTesting
                     out.println("JSoar: ");
                     out.flush();
 
-                    Test jsoarTest = jsoarTests.get(i);
+                    Test jsoarTest = jsoarTests.get(j);
 
                     TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
                     try
@@ -374,7 +395,7 @@ public class PerformanceTesting
                 // Run CSoar Second
                 if (csoarEnabled)
                 {
-                    Test csoarTest = csoarTests.get(i);
+                    Test csoarTest = csoarTests.get(j);
                     out.println("CSoar " + csoarTestFactory.getLabel() + ": ");
                     out.flush();
 

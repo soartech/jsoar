@@ -1,0 +1,10 @@
+sp {robot*propose*find-block
+   (state <s> ^name robot
+              ^io.input-link <io>)
+   (<io> -^object.id <id>
+         -^self.carry)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-block
+         ^actions.rotate.direction left)
+}

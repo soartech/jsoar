@@ -1,0 +1,15 @@
+#echo "\nLoading follow-hall-axis/forward-to-door"
+
+## If not at end of wall, thrust forward
+##  don't expect doors on the side.
+
+sp {follow-hall-axis*propose*forward-to-door
+   (state <s> ^name follow-hall-axis
+             -^axis.end-of-wall true
+             -^end-wall)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name forward-to-door
+        ^actions.thrust forward)}
+
+

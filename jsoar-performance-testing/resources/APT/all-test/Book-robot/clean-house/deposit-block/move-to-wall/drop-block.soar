@@ -1,0 +1,12 @@
+sp {move-to-wall*propose*drop-block
+   (state <s> ^name move-to-wall
+              ^quiescence t
+              ^io.input-link.self.carry.id <id>
+              ^collision true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name drop-block
+         ^actions <a>)
+   (<a> ^move.direction stop
+        ^drop.id <id>)
+}

@@ -1,0 +1,10 @@
+echo "\nLoading move-to-area/explore"
+
+#propose explore as a worst-case option (no known path 
+#from current area to desired area)
+sp {move-to-area*propose*explore
+   (state <s> ^name move-to-area)
+-->
+   (<s> ^operator <o> + <)
+   (<o> ^name explore)
+}

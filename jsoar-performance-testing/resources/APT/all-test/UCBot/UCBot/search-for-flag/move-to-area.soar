@@ -1,0 +1,76 @@
+#
+## If we're starting our search around the original flag location, start by
+## moving directly to that original location.
+#sp {search-for-flag*propose*move-to-area*original-location
+#   (state <s> ^name search-for-flag
+#              ^top-state <ts>)
+#   (<ts> ^parameters.search-origin original-location
+#         ^map.current-area.path <path>
+#         ^flag.previous-id <id>)
+#   (<path> ^to-area <to-area>)
+#   (<to-area> -^searched true
+#               ^id <id>)
+#-->
+#   (<s> ^operator <op> + =)
+#   (<op> ^name move-to-area
+#         ^original-location true
+#         ^path <path>
+#         ^speed <run>)
+#}
+
+# Propose moving to unsearched areas.  A satisfactory area is <r> areas
+# away from the center of the search, where <r> is the current radius.
+sp {search-for-flag*propose*move-to-area
+   (state <s> ^name search-for-flag
+              ^search-radius <r>
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^flag.previous-id <id>)
+   (<map> ^current-area <cur>
+          ^areas <areas>)
+   (<areas> ^area <to-area>
+                  <start>)
+   (<start> ^id <id>
+            ^path <start-path>)
+   (<start-path> ^to-area <to-area>
+                 ^area-count <r>)
+   (<cur> ^path <cur-path>)
+   (<cur-path> ^to-area <to-area>)
+   (<to-area> -^searched true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-area
+         ^path <cur-path>
+         ^speed run)
+}
+
+## Prefer moving to the center of the search if it hasn't already
+## been searched (applicable only to ^search-origin original-location)
+#sp {search-for-flag*compare*move-to-area*original-area
+#   (state <s> ^name search-for-flag
+#              ^operator <o1> +
+#                        <o2> +)
+#   (<o1> ^name move-to-area
+#         ^original-location true)
+#   (<o2> ^name move-to-area
+#        -^original-location true)
+#-->
+#   (<s> ^operator <o1> > <o2>)
+#}
+
+# Prefer moving to the nearest unsearched area from our current
+# location (that is also within the current search radius, of
+# course).
+sp {search-for-flag*compare*move-to-area*distance
+   (state <s> ^name search-for-flag
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-area
+        -^original-location true
+         ^path.area-count <c1>)
+   (<o2> ^name move-to-area
+        -^original-location true
+         ^path.area-count > <c1>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

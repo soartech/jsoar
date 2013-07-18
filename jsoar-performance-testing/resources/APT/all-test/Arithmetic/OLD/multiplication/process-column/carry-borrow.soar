@@ -1,0 +1,27 @@
+sp {process-column*propose*carry-borrow
+   (state <s> ^name << process-column get-digit1 >>
+              ^carry-borrow > 0
+             -^current-column.next-column.carry-borrow)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name carry-borrow)
+}
+
+sp {process-column*apply*carry-borrow
+   (state <s> ^operator.name carry-borrow
+              ^carry-borrow <cb>
+              ^current-column.next-column <nc>)
+-->
+   (<nc> ^carry-borrow <cb>)
+}
+
+sp {process-column*compare*carry-borrow
+   (state <s> ^name process-column
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name carry-borrow)
+   (<op2> ^name write-result)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+

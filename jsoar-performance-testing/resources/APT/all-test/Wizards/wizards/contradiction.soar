@@ -1,0 +1,12 @@
+### Not an operator in Soar - just an elaboration 
+
+sp {wizards*deduce*contradiction
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^wizard <w>
+        ^name <kname>)
+   (<w> ^guessed <g1> { <> <g1> })
+-->
+   (write (crlf) | Contradiction in wizard | <kname> |'s view because of incompatible guesses.| )
+   (<w> ^contradiction true)
+}

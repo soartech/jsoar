@@ -1,0 +1,62 @@
+sp {encode*propose*create-variable
+   (state <s> ^name encode
+              ^current-problem-ptr.type constant)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name create-variable)
+}
+
+sp {apply*create-variable
+   (state <s> ^operator.name create-variable
+              ^superstate.current-problem <cp>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^value <value> ^type constant ^next <ncpp>)
+   (<cpsp> ^name <variable> ^next <ncpsp>)
+-->
+   (write (crlf) |Create | <cp> | ^| <variable> | | <value>)
+   (<cp> ^<variable> <value>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}
+
+sp {apply*create-variable*clear
+   (state <s> ^operator.name create-variable
+              ^superstate.current-problem <cp>
+             -^current-problem-ptr.value <value>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpsp> ^name <variable> 
+           ^type variable)
+   (<cp> ^<variable> <value>)
+-->
+   (<cp> ^<variable> <value> -)
+}
+
+sp {apply*create-variable*result
+   (state <s> ^operator.name create-variable
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>
+              ^superstate.current-problem.result <r>)
+   (<cpp> ^value <value> ^type constant)
+   (<cpsp> ^name <constant>)
+-->
+   (<r> ^<constant> <value>)
+}
+
+
+sp {apply*create-variable*set-term-initial-value
+   (state <s> ^operator.name create-variable
+              ^superstate.current-problem <cp>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^value <value> ^type constant)
+   (<cpsp> ^name <variable>)
+-->
+   (<cp> ^terms <t>)
+   (<t> ^term-name <variable>
+        ^type definition
+        ^term-initial-value <value>)
+}
+

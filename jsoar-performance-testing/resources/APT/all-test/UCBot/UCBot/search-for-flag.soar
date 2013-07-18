@@ -1,0 +1,19 @@
+# When the parameters instruct the bot to search for the flag, propose searching for it
+sp {UCBot*propose*search-for-flag
+   (state <s> ^name UCBot
+              ^mission.search-for-flag <area>
+              ^parameters.search-origin original-location)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name search-for-flag
+         ^speed walk)
+}
+
+sp {UCBot*compare*search-for-flag
+   (state <s> ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name search-for-flag)
+   (<op2> ^name go-to-flag)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

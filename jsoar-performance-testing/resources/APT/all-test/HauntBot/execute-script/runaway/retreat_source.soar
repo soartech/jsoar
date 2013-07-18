@@ -1,0 +1,5 @@
+source elaborations.soar
+source abandon-objective.soar
+source detect-no-retreat-door.soar
+source determine-retreat-door.soar
+source move-to-new-room.soar

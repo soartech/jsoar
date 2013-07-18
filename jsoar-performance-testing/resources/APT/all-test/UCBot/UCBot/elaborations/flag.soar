@@ -1,0 +1,22 @@
+
+# When in the same area as the flag, elaborate the distance to the flag.
+#sp {elaboration*elaborate*flag-range
+#   (state <s> ^flag <cur-flag>
+#              ^top-state.map.current-area <area>
+#              ^io.input-link.location <loc>
+#              ^headings <headings>)
+#   (<loc> ^x <x> ^y <y>)
+#   (<cur-flag> ^x <fx> ^y <fy> ^area <area>)
+#-->
+#   (<headings> ^flag-range (compute-range <x> <y> <fx> <fy>))
+#}
+
+sp {elaboration*elaborate*flag-area
+   (state <s> ^superstate nil
+              ^flag <cur-flag>
+              ^top-state.map.areas.area <area>)
+   (<cur-flag> ^previous-id <aid>)
+   (<area> ^id <aid>)
+-->
+   (<cur-flag> ^area <area>)
+}

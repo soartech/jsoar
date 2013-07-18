@@ -1,0 +1,37 @@
+#echo "\nLoading explore-room/explore-axis"
+
+# Prepare to search along the axis of the room, either north-south
+# or east-west - will do both in a room and just one in a hall.
+
+sp {explore-room*propose*explore-axis
+   (state <s> ^name explore-room 
+              ^explore-room <cr>)
+   (<cr> ^axis <a>
+         ^aligned-room
+         ^type << room hall >>)
+   (<a> -^mapped true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name explore-axis
+        ^axis <a>)}
+        
+# Prefer exploring wall in the direction you are already heading
+
+sp {explore-room*select*explore-axis*east-west
+   (state <s> ^name explore-room 
+              ^operator <o> +
+              ^top-state.heading.within-45 << north south >>) 
+   (<o> ^name explore-axis
+        ^axis.orientation north-south)
+   -->
+   (<s> ^operator <o> >)}
+
+sp {explore-room*select*explore-axis*north-south
+   (state <s> ^name explore-room
+              ^operator <o> +
+              ^top-state.heading.within-45 << east west >>)   
+   (<o> ^name explore-axis
+        ^axis.orientation east-west)
+   -->
+   (<s> ^operator <o> >)}
+

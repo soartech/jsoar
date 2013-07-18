@@ -1,0 +1,27 @@
+##################################### 
+# file: move-to-defensive-area
+# created: JEL
+## 
+# 
+# Move to the (x,y,z) indicated in mission.defensive-position
+#
+# Change history: 
+# [1] REW: 2002-08-22
+#     This operator is useful in any state that uses defensive-position 
+#     so make the proposal dependent on this elaboration.
+
+
+sp {defend*propose*move-to-defensive-area
+   (state <s> ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+              ^top-state.parameters.default-walk-speed <spd>)
+    (<dp> ^area <area>
+         -^area-achieved true)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-defensive-area
+        ^type move-to-area
+        ^area <area>
+        ^speed <spd>)
+}
+

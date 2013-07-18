@@ -1,0 +1,8 @@
+source _all.soar
+source monitor.soar
+source pre-computed-problems.soar
+source print-problems.soar
+source smem.soar
+source special-digits.soar
+source top-state.soar
+source Verify.soar

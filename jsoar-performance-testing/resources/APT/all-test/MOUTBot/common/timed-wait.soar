@@ -1,0 +1,32 @@
+## NOTE: HAVEN'T REALLY LOOKED AT THIS YET
+
+#sp {common*apply*timed-wait
+#   (state <s> ^operator <o>
+#              ^io.input-link.agent.cycle <t> #should be time
+#              ^top-state <ts>)
+#  -(<ts> ^wait-counter.name <name>)
+#   (<o> ^type timed-wait
+#        ^duration <d>
+#        ^name <name>)
+#-->
+#   (<ts> ^wait-counter <wc>)
+#   (<wc> ^name <name>
+#         ^stop-time (+ <t> <d>)
+#         ^remove-time (+ <t> <d> 10))}
+
+#sp {common*elaborate*state*wait-completed*true
+#   (state <s> ^io.input-link.agent.cycle <t>
+#              ^wait-counter <wc>)
+#   (<wc> -^stop-time > <t>)
+#   -->
+#    (<wc> ^wait-completed true)
+#}
+
+#sp {common*apply*removed-timed-wait
+#   :o-support
+#   (state <s> ^io.input-link.agent.cycle <t>
+#              ^wait-counter <wc>)
+#   (<wc> ^remove-time <= <t>)
+#-->
+#   (<s> ^wait-counter <wc> -)}
+

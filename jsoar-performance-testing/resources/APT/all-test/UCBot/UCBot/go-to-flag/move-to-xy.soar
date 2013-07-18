@@ -1,0 +1,13 @@
+
+sp {go-to-flag*propose*move-to-xy
+   (state <s> ^name go-to-flag
+              ^superstate.operator.flag <f>
+              ^top-state.map.current-area.id <id>)
+   (<f> ^area-id <id>
+        ^x <x> ^y <y>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-xy
+         ^x <x> ^y <y>
+         ^speed walk)
+}

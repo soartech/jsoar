@@ -1,0 +1,18 @@
+echo "\nLoading goto-item/stop-moving"
+
+## item-distance and item-distance-check computed in elaborations.soar
+
+sp {goto-item*propose*stop-moving
+   (state <s> ^name goto-item
+             -^mode << retreat wander collect-powerups attack >>
+             -^top-state.self.stopped
+              ^item-distance-check true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name stop-moving
+        ^actions <a>)
+   (<a> ^facetarget off
+        ^thrust off)}
+
+
+

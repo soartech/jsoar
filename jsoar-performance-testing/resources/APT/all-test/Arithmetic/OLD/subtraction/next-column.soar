@@ -1,0 +1,20 @@
+sp {subtraction*propose*next-column
+   (state <s> ^name subtraction
+              ^subtraction-problem.current-column <c>)
+   (<c> ^difference
+       -^next-column nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name next-column)
+}
+
+sp {subtraction*apply*next-column
+   (state <s> ^operator.name next-column
+              ^subtraction-problem <ap>)
+   (<ap> ^current-column <c>)
+   (<c> ^next-column <nc>)
+-->
+   (<ap> ^current-column <c> -
+                         <nc>)
+}
+

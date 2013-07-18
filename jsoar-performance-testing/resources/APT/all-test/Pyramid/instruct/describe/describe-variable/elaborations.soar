@@ -1,0 +1,44 @@
+#### PRIOR KNOWLEDGE
+sp {z-z-y
+   (state <s> ^name describe-variable 
+              ^relation <r>
+              ^<role1> |z|
+              ^<role2> |z-y|
+              ^superstate <ss>)
+   (<r> ^arg1 <role1> 
+        ^relation minus
+        ^arg2 <role2>)
+   (<ss> ^operator.arg <arg>)
+-->
+   (<ss> ^<arg> |y|)
+}
+
+sp {15-15-x
+   (state <s> ^name describe-variable
+              ^relation <r>
+              ^<role1> 15
+              ^<role2> |15-x|
+              ^superstate <ss>)
+   (<r> ^arg1 <role1>
+        ^relation minus 
+        ^arg2 <role2>)
+   (<ss> ^operator.arg <arg>)
+-->
+   (<ss> ^<arg> |x|)
+}
+
+sp {20-20-11
+   (state <s> ^name describe-variable
+              ^relation <r>
+              ^<role1> 20
+              ^<role2> |20-11|
+              ^superstate <ss>)
+   (<r> ^arg1 <role1> 
+        ^relation minus 
+        ^arg2 <role2>)
+   (<ss> ^operator.arg <arg>)
+-->
+   (<ss> ^<arg> 11)
+}
+
+

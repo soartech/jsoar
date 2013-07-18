@@ -1,0 +1,12 @@
+sp {jump*elaborate*range
+   (state <s> ^type jump-on-things
+              ^io.input-link.agent.position <apos>
+              ^target <target>)
+   (<target> ^position <tpos>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>)
+-->
+   (<target> ^range (compute-range <agent-x> <agent-y> <target-x> <target-y>))
+}

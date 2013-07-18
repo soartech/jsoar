@@ -1,0 +1,251 @@
+sp {algebra*propose*print-list
+   (state <s> ^name algebra
+              ^problem <p>)
+   (<p> ^status printed
+        ^problem-list <pr>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name print-list
+         ^problem-list <pr>)
+}
+sp {algebra*compare*print-list
+   (state <s> ^name algebra
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name print-list)
+   (<op2> ^name solve-problem)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {algebra*apply*print-list-output
+   (state <s> ^operator <op>
+              ^problem <p>
+              ^io.output-link <out>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+-->
+   (<p> ^problem-list <pl> -)
+   (<out> ^text <pl>)
+}
+
+sp {algebra*apply*print-list1
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 1
+         ^next <n1>)
+   (<n1> ^value <i1>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1>)
+}
+
+sp {algebra*apply*print-list2
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 2
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2>)
+}
+
+sp {algebra*apply*print-list3
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 3
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3>)
+}
+
+sp {algebra*apply*print-list4
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 4
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4>)
+}
+
+sp {algebra*apply*print-list5
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 5
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5>)
+}
+
+sp {algebra*apply*print-list6
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 6
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>
+         ^next <n6>)
+   (<n6> ^value <i6>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5> | | <i6>)
+}
+
+sp {algebra*apply*print-list7
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 7
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>
+         ^next <n6>)
+   (<n6> ^value <i6>
+         ^next <n7>)
+   (<n7> ^value <i7>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5> | | <i6> | | <i7>)
+}
+
+sp {algebra*apply*print-list8
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 8
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>
+         ^next <n6>)
+   (<n6> ^value <i6>
+         ^next <n7>)
+   (<n7> ^value <i7>
+         ^next <n8>)
+   (<n8> ^value <i8>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5> | | <i6> | | <i7> | | <i8>)
+}
+
+sp {algebra*apply*print-list9
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 9
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>
+         ^next <n6>)
+   (<n6> ^value <i6>
+         ^next <n7>)
+   (<n7> ^value <i7>
+         ^next <n8>)
+   (<n8> ^value <i8>
+         ^next <n9>)
+   (<n9> ^value <i9>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5> | | <i6> | | <i7> | | <i8> | | <i9>)
+}
+
+sp {algebra*apply*print-list10
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-list
+         ^problem-list <pl>)
+   (<pl> ^count 10
+         ^next <n1>)
+   (<n1> ^value <i1>
+         ^next <n2>)
+   (<n2> ^value <i2>
+         ^next <n3>)
+   (<n3> ^value <i3>
+         ^next <n4>)
+   (<n4> ^value <i4>
+         ^next <n5>)
+   (<n5> ^value <i5>
+         ^next <n6>)
+   (<n6> ^value <i6>
+         ^next <n7>)
+   (<n7> ^value <i7>
+         ^next <n8>)
+   (<n8> ^value <i8>
+         ^next <n9>)
+   (<n9> ^value <i9>
+         ^next <n10>)
+   (<n10> ^value <i10>
+          ^next <n11>)
+-->
+   (<p> ^problem-list <pl> -)
+   (write (crlf) <i1> | | <i2> | | <i3> | | <i4> | | <i5> | | <i6> | | <i7> | | <i8> | | <i9> | | <i10>)
+}

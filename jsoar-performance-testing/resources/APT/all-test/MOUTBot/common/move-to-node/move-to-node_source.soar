@@ -1,0 +1,4 @@
+source elaborations.soar
+source move-to-area.soar
+source move-to-xyz.soar
+source update-lastnode.soar

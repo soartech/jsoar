@@ -1,0 +1,62 @@
+sp {grasp-ied*propose*grasp-get
+   (state <s> ^name grasp-ied
+              ^clear
+              ^object <b>
+              ^top-state.io.input-link.objects.object <obj>)
+   (<b> ^id <id>
+        ^confirmation received)
+   (<obj> ^id <id>
+          ^type {<> player}
+          ^diffused true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name grasp-get)
+}
+
+sp {apply*grasp-get*allow
+   (state <s> ^operator <op>
+              ^top-state.io <io>)
+   (<op> ^name grasp-get)
+   (<io> ^input-link <in>
+         ^output-link <out>)
+   (<in> ^objects.object <obj>
+         ^area-description.id <area>)
+   (<obj> ^type player
+          ^name <name>)
+-->
+   (<out> ^send-message <m>)
+   (<m> ^destination <name>
+        ^first <first>)
+   (<first> ^word |allow|
+            ^next <second>)
+   (<second> ^word <area>
+             ^next nil)
+}
+
+sp {apply*grasp-get*learn
+   (state <s> ^operator <op>
+              ^top-state <ts>
+              ^object <b>)
+   (<op> ^name grasp-get)
+   (<ts> ^labels.unique <label-name>
+         ^io.input-link.objects.object <obj>
+         ^diffusing <dh>)
+   (<b> ^type <label-name>
+        ^id <id>)
+   (<obj> ^id <id>
+          ^diffuse-wire <wire>)
+-->
+   (<dh> ^heuristic <h>)
+   (<h> ^label <label-name>
+        ^wire <wire>
+        ^strength 1)
+}
+
+sp {apply*grasp-get*get
+   (state <s> ^operator <op>
+              ^object.id <id>
+              ^top-state.io.output-link <out>)
+   (<op> ^name grasp-get)
+-->
+   (<out> ^get-object.id <id>)
+}

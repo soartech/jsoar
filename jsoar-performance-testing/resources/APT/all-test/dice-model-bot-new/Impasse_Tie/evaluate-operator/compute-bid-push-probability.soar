@@ -1,0 +1,214 @@
+## Could combine with compute-bid-difference if that used new unknown computation.
+## Only consider pushing after first bid
+
+sp {evaluate-operator*propose*compute-bid-push-probability
+   (state <s> ^name evaluate-operator
+             -^top-state.io.input-link.state.last-bid nil
+              ^top-state.probabilities true
+              ^superstate.operator.superoperator <so>)
+   (<so> ^name bid
+         ^push-face-count
+         ^face <face>
+         ^multiplier <multipler>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-push-probability
+         ^face <face>
+         ^multiplier <multipler>)
+}
+
+#### MUST COUNT NUMBER OF DICE/FACE and use that for <push-count> below.
+
+## Add in dice that are rerolled into the unknown for used in computing bid difference
+
+sp {evaluate-operator*elaborate*compute-bid-push-probability*1*push*unknown
+   (state <s> ^name evaluate-operator
+              ^operator <op> +
+              ^dice-counts.dice-count <dc2>
+              ^top-state.io.input-link.players.me.cup <cup>
+              ^superstate.operator.superoperator <so>)
+   (<cup> ^count <undercup>
+          ^<push-face> { < <undercup> <push-count> })
+   (<op> ^name << compute-bid-push-difference compute-bid-push-probability >>)
+   (<so> ^name bid
+         ^push-face-count 1
+         ^push-face <push-face>)
+   (<dc2> ^face unknown
+          ^count <unknown>)
+-->
+   (write (crlf) |Unknowns because of single push (| <push-face> |) = |  (+ <unknown> (- <undercup> <push-count>)))
+   (write (crlf) |   Original unknowns: | <unknown> | + undercup | <undercup> | - push-count | <push-count> )
+   (<op> ^unknown (+ <unknown> (- <undercup> <push-count>)))
+}
+
+
+sp {evaluate-operator*elaborate*compute-bid-push-probability*1*push*unknown*allsame
+   (state <s> ^name evaluate-operator
+              ^operator <op> +
+              ^dice-counts.dice-count <dc2>
+              ^top-state.io.input-link.players.me.cup <cup>
+              ^superstate.operator.superoperator <so>)
+   (<cup> ^count <undercup>
+          ^<push-face> <undercup>)  # Everything undercup is <push-face>
+                       (<op> ^name << compute-bid-push-difference compute-bid-push-probability >>)
+                       (<so> ^name bid
+                             ^push-face-count 1
+                             ^push-face <push-face>)
+                       (<dc2> ^face unknown
+                              ^count <unknown>)
+-->
+   (write (crlf) |Unknowns because of single push (| <push-face> |) = |  (+ <unknown> 1))
+   (write (crlf) |   Original unknowns: | <unknown> )
+   (<op> ^unknown (+ <unknown> 1))
+}
+
+## When pushing 1's and another face
+
+sp {evaluate-operator*elaborate*compute-bid-push-probability*2*push*unknown
+   (state <s> ^name evaluate-operator
+              ^operator <op> +
+              ^dice-counts.dice-count <dc3>
+              ^top-state.io.output-link <out>
+              ^top-state.io.input-link.players.me.cup <cup>
+              ^superstate.operator.superoperator <so>)
+   (<cup> ^count <undercup>
+          ^<push-face> <push-count>
+          ^1 <push-count1>)
+   (<op> ^name << compute-bid-push-difference compute-bid-push-probability >>)
+   (<so> ^name bid
+         ^push-face-count 2
+         ^push-face { <> 1 <push-face> }
+         ^push-face 1)
+   (<dc3> ^face unknown
+          ^count <unknown>)
+-->
+   (write (crlf) |Unknowns because of double push (| <push-face> |, 1) = | (+ <unknown> (- <undercup> (+ <push-count1> <push-count>))))
+   (write (crlf) |   Original unknowns: | <unknown> | + undercup | <undercup> | - push-count(face) | <push-count> | - push-count(1) | <push-count1> )
+   (<op> ^unknown (+ <unknown> (- <undercup> (+ <push-count1> <push-count>))))
+}
+
+##########
+
+##################################
+sp {apply*compute-bid-push-probability*1*bid*no-holds
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state.io.output-link <out>
+              ^dice-counts.dice-count <dc1>
+             -^dice-counts.dice-count.hold-face <> 1)
+   (<op> ^name compute-bid-push-probability
+         ^face 1
+         ^multiplier <bid-multi>
+         ^unknown <multi-unknown>)
+   (<dc1> ^face 1
+          ^count <multi-1>)
+-->
+   (write (crlf) |  Bid: | <bid-multi> | 1's. Estimated total: | (+ (/ <multi-unknown> 6) <multi-1>) | Bid Difference: | (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>))
+   (<s>  ^total-known (- <multi-1> <bid-multi>)
+         ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate ge)
+}
+
+sp {apply*compute-bid-push-probability*1*bid*holds
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state.io.output-link <out>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-bid-push-probability
+         ^face 1
+         ^multiplier <bid-multi>
+         ^unknown <multi-unknown>)
+   (<dc1> ^face 1
+          ^count <multi-1>)
+   (<dc2> ^hold-face <> 1
+          ^count <hold-count>)
+-->
+   (write (crlf) |  Bid: | <bid-multi> | 1's. Hold Count: | <hold-count>)
+   (write (crlf) |    Estimated total: | (+ (/ (+ <hold-count> <multi-unknown>) 6) <multi-1>))
+   (write (crlf) |    Bid Difference:  | (- (+ (/ (+ <hold-count> <multi-unknown>) 6) <multi-1>) <bid-multi>))
+   (<s>  ^total-known (- <multi-1> <bid-multi>)
+         ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice (+ <hold-count> <multi-unknown>)
+          ^number-of-faces 6
+          ^predicate ge)
+}
+
+sp {apply*compute-bid-push-probability*special-rules*bid
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1>)
+   (<op> ^name compute-bid-push-probability
+         ^face { <> 1 <face> }
+         ^multiplier <bid-multi>
+         ^unknown <multi-unknown>)
+   (<ts> ^io.input-link.state.special true
+         ^io.output-link <out>)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+-->
+   (write (crlf) |  Bid: | <bid-multi> | | <face> |'s. Estimated total: | (+ (/ <multi-unknown> 6) <multi-1>) | Bid Difference: | (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>) | special rules|)
+   (write (crlf) |    Unknowns: | <multi-unknown> | Showing: | <multi-1>)
+   (<s> ^total-known (- <multi-1> <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate ge)
+}
+
+sp {apply*compute-bid-push-probability*not-special-rules*bid
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^dice-counts.dice-count <dc1> <dc2>
+              ^top-state <ts>)
+   (<op> ^name compute-bid-push-probability
+         ^face { <> 1 <face> }
+         ^multiplier <bid-multi>
+         ^unknown <multi-unknown>)
+   (<ts> ^io.input-link.state.special false
+         ^io.output-link <out>)
+   (<dc1> ^face <face>
+          ^count <multi-bid>)
+   (<dc2> ^face 1
+          ^count <multi-1>)
+-->
+   (write (crlf) |  Bid: | <bid-multi> | | <face> |'s. Estimated total: | (+ (/ <multi-unknown> 3) <multi-1> <multi-bid>) | Bid Difference: | (- (+ (/ <multi-unknown> 3) <multi-1> <multi-bid>) <bid-multi>) | normal rules|)
+   (write (crlf) |    Unknowns: | <multi-unknown> | Showing: | <multi-1>)
+   (<s> ^total-known (- (+ <multi-1> <multi-bid> ) <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-bid> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> (+ <multi-bid> <multi-1>))
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 3
+          ^predicate ge)
+}
+
+

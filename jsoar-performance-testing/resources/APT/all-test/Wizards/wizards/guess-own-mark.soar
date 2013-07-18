@@ -1,0 +1,15 @@
+### Not an operator in Soar - just an elaboration 
+
+## If a wizard knows its own mark, it will guess the mark
+
+sp {wizards*propose*guess-own-mark
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^name <name>
+        ^wizard <w>)
+   (<w> ^name <name>
+        ^mark { << white black >> <g> })
+-->
+   (write (crlf) | Wizard | <name> | guesses its own color is | <g> )
+   (<w> ^guessed <g>)
+}

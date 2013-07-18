@@ -1,0 +1,66 @@
+#echo "\nLoading search-room/init-turn"
+
+sp {search-room*propose*init-turn
+   (state <s> ^name search-room
+              ^io.input-link.agent.origin <or>
+              ^current-room <cr>)
+   (<or> ^x <x> ^y <y>)
+  -(<cr> ^search.health)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name init-turn
+#       ^actions.thrust off
+        ^actions.sidestep off)}
+
+
+sp {search-room*apply*init-turn
+   (state <s> ^name search-room
+              ^operator.name init-turn
+              ^current-room <cr>
+              ^io.input-link.agent <a>)
+   (<a> ^angle.yaw <h>
+        ^origin <or>
+        ^health <health>
+        ^armor-amount <armor>)
+   (<or> ^x <x>
+         ^y <y>)
+   (<cr> ^hiding-place <hp>)
+   (<hp> ^x <item-x>
+         ^y <item-y>)
+   -->
+   (<cr> ^search <ss>)
+   (<ss> ^original-heading <h>
+         ^x <x>
+         ^y <y>
+         ^health <health>
+         ^armor <armor>
+         ^searched true)}
+
+
+##         ^search-heading (round-off-heading (compute-heading <y> <x> <item-y> <item-x>) 1))}
+## Removed because it makes it look goofy
+
+## Create search structure for noticing health and sound
+## but don't search if no hiding place.
+
+sp {search-room*apply*init-turn*no-search*hiding
+   (state <s> ^name search-room
+              ^operator.name init-turn
+              ^current-room <cr>
+              ^io.input-link.agent <a>)
+   (<a> ^angle.yaw <h>
+        ^origin <or>
+        ^health <health>
+        ^armor-amount <armor>)
+   (<or> ^x <x>
+         ^y <y>)
+   (<cr> -^hiding-place)
+   -->
+   (<cr> ^search <ss>)
+   (<ss> ^original-heading <h>
+         ^x <x>
+         ^y <y>
+         ^health <health>
+         ^armor <armor>
+         ^searched true)}
+

@@ -1,0 +1,15 @@
+sp {arithmetic*elaborate*pre-computed-problems
+   (state <s> ^superstate nil
+              ^parameters.problems-source wm)
+-->
+   (<s> ^current-problem <x0>)
+   (<x0> ^problem 0 ^next nil ^operation addition ^top-number 222 ^bottom-number 555 ^result 777)}
+
+#sp {arithmetic*elaborate*pre-computed-problems
+#   (state <s> ^superstate nil
+#              ^parameters.problems-source wm)
+#-->
+#   (<s> ^current-problem <x0>)
+#   (<x0> ^problem 0 ^next <x1> ^operation addition ^top-number 234 ^bottom-number 345 ^result  579)
+#   (<x1> ^problem 1 ^next <x2> ^operation subtraction ^top-number 579 ^bottom-number 234 ^result  345)
+#   (<x2> ^problem 2 ^next nil ^operation subtraction ^top-number 579 ^bottom-number 345 ^result  234)}

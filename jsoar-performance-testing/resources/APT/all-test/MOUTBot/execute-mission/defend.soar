@@ -1,0 +1,44 @@
+echo "\nLoading execute-mission/defend"
+
+sp {execute-mission*propose*defend
+   (state <s> ^name execute-mission
+              ^io.input-link.agent.health <h> # reconsider if health changes
+              ^mission.active-objective <ob>)
+    (<ob> ^type defensive)
+   -->
+   (write (crlf) |Propose Defend|)
+   (<s> ^operator <o> +, = 60)
+   (<o> ^name defend
+        ^objective <ob>) 
+}
+sp {execute-mission*compare*defend
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name defend)
+   (<o2> ^name << alert attack hunt hiding reload roam sentry-watch >>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+}
+
+sp {execute-mission*compare*defend2
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name defend)
+   (<o2> ^name  retreat
+        -^condition   << enemy-visible prior-retreat >>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+}
+
+sp {execute-mission*compare*defend3
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name defend)
+   (<o2> ^name choose-weapon
+         ^reason << reload empty >>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+}

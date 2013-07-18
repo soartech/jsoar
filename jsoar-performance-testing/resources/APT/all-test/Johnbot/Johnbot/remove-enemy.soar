@@ -1,0 +1,131 @@
+#echo "\nLoading remove-enemy"
+
+########################################################
+## If enemy dies, then removed it
+## If time runs out, remove enemy - time in milliseconds
+########################################################
+
+sp {quake*propose*remove-enemy*dead
+   (state <s> ^name quake
+              ^enemy <enemy>)
+   (<enemy> ^sensed-enemy.deadflag << dying dead >>)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |=================Enemy Died.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-enemy
+        ^enemy <enemy>
+        ^actions.attack off)}
+
+sp {quake*propose*remove-enemy*dead2
+  (state <s> ^name quake
+            -^io.input-link.entity.enemy <x>
+             ^enemy <enemy>)
+  (<enemy> ^sensed-enemy <x>
+          -^forget-time)
+  -->
+  (<s> ^operator <o> + =, >)
+  (write (crlf) |Lost enemy from input link|)
+  (<o> ^name remove-enemy
+       ^enemy <enemy>
+       ^actions.attack off)}
+
+sp {quake*propose*remove-enemy*out-of-date
+   (state <s> ^name quake
+             -^io.input-link.agent.cycle < <ct>
+              ^enemy <enemy>)
+   (<enemy> ^forget-time <ct>)
+   -->
+   (write (crlf) |Enemy out of date.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-enemy
+        ^enemy <enemy>
+        ^actions.attack off)}
+
+sp {quake*propose*remove-enemy*missing
+   (state <s> ^name quake
+             -^io.input-link.entity.enemy
+              ^io.input-link.map.forward.blocked true
+             -^enemy.prediction-final-room-number <frn>
+              ^enemy <enemy>)
+   -->
+   (write (crlf) |Enemy Behind Wall???|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-enemy
+        ^enemy <enemy>
+        ^actions.attack off)}
+
+sp {quake*select*remove-enemy
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name remove-enemy)
+   (<o2> ^name << attack explore hunt predict-enemy >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {quake*apply*remove-enemy
+   (state <s> ^operator <o>
+              ^enemy <enemy>)
+   (<o> ^name remove-enemy)
+   -->
+   (write (crlf) |Remove enemy | <enemy>)
+   (<s> ^enemy <enemy> -)}
+
+sp {quake*apply*remove-enemy-retreat
+   (state <s> ^operator.name remove-enemy
+              ^self <ss>)
+   (<ss> ^retreat <r>)
+   -->
+   (<ss> ^retreat <r> -)}
+  
+sp {quake*apply*remove-enemy*remember-if-died-and-know-resurrection-room
+   (state <s> ^operator <o>
+             -^enemy-just-died
+              ^map.room.resurrect <r>)
+   (<o> ^name remove-enemy
+        ^enemy.sensed-enemy.deadflag << dying dead >>)
+   -->
+   (<s> ^enemy-just-died true)}
+
+sp {quake*apply*remove-enemy*record-death
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^enemy-data <ed>)
+   (<o> ^name remove-enemy
+        ^enemy.sensed-enemy <se>)
+   (<se> ^name <name>
+         ^deadflag << dying dead >>)
+   (<ed> ^name <name>
+         ^last-dead-time { <ldt> <> <ct> }
+         ^deaths <deaths>)
+   -->
+   (<ed> ^last-dead-time <ldt> -
+                         <ct>
+         ^deaths <deaths> -
+                 (+ 1 <deaths>))}
+
+sp {quake*apply*remove-enemy*last-see-time
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^enemy-data <ed>)
+   (<o> ^name remove-enemy
+        ^enemy.sensed-enemy.name <name>)
+   (<ed> ^name <name>
+         ^last-see-time { <lst> <> <ct> })
+   -->
+   (<ed> ^last-see-time <lst> -
+                        <ct>)}
+
+sp {quake*apply*remove-enemy*last-weapon
+   (state <s> ^operator <o>
+              ^enemy-data <ed>)
+   (<o> ^name remove-enemy
+        ^enemy.sensed-enemy <se>)
+   (<se> ^name <name>
+         ^weapon <cname>)
+   (<ed> ^name <name>
+         ^last-weapon { <> <cname> <lw> })
+   -->
+   (<ed> ^last-weapon <cname>
+                      <lw> -)}

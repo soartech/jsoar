@@ -1,0 +1,5 @@
+sp {move-to-area*elaborate*area
+   (state <s> ^type move-to-area
+              ^superstate.operator.area <area>)
+-->
+   (<s> ^area <area>)}

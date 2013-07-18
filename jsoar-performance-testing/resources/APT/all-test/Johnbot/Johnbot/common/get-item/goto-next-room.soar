@@ -1,0 +1,61 @@
+#echo "\nLoading get-item/goto-next-room"
+
+sp {get-item*propose*goto-next-room
+   (state <s> ^name get-item
+              ^place other-room
+              ^classname <cname>
+              ^top-state.map <map>)
+   (<map> ^item <item>
+          ^current-room <cr>)
+   (<item> ^classname <cname>
+           ^room { <> <cr> <room> })
+   (<cr> ^path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+#   (write (crlf) |Proposing to get item | <cname> |, | <item> | in room | <room> | through door | <idoor>)
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^item <item>
+        ^distance <distance>
+        ^door <idoor>)}
+
+sp {get-item*propose*goto-next-room*type
+   (state <s> ^name get-item
+              ^place other-room
+             -^classname
+              ^type { <> state <> weapon <type> }
+              ^top-state.map <map>)
+   (<map> ^item <item>
+          ^current-room <cr>)
+   (<item> ^type <type>
+           ^room { <> <cr> <room> })
+   (<cr> ^path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+#   (write (crlf) |Proposing to get item | <type> |, | <item> | in room | <room> | through door | <idoor>)
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^item <item>
+        ^distance <distance>
+        ^door <idoor>)}
+
+sp {get-item*select*goto-next-room*shortest-distance
+   (state <s> ^name get-item
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name goto-next-room
+         ^distance <pr1>)
+   (<o2> ^name goto-next-room
+         ^distance > <pr1>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+### Rest of implementation in unexplored-room/goto-next-room.soar
+
+
+

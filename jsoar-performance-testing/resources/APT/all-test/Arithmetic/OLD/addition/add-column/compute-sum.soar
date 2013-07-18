@@ -1,0 +1,23 @@
+sp {add-column*propose*compute-sum
+   (state <s> ^name << get-adden1 add-column >>
+              ^adden1 <a1>
+              ^adden2 <a2>
+             -^sum)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-sum)
+}
+
+sp {add-column*apply*compute-sum
+   (state <s> ^operator.name compute-sum
+              ^addition.facts <af>
+              ^adden1 <a1>
+              ^adden2 <a2>)
+   (<af> ^addend1 <a1>
+         ^addend2 <a2>
+         ^sum <sum>
+         ^carry <carry>)
+-->
+   (<s> ^sum <sum>
+        ^carry <carry>)
+}

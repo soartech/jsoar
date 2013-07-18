@@ -1,0 +1,3 @@
+source elaborations.soar
+source move-forward.soar
+source turn-absolute.soar

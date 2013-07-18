@@ -1,0 +1,5 @@
+source elaborations.soar
+source face-door.soar
+source move-to-hiding-place.soar
+source pick-hiding-place.soar
+source shoot.soar

@@ -1,0 +1,37 @@
+
+# periodically update record-time and expire-time
+# If the entity is visible and isn't moving, its record & expire times will only be updated every
+# few seconds to help performance.
+#
+sp {all*propose*update-haunted-area*time
+   (state <s> ^name haunt
+              ^io.input-link <il>
+              ^top-state.entity-list.entity <entity>
+              ^map.area <area>)
+   (<il> ^agent.time <time>)
+   (<entity> ^name |Bob|   # quick hack to identify player/ghost
+             ^area-name <area-name>)
+   (<area> ^name <area-name>
+           ^haunted.record-time < <time>)
+   -->
+ #  (write (crlf) |Updating Haunted Area: | <area-name> |(time refresh)|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-haunted-area
+        ^area <area>)
+}
+
+sp {all*apply*update-haunted-area*time
+   (state <s> ^operator <o>
+              ^io.input-link.agent.time <newtime>
+              ^parameters.haunted-area-duration <duration>)
+   (<o> ^name update-haunted-area
+        ^area.haunted <h>)
+   (<h> ^record-time <oldtime>
+        ^expire-time <oldexpire>)
+-->
+#   (write | (HAUNTED AREA TIME) |)
+   (<h>   ^record-time <oldtime> -
+          ^record-time  (+ 5 <newtime>)
+          ^expire-time <oldexpire> -
+          ^expire-time (+ <newtime> <duration>))
+}

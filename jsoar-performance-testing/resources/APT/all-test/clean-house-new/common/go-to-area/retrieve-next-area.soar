@@ -1,0 +1,41 @@
+sp {go-to-area*propose*retrieve-next-area*previous-area*smem
+   (state <s> ^type go-to-area
+              ^top-state.parameters.areas-held-in smem
+              ^current-location <ca>)
+   (<ca> ^previous-area <pa>)
+   (<pa> -^id <id>)
+-->
+   (<s> ^operator <op> +, =, <)
+   (<op> ^name retrieve-next-area
+         ^area <pa>)}
+
+sp {go-to-area*propose*retrieve-next-area*next*smem
+   (state <s> ^type go-to-area
+              ^top-state.parameters.areas-held-in smem
+              ^current-location <ca>)
+   (<ca> ^next <pa>)
+   (<pa> -^id <id>)
+-->
+   (<s> ^operator <op> +, =, <)
+   (<op> ^name retrieve-next-area
+         ^area <pa>)}
+
+sp {go-to-area*propose*retrieve-next-area*neighbor*smem
+   (state <s> ^type go-to-area
+              ^top-state.parameters.areas-held-in smem
+              ^current-location <ca>)
+   (<ca> ^neighbor-area <pa>)
+   (<pa> -^id <id>)
+-->
+   (<s> ^operator <op> +, =, <)
+   (<op> ^name retrieve-next-area
+         ^area <pa>)}
+
+sp {apply*retrieve-next-area
+   (state <s> ^operator <op>
+              ^smem.command <cmd>)
+   (<op> ^name retrieve-next-area
+         ^area <area>)
+-->
+   (<cmd> ^query <area>)
+}

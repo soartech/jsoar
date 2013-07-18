@@ -1,0 +1,21 @@
+sp {compute-alternative-dice-counts*propose*found-min-hold-good-bid
+   (state <s> ^name compute-alternative-dice-counts
+             -^selected-holds
+              ^bid-probability <bp>)
+   (<bp> ^probability > .57
+         ^hold-probability >= .16
+         ^holds <holds>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name found-min-hold-good-bid
+         ^holds <holds>)
+}
+
+sp {apply*found-min-hold-good-bid
+   (state <s> ^operator <op>)
+   (<op> ^name found-min-hold-good-bid
+         ^holds <holds>)
+-->
+   (write (crlf) <holds> | gives bid probability of greater than 57%.|)
+   (<s> ^selected-holds <holds>)
+}

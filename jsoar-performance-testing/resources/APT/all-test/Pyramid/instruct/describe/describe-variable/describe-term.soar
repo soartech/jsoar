@@ -1,0 +1,41 @@
+sp {propose*define-arg1-to-describe
+   (state <s> ^name describe-variable
+              ^define <arg>
+              ^relation <r>
+             -^<arg1>)
+   (<r> ^arg1 <arg1>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name describe-term 
+         ^arg <arg1>)
+}
+
+sp {attempt*define-first-term-to-describe
+   (state <s> ^name describe-variable
+              ^operator.name describe-term
+              ^operator.arg first-term 
+              ^superstate.current-problem-ptr <p>)
+   (<p> ^element.value <val>)
+-->
+   (<s> ^first-term <val>)
+}
+
+sp {propose*define-arg2-to-describe
+   (state <s> ^name describe-variable 
+              ^define <arg>
+              ^relation <r>
+             -^<arg2>)
+   (<r> ^arg2 <arg2>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name describe-term ^arg <arg2>)
+}
+
+sp {attempt*define-last-term-to-describe
+   (state <s> ^name describe-variable
+              ^operator.name describe-term
+              ^operator.arg last-term
+              ^pointer.next.value <val>)
+-->
+   (<s> ^last-term <val>)
+}  

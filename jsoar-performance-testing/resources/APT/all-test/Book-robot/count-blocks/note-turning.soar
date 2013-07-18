@@ -1,0 +1,20 @@
+sp {count-blocks*propose*note-turning
+   (state <s> ^name count-blocks
+             -^turning yes
+              ^initial-direction <dir>
+              ^direction <odir>
+              ^directions <ddd>
+              ^io.input-link.self <self>)
+   (<ddd> ^value <dir>
+          ^opposite <odir>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name note-turning)
+}
+
+sp {apply*note-turning
+   (state <s> ^operator <op>)
+   (<op> ^name note-turning)
+-->
+   (<s> ^turning yes)
+}

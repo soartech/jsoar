@@ -1,0 +1,15 @@
+sp {runaway*propose*detect-no-runaway-door
+   (state <s> ^name runaway
+             -^current-area.runaway-door)
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name detect-no-runaway-door)
+}
+
+sp {apply*detect-no-runaway-door
+   (state <s> ^current-area <ca>
+              ^operator <o>)
+   (<o> ^name detect-no-runaway-door)
+   -->
+   (<ca> ^runaway-door none)
+}

@@ -1,0 +1,12 @@
+multi-attributes item 10
+multi-attributes node 10
+multi-attributes path 20
+multi-attributes area 30
+  
+#w 1
+
+#set warnings
+#log -new /temp/foo.log
+#watch productions -on
+#watch wmes -on
+

@@ -1,0 +1,12 @@
+echo "\nLoading attack-grenade/face-enemy-entryway"
+
+sp {attack-grenade*propose*face-enemy-entryway
+   (state <s> ^name attack-grenade
+             -^achieved-target-node-angle-off true
+              ^selected-target-node.position <p>)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name face-enemy-entryway
+        ^actions.face <p>)
+}
+

@@ -1,0 +1,9 @@
+
+# When you're not recording anything about an area or a path,
+# explore the world!
+sp {UCBot*propose*explore
+   (state <s> ^name UCBot)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name explore)
+}

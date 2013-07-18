@@ -1,0 +1,26 @@
+source elaborations.soar
+source acquire.soar
+source combos.soar
+pushd combos
+source combos_source.soar
+popd
+source jump.soar
+pushd jump
+source jump_source.soar
+popd
+source move-to-area-safely.soar
+pushd move-to-area-safely
+source move-to-area-safely_source.soar
+popd
+source move-to-pos.soar
+pushd move-to-pos
+source move-to-pos_source.soar
+popd
+source primitives.soar
+pushd primitives
+source primitives_source.soar
+popd
+source use-tool.soar
+pushd use-tool
+source use-tool_source.soar
+popd

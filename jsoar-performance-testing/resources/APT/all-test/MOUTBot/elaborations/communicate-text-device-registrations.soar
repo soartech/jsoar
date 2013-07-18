@@ -1,0 +1,27 @@
+##################################### 
+# file: text-message-control.soar 
+# created: 2002-07-08
+## 
+# Change history: 
+# 
+# [1] Created REW
+
+#       This file indicates what messages of message-type should be
+#       printed in the agent window. This should just be a lookup table.
+
+##################################### 
+
+echo "\nLoading ./elaborations/communicate-text-device-registrations.soar "
+
+# REW: 2002-07-08
+# For now, we assume *any* message should be printed to the agent window (helpful for debugging, but likely not demos)
+
+# Do not test ^top-state, otherwise get a device for ea state....
+sp {apply*communicate*register*text
+   (state <s> ^comm.communicate <message> )
+   (<message> ^name  <anything> )
+-->
+   (<message> ^device <d>  )
+   (<d> ^type text 
+        ^name agent-window)
+}

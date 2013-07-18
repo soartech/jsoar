@@ -1,0 +1,43 @@
+#echo "\nLoading all/notice-item"
+
+## This is used to notice items during explore - it is not used after that.
+
+sp {all*propose*notice-item
+   (state <s> ^name << forward-to-door follow-room-axis follow-hall-axis goto-door >>
+              ^io.input-link.entity.item <it>
+              ^top-state.map <m>)
+   (<m> -^explored true)
+ -{(<m> ^item <item>)
+   (<item> ^x <x>
+           ^y <y>
+           ^classname <cname>)}
+   (<it> ^origin <or>
+         ^classname <cname>)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name notice-item
+        ^item <it>)}
+
+sp {all*apply*notice-item
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name notice-item
+        ^item <it>)
+   (<it> ^classname <classname>
+         ^origin <or>
+         ^type <type>)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (<map> ^item <item>)
+   (<item> ^classname <classname>
+           ^type <type>
+           ^x <x>
+           ^y <y>
+           ^regeneration-time 0)}
+
+### ^regeneration-time is added and if > current time then item is unavailable.
+###  should be removed with current time > or if see object.
+

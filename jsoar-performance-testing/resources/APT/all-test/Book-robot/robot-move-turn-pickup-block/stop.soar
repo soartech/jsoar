@@ -1,0 +1,26 @@
+sp {robot-move-turn-pickup-block*propose*stop*in-range
+   (state <s> ^name robot
+              ^parameters.pickup-range <pr>
+              ^io.input-link <input>)
+   (<input> ^self.velocity.speed > 0.0
+            ^object <obj>)
+   (<obj> ^type block
+          ^visible yes
+          ^range < <pr>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name stop
+         ^actions.move.direction stop)
+}
+
+sp {robot-move-turn-pickup-block*propose*stop*collision
+   (state <s> ^name robot
+              ^parameters.pickup-range <pr>
+              ^io.input-link.self <self>)
+   (<self> ^collision.<xy> true
+          -^velocity.speed 0.0)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name stop
+         ^actions.move.direction stop)
+}

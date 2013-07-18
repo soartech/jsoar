@@ -1,0 +1,21 @@
+sp {robot*propose*move-forward-to-wall*discrete
+   (state <s> ^name robot
+             -^io.input-link.self.blocked.forward true
+              ^io.input-link.self.carry
+              ^io.input-link.self.position <pos>)
+   (<pos> ^row <row>
+          ^col <col>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-forward
+         ^actions.move.direction forward)
+}
+
+sp {robot*RL*move-forward2
+   :template
+   (state <s> ^name robot
+              ^io.input-link.self.carry
+              ^operator <o> +)
+   (<o> ^name move-forward)
+-->
+   (<s> ^operator <o> = 0)}

@@ -1,0 +1,38 @@
+echo "\nLoading execute-mission/hiding"
+
+################################
+## hiding operator
+################################
+
+#  Add hiding as possibility when reloading
+
+sp {execute-mission*propose*hiding
+   (state <s> ^name execute-mission
+              ^top-state.self.hiding.hiding-area <ca>
+              ^top-state.map.current-area <ca>)
+-->
+   (write (crlf) |Propose Hiding|)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name hiding)
+}
+
+sp {execute-mission*compare*hiding
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name hiding)
+   (<o2> ^name << alert attack reload >>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+}
+
+sp {execute-mission*compare*hiding*retreat
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name hiding)
+   (<o2> ^name << hide retreat >>
+        -^condition grenade)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

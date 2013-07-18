@@ -1,0 +1,4 @@
+source elaborations.soar
+source goto-item.soar
+source goto-next-room.soar
+source record-visited-room.soar

@@ -1,0 +1,35 @@
+echo "\nLoading execute-mission/hunt/elaborations"
+
+#AMN: 2002-08-02
+#Calculate the length and width of the current area 
+#(used for detecting narrow hallways and staircases)
+sp {goto-next-room*elaborate*area*width
+   (state <s> ^name hunt
+              ^top-state.map.current-area <ca>)
+   (<ca> ^min-x <min-x>
+         ^max-x <max-x>)
+-->
+   (<ca> ^width (- <max-x> <min-x>))
+}
+
+sp {goto-next-room*elaborate*area*length
+   (state <s> ^name hunt
+              ^top-state.map.current-area <ca>)
+   (<ca> ^min-y <min-y>
+         ^max-y <max-y>)
+-->
+   (<ca> ^length (- <max-y> <min-y>))
+}
+
+#AMN: 2002-08-02
+#If the area is too narrow (in either direction) then
+#mark it as a narrow area
+sp {goto-next-room*elaborate*area*is-narrow
+   (state <s> ^name hunt
+              ^top-state.map.current-area <ca>)
+   (<ca> ^<< width length >> < 250)
+-->
+   (<ca> ^narrow-area yes)
+}
+
+

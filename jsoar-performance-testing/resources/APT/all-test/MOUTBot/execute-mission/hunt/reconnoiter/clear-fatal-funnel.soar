@@ -1,0 +1,37 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/clear-fatal-funnel"
+
+#AMN: 2002-07-31
+#IF:
+#  1.  The "fatal funnel" has not been cleared
+#  2.  The agent is facing the entrance node
+#  THEN:
+#      Propose clearing the fatal funnel (i.e.,
+#      The agent moves forward into the room and
+#      clears the area directly in front of him.
+sp {reconnoiter*propose*clear-fatal-funnel
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <off-pos>
+              ^top-state.map <map>)
+   (<off-pos> -^cleared-fatal-funnel yes
+               ^entrance-node <enode>)
+   (<map> ^in-front-node <enode>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name clear-fatal-funnel
+        ^type move-to-node
+        ^node <enode>)
+}
+
+
+#AMN: 2002-07-31
+#Once I have reached the entrance (and implicitly not seen
+#an enemy) then the fatal funnel is cleared.
+sp {apply*clear-fatal-funnel
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <off-pos> 
+              ^top-state.map.near-node <enode>)
+   (<o> ^name clear-fatal-funnel)
+   (<off-pos> ^entrance-node <enode>)
+-->
+   (<off-pos> ^cleared-fatal-funnel yes)
+}

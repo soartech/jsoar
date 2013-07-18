@@ -1,0 +1,21 @@
+#echo "\nLoading all/start-moving"
+
+sp {all*propose*start-moving*forward
+   (state <s> ^attribute state
+              ^superstate.superstate.operator.name <> ambush <> backup
+              ^impasse no-change
+              ^top-state.self <self>
+              ^io.input-link <il>)
+   (<self> ^stopped true
+           ^stuck-time.stuck-time < <ct>
+          -^stuck)
+   (<il> ^agent.cycle <ct>
+         ^map.forward.distance > 100
+         ^feedback.thrust off)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+#  (write (crlf) |-------------------Forward |)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name start-moving
+        ^actions.thrust forward)}
+

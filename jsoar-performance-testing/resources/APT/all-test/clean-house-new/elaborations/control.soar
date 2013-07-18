@@ -1,0 +1,55 @@
+############ Control
+
+# only work with objects after all other stuff is done.
+
+sp {clean-house*compare*record-retrieve*object
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name << record-storage-area retrieve-current-area-gateways retrieve-current-area-walls record-smem-new-gateway-area record-smem-current-area store-area >>)
+   (<op2> ^name << get-object deposit-object record-object remove-object >>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+# Prefer records before retrieves
+sp {clean-house*compare*record*retrieve
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name << record-storage-area record-object re-record-object record-smem-new-gateway-area record-smem-current-area store-area >>)
+   (<op2> ^name << retrieve-current-area-gateways retrieve-current-area-walls >>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+
+sp {clean-house*compare*record-object*remove-object
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name << record-object get-object >>)
+   (<op2> ^name remove-object)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+sp {clean-house*compare*record-object*record-area
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name record-object)
+   (<op2> ^name << record-storage-area record-area >>)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+sp {clean-house*compare*record-object*remove-object2
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name re-record-object)
+   (<op2> ^name remove-object)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+

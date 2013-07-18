@@ -1,0 +1,164 @@
+echo "\nLoading elaborations/parameters"
+
+sp {elaborate*parameters
+   (state <s> ^name unreal)
+-->
+   (<s> ^parameters <p>)
+   (<p> ^enemy-remember-time 300        # Remember emeny for 5 minutes when disappears
+        ^hiding-time 10                 # Max time to hide
+        ^default-walk-speed .2               # multiplier for debugging, make smallerto slow bots
+        ^default-run-speed .4           # multiplier for debugging, make smaller to slow bot
+        ^detect-stuck-time 2            # if don't move in this time, assume stuck
+        ^detect-stuck-bad-time 20       # if don't move in this time, try regenerating move command
+        ^near-node-range 30             #near-thresh = how close I have to be to a node for it to be "nearby"
+        ^near-xy-range 50               #when to stop
+        ^right-angle-threshold 30       #maximum degrees off to the right before something is no longer "in front" of me
+        ^left-angle-threshold 330       #maximum degrees off to the left before something is no longer "in front" of m
+        ^floors <fone> <ftwo> <fthree>
+        ^wall-edge 30                   # distance from wall try to avoid
+        ^position-achieved-pos 30
+        ^position-achieved-neg -30
+        ^entry-node-displacement 0     # have used 30 but causes a problem in stairways
+        ^hurt-level 80
+        ^defend-door-displacement 40   # distance from max or min do create defend node
+        ^offset-test 100              # distance that defend node must be from door
+        ^grenade-throw-time 3          # time to run the grenade throw animation
+        ^grenade-wait-time 8           # minimum time to wait between grenade throws
+        ^max-grenade-range 1000        # furtherest range will try to throw grenade
+        ^min-grenade-range 400         # will not throw if enemy closer than this range
+        ^grenade-throw-strength <close> <near> <med> <far>
+        ^defensive-position-far 500
+        ^window-half-width 35          # HACK: See find-concealed-position
+        ^max-watch-length 500          # Maximum length of a sentry-watchx
+        ^sentry-threat-offset 15       # Maximum length of a sentry-watch
+        ^scan-angle 75                 # The rotation of the scan angle
+        ^scan-rate 40                  # How often to perform a scan
+        ^scan-period 20                # How long to execute the scan
+        ^scan-step 3                   # scan step size in degrees
+        ^perceive-underfire 30
+        ^feeler-max-distance 20        # Record the maximum distance of the feelers here, so that anything that depends on feelers for info can know how far they extend.
+        ^object-distance 40            # if closer than this distance, then stuck in that direction
+        ^min-angle-off-left-when-friend-ahead 350
+        ^min-angle-off-right-when-friend-ahead 10
+        ^opposite <op>
+        ^error-codes <ec>
+        ^connect-heading-opposite <cho>)
+   (<close> ^distance close #min distance, Infiltration users
+            ^value 80)
+   (<near> ^distance near
+           ^value 240)
+   (<med> ^distance medium
+             ^value 800)
+   (<far> ^distance far  #max distance, Infiltration users
+          ^value 1500)
+   (<op> ^front back
+         ^back  front
+         ^left  right
+         ^right left)
+   (<fone> ^name one
+           ^height-low -1600
+           ^height-high -861
+           ^displacement -600)
+   (<ftwo> ^name two
+           ^height-low -860
+           ^height-high -711
+           ^displacement 600)
+   (<fthree> ^name three
+             ^height-low -710
+             ^height-high -500
+             ^displacement 1800)
+   # REW: 2002-09-25
+   # These are the error codes from the simulator.  Use these
+   # rather than hard-coding error codes into productions.
+   (<ec> ^jump-not-on-solid-ground-or-crouching  1
+         ^turn-to-needs-direction                2
+         ^must-be-on-off-value                   3
+         ^unknown-command                        4
+         ^invalid-direction-attribute            5
+         ^no-object-with-that-name               6
+         ^missing-or-invalid-attribute           7
+         ^value-out-of-range                     8
+         ^invalid-value                          9
+         ^grab-failed-already-holding-something 10
+         ^too-far-to-grab                       11
+         ^not-facing-object-to-grab             12
+         ^object-cannot-be-picked-up            13
+         ^no-room-to-lift-object                14
+         ^not-holding-object-for-action         15
+         ^cannot-use-held-object                16
+         ^reload-failed-out-of-ammo             17
+         ^reload-failed-clip-already-full       18
+         ^weapon-jam                            19
+         ^unjam-failed                          20
+         ^alert-action-while-at-ease            21)
+   (<cho> ^0 180
+          ^180 0
+          ^90 270
+          ^270 90)
+}
+
+sp {elaborate*state*parameters*
+   (state <s> ^name unreal
+              ^parameters <p>)
+   -->
+   (<p> ^room-translations <rt>)
+   (<rt> ^corner <c>
+         ^door <d>
+         ^negative-one -1
+         ^positive-one 1
+         ^offset <x9>
+         ^offset <x10>
+         ^offset <x11>)
+   (<c> ^transform <x1>
+        ^transform <x2>
+        ^transform <x3>
+        ^transform <x4>)
+   (<x1> ^direction east
+         ^dimension max-x
+         ^sign negative-one)
+   (<x2> ^direction west
+         ^dimension min-x
+         ^sign positive-one)
+   (<x3> ^direction north
+         ^dimension min-y
+         ^sign positive-one)
+   (<x4> ^direction south
+         ^dimension max-y
+         ^sign negative-one)
+   (<d> ^transform <x5>
+        ^transform <x6>
+        ^transform <x7>
+        ^transform <x8>)
+   (<x5> ^direction east
+         ^sign positive-one)
+   (<x6> ^direction west
+         ^sign negative-one)
+   (<x7> ^direction south
+         ^sign positive-one)
+   (<x8> ^direction north
+         ^sign negative-one)
+   (<x9> ^type room
+         ^min 75
+         )
+   (<x10> ^type door
+          ^min 50
+          ^max 100)
+   (<x11> ^type corner
+          ^min 25
+          ^max 125)
+}
+
+
+# REW: 2003-06-08
+sp {monitor*parameters*wall-edge
+   (state <s> ^name unreal
+              ^parameters <p>)
+   (<p> ^wall-edge < <pos>
+        ^position-achieved-pos <pos>)
+-->
+   (write (crlf) |***********************************|)
+   (write (crlf) |error error ERROR |)
+   (write (crlf) |Position achieved threshold must be less than wall edge threshold |)
+
+   (write (crlf) |***********************************|)
+}

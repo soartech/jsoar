@@ -1,0 +1,35 @@
+##################################### 
+# file: elaborations/defensive-position.soar 
+# created: REW
+## 
+# 
+# Lead the squad in execution of the overall mission
+#
+# Change history: 
+# 
+
+echo "\nLoading execute-mission/lead-squad.soar"
+                
+sp {execute-mission*propose*lead-squad
+   (state <s> ^name execute-mission
+              ^mission.active-objective <obj>)
+   (<obj> ^type lead-squad)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name lead-squad
+        ^objective <obj>
+        ^lead-squad-instance (make-constant-symbol lead-squad-instance) )
+}
+
+
+# ^objective.lead-squad is where tp put information specific to the sentry-watch
+# objective
+sp {apply*lead-squad*objective*lead-squad
+   (state <s> ^operator <o1>
+                       )
+   (<o1> ^name lead-squad
+         ^objective <obj>)
+   (<obj> -^lead-squad)
+   -->
+   (<obj> ^lead-squad <sw>)
+}

@@ -1,0 +1,120 @@
+#Holds data about the agent
+
+sp {elaborate*self
+   (state <s> ^name haunt)
+   -->
+   (<s> ^self <self>)}
+
+### Floor
+sp {elaborate*self*floor-two
+   (state <s> ^name haunt
+              ^self <self>
+              ^parameters.floor-height <fl>
+             -^io.input-link.agent.position.z < <fl>)
+   -->
+   (<self> ^floor two)}
+
+sp {elaborate*self*floor-one
+   (state <s> ^name haunt
+              ^self <self>
+              ^parameters.floor-height <fl>
+             -^io.input-link.agent.position.z >= <fl>)
+   -->
+   (<self> ^floor one)}
+
+### Health
+sp {elaborate*self*hurt
+   (state <s> ^name haunt
+              ^self <self>
+              ^parameters.hurt-level <hl>
+             -^io.input-link.agent.health > <hl>)
+   -->
+   (<self> ^hurt true)}
+
+sp {elaborate*self*speed
+   (state <s> ^name haunt
+              ^self <self>
+              ^io.input-link.agent.velocity <v>)
+   (<v> ^x { > -1 < 1 }
+        ^y { > -1 < 1 })
+   -->
+   (<self> ^stopped true)
+   }
+
+########################
+
+sp {elaborate*self*stuck
+   (state <s> ^self <self>
+             -^predicting true
+              ^io.input-link <il>)
+   (<il> -^agent.time < <st>)
+   (<self> ^stopped true
+           ^move-to-xyz.stuck-time <st>)
+   -->
+   (write (crlf) |Stuck!|)
+   (<self> ^stuck true)
+   }
+
+sp {elaborate*self*stuck*front
+   (state <s> ^self <self>
+              ^io.input-link.map.front.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck Front!|)
+   (<self> ^stuck front)
+   }
+
+sp {elaborate*self*stuck*back
+   (state <s> ^self <self>
+              ^io.input-link.map.back.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck back!|)
+   (<self> ^stuck back)
+   }
+
+sp {elaborate*self*stuck*left
+   (state <s> ^self <self>
+              ^io.input-link.map.left.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck left!|)
+   (<self> ^stuck left)
+   }
+
+sp {elaborate*self*stuck*right
+   (state <s> ^self <self>
+              ^io.input-link.map.right.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck right!|)
+   (<self> ^stuck right)
+   }
+
+sp {elaborate*self*stuck*left-front
+   (state <s> ^self <self>
+              ^io.input-link.map.left-front.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck left-front!|)
+   (<self> ^stuck left)
+   }
+
+sp {elaborate*self*stuck*right-front
+   (state <s> ^self <self>
+              ^io.input-link.map.right-front.range < 20)
+   (<self> ^stuck true)
+   -->
+   (write (crlf) |Stuck right-front!|)
+   (<self> ^stuck right)
+   }
+
+### TACTICS LEVEL (set to "full" to turn on predict-enemy)
+
+sp {elaborate*self*tactics
+   (state <s> ^name haunt
+              ^self <self>)
+-->
+   (<self> ^tactics full)
+}
+

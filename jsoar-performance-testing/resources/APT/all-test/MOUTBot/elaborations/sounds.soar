@@ -1,0 +1,13 @@
+sp {unreal*display-sounds
+   (state <s> ^name unreal
+              ^io.input-link.sounds <ss>)
+   (<ss> ^<sss> <ssss>)
+-->
+   (write (crlf) |Sound : | <ss> | ^| <sss> | | <ssss>)}
+
+sp {unreal*display-messages
+   (state <s> ^name unreal
+              ^io.input-link.messages <ss>)
+   (<ss> ^<sss> <ssss>)
+-->
+   (write (crlf) |Messages : | <ss> | ^| <sss> | | <ssss>)}

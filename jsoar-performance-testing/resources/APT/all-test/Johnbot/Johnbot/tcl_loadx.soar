@@ -1,0 +1,8 @@
+echo "\ntcl_load"
+alias pref preferences
+
+source map.tcl
+source varprint.tcl
+source window.tcl
+echo "\End of rules..."
+

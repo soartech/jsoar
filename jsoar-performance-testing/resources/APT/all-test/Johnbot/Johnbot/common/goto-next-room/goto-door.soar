@@ -1,0 +1,32 @@
+#echo "\nLoading goto-next-room/goto-door"
+
+sp {goto-next-room*propose*goto-door
+   (state <s> ^name goto-next-room
+              ^current-room <room>
+              ^door <idoor>)
+   (<room> -^at-door <idoor>
+            ^type room)
+-->
+   # #tcl |tsiDisplayAndSendCommand stop-soar|)
+     (<s> ^operator <o> + =)
+     (<o> ^name goto-door
+          ^door <idoor>)
+}
+
+sp {goto-next-room*elaborate*go-to-door*stop-thrust
+   :i-support
+   (state <s> ^operator <o>
+              ^io.input-link.feedback.thrust backward)
+   (<o> ^name goto-door)
+   -->
+   (<o> ^actions.thrust off)}
+
+sp {goto-next-room*apply*goto-door*clean-up-old-door
+   (state <s> ^operator <o>
+              ^current-room <cr>)
+   (<o> ^name goto-door
+        ^door <> <door>)
+   (<cr> ^at-door <door>)
+   -->
+   (<cr> ^at-door <door> -)}
+

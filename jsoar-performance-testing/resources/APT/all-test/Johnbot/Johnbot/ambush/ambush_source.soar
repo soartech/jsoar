@@ -1,0 +1,10 @@
+source elaborations.soar
+source hide-by-door.soar
+pushd hide-by-door
+source hide-by-door_source.soar
+popd
+source hide-in-corner.soar
+pushd hide-in-corner
+source hide-in-corner_source.soar
+popd
+source remove-prediction.soar

@@ -1,0 +1,21 @@
+sp {guess-x*propose*create-x
+   (state <s> ^name guess-x
+              ^superstate <ss>)
+   (<ss> -^operator.prior-x-guess)
+  -{(<ss> ^current-problem.prior-problem.result <r>)
+    (<r> ^base <base>
+         ^height <height>
+         ^answer <a>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name create-x)
+}
+
+sp {apply*create-x
+   (state <s> ^operator <op>
+              ^superstate <ss>)
+   (<op> ^name create-x)
+-->
+   (<ss> ^x-guess <x>)
+   (<x> ^value 7)
+}

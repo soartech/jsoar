@@ -1,0 +1,45 @@
+sp {chase*propose*goto-next-room*on-wall
+   (state <s> ^name chase
+              ^top-state.sound.faced-in-room <cr>
+              ^wall-direction <dir>
+              ^current-room <cr>)
+   (<cr> ^wall.door <door>)  
+   (<door> ^direction <dir>)
+
+   -->
+   (write (crlf) |Go through closest door | <door> | on | <dir> | wall.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^door <door>)}
+
+sp {chase*propose*goto-next-room*no-door
+   (state <s> ^name chase
+              ^top-state <ts>
+              ^wall-direction <dir>
+              ^current-room <cr>)
+   (<ts> ^sound.faced-in-room <cr>
+         ^heading.within-90 <ndir>)
+   (<cr> -^wall.door.direction <dir>
+          ^wall.door <door>)  
+   (<door> ^direction <ndir>)
+   -->
+   (write (crlf) |Go through | <ndir> | door | <door> | not on | <dir> | wall.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^door <door>)}
+
+sp {chase*propose*goto-next-room*no-door*opposite
+   (state <s> ^name chase
+              ^top-state <ts>
+              ^wall-direction <dir>
+              ^current-room <cr>)
+   (<ts> ^sound.faced-in-room <cr>
+         ^direction-map.<dir>.backward <odir>)
+   (<cr> -^wall.door.direction <dir>
+          ^wall.door.direction <odir>)
+   -->
+   (write (crlf) |Go through | <odir> | door | <door> | not on | <dir> | wall.|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name goto-next-room
+        ^door <door>)}
+

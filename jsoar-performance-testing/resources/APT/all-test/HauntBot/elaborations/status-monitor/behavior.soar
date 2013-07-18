@@ -1,0 +1,9 @@
+# list agent's current auto-behavior
+
+sp {status-monitor*display*behaviors
+   (state <s> ^name { << eat-and-drink warm-up flee read gather unlock >> 
+                    <b> }
+              ^top-state.status-monitor.init true)
+-->
+   (tcl draw-behavior | | <b>  )
+}

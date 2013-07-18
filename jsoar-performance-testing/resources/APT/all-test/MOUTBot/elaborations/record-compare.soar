@@ -1,0 +1,36 @@
+echo "\nLoading elaborations/record-compare"
+
+#These weights are used to determine operator preference
+#based on their names.  If operator preference between 
+#two operators is more complex than its name then they
+#should have the same weight OR one or both of them 
+#should not be in this elaboration.
+sp {all*elaborate*opweights
+   (state <s> ^bottom-state true)
+   -->
+   (<s> ^opweights <ow>)
+   (<ow> ^record-area 20
+         ^record-node 18
+         ^record-entryway 16
+         ^record-item 14
+         ^record-sound 12
+         ^remove-sound 10
+         ^update-item 8
+         ^init-lastarea 7
+         ^update-lastarea 6
+         ^init-lastnode 5
+         ^update-lastnode 4)
+}
+
+sp {all*record-compare
+   (state <s> ^bottom-state true
+              ^operator <o1> +
+                        <o2> +
+              ^opweights <ow>)
+   (<o1> ^name <name1>)
+   (<o2> ^name <name2>)
+   (<ow> ^<name1> <val>
+         ^<name2> { < <val> })   
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

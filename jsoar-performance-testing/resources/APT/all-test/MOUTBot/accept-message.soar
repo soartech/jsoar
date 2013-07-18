@@ -1,0 +1,383 @@
+echo "\nLoading all/accept-message"
+
+# accept and parse incoming messages
+
+# REW: 2002-10-01
+# [1] Created REW
+
+# If there's a message on the input link that hasn't been accepted,
+# propose to accept it.
+# REW: 2002-10-04
+#      BUG: If there's a state-no-change at the bottom of the hierarchy, accept-message will not be proposed
+sp {any-ps*propose*accept-message
+   (state <s> ^top-state <ts>
+              # [2] The following is needed only for o-support for output-link results
+              ^superstate.operator.name <state-name>)
+  # Floating operator
+  -(state <ss> ^superstate <s>)
+   (<ts> ^comm <comm>
+         ^io.input-link.messages.message <m>)
+   (<comm> ^accepted-messages <acc>)
+  -{ (<acc> ^accept-message <am>)
+     (<am> ^accepted true
+           ^message <m>) }
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name accept-message
+        ^message <m>)
+}
+
+# REW: 2002-10-04
+# propose: state-no-change at the bottom of the hierarchy
+sp {any-ps*propose*accept-message*state-no-change
+   (state <s> ^attribute state
+              ^impasse no-change
+              ^top-state <ts>
+              # [2] The following is needed only for o-support for output-link results
+              ^superstate.name <state-name>)
+  # Floating operator
+  -(state <ss> ^superstate <s>)
+   (<ts> ^comm <comm>
+         ^io.input-link.messages.message <m>)
+   (<comm> ^accepted-messages <acc>)
+  -{ (<acc> ^accept-message <am>)
+     (<am> ^accepted true
+           ^message <m>) }
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name accept-message
+        ^message <m>)
+}
+
+# REW: 2002-10-04
+# Just reject the operator if the sender is the agent
+# This doesn't work because the operator keeps getting
+# proposed in subsequent states and then rejected.
+
+#sp {any-ps*accept-message*reject*message-from-self
+#   (state <s>
+#              ^operator <o1> +
+#              ^top-state.self.name <name>)
+#   (<o1> ^name accept-message
+#         ^message.phrase.word <name>)
+#   -->
+#   (write (crlf) |Ignore input message from self!|)
+#   (<s> ^operator <o1> -)
+#}
+
+
+
+sp {apply*accept-message*message
+   (state <s> ^operator <o1>
+              ^top-state.comm.accepted-messages <acc>)
+   (<o1> ^name accept-message
+         ^message <m>)
+-->
+   (<acc> ^accept-message <am>)
+   (<am> ^message <m>)
+}
+
+
+# REW: 2002-10-01
+# For now, the first word in the message is really the sender
+sp {apply*accept-message*sender
+   (state <s> ^operator <o1>
+              ^top-state.comm.accepted-messages.accept-message <am>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<m> ^phrase.word <sender>)
+   (<am> ^message <m>)
+-->
+   (<am> ^actual-sender <sender>)
+}
+
+# REW: 2002-10-01
+# Save a pointer to the actual beginning of the message
+sp {apply*accept-message*pointer-to-first-word
+   (state <s> ^operator <o1>
+              ^top-state.comm.accepted-messages.accept-message <am>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<m> ^phrase.next  <first-word>)
+   (<am> ^message <m>)
+-->
+   (<am> ^pointer-to-first-content-word <first-word>)
+}
+
+# Note:
+# accept-string: use message definitions to get templte
+# requires splitting definition from names
+
+
+# REW: 2002-10-01
+# Must test all elaborations of accept-message before completing the operator
+sp {apply*accept-message*accepted*true
+   (state <s> ^operator <o1>
+              ^top-state.comm.accepted-messages.accept-message <am>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<am> ^message <m>
+         ^actual-sender <sender>
+         ^pointer-to-first-content-word.word <word>
+         ^processed true)
+-->
+#   (write (crlf) |Accepted message | <m>)
+   (<am> ^accepted true)
+}
+
+#sp "monitor*messages
+#   (state <s> ^operator <o> )
+#   (<o> ^name accept-message
+#        ^message <m1>)
+#   (<m1> ^phrase <p>)
+#   (<p> ^word <val>)
+#-->
+##   (write (crlf) |Message available from | <val> (crlf))
+## REW: 2002-10-03
+# API bot not able to handle tcl
+#(tcl |print -dep 20 | <m1>)
+#   "
+
+
+##########################################################
+# accept-message applications
+#
+# These shoudl be in another file but that's a half hour of frustration with Visual Soar.
+##########################################################
+sp {apply*accept-message*process*ignore-my-own-messages
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<ts> ^comm.accepted-messages.accept-message <am>
+         ^self.name <name>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<am> ^actual-sender <name>
+         ^message <m>)
+-->
+   # this is a no op
+                 # (write (crlf) | Ignoring accepting my own messages |)
+   (<am> ^processed true)
+}
+
+sp {apply*accept-message*process*ignore*unimplemented-messages
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self.name <name>)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^unimplemented-messages <word>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+-->
+   # this is a no op
+#   (write (crlf) | Received message | <word> | is not implemented yet... ignoring it|)
+   (<am> ^processed true)
+}
+
+sp {apply*accept-message*process*ignore*unknown-messages
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>)
+   (<cc> ^accepted-messages.accept-message <am>
+        -^unimplemented-messages <word>
+        -^implemented-messages <word>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+-->
+   # this is a no op
+                 # (write (crlf) | Received message | <word> | is not on implemented or unimplemented list|)
+   (<am> ^processed true)
+}
+
+# REW: For messages that there is no implementation; there is just nothing to do.
+sp {apply*accept-message*process*ignore*ignore-messages
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>)
+   (<cc> ^accepted-messages.accept-message <am>
+        -^unimplemented-messages <word>
+         ^ignore-messages <word>)
+   (<o1> ^name accept-message
+         ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+-->
+   # this is a no op
+#   (write (crlf) | Ignoring message | <word> | ...nothing to do yet|)
+   (<am> ^processed true)
+}
+
+
+# enemy-approaching
+# May want to do other stuff here.  Eg, defensive positions based on
+# entry at one door vs another.
+# REW: 2002-10-04
+# Added ^threats.contact true (just ignore possibility contact already made -- need another soln for accept message)
+sp {apply*accept-message*process*enemy-approaching*at-ease
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self <sf>
+         ^io.output-link <ol>
+#         ^io.input-link.agent.angle.yaw <yaw>
+         ^threats <th>  )
+   (<sf> ^posture at-ease)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << enemy-approaching >> <word> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+-->
+#   (write (crlf) |Received enemy-approaching message.  Becoming alert.|)
+   # process the message
+   (<am> ^processed true)
+   # change the recorded posture
+   (<sf> ^posture at-ease - alert +)
+   # Record contact made with enemy
+   (<th> ^contact-with-enemy true)
+                # become alert
+   (<ol> ^alert.value true)
+   # This is necessary beacuse thje anims dont change until the bots move
+   # (<ol> ^side-step.direction right )
+}
+
+# REW: 2002-10-08
+# Pointer to first word is a pointer to the id, not the word
+sp {apply*accept-message*process*enemy-approaching*alert
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self <sf>
+         ^io.output-link <ol>
+         ^threats <th>)
+   (<sf> ^posture alert)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << enemy-approaching >> <word> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+-->
+   # process the message
+   (<am> ^processed true)
+      # Record contact made with enemy
+   (<th> ^contact-with-enemy true)
+   # nothing else to do if already alert
+}
+## REW: 2002-10-07
+## go-to-door
+## Assume this format: Sender go-to-door <object> primary-location <pl> secondary-locatoin <sl>
+## Ackward, but it'll get the job done.
+
+sp {apply*accept-message*process*go-to-door*message-for-me
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self.name <name>
+         ^doors.door <d>
+         ^mission <mis>)
+   (<mis> ^active-objective <ao>)
+   (<ao> ^threat <th>)
+   (<d> ^location <pd> ^location <sd> ^position <pos>)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << go-to-door >> <word> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <word>
+         ^message <m>)
+   (<m> ^phrase <p> )
+   (<p> ^word <leader>
+        ^next <n1>)
+   (<n1> ^word <word> ^next <n2>)
+   (<n2> ^word <name> ^next <n3>)
+   (<n3> ^word <pd> ^next <n5>)
+   (<n5> ^word <sd>)
+-->
+#   (write (crlf) |Received go-to-door message.  Changing objective.|)
+   # process the message
+   (<am> ^processed true)
+   # Create the new objective
+   (<mis> ^new-objective <on>)
+   (<on> ^status active
+         ^type defensive
+         ^area-type hall
+         ^threat <th>
+         ^defensive-position <dpn>)
+   (<dpn> ^area-name <pd>
+          ^type barricade
+          ^barricade-door <bd>)
+   (<bd> ^primary-room <pd>
+         ^secondary-room <sd>)
+}
+
+sp {apply*accept-message*process*go-to-door*message-not-for-me
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self.name <name>)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << go-to-door >> <go-to-door> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <go-to-door>
+         ^message <m>)
+   (<m> ^phrase <p>)
+   (<p> ^word <leader>
+        ^next <n1>)
+   (<n1> ^word <go-to-door> ^next <n2>)
+   (<n2> ^word <> <name> )
+-->
+#   (write (crlf) |Received go-to-door message but not directed to me.  Ignore it.|)
+   # process the message
+   (<am> ^processed true)
+   # Nothing else to do....
+}
+
+
+# Accept a pull-out msg from anyone; other K will determine if 
+# it should be acted upon
+sp {apply*accept-message*process*pull-or-pulling-out
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self.name <name>)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << pull-out 
+                                    pulling-out >> <po> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <po>
+         ^message <m>
+         ^actual-sender <> <name> <leader-name>)
+-->
+   (write (crlf) |Received | <po> | message from | <leader-name> )
+   # process the message
+   (<am> ^processed true)
+   # Nothing else to do....
+}
+
+# Accept a pull-out msg from anyone; other K will determine if 
+# it should be acted upon
+sp {apply*accept-message*process*pull-out
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^comm <cc>
+         ^self.name <name>)
+   (<cc> ^accepted-messages.accept-message <am>
+         ^implemented-messages { << pull-out >> <po> })
+   (<o> ^name accept-message
+        ^message <m>)
+   (<am> ^pointer-to-first-content-word.word <po>
+         ^message <m>
+         ^actual-sender <> <name> <leader-name>)
+-->
+   (write (crlf) |Received pull-out message from | <leader-name> )
+   # process the message
+   (<am> ^processed true)
+   # Nothing else to do....
+}

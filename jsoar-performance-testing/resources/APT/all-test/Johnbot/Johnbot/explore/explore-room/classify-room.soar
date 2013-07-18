@@ -1,0 +1,103 @@
+#echo "\nLoading explore-room/classify-room"
+
+## Determine whether the room is a room or a hall.
+##  Based on the dimensions - rooms must be > room-min along both dimensions.
+##    detected-type is computed in elaborations/current-room
+
+sp {explore-room*propose*classify-room
+   (state <s> ^name explore-room
+	      ^explore-room <cr>)
+   (<cr> ^aligned-room
+	-^explored true
+	-^type room)
+  -(<cr> ^type hall
+	 ^axis.orientation
+         ^orientation)
+   -->
+   (<s> ^operator <o>)
+   (<o> ^name classify-room)}
+
+sp {explore-room*apply*classify-room*create*axis
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>)
+  -(<cr> ^axis)
+   -->
+   (<cr> ^axis <ax1> <ax2>)
+   (<ax1> ^orientation east-west)
+   (<ax2> ^orientation north-south)}
+
+## set type of room
+
+sp {explore-room*apply*classify-room*room
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>)
+   (<cr> ^detected-type <type>)
+   -->
+   (<cr> ^type <type>)}
+
+# Only explore one axis in a hall.
+
+### HALLS
+
+sp {explore-room*apply*classify-room*compute*forward-backward*hall
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>
+	      ^top-state.parameters.room-min <rmin>)
+    (<cr> ^forward-backward-sum < <rmin>)
+    -->
+    (<cr> ^type forward-hall)}
+
+sp {explore-room*apply*classify-room*compute*left-right*hall
+   (state <s> ^operator.name classify-room
+              ^explore-room <cr>
+	      ^top-state.parameters.room-min <rmin>)
+   (<cr> ^left-right-sum < <rmin>)
+-->
+   (<cr> ^type side-hall)}
+
+# Orientations of the room determine which axis will be explored
+
+sp {explore-room*apply*classify-room*orientation*east-west
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>
+	      ^top-state.heading.within-90 << east west >>)
+   (<cr> ^type forward-hall)
+   -->
+   (<cr> ^orientation east-west)}
+
+sp {explore-room*apply*classify-room*orientation*north-south
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>
+	      ^top-state.heading.within-90 << north south >>)
+   (<cr> ^type forward-hall)
+   -->
+   (<cr> ^orientation north-south)}
+
+sp {explore-room*apply*classify-room*side*east-west
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>
+              ^top-state.heading.within-90 << east west >>)
+   (<cr> ^type side-hall)
+   -->
+   (<cr> ^orientation north-south)}
+
+sp {explore-room*apply*classify-room*side*north-south
+   (state <s> ^operator.name classify-room
+	      ^explore-room <cr>
+	      ^top-state.heading.within-90 << north south >>)
+   (<cr> ^type side-hall)
+   -->
+   (<cr> ^orientation east-west)}
+
+## Set the axis with the orientation not created as mapped.
+
+sp {explore-room*apply*classify-room*hall*axis*mapped
+   (state <s> ^operator.name classify-room
+	      ^explore-room <er>)
+   (<er> ^type hall
+	 ^orientation <orient>
+         ^axis <a>)
+   (<a> ^orientation <> <orient>)
+-->
+   (<a> ^mapped true)}
+

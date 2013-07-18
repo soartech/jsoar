@@ -1,0 +1,16 @@
+sp {warm-up*propose*stand-by-fire
+   (state <s> ^name warm-up
+              ^impossible true # this behavior is disabled for the demo
+              ^fire-in-fireplace yes
+              ^map.area <area>)
+   (<area> ^name fireplaceroom)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name stand-by-fire
+        ^type move-to-pos
+        ^area <area>
+        ^position <pos>)
+   (<pos> ^x -128.5  # location of fireplace
+          ^y -779.4  #eventually, obtain data from environment
+          ^z 62.9)   
+}

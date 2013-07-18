@@ -1,0 +1,161 @@
+## Associate
+
+## [A + B] +/- C ==> A + [B +/- C]
+## A + [B +/- C] ==> [A + B] +/- C
+## [A * B] */ C ==> A * [B */ C]
+## A * [B */ C] ==> [A * B] */ C
+
+sp {algebra*propose*associate-add*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << add subtract >>
+         ^left-side.operation add)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name associate
+         ^side left)
+}
+
+sp {algebra*propose*associate-multiply*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << multiply divide >>
+         ^left-side.operation multiply)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name associate
+         ^side left)
+}
+
+sp {algebra*propose*associate-add*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation add
+         ^right-side.operation << add subtract >>)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name associate
+         ^side right)
+}
+
+sp {algebra*propose*associate-multiply*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation multiply
+         ^right-side.operation << multiply divide >>)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name associate
+         ^side right)
+}
+
+#################################################
+sp {algebra*apply*associate*left*same-oper
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<ls> ^operation <oper>
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name associate
+         ^side left)
+-->
+   (write (crlf) |[A + B] + C ==> A + [B + C]|)
+   (<cc> ^left-side <ls> -
+                    <ls2>
+         ^right-side <rs> -
+                     <nrs>)
+   (<nrs> ^left-side <rs2>
+          ^operation <oper>
+          ^right-side <rs>)
+}
+
+sp {algebra*apply*associate*left*diff-oper
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<ls> ^operation { <> <oper> <oper2> }
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name associate
+         ^side left)
+-->
+   (write (crlf) |[A + B] - C ==> A + [B + C]|)
+   (<cc> ^left-side <ls> -
+                    <ls2>
+         ^operation <oper> -
+                    <oper2>
+         ^right-side <rs> -
+                     <nrs>)
+   (<nrs> ^left-side <rs2>
+          ^operation <oper>
+          ^right-side <rs>)
+}
+
+
+sp {algebra*apply*associate*right*same-oper
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<rs> ^operation <oper>
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name associate
+         ^side right)
+-->
+   (write (crlf) | A + [B + C] ==> [A + B] + C|)
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^right-side <rs> -
+                     <rs2>)
+   (<nls> ^left-side <ls>
+          ^operation <oper>
+          ^right-side <ls2>)
+}
+
+
+sp {algebra*apply*associate*right*differ-oper
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<rs> ^operation{ <> <oper> <oper2> }
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name associate
+         ^side right)
+-->
+   (write (crlf) | A + [B - C] ==> [A + B] - C|)
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^operation <oper> -
+                    <oper2>
+         ^right-side <rs> -
+                     <rs2>)
+   (<nls> ^left-side <ls>
+          ^operation <oper>
+          ^right-side <ls2>)
+}
+
+###################### Select
+
+sp {algebra*propose*associate-add*left*select
+   (state <s> ^name solve-problem
+              ^operator <o> +
+              ^current-clause <cc>)
+   (<cc> ^operation subtract
+         ^left-side.right-side.value <x>
+         ^right-side.value <x>)
+   (<o> ^name associate
+        ^side left)
+-->
+   (<s> ^operator <op> >)
+}
+

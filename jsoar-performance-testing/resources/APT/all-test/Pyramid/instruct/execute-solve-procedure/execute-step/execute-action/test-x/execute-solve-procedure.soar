@@ -1,0 +1,11 @@
+sp {test-x*propose*execute-solve-procedure
+   (state <s> ^name test-x
+              ^current-problem <cp>)
+   (<cp> ^encoded true
+         ^type solve
+        -^success true
+        -^failed)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-solve-procedure)
+}

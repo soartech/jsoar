@@ -1,0 +1,26 @@
+sp {instruct*propose*write-answer
+   (state <s> ^name instruct
+              ^current-problem <cp>)
+   (<cp> ^goal-test-success 
+        -^complete true
+         ^current-step.action <a>
+         ^completed-action <a>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-answer)
+}
+
+
+sp {instruct*propose*write-answer*result
+   (state <s> ^name instruct
+              ^current-problem <cp>)
+   (<cp> -^complete true
+          ^result <r>)
+   (<r> ^complete true
+        ^retrieved success)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-answer)
+}
+
+

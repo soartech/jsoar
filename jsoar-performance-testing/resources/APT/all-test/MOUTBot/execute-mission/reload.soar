@@ -1,0 +1,36 @@
+
+# REW: 2002-09-27
+# - Must be able to terminate operator if ammo never changes. Added
+#   condition for recognizing reload failures.
+
+# JEL: 2002-12-6
+# Moved to execute-mission so always available
+
+# REW: 2003-01-24
+# Something's rotten here .... this says reload should
+# be proposed anytime there's a clip available, which is
+# silly.  Added -^rounds-available.
+
+sp {execute-mission*propose*reload
+   (state <s> ^name execute-mission
+              ^top-state.self.weapons.selected-weapon <sw>
+             -^io.output-link.reload.error-code)
+   (<sw> -^rounds-available
+          ^clips-available <ca>
+         -^type << grenade knife >>)
+-->
+   (write (crlf) |Proposing operator reload...|)
+   (<s> ^operator <o> +, = 80)
+   (<o> ^name reload
+        ^actions.reload true)
+}
+
+sp {apply*reload*say*weapon-dry
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>)
+   (<o1> ^name reload)
+-->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name weapon-dry)
+}
+

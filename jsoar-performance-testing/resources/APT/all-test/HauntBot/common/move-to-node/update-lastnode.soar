@@ -1,0 +1,59 @@
+echo "\nLoading update-lastnode"
+
+#update the last node as soon as we are "at" a new one
+#if we are at a node, the last node is that node
+
+sp {move-to-node*propose*update-lastnode
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <nn>
+              ^updateable-node <nn>)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-lastnode
+        ^node <nn>)
+}
+
+sp {all*apply*update-lastnode
+   (state <s> ^operator <o> 
+              ^top-state.map <map>)
+   (<map> ^last-node <onode>)
+   (<o> ^name update-lastnode
+        ^node { <nnode> <> <onode> })
+   (<nnode> ^visited <num>)
+-->
+   (<map> ^last-node <onode> -
+          ^last-node <nnode>)
+   (<nnode> ^visited <num> -
+            ^visited ( + <num> 1) )
+   (write (crlf) |Updated lastnode: | <nnode> | new count: | (+ 1 <num>))
+}
+
+sp {move-to-node*compare*update-lastnode*move-to-xyz
+   (state <s> ^type move-to-node
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name update-lastnode)
+   (<o2> ^type move-to-xyz)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+#TODO:  Remove this debugging production
+#sp {all*apply*update-lastnode*print-positions
+#   (state <s> ^operator <o> 
+#              ^io.input-link.agent.position <my-pos>)
+#   (<o> ^name update-lastnode
+#        ^node.position <node-pos>)
+#   (<my-pos> ^x <my-x>
+#             ^y <my-y>
+#             ^z <my-z>)
+#   (<node-pos> ^x <nx>
+#               ^y <ny>
+#               ^z <nz>)
+#-->
+#   (write (crlf) |Updated lastnode at position: | <nx> |,| <ny> |,| <nz>)
+#   (write (crlf) |I am at position: | <my-x> |,| <my-y> |,| <my-z>)
+#}
+#
+

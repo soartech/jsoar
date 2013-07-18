@@ -1,0 +1,5 @@
+source elaborations.soar
+source break.soar
+source side-step.soar
+source stand.soar
+source start-moving.soar

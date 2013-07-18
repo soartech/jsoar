@@ -1,0 +1,25 @@
+sp {abstract*propose*minimum-abstract-sum
+   (state <s> ^name << find-term attempt-abstract-solution >>
+              ^<slot> impossible
+             -^less-than <slot>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name minimum-abstract-sum)}
+
+sp {apply*abstract*minimum-abstract-sum
+   (state <s> ^operator.name minimum-abstract-sum
+              ^<role1> <val1>
+             -^<role2>
+              ^<slot> impossible
+              ^top-state <ts>)
+   (<ts> ^instructions.relations <r>
+         ^current-problem.minimum-math-computations <val2>)
+   (<r> ^arg1 <role1>
+        ^arg2 <role2>
+        ^relation minus
+        ^term <slot>)
+-->
+   (<s> ^less-than <slot>
+        ^<slot> impossible - (- <val1> <val2>))
+}
+

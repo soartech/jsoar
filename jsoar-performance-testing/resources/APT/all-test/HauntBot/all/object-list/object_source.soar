@@ -1,0 +1,3 @@
+source record-object.soar
+source remove-object.soar
+source update-object.soar

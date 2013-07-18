@@ -1,0 +1,44 @@
+sp {generate-problem*propose*generate-operation-add
+   (state <s> ^quiescence t
+              ^name generate-problem
+              ^top-state <ts>
+             -^problem)
+  -(<ts> ^current-problem.operation subtraction)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name generate-operation
+         ^operation addition
+         ^operation-symbol |+|)
+}
+
+sp {generate-problem*propose*generate-operation-sub
+   (state <s> ^quiescence t
+              ^name generate-problem
+              ^top-state <ts>
+             -^problem)
+  -(<ts> ^current-problem.operation addition)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name generate-operation
+         ^operation subtraction
+         ^operation-symbol |-|)
+}
+
+sp {generate-problem*apply*generate-operation
+   (state <s> ^operator <op>)
+   (<op> ^name generate-operation
+         ^operation <oper>
+         ^operation-symbol <os>)
+-->
+   (<s> ^problem <p>
+        ^current-column <c1>)
+   (<p> ^operation <oper>
+        ^operation-symbol <os>
+        ^current-column <c1>
+        ^one-column <c1>)
+   (<c1> ^next-column <c2>
+         ^column t)
+   (<c2> ^next-column <c3>
+         ^column t)
+   (<c3> ^next-column nil
+         ^column t)}

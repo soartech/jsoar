@@ -1,0 +1,23 @@
+sp {count-blocks*propose*initialize-count
+   (state <s> ^name count-blocks
+             -^block-count)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name initialize-count)
+}
+
+sp {apply*initialize-count
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-count)
+-->
+   (<s> ^initiate-count yes
+        ^block-count 0)
+}
+
+sp {apply*initialize-count*direction
+   (state <s> ^direction <dir>
+              ^operator <op>)
+   (<op> ^name initialize-count)
+-->
+   (<s> ^initial-direction <dir>)
+}

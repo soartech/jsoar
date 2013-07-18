@@ -1,0 +1,30 @@
+echo "\nLoading explore/record-entryway/face-entryway"
+                
+#IF:
+#  1. If my yaw is not equal to the connect-heading
+#THEN:
+#  Turn toward the node's connect heading
+#
+sp {all*propose*face-entryway
+   (state <s> ^name record-entryway
+              ^io.input-link.agent.angle.yaw <my-yaw>
+              ^via-node <via-node>)
+   (<via-node> ^connect-heading { <heading> <> <my-yaw>} )
+-->
+   (<s> ^operator <o>  +, = 50)
+   (<o> ^name face-entryway
+        ^my-yaw <my-yaw>
+        ^actions <a>)
+   (<a> ^face-abs <heading>)
+   (write (crlf) |Propose facing entryway: | <heading> | from | <my-yaw>) 
+}
+
+sp {record-entryway*compare*face-entryway-before-record
+   (state <s> ^name record-entryway
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name face-entryway)
+   (<o2> ^name record)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

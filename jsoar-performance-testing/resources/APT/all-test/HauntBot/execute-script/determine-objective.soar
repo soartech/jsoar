@@ -1,0 +1,48 @@
+echo "\nLoading determine-objective"
+                
+## For now, if have no objective, just defend the current room
+
+sp {propose*determine-objective
+   (state <s> ^name execute-script
+             -^script.active-objective
+             -^top-state.map.current-area.objective)
+-->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name determine-objective)}
+
+sp {apply*abandon-objective
+   (state <s> ^operator <o>
+              ^top-state.map.current-area.name <narea-name>
+              ^script <m>)
+   (<o> ^name determine-objective)
+-->
+   (write | Create new objective: Defend room: | <narea-name>)
+   (<m> ^objective <new>)
+   (<new> ^position <ndp>
+          ^status active
+          ^area-type room)
+   (<ndp> ^area-name <narea-name>
+          ^type room)
+}
+
+#
+#sp {apply*determine-objective*defend-runaway
+#   (state <s> ^operator <o>
+#              ^objective <obj>
+#              ^script <m>
+#              ^top-state.map.area <r-area>)
+#   (<m> ^runaway-objective.name <ro-name>)
+#   (<r-area> ^name <ro-name>)
+#   (<o> ^name determine-objective
+#        ^type defend-runaway-objective)
+#-->
+#   (write | Defend runaway-objective: | <ro-name>)
+#   (<m> ^objective <new>)
+#   (<new> ^position <ndp>
+#          ^status active
+#          ^type defensive
+#          ^area-type room)
+#   (<ndp> ^area-name <ro-name>
+#          ^type room)
+#}
+#

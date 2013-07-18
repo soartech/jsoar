@@ -1,0 +1,44 @@
+echo "\nLoading execute-mission/roam.soar"
+#####################################
+# file: roam.soar
+# created: JEL: 2001-11-5
+##
+# Defines roam behavior for the agent.
+#
+# The roam mission involves traveling among a series of areas 
+# (using goto-next-location). When the bot gets to an area,
+# it looks at all of the doors, windows, and connections (search-area)
+# and then decides to go to the next area (update-next-area).
+# This cycle continues. 
+# To specify a roam mission, the objective should have the following structure:
+#   (<obj> ^status active
+#          ^type roam 
+#          ^current-roam-area <r1>  # points to the first in a cycle of areas
+#          ^threat <threat>
+#          ^defensive-position <dp>  
+#          ^team <team3>)
+#   (<r1> ^area-name room5         # the first of the areas
+#         ^next <r2>)
+#   (<r2> ^area-name |EastHall|
+#         ^next <r3>)
+#   (<r3> ^area-name room4
+#         ^next <r1>)
+# During execution, current-roam-area will point to the different areas.
+# An elaboration in elaborations/mission.soar will add the ^area to 
+#  each of the roam-area structures based on the area-name.
+# Issues:
+#   1. It should walk, not run between areas
+#   2. When it searches an area, it is a bit funky in terms of the order
+#      it looks at entrances.
+#   3. There is nothing in it to decide to go to a defensive position
+#      if an attack happens - but that defensive position is defined so...
+
+sp {execute-mission*propose*roam
+   (state <s> ^name execute-mission
+              ^mission.active-objective <obj>)
+   (<obj> ^type roam)
+   -->
+   (<s> ^operator <o> +, = 100)
+   (<o> ^name roam
+        ^objective <obj>)
+}

@@ -1,0 +1,43 @@
+sp {convert-input-to-clause-form*propose*process-end
+   (state <s> ^name convert-input-to-clause-form
+              ^top-state.problem.current-input-value nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-end)
+}
+
+sp {convert-input-to-clause-form*apply*process-end
+   (state <s> ^operator.name process-end
+              ^top-state <ts>)
+   (<ts> ^problem <p>)
+   (<p> ^parse-clause <tc>
+        ^top-clause <tc>)
+   (<tc> ^parse-status post-right)
+-->
+   (<p> ^status defined
+                initialized -)
+   (<ts> ^current-clause <tc>)
+}
+
+
+sp {convert-input-to-clause-form*apply*process-end*parent
+   (state <s> ^operator.name process-end
+              ^top-state <ts>)
+   (<ts> ^problem <p>)
+   (<p> ^parse-clause { <pc> <> <tc> }
+        ^top-clause <tc>)
+   (<pc> ^parse-status post-right
+         ^parent-clause <parent>)
+-->
+   (<p> ^parse-clause <pc> -
+        ^parse-clause <parent>)
+}
+
+sp {convert-input-to-clause-form*apply*process-end*failure
+   (state <s> ^operator.name process-end
+              ^top-state.problem <p>)
+   (<p> ^parse-clause.parse-status <> post-right)
+-->
+   (write (crlf) |Unexpected end of equation.|)
+   (<p> ^failed true)
+}

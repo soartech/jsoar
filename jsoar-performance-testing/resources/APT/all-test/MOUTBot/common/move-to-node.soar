@@ -1,0 +1,5 @@
+# move-to-node should have a ^node attribute on the operator.  
+# this the actual node, not just the name
+
+# if the node is not in the current area, move to the right area first
+# else, move to the xyz coordinate for the node

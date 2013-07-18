@@ -1,0 +1,77 @@
+sp {evaluate-operator*propose*evaluate-bid-likelihood
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name bid
+              ^bid-difference <bd>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name evaluate-bid-likelihood)
+}
+
+# 0 and above mean that there are more dice than the bid
+
+sp {apply*evaluate-bid-likelihood*risky
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { <= 0.0 >= -0.4 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-bid-likelihood)
+-->
+   (write (crlf) |  Bid success likelihood is risky.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference <bd>) # for my bid
+}
+
+sp {apply*evaluate-bid-likelihood*very-risky
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { < -0.4 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-bid-likelihood)
+-->
+   (write (crlf) |  Bid success likelihood is very risky.|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference <bd>) # for my bid
+}
+
+sp {apply*evaluate-bid-likelihood*safe
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { > 0.0 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-bid-likelihood)
+-->
+   (write (crlf) |  Bid success likelihood is safe.|)
+   (<e> ^symbolic-value safe
+        ^bid-difference <bd>) # for my bid
+}
+
+
+sp {apply*evaluate-bid-likelihood*lose
+   (state <s> # ^operator <op>
+        ^total-possible < 0.0
+        ^superstate.operator <so>)
+   (<so> ^evaluation <e>
+         ^superoperator <sso>)
+  -(<sso> ^name challenge)
+ #  (<op> ^name evaluate-bid-likelihood)
+-->
+   (write (crlf) |  Bid success likelihood is lose.|)
+   (<e> ^symbolic-value lose) # for me to bid
+}
+
+# only make non-push case certain
+sp {apply*evaluate-bid-likelihood*certain
+   (state <s> # ^operator <op>
+        ^total-known >= 0.0
+        ^superstate.operator <eo>)
+   (<eo> ^evaluation <e>
+         ^superoperator <so>)
+  -(<so> ^name challenge)
+#   (<op> ^name evaluate-bid-likelihood)
+-->
+   (write (crlf) |  Bid success likelihood is certain.|)
+   (<e> ^symbolic-value certain) # for me to bid
+}

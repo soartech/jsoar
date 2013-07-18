@@ -1,0 +1,12 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source count-object.soar
+source initialize-count.soar
+source note-turning.soar
+source spin.soar
+source stop-count.soar

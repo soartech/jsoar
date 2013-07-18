@@ -1,0 +1,36 @@
+echo "\nLoading goto-item/face-item"
+
+sp {goto-item*propose*face-heading*facetarget
+   (state <s> ^name goto-item
+              ^item <item>
+              ^io.input-link.feedback.selecttarget <sid>
+             -^io.input-link.feedback.facetarget on)
+   (<item> ^sensor <sensor>
+           ^soar-id <sid>
+           ^classname <cname>)
+   (<sensor> ^visible true
+             ^infront true)
+
+   -->
+   (write (crlf) |Use facetarget: | <item> |, | <cname>)
+   (<s> ^operator <o> + =)
+   (<o> ^name face-item
+        ^actions.facetarget on)}
+
+sp {goto-item*propose*face-heading*item-heading
+   (state <s> ^name goto-item
+              ^item-heading <ih>
+             -^item.angle-yaw 
+             -^item.angle-off.h 
+             -^item-angle-off-check true)
+   -->
+#  (write (crlf) |Turn to item-heading from memory: | <ih>)
+  (<s> ^operator <o> + =, >)
+   (<o> ^name face-item
+        ^actions <a>)
+   (<a> ^sidestep off
+        ^thrust off
+        ^faceabs <ih>)}
+
+
+

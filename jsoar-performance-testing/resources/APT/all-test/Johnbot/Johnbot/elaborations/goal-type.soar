@@ -1,0 +1,4 @@
+sp {elaborate*goal*goal-type
+   (state <s> ^name << ambush attack chase collect-powerups deny-powerups hunt retreat wander >>)
+   --> 
+   (<s> ^goal-type change-rooms)}

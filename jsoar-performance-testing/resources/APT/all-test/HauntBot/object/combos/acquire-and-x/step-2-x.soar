@@ -1,0 +1,15 @@
+
+
+# use object if it is in hand
+sp {acquire-and-x*propose*step-2-use
+   (state <s> ^type acquire-and-x
+              ^has-object
+              ^next-action <na>)
+   (<na> ^name <name>
+         ^type <type>)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name <name>
+        ^type <type>)
+}
+

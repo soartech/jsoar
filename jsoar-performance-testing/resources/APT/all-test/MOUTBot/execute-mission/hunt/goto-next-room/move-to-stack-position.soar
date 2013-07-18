@@ -1,0 +1,23 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/move-to-stack-position"
+
+#AMN: 2002-07-25
+#IF:
+#1.  There is a stack position on the state
+#2.  I am not near the stack position
+#3.  I am also not near the exit node
+#THEN:
+#    Propose moving to the stack position
+sp {goto-next-room*propose*move-to-stack-position
+   (state <s> ^name goto-next-room
+              ^top-state.map.current-area <area>
+              ^stack-position <spos>
+             -^near-stack-position yes
+              ^exit-node <enode>
+             -^top-state.map.near-node <enode>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-stack-position
+        ^type move-to-xyz
+        ^area <area>
+        ^position <spos>)
+}

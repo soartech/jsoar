@@ -1,0 +1,17 @@
+sp {algebra*propose*fail
+   (state <s> ^name solve-problem
+              ^quiescence t
+              ^current-clause <cc>)
+   (<cc> -^failed yes)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name fail)
+}
+
+sp {algebra*apply*fail
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<op> ^name fail)
+-->
+   (<cc> ^failed yes)
+}

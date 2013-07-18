@@ -1,0 +1,107 @@
+##################################### 
+# file: stand.soar 
+# created: REW: 2003-05-01
+## 
+# Encode all the situations in which an agent should move to a standing position
+#
+# Change history: 
+# 
+#  [1] REW: 2003-05-01
+#      General strategy is to only terminate these operators when
+#      the position has changed.  Position needs to be input, but for
+#      now we track it via ^self
+#  [2] Just notional for now until command fixed
+
+# REW [2]: Remove output command until command fixed
+
+# Let body-position default to standing
+#sp {common*propose*stand*no-body-position
+#   (state <s> ^name execute-mission ^top-state.self <self>)
+#   (<self> -^body-position)
+#   -->
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name stand
+##        ^actions.stand true
+#                             )
+#}
+ 
+
+# REW: 2003-05-23
+# For test only, but it definitely works
+#sp {common*propose*stand*test
+#   (state <s> ^name execute-mission  
+#              ^top-state.self <self>)
+#   (<self> ^body-position <> stand
+#          -^changing-body-position)
+#   -->
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name stand
+#        ^actions.stand true
+#                             )
+#}
+
+# REW: 2003-05-01 
+# [2] REW: For now, just add body-position stand
+#sp {apply*stand*initialize-body-position
+#   (state <s> ^operator <o1>
+#              ^top-state <ts>)
+#(<ts> ^self <self>
+##      ^io.output-link.stand.status complete
+#              )
+#(<self> -^body-position)
+#   (<o1> ^name stand)
+#   -->
+#   (write (crlf) |Initialize body position|)
+#   (<self> ^body-position stand)
+#}
+
+sp {apply*stand
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+(<ts> ^self <self>              )
+(<self> ^body-position <something>
+       )
+   (<o> ^name stand
+        ^actions <a>)
+   -->
+   (write (crlf) |Initiating move to stand |)
+   (<self> ^body-position <something> - <a> +)
+}
+
+
+
+### Applications of execute mission for stand/kneel/lie-prone
+
+sp {apply*top-state-operator*update-body-position
+   (state <s> ^superstate nil
+              ^operator <o>
+              ^top-state <ts>)
+(<ts> ^self <self>
+      ^io.output-link.{ << stand lie-prone kneel >> <position> }.status complete
+              )
+(<self> ^body-position <a>)
+(<a> ^<position> )
+(<o> ^name <dont-care>)
+   -->
+   (write (crlf) |Feedback received...now | <position> )
+   (<self> ^body-position <a> - <position> +)
+}
+
+# REW: Need special prod because kneel really implemented as 'crouch'
+# so we can't just copy the name 
+sp {apply*top-state-operator*update-body-position*crouch
+   (state <s> ^superstate nil
+              ^operator <o>
+              ^top-state <ts>)
+(<ts> ^self <self>
+      ^io.output-link.crouch.status complete
+              )
+(<self> ^body-position <a>)
+(<a> ^crouch )
+(<o> ^name <dont-care>)
+   -->
+   (write (crlf) |Feedback received...now kneeling| )
+   (<self> ^body-position <a> - kneel +)
+}
+
+

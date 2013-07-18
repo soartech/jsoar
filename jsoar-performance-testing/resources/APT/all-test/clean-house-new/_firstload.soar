@@ -1,0 +1,12 @@
+#learn --on
+#learn --only
+## possible things to push into semantic memory
+##  objects encountered (their properties)
+##  areas (rooms), gateways, walls 
+
+#smem -s learning on
+#smem -s timers two
+#epmem -s learning on
+wait -d
+
+

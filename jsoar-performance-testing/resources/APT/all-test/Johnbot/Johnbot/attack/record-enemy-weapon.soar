@@ -1,0 +1,61 @@
+
+# Initialized in select-enemy
+
+sp {attack*propose*record-enemy-weapon
+   (state <s> ^name attack
+              ^top-state.enemy-data <ed>
+              ^enemy.weapon <ew>)
+   (<ed> -^last-weapon <ew>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name record-enemy-weapon)}
+
+sp {quake*apply*record-enemy-weapon*remove-last-weapon
+   (state <s> ^operator.name record-enemy-weapon
+              ^top-state.enemy-data <ed>
+              ^enemy.weapon <ew>)
+   (<ed> ^last-weapon { <> <ew> <lw>})
+   -->
+   (write (crlf) |Remove last-weapon | <lw>)
+   (<ed> ^last-weapon <lw> -)}
+
+sp {quake*apply*record-enemy-weapon*add-last-weapon
+   (state <s> ^operator.name record-enemy-weapon
+              ^top-state.enemy-data <ed>
+              ^enemy.weapon <ew>)
+   -->
+   (write (crlf) |Add last-weapon | <ew>)
+   (<ed> ^last-weapon <ew>)}
+
+sp {quake*apply*record-enemy-weapon*change-weapon-preference
+   (state <s> ^operator.name record-enemy-weapon
+              ^top-state.enemy-data <ed>
+              ^enemy.weapon <ew>
+              ^enemy-facing true)
+   (<ed> ^last-weapon { <> <ew> <old>})
+   (<ed> ^parameters <p>)
+   (<p> ^weapons <weap>)
+   (<weap> ^classname <new>
+           ^better <old>)
+   -->
+   (write (crlf) |Change weapon preference: | <old> | > | <new> )
+   (<p> ^weapons <weap> -
+                 <nw>)
+   (<nw> ^classname <old>
+         ^better <new>)}
+
+sp {quake*apply*record-enemy-weapon*add-weapon-preference
+   (state <s> ^operator.name record-enemy-weapon
+              ^top-state.enemy-data <ed>
+              ^enemy.weapon <ew>
+              ^enemy-facing true)
+   (<ed> ^last-weapon { <> <ew> <lw>})
+   (<ed> ^parameters <p>)
+   -->
+   (write (crlf) |Add weapon preference: | <old> | > | <new> )
+   (<p> ^weapons <nw>)
+   (<nw> ^classname <old>
+         ^better <new>)}
+
+
+

@@ -1,0 +1,22 @@
+sp {propose*initialize-algebra
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-algebra)
+}
+
+sp {apply*initialize-algebra
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-algebra)
+-->
+   (<s> ^name algebra
+        ^problem <p>
+        ^operations <oper>)
+   (<p> ^status initialized)
+   (<oper> ^equal |=|
+           ^add |+|
+           ^subtract |-|
+           ^divide |/|
+           ^multiply |*|)
+}

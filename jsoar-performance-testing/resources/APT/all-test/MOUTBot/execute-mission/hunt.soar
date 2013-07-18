@@ -1,0 +1,11 @@
+echo "\nLoading execute-mission/hunt"
+                
+sp {execute-mission*propose*hunt
+   (state <s> ^name execute-mission
+              ^mission.active-objective <ob>)
+    (<ob> ^type offensive)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name hunt
+        ^objective <ob>)
+}

@@ -1,0 +1,32 @@
+sp {attempt-simple-problem*propose*create-simple-problem
+   (state <s> ^name attempt-simple-problem
+             -^current-problem)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name create-simple-problem)
+}
+
+sp {apply*create-simple-problem
+   (state <s> ^operator <op>
+              ^top-state.instructions.first-step <fs>)
+   (<op> ^name create-simple-problem)
+-->
+   (<s> ^current-problem <sp>)
+   (<sp> ^problem-name |4 $ 2 = ?|
+         ^type solve
+         ^result <r>
+         ^encoded true
+         ^base 2
+         ^height 4
+         ^unknown answer
+         ^element <p1>
+         ^current-step <fs>
+         ^next-problem <prob2>)
+   (<r> ^base 4
+        ^height 2)
+   (<p1> ^value 4 ^type constant ^next <p2>)
+   (<p2> ^value |$| ^type symbol ^next <p3>)
+   (<p3> ^value 2 ^type constant ^next <p4>)
+   (<p4> ^value |=| ^type symbol ^next <p5>)
+   (<p5> ^value |?| ^type unknown ^next nil)
+}

@@ -1,0 +1,20 @@
+sp {MOUTBot*propose*freeze
+   (state <s> ^name unreal
+              ^self.freeze true)
+   -->
+   (<s> ^operator <o> !)
+   (<o> ^name freeze
+        ^type wait)
+}
+
+# REW: 2003-06-14
+# All changes to body posture must wait until body posture changes
+sp {freeze*stand
+   (state <s> ^operator <o>
+              ^top-state.self.body-position << lie-prone kneel >>
+             -^top-state.self.changing-body-position)
+   (<o> ^name freeze)
+   -->
+   (<o> ^name stand
+        ^actions.stand true) 
+}

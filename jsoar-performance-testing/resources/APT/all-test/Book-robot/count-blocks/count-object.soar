@@ -1,0 +1,24 @@
+sp {count-blocks*propose*count-object
+   (state <s> ^name count-blocks
+             -^counted-block-ids <id>
+              ^initiate-count yes
+              ^io.input-link.object <obj>)
+   (<obj> ^type block
+          ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name count-object
+         ^id <id>)
+}
+
+sp {apply*count-object
+   (state <s> ^operator <op>
+              ^block-count <bc>)
+   (<op> ^name count-object
+         ^id <id>)
+-->
+   (write (crlf) |New count: | (+ <bc> 1) | new id | <id>)
+   (<s> ^block-count <bc> -
+                     (+ <bc> 1)
+        ^counted-block-ids <id>)
+}

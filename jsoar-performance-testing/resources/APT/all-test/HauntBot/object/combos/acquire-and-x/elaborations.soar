@@ -1,0 +1,131 @@
+
+
+#
+# determine if agent is currently carrying food
+# This is done by matching the ^class of a currently
+# held decoration with the ontology's listing of
+# food-sources
+#
+sp {acquire-and-x*elaborate*has-object
+   (state <s> ^type acquire-and-x
+              ^top-state.status.decoration.name <name>
+              ^target.name <name>)
+-->
+   (<s> ^has-object yes)
+}
+
+
+# tell the sub-operator what type(s) of objects you want
+# This is done by simply passing along the target-classes from original caller of 'acquire-and-x'
+sp {acquire-and-x*elaborate*copy*target
+   (state <s> ^type acquire-and-x
+              ^superstate.operator.target <target>)
+-->
+   (<s> ^target <target>)
+}
+
+
+#
+# determine if additional height is required (ie a box/ladder) to reach an object
+#
+sp {acquire-and-x*elaborate*height-required
+   (state <s> ^type acquire-and-x
+              ^target.height-required <h> > 0)
+-->
+   (<s> ^height-required <h>)
+}
+
+
+#
+# compute range-to-target of each height-source
+# in the same area (as the target)
+#
+sp {acquire-and-x*elaborate*available-step
+   (state <s> ^type acquire-and-x
+              ^target <target>
+              ^top-state <ts>)
+   (<ts> ^available.height-source { <source> <> <target> })
+   (<target> ^area-id <area>    # only consider if in same area for efficiency
+             ^height-required <h> #this rule is only needed for out-of-reach objects
+             ^position <tpos>)
+   (<source> ^area-id <area>   
+             ^position <spos>
+             ^height >= <h>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>)
+   (<spos> ^x <source-x>
+           ^y <source-y>)
+-->
+ #  (write (crlf) |Agumenting available height source | <source>)
+   (<s> ^available-step <step>)
+   (<step> ^object <source>
+           ^range-to-target (compute-range <target-x> <target-y> <source-x> <source-y>))
+}  
+
+
+
+#
+# compute if a step is close enough to target to stand on and grab target
+# 
+sp {acquire-and-x*elaborate*usable-step
+   (state <s> ^type acquire-and-x
+              ^available-step <step>
+             -^available-step.range-to-target < <range>)
+   (<step> ^range-to-target <range> < 50  #FIXME: make # into a parameter
+           ^object <obj>)
+   (<obj> ^base << |none| |LevelInfo0| >>)   #FIXME: determine method of recognizing that a step is in position on the floor
+-->
+   (<s> ^usable-step <obj>)
+}
+
+
+# compute the distance between all objects in the room
+# and the target. This will let us know if an object is
+# close enough to potentially block a box/step/ladder
+sp {acquire-and-x*elaborate*nearby-object
+   (state <s> ^type acquire-and-x
+             -^usable-step
+              ^height-required <h>
+              ^top-state <ts>
+              ^target <target>)
+   (<target> ^position <tpos>)
+   (<ts> ^map.current-area <area>
+         ^object-list.<< decoration item >> {<obj> <> <target>})   
+   (<obj> ^area-id <area>
+          ^position <opos>)
+   (<tpos> ^x <target-x> ^y <target-y>)
+   (<opos> ^x <obj-x> ^y <obj-y>)
+-->
+   (<s> ^nearby-object <b>)
+   (<b> ^object <obj>
+        ^range-to-target (compute-range <obj-x> <obj-y> <target-x> <target-y>))
+}
+              
+#
+# compute if any object (non-height-source) is close
+# enough to target that it may block a box
+#
+sp {acquire-and-x*elaborate*blocking-object*nearby
+   (state <s> ^type acquire-and-x
+       -^usable-step
+        ^nearby-object <n>
+       -^available-step.object <obj>)
+   (<n> ^object <obj>
+        ^range-to-target < 100)      # FIXME: make a parameter
+-->
+   (<s> ^blocking-object <n>)
+}
+
+# if carrying an object that isn't going to be used to stand on, 
+# treat it as any other blocking object so that it will be placed
+# a safe distance away
+sp {acquire-and-x*elaborate*blocking-object*carried-decoration
+   (state <s> ^type acquire-and-x
+       -^usable-step
+        ^top-state.status.decoration <obj>
+       -^available-step.object <obj>)
+-->
+   (<s> ^blocking-object <bo>)
+   (<bo> ^object <obj>
+         ^range 0)
+}

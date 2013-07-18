@@ -1,0 +1,5 @@
+source elaborations.soar
+source delete-duplicate-paths.soar
+source no-path-to-update.soar
+source record-path.soar
+source update-path.soar

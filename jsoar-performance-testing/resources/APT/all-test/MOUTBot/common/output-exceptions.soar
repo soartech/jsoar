@@ -1,0 +1,17 @@
+# REW: 2002-12-13
+# [1] Created REW
+#     Recognize and resolve exceptions to output commands.
+#     Most of the time this will just require removing the output WME
+#        and terminating the operator that issued the command.
+
+# REW: 2002-12-13
+# Sometimes selecting a grenade doesn't work so reject this operator
+sp {output-exception*change-weapon*grenade
+   (state <s> ^top-state.io.output-link.choose-weapon <cw>
+              ^operator <o>)
+   (<o> ^name choose-weapon)
+   (<cw> ^value |M_67| ^status error ^error-code 9)
+-->
+   (write (crlf) |Rejecting choose grenade due to sim error|)
+   (<s> ^operator <o> -)
+}

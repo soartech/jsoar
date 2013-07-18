@@ -1,0 +1,82 @@
+sp {clean-house*propose*record-area
+   (state <s> ^name robot
+              ^io.input-link.self.area <area-id>)
+   (<s> ^areas.area <area>)
+   (<area> -^visited yes
+            ^id <area-id>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-area
+     #    ^actions.rotate.direction stop
+     #    ^actions.move.direction stop
+         ^area <area>)
+}
+
+sp {apply*record-area
+   (state <s> ^operator <op>
+              ^io.input-link.area-description.wall <w1>)
+   (<op> ^name record-area
+         ^area <area>)
+   (<w1> ^center <c1> ^direction <dir> ^id <wid1> ^left <l1> ^right <r1>)
+-->
+   (<area> ^wall <nw1>
+           ^visited yes)
+   (<nw1> ^center <c1> ^direction <dir> ^id <wid1> ^left <l1> ^right <r1>)
+}
+
+sp {apply*record-area-gateway
+   (state <s> ^operator <op>
+              ^io.input-link.area-description.gateway <gateway>)
+   (<op> ^name record-area
+         ^area <area>)
+   (<area> ^id <aid>)
+   (<gateway> ^center <c1> ^direction <dir> ^id <wid1> ^left <l1> ^right <r1> ^to { <> <wid1> <> <aid> <tid> })
+-->
+   (<area> ^gateway <ngateway>)
+   (<ngateway> ^center <c1> ^direction <dir> ^id <wid1> ^left <l1> ^right <r1> ^to <tid>)
+}
+
+sp {apply*record-area-gateway-connected-area
+   (state <s> ^operator <op>
+              ^areas <areas>
+              ^io.input-link.area-description.gateway <gateway>)
+   (<op> ^name record-area)
+   (<gateway> ^id <gid> ^to { <> <gid> <aid> })
+  -(<areas> ^area.id <aid>)
+-->
+   (<areas> ^area <area>)
+   (<area> ^id <aid>)
+}
+
+sp {apply*record-area*in-gateway
+   (state <s> ^operator <o>
+              ^io.input-link.area-description <area>)
+   (<area> ^gateway <g1> { <> <g1> <g2> }
+           ^wall <w1> { <> <w1> <w2> }
+          -^wall { <> <w1> <> <w2> })
+   (<o> ^name record-area
+        ^area <narea>)
+-->
+   (<narea> ^gateway-area yes
+            ^cleaned yes)}
+   
+sp {apply*record-area*storage
+   (state <s> ^operator <o>
+              ^desired.storage-area-id <id>
+              ^io.input-link.area-description <area>)
+   (<o> ^name record-area
+        ^area <narea>)
+   (<narea> ^id <id>)
+-->
+   (<narea> ^cleaned yes)}
+   
+   
+sp {clean-house*compare*record-area
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name record-area)
+   (<op2> ^name << get-block deposit-block >>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

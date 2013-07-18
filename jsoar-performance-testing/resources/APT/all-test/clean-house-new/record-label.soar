@@ -1,0 +1,60 @@
+sp {clean-house-new*propose*record-label
+   (state <s> ^name robot
+              ^objects.object <b>
+              ^labels.label <l>)
+   (<b> ^id <id>
+        ^<attr> <value>
+       -^type <label>)
+   (<l> ^name <label>
+       -^tried <id>
+        ^first <first>)
+   (<first> ^attr <attr>
+            ^value <value>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name record-label
+         ^object <b>
+         ^label <l>)
+}
+
+sp {clean-house-new*propose*record-label*compare
+   (state <s> ^name robot
+              ^operator <op1> +
+              ^operator <op2> +)
+   (<op1> ^name record-label)
+   (<op2> ^name {<> record-label <> msg})
+-->
+   (<s> ^operator <op1> > <op2>)
+} 
+
+sp {clean-house-new*propose*record-label*multiple
+   (state <s> ^name robot
+              ^operator <op1> +
+              ^operator {<> <op1> <op2>} +)
+   (<op1> ^name record-label)
+   (<op2> ^name record-label)
+-->
+   (<s> ^operator <op1> = <op2>)
+}  
+
+sp {apply*record-label*match
+   (state <s> ^operator <op>)
+   (<op> ^name record-label
+         ^status match
+         ^object <b>
+         ^label.name <label>)
+-->
+   (<b> ^type <label>)
+}
+
+sp {apply*record-label*tried
+   (state <s> ^operator <op>)
+   (<op> ^name record-label
+         ^status tried
+         ^object.id <id>
+         ^label <label>)
+-->
+   (<label> ^tried <id>)
+}
+
+

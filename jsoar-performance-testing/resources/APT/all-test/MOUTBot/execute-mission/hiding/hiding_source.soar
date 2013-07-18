@@ -1,0 +1,3 @@
+source elaborations.soar
+source determine-threat-door.soar
+source orient-toward-threat.soar

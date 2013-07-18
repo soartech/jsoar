@@ -1,0 +1,38 @@
+sp {test-x*propose*create-problem
+   (state <s> ^name test-x
+             -^current-problem)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name create-problem)
+}
+
+sp {apply*create-problem
+   (state <s> ^operator <op>
+              ^superstate.operator.x-guess.value <x>
+              ^top-state <tp>)
+   (<tp> ^instructions.first-step <fs>
+         ^current-problem <cp>)
+   (<cp> ^height <height>
+         ^answer <answer>)
+   (<op> ^name create-problem)
+-->
+   (write |Test: | <x> | $ | <height> | = | <answer>)
+   (<s> ^current-problem <sp>)
+   (<sp> ^problem-name |Fill in x|
+         ^type solve
+         ^result <r>
+         ^encoded true
+         ^base <x>
+         ^height <height>
+         ^answer <answer>
+         ^element <p1>
+         ^current-step <fs>
+         ^next-problem <prob2>)
+   (<r> ^base <x>
+        ^height <height>)
+   (<p1> ^value <x> ^type constant ^next <p2>)
+   (<p2> ^value |$| ^type symbol ^next <p3>)
+   (<p3> ^value <height> ^type constant ^next <p4>)
+   (<p4> ^value |=| ^type symbol ^next <p5>)
+   (<p5> ^value <answer> ^type constant ^next nil)
+}

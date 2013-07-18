@@ -1,0 +1,15 @@
+#echo "\nLoading visit-upexplored-room/goto-next-room"
+
+sp {visit-unexplored-room*propose*goto-next-room
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map <map>)
+   (<map> ^unexplored-rooms.room <room>
+          ^explore-room.path <path>)
+   (<path> ^destination-room <room>
+           ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name goto-next-room
+        ^door <idoor>)}
+
+

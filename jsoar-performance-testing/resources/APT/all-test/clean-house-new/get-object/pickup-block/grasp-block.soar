@@ -1,0 +1,34 @@
+sp {pickup-block*propose*grasp-block
+   (state <s> ^name pickup-block
+              ^object <obj>
+              ^object-in-range-lined-up yes
+              ^io.input-link.self <self>)
+   (<self> -^carry)
+   (<obj> ^id <id>
+          ^type block)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name grasp-block
+         ^id <id>)
+}
+
+sp {apply*grasp-block
+   (state <s> ^operator <op>
+              ^top-state.io.output-link <out>)
+   (<op> ^name grasp-block
+         ^id <id>)
+-->
+   (<out> ^get-object.id <id>)
+}
+
+
+sp {apply*grasp-block*remove-block-from-objects
+   (state <s> ^operator.name grasp-block
+              ^top-state.parameters.objects-held-in epmem
+              ^top-state.objects <b>
+              ^object-id <id>)
+   (<b> ^object <block>)
+   (<block> ^id <id>)
+-->
+   (<b> ^object <block> -)
+}

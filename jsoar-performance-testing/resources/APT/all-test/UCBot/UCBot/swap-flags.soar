@@ -1,0 +1,33 @@
+
+# FAKE rule, will eventually be deprecated by a newer testbed.
+
+# When there are two flags (i.e. one at the start location and one that we find elsewhere,
+# toggle which flag is hot when we're near the current hot flag.
+#sp {FAKE*UCBot*propose*swap-flags
+#   (state <s> ^superstate nil
+#              ^flag <cur-flag>
+#              ^flags.flag { <> <cur-flag> <oth-flag> }
+#              ^mission <m>)
+#   (<m> ^achieved-flag <cur-flag>
+#        ^updated-all-paths true)
+#-->
+#   (<s> ^operator <op> + >)
+#   (<op> ^name swap-flags
+#         ^current-flag <cur-flag>
+#         ^other-flag <oth-flag>)
+#}
+#
+#sp {FAKE*UCBot*apply*swap-flags
+#   (state <s> ^operator <op>
+#              ^mission <m>)
+#   (<m> ^achieved-flag <cur>)
+#   (<op> ^name swap-flags
+#         ^current-flag <cur>
+#         ^other-flag <oth>)
+#-->
+#   (<m> ^achieved-flag <cur> -)
+#   (<s> ^flag <cur> -
+#        ^flag <oth>)
+#   (write (crlf) |***** S W A P P I N G   F L A G S *****|)
+#}
+#   

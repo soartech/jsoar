@@ -1,0 +1,41 @@
+echo "\nLoading record-node"
+
+# record all new visible nodes on the map
+
+sp {unreal*propose*record-node
+   (state <s> ^name unreal
+              ^io.input-link.entities.node <node>)
+   (<node> ^name <name>)
+  -(<s> ^map.area.node.name <name>)  #Don't record nodes I've already seen
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-node
+        ^node <node>)
+}
+
+#Record the node
+sp {unreal*apply*record-node
+   (state <s> ^operator <o>
+              ^map <map>)
+   (<o> ^name record-node
+        ^node <node>)
+   (<node> ^position <pos>
+           ^name <name>
+           ^area <areaname>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+   (<map> ^area <area>)
+   (<area> ^name <areaname>)
+-->
+   (write (crlf) |Record node | <name> | at: | <pos>)
+   (<area> ^node <newnode>)
+   (<newnode> ^position <newpos>
+              ^name <name>
+              ^area <areaname>
+              ^visited 0)
+   (<newpos> ^x <x>
+             ^y <y> 
+             ^z <z>)
+}
+

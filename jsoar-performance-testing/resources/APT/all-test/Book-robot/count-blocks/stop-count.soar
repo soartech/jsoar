@@ -1,0 +1,18 @@
+sp {count-blocks*propose*stop-count
+   (state <s> ^name count-blocks
+              ^direction <dir>
+              ^initial-direction <dir>
+              ^turning yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name stop-count)
+}
+
+sp {apply*stop-count
+   (state <s> ^operator <op>
+              ^block-count <cbi>)
+   (<op> ^name stop-count)
+-->
+   (write |Counted | <cbi> | blocks.|)
+   (halt)
+}

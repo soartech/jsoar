@@ -1,0 +1,3 @@
+source elaborations.soar
+source face-out.soar
+source move-to-corner.soar

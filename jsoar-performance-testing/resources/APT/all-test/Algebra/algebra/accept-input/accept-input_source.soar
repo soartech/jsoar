@@ -1,0 +1,9 @@
+source elaborations.soar
+source convert-input-to-clause-form.soar
+pushd convert-input-to-clause-form
+source convert-input-to-clause-form_source.soar
+popd
+source detect-failure.soar
+source print-request.soar
+source use-default-equation.soar
+source wait.soar

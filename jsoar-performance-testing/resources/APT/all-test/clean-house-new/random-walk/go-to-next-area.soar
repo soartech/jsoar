@@ -1,0 +1,71 @@
+sp {random-walk*propose*go-to-gateway
+   (state <s> ^name << random-walk patrol >>
+              ^top-state.current-location.gateway <gw>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^cross-doorway no)
+}
+
+sp {random-walk*evaluate*go-to-gateway
+   (state <s> ^name << random-walk patrol >>
+              ^operator <op> +
+              ^top-state.second-last-destination <gw>)
+   (<op> ^name go-to
+         ^destination.to <gw>)
+-->
+   (write (crlf) |Avoid old destination | <gw>)
+   (<s> ^operator <op> <)
+}
+#
+#sp {random-walk*propose*go-to-next-area
+#   (state <s> ^name << random-walk patrol >>
+#              ^top-state.current-location <loc>)
+#   (<loc> ^id <id>
+#          ^neighbor-area.gateway <gw>)
+#   (<gw> ^to <id>)
+#-->
+#   (<s> ^operator <op> + =)
+#   (<op> ^name go-to
+#         ^destination <gw>
+#         ^cross-doorway no)
+#}
+
+sp {apply*go-to-next-area
+   (state <s> ^operator <op>
+              ^top-state <ts>)
+   (<op> ^name go-to
+         ^destination.to <d>)
+-->
+   (write (crlf) |Last Destination | <d>)
+   (<ts> ^last-destination <d>)
+}
+
+sp {apply*go-to-next-area*add-second-remove-last
+   (state <s> ^operator <op>
+              ^top-state <ts>)
+   (<ts> ^last-destination <d>
+        -^second-last-destination)
+   (<op> ^name go-to
+         ^destination.to <> <d>)
+-->
+   (write (crlf) |Second Last Destination | <d>)
+   (<ts> ^second-last-destination <d>
+         ^last-destination <d> -)
+}
+
+
+sp {apply*go-to-next-area*update-second-remove-last
+   (state <s> ^operator <op>
+              ^top-state <ts>)
+   (<ts> ^last-destination <d>
+         ^second-last-destination <d2>)
+   (<op> ^name go-to
+         ^destination.to <> <d>)
+-->
+   (write (crlf) |Second Last Destination | <d>)
+   (<ts> ^second-last-destination <d>
+                                  <d2> -
+         ^last-destination <d> -)
+}

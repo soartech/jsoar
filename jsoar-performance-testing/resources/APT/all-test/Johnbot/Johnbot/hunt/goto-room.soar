@@ -1,0 +1,29 @@
+
+sp {wander*propose*goto-room
+   (state <s> ^name wander
+              ^top-state <ts>)
+   (<ts> -^self.get-object
+          ^parameters.enemy-visit-cutoff <ecc>
+          ^map <map>)
+   (<map> -^room.enemy-visit-count > <evc>
+          -^current-room <rm>
+           ^room <rm>)
+   (<rm> ^enemy-visit-count { > <ecc> <evc> })
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name goto-room 
+        ^room <rm>)}
+
+sp {wander*propose*goto-room*enemy
+   (state <s> ^name wander
+              ^top-state <ts>)
+   (<ts> -^self.get-object
+          ^enemy.prediction-final-room-number <frn>
+          ^map.room <rm>
+         -^map.current-room.room-number <frn>)
+   (<rm> ^room-number <frn>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name goto-room 
+        ^room <rm>)}
+

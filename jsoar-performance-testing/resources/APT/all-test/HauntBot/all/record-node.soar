@@ -1,0 +1,284 @@
+echo "\nLoading record-node"
+
+# record all new connector nodes on the map
+sp {all*propose*record-node
+   (state <s> ^name << explore record-entryway move-to-xyz move-to-node >>
+              ^io.input-link.objects.node <node>)
+   (<node> ^name <name>
+           ^type << door connector window >>   # Changed from -none
+           ^area-id)
+  -(<s> ^top-state.map.area.node.name <name>)  #Don't record nodes I've already seen
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-node
+        ^node <node>)
+}
+
+sp {all*propose*record-node*outside
+   (state <s> ^name << explore record-entryway move-to-xyz move-to-node >>
+              ^io.input-link.objects.node <node>)
+   (<node> ^name <name>
+           ^area |Outside|
+          -^area-id
+           ^connect-heading { <connect-heading> >= 0 }
+           ^type { <type> << door connector >> })
+  -(<s> ^top-state.map.area.node.name <name>)  #Don't record nodes I've already seen
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-node
+        ^node <node>)
+}
+
+## This handles nodes that should have area outside but don't
+sp {all*propose*record-node*outside2
+   (state <s> ^name << explore record-entryway move-to-xyz move-to-node >>
+              ^io.input-link.objects.node <node>)
+   (<node> ^name <name>
+           ^area |EntryNode|
+          -^area-id
+           ^connect-heading { <connect-heading> >= 0 }
+           ^type { <type> << door connector window >> })
+  -(<s> ^top-state.map.area.node.name <name>)  #Don't record nodes I've already seen
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-node
+        ^node <node>)
+}
+
+
+##Record node trumps record entryway
+sp {all*compare*record-node-beats-record-entryway
+   (state <s> ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record-node)
+   (<o2> ^name record-entryway)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#Record a windownode
+sp {all*apply*record-node*windownode
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-name <area-name>
+              ^area-id <area>
+              ^type window)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record windownode | <name> | at: | <pos>)
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^type window
+           ^name <name>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 1)
+   (<newpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+}
+
+##############################
+#Record an entrynode
+sp {all*apply*record-node*entrynode*0
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^parameters.entry-node-displacement <end>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-id <area>
+              ^area-name { <area-name> <> |Outside| }
+              ^connect-heading 0
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record entrynode | <name> |, area: | <area-name> )
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^derived yes
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 0
+           ^connect-heading 0
+           ^entryway-recorded *no*)
+   (<newpos> ^x (- <x> <end>)
+             ^y <y>
+             ^z <z>)
+}
+
+sp {all*apply*record-node*entrynode*180
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^parameters.entry-node-displacement <end>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-id <area>
+              ^area-name { <area-name> <> |Outside| }
+              ^connect-heading 180
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record entrynode | <name> |, area: | <area-name>)
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^derived yes
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 0
+           ^connect-heading 180
+           ^entryway-recorded *no*)
+   (<newpos> ^x (+ <x> <end>)
+             ^y <y>
+             ^z <z>)
+}
+sp {all*apply*record-node*entrynode*90
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^parameters.entry-node-displacement <end>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-id <area>
+              ^area-name { <area-name> <> |Outside| }
+              ^connect-heading 90
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record entrynode | <name> |, area: | <area-name> )
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^derived yes
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 0
+           ^connect-heading 90
+           ^entryway-recorded *no*)
+   (<newpos> ^x <x>
+             ^y (- <y> <end>)
+             ^z <z>)
+}
+sp {all*apply*record-node*entrynode*270
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^parameters.entry-node-displacement <end>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-id <area>
+              ^area-name { <area-name> <> |Outside| }
+              ^connect-heading 270
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (write (crlf) |Record entrynode | <name> |, area: | <area-name> )
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^derived yes
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 0
+           ^connect-heading 270
+           ^entryway-recorded *no*)
+   (<newpos> ^x <x>
+             ^y (+ <y> <end>)
+             ^z <z>)
+}
+
+
+################################################
+#Record Outside entrynodes with a non-zero visit count
+sp {all*apply*record-node*entrynode*outside
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area-name |Outside|
+              ^area-id <area>
+              ^connect-heading { <connect-heading> >= 0 }
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   #(write (crlf) |Record Outside entrynode | <name> | at: | <pos>)
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name <area-name>
+           ^visited 1
+           ^connect-heading <connect-heading>
+           ^entryway-recorded *no*)
+   (<newpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+}
+
+sp {all*apply*record-node*entrynode*outside2
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-node
+        ^node <visnode>)
+   (<map> ^area <area>)
+   (<area> ^name |Outside|)
+   (<visnode> ^position <pos>
+              ^name <name>
+              ^area |EntryNode|
+             -^area-id
+              ^connect-heading { <connect-heading> >= 0 }
+              ^type { <type> << door connector >> })
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   #(write (crlf) |Record Outside entrynode | <name> | at: | <pos>)
+   (<area> ^node <node>)
+   (<node> ^position <newpos>
+           ^name <name>
+           ^type <type>
+           ^area <area>
+           ^area-name |Outside|
+           ^visited 1
+           ^connect-heading <connect-heading>
+           ^entryway-recorded *no*)
+   (<newpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+}
+
+

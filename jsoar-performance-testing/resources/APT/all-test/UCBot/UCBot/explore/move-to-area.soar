@@ -1,0 +1,96 @@
+# Idea:
+#  Exploring consists of moving from unexplored area to unexplored
+#  area.  Prefers moving to the nearest unexplored area.
+#  At times, the agent's momentum carries it through one unexplored
+#  area to another area entirely.  In this special situation, the
+#  agent prefers moving immediately back to the partially explored
+#  area so that all paths can be recorded.
+
+# Propose moving to an unexplored area that the agent is aware of
+# (i.e. it is adjacent to an already recorded area).
+sp {explore*propose*move-to-area
+   (state <s> ^name explore
+              ^top-state.map <map>)
+   (<map> ^current-area.path <path>)
+   (<path> ^to-area <to-area>)
+   (<to-area> -^recorded true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-area
+         ^path <path>
+         ^speed walk)
+}
+
+sp {explore*propose*move-to-area*partially-recorded
+   (state <s> ^name explore
+              ^top-state.map <map>)
+   (<map> ^current-area.path <path>
+          ^partially-recorded-head <partial>)
+   (<path> ^to-area <partial>)
+#   (<path> ^to-area.partially-recorded-link <l>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-area
+         ^path <path>
+         ^speed walk)
+}
+
+# Prefer moving to the nearest un-recorded area.
+sp {explore*compare*move-to-area*area-counts
+   (state <s> ^name explore
+              ^top-state.map <map>
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-area
+         ^path <p1>)
+   (<o2> ^name move-to-area
+         ^path <p2>)
+   (<p1> ^area-count <c1>)
+   (<p2> ^area-count > <c1>
+         ^to-area.id <id>
+        -^to-area.partially-recorded-link <l2>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+# However, prefer moving to the head of the partially-recorded list
+# above all other areas
+sp {explore*compare*move-to-area*head-partially-recorded
+   (state <s> ^name explore
+              ^top-state.map.partially-recorded-head <head>
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-area
+         ^path.to-area <head>)
+   (<head> ^id <id>)
+   (<o2> ^name move-to-area
+         ^path.to-area.id <> <id>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+# A monitor rule to display the current status.
+sp {explore*monitor*move-to-area
+   (state <s> ^operator <op>
+              ^top-state.parameters.monitor-level all)
+   (<op> ^name move-to-area
+         ^path <path>)
+   (<path> ^to-area.id <to>
+           ^from-area.id <from>)
+-->
+   (write (crlf) |Moving from area | <from> | to area | <to>)
+}
+
+# When preparing to move to an area, stop the current movement.
+sp {explore*apply*move-to-area*stop-turning
+   (state <s> ^operator <op>
+             -^top-state.parameters.internal-simulation true
+              ^io <io>)
+   (<op> ^name move-to-area)
+   (<io> ^output-link <o-link>)
+-->
+   (<o-link> ^move.direction none
+             ^turn.direction none
+             ^strafe.direction none
+             ^jump.direction none)
+}

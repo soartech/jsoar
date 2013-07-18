@@ -1,0 +1,387 @@
+## Add
+## Includes proposals for add, subtract, multiply, divide between numbers
+## Includes special cases for when one is not a value and other is
+##    0 (multiply, add, subtract, divide) or 1
+##    1 (multiply, divide)
+
+sp {algebra*propose*add*value
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << multiply divide add subtract >> <oper> }
+         ^right-side.type number
+         ^left-side.type number)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+sp {algebra*propose*subtract-divide*value
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << divide subtract >> <oper> }
+         ^right-side.type variable
+         ^left-side.type variable)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+sp {algebra*propose*add*value-0*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << multiply add subtract >> <oper> }
+         ^right-side.value << 0. 0 >>
+        -^left-side.type number)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+sp {algebra*propose*add*value-0*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << multiply divide add >> <oper> }
+         ^left-side.value << 0 0. >>
+        -^right-side.type number)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+sp {algebra*propose*mulitply*value-1*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << multiply divide >> <oper> }
+        -^dont-multiply true
+         ^right-side.value << 1. 1 >>
+        -^left-side.type number)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+sp {algebra*propose*multiply*value-1*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation { << multiply >> <oper> }
+        -^dont-multiply true
+         ^left-side.value << 1 1. >>
+        -^right-side.type number)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name <oper>)
+}
+
+################ ADD
+
+sp {algebra*apply*add*values
+   (state <s> ^operator.name add
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<rs> ^type number
+         ^value <rv>)
+   (<ls> ^type number
+         ^value <lv>)
+-->
+   (write (crlf) |Add | <rv> |+| <lv> )
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation add -
+         ^type number
+         ^value (+ <rv> <lv>))
+}
+
+
+sp {algebra*apply*add*values-0-right-left-variable
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<o> ^name add
+        ^clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^parent-clause <pc>
+         ^operation add)
+   (<pc> ^ { << left-side right-side >> <side> } <cc>)
+   (<ls> ^type number
+         ^value << 0. 0 >>)
+   (<rs> -^type number)
+-->
+   (write (crlf) |Add | <ls> | + | 0 )
+   (<pc> ^<side> <cc> -
+         ^<side> <rs>)
+   (<s> ^current-clause <cc> -
+                        <rs>)
+}
+
+sp {algebra*apply*add*values-0-left-right-variable
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<o> ^name { <operation> << add subtract >> }
+        ^clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^parent-clause <pc>
+         ^operation <operation>)
+   (<pc> ^ { << left-side right-side >> <side> } <cc>)
+   (<rs> ^type number
+         ^value << 0. 0 >>)
+   (<ls> -^type number)
+-->
+   (write (crlf) <operation> | | <ls> | | 0 )
+   (<pc> ^<side> <cc> -
+         ^<side> <ls>)
+   (<s> ^current-clause <cc> -
+                        <ls>)
+}
+
+############Subtract##############
+
+sp {algebra*apply*subtract
+   (state <s> ^operator.name subtract
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type number
+         ^value <rv>)
+   (<ls> ^type number
+         ^value <lv>)
+-->
+   (write (crlf) |Subtract | <lv> | - | <rv> )
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation subtract -
+         ^type number
+         ^value (- <lv> <rv>))
+}
+
+sp {algebra*apply*subtract*variable
+   (state <s> ^operator.name subtract
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (write (crlf) |Subtract | <rv> | - | <rv> |= 0| )
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation subtract -
+         ^type number
+         ^value 0)
+}
+##############Multiply
+
+sp {algebra*apply*multiply
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation multiply)
+   (<rs> ^type number
+         ^value <rv>)
+   (<ls> ^type number
+         ^value <lv>)
+-->
+   (write (crlf) |Multiply | <rv> | * | <lv> )
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation multiply -
+         ^type number
+         ^value (* <lv> <rv>))
+}
+
+########## 0
+
+sp {algebra*apply*multiply*variable*multiply*0*right
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation multiply)
+   (<rs> ^type number
+         ^value << 0 0. >>)
+   (<ls> ^type variable
+         ^value <var>)
+-->
+   (write (crlf) |Multiply | <var> |* 0 = 0 |)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation multiply -
+         ^type number
+         ^value 0)
+}
+
+sp {algebra*apply*multiply*variable*multiply*0*left
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation << divide multiply >>)
+   (<ls> ^type number
+         ^value << 0. 0 >>)
+   (<rs> ^type variable
+         ^value <var>)
+-->
+   (write (crlf) |Multiply | <var> |* 0 = 0 |)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation multiply -
+         ^type number
+         ^value 0)
+}
+
+########### 1
+
+sp {algebra*apply*multiply*variable*multiply*1*right
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation { <oper> << divide multiply >> })
+   (<rs> ^type number
+         ^value << 1 1. >>)
+   (<ls> ^type variable
+         ^value <v>)
+-->
+   (write (crlf) |Multiply | <v> | * 1 = | <v>)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation <oper> -
+         ^type variable
+         ^value <v>)
+}
+
+sp {algebra*apply*multiply*variable*multiply*1*right*not-variable
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation { <oper> << divide multiply >> })
+   (<rs> ^type number
+         ^value << 1 1. >>)
+   (<ls> ^right-side <rs2>
+         ^left-side <ls2>
+         ^operation <op2>)
+-->
+   (write (crlf) <oper> | | <ls> |* 1 =| <ls2> | | <op2> | | <rs2>)
+   (<cc> ^right-side <rs> -
+                     <rs2>
+         ^left-side <ls> -
+                    <ls2>
+         ^operation <oper> -
+                    <op2>)
+}
+sp {algebra*apply*multiply*variable*multiply*1*left
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation multiply)
+   (<ls> ^type number
+         ^value << 1. 1 >>)
+   (<rs> ^type variable
+         ^value <v>)
+-->
+   (write (crlf) |Multiply | <v> | * 1 = | <v>)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation multiply -
+         ^type variable
+         ^value <v>)
+}
+
+
+sp {algebra*apply*multiply*variable*multiply*1*left*not-variable
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation multiply)
+   (<ls> ^type number
+         ^value << 1 1. >>)
+   (<rs> ^right-side <rs2>
+         ^left-side <ls2>
+         ^operation { <> multiply <op2> })
+-->
+   (write (crlf)  |Multiply | <rs> |* 1 =| <ls2> | | <op2> | | <rs2>)
+   (<cc> ^right-side <rs> -
+                     <rs2>
+         ^left-side <ls> -
+                    <ls2>
+         ^operation multiply -
+                    <op2>)
+}
+
+
+sp {algebra*apply*multiply*variable*multiply*1*left*not-variable*multiply
+   (state <s> ^operator.name multiply
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation multiply)
+   (<ls> ^type number
+         ^value << 1 1. >>)
+   (<rs> ^right-side <rs2>
+         ^left-side <ls2>
+         ^operation multiply)
+-->
+   (write (crlf)  |Multiply | <rs> |* 1 =| <ls2> | multiply | <rs2>)
+   (<cc> ^right-side <rs> -
+                     <rs2>
+         ^left-side <ls> -
+                    <ls2>)
+}
+######### DIVIDE ################
+
+sp {algebra*apply*divide
+   (state <s> ^operator.name divide
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation divide)
+   (<rs> ^type number
+         ^value { <> 0 <rv> })
+   (<ls> ^type number
+         ^value <lv>)
+-->
+   (write (crlf) | divide | <lv> | / | <rv>)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation divide -
+         ^type number
+         ^value (/ <lv> <rv>))
+}
+
+sp {algebra*apply*divide*variable
+   (state <s> ^operator.name divide
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation divide)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (write (crlf) | divide | <rv> | / | <rv> | = 1|)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^operation divide -
+         ^type number
+         ^value 1)
+}
+sp {algebra*apply*divide*0
+   (state <s> ^operator.name divide
+              ^current-clause <cc>)
+   (<cc> ^right-side.value 0
+         ^operation divide)
+-->
+   (write (crlf) |Error - Divide by 0.|)
+   (halt)
+}

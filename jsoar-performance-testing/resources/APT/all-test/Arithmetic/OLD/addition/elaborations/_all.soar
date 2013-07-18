@@ -1,0 +1,34 @@
+sp {elaborate*state*name
+   (state <s> ^superstate.operator.name <name>)
+-->
+   (<s> ^name <name>)
+}
+
+sp {elaborate*state*top-state
+   (state <s> ^superstate.top-state <ts>)
+-->
+   (<s> ^top-state <ts>)
+}
+
+sp {add-column*elaborate*addition-problem
+   (state <s> ^name 
+              ^superstate.addition-problem <ap>)
+-->
+   (<s> ^addition-problem <ap>)
+}
+
+sp {add-column*elaborate*addition-facts
+   (state <s> ^name 
+              ^superstate.addition <a>)
+-->
+   (<s> ^addition <a>)
+}
+
+sp {add-column*elaborate*current-column
+   (state <s> ^name 
+              ^superstate.addition-problem <ap>)
+   (<ap> ^current-column <cc>)
+-->
+   (<s> ^current-column <cc>)
+}
+

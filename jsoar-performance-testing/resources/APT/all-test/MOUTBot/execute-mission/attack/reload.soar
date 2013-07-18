@@ -1,0 +1,30 @@
+
+## JEL - 7/30/02
+## Will reload, even if don't have ammo to reload - need to add it
+
+# REW: 2002-09-27
+# - Must be able to terminate operator if ammo never changes. Added
+#   condition for recognizing reload failures.
+# - Should reload in any problem-space, not just attack
+sp {attack*propose*reload
+   (state <s> ^name << attack defend retreat >>
+              ^io.input-link.agent.weapon <w>
+             -^io.output-link.reload.error-code)
+   (<w> ^selected yes
+        ^ammo-amount 0)
+   -->
+#   (write (crlf) |Proposing operator reload...|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name reload
+        ^actions.reload true)
+}
+
+sp {apply*reload*say*weapon-dry
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>)
+   (<o1> ^name reload)
+   -->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name weapon-dry)
+}
+

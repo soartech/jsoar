@@ -1,0 +1,29 @@
+sp {instr-label*propose*label-next
+   (state <s> ^name instr-label
+              ^input {<> nil})
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name label-next)
+}
+
+sp {apply*label-next
+   (state <s> ^operator <op>
+              ^input <in>
+              ^output <out>
+              ^prev <prev>)
+   (<op> ^name label-next)
+   (<in> ^word <attr>
+         ^next <in-next>)
+   (<in-next> ^word <val>
+              ^next <in-next-next>)
+-->
+   (<s> ^output <out> -
+        ^output <out-next>
+        ^input <in> -
+        ^input <in-next-next>
+        ^prev <prev> -
+        ^prev <out>)
+   (<out> ^attr <attr>
+          ^value <val>
+          ^next <out-next>)
+}

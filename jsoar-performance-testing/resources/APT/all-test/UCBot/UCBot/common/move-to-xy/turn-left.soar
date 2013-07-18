@@ -1,0 +1,31 @@
+
+# Turn left when it's the quickest way to align with the target-heading.
+sp {move-to-xy*propose*turn-left
+   (state <s> ^name move-to-xy
+              ^headings.should-turn left 
+             -^io.input-link.feedback.turn left)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name turn-left
+         ^type wait)
+}
+
+# When we're moving at a "walk", stop moving when we turn.
+sp {move-to-xy*apply*turn-left*walk
+   (state <s> ^operator.name turn-left
+              ^io.output-link <o-link>
+              ^speed walk)
+-->
+   (<o-link> ^turn.direction left
+             ^move.direction none
+             ^strafe.direction none)
+}
+
+# When we're cruising at "run" or "sprint", don't slow down to turn.
+sp {move-to-xy*apply*turn-left*not-walk
+   (state <s> ^operator.name turn-left
+              ^io.output-link <o-link>
+              ^speed << run sprint >>)
+-->
+   (<o-link> ^turn.direction left)
+}

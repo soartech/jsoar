@@ -1,0 +1,14 @@
+# move to a position that is the optimal grab distance from the object.
+sp {move-near-and-x*propose*step-1-move-to-area
+   (state <s> ^type move-near-and-x
+             -^at-target
+              ^map.current-area <> <area>
+              ^target.area-id <area>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name step-1-move-to-area
+        ^type move-to-area-safely  # this will currently cause agent to avoid moving in 'haunted' areas
+        ^area <area>)
+}
+   
+

@@ -1,0 +1,29 @@
+sp {execute-mission*propose*orient-toward-threat
+   (state <s> ^name execute-mission
+              ^mission.active-objective <ob>)
+    (<ob> ^type << defend-entryway defend-hall defend-room >>
+          ^<< defensive-position offensive-position >> <dp>
+          ^threat.threat-door.node <tn>)
+    (<dp> ^position-achieved true
+          ^area-achieved true
+         -^orientation-achieved true)
+    (<tn> ^name <threat-name>
+          ^position <pos>)
+-->
+   (write (crlf) |Propose orient toward threat: | <threat-name>)
+   (<s> ^operator <o> + =)
+   (<o> ^name orient-toward-threat
+        ^actions.face <pos>)
+}
+
+
+
+sp {execute-mission*compare*orient-toward-threat-trumps-maintain
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name orient-toward-threat)
+   (<o2> ^name maintain-position)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

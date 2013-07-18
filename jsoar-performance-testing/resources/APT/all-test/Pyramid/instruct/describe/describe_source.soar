@@ -1,0 +1,9 @@
+source elaborations.soar
+source describe-variable.soar
+pushd describe-variable
+source describe-variable_source.soar
+popd
+source finish-up.soar
+source init-describe.soar
+source write-symbol.soar
+source write-variable.soar

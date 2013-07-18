@@ -1,0 +1,35 @@
+
+sp {algebra*apply*print-out-equation*terminate
+   (state <s> ^superstate <ss>
+              ^print-id <pn>)
+   (<ss> ^problem.top-clause <tc>
+         ^operator.name print-out-equation)
+   (<tc> ^right-side.print <rsp>
+         ^print <print>)
+   (<rsp> ^print-id <pn>
+          ^flag complete)
+   (<print> ^print-id <pn>)
+-->
+   (<print> ^flag complete)
+}
+sp {print-out-equation*elaborate*substate
+   (state <s> ^name << print-out-equation print-left-side print-right-side >>
+              ^superstate.operator <o>)
+   (<o> ^clause <cc>
+        ^print-id <pn>)
+-->
+   (<s> ^current-clause <cc>
+        ^type print-out-equation
+        ^print-id <pn>)}
+
+sp {print-out-equation*apply*remove-old-print
+   (state <s> ^operator.name
+              ^print-id <pn>
+              ^current-clause <cc>)
+   (<cc> ^print <p>)
+   (<p> ^print-id { <> <pn> <ppn> })
+-->
+   (<cc> ^print <p> -)
+}
+
+

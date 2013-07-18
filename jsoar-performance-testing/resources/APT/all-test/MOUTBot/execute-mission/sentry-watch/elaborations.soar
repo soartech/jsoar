@@ -1,0 +1,26 @@
+##################################### 
+# file: sentry-watch/elaborations.soar 
+# created: REW: 2001-08-20
+## 
+## Elaborations for the sentry-watch substate
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/sentry-watch/elaborations.soar"
+            
+sp {sentry-watch*elaborate*state*uses-defensive-position
+   (state <s> ^name sentry-watch)
+   -->
+   (<s> ^uses-defensive-position true)
+}
+sp {sentry-watch*elaborate*substate*objective
+   (state <s> ^name sentry-watch
+              ^superstate.operator <so>)
+   (<so> ^name sentry-watch
+         ^objective <obj>)
+   -->
+   (<s> ^objective <obj>)
+}
+
+

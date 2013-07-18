@@ -1,0 +1,114 @@
+echo "\nLoading initialize/record-area-extents"
+            
+#If an area has at least two pathnodes in it 
+#Then record its min/max x/y/z dimensions
+sp {initialize*propose*record-area-extents
+   (state <s> ^name initialize
+              ^top-state.map.area <a>)
+   (<a> -^max-x
+        -^name |Outside|
+         ^name <name>)
+-->
+ #  (write (crlf) | Area name: | <name>)
+   (<s> ^operator <o> + =)
+   (<o> ^name record-area-extents
+        ^area <a>)
+}
+
+sp {initialize*elaborate*record-area-extents*max-x
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.x <x>)
+  -(<a> ^node.position.x > <x>)
+-->
+   (<o> ^max-x <x>)
+}
+
+
+sp {initialize*elaborate*record-area-extents*max-y
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.y <y>)
+  -(<a> ^node.position.y > <y>)
+-->
+   (<o> ^max-y <y>)
+}
+
+sp {initialize*elaborate*record-area-extents*max-z
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.z <z>)
+  -(<a> ^node.position.z > <z>)
+-->
+   (<o> ^max-z (+ <z> 60))
+}
+
+
+sp {initialize*elaborate*record-area-extents*min-x
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.x <x>)
+  -(<a> ^node.position.x < <x>)
+-->
+   (<o> ^min-x <x>)
+}
+
+
+sp {initialize*elaborate*record-area-extents*min-y
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.y <y>)
+  -(<a> ^node.position.y < <y>)
+-->
+   (<o> ^min-y <y>)
+}
+
+sp {initialize*elaborate*record-area-extents*min-z
+   (state <s> ^name initialize
+              ^operator <o> +)
+   (<o> ^name record-area-extents
+        ^area <a>)
+   (<a> ^node <node>)
+   (<node> ^position.z <z>)
+  -(<a> ^node.position.z < <z>)
+-->
+   (<o> ^min-z (- <z> 30))
+}
+
+sp {apply*record-area-extents
+   (state <s> ^operator <o>)
+   (<o> ^name record-area-extents
+        ^area <a>
+        ^min-x <min-x>
+        ^max-x <max-x>
+        ^min-y <min-y>
+        ^max-y <max-y>
+        ^min-z <min-z>
+        ^max-z <max-z>)
+   (<a> ^name <name>)
+-->
+   (write | Area name: | <name>)
+   (<a> ^min-x <min-x>
+        ^max-x <max-x>
+        ^min-y <min-y>
+        ^max-y <max-y>
+        ^min-z <min-z>
+        ^max-z <max-z>)
+}
+
+

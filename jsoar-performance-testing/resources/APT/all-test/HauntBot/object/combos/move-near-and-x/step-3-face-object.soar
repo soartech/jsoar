@@ -1,0 +1,21 @@
+
+# For now, make sure that agent's heading is within
+# ten degrees of target object, so that it looks like the
+# agent is facing the target object
+sp {move-near-and-x*propose*step-3-face-object
+   (state <s> ^type move-near-and-x
+              ^at-target yes
+             -^facing-target yes
+             -^need-to-discard
+              ^target.position <pos>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name step-3-face-object
+        ^actions.face <face>)
+   (<face> ^x <x>
+           ^y <y> 
+           ^z <z>)
+}

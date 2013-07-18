@@ -1,0 +1,66 @@
+echo "\nLoading execute-mission/determine-retreat-door"
+
+sp {execute-mission*propose*determine-retreat-door
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^map.current-area.node <node>
+         ^mission.active-objective.threat <threat>)
+   (<node> ^type entryway)
+   (<threat> -^retreat-door)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name determine-retreat-door
+        ^threat <threat>
+        ^node <node>)
+   (write (crlf) |Propose retreat-door-> threat: | <threat> | node: | <node>)
+}
+
+sp {execute-mission*elaborate*retreat-door*distance-to-threat
+   (state <s> ^name execute-mission
+              ^operator <o> +
+              ^top-state.map.current-area.path <path>)
+   (<o> ^name determine-retreat-door
+        ^node <node>
+        ^threat.area <threat-area>)
+   (<path> ^destination-area <threat-area>
+           ^distance <dist>
+           ^via-node <node>)
+-->
+   (<o> ^distance-to-threat <dist>)
+}
+
+sp {retreat*compare*determine-retreat-door*distance-to-threat
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name determine-retreat-door
+         ^distance-to-threat <dist>)
+   (<o2> ^name determine-retreat-door 
+         ^distance-to-threat < <dist>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {retreat*compare*determine-retreat-door*prefer-no-path-to-threat
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name determine-retreat-door
+         -^distance-to-threat)
+   (<o2> ^name determine-retreat-door 
+         ^distance-to-threat)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {apply*determine-retreat-door
+   (state <s> ^operator <o>)
+   (<o> ^name determine-retreat-door
+        ^threat <threat>
+        ^node <node>)
+-->
+   (<threat> ^retreat-door <door>)
+   (<door> ^threat <threat>
+           ^node <node>)
+}
+

@@ -1,0 +1,123 @@
+#echo "\nLoading elaborations/parameters"
+
+sp {elaborate*parameters
+   (state <s> ^name quake)
+   -->
+   (<s> ^parameters <p>)
+   (<p> ^door-value 70
+        ^wall-close 125                 # Time to start stopping when this close to a wall
+        ^wall-align-axis-close 250      # If this close, will try to align with wall
+        ^wall-end 70
+        ^room-min 250                   # minimum size of a room
+                                        # a bit bigger than max for hal
+        ^room-min-2 250
+        ^big-room-size 1200             # If walls are farther about than this, it is a big room (will be searched)
+        ^door-bounding-box 80           # 1/2 of expected hall size = 180
+  
+        ^hiding-place-close  150          # 150
+
+        ^drift 40                       # amount traveled after thurst off
+                                        # used to predict where walls and doors are
+
+        ^attack-get-item-range 500      # will pick up item during attack if closer than this range
+
+        ^item-regeneration-time 30000   # time that items take to regenerate: 30 seconds
+
+        ^enemy-remember-time 40000       # time to remember an enemy after disappears - should be less?
+                                         # original value 20000 - testing value 40000
+
+        ^sound-remember-time 8000       # time to remember sound after disappears
+
+        ^detect-stuck-time 2000         # if don't move in this time, assume stuck
+
+        ^close-ammo-range 500           # if closer than this number, will try to pick up
+        ^close-weapon-range 800        # if closer than this number, will try to pick up
+        ^close-weapon-range-wander 1000        # if closer than this number, will try to pick up
+        ^max-sound-range 1000
+        ^min-sound-range 200
+
+        ^get-item-close-range 400       # will pick up an item even if not high priority if this close
+
+        ^enemy-visit-cutoff 7           # must have this many visits before search out enemy in this room
+       
+        ^max-hide-time 100
+)}  
+
+sp {elaborate*direction-headings
+   (state <s> ^name quake)
+   -->
+   (<s> ^direction-headings <sd>)
+   (<sd> ^north 90
+         ^south 270
+         ^east 0
+         ^west 180)}
+
+sp {elaborate*sidestep-directions
+   (state <s> ^name quake)
+   -->
+   (<s> ^side-direction <sd>)
+   (<sd> ^forward right left 
+         ^backward right left
+         ^right forward backward 
+         ^left forward backward)}
+
+sp {elaborate*directions
+    (state <s> ^superstate nil)
+    -->
+    (<s> ^direction-map <tns>
+         ^opposite <opp>)
+    (<tns> ^north <north>
+           ^south <south>
+           ^west <west>
+           ^east <east>)
+    (<north> ^right east  ^left west  ^backward south ^forward north
+				 ^angle 90)
+    (<south> ^right west  ^left east  ^backward north ^forward south
+				 ^angle 270)
+    (<west>  ^right north ^left south ^backward east  ^forward west
+				 ^angle 180)
+    (<east>  ^right south ^left north ^backward west  ^forward east
+				 ^angle 9)
+    (<opp> ^forward backward
+           ^backward forward
+           ^left right
+           ^right left)
+}
+
+#Aggressiveness parameters
+
+sp {elaborate*parameters*aggressiveness*standard
+   (state <s> ^name quake
+              ^self.aggressiveness standard
+              ^parameters <p>)
+   -->
+   (<p> ^retreat-range 1000             # will not retreat if enemy closer than this
+        ^health-need 50                # Will search out health if below this
+        ^armor-need 0                  # will search out armor if below this
+        ^health-want 80                 # will pickup visible health if below this
+        ^armor-want 50)                  # will pickup visible armor if below this
+}
+
+sp {elaborate*parameters*aggressiveness*passive
+   (state <s> ^name quake
+              ^self.aggressiveness passive
+              ^parameters <p>)
+   -->
+   (<p> ^retreat-range 200             # will not retreat if enemy closer than this (so will retreat a lot)
+        ^health-need 90                # Will search out health if below this
+        ^armor-need 50                  # will search out armor if below this
+        ^health-want 100                 # will pickup visible health if below this
+        ^armor-want 100)                  # will pickup visible armor if below this
+}
+
+sp {elaborate*parameters*aggressiveness*aggressive
+   (state <s> ^name quake
+              ^self.aggressiveness aggressive
+              ^parameters <p>)
+   -->
+   (<p> ^retreat-range 2000             # will not retreat if enemy closer than this (so will rarely retreat)
+        ^health-need 1                # Will search out health if below this
+        ^armor-need 0                  # will search out armor if below this
+        ^health-want 70                 # will pickup visible health if below this
+        ^armor-want 50)                  # will pickup visible armor if below this
+}

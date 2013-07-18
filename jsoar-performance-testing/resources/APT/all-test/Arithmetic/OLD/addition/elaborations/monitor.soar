@@ -1,0 +1,29 @@
+sp {addition*monitor*state*1column
+   (state <s> ^name addition
+              ^addition-problem <ap>)
+   (<ap> ^one-column <oc>)
+   (<oc> ^adden1 <n1>
+         ^adden2 <n2>
+         ^next-column nil)
+-->
+   (write (crlf) | | <n1> )
+   (write (crlf) |+| <n2> )
+   (write (crlf) |--|)
+}
+
+
+sp {addition*monitor*state*2column
+   (state <s> ^name addition
+              ^addition-problem <ap>)
+   (<ap> ^one-column <oc>)
+   (<oc> ^adden1 <n1>
+         ^adden2 <n2>
+         ^next-column <tc>)   
+   (<tc> ^adden1 <n3>
+         ^adden2 <n4>
+         ^next-column nil)
+-->
+   (write (crlf) | | <n3> <n1> )
+   (write (crlf) |+| <n4> <n2> )
+   (write (crlf) |---|)
+}

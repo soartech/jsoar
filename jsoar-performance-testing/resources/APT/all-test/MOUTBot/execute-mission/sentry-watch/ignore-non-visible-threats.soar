@@ -1,0 +1,61 @@
+##################################### 
+# file: ignore-non-visible-threats.soar 
+# created: REW: 2001-08-26
+## 
+# Delete threats that are no longer visible
+#
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/defend/sentry-watch/ignore-non-visible-threats.soar"
+                
+# record-threat copies over the id from the input link, so really any negated test would 
+# work here...
+sp {sentry-watch*propose*ignore-non-visible-threats
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.threats <th>)
+   (<th> ^reported-threat <rt>)
+   (<rt> -^visible true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name ignore-non-visible-threats
+        ^threat <rt>)
+}
+
+
+sp {apply*ignore-non-visible-threats*decrement-count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.threats <th>)
+   (<o1> ^name ignore-non-visible-threats
+              )
+   (<th> ^total-threats { > 0 <tt> })
+   -->
+   (<th> ^total-threats <tt> - (- <tt> 1) + )
+}
+
+
+sp {apply*ignore-non-visible-threats*delete*reported-threat
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.threats <th>)
+   (<o1> ^name ignore-non-visible-threats
+         ^threat <rt>)
+   (<th> ^reported-threat <rt>)
+   -->
+   (<th> ^reported-threat <rt> - )
+}
+
+### SEARCH CONTROL
+
+# If there are threats that should be deleted, delete them before making a report
+
+sp {sentry-watch*compare*ignore-non-visible-threats
+   (state <s> ^name sentry-watch
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name ignore-non-visible-threats)
+   (<o2> ^name report-threats)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

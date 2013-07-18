@@ -1,0 +1,141 @@
+## Propose evaluate based on no model
+sp {selection*propose*evaluate-operator*model-enabled*no-model
+   :default
+   (state <s> ^name selection
+              ^superstate.model-enabled true
+              ^item <item>)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <item>
+         ^value true)}
+   (<item> ^name << bid challenge pass >>
+          -^push-face)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <item>
+        ^use-model false)}
+
+sp {selection*propose*evaluate-operator*model-enabled*no-model*failure
+   :default
+   (state <s> ^name selection
+              ^alternative-dice-counts failure
+              ^superstate.model-enabled true
+              ^item <item>)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <item>
+         ^value true)}
+   (<item> ^name bid 
+           ^push-face)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <item>
+        ^use-model false)}
+
+sp {selection*propose*evaluate-operator*model-enabled*no-model*failure*exact
+   :default
+   (state <s> ^name selection
+              ^alternative-dice-counts failure
+              ^superstate.model-enabled true
+              ^item <item>)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <item>
+         ^value true)}
+   (<item> ^name exact)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <item>
+        ^use-model false)}
+
+sp {selection*propose*evaluate-operator*model-enabled*use-model
+   :default
+   (state <s> ^name selection
+              ^alternative-dice-counts.updated true
+              ^superstate.model-enabled true
+              ^item <item>)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <item>
+         ^use-model true
+         ^value true)}
+   (<item> ^name << bid challenge exact >>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <item>
+        ^use-model true)}
+
+sp {selection*propose*evaluate-operator*model-enabled*use-model*no-valid-prior-bid
+   :default
+   (state <s> ^name selection
+              ^alternative-dice-counts failure
+              ^item <item>)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <item>
+         ^value true)}
+   (<item> ^name exact)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <item>
+        ^use-model false)}
+
+sp {selection*propose*evaluate-operator
+   :default
+   (state <s> ^name selection
+              ^superstate.model-enabled false)
+  -{(state <s> ^evaluation <e>)
+    (<e> ^superoperator <i>
+         ^value true)}
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name evaluate-operator
+        ^superoperator <i>
+        ^use-model false)}
+
+######### Evaluation Creation
+### Create evaluation once the eval operator is selected.
+ 
+sp {selection*apply*state*evaluation
+   :default
+   (state <s> ^name selection
+              ^operator <o>)
+   (<o> ^name evaluate-operator
+        ^superoperator <ob>
+        ^use-model <model>)
+-->
+   (<s> ^evaluation <e>)
+   (<e> ^superoperator <ob>
+        ^use-model <model>)}
+
+sp {selection*elaborate*evaluate-operator*evaluation
+   :default
+   :o-support
+   (state <s> ^name selection
+              ^operator <o>
+              ^evaluation <e>)
+   (<o> ^name evaluate-operator
+        ^superoperator <ob>
+        ^use-model <model>)
+   (<e> ^superoperator <ob>
+        ^use-model <model>)
+-->
+   (<o> ^evaluation <e>)}
+
+#### Remove old evaluation
+
+sp {selection*apply*state*evaluation*remove-no-model
+   :default
+   (state <s> ^name selection
+              ^evaluation <e>
+              ^operator <o>)
+   (<o> ^name evaluate-operator
+        ^superoperator <so>
+        ^use-model true)
+   (<e> ^superoperator <so>
+        ^use-model false)
+-->
+   (write (crlf) |Remove old evaluation for | <so> | | <e>)
+   (<s> ^evaluation <e> -)}
+
+

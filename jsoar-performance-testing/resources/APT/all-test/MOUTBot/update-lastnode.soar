@@ -1,0 +1,33 @@
+echo "\nLoading update-lastnode"
+
+#update the last node as soon as we are "at" a new one
+#if we are at a node, the last node is that node
+
+sp {unreal*propose*update-lastnode
+   (state <s> ^name unreal
+              ^map <map>)
+   (<map> ^near-node <nn>
+          ^last-node <ln>)
+   (<nn> ^name <name>)
+   (<ln> ^name {<lastname> <> <name>} )
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-lastnode
+        ^newnode <nn>
+        ^oldnode <ln>)
+}
+
+sp {unreal*apply*update-lastnode
+   (state <s> ^operator <o>
+              ^map <map>)
+   (<o> ^name update-lastnode
+        ^newnode <nnode>
+        ^oldnode <onode>)
+   (<nnode> ^visited <num>)
+-->
+   (<map> ^last-node <onode> -)
+   (<map> ^last-node <nnode>)
+   (<nnode> ^visited (+ <num> 1))
+   (<nnode> ^visited <num> -)
+}
+

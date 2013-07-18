@@ -1,0 +1,12 @@
+source elaborations.soar
+source carry.soar
+pushd carry
+source carry_source.soar
+popd
+source compute-sum.soar
+source get-adden1.soar
+pushd get-adden1
+source get-adden1_source.soar
+popd
+source get-adden2.soar
+source write-sum.soar

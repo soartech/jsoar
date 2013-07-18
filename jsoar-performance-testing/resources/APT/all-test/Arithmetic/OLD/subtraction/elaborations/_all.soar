@@ -1,0 +1,34 @@
+sp {elaborate*state*name
+   (state <s> ^superstate.operator.name <name>)
+-->
+   (<s> ^name <name>)
+}
+
+sp {elaborate*state*top-state
+   (state <s> ^superstate.top-state <ts>)
+-->
+   (<s> ^top-state <ts>)
+}
+
+sp {sub-column*elaborate*subtraction-problem
+   (state <s> ^name 
+              ^superstate.subtraction-problem <ap>)
+-->
+   (<s> ^subtraction-problem <ap>)
+}
+
+sp {sub-column*elaborate*subtraction-facts
+   (state <s> ^name 
+              ^superstate.subtraction <a>)
+-->
+   (<s> ^subtraction <a>)
+}
+
+sp {sub-column*elaborate*current-column
+   (state <s> ^name 
+              ^superstate.subtraction-problem <ap>)
+   (<ap> ^current-column <cc>)
+-->
+   (<s> ^current-column <cc>)
+}
+

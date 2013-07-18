@@ -1,0 +1,20 @@
+
+sp {common*elaborate*go-to-room
+   :i-support
+   (state <s> ^name go-to-room
+              ^superstate.operator.room-name <rname>
+              ^top-state.map <map>)
+   (<map> ^current-room <cr>
+          ^room { <> <cr> <room> })
+   (<room> ^room-name <rname>)
+   (<cr> ^path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o>)
+   (<o> ^name go-through-door
+        ^mode wander
+        ^distance <distance>
+        ^door <idoor>)}
+

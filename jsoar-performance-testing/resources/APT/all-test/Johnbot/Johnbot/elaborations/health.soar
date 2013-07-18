@@ -1,0 +1,78 @@
+#echo "\nLoading elaborations/health"
+
+sp {elaborate*type*health
+	(state <s> ^name quake
+                   ^io.input-link.entity.item <item>)
+	(<item> ^classname << item_health_small item_health 
+                              item_health_medium item_health_large
+			      item_health_mega item_adrenaline >>)
+   -->
+	(<item> ^type health)}
+
+sp {elaborate*parameters*health*health
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_health
+             ^classname item_health
+             ^increase 2
+             ^max 999
+        )
+   }
+
+sp {elaborate*parameters*health*small
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_health_small
+             ^classname item_health_small
+             ^increase 10
+             ^max 100
+        )
+   }
+
+sp {elaborate*parameters*health*medium
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_health_medium
+             ^classname item_health_medium
+             ^increase 25
+             ^max 100
+        )
+   }
+
+sp {elaborate*parameters*health*large
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_health_large
+             ^classname item_health_large
+             ^increase 50
+             ^max 100
+        )
+   }
+
+sp {elaborate*parameters*health*mega
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_health_mega
+             ^classname item_health_mega
+             ^increase 100
+             ^max 250
+        )
+   }
+
+sp {elaborate*parameters*health*adrenaline
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^health <health>)
+   (<health> ^name item_adrenaline
+             ^classname item_adrenaline
+             ^increase 100
+             ^max 100
+        )
+   }
+

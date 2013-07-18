@@ -1,0 +1,85 @@
+## NOTE: UPDATE TO WORK WITH DECORATIONS
+
+echo "\nLoading update-item"
+
+## Update the location of any items that have moved
+## Only proposed when position or area has changed 
+
+## NOTE: Tracking position might be nice for some
+## decisions.  It could add alot of overhead though, so
+## we should examine carefully if we want to do this
+
+sp {all*propose*update-item
+   (state <s> ^name unreal
+              ^io.input-link.objects.item <newitem>)
+   (<s> ^top-state.item-list.item <item>)
+   (<newitem> ^name <name>
+              ^area <newarea>
+              ^position <pos>)
+   (<pos> ^x <newx>
+          ^y <newy>
+          ^z <newz>)
+    (<item> ^name <name>)
+  -{(<item> ^area <newarea>
+            ^position <pos2>)
+    (<pos2> ^x <newx>
+            ^y <newy>
+            ^z <newz>)}
+   -->
+#   (write (crlf) |Updating Item: | <name>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-item
+        ^item <newitem>)
+}
+
+#deal with decorations in the same way as items
+sp {all*propose*update-decoration
+   (state <s> ^name unreal
+              ^io.input-link.objects.decoration <newitem>)
+   (<s> ^top-state.item-list.item <item>)
+   (<newitem> ^name <new-name>)
+   (<item> ^name <new-name>)
+   (<newitem> ^area <newarea>
+              ^position.x <newx>
+              ^position.y <newy>
+              ^position.z <newz>)
+  -(<item> ^area <newarea>
+           ^position.x <newx>
+           ^position.y <newy>
+           ^position.z <newz>)
+   -->
+#   (write (crlf) |Updating Item: | <new-name>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-item
+        ^item <newitem>)
+}
+
+sp {all*apply*update-item*area
+   (state <s> ^operator <o>
+              ^top-state.item-list.item <item>)
+   (<o> ^name update-item
+        ^item <newitem>)
+   (<newitem> ^name <new-name>
+              ^area <newarea>)
+   (<item> ^name <new-name>
+           ^area { <> <newarea> <oldarea> })
+   -->
+   (<item> ^area <oldarea> -
+           ^area <newarea>)
+}
+
+sp {all*apply*update-item*position*x
+   (state <s> ^operator <o>
+              ^top-state.item-list.item <item>)
+   (<o> ^name update-item
+        ^item <newitem>)
+   (<newitem> ^name <new-name>
+              ^position. { << x y z >> <x> } <x-new>)
+   (<item> ^name <new-name>
+           ^position <p>)
+   (<p> ^<x> { <> <x-new> <x-old> })
+   -->
+   (<p> ^<x> <x-new>
+           <x-old> -)
+}
+

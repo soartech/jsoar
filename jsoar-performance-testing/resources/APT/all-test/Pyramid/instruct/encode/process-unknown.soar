@@ -1,0 +1,40 @@
+sp {encode*propose*process-unknown
+   (state <s> ^name encode
+              ^current-problem-ptr.type unknown)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-unknown)
+}
+
+sp {apply*process-unknown
+   (state <s> ^operator.name process-unknown
+              ^superstate.instructions <i>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^value <value>
+          ^type unknown
+          ^next <ncpp>)
+   (<cpsp> ^name <variable>
+           ^next <ncpsp>)
+-->
+   (write (crlf) |Create (s1 ^| <variable> | | <value> |)| )
+   (<i> ^unknown-value <variable>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}
+
+sp {apply*process-unknown*set-term-initial-value
+   (state <s> ^operator.name process-unknown
+              ^superstate.current-problem <cp>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^value <value> ^type unknown)
+   (<cpsp> ^name <variable>)
+-->
+   (<cp> ^terms <t>)
+   (<t> ^term-name <variable>
+        ^type definition
+        ^term-initial-value <value>)
+}

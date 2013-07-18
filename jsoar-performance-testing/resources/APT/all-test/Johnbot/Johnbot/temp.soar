@@ -1,0 +1,12 @@
+
+sp {explore-axis*apply*finish-axis
+   (state <s> ^operator.name finish-axis
+              ^axis <a>)
+   (<a> ^wall <w>
+        ^marked wall
+       -^retry true
+       -^updated <side>)
+   -->
+   (write (crlf) |Finished mapping|)
+   (<a> ^mapped true)
+   (<w> ^mapped true)}

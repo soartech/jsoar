@@ -1,0 +1,6 @@
+source elaborations.soar
+source create-variable.soar
+source init-encode.soar
+source process-unknown.soar
+source skip-symbol.soar
+source terminate-encode.soar

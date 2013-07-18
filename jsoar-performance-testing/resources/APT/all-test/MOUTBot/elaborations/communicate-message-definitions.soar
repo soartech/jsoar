@@ -1,0 +1,206 @@
+#####################################
+# file: messages.soar
+# created: REW: 2001-07-08
+##
+# Change history:
+#
+#  [1] Created REW
+# This file provides the definition of the information necessary for
+# each message.  This file should be generated automatically from a
+# more maintainable format (eg, a spreadsheet).
+
+# Note: variabilizing all the content attribute names and then copying
+# them to the attributes in the defintion (rather than just re-typing)
+# is probably unnecessary.  Certainly, with the automated creation of
+# these productions, this variabilization would not be necessary.
+
+#####################################
+
+# Note: These should likely be located under the communicate operator as they are functionally related to the operator.
+# But Visual Soar does not like them there (no production error checking) so they are here in this directory, which I
+# assume is going to get messy fast....
+
+echo "\nLoading ./elaborations/communicate-message-definitions.soar "
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*tell*sound-not-available
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >>
+               { << ready
+               clear
+               all-clear
+               frag-out
+               grenade
+               suppressed
+               not-under-fire
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>)
+   (<p> ^language kqml
+        ^type     tell)
+}
+
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*tell*sound-available
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >>
+               { <<
+               weapon-dry
+               weapon-jammed
+               under-fire
+               i-am-hit
+               i-surrender
+               on-watch-station
+               resuming-watch
+               pulling-out
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>
+        ^sound-available true)
+   (<p> ^language kqml
+        ^type     tell)
+}
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*reply
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >> { << roger
+               copy
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>)
+   (<p> ^language kqml
+        ^type     reply)
+}
+
+# Note: The distinction between ask and achieve is that ask requires that an agent
+# tell something about it's current state, while achieve requires the agent to do
+# something in the environment to make the sentence true.
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*achieve
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >> { << wait-here
+               hide
+               follow-me
+               cover-me
+               drop-weapon
+               continue
+               put-hands-up
+               help
+               move                  ;# as in clearing a room
+               lets-go               ;# order to leave a room (speaker also to retreat)                                        
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>)
+   (<p> ^language kqml
+        ^type achieve)
+}
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*achieve*sound-available
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >> { << 
+               pull-out              ;# order to leave a room (speaker not implied to also retreat)                                       
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>
+        ^sound-available true)
+   (<p> ^language kqml
+        ^type achieve)
+}
+
+# For "real" KQML, this would be something like "ask-one" but that's confusing.
+# Query conveys the performative succintly.
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*query
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >>
+               { << provide-current-objective
+               provide-damage-report
+               >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>)
+   (<p> ^language kqml
+        ^type query)
+}
+
+
+# Enemy approaching number 3 from northeast
+sp {top-ps*elaborate*state*comm*communicate*message-definition*enemy-approaching
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >> { << enemy-approaching  >> <name> }
+           ^content <con>)
+   (<con> ^{ << number >> <number>}
+          ^{ << from >> <from>})
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type two-attribute-value-utterance
+        ^identify-self *no*
+        ^attributes <attr>
+        ^performative <p>
+        ^sound-available true)
+   (<attr> ^first <number>
+           ^second <from>)
+   (<p> ^language kqml
+        ^type tell)
+}
+
+
+# selected-target
+# Perhaps really should be "selected enemy" but I don't know what the semantics of
+# enemy selection is; assuming the selected enemy is a target seems reasonable
+sp {top-ps*elaborate*state*comm*communicate*message-definition*selected-target
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^<< name accept-string >> { << selected-target  >> <name> }
+           ^content <con>)
+   (<con> ^{ << agent-name >> <agent-name>})
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type one-value-utterance
+        ^identify-self *no*
+        ^attributes <attr>
+        ^performative <p>
+# 2003-06-13: don't play sound file for this message
+#        ^sound-available true
+                      )
+   (<attr> ^first <agent-name>)
+   (<p> ^language kqml
+        ^type     tell)
+}
+
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*go-to-door
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^name { << go-to-door  >> <name> }
+           ^content <con>)
+   (<con> ^{ << agent-name >> <ag>}
+          ^{ << primary-door >> <pd>}
+          ^{ << secondary-door >> <sd> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type three-value-utterance
+        ^identify-self *no*
+        ^attributes <attr>
+        ^performative <p>
+        ^sound-available true)
+   (<attr> ^first <ag>
+           ^second <pd>
+           ^third <sd>)
+   (<p> ^language kqml
+        ^type     tell)
+}

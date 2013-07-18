@@ -1,0 +1,67 @@
+# Idea:
+#  Sometimes when crossing a narrow area the agent will record that an area
+#  was visited but not have an opportunity to record all paths before its
+#  momentum carries it to a new area.  The paths-recorded flag is used to
+#  track when all paths have been recorded in an area, and is updated by
+#  the rules below.
+#  We now maintain an ordered list of partially-recorded areas, so that if
+#  we can't immediately return to the first partialy recorded area we make
+#  sure to visit them in order again.
+#  After we implement better path propagation, we might want to consider
+#  running the agent without this functionality and see if it still has
+#  problems -- as long as it finds connected areas, we might be able to recover
+#  from only partially recording an area.
+
+sp {UCBot*propose*update-paths-recorded
+   (state <s> ^name UCBot
+              ^map.partially-recorded-head <head>)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name update-paths-recorded)
+}
+
+# Prefer this operator to exploring.  After we pop the current area off of
+# the partially-recorded paths list, then we can continue exploration as normal.
+sp {UCBot*compare*update-paths-recorded
+   (state <s> ^name UCBot
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name explore)
+   (<o2> ^name update-paths-recorded)
+-->
+   (<s> ^operator <o2> > <o1>)
+}
+
+# If there is more than just the current area in our partially-recorded
+# list, then pop the current area off of the list and create the new
+# head.
+sp {UCBot*apply*update-paths-recorded*update-list*pop-and-update
+   (state <s> ^operator <op>
+              ^map <map>)
+   (<map> ^partially-recorded-head <head>)
+   (<head> ^partially-recorded-link <> tail <next>
+           ^id <id>)
+   (<op> ^name update-paths-recorded)
+-->
+   (<head> ^paths-recorded false -
+           ^paths-recorded true)
+   (<map> ^partially-recorded-head <head> -
+          ^partially-recorded-head <next>)
+   (<head> ^partially-recorded-link <next> -)
+}
+
+# If this is the only area on the list, then pop it and remove the
+# list entirely.
+sp {UCBot*apply*update-paths-recorded*update-list*pop-only-area
+   (state <s> ^operator <op>
+              ^map <map>)
+   (<map> ^partially-recorded-head <head>)
+   (<head> ^partially-recorded-link tail)
+   (<op> ^name update-paths-recorded)
+-->
+   (<head> ^paths-recorded false -
+                   ^paths-recorded true)
+   (<map> ^partially-recorded-head <head> -)
+   (<head> ^partially-recorded-link tail -)
+}
+   

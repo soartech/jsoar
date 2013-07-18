@@ -1,0 +1,17 @@
+echo "\nLoading object/combos"
+                
+#
+#
+# combos allow multiple actions to be chained together. They are of the following format
+#
+#  [primary-action]-and-[secondary-action]
+#
+#  Once the primary action has been completed, the action specifed by the ^name and ^type sub-attributes of
+#  ^next-action will be proposed.
+#
+#  EXAMPLE:
+#                   ^next-action
+#                          ^name drop-food
+#                          ^type drop-object
+# 
+ 

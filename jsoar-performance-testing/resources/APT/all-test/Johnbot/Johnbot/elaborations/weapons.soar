@@ -1,0 +1,510 @@
+#echo "\nLoading elaborations/weapons"
+
+sp {elaborate*weapon*type
+   (state <s> ^name quake
+              ^io.input-link.entity.item <item>)
+   (<item> ^classname << weapon_supershotgun weapon_shotgun
+         weapon_machinegun weapon_chaingun weapon_grenadelauncher
+         weapon_rocketlauncher weapon_hyperblaster weapon_railgun
+                       weapon_bfg >>)
+   -->
+   (<item> ^type weapon)}
+
+sp {elaborate*parameters*circle-strafe-distance
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^attack-distances <ad>)
+   (<ad> ^short <sh>
+         ^medium <m>
+         ^long <l>
+         ^short-medium <sm>
+         ^medium-long <ml>
+         ^short-medium-long <sml>)
+   (<sh> ^min 200
+         ^mid 500
+         ^max 800)
+   (<sm> ^min 200
+         ^mid 600
+         ^max 1000)
+   (<m> ^min 800
+        ^mid 900
+        ^max 1000)
+   (<ml> ^min 800
+         ^mid 1200
+         ^max 2000)
+   (<sml> ^min 300
+          ^mid 800
+          ^max 2000)
+   (<l> ^min 1000
+        ^mid 1500
+        ^max 2000)
+   }
+        
+sp {elaborate*parameters*weapon*blaster
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Blaster|
+             ^classname weapon_blaster
+             ^ammo-type none
+             ^ammo-need 0
+             ^ammo-want 0
+             ^minimum-ammo 0
+             ^projectile-speed medium
+             ^range short-medium-long
+             ^spray small
+             ^splash no
+             ^shot-damage 20
+             ^second-damage 40
+             ^circle-strafe 1
+             ^quality 1
+             ^charge 1)}
+
+sp {elaborate*parameters*weapon*blaster*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_blaster
+             ^better weapon_rocketlauncher
+             ^better weapon_shotgun
+             ^better weapon_supershotgun
+             ^better weapon_machinegun
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*blaster*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_blaster
+             ^better weapon_rocketlauncher
+             ^better weapon_shotgun
+             ^better weapon_supershotgun
+             ^better weapon_machinegun
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*shotgun
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Shotgun|
+             ^classname weapon_shotgun
+             ^ammo-type ammo_shells
+             ^ammo-need 3
+             ^ammo-want 20
+             ^minimum-ammo 1
+             ^projectile-speed fast
+             ^range short
+             ^spray medium
+             ^splash no
+             ^shot-damage 48
+             ^second-damage 40
+             ^circle-strafe 3
+             ^quality 1
+             ^charge 3
+)
+   }
+
+sp {elaborate*parameters*weapon*shotgun*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_shotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_supershotgun
+             ^better weapon_machinegun
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*shotgun*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_shotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_supershotgun
+             ^better weapon_machinegun
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*super-shotgun
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Super|
+             ^classname weapon_supershotgun
+             ^ammo-type ammo_shells
+             ^ammo-need 5
+             ^ammo-want 20
+             ^minimum-ammo 2
+             ^projectile-speed fast
+             ^range short-medium
+             ^spray large
+             ^splash no
+             ^shot-damage 120
+             ^second-damage 120
+             ^circle-strafe 4
+             ^quality 3
+             ^charge 4)
+   }
+
+sp {elaborate*parameters*weapon*supershotgun*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_supershotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*supershotgun*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_supershotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*machinegun
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Machinegun|
+             ^classname weapon_machinegun
+             ^ammo-type ammo_bullets
+             ^ammo-need 20
+             ^ammo-want 80
+             ^minimum-ammo 1
+             ^projectile-speed fast
+             ^range medium-long
+             ^spray small
+             ^splash no
+             ^shot-damage 8
+             ^second-damage 80
+             ^circle-strafe 5
+             ^quality 2
+             ^charge 5)
+   }
+
+sp {elaborate*parameters*weapon*machinegun*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_machinegun
+             ^better weapon_supershotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*machinegun*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_machinegun
+             ^better weapon_supershotgun
+             ^better weapon_rocketlauncher
+             ^better weapon_chaingun
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+
+sp {elaborate*parameters*weapon*chaingun
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Chaingun|
+             ^classname weapon_chaingun
+             ^ammo-type ammo_bullets
+             ^ammo-need 20
+             ^ammo-want 80
+             ^minimum-ammo 1
+             ^projectile-speed fast
+             ^range medium-long
+             ^spray small
+             ^splash no
+             ^shot-damage 6
+             ^second-damage 180
+             ^circle-strafe 7
+             ^quality 5
+             ^charge 7)
+   }
+
+sp {elaborate*parameters*weapon*chaingun*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_chaingun
+             ^better weapon_rocketlauncher
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*chaingun*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_chaingun
+             ^better weapon_rocketlauncher
+             ^better weapon_hyperblaster
+             ^better weapon_railgun)
+   }
+
+
+sp {elaborate*parameters*weapon*grenadelauncher
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Grenade|
+             ^classname weapon_grenadelauncher
+             ^ammo-type ammo_grenades
+             ^ammo-need 2
+             ^ammo-want 8
+             ^minimum-ammo 1
+             ^projectile-speed slow
+             ^range short-medium
+             ^spray large
+             ^splash true
+             ^shot-damage 120
+             ^second-damage 96
+             ^circle-strafe 0
+             ^quality 5
+             ^charge 0)
+   }
+
+sp {elaborate*parameters*weapon*grenadelauncher*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_grenadelauncher
+             ^better weapon_rocketlauncher
+             ^better weapon_hyperblaster
+             ^better weapon_railgun
+             ^better weapon_bfg)
+   }
+
+sp {elaborate*parameters*weapon*grenadelauncher*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_grenadelauncher
+             ^better weapon_rocketlauncher
+             ^better weapon_hyperblaster
+             ^better weapon_railgun
+             ^better weapon_bfg)
+   }
+
+
+sp {elaborate*parameters*weapon*rocketlauncher
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Rocket|
+             ^classname weapon_rocketlauncher
+             ^ammo-type ammo_rockets
+             ^ammo-need 3
+             ^ammo-want 20
+             ^minimum-ammo 1
+             ^projectile-speed slow
+             ^range medium-long
+             ^spray large
+             ^splash true
+             ^shot-damage 120
+             ^second-damage 96
+             ^quality 7
+             ^circle-strafe 0
+             ^charge 0)
+   }
+
+sp {elaborate*parameters*weapon*rocketlauncher*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_rocketlauncher
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*rocketlauncher*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_rocketlauncher
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*hyperblaster
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Hyperblaster|
+             ^classname weapon_hyperblaster
+             ^ammo-type ammo_cells
+             ^ammo-need 40
+             ^ammo-want 180
+             ^minimum-ammo 1
+             ^projectile-speed slow
+             ^range short-medium-long
+             ^spray small
+             ^splash no
+             ^shot-damage 20
+             ^second-damage 200
+             ^circle-strafe 6
+             ^quality 6
+             ^charge 6)
+   }
+
+
+sp {elaborate*parameters*weapon*hyperblaster*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_hyperblaster
+             ^better weapon_rocketlauncher
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*hyperblaster*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_hyperblaster 
+             ^better weapon_rocketlauncher
+             ^better weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*railgun
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Railgun|
+             ^classname weapon_railgun
+             ^ammo-type ammo_slugs
+             ^ammo-need 3
+             ^ammo-want 10
+             ^minimum-ammo 1
+             ^projectile-speed fast
+             ^range short-medium-long
+             ^spray small
+             ^splash no
+             ^shot-damage 100
+             ^second-damage 67
+             ^circle-strafe 8
+             ^quality 8
+             ^charge 8)
+   }
+
+sp {elaborate*parameters*weapon*railgun*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*railgun*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_railgun)
+   }
+
+sp {elaborate*parameters*weapon*bfg
+   (state <s> ^name quake
+              ^parameters <parameters>)
+   -->
+   (<parameters> ^weapon <weapon>)
+   (<weapon> ^name |Bfg|
+             ^classname weapon_bfg
+             ^ammo-type ammo_cells
+             ^ammo-need 4
+             ^ammo-want 10
+             ^minimum-ammo 1
+             ^projectile-speed medium
+             ^range medium-long
+             ^spray large
+             ^splash true
+             ^shot-damage 200
+             ^second-damage 20
+             ^quality 6
+             ^circle-strafe 0
+             ^charge 0)
+   }
+
+sp {elaborate*parameters*weapon*bfg*self
+   (state <s> ^name quake
+             -^predicting true
+              ^self.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_bfg)
+   }
+
+sp {elaborate*parameters*weapon*bfg*enemy
+   (state <s> ^name quake
+             -^predicting true
+              ^enemy-data.parameters <parameters>)
+   -->
+   (<parameters> ^weapons <w1>)
+   (<w1> ^classname weapon_bfg)
+   }
+

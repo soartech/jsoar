@@ -1,0 +1,83 @@
+echo "\nLoading common/monitor"
+
+# Set monitor to false to disable TCL map monitoring window
+sp {elaborate*unreal*monitor
+   (state <s> ^superstate nil)
+-->
+   (<s> ^monitor true)
+}
+
+
+###### Compute floor of object and add the floor displacement value as an elaboration
+sp {map-monitor*self*floor-displacement
+   (state <s> ^superstate nil
+              ^monitor.init true
+              ^parameters.floors <floor>
+              ^self <self>
+              ^io.input-link.agent.position <p>)
+   (<floor> ^height-low <fhl>
+            ^height-high <fhh>
+            ^displacement <fd>)
+   (<p> ^z < <fhh> >= <fhl>)
+-->
+   (<self> ^floor-displacement <fd>)
+}
+
+sp {map-monitor*item*floor-displacement
+   (state <s> ^superstate nil
+              ^monitor.init true
+              ^parameters.floors <floor>
+              ^io.input-link.objects.<< decoration item entity >>.position <p>)
+   (<floor> ^height-low <fhl>
+            ^height-high <fhh>
+            ^displacement <fd>)
+   (<p> ^z < <fhh> >= <fhl>)
+-->
+   (<p> ^floor-displacement <fd>)
+}
+
+sp {map-monitor*node*floor-displacement
+   (state <s> ^superstate nil
+              ^monitor.init true
+              ^parameters.floors <floor>
+              ^map.area.node.position <p>)
+   (<floor> ^height-low <fhl>
+            ^height-high <fhh>
+            ^displacement <fd>)
+   (<p> ^z < <fhh> >= <fhl>)
+-->
+   (<p> ^floor-displacement <fd>)
+}
+
+sp {map-monitor*area*floor-displacement
+   (state <s> ^superstate nil
+              ^monitor.init true
+              ^parameters.floors <floor>
+              ^map.area <a>)
+   (<floor> ^height-low <fhl>
+            ^height-high <fhh>
+            ^displacement <fd>)
+   (<a> ^mid-z < <fhh> >= <fhl>)
+-->
+   (<a> ^floor-displacement <fd>)
+}
+
+sp {map-monitor*move-to-xyz*floor-displacement
+   (state <s> ^superstate nil
+              ^monitor.init true
+              ^self.move-to-xyz.position <pos>
+              ^parameters.floors <floor>)
+   (<floor> ^height-low <fhl>
+            ^height-high <fhh>
+            ^displacement <fd>)
+   (<pos> ^z < <fhh> >= <fhl>)
+-->
+   (<pos> ^floor-displacement <fd>)
+}
+
+## Current Position
+
+## All y are multiplied by -1 to make the map look right
+####################################################
+###
+###  Enemy

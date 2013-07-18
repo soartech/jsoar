@@ -1,0 +1,32 @@
+#echo "\nLoading explore-room/align-with-room"
+
+## Align the bot with direction it is currently most facing. 
+## This is necessary so that it can correctly determine the dimensions, and therefore type of the room.
+
+sp {explore-room*propose*align-with-room
+   (state <s> ^name explore-room
+	     -^explore-room.aligned-room
+	      ^top-state <ts>)
+   (<ts> ^direction-headings.<dir> <heading>
+         ^heading.within-45 <dir>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name align-with-room
+        ^direction <dir>
+        ^actions <a>)
+   (<a> ^faceabs <heading>
+        ^thrust off)}
+
+### If heading aligned (heading-5), then aligned.
+
+sp {explore-room*apply*align-with-room*detect*aligned
+   (state <s> ^operator <o>
+              ^explore-room <cr>
+              ^top-state.heading.within-5 <dir>)
+   (<o> ^name align-with-room
+	^direction <dir>)
+   -->
+#  (write (crlf) |Achieved Room Alignment Facing | <dir>)
+   (<cr> ^aligned-room <dir>)}
+
+

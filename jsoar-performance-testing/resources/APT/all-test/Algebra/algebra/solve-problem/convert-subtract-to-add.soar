@@ -1,0 +1,29 @@
+## A - B ==> A + [-1 * B]
+
+sp {algebra*propose*convert-subtract-to-add
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation subtract)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name convert-subtract-to-add)
+}
+
+sp {algebra*apply*convert-subtract-to-add
+   (state <s> ^operator.name convert-subtract-to-add
+              ^current-clause <cc>)
+   (<cc> ^operation subtract
+         ^right-side <rs>)
+-->
+   (write (crlf) |Convert subtract to add and * -1|)
+   (<cc> ^operation subtract -
+                    add
+         ^right-side <nrs>
+                     <rs> -)
+   (<nrs> ^left-side <nls2>
+          ^operation multiply
+          ^right-side <rs>)
+   (<nls2> ^value -1
+           ^type number)
+}
+

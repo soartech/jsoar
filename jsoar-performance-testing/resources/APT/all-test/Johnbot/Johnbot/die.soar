@@ -1,0 +1,63 @@
+echo "\nLoading die"
+
+## If dead, remove current-room and last-room
+## When come alive, restablish current-room
+
+sp {quake*propose*die
+   (state <s> ^name quake
+              ^io.input-link.agent.deadflag << dying dead >>)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)   
+ #  (write (crlf) |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|)
+   (<s> ^operator <o> !)
+   (<o> ^name die
+        ^actions <a>)
+   (<a> ^attack off
+        ^sidestep off
+        ^speed off
+        ^climb off
+        ^thrust off
+        ^facetarget off
+        ^leadtarget off)}
+
+sp {quake*apply*die
+   (state <s> ^operator.name die)
+   -->
+   (<s> ^died true)}
+
+sp {quake*apply*die*rooms
+   (state <s> ^operator.name die
+              ^map <m>)
+   (<m> ^last-room { <> none <lr> }
+        ^saved-room { <> none <sr> })
+   -->
+   (<m> ^last-room <lr> -
+        ^saved-room <sr> -)}
+
+sp {quake*apply*die*retreat
+   (state <s> ^operator.name die
+              ^self <ss>)
+   (<ss> ^retreat <r>)
+   -->
+   (<ss> ^retreat <r> -)}
+
+sp {quake*apply*die*enemy
+   (state <s> ^operator.name die
+              ^enemy <e>)
+   -->
+   (<s> ^enemy <e> -)}
+
+sp {quake*apply*die*update-count
+   (state <s> ^operator.name die
+              ^io.input-link.agent.cycle <ct>
+              ^self <se>)
+   (<se> ^deaths <deaths>
+         ^last-die-time { < <ct> <ldt> })
+   -->
+   (write (crlf) |Deaths: | (+ 1 <deaths>))
+   (<se> ^deaths <deaths> -
+                 (+ 1 <deaths>)
+         ^last-die-time <ldt> -
+                        (+ 1000 <ct>))}
+
+

@@ -1,0 +1,1240 @@
+# Created using > ctf {varprint M1} filename
+# remove current-room
+
+sp {john-bot
+	 (state <s> ^map <M1>
+		    ^name quake2
+		    ^io.input-link.game.mapname swdemo4)
+	 -->
+	 (<M1>  ^explored true
+			  ^item <I66> ^item <I604> ^item <I433> ^item <I384> ^item <I383> ^item <I334>
+			  ^item <I329> ^item <I328> ^item <I312> ^item <I279> ^item <I262> ^item <I206>
+			  ^item <I205> ^item <I160> ^item <I159> ^item <I118> ^item <I97> ^item <I96>
+			  ^item <I95> ^item <I41> ^item <I53> ^item <I44> ^item <I43> ^item <I42>
+			  ^last-room none ^room <N34> ^room <N31> ^room <N28> ^room <N36> ^room <N26>
+			  ^room <N23> ^room <N21> ^room <N18> ^room <N16> ^room <N13> ^room <N8> ^room <N5>
+			  ^room <C1> ^room-count 14 ^unexplored-rooms none)
+	 (<N8> ^door <C5> ^door <N9> ^door <C6> ^explored true ^item <I42> ^item <I41> ^item <I53>
+			 ^item <I206> ^item <I43> ^item <I118> ^item <I160> ^item <I205> ^item <I66>
+			 ^item <I159> ^last-room-updated <N5> ^path <P192> ^path <P166> ^path <P215>
+			 ^path <P142> ^path <P120> ^path <P100> ^path <P82> ^path <P66> ^path <P52>
+			 ^path <P40> ^path <P22> ^path <P11> ^path <P9> ^room-number 3 ^search <S402>
+			 ^type room ^updated-paths true ^wall <W24> ^wall <W22> ^wall <W23>
+			 ^wall <W27>)
+    (<S402> ^armor 0 ^health 100 ^original-heading -180.0 ^searched true
+				^x -774.125 ^y -458.0)
+    (<N5> ^door <N6> ^door <C4> ^explored true ^path <P140> ^path <P164> ^path <P98>
+			 ^path <P190> ^path <P118> ^path <P64> ^path <P50> ^path <P80> ^path <P28>
+			 ^path <P8> ^path <P5> ^path <P38> ^room-number 2 ^type hall ^wall <W20>
+			 ^wall <W17> ^wall <W19> ^wall <W21>)
+	 (<P190> ^destination-room <N36> ^distance 2 ^distance-plus-one 3
+				^in-room-door <N6>)
+	 (<N6> ^connecting-door <C3> ^direction north ^max-x -688.031 ^max-y -40.0
+			 ^min-x -847.969 ^min-y -220.0 ^mmax-x -518.0 ^mmax-y 120.0
+			 ^mmin-x -1018.0 ^mmin-y -380.0 ^new-x -768.0 ^room <N5>
+			 ^updated true ^wall <W17> ^x -768.0 ^y -130.0)
+	 (<C3> ^connecting-door <N6> ^direction south ^max-x -688.031
+			 ^max-y -21.9687 ^min-x -847.969 ^min-y -201.969 ^mmax-x -518.0
+			 ^mmax-y 138.031 ^mmin-x -1018.0 ^mmin-y -361.969 ^new-room <N5>
+			 ^new-x -768.0 ^processed true ^room <C1> ^updated true ^wall <W16>
+			 ^x -768.0 ^y -111.969)
+	 (<C1> ^door <C2> ^door <C3> ^explored true ^item <I44>
+			 ^last-room-updated <N36> ^path <P186> ^path <P136> ^path <P213>
+			 ^path <P160> ^path <P94> ^path <P76> ^path <P60> ^path <P114>
+			 ^path <P34> ^path <P24> ^path <P10> ^path <P4> ^path <P46>
+			 ^room-number 1 ^type room ^updated-paths true ^wall <W14>
+			 ^wall <W13> ^wall <W16> ^wall <W18>)
+	 (<N36> ^door <N37> ^door <C16> ^explored true ^last-room-updated <C1>
+			  ^path <P187> ^path <P212> ^path <P191> ^path <P193> ^path <P197>
+			  ^path <P199> ^path <P201> ^path <P203> ^path <P205> ^path <P207>
+			  ^path <P209> ^path <P211> ^path <P185> ^room-number 12
+			  ^type hall ^updated-paths true ^wall <W62> ^wall <W59>
+			  ^wall <W61> ^wall <W63>)
+	 (<P212> ^destination-room <C1> ^distance 1 ^distance-plus-one 2
+				^in-room-door <C16>)
+	 (<C16> ^connecting-door <C2> ^direction west ^max-x -429.75
+			  ^max-y 128.094 ^min-x -609.75 ^min-y -31.8438
+			  ^mmax-x -269.75 ^mmax-y 298.125 ^mmin-x -769.75
+			  ^mmin-y -201.875 ^processed true ^room <N36>
+			  ^updated true ^wall <W63> ^x -519.75 ^y 48.125)
+	 (<C2> ^connecting-door <C16> ^direction east ^max-x -447.031
+			 ^max-y 128.094 ^min-x -627.031 ^min-y -31.8438
+			 ^mmax-x -287.031 ^mmax-y 298.125 ^mmin-x -787.031
+			 ^mmin-y -201.875 ^new-y 48.125 ^processed true
+			 ^room <C1> ^updated true ^wall <W13> ^x -537.031
+			 ^y 48.125)
+	 (<W13> ^door <C2> ^mapped true ^marked true ^side east
+			  ^x -528.031 ^x-min -653.031)
+	 (<W63> ^door <C16> ^marked true ^side west ^tentative true
+			  ^x -519.75 ^x-max -394.75)
+	 (<P187> ^destination-room <C1> ^distance 3 ^distance-plus-one 4
+				^in-room-door <N37>)
+	 (<N37> ^connecting-door <C15> ^direction east ^max-x -108.469
+			  ^max-y 128.094 ^min-x -288.469 ^min-y -31.8438
+			  ^mmax-x 51.5313 ^mmax-y 298.125 ^mmin-x -448.469
+			  ^mmin-y -201.875 ^new-y 48.125 ^room <N36>
+			  ^updated true ^wall <W59> ^x -198.469 ^y 48.125)
+	 (<C15> ^connecting-door <N37> ^direction west ^max-x -108.469
+			  ^max-y 128.094 ^min-x -288.469 ^min-y -31.8438
+			  ^mmax-x 51.5313 ^mmax-y 298.125 ^mmin-x -448.469
+			  ^mmin-y -201.875 ^new-room <N36> ^new-y 48.125
+			  ^processed true ^room <N34> ^updated true ^wall <W58>
+			  ^x -198.469 ^y 48.125)
+	 (<W58> ^door <C15> ^mapped true ^marked true ^side west
+			  ^x -207.469 ^x-max -82.4688)
+	 (<N34> ^door <N35> ^door <C15> ^explored true ^item <I97>
+			  ^item <I433> ^item <I96> ^item <I95>
+			  ^last-room-updated <N31> ^path <P161> ^path <P165>
+			  ^path <P167> ^path <P171> ^path <P184> ^path <P173>
+			  ^path <P175> ^path <P177> ^path <P179> ^path <P181>
+			  ^path <P183> ^path <P159> ^room-number 11 ^type room
+			  ^updated-paths true ^wall <W58> ^wall <W56> ^wall <W57>
+			  ^wall <W60>)
+	 (<N31> ^door <N32> ^door <C14> ^explored true
+			  ^last-room-updated <N34> ^path <P210> ^path <P158>
+			  ^path <P137> ^path <P141> ^path <P143> ^path <P147>
+			  ^path <P149> ^path <P151> ^path <P153> ^path <P155>
+			  ^path <P157> ^path <P135> ^room-number 10
+			  ^type hall ^updated-paths true ^wall <W54>
+			  ^wall <W52> ^wall <W53> ^wall <W55>)
+	 (<P210> ^destination-room <N36> ^distance 2
+				^distance-plus-one 3 ^in-room-door <C14>)
+	 (<C14> ^connecting-door <N35> ^direction north
+			  ^max-x 367.969 ^max-y -21.9688
+			  ^min-x 208.031 ^min-y -201.969 ^mmax-x 538.
+			  ^mmax-y 138.031 ^mmin-x 38.
+			  ^mmin-y -361.969 ^new-room <N34> ^room <N31>
+			  ^updated true ^wall <W55> ^x 288.0 ^y -111.969)
+	 (<N35> ^connecting-door <C14> ^direction south
+			  ^max-x 378.0 ^max-y -21.9688 ^min-x 198.
+			  ^min-y -201.969 ^mmax-x 538.
+			  ^mmax-y 138.031 ^mmin-x 38.
+			  ^mmin-y -361.969 ^room <N34> ^wall <W56>
+			  ^x 288.0 ^y -111.969)
+	 (<W56> ^connects-to-door <C14> ^door <N35>
+			  ^mapped true ^marked true ^side south
+			  ^y -111.969 ^y-max -236.969)
+	 (<W55> ^door <C14> ^marked true ^side north
+			  ^y -111.969 ^y-min -236.969)
+	 (<P158> ^destination-room <N34> ^distance 1
+				^distance-plus-one 2 ^in-room-door <C14>)
+	 (<P137> ^destination-room <C1> ^distance 3
+				^distance-plus-one 4 ^in-room-door <C14>)
+	 (<P141> ^destination-room <N5> ^distance 4
+				^distance-plus-one 5 ^in-room-door <C14>)
+	 (<P143> ^destination-room <N8> ^distance 5
+				^distance-plus-one 6 ^in-room-door <C14>)
+	 (<P147> ^destination-room <N13> ^distance 6
+				^distance-plus-one 7 ^in-room-door <N32>)
+	 (<N32> ^connecting-door <C13> ^direction south
+			  ^max-x 367.969 ^max-y -192.031
+			  ^min-x 208.031 ^min-y -372.031 ^mmax-x 538.
+			  ^mmax-y -32.0313 ^mmin-x 38.
+			  ^mmin-y -532.031 ^new-x 288.0 ^room <N31>
+			  ^updated true ^wall <W52> ^x 288.0 ^y -282.031)
+	 (<C13> ^connecting-door <N32> ^direction north
+			  ^max-x 367.969 ^max-y -192.031
+			  ^min-x 208.031 ^min-y -372.031
+			  ^mmax-x 538.0 ^mmax-y -32.0313 ^mmin-x 38.
+			  ^mmin-y -532.031 ^new-room <N31>
+			  ^new-x 288.0 ^processed true ^room <N26>
+			  ^side right ^updated true ^wall <W51>
+			  ^x 288.0 ^y -282.031)
+	 (<W51> ^door <C13> ^mapped true ^marked true
+			  ^side north ^y -272.031 ^y-min -397.031)
+	 (<N26> ^door <C12> ^door <N27> ^door <C13>
+			  ^explored true ^item <I328> ^item <I334>
+			  ^item <I329> ^item <I312>
+			  ^last-room-updated <N23> ^path <P180>
+			  ^path <P206> ^path <P112> ^path <P95>
+			  ^path <P99> ^path <P134> ^path <P105>
+			  ^path <P107> ^path <P109> ^path <P111>
+			  ^path <P93> ^path <P101> ^room-number 9
+			  ^type room ^updated-paths true
+			  ^wall <W49> ^wall <W47> ^wall <W48> ^wall <W51>)
+	 (<N23> ^door <N24> ^door <C11> ^explored true
+			  ^path <P154> ^path <P178> ^path <P92>
+			  ^path <P204> ^path <P132> ^path <P81>
+			  ^path <P83> ^path <P77> ^path <P89>
+			  ^path <P91> ^path <P75> ^path <P87>
+			  ^room-number 8 ^type hall ^wall <W45>
+			  ^wall <W42> ^wall <W44> ^wall <W46>)
+	 (<P204> ^destination-room <N36> ^distance 4
+				^distance-plus-one 5
+				^in-room-door <C11>)
+	 (<C11> ^connecting-door <N27>
+			  ^direction north ^max-x 751.969
+			  ^max-y -533.969 ^min-x 592.031
+			  ^min-y -713.969 ^mmax-x 922.
+			  ^mmax-y -373.969 ^mmin-x 422.
+			  ^mmin-y -873.969 ^new-room <N26>
+			  ^room <N23> ^updated true ^wall <W46>
+			  ^x 672.0 ^y -623.969)
+	 (<N27> ^connecting-door <C11>
+			  ^direction south ^max-x 762.
+			  ^max-y -533.969 ^min-x 582.
+			  ^min-y -713.969 ^mmax-x 922.
+			  ^mmax-y -373.969 ^mmin-x 422.
+			  ^mmin-y -873.969 ^room <N26>
+			  ^wall <W47> ^x 672.0 ^y -623.969)
+	 (<W47> ^connects-to-door <C11> ^door <N27>
+			  ^mapped true ^marked true
+			  ^side south ^y -623.969
+			  ^y-max -748.969)
+	 (<W46> ^door <C11> ^marked true
+			  ^side north ^y -623.969
+			  ^y-min -748.969)
+	 (<P178> ^destination-room <N34> ^distance 3
+				^distance-plus-one 4
+				^in-room-door <C11>)
+	 (<P154> ^destination-room <N31> ^distance 2
+				^distance-plus-one 3
+				^in-room-door <C11>)
+	 (<P132> ^destination-room <N28> ^distance 2
+				^distance-plus-one 3
+				^in-room-door <C11>)
+	 (<N28> ^door <N29> ^door <C17> ^explored true
+			  ^item <I384> ^item <I383> ^item <I604>
+			  ^path <P182> ^path <P156> ^path <P214>
+			  ^path <P208> ^path <P119> ^path <P121>
+			  ^path <P115> ^path <P127> ^path <P129>
+			  ^path <P131> ^path <P133> ^path <P113>
+			  ^path <P125> ^room-number 13
+			  ^type hall ^wall <W65> ^wall <W50>
+			  ^wall <W64> ^wall <W66>)
+	 (<I604> ^available true
+				^classname ammo_cells
+				^regeneration-time 0 ^room <N28>
+				^type ammo ^x -208.0 ^y -400.0)
+	 (<I383> ^available true
+				^classname weapon_hyperblaster
+				^regeneration-time 0 ^room <N28>
+				^type weapon ^x -208.0 ^y -448.0)
+	 (<I384> ^available true
+				^classname ammo_cells
+				^regeneration-time 0 ^room <N28>
+				^type ammo ^x -202.0 ^y -502.0)
+	 (<P214> ^destination-room <N8> ^distance 1
+				^distance-plus-one 2
+				^in-room-door <C17>)
+	 (<C17> ^connecting-door <C5>
+			  ^direction west
+			  ^max-x -554.875
+			  ^max-y -367.281
+			  ^min-x -734.875
+			  ^min-y -527.219
+			  ^mmax-x -394.875
+			  ^mmax-y -197.25
+			  ^mmin-x -894.875
+			  ^mmin-y -697.25
+			  ^processed true ^room <N28>
+			  ^updated true ^wall <W66>
+			  ^x -644.875 ^y -447.25)
+	 (<C5> ^connecting-door <C17>
+			 ^direction east
+			 ^max-x -576.031
+			 ^max-y -367.281
+			 ^min-x -756.031
+			 ^min-y -527.219
+			 ^mmax-x -416.031
+			 ^mmax-y -197.25
+			 ^mmin-x -916.031
+			 ^mmin-y -697.25
+			 ^new-y -447.25
+			 ^processed true ^room <N8>
+			 ^updated true ^wall <W23>
+			 ^x -666.031 ^y -447.25)
+	 (<W23> ^door <C6> ^door <C5>
+			  ^mapped true ^marked true
+			  ^side east ^x -656.031
+			  ^x-min -781.031)
+	 (<C6> ^connecting-door <N14>
+			 ^direction east
+			 ^max-x -572.781
+			 ^max-y -880.406
+			 ^min-x -752.781
+			 ^min-y -1040.34
+			 ^mmax-x -412.781
+			 ^mmax-y -710.375
+			 ^mmin-x -912.781
+			 ^mmin-y -1210.38
+			 ^new-room <N13>
+			 ^new-y -960.375
+			 ^processed true
+			 ^room <N8> ^updated true
+			 ^wall <W23> ^x -662.781
+			 ^y -960.375)
+	 (<N14> ^connecting-door <C6>
+			  ^direction west
+			  ^max-x -572.781
+			  ^max-y -880.406
+			  ^min-x -752.781
+			  ^min-y -1040.34
+			  ^mmax-x -412.781
+			  ^mmax-y -710.375
+			  ^mmin-x -912.781
+			  ^mmin-y -1210.38
+			  ^new-y -960.375
+			  ^room <N13>
+			  ^updated true
+			  ^wall <W26> ^x -662.781
+			  ^y -960.375)
+	 (<W26> ^connects-to-door <C6>
+			  ^door <N14>
+			  ^marked true
+			  ^side west
+			  ^tentative true
+			  ^x -656.031
+			  ^x-max -531.031)
+	 (<N13> ^door <N14> ^door <C7>
+			  ^explored true
+			  ^path <P146>
+			  ^path <P170>
+			  ^path <P104>
+			  ^path <P196>
+			  ^path <P124>
+			  ^path <P70> ^path <P56>
+			  ^path <P86> ^path <P25>
+			  ^path <P29> ^path <P23>
+			  ^path <P32>
+			  ^room-number 4
+			  ^type hall
+			  ^wall <W29> ^wall <W26>
+			  ^wall <W28> ^wall <W30>)
+	 (<P196>
+                                                             ^destination-room <N36>
+                                                             ^distance 4
+                                                             ^distance-plus-one 5
+                                                             ^in-room-door <N14>)
+	 (<P170>
+                                                             ^destination-room <N34>
+                                                             ^distance 5
+                                                             ^distance-plus-one 6
+                                                             ^in-room-door <N14>)
+	 (<P146>
+                                                             ^destination-room <N31>
+                                                             ^distance 6
+                                                             ^distance-plus-one 7
+                                                             ^in-room-door <C7>)
+	 (<C7>
+                                                               ^connecting-door <N17>
+                                                               ^direction east
+                                                               ^max-x -405.969
+                                                               ^max-y -880.406
+                                                               ^min-x -585.969
+                                                               ^min-y -1040.34
+                                                               ^mmax-x -245.969
+                                                               ^mmax-y -710.375
+                                                               ^mmin-x -745.969
+                                                               ^mmin-y -1210.38
+                                                               ^new-room <N16>
+                                                               ^room <N13>
+                                                               ^updated true
+                                                               ^wall <W30>
+                                                               ^x -495.969
+                                                               ^y -960.375)
+	 (<N17>
+                                                                 ^connecting-door <C7>
+                                                                 ^direction west
+                                                                 ^max-x -405.969
+                                                                 ^max-y -870.375
+                                                                 ^min-x -585.969
+                                                                 ^min-y -1050.38
+                                                                 ^mmax-x -245.969
+                                                                 ^mmax-y -710.375
+                                                                 ^mmin-x -745.969
+                                                                 ^mmin-y -1210.38
+                                                                 ^room <N16>
+                                                                 ^wall <W31>
+                                                                 ^x -495.969
+                                                                 ^y -960.375)
+	 (<W31>
+                                                                   ^connects-to-door <C7>
+                                                                   ^door <N17>
+                                                                   ^mapped true
+                                                                   ^marked true
+                                                                   ^side west
+                                                                   ^x -495.969
+                                                                   ^x-max -620.969)
+	 (<N16> ^door <N17>
+			  ^door <C8>
+			  ^explored true
+			  ^item <I279>
+			  ^last-room-updated <N13>
+			  ^path <P198>
+			  ^path <P172>
+			  ^path <P148>
+			  ^path <P126>
+			  ^path <P106>
+			  ^path <P88>
+			  ^path <P72>
+			  ^path <P44>
+			  ^path <P35>
+			  ^path <P39>
+			  ^path <P41>
+			  ^path <P33>
+			  ^room-number 5
+			  ^type room
+			  ^updated-paths true
+			  ^wall <W33>
+			  ^wall <W31>
+			  ^wall <W32>
+			  ^wall <W34>)
+	 (<I279>
+                                                                     ^available true
+                                                                     ^classname item_health_large
+                                                                     ^regeneration-time 0
+                                                                     ^room <N16>
+                                                                     ^type health
+                                                                     ^x -368.0
+                                                                     ^y -1328.0)
+	 (<P198>
+                                                                     ^destination-room <N36>
+                                                                     ^distance 5
+                                                                     ^distance-plus-one 6
+                                                                     ^in-room-door <N17>)
+	 (<P172>
+                                                                     ^destination-room <N34>
+                                                                     ^distance 6
+                                                                     ^distance-plus-one 7
+                                                                     ^in-room-door <C8>)
+	 (<C8>
+                                                                       ^connecting-door <N19>
+                                                                       ^direction east
+                                                                       ^max-x 191.969
+                                                                       ^max-y -1136.03
+                                                                       ^min-x 11.9688
+                                                                       ^min-y -1295.97
+                                                                       ^mmax-x 351.969
+                                                                       ^mmax-y -966.002
+                                                                       ^mmin-x -148.031
+                                                                       ^mmin-y -1466.0
+                                                                       ^new-room <N18>
+                                                                       ^new-y -1216.0
+                                                                       ^processed true
+                                                                       ^room <N16>
+                                                                       ^updated true
+                                                                       ^wall <W34>
+                                                                       ^x 101.969
+                                                                       ^y -1216.0)
+	 (<N19>
+                                                                         ^connecting-door <C8>
+                                                                         ^direction west
+                                                                         ^max-x 191.969
+                                                                         ^max-y -1136.03
+                                                                         ^min-x 11.9688
+                                                                         ^min-y -1295.97
+                                                                         ^mmax-x 351.969
+                                                                         ^mmax-y -966.002
+                                                                         ^mmin-x -148.031
+                                                                         ^mmin-y -1466.0
+                                                                         ^new-y -1216.0
+                                                                         ^room <N18>
+                                                                         ^updated true
+                                                                         ^wall <W35>
+                                                                         ^x 101.969
+                                                                         ^y -1216.0)
+	 (<W35>
+                                                                           ^connects-to-door <C8>
+                                                                           ^door <N19>
+                                                                           ^marked true
+                                                                           ^side west
+                                                                           ^tentative true
+                                                                           ^x 111.969
+                                                                           ^x-max 236.969)
+	 (<N18>
+                                                                           ^door <N19>
+                                                                           ^door <C9>
+                                                                           ^explored true
+                                                                           ^path <P150>
+                                                                           ^path <P174>
+                                                                           ^path <P108>
+                                                                           ^path <P200>
+                                                                           ^path <P128>
+                                                                           ^path <P58>
+                                                                           ^path <P47>
+                                                                           ^path <P90>
+                                                                           ^path <P53>
+                                                                           ^path <P57>
+                                                                           ^path <P45>
+                                                                           ^path <P51>
+                                                                           ^room-number 6
+                                                                           ^type hall
+                                                                           ^wall <W37>
+                                                                           ^wall <W35>
+                                                                           ^wall <W36>
+                                                                           ^wall <W38>)
+	 (<P200>
+                                                                             ^destination-room <N36>
+                                                                             ^distance 6
+                                                                             ^distance-plus-one 7
+                                                                             ^in-room-door <C9>)
+	 (<C9>
+                                                                               ^connecting-door <N22>
+                                                                               ^direction east
+                                                                               ^max-x 362.781
+                                                                               ^max-y -1136.03
+                                                                               ^min-x 182.781
+                                                                               ^min-y -1295.97
+                                                                               ^mmax-x 522.781
+                                                                               ^mmax-y -966.002
+                                                                               ^mmin-x 22.7813
+                                                                               ^mmin-y -1466.0
+                                                                               ^new-room <N21>
+                                                                               ^room <N18>
+                                                                               ^updated true
+                                                                               ^wall <W38>
+                                                                               ^x 272.781
+                                                                               ^y -1216.0)
+	 (<N22>
+                                                                                 ^connecting-door <C9>
+                                                                                 ^direction west
+                                                                                 ^max-x 362.781
+                                                                                 ^max-y -1126.0
+                                                                                 ^min-x 182.781
+                                                                                 ^min-y -1306.0
+                                                                                 ^mmax-x 522.781
+                                                                                 ^mmax-y -966.002
+                                                                                 ^mmin-x 22.7813
+                                                                                 ^mmin-y -1466.0
+                                                                                 ^room <N21>
+                                                                                 ^wall <W39>
+                                                                                 ^x 272.781
+                                                                                 ^y -1216.0)
+	 (<W39>
+                                                                                   ^connects-to-door <C9>
+                                                                                   ^door <N22>
+                                                                                   ^mapped true
+                                                                                   ^marked true
+                                                                                   ^side west
+                                                                                   ^x 272.781
+                                                                                   ^x-max 147.781)
+	 (<N21>
+                                                                                   ^door <N22>
+                                                                                   ^door <C10>
+                                                                                   ^explored true
+                                                                                   ^item <I262>
+                                                                                   ^last-room-updated <N18>
+                                                                                   ^path <P202>
+                                                                                   ^path <P176>
+                                                                                   ^path <P152>
+                                                                                   ^path <P130>
+                                                                                   ^path <P110>
+                                                                                   ^path <P74>
+                                                                                   ^path <P61>
+                                                                                   ^path <P65>
+                                                                                   ^path <P67>
+                                                                                   ^path <P71>
+                                                                                   ^path <P73>
+                                                                                   ^path <P59>
+                                                                                   ^room-number 7
+                                                                                   ^type room
+                                                                                   ^updated-paths true
+                                                                                   ^wall <W41>
+                                                                                   ^wall <W39>
+                                                                                   ^wall <W40>
+                                                                                   ^wall <W43>)
+	 (<I262>
+                                                                                     ^available true
+^classname weapon_chaingun
+^regeneration-time 0
+^room <N21>
+^type weapon
+^x 592.
+^y -1232.0)
+	 (<P202>
+                                                                                     ^destination-room <N36>
+^distance 5
+^distance-plus-one 6
+^in-room-door <C10>)
+	 (<C10>
+                                                                                       ^connecting-door <N24>
+^direction north
+^max-x 751.969
+^max-y -960.406
+^min-x 592.031
+^min-y -1140.41
+^mmax-x 922.0
+^mmax-y -800.406
+^mmin-x 422.0
+^mmin-y -1300.41
+^new-room <N23>
+^new-x 672.0
+^processed true
+^room <N21>
+^updated true
+^wall <W40>
+^x 672.
+^y -1050.41)
+	 (<N24>
+                                                                                         ^connecting-door <C10>
+^direction south
+^max-x 751.969
+^max-y -960.406
+^min-x 592.031
+^min-y -1140.41
+^mmax-x 922.0
+^mmax-y -800.406
+^mmin-x 422.0
+^mmin-y -1300.41
+^new-x 672.0
+^room <N23>
+^updated true
+^wall <W42>
+^x 672.0
+^y -1050.41)
+	 (<W42>
+                                                                                           ^connects-to-door <C10>
+^door <N24>
+^marked true
+^side south
+^tentative true
+^y -1040.41
+^y-max -915.406)
+	 (<W40>
+                                                                                         ^door <C10>
+^mapped true
+^marked true
+^side north
+^y -1040.41
+^y-min -1165.41)
+	 (<P176>
+                                                                                     ^destination-room <N34>
+^distance 4
+^distance-plus-one 5
+^in-room-door <C10>)
+	 (<P152>
+                                                                                     ^destination-room <N31>
+^distance 3
+^distance-plus-one 4
+^in-room-door <C10>)
+	 (<P130>
+                                                                                     ^destination-room <N28>
+^distance 3
+^distance-plus-one 4
+^in-room-door <C10>)
+	 (<P110>
+                                                                                     ^destination-room <N26>
+^distance 2
+^distance-plus-one 3
+^in-room-door <C10>)
+	 (<P74>
+                                                                                     ^destination-room <N23>
+^distance 1
+^distance-plus-one 2
+^in-room-door <C10>)
+	 (<P61>
+                                                                                     ^destination-room <C1>
+^distance 6
+^distance-plus-one 7
+^in-room-door <N22>)
+	 (<P65>
+                                                                                     ^destination-room <N5>
+^distance 5
+^distance-plus-one 6
+^in-room-door <N22>)
+	 (<P67>
+                                                                                     ^destination-room <N8>
+^distance 4
+^distance-plus-one 5
+^in-room-door <N22>)
+	 (<P71>
+                                                                                     ^destination-room <N13>
+^distance 3
+^distance-plus-one 4
+^in-room-door <N22>)
+	 (<P73>
+                                                                                     ^destination-room <N16>
+^distance 2
+^distance-plus-one 3
+^in-room-door <N22>)
+	 (<P59>
+                                                                                     ^destination-room <N18>
+^distance 1
+^distance-plus-one 2
+^in-room-door <N22>)
+	 (<W43>
+                                                                                     ^mapped true
+^marked true
+^side east
+^x 879.969
+^x-min 754.969)
+	 (<W41>
+                                                                                     ^mapped true
+^marked true
+^side south
+^y -1392.34
+^y-max -1267.34)
+	 (<W38>
+                                                                                 ^door <C9>
+                                                                                 ^marked true
+                                                                                 ^side east
+                                                                                 ^x 272.781
+                                                                                 ^x-min 147.781)
+	 (<P174>
+                                                                             ^destination-room <N34>
+                                                                             ^distance 5
+                                                                             ^distance-plus-one 6
+                                                                             ^in-room-door <C9>)
+	 (<P150>
+                                                                             ^destination-room <N31>
+                                                                             ^distance 4
+                                                                             ^distance-plus-one 5
+                                                                             ^in-room-door <C9>)
+	 (<P128>
+                                                                             ^destination-room <N28>
+                                                                             ^distance 4
+                                                                             ^distance-plus-one 5
+                                                                             ^in-room-door <C9>)
+	 (<P108>
+                                                                             ^destination-room <N26>
+                                                                             ^distance 3
+                                                                             ^distance-plus-one 4
+                                                                             ^in-room-door <C9>)
+	 (<P90>
+                                                                             ^destination-room <N23>
+                                                                             ^distance 2
+                                                                             ^distance-plus-one 3
+                                                                             ^in-room-door <C9>)
+	 (<P58>
+                                                                             ^destination-room <N21>
+                                                                             ^distance 1
+                                                                             ^distance-plus-one 2
+                                                                             ^in-room-door <C9>)
+	 (<P47>
+                                                                             ^destination-room <C1>
+                                                                             ^distance 5
+                                                                             ^distance-plus-one 6
+                                                                             ^in-room-door <N19>)
+	 (<P51>
+                                                                             ^destination-room <N5>
+                                                                             ^distance 4
+                                                                             ^distance-plus-one 5
+                                                                             ^in-room-door <N19>)
+	 (<P53>
+                                                                             ^destination-room <N8>
+                                                                             ^distance 3
+                                                                             ^distance-plus-one 4
+                                                                             ^in-room-door <N19>)
+	 (<P57>
+                                                                             ^destination-room <N13>
+                                                                             ^distance 2
+                                                                             ^distance-plus-one 3
+                                                                             ^in-room-door <N19>)
+	 (<P45>
+                                                                             ^destination-room <N16>
+                                                                             ^distance 1
+                                                                             ^distance-plus-one 2
+                                                                             ^in-room-door <N19>)
+	 (<W36>
+                                                                             ^marked true
+                                                                             ^side north
+                                                                             ^y -1136.03
+                                                                             ^y-min -1261.03)
+	 (<W37>
+                                                                             ^marked true
+                                                                             ^side south
+                                                                             ^y -1295.97
+                                                                             ^y-max -1170.97)
+	 (<W34>
+                                                                         ^door <C8>
+                                                                         ^mapped true
+                                                                         ^marked true
+                                                                         ^side east
+                                                                         ^x 111.969
+                                                                         ^x-min -13.0313)
+	 (<P148>
+                                                                     ^destination-room <N31>
+                                                                     ^distance 5
+                                                                     ^distance-plus-one 6
+                                                                     ^in-room-door <C8>)
+	 (<P126>
+                                                                     ^destination-room <N28>
+                                                                     ^distance 5
+                                                                     ^distance-plus-one 6
+                                                                     ^in-room-door <C8>)
+	 (<P106>
+                                                                     ^destination-room <N26>
+                                                                     ^distance 4
+                                                                     ^distance-plus-one 5
+                                                                     ^in-room-door <C8>)
+	 (<P88>
+                                                                     ^destination-room <N23>
+                                                                     ^distance 3
+                                                                     ^distance-plus-one 4
+                                                                     ^in-room-door <C8>)
+	 (<P72>
+                                                                     ^destination-room <N21>
+                                                                     ^distance 2
+                                                                     ^distance-plus-one 3
+                                                                     ^in-room-door <C8>)
+	 (<P44>
+                                                                     ^destination-room <N18>
+                                                                     ^distance 1
+                                                                     ^distance-plus-one 2
+                                                                     ^in-room-door <C8>)
+	 (<P35>
+                                                                     ^destination-room <C1>
+                                                                     ^distance 4
+                                                                     ^distance-plus-one 5
+                                                                     ^in-room-door <N17>)
+	 (<P39>
+                                                                     ^destination-room <N5>
+                                                                     ^distance 3
+                                                                     ^distance-plus-one 4
+                                                                     ^in-room-door <N17>)
+	 (<P41>
+                                                                     ^destination-room <N8>
+                                                                     ^distance 2
+                                                                     ^distance-plus-one 3
+                                                                     ^in-room-door <N17>)
+	 (<P33>
+                                                                     ^destination-room <N13>
+                                                                     ^distance 1
+                                                                     ^distance-plus-one 2
+                                                                     ^in-room-door <N17>)
+	 (<W32>
+                                                                     ^mapped true
+                                                                     ^marked true
+                                                                     ^side north
+                                                                     ^y -832.406
+                                                                     ^y-min -957.406)
+	 (<W33>
+                                                                     ^mapped true
+                                                                     ^marked true
+                                                                     ^side south
+                                                                     ^y -1440.34
+                                                                     ^y-max -1315.34)
+	 (<W30> ^door <C7>
+			  ^marked true
+			  ^side east
+			  ^x -495.969
+			  ^x-min -620.969)
+	 (<P124>
+                                                             ^destination-room <N28>
+                                                             ^distance 6
+                                                             ^distance-plus-one 7
+                                                             ^in-room-door <C7>)
+	 (<P104>
+                                                             ^destination-room <N26>
+                                                             ^distance 5
+                                                             ^distance-plus-one 6
+                                                             ^in-room-door <C7>)
+	 (<P86>
+                                                             ^destination-room <N23>
+                                                             ^distance 4
+                                                             ^distance-plus-one 5
+                                                             ^in-room-door <C7>)
+	 (<P70>
+                                                             ^destination-room <N21>
+                                                             ^distance 3
+                                                             ^distance-plus-one 4
+                                                             ^in-room-door <C7>)
+	 (<P56>
+                                                             ^destination-room <N18>
+                                                             ^distance 2
+                                                             ^distance-plus-one 3
+                                                             ^in-room-door <C7>)
+	 (<P32>
+                                                             ^destination-room <N16>
+                                                             ^distance 1
+                                                             ^distance-plus-one 2
+                                                             ^in-room-door <C7>)
+	 (<P25>
+                                                             ^destination-room <C1>
+                                                             ^distance 3
+                                                             ^distance-plus-one 4
+                                                             ^in-room-door <N14>)
+	 (<P29>
+                                                             ^destination-room <N5>
+                                                             ^distance 2
+                                                             ^distance-plus-one 3
+                                                             ^in-room-door <N14>)
+	 (<P23>
+                                                             ^destination-room <N8>
+                                                             ^distance 1
+                                                             ^distance-plus-one 2
+                                                             ^in-room-door <N14>)
+	 (<W28> ^marked true
+			  ^side north
+			  ^y -880.406
+			  ^y-min -1005.41)
+	 (<W29> ^marked true
+			  ^side south
+			  ^y -1040.34
+			  ^y-max -915.344)
+	 (<W66> ^door <C17> ^marked true
+			  ^side west ^tentative true
+			  ^x -644.875 ^x-max -519.875)
+	 (<P208> ^destination-room <N36>
+				^distance 4
+				^distance-plus-one 5
+				^in-room-door <N29>)
+	 (<N29> ^connecting-door <C12>
+			  ^direction east
+			  ^max-x 308.656
+			  ^max-y -367.281
+			  ^min-x 128.656
+			  ^min-y -527.219
+			  ^mmax-x 468.656
+			  ^mmax-y -197.25
+			  ^mmin-x -31.3438
+			  ^mmin-y -697.25
+			  ^new-y -447.25 ^room <N28>
+			  ^updated true ^wall <W50>
+			  ^x 218.656 ^y -447.25)
+	 (<C12> ^connecting-door <N29>
+			  ^direction west
+			  ^max-x 308.656
+			  ^max-y -367.281
+			  ^min-x 128.656
+			  ^min-y -527.219
+			  ^mmax-x 468.656
+			  ^mmax-y -197.25
+			  ^mmin-x -31.3438
+			  ^mmin-y -697.25
+			  ^new-room <N28>
+			  ^new-y -447.25
+			  ^processed true ^room <N26>
+			  ^updated true ^wall <W49>
+			  ^x 218.656 ^y -447.25)
+	 (<W49> ^door <C12> ^mapped true
+			  ^marked true ^side west
+			  ^x 208.656 ^x-max 333.656)
+	 (<W50> ^connects-to-door <C12>
+			  ^door <N29> ^marked true
+			  ^side east ^tentative true
+			  ^x 208.656 ^x-min 83.6562)
+	 (<P182> ^destination-room <N34>
+				^distance 3
+				^distance-plus-one 4
+				^in-room-door <N29>)
+	 (<P156> ^destination-room <N31>
+				^distance 2
+				^distance-plus-one 3
+				^in-room-door <N29>)
+	 (<P115> ^destination-room <C1> ^distance 5
+				^distance-plus-one 6
+				^in-room-door <N29>)
+	 (<P119> ^destination-room <N5> ^distance 6
+				^distance-plus-one 7
+				^in-room-door <N29>)
+	 (<P121> ^destination-room <N8> ^distance 7
+				^distance-plus-one 8
+				^in-room-door <N29>)
+	 (<P125> ^destination-room <N13>
+				^distance 6
+				^distance-plus-one 7
+				^in-room-door <N29>)
+	 (<P127> ^destination-room <N16>
+				^distance 5
+				^distance-plus-one 6
+				^in-room-door <N29>)
+	 (<P129> ^destination-room <N18>
+				^distance 4
+				^distance-plus-one 5
+				^in-room-door <N29>)
+	 (<P131> ^destination-room <N21>
+				^distance 3
+				^distance-plus-one 4
+				^in-room-door <N29>)
+	 (<P133> ^destination-room <N23>
+				^distance 2
+				^distance-plus-one 3
+				^in-room-door <N29>)
+	 (<P113> ^destination-room <N26>
+				^distance 1
+				^distance-plus-one 2
+				^in-room-door <N29>)
+	 (<W64> ^marked true ^side north
+			  ^y -367.281 ^y-min -492.281)
+	 (<W65> ^marked true ^side south
+			  ^y -527.219 ^y-max -402.219)
+	 (<P92> ^destination-room <N26> ^distance 1
+			  ^distance-plus-one 2
+			  ^in-room-door <C11>)
+	 (<P77> ^destination-room <C1> ^distance 5
+			  ^distance-plus-one 6
+			  ^in-room-door <C11>)
+	 (<P81> ^destination-room <N5> ^distance 6
+			  ^distance-plus-one 7
+			  ^in-room-door <N24>)
+	 (<P83> ^destination-room <N8> ^distance 5
+			  ^distance-plus-one 6
+			  ^in-room-door <N24>)
+	 (<P87> ^destination-room <N13> ^distance 4
+			  ^distance-plus-one 5
+			  ^in-room-door <N24>)
+	 (<P89> ^destination-room <N16> ^distance 3
+			  ^distance-plus-one 4
+			  ^in-room-door <N24>)
+	 (<P91> ^destination-room <N18> ^distance 2
+			  ^distance-plus-one 3
+			  ^in-room-door <N24>)
+	 (<P75> ^destination-room <N21> ^distance 1
+			  ^distance-plus-one 2
+			  ^in-room-door <N24>)
+	 (<W44> ^marked true ^side east ^x 751.969
+			  ^x-min 626.969)
+	 (<W45> ^marked true ^side west ^x 592.031
+			  ^x-max 717.031)
+	 (<I312> ^available true
+				^classname ammo_bullets
+				^regeneration-time 0 ^room <N26>
+				^type ammo ^x 560.0 ^y -448.0)
+	 (<I329> ^available true
+				^classname item_health_large
+				^regeneration-time 0 ^room <N26>
+				^type health ^x 752.0 ^y -336.0)
+	 (<I328> ^available true
+				^classname ammo_bullets
+				^regeneration-time 0 ^room <N26>
+				^type ammo ^x 576.0 ^y -448.0)
+	 (<I334> ^available true ^classname ammo_shells
+				^regeneration-time 0 ^room <N26>
+				^type ammo ^x 528.0 ^y -448.0)
+	 (<P206> ^destination-room <N36> ^distance 3
+				^distance-plus-one 4
+				^in-room-door <C13>)
+	 (<P180> ^destination-room <N34> ^distance 2
+				^distance-plus-one 3
+				^in-room-door <C13>)
+	 (<P134> ^destination-room <N31> ^distance 1
+				^distance-plus-one 2
+				^in-room-door <C13>)
+	 (<P112> ^destination-room <N28> ^distance 1
+				^distance-plus-one 2
+				^in-room-door <C12>)
+	 (<P95> ^destination-room <C1> ^distance 4
+			  ^distance-plus-one 5
+			  ^in-room-door <C13>)
+	 (<P99> ^destination-room <N5> ^distance 5
+			  ^distance-plus-one 6
+			  ^in-room-door <C13>)
+	 (<P101> ^destination-room <N8> ^distance 6
+				^distance-plus-one 7
+				^in-room-door <N27>)
+	 (<P105> ^destination-room <N13> ^distance 5
+				^distance-plus-one 6
+				^in-room-door <N27>)
+	 (<P107> ^destination-room <N16> ^distance 4
+				^distance-plus-one 5
+				^in-room-door <N27>)
+	 (<P109> ^destination-room <N18> ^distance 3
+				^distance-plus-one 4
+				^in-room-door <N27>)
+	 (<P111> ^destination-room <N21> ^distance 2
+				^distance-plus-one 3
+				^in-room-door <N27>)
+	 (<P93> ^destination-room <N23> ^distance 1
+			  ^distance-plus-one 2
+			  ^in-room-door <N27>)
+	 (<W48> ^mapped true ^marked true ^side east
+			  ^x 816.219 ^x-min 691.219)
+	 (<W52> ^connects-to-door <C13> ^door <N32>
+			  ^marked true ^side south ^tentative true
+			  ^y -272.031 ^y-max -147.031)
+	 (<P149> ^destination-room <N16> ^distance 5
+				^distance-plus-one 6 ^in-room-door <N32>)
+	 (<P151> ^destination-room <N18> ^distance 4
+				^distance-plus-one 5 ^in-room-door <N32>)
+	 (<P153> ^destination-room <N21> ^distance 3
+				^distance-plus-one 4 ^in-room-door <N32>)
+	 (<P155> ^destination-room <N23> ^distance 2
+				^distance-plus-one 3 ^in-room-door <N32>)
+	 (<P157> ^destination-room <N28> ^distance 2
+				^distance-plus-one 3 ^in-room-door <N32>)
+	 (<P135> ^destination-room <N26> ^distance 1
+				^distance-plus-one 2 ^in-room-door <N32>)
+	 (<W53> ^marked true ^side east ^x 367.969
+			  ^x-min 242.969)
+	 (<W54> ^marked true ^side west ^x 208.031
+			  ^x-max 333.031)
+	 (<I96> ^available true ^classname ammo_bullets
+			  ^regeneration-time 0 ^room <N34> ^type ammo
+			  ^x 48.0 ^y 64.0)
+	 (<I97> ^available true ^classname ammo_bullets
+			  ^regeneration-time 0 ^room <N34> ^type ammo
+			  ^x 68.0 ^y 56.0)
+	 (<I433> ^available true ^classname item_health_large
+				^regeneration-time 0 ^room <N34> ^type health
+				^x -160.0 ^y 192.0)
+	 (<I95> ^available true ^classname ammo_shells
+			  ^regeneration-time 0 ^room <N34> ^type ammo
+			  ^x 96.0 ^y 64.0)
+	 (<P184> ^destination-room <N36> ^distance 1
+				^distance-plus-one 2 ^in-room-door <C15>)
+	 (<P161> ^destination-room <C1> ^distance 2
+				^distance-plus-one 3 ^in-room-door <C15>)
+	 (<P165> ^destination-room <N5> ^distance 3
+				^distance-plus-one 4 ^in-room-door <C15>)
+	 (<P167> ^destination-room <N8> ^distance 4
+				^distance-plus-one 5 ^in-room-door <C15>)
+	 (<P171> ^destination-room <N13> ^distance 5
+				^distance-plus-one 6 ^in-room-door <C15>)
+	 (<P173> ^destination-room <N16> ^distance 6
+				^distance-plus-one 7 ^in-room-door <N35>)
+	 (<P175> ^destination-room <N18> ^distance 5
+				^distance-plus-one 6 ^in-room-door <N35>)
+	 (<P177> ^destination-room <N21> ^distance 4
+				^distance-plus-one 5 ^in-room-door <N35>)
+	 (<P179> ^destination-room <N23> ^distance 3
+				^distance-plus-one 4 ^in-room-door <N35>)
+	 (<P181> ^destination-room <N26> ^distance 2
+				^distance-plus-one 3 ^in-room-door <N35>)
+	 (<P183> ^destination-room <N28> ^distance 3
+				^distance-plus-one 4 ^in-room-door <N35>)
+	 (<P159> ^destination-room <N31> ^distance 1
+				^distance-plus-one 2 ^in-room-door <N35>)
+	 (<W60> ^mapped true ^marked true ^side north ^y 239.969
+			  ^y-min 114.969)
+	 (<W57> ^mapped true ^marked true ^side east ^x 399.969
+			  ^x-min 274.969)
+	 (<W59> ^connects-to-door <C15> ^door <N37> ^marked true
+			  ^side east ^tentative true ^x -207.469
+			  ^x-min -332.469)
+	 (<P191> ^destination-room <N5> ^distance 2 ^distance-plus-one 3
+				^in-room-door <C16>)
+	 (<P193> ^destination-room <N8> ^distance 3 ^distance-plus-one 4
+				^in-room-door <C16>)
+	 (<P197> ^destination-room <N13> ^distance 4 ^distance-plus-one 5
+				^in-room-door <C16>)
+	 (<P199> ^destination-room <N16> ^distance 5 ^distance-plus-one 6
+				^in-room-door <C16>)
+	 (<P201> ^destination-room <N18> ^distance 6 ^distance-plus-one 7
+				^in-room-door <N37>)
+	 (<P203> ^destination-room <N21> ^distance 5 ^distance-plus-one 6
+				^in-room-door <N37>)
+	 (<P205> ^destination-room <N23> ^distance 4 ^distance-plus-one 5
+				^in-room-door <N37>)
+	 (<P207> ^destination-room <N26> ^distance 3 ^distance-plus-one 4
+				^in-room-door <N37>)
+	 (<P209> ^destination-room <N28> ^distance 4 ^distance-plus-one 5
+				^in-room-door <N37>)
+	 (<P211> ^destination-room <N31> ^distance 2 ^distance-plus-one 3
+				^in-room-door <N37>)
+	 (<P185> ^destination-room <N34> ^distance 1 ^distance-plus-one 2
+				^in-room-door <N37>)
+	 (<W61> ^marked true ^side north ^y 128.094 ^y-min 3.09375)
+	 (<W62> ^marked true ^side south ^y -31.8438 ^y-max 93.1562)
+	 (<I44> ^available true ^classname weapon_supershotgun
+			  ^regeneration-time 0 ^room <C1> ^type weapon ^x -704.0
+			  ^y 128.0)
+	 (<P213> ^destination-room <N36> ^distance 1 ^distance-plus-one 2
+				^in-room-door <C2>)
+	 (<P186> ^destination-room <N36> ^distance 3 ^distance-plus-one 4
+				^in-room-door <C3>)
+	 (<P160> ^destination-room <N34> ^distance 2 ^distance-plus-one 3
+				^in-room-door <C2>)
+	 (<P136> ^destination-room <N31> ^distance 3 ^distance-plus-one 4
+				^in-room-door <C2>)
+	 (<P114> ^destination-room <N28> ^distance 5 ^distance-plus-one 6
+				^in-room-door <C2>)
+	 (<P94> ^destination-room <N26> ^distance 4 ^distance-plus-one 5
+			  ^in-room-door <C2>)
+	 (<P76> ^destination-room <N23> ^distance 5 ^distance-plus-one 6
+			  ^in-room-door <C2>)
+	 (<P60> ^destination-room <N21> ^distance 6 ^distance-plus-one 7
+			  ^in-room-door <C3>)
+	 (<P46> ^destination-room <N18> ^distance 5 ^distance-plus-one 6
+			  ^in-room-door <C3>)
+	 (<P34> ^destination-room <N16> ^distance 4 ^distance-plus-one 5
+			  ^in-room-door <C3>)
+	 (<P24> ^destination-room <N13> ^distance 3 ^distance-plus-one 4
+			  ^in-room-door <C3>)
+	 (<P10> ^destination-room <N8> ^distance 2 ^distance-plus-one 3
+			  ^in-room-door <C3>)
+	 (<P4> ^destination-room <N5> ^distance 1 ^distance-plus-one 2
+			 ^in-room-door <C3>)
+	 (<W18> ^mapped true ^marked true ^side north ^y 367.969
+			  ^y-min 242.969)
+	 (<W16> ^door <C3> ^mapped true ^marked true ^side south ^y -111.969
+			  ^y-max -236.969)
+	 (<W14> ^mapped true ^marked true ^side west ^x -879.969
+			  ^x-max -754.969)
+	 (<W17> ^connects-to-door <C3> ^door <N6> ^marked true ^side north
+			  ^tentative true ^y -130.0 ^y-min -255.0)
+	 (<P164> ^destination-room <N34> ^distance 3 ^distance-plus-one 4
+				^in-room-door <N6>)
+	 (<P140> ^destination-room <N31> ^distance 4 ^distance-plus-one 5
+				^in-room-door <N6>)
+	 (<P118> ^destination-room <N28> ^distance 6 ^distance-plus-one 7
+				^in-room-door <N6>)
+	 (<P98> ^destination-room <N26> ^distance 5 ^distance-plus-one 6
+			  ^in-room-door <N6>)
+	 (<P80> ^destination-room <N23> ^distance 6 ^distance-plus-one 7
+			  ^in-room-door <C4>)
+	 (<C4> ^connecting-door <N9> ^direction south ^max-x -688.031
+			 ^max-y -182.031 ^min-x -847.969 ^min-y -362.031 ^mmax-x -518.0
+			 ^mmax-y -22.0311 ^mmin-x -1018.0 ^mmin-y -522.031 ^new-room <N8>
+			 ^room <N5> ^updated true ^wall <W21> ^x -768.0 ^y -272.031)
+	 (<N9> ^connecting-door <C4> ^direction north ^max-x -678.0
+			 ^max-y -182.031 ^min-x -858.0 ^min-y -362.031 ^mmax-x -518.0
+			 ^mmax-y -22.0311 ^mmin-x -1018.0 ^mmin-y -522.031 ^room <N8>
+			 ^wall <W22> ^x -768.0 ^y -272.031)
+	 (<W22> ^connects-to-door <C4> ^door <N9> ^mapped true ^marked true
+			  ^side north ^y -272.031 ^y-min -397.031)
+	 (<W21> ^door <C4> ^marked true ^side south ^y -272.031 ^y-max -397.031)
+	 (<P64> ^destination-room <N21> ^distance 5 ^distance-plus-one 6
+			  ^in-room-door <C4>)
+	 (<P50> ^destination-room <N18> ^distance 4 ^distance-plus-one 5
+			  ^in-room-door <C4>)
+	 (<P38> ^destination-room <N16> ^distance 3 ^distance-plus-one 4
+			  ^in-room-door <C4>)
+	 (<P28> ^destination-room <N13> ^distance 2 ^distance-plus-one 3
+			  ^in-room-door <C4>)
+	 (<P8> ^destination-room <N8> ^distance 1 ^distance-plus-one 2
+			 ^in-room-door <C4>)
+	 (<P5> ^destination-room <C1> ^distance 1 ^distance-plus-one 2
+			 ^in-room-door <N6>)
+	 (<W19> ^marked true ^side east ^x -688.031 ^x-min -813.031)
+	 (<W20> ^marked true ^side west ^x -847.969 ^x-max -722.969)
+    (<I42> ^available true ^classname weapon_shotgun ^regeneration-time 0
+           ^room <N8> ^type weapon ^x -768.0 ^y -1408.0)
+    (<I41> ^available true ^classname ammo_shells ^regeneration-time 0 ^room <N8>
+           ^type ammo ^x -944.0 ^y -1248.0)
+    (<I53> ^available true ^classname item_health_large ^regeneration-time 0
+           ^room <N8> ^type health ^x -1280.0 ^y -896.0)
+    (<I206> ^available true ^classname ammo_bullets ^regeneration-time 0
+				^room <N8> ^type ammo ^x -1808.0 ^y -432.0)
+    (<I43> ^available true ^classname ammo_shells ^regeneration-time 0 ^room <N8>
+           ^type ammo ^x -768.0 ^y -1440.0)
+    (<I118> ^available true ^classname weapon_rocketlauncher
+				^regeneration-time 0 ^room <N8> ^type weapon ^x -1808.0 ^y -1408.0)
+    (<I160> ^available true ^classname ammo_rockets ^regeneration-time 0
+				^room <N8> ^type ammo ^x -1808.0 ^y -1376.0)
+    (<I205> ^available true ^classname weapon_machinegun ^regeneration-time 0
+				^room <N8> ^type weapon ^x -1808.0 ^y -400.0)
+    (<I66> ^available true ^classname item_health_large ^regeneration-time 0
+           ^room <N8> ^type health ^x -1616.0 ^y -1248.0)
+    (<I159> ^available true ^classname ammo_rockets ^regeneration-time 0
+				^room <N8> ^type ammo ^x -1776.0 ^y -1440.0)
+    (<P215> ^destination-room <N28> ^distance 1 ^distance-plus-one 2
+				^in-room-door <C5>)
+    (<P192> ^destination-room <N36> ^distance 3 ^distance-plus-one 4
+				^in-room-door <N9>)
+    (<P166> ^destination-room <N34> ^distance 4 ^distance-plus-one 5
+				^in-room-door <N9>)
+    (<P142> ^destination-room <N31> ^distance 5 ^distance-plus-one 6
+				^in-room-door <N9>)
+    (<P120> ^destination-room <N28> ^distance 7 ^distance-plus-one 8
+				^in-room-door <C6>)
+    (<P100> ^destination-room <N26> ^distance 6 ^distance-plus-one 7
+				^in-room-door <C6>)
+    (<P82> ^destination-room <N23> ^distance 5 ^distance-plus-one 6
+           ^in-room-door <C6>)
+    (<P66> ^destination-room <N21> ^distance 4 ^distance-plus-one 5
+           ^in-room-door <C6>)
+    (<P52> ^destination-room <N18> ^distance 3 ^distance-plus-one 4
+           ^in-room-door <C6>)
+    (<P40> ^destination-room <N16> ^distance 2 ^distance-plus-one 3
+           ^in-room-door <C6>)
+    (<P22> ^destination-room <N13> ^distance 1 ^distance-plus-one 2
+           ^in-room-door <C6>)
+    (<P11> ^destination-room <C1> ^distance 2 ^distance-plus-one 3
+           ^in-room-door <N9>)
+    (<P9> ^destination-room <N5> ^distance 1 ^distance-plus-one 2 ^in-room-door <N9>)
+    (<W27> ^mapped true ^marked true ^side south ^y -1519.97 ^y-max -1394.97)
+    (<W24> ^mapped true ^marked true ^side west ^x -1935.34 ^x-max -1810.34)
+
+	 }

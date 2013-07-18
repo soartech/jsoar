@@ -1,0 +1,62 @@
+## If bot is doing too well, will lower its skill by raising its reaction
+## time by 50 msec.  
+## Bot starts with reaction-time medium and reaction-time-delay of 100
+## If reaction-time delay was 0 and reaction-time is fast, then 
+##  reaction-time become medium before going to reaction-time-delay of 50
+##  This is because reaction-time fast makes aiming a bit faster.
+##  Note that although raise-difficulty-level will raise the aiming-skill,
+##  lower-difficulty-level does not lower it - we assume that if it was
+##  raised, we can deal with too hard a bot by lowering reaction time.
+
+sp {die*propose*lower-difficulty-level
+   (state <s> ^name die
+              ^death-sum > 5
+              ^death-quotient < .4)
+   --> 
+   (write (crlf) |Lower difficulty level.|)
+   (<s> ^operator <o> +)
+   (<o> ^name lower-difficulty-level)}
+
+sp {die*apply*lower-difficulty-level*reaction-time-delay
+   (state <s> ^operator.name lower-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay { <> 400 <rtd> })
+ -{(<s> ^top-state.self <se>)
+   (<se> ^reaction-time-delay 0
+         ^reaction-time fast)}
+   -->
+   (write (crlf) |Bump reaction time to | (+ <rtd> 50))
+   (<se> ^reaction-time-delay <rtd> -
+                              (+ <rtd> 50)) 
+   #tcl |set real_time_per_decision | (+ <rtd> 50))
+}
+
+sp {die*apply*lower-difficulty-level*good-medium
+   (state <s> ^operator.name lower-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay 400
+         ^aiming-skill good)
+   -->
+   (write (crlf) |Bump down aiming skill to medium, rt medium, rtd 100|)
+   (<se> ^aiming-skill good -
+                       medium 
+         ^reaction-time-delay 100
+                              400 -
+         ^reaction-time medium
+                        fast -)
+   #tcl |set real_time_per_decision 100|)
+}
+
+sp {die*apply*lower-difficulty-level*reaction-time
+   (state <s> ^operator.name lower-difficulty-level
+              ^top-state.self <se>)
+   (<se> ^reaction-time-delay 0
+         ^reaction-time fast)
+   -->
+   (write (crlf) |Set reaction time to medium.|)
+   (<se> ^reaction-time fast -
+                        medium)
+}
+
+
+

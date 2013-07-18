@@ -1,0 +1,3 @@
+pushd HauntBot
+source HauntBot_source.soar
+popd

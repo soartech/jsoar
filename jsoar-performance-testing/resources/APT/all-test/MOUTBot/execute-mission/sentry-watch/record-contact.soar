@@ -1,0 +1,94 @@
+##################################### 
+# file: record-contact.soar 
+# created: REW: 2001-09-13
+## 
+# Record a contact as a new-contact.  This operator simply creates the
+# new-contact information under sentry-watch.contact.  Other operators
+# will determine if it's actually a new-contract (count-contacts) or
+# one that the agent has previously seen.
+#
+# Change history: 
+# [1] REW: 2002-09-26
+#     Changed to remain consistent with threat structure
+
+echo "\nLoading execute-mission/sentry-watch/record-contact.soar"
+                
+# If the observed enemy hasn't been reported or is already a new
+# contact, then record it as a new contact.
+sp {sentry-watch*propose*record-contact*new-contact
+   (state <s> ^name sentry-watch 
+              ^top-state.io.input-link.objects.entity <enemy>
+              ^objective.sentry-watch.contacts <con>)
+   (<enemy> ^name { <> |Player| <> |MoutBot1| <> |MoutBot2| <> |MoutBot3| <> |MoutBot4| <> |MoutBot5| 
+                                 <> |MOUTBot1| <> |MOUTBot2| <> |MOUTBot3| <> |MOUTBot4| <> |MOUTBot5|          <enemy-name> } 
+            ^visible true)
+   (<con> -^new-contact.entity <enemy>
+          -^reported-contact.entity <enemy>)
+   -->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name record-contact
+        ^type new
+        ^contact.entity <enemy>)
+}
+
+
+
+
+# BUGBUG (REW: 2003-01-28)
+# This works but leads to crashes.  If I change the RHS to a 
+# return value on the top-state (it was just simply added to the
+# operator directly), it doesn't crash and computes the
+# area correctly.
+# Determine the area in which the agent resides
+sp {apply*record-contact*area
+   (state <s> 
+              ^operator <o>
+              ^top-state.map <map>
+              ^objective.sentry-watch.contacts.new-contact <nc>)
+   (<o> ^name record-contact
+        ^contact <con>)
+   (<con> ^entity <enemy>)
+   (<enemy> ^position <pos>)
+   (<map> ^area <area>)
+   (<area> ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>)
+   (<pos>  ^x < <max-x>
+           ^x > <min-x>
+           ^y < <max-y>
+           ^y > <min-y>
+           ^z > <min-z>
+           ^z < <max-z>)
+-->
+#   (write (crlf) |Adding area-id | <area> | to the contact information.|)
+   (<nc> ^area-id <area>)
+}
+
+# Record the new contact only (create new-identifer)
+sp {apply*record-contact*new-contact
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name record-contact
+         ^type new
+         ^contact <nc>)
+   -->
+#   (write (crlf) |Adding new contact: |)
+   (<th> ^new-contact <nc2>)
+   }
+
+
+# Record the new contact and terminate the operator
+sp {apply*record-contact*new-contact*enemy
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts.new-contact <th>)
+   (<o1> ^name record-contact
+         ^type new
+         ^contact.entity <enemy>)
+   -->
+#   (write (crlf) |Adding enemy to new-contact: | <enemy>)
+   (<th> ^entity <enemy>)
+   }
+

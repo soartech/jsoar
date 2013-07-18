@@ -1,0 +1,91 @@
+echo "\nLoading search-area/search-entrance.soar"
+#####################################
+# file: search-area/search-entrance
+# created: JEL 11-05-02
+#
+
+sp {search-area*propose*search-location
+   (state <s> ^name search-area
+              ^top-state.map.current-area <area>)
+   (<area> ^node <node>
+          -^searched <node>)
+   (<node> ^position <pos>
+           ^type << door window connector >>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name search-entrance
+        ^node <node>
+        ^actions.face <pos>)
+}
+
+#prefer with smallest angle
+sp {search-area*elaborate*closest*angle
+   (state <s> ^name search-area
+              ^operator <o> +
+              ^top-state.io.input-link.objects.node <visnode>)
+   (<visnode> ^name <node-name>
+              ^angle-off.h  <angle-off>)
+   (<o> ^name search-entrance
+         ^node.name <node-name>)
+-->
+   (<o> ^angle-off <angle-off>)
+}
+
+#prefer with smallest angle
+#sp {search-area*elaborate*closest*angle*search-entrance
+#   (state <s> ^name search-area
+#              ^operator <o> +)
+#   (<o> ^name search-entrance
+#        ^angle-off <angle-off>)
+#  -{(<s> ^operator { <> <o> <o2> } +)
+#    (<o2> ^angle-off < <angle-off>)}
+#-->
+#   (write (crlf) | Prefer | <o> | angle off | <angle-off> )
+#   (<s> ^operator <o> >)
+#}
+sp {search-area*elaborate*closest*angle*search-entrance
+   (state <s> ^name search-area
+              ^operator <o> +)
+   (<o> ^name search-entrance
+        ^angle-off <angle-off>)
+  -{(<s> ^operator { <> <o> <o2> } +)
+    (<o2> ^angle-off { > <angle-off> > 180 })}
+  -{(<s> ^operator { <> <o> <o3> } +)
+    (<o3> ^angle-off { < <angle-off> < 180 })}
+-->
+ #  (write (crlf) | Prefer | <o> | angle off | <angle-off> )
+   (<s> ^operator <o> >)
+}
+
+sp {search-area*elaborate*closest*angle*search-entrance2
+   (state <s> ^name search-area
+              ^operator <o> +)
+   (<o> ^name search-entrance
+        ^angle-off { > 355 <angle-off> })
+-->
+ #  (write (crlf) | Prefer | <o> | angle off | <angle-off> )
+   (<s> ^operator <o> >)
+}
+
+
+sp {apply*search-entrance
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <area>)
+   (<o> ^name search-entrance
+        ^node <node>
+        ^angle-off <= 5)
+-->
+   (<area> ^searched <node>)
+}
+
+sp {apply*search-entrance2
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <area>)
+   (<o> ^name search-entrance
+        ^node <node>
+        ^angle-off >= 355)
+-->
+   (<area> ^searched <node>)
+}
+
+

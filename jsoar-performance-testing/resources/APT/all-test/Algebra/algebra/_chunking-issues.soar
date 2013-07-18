@@ -1,0 +1,71 @@
+#
+# This file contains a list of changes I've made to the algebra system to make chunking work.
+# 
+# 1. Negation not included in chunk
+# Problem:  A negated condition that tests a structure in the subgoal that then is linked 
+#           to a superstate structure, then the negation is not included in the chunk.
+#           Example: -(<s> ^top-state.point <p>)
+# Reason: Soar can't tell that a superstate structure is being tested that should be included.
+# Solution: Make sure that everything that is negated is in the superstate:
+# Example: (<s> ^top-state <ts>)
+#         -(<ts> ^point <p>)
+#  
+# 2. Double print-out from a subgoal
+# Problem: In a subgoal, something is printed out to the user (or any output command).
+# Reason: The check that the printing had already completed was on the subgoal state.
+# Solution: Move the test to the top-state
+#
+# 3. Double learning
+# Problem: Learns a specific rule with a constant (nil) and then learns a more general 
+#          one with a variable. One with variable will fire in duplicate when constant
+#          is encountered - in this case nil for the end of a linked list.
+#
+#
+#sp {convert-input-to-clause-form*apply*process-value*post-operation
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc> ^parse-status post-operation)
+#   (<cw> ^value { <> x <> |x| <value> }
+#         ^next <nvalue>)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             <nvalue>)
+#   (<pc> ^right-side <rs>)
+#   (<rs> ^type number
+#         ^value (int <value>))
+#}
+#sp {chunk-174*d254*opnochange*1
+#    :chunk
+#    (state <s1> ^top-state <s1> ^operator <o1> ^problem <p1> ^io <i1>
+#          -^processed <t1>)
+#    (<o1> ^name accept-input)
+#    (<p1> ^current-input-value <c1> ^parse-clause <p2>)
+#    (<c1> -^value { <v1> << |+| * |-| |/| |[| |]| |=| >> } ^value |3|
+#          ^next <n1>)
+#    (<p2> ^parse-status post-operation)
+#    (<i1> ^input-link <i2>)
+#    (<i2> ^text <t1>)
+#    -->
+#    (<p1> ^current-input-value <c1> - ^current-input-value <n1> +)
+#    (<p2> ^right-side <r1> +)
+#    (<r1> ^type number + ^value 3 +)
+#}
+#p chunk-167*d194*opnochange*1
+#sp {chunk-167*d194*opnochange*1
+#    :chunk
+#    (state <s1> ^top-state <s1> ^operator <o1> ^problem <p1> ^io <i1>
+#          -^processed <t1>)
+#    (<o1> ^name accept-input)
+#    (<p1> ^current-input-value <c1> ^parse-clause <p2>)
+#    (<c1> -^value { <v1> << |+| * |-| |/| |[| |]| |=| >> } ^value |3|
+#          ^next.value nil)
+#    (<p2> ^parse-status post-operation)
+#    (<i1> ^input-link <i2>)
+#    (<i2> ^text <t1>)
+#    -->
+#    (<p1> ^current-input-value <c1> - ^current-input-value nil +)
+#    (<p2> ^right-side <r1> +)
+#    (<r1> ^type number + ^value 3 +)
+#}

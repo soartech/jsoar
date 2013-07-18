@@ -1,0 +1,17 @@
+#echo "\nLoading explore/elaborations"
+
+## Elaborate every substate in explore with the room currently being explored: explore-room
+##   explore-room is not always the same as current-room, which is the room the bot is in.
+##   sometimes while exploring a room, the bot with move into another room.  When that happens, 
+##   current-room changes, but explore-room does not - Thus, explore-room maintains a memory of
+##   which room the bot should be in.  It is updated in common/goto-next-door/exit-room
+
+sp {explore*elaborate*explore-room
+   (state <s> ^name <> quake
+              ^top-state.map <m>)
+   (<m> -^explored true
+         ^explore-room <er>)
+   -->
+   (<s> ^explore-room <er>)}
+
+

@@ -1,0 +1,99 @@
+#echo "\nLoading visit-upexplored-room/detect-all-explored"
+sp {visit-unexplored-room*propose*detect-all-explored
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.unexplored-rooms none)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name detect-all-explored)}
+
+sp {visit-unexplored-room*apply*detect-all-explored
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map <m>
+              ^operator.name detect-all-explored)
+   -->
+   (<m> ^explored true)}
+
+sp {visit-unexplored-room*apply*remove*last-room
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map <m>
+              ^operator.name detect-all-explored)
+   (<m> ^last-room <rm>)
+   -->
+   (<m> ^last-room <rm> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*explore-room
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map <m>
+              ^operator.name detect-all-explored)
+   (<m> ^explore-room <rm>)
+   -->
+   (<m> ^explore-room <rm> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*aligned-room
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^aligned-room <a>)
+   -->
+   (<rm> ^aligned-room <a> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*update
+   (state <s> ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^update-data <a>)
+   -->
+   (<rm> ^update-data <a> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*current-door
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^current-door <a>)
+   -->
+   (<rm> ^current-door <a> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*orientation
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^orientation <a>)
+   -->
+   (<rm> ^orientation <a> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*search
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^search <a>)
+   -->
+   (<rm> ^search <a> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*axis
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^axis <b>)
+   -->
+   (<rm> ^axis <b> -)
+   }
+
+sp {visit-unexplored-room*apply*remove*no-connecting
+   (state <s> ^name visit-unexplored-room
+              ^top-state.map.room <rm>
+              ^operator.name detect-all-explored)
+   (<rm> ^no-connecting-room <g>)
+   -->
+   (<rm> ^no-connecting-room <g> -)
+   }
+
+
+
+

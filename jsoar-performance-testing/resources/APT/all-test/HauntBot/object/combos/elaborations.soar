@@ -1,0 +1,25 @@
+sp {combos*copy*substate*next-action
+   (state <s> ^type << find-and-x move-and-x move-near-and-x acquire-and-x climb-and-x >>
+              ^superstate.operator.next-action <na>)
+-->
+   (<s> ^next-action <na>)
+}
+
+# once the primary object is complete (move, find, etc), this rule will copy the auxillary 
+# attributes to the secondary action operator. For example, if the move-and-face-direction were the rule,
+# a ^direction attribute might be contained in ^next-action and then copied to the 'face-direction' operator. 
+#
+sp {combos*elaborate*next-action
+   (state <s> ^type << find-and-x move-and-x move-near-and-x acquire-and-x climb-and-x >>
+              ^operator <o> +
+              ^next-action <na>)
+   (<o> ^name <name>
+        ^type <type>)
+   (<na> ^name <name>
+         ^type <type> 
+         ^<att> <value>)
+-->
+   (<o> ^<att> <value>)
+}
+
+

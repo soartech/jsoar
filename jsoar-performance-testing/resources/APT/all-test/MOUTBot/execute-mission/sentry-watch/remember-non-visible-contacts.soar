@@ -1,0 +1,105 @@
+##################################### 
+# file: remember-non-visible-contacts.soar 
+# created: REW: 2001-08-26
+## 
+# Remember contacts (in the sentry-watch reports) that are no longer visible
+#
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/defend/sentry-watch/remember-non-visible-contacts.soar"
+                
+# record-contact copies over the id from the input link, so really any negated test would 
+# work here because all the information under the id is deleted when the info is removed from the input-link
+sp {sentry-watch*propose*remember-non-visible-contacts
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.contacts <th>)
+   (<th> ^reported-contact <rt>)
+   (<rt> -^entity.visible true)
+   -->
+#   (write (crlf) |Proposing: remember-non-visible-contacts|)
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name remember-non-visible-contacts
+        ^contact <rt>)
+}
+
+
+sp {apply*remember-non-visible-contacts*decrement*visible-count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name remember-non-visible-contacts
+              )
+   (<th> ^visible-contacts { > 0 <tt> })
+   -->
+   (<th> ^visible-contacts <tt> - (- <tt> 1) + )
+}
+
+# Argggggggggggg!!!!!!!!!!!!
+# The input-link treats the area differently for an agent "outside" vs "inside"
+# There is no area-name in this case.  For now, I make this specific
+# to the outside representation.
+sp {apply*remember-non-visible-contacts*remember*reported-contact
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>
+              ^top-state <ts>)
+   (<ts> ^io.input-link.agent.cycle <ct>
+         ^parameters.enemy-remember-time <ert>)
+   (<o1> ^name remember-non-visible-contacts
+         ^contact <rt>)
+   (<th> ^reported-contact <rt>)
+   (<rt> ^entity <rte>)
+   (<rte> ^range <r>
+            ^area <something> 
+            ^aspect <a>
+            ^angle-off <ay>
+            ^health <health>
+            ^weapon <wcname>
+            ^position <p>
+            ^team <team>
+            ^name <name>)
+   (<ay> ^v <av>
+         ^h <ah>)
+   (<p> ^x <x>
+        ^y <y>
+        ^z <z>)
+   (<a> ^v <asv>
+        ^h <ash>)
+-->
+   (<th> ^remembered-contact <con-rem>
+                             ^reported-contact <rt> -)
+   (<con-rem> ^entity <rem-enemy>)
+   (<rem-enemy> ^name <name>
+                ^area <something>
+                ^area-name |Outside|
+                ^team <team>
+                ^position <p1>
+                ^health <health>
+                ^weapon <wcname>
+                ^aspect <asp>
+                ^angle-off <an-off>
+                ^visible false
+                ^last-seen-time <ct>)
+   (<an-off> ^h <ah>
+             ^v <av>)
+   (<p1>    ^x <x>
+            ^y <y>
+            ^z <z>)
+   (<asp> ^v <asv>
+          ^h <ash>)
+}
+
+### SEARCH CONTROL
+
+# If there are contacts that should be deleted, delete them before making a report
+
+sp {sentry-watch*compare*remember-non-visible-contacts
+   (state <s> ^name sentry-watch
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name remember-non-visible-contacts)
+   (<o2> ^name report-contacts)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

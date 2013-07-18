@@ -1,0 +1,18 @@
+#
+# if close enogh, say hello!
+#
+sp {greet*propose*step-2-speak-to
+   (state <s> ^name greet
+              ^user-entity.name <user-name>
+              ^user-range { <user-range> < 100 } ) # arbitrary distance, FIXME!!
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name speak-to
+        ^phrase1 |Hello...Mr.| 
+        ^phrase2 |Anderson|
+        ^target <user-name>
+        ^sender Scary-Scientist-Dude
+        #^range user-range)
+        ^volume 2)
+}
+                                                    

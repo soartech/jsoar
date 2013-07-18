@@ -1,0 +1,56 @@
+echo "\nLoading defend/determine-threat-door"
+
+## Threats one room away are always threat doors
+sp {hiding*propose*determine-threat-door*next-to-threat
+   (state <s> ^name hiding
+              ^top-state <ts>)
+   (<ts> ^map.current-area <ca>
+         ^threats.controlled-area <threat-area>)
+   (<ca> ^path <path>
+        -^threat-door.node <node>)
+   (<path> ^destination-area <threat-area>
+           ^distance 1
+           ^via-node <node>)
+-->
+#   (write (crlf) |Determine Threat-door: | <node> |, path: | <path> |, threat-area: | <threat-area> | current-area: | <ca> |, distance: 1|)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name determine-threat-door
+        ^path <path>)
+}
+
+## REW: 2003-04-30
+#  bugfix from JEL
+sp {hiding*propose*determine-threat-door*original
+   (state <s> ^name hiding
+              ^top-state <ts>)
+   (<ts> ^map.current-area <ca>
+         ^self.hiding.original-area <threat-area>)
+   (<ca> ^path <path>
+        -^threat-door.node <node>)
+   (<path> ^destination-area <threat-area>
+           ^distance 1
+           ^via-node <node>)
+-->
+#   (write (crlf) |Determine Threat-door: | <node> |, path: | <path> |,
+ #  threat-area: | <threat-area> | current-area: | <ca> |, distance: |
+#   <distance>)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name determine-threat-door
+        ^path <path>)
+}
+  
+sp {apply*determine-threat-door
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <ca>)
+   (<o> ^name determine-threat-door
+        ^path <path>)
+   (<path> ^distance <dist>
+           ^via-node <node>)
+-->
+#   (write (crlf) |Threat Door: | <node>)
+   (<ca> ^threat-door <door>)
+   (<door> ^distance <dist>
+           ^node <node>)
+}
+
+

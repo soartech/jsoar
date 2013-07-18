@@ -1,0 +1,36 @@
+
+# The absence of any turn indications (should-turn) indicates
+# that the agent is aligned with the target-heading and should
+# walk forward across the gateway.
+sp {move-through-gateway*propose*move-forward*no-jump
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^io.input-link.feedback <feedback>
+             -^superstate.operator.gateway.action jump)
+  -(<feedback> ^movement-type walk
+               ^movement-dir forward)
+   (<headings> -^should-turn)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name move-forward
+         ^type wait
+         ^speed walk
+         ^jump false)
+}
+
+sp {move-through-gateway*propose*move-forward*jump
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^io.input-link.feedback <feedback>
+              ^superstate.operator.gateway.action jump)
+  -(<feedback> ^movement-type walk
+               ^movement-dir forward
+               ^jump jump)
+   (<headings> -^should-turn)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name move-forward
+         ^type wait
+         ^speed walk
+         ^jump true)
+}

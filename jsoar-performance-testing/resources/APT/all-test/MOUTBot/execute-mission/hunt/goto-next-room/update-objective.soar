@@ -1,0 +1,94 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/update-objective"
+
+#AMN: 2002-07-31
+#Once the agent has decided to move to the next room, a new objective
+#needs to be created in the mission.  
+
+
+#AMN: 2002-07-26
+#The stack position's offset from the exit is used as an anchor for elaborating
+#the agent's "corner of responsibility" and "point-of-domination".
+#This information is only known before the door is entered so it must
+#recorded now in the mission now for use by the reconnoiter subgoal.
+#For now, this code is specialized for the point man (first
+#person to enter the room).
+#IF:
+#1.  I'm standing at the stack position to enter a new area
+#2.  My active objective is not to clear that area
+#3.  (implicit) The current area is clear
+#THEN:
+#    Propose updating the mission with a new room to clear
+#    and instructions on how to clear it.
+sp {goto-next-room*propose*update-objective
+   (state <s> ^name goto-next-room
+              ^near-stack-position yes
+              ^new-area <new-area>
+              ^top-state.mission <mission>)
+   (<new-area> ^name <area-name>)
+   -{
+    (<mission> ^objective <obj>)
+    (<obj> ^status active
+           ^type offensive
+           ^offensive-position.area-name <area-name>)
+    }
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name update-objective
+        ^new-area <new-area>)
+}
+
+
+#AMN: 2002-07-26
+#Calculate what direction (in terms of numerical offset
+#on a given axis) that the bot should go upon entering 
+#the new room.  Also record the exit node as a unique
+#identifier for these orders.
+sp {goto-next-room*elaborate*reo*direction-east-west
+   (state <s> ^name goto-next-room
+              ^operator <o> +
+              ^door-axis <da>
+              ^stack-position.x <sx>
+              ^exit-node <en>)
+   (<en> ^position.x <ex>)
+   (<o> ^name update-objective)
+-->
+   (<o> ^exit-node <en>
+        ^entrance-axis <da>
+        ^entrance-offset (- <ex> <sx>))
+}
+
+#Prefer to record the orders before you step into the doorway
+#(i.e., commit to entering the room)
+sp {goto-next-room*compare*update-objective
+   (state <s> ^name goto-next-room
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name update-objective)
+   (<o2> ^name move-to-exit)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+#AMN: 2002-07-26
+sp {apply*update-objective
+   (state <s> ^operator <o>
+              ^top-state.mission <mission>)
+   (<o> ^name update-objective
+        ^new-area <new-area>
+        ^entrance-axis <ea>
+        ^entrance-offset <eo>
+        ^exit-node <enode>)
+   (<new-area> ^name <new-area-name>)
+-->
+   (<mission> ^objective <new>)
+   (<new> ^status active
+          ^type offensive
+          ^offensive-position <op>)
+   (<op> ^area <new-area>
+         ^area-name <new-area-name>
+         ^axis <ea>
+         ^offset <eo>
+         ^exit-node <enode>)
+}
+

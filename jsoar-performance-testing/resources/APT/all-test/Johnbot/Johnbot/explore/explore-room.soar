@@ -1,0 +1,42 @@
+#echo "\nLoading explore/explore-room"
+
+## Explore the current room if it has not yet been explored.
+##  ^explored set in explore-room/finished-room.soar
+ 
+
+sp {explore*propose*explore-room
+   (state <s> ^name explore
+              ^explore-room <cr>)
+  -(<cr> ^explored true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name explore-room)}
+
+## Pop the top room off of unexplored-rooms if it is the room we are exploring.
+
+sp {explore*apply*explore-room
+   (state <s> ^name explore 
+              ^operator.name explore-room
+              ^explore-room <room>
+              ^top-state.map <map>)
+   (<map> ^unexplored-rooms <ur>)
+   (<ur>  ^room <room>
+          ^next <next>)
+   -->
+   (<map> ^unexplored-rooms <ur> -
+          ^unexplored-rooms <next>)}
+
+## Increment the global room count and assign a room-number to the current room being explored.
+
+sp {explore*apply*explore-room*room-count
+   (state <s> ^name explore 
+              ^operator.name explore-room
+              ^top-state.map <m>
+              ^explore-room <room>)
+   (<m> ^room-count <rc>)
+   (<room> -^room-number)
+   -->
+   (<m> ^room-count <rc> -
+        ^room-count (+ <rc> 1))
+   (<room> ^room-number <rc>)}
+

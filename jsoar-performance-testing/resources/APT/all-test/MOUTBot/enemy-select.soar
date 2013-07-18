@@ -1,0 +1,45 @@
+echo "\nLoading enemy-select"
+
+## Select an emeny that is alive and visibile.
+
+sp {unreal*propose*enemy-select*visible
+   (state <s> ^name unreal
+              ^enemy <enemy>
+              ^mission.objective.threat.team <team> # Only select enemies from threat team
+             -^selected-enemy)
+   (<enemy> ^team <team>
+           -^name |Player|)  #Until Alex/Devvan fix self as enemy bug
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name enemy-select
+        ^enemy <enemy>)}
+
+## Prefer enemy-select to explore or execute-mission
+
+sp {unreal*select*enemy-select
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name << explore execute-mission  >>)
+   (<o2> ^name enemy-select)
+   -->
+   (<s> ^operator <o1> < <o2>)}
+
+## Select closest enemies
+
+sp {unreal*select*enemy-select*near
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name enemy-select
+         ^enemy.range <range>)
+   (<o2> ^name enemy-select
+         ^enemy.range < <range>)
+   -->
+   (<s> ^operator <o1> < <o2>)}
+
+sp {unreal*apply*enemy-select
+   (state <s> ^operator <o>)
+   (<o> ^name enemy-select
+        ^enemy <e>)
+   -->
+   (<s> ^selected-enemy <e>)}
+

@@ -1,0 +1,17 @@
+sp {add-column*propose*write-sum
+   (state <s> ^name add-column 
+              ^sum <a>
+             -^current-column.sum)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-sum)
+}
+
+sp {add-column*apply*write-sum
+   (state <s> ^operator.name write-sum
+              ^sum <a>
+              ^current-column <cc>)
+-->
+   (<cc> ^sum <a>)
+}
+

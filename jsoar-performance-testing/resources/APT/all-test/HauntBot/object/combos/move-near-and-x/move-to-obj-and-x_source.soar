@@ -1,0 +1,6 @@
+source elaborations.soar
+source selection.soar
+source step-1-move-to-area.soar
+source step-2-move-to-xyz.soar
+source step-3-face-object.soar
+source step-4-x.soar

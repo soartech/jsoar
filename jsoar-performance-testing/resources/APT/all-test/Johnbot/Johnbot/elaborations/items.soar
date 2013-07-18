@@ -1,0 +1,20 @@
+#echo "\nLoading elaborations/items"
+
+sp {item*elaborate*available*memory
+   (state <s> ^name quake
+             -^io.input-link.agent.cycle < <rt>
+              ^map.item <item>)
+   (<item> ^regeneration-time <rt>)
+   -->
+   (<item> ^available true)
+   }
+
+sp {item*elaborate*available*vision
+   (state <s> ^name quake
+              ^io.input-link.entity.item.classname <cname>
+              ^map.current-room.item <item>)
+   (<item> ^classname <cname>)
+   -->
+   (<item> ^available true)
+   }
+

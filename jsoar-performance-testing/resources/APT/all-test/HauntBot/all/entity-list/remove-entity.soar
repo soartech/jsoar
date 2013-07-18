@@ -1,0 +1,31 @@
+# Remove entity if the 'memory' has expired
+# (Agent 'remembers' entity even if no longer visible)
+sp {all*propose*remove-entity*expired
+   (state <s> ^name haunt
+              ^io.input-link <il>
+              ^top-state.entity-list <e-list>)
+   (<il> ^agent.time <time>)
+   (<e-list> ^entity <entity>)
+   (<entity> ^expire-time < <time>)
+-->
+   (<s> ^operator <o> + =,>)
+   (<o> ^name remove-entity*expired
+        ^type remove-entity
+        ^entity <entity>)
+}
+
+#
+# remove an entity from the internal list
+#
+sp {all*apply*remove-entity
+   (state <s> ^operator <o>
+              ^top-state.entity-list <e-list>)
+   (<o> ^type remove-entity
+        ^entity <entity>)
+   (<e-list> ^entity <entity>)
+-->
+#   (write (crlf) |## Removing entity|)
+   (<e-list> ^entity <entity> -)
+}
+
+

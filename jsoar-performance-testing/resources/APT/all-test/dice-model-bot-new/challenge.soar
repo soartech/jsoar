@@ -1,0 +1,25 @@
+sp {dice*propose*challenge
+   (state <s> ^name dice
+              ^my-turn true
+              ^last-bid <last-bid>
+              ^io.input-link.affordances.action <a>)
+   (<a> ^name challenge
+        ^available true
+        ^target <t>)
+   (<t> ^id <id>)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name challenge
+         ^target <t>)
+}
+
+sp {apply*challenge
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name challenge
+         ^target.id <target>)
+-->
+   #interrupt#
+   (write (crlf) |Challenge!|)
+   (<ol> ^challenge.target <target>)
+}

@@ -1,0 +1,199 @@
+sp {process-column*propose*compute-result
+   (state <s> ^name process-column
+              ^digit1 <a1>
+              ^digit2 <a2>
+             -^result)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-result)
+}
+
+####################################################
+#### If facts are all in working memory
+
+#########ADDITION
+
+sp {process-column*apply*compute-result*addition
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source wm
+              ^arithmetic.facts <af>
+              ^arithmetic-problem.operation addition
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a1>
+         ^digit2 <a2>
+         ^sum <result>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}
+########Subtraction
+
+sp {process-column*apply*compute-result*subtraction*wm
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source wm
+              ^arithmetic.facts <af>
+              ^arithmetic-problem.operation subtraction
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a2>
+         ^digit2 <result>
+         ^sum <a1>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}
+
+
+###############################
+### Semantic Memory
+###
+### Addition
+
+sp {process-column*apply*compute-result*query*add*smem
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source smem
+              ^top-state.parameters.retrieve yes
+              ^arithmetic-problem.operation addition
+              ^digit1 <a1>
+              ^digit2 <a2>
+              ^smem.command <cmd>)
+-->
+   (<cmd> ^query <q>)
+   (<q> ^digit1 <a1>
+        ^digit2 <a2>)
+}
+# Adding this will make a second query with the digits reversed.
+## Somewhat surprisingly, this gives a small penalty over a long run because for every
+## failed retreival, a second retrieval is tried. It might be the case that
+## it is more efficient to go ahead and do the calculation so that semantic memory
+## holds the extra fact. This might be different if we could do multiple queries at once.
+##  Should also look at storing the symmetric problem originally when one of the two facts
+##  is learned. Not possible to do parallel stores and it is complicated to do them sequentially.
+
+
+#sp {process-column*apply*compute-result*query*add*smem*try2
+#   :interrupt
+#   (state <s> ^operator.name compute-result
+#              ^top-state.parameters.fact-source smem
+#              ^arithmetic-problem.operation addition
+#              ^digit1 <a1>
+#              ^digit2 { <> <a1> <a2> }
+#              ^smem <smem>)
+#   (<smem> ^result.status failure
+#           ^command <cmd>)
+#   (<cmd> ^query <q2>)
+#   (<q2> ^digit1 <a1>
+#         ^digit2 <a2>)
+#-->
+#   (<s> ^try2 yes)
+#   (<cmd> ^query <q2> -
+#          ^query <q>)
+#   (<q> ^digit1 <a2>
+#        ^digit2 <a1>)
+#}
+sp {process-column*apply*compute-result*query*subtract*smem
+#   :interrupt
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source smem
+              ^top-state.parameters.retrieve yes
+              ^arithmetic-problem.operation subtraction
+              ^digit1 <a1>
+              ^digit2 <a2>
+              ^smem.command <cmd>)
+-->
+   (<cmd> ^query <q>)
+   (<q> ^digit1 <a2>
+        ^sum <a1>)
+}
+
+
+### Remove query that doesn't match current problem
+# Unnecessary
+#sp {process-column*apply*compute-result*clean-query*add
+#   (state <s> ^operator.name compute-result
+#              ^top-state.parameters.fact-source smem
+#              ^arithmetic-problem.operation addition
+#              ^digit1 <a1>
+#              ^digit2 <a2>
+#              ^smem.command <cmd>)
+#   (<cmd> ^query <q>)
+#  -(<q> ^digit1 <a1>
+#        ^digit2 <a2>)
+#-->
+#   (<cmd> ^query <q> -)
+#}
+#
+
+#sp {process-column
+#      (state <s> ^operator.name compute-result
+#              ^smem.result <result>)
+#      (<result> ^<att> <value>)
+#-->
+#   (write (crlf) |*** ^| <att> | | <value>)
+#}
+#
+#   Unnecessary
+#sp {process-column*apply*compute-result*clean-query*subtract
+#   (state <s> ^operator.name compute-result
+#              ^top-state.parameters.fact-source smem
+#              ^arithmetic-problem.operation subtraction
+#              ^digit1 <a1>
+#              ^digit2 <a2>
+#              ^smem.command <cmd>)
+#   (<cmd> ^query <q>)
+#  -(<q> ^digit1 <a2>
+#        ^sum <a1>)
+#-->
+#   (<cmd> ^query <q> -)
+#}
+
+## Take retrieved fact and add results to query.
+
+sp {process-column*apply*compute-result*use*smem*addition
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source smem
+              ^arithmetic-problem.operation addition
+              ^smem.result <res>
+              ^smem.command <cmd>)
+   (<res> ^retrieved <af>
+          ^success <smem-q>)
+   (<af> ^sum <sum>
+         ^carry-borrow <cb>)
+   (<cmd> ^query <smem-q>)
+-->
+   (<s> ^result <sum>
+        ^carry-borrow <cb>)
+}
+
+sp {process-column*apply*compute-result*subtraction*smem
+   (state <s> ^operator.name compute-result
+              ^top-state.parameters.fact-source smem
+              ^arithmetic-problem.operation subtraction
+              ^smem.result <res>
+              ^smem.command <cmd>)
+   (<res> ^retrieved <af>
+          ^success <smem-q>)
+   (<af> ^digit2 <result>
+         ^carry-borrow <cb>)
+   (<cmd> ^query <smem-q>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <cb>)
+}
+
+## Covered by smem/elaborations.soar
+#
+#sp {apply*compute-result*failure-retrieve
+#   (state <s> ^operator <op>
+#              ^smem <smem>)
+#   (<op> ^name)
+#   (<smem> ^result.status << success failure >>
+#           ^command <cmd>)
+#   (<cmd> ^query <q>)
+#-->
+#   (<cmd> ^query <q> -)
+#}
+#

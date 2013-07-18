@@ -1,0 +1,22 @@
+# Choose which scenario to run.  Only one scenario should be
+# chosen at a time (in general -- in some cases it might also make sense to have small scenarios that can be composed into a larger one).
+
+# Someday the scanrio name should come from the input link 
+# so we don't have to edit productions to change scenarios.
+# This will have to do for now.
+sp {elaborate*state*scenario
+   (state <s> ^name unreal)
+-->
+   (<s> ^scenario <x1>)
+   (<x1>  ^name scenario-lhall
+
+
+                )
+# Known choices:
+   #^name scenario-lhall
+#     ^name scenario-thall
+  #         ^name scenario-lroom
+#         ^name scenario-2002-11
+#         ^name scenario-ambush
+#         ^name scenario0     
+}

@@ -1,0 +1,90 @@
+#echo "\nLoading all/enter-room"
+
+# Used in all top-level subgoals except explore & predict-enemy
+
+sp {all*propose*enter-room
+   (state <s> ^goal-type change-rooms 
+              ^name <name>
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+       -^saved-room <cr>)
+   -->
+   (<s> ^operator <o> + >)
+   (<o> ^name enter-room
+        ^actions.centerview on)}
+
+sp {all*select*enter-room
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name enter-room)
+   (<o2> ^name <> enter-room)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+sp {apply*enter-room*saved-room
+   (state <s> ^operator.name enter-room
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+       -^saved-room <cr>)
+   -->
+   (<m> ^saved-room <cr>)}
+
+sp {apply*enter-room*saved-room*remove
+   (state <s> ^operator.name enter-room
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+        ^saved-room { <> <cr> <lr> })
+   -->
+   (<m> ^saved-room <lr> -)}
+
+sp {apply*enter-room*last-room
+   (state <s> ^operator.name enter-room
+              ^top-state.map <m>)
+   (<m> ^saved-room <sr>
+        ^current-room <> <sr>
+      -^last-room <sr>)
+   -->
+   (<m> ^last-room <sr>)}
+
+sp {apply*enter-room*last-room*remove
+   (state <s> ^operator.name enter-room
+              ^top-state.map <m>)
+   (<m> ^saved-room <sr>
+        ^current-room <> <sr>
+       ^last-room { <> <sr> <lr> })
+   -->
+   (<m> ^last-room <lr> -)}
+###################
+
+sp {apply*enter-room*create*search-structure
+   (state <s> ^operator.name enter-room
+              ^top-state.map.current-room <cr>
+              ^io.input-link.agent <a>)
+   (<a> ^origin <or>)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (<cr> ^search <ss>)
+   (<ss> ^x <x>
+         ^y <y>)}
+
+sp {apply*enter-room*remove-old-search-room
+   (state <s> ^operator <o>
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+        ^room { <> <cr> <r> })
+   (<o> ^name enter-room)
+   (<r> ^search <ss>)
+   -->
+   (<r> ^search <ss> -)
+   }
+
+########### Clean up old at-door
+
+sp {apply*enter-room*clean-up-old-door
+   (state <s> ^operator.name enter-room
+              ^current-room <cr>)
+   (<cr> ^at-door <door>)
+   -->
+   (<cr> ^at-door <door> -)}

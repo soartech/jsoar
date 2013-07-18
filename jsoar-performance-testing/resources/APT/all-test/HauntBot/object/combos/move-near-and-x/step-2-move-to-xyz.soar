@@ -1,0 +1,13 @@
+# move to a position that is the optimal grab distance from the object.
+sp {move-near-and-x*propose*step-2-move-to-xyz
+   (state <s> ^type move-near-and-x
+             -^at-target
+              ^map.current-area <area>
+              ^target.area-id <area>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name step-2-move-to-xyz
+        ^type move-to-xyz)
+
+}
+

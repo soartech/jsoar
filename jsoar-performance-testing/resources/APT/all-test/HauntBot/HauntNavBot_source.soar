@@ -1,0 +1,27 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source _notes.soar
+source common.soar
+pushd common
+source common_source.soar
+popd
+source execute-script.soar
+pushd execute-script
+source execute-script_source.soar
+popd
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source get-item.soar
+source initialize.soar
+pushd initialize
+source initialize_source.soar
+popd
+source record-actor.soar
+source record-controlled-area.soar

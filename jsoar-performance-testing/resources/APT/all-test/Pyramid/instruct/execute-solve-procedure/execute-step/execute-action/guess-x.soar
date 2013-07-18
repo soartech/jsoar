@@ -1,0 +1,41 @@
+sp {execute-action*propose*guess-x
+   (state <s> ^name execute-action
+              ^action <a>
+             -^x-guess.failed
+             -^x-guess.success
+              ^top-state.current-problem <cp>)
+   (<a> ^command set
+        ^variable <var>
+        ^value <value>
+        ^value-type variable)
+   (<cp> -^<value> <var>)
+  -{(<s> ^x-guess <x>)
+    (<x> -^failed)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name guess-x
+         ^action <a>)
+}
+
+sp {execute-action*propose*guess-x*failed
+   (state <s> ^name execute-action
+              ^x-guess <xg>
+             -^x-guess.success
+              ^action <a>
+              ^top-state.current-problem <cp>)
+   (<xg> ^failed
+        -^newer-x-guess true)
+   (<a> ^command set
+        ^variable <var>
+        ^value <value>
+        ^value-type variable)
+   (<cp> -^<value> <var>)
+  -{(<s> ^x-guess <x>)
+    (<x> -^failed
+         -^newer-x-guess true)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name guess-x
+         ^action <a>
+         ^prior-x-guess <xg>)
+}

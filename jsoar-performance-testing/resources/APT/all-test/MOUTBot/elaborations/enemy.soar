@@ -1,0 +1,17 @@
+sp {elaborations*elaborate*enemy-visible
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <e>)
+   (<e> ^name <name>
+        ^visible <vis>)
+-->
+#   (write (crlf) |Enemy | <name> | is visible: | <vis> )
+}
+
+sp {elaborations*elaborate*no-enemy-visible
+   (state <s> ^name unreal
+              ^io.input-link.objects <e>)
+   (<e> -^entity)
+-->
+#   (write (crlf) |No Enemy is present on the input-link|)
+}
+

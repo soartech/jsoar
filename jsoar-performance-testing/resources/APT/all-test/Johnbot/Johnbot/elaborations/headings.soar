@@ -1,0 +1,236 @@
+#echo "\nLoading elaborations/headings"
+
+## Create heading data structure on top state
+
+sp {quake*elaborate*heading
+   (state <s> ^name quake)
+   -->
+   (<s> ^heading <h>)}
+
+## Compute heading of bot in terms of north south east and west
+## used for mapping rooms
+## Yaw starts at 0 east and goes counterclockwise to 359
+ 
+sp {quake*elaborate*heading-90*east
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw >= 90
+        -^yaw < -90)
+   -->
+   (<h> ^within-90 east)}
+
+sp {quake*elaborate*heading-90*east*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 270
+        -^yaw > 450)
+   -->
+   (<h> ^within-90 east)}
+
+sp {quake*elaborate*heading-90*west
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 90
+        -^yaw >= 270)
+   -->
+   (<h> ^within-90 west)}
+
+sp {quake*elaborate*heading-90*west*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw >= -90
+        -^yaw < -270)
+   -->
+   (<h> ^within-90 west)}
+
+sp {quake*elaborate*heading-90*north
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 0
+        -^yaw >= 180)
+   -->
+   (<h> ^within-90 north)}
+
+sp {quake*elaborate*heading-90*north*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < -360
+        -^yaw >= -180 )
+   -->
+   (<h> ^within-90 north)}
+
+sp {quake*elaborate*heading-90*south
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 180
+        -^yaw >= 360)
+   -->
+   (<h> ^within-90 south)}
+
+sp {quake*elaborate*heading-90*south*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < -180
+        -^yaw >= 0)
+   -->
+   (<h> ^within-90 south)}
+
+## Compute heading of bot in terms of north south east and west
+## used for mapping rooms
+## Yaw starts at 0 east and goes counterclockwise to 359
+ 
+sp {quake*elaborate*heading-45*east*45
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw >= 45
+        -^yaw < -45)
+   -->
+   (<h> ^within-45 east)}
+
+sp {quake*elaborate*heading-45*east*315
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 315
+        -^yaw > 405)
+   -->
+   (<h> ^within-45 east)}
+
+sp {quake*elaborate*heading-45*west
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 135
+        -^yaw >= 225)
+   -->
+   (<h> ^within-45 west)}
+
+sp {quake*elaborate*heading-45*west*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw >= -135
+        -^yaw < -225)
+   -->
+   (<h> ^within-45 west)}
+
+sp {quake*elaborate*heading-45*north
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 45
+        -^yaw >= 135)
+   -->
+   (<h> ^within-45 north)}
+
+sp {quake*elaborate*heading-45*north*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < -315
+        -^yaw >= -225 )
+   -->
+   (<h> ^within-45 north)}
+
+sp {quake*elaborate*heading-45*south
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < 225
+        -^yaw >= 315)
+   -->
+   (<h> ^within-45 south)}
+
+sp {quake*elaborate*heading-45*south*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>) 
+   (<a> -^yaw < -135
+        -^yaw >= -45)
+   -->
+   (<h> ^within-45 south)}
+
+
+#####
+
+sp {quake*elaborate*within-5*east*5
+   (state <s> ^name quake
+              ^heading <h>
+              ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < -5
+        -^yaw > 5)
+   -->
+   (<h> ^within-5 east)}
+
+sp {quake*elaborate*within-5*east*355
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 355
+        -^yaw > 365)
+   -->
+   (<h> ^within-5 east)}
+
+sp {quake*elaborate*within-5*west
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 175
+	-^yaw > 185)
+   -->
+   (<h> ^within-5 west)}
+
+sp {quake*elaborate*within-5*north
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 85
+	-^yaw > 95)
+   -->
+   (<h> ^within-5 north)}
+
+sp {quake*elaborate*within-5*south
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < 265
+	-^yaw > 275)
+   -->
+   (<h> ^within-5 south)}
+
+sp {quake*elaborate*within-5*west*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw > -175
+        -^yaw < -185)
+   -->
+   (<h> ^within-5 west)}
+
+sp {quake*elaborate*within-5*north*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < -275
+	-^yaw > -265)
+   -->
+   (<h> ^within-5 north)}
+
+sp {quake*elaborate*within-5*south*negative
+   (state <s> ^name quake
+              ^heading <h>
+	      ^io.input-link.agent.angle <a>)
+   (<a> -^yaw < -95
+        -^yaw > -85)
+   -->
+   (<h> ^within-5 south)}
+

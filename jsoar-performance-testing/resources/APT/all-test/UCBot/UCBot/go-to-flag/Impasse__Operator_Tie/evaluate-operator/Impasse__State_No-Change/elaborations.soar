@@ -1,0 +1,9 @@
+sp {go-to-flag*elaborate*failure
+   (state <s> ^superstate <ss>
+              ^quiescence t
+              ^impasse no-change
+              ^attribute state)
+   (<ss> ^top-state.desired <d>
+         ^name go-to-flag)
+-->
+   (<ss> ^failure <d>)}

@@ -1,0 +1,44 @@
+sp {record-label*propose*record-label-next
+   (state <s> ^name record-label
+              ^cond)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-label-next)
+}
+
+sp {apply*record-label-next*failure
+   (state <s> ^operator <op>
+              ^object <b>
+              ^cond <cond>
+              ^superstate.operator <ss-op>)
+   (<op> ^name record-label-next)
+   (<cond> ^attr <attr>
+           ^value <value>)
+  -(<b> ^<attr> <value>)
+-->
+   (<ss-op> ^status tried)
+}
+
+sp {apply*record-label-next*continue
+   (state <s> ^operator <op>
+              ^cond <cond>
+              ^object <b>)
+   (<op> ^name record-label-next)
+   (<cond> ^attr <attr>
+           ^value <value>
+           ^next <next>)
+   (<b> ^<attr> <value>)
+-->
+   (<s> ^cond <cond> -
+        ^cond <next>)
+}
+
+sp {apply*record-label-next
+   (state <s> ^operator <op>
+              ^cond nil
+              ^superstate.operator <ss-op>)
+   (<op> ^name record-label-next)
+-->
+   (<ss-op> ^status match)
+}
+

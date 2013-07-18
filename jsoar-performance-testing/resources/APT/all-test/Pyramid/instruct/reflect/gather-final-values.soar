@@ -1,0 +1,33 @@
+sp {reflect*propose*gather-final-values
+   (state <s> ^name reflect
+              ^term <t>)
+   (<t> -^term-final-value)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name gather-final-values
+         ^term <t>)
+}
+
+sp {apply*gather-final-values
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name gather-final-values
+         ^term <t>)
+   (<t> ^term-name <name>)
+   (<cp> ^<name> <value>)
+-->
+   (<t> ^term-final-value <value>)
+}
+
+sp {apply*gather-final-values*definition
+   (state <s> ^operator <op>
+              ^superstate.instructions.definitions <d>
+              ^current-problem <cp>)
+   (<d> ^term <answer> ^function <sum>)
+   (<op> ^name gather-final-values
+         ^term <t>)
+   (<t> ^term-name <answer>)
+   (<cp> ^<sum> <value>)
+-->
+   (<t> ^term-final-value <value>)
+}

@@ -1,0 +1,381 @@
+# Idea:
+#  When encountering an area not yet contained in the map structure, record
+#  what you know about it.
+#  Initially, the agent will record its spawn location.  Then, and for each
+#  subsequent area, it will record basic information the first time it sees
+#  an unrecorded adjacent area, and more complete information the first time
+#  it visits an unrecorded area.
+
+# If you encounter an area that has not yet been stored in the map, then
+# record it.
+sp {UCBot*propose*record-area
+   (state <s> ^name UCBot
+              ^io.input-link.area.id <cur-id>
+              ^map <map>)
+   (<map> ^search-complete false
+          ^areas <areas>)
+  -{(<areas> ^area <area>)
+    (<area> ^id <cur-id>
+            ^recorded true)}
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-area)
+}
+
+# We've been teleported to a new area and have never recorded its existence.
+# So we add that the area exists (and hasn't been recorded).
+sp {UCBot*apply*record-area*new-area
+   (state <s> ^operator.name record-area
+              ^map.areas <areas>
+              ^io.input-link.area <area>)
+   (<area> ^id <cur-id>)
+  -(<areas> ^area.id <cur-id>)
+-->
+   (<areas> ^area <new-area>)
+   (<new-area> ^recorded false
+               ^paths-recorded false
+               ^id <cur-id>)
+}
+
+sp {UCBot*monitor*record-area*new-area
+   (state <s> ^operator.name record-area
+              ^parameters.monitor-level all
+              ^map.areas <areas>
+              ^io.input-link.area <area>)
+   (<area> ^id <cur-id>)
+  -(<areas> ^area.id <cur-id>)
+-->
+   (write (crlf) |Found a new area - Recording area | <cur-id>)
+}
+
+# Used to stop the bot from moving when it's recording either a path or area.
+sp {UCBot*apply*record-area-or-path*stop-moving
+   (state <s> ^name UCBot
+              ^operator <op>
+              ^io <io>)
+   (<op> ^name << record-area record-path >>)
+   (<io> ^output-link <o-link>
+         ^input-link.feedback <feedback>)
+  -(<feedback> ^movement-type none
+               ^turn none
+               ^strafe none)
+-->
+   (<o-link> ^move.direction none
+             ^turn.direction none
+             ^strafe.direction none
+             ^jump.direction none)
+}
+
+# We're in an area, and we found a connection to an area that we haven't seen before.
+# So we add that the area exists (but hasn't been recorded).
+sp {UCBot*apply*record-area*connected-new-area
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^map.areas <areas>
+              ^io.input-link.area.negative-spaces.negative-space <ns>)
+   (<ns> ^id <new-id>
+         ^action << jump walk fall >> )
+  -{(<areas> ^area <area>)
+    (<area> ^id <new-id>)}
+-->
+   (<areas> ^area <area>)
+   (<area> ^recorded false
+           ^paths-recorded false
+           ^id <new-id>)
+}
+
+sp {UCBot*monitor*record-area*connected-new-area
+   (state <s> ^name UCBot
+              ^parameters.monitor-level all
+              ^operator.name record-area
+              ^map.areas <areas>
+              ^io.input-link.area.negative-spaces.negative-space <ns>)
+   (<ns> ^id <new-id>
+         ^action << jump walk fall >> )
+  -{(<areas> ^area <area>)
+    (<area> ^id <new-id>)}
+-->
+   (write (crlf) |Found a connected area - Recording area | <new-id>)   
+}
+
+# This apply fires when we're in an area but haven't yet filled out the structure.
+# Begins a chain of applies that flesh out the top level structure created by
+# this rule.
+sp {UCBot*apply*record-area*copy-top-structure
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^name <name>
+           ^negative-spaces <neg-spaces>
+           ^num-vertices <num>
+           ^objects <objs>
+           ^positive-spaces <pos-spaces>
+           ^vertices <vertices>)
+   (<new-area> ^id <id>)
+-->
+   (<new-area> ^name <name>
+               ^negative-spaces <new-neg-spaces>
+               ^num-vertices <num>
+               ^objects <new-objs>
+               ^positive-spaces <new-pos-spaces>
+               ^vertices <new-vertices>)
+}
+
+# There is already a list of partially-recorded areas, so add this partially
+# recorded area to the tail of the list.
+sp {UCBot*apply*record-area*partially-recorded-list*append
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area.id <id>
+              ^map <map>)
+   (<map> ^areas <areas>
+          ^partially-recorded-head <head>)
+   (<areas> ^area <cur-area>
+            ^area <old-tail>)
+   (<cur-area> ^id <id>)
+   (<old-tail> ^id <> <id>
+               ^partially-recorded-link tail)
+-->
+   (<old-tail> ^partially-recorded-link tail -
+               ^partially-recorded-link <cur-area>)
+   (<cur-area> ^partially-recorded-link tail)
+}
+
+# No other areas are partially recorded, so create the list structure.
+sp {UCBot*apply*record-area*partially-recorded-list*create
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area.id <id>
+              ^map <map>)
+   (<map> ^areas.area <cur-area>
+         -^partially-recorded-head)
+   (<cur-area> ^id <id>)
+-->
+   (<map> ^partially-recorded-head <cur-area>)
+   (<cur-area> ^partially-recorded-link tail)
+}
+
+# Fires after the *copy-top-structure and copies over the top structure
+# of each negative space
+sp {UCBot*apply*record-area*copy-negative-spaces*top
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^negative-spaces.negative-space <n-space>)
+   (<n-space> ^gateway-name <name>
+              ^id <n-id>
+              ^num-vertices <n-num>
+              ^action <act> << jump walk fall >>
+              ^vertices <vertices>
+              ^centroid <centroid>)
+   (<centroid> ^x <x> ^y <y>)
+   (<new-area> ^id <id>
+               ^negative-spaces <n-spaces>)
+-->
+   (<n-spaces> ^negative-space <new-n-space>)
+   (<new-n-space> ^gateway-name <name>
+                  ^id <n-id>
+                  ^num-vertices <n-num>
+                  ^action <act>
+                  ^vertices <new-vertices>
+                  ^centroid <new-centroid>)
+   (<new-centroid> ^x <x> ^y <y>)
+}
+
+# Creates the connected-area structure.  Used to be elaborated, changed so that
+# when a map is loaded they're all o-supported.
+sp {UCBot*apply*record-area*connected-area
+   (state <s> ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas <areas>)
+   (<areas> ^area <new-area>
+            ^area <connected>)
+   (<area> ^id <id>
+           ^negative-spaces.negative-space <ns>)
+   (<ns> ^id <connected-id>
+         ^action << walk fall jump >>)
+   (<new-area> ^id <id>)
+   (<connected> ^id <connected-id>)
+-->
+   (<new-area> ^connected-area <connected>)
+}
+
+# Fires after *copy-negative-spaces*top and copies over each vertex
+#   This rule also updates the "recorded" flag, as it is the deepest portion
+#   of the area structure!
+# This also adds the area to the partially-recorded map structure so that
+# paths are built in the correct order.
+sp {UCBot*apply*record-area*copy-negative-spaces*vertices
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^negative-spaces.negative-space <n-space>)
+   (<n-space> ^id <n-id>
+              ^vertices <old-vertices>)
+   (<old-vertices> ^vertex1 <vertex1>
+                   ^vertex2 <vertex2>)
+   (<vertex1> ^x <x1> ^y <y1>)
+   (<vertex2> ^x <x2> ^y <y2>)
+   (<new-area> ^id <id>
+               ^negative-spaces.negative-space <new-n-space>)
+   (<new-n-space> ^id <n-id>
+                  ^vertices <vertices>)
+-->
+   (<vertices> ^vertex1 <new-vertex1>
+               ^vertex2 <new-vertex2>)
+   (<new-vertex1> ^x <x1> ^y <y1>)
+   (<new-vertex2> ^x <x2> ^y <y2>)
+   (<new-area> ^recorded true
+               ^recorded false -)
+}
+
+# Fires after the *copy-top-structure and copies over the top structure
+#   of each object
+sp {UCBot*apply*record-area*copy-objects*top
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^objects.object <obj>)
+   (<obj> ^id <o-id>
+          ^name <name>
+          ^vertices <vertices>)
+   (<new-area> ^id <id>
+               ^objects <objects>)
+-->
+   (<objects> ^object <new-obj>)
+   (<new-obj> ^id <o-id>
+              ^name <name>
+              ^vertices <new-vertices>)
+}
+
+# Fires after the *copy-objects*top and copies over each vertex under
+#   the object's vertices identifier
+sp {UCBot*apply*record-area*copy-objects*vertices
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^objects.object <obj>)
+   (<obj> ^id <o-id>
+          ^vertices.vertex <vertex>)
+   (<vertex> ^x <x> ^y <y>)
+   (<new-area> ^id <id>
+               ^objects.object <new-obj>)
+   (<new-obj> ^id <o-id>
+              ^vertices <vertices>)
+-->
+   (<vertices> ^vertex <new-vertex>)
+   (<new-vertex> ^x <x> ^y <y>)
+}
+
+# Fires after *copy-top-structure and copies over the positive spaces
+sp {UCBot*apply*record-area*copy-positive-spaces
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^positive-spaces.positive-space <p-space>)
+   (<p-space> ^id <p-id>)
+   (<new-area> ^id <id>
+               ^positive-spaces <p-spaces>)
+-->
+   (<p-spaces> ^positive-space <new-p-space>)
+   (<new-p-space> ^id <p-id>)
+}
+
+# Fires after *copy-top-structure and copies over the area's vertices
+sp {UCBot*apply*record-area*copy-area-vertices*3
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^num-vertices >= 3
+           ^vertices <copy-vertices>)
+   (<copy-vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^centroid <cent>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<cent> ^x <cx> ^y <cy>)
+   (<new-area> ^id <id>
+               ^vertices <vertices>)
+-->
+   (<vertices> ^vertex1 <new1> ^vertex2 <new2> ^vertex3 <new3> ^centroid <new-c>)
+   (<new1> ^x <x1> ^y <y1>)
+   (<new2> ^x <x2> ^y <y2>)
+   (<new3> ^x <x3> ^y <y3>)
+   (<new-c> ^x <cx> ^y <cy>)
+}
+
+sp {UCBot*apply*record-area*copy-area-vertices*4
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^num-vertices >= 4
+           ^vertices.vertex4 <v4>)
+   (<v4> ^x <x4> ^y <y4>)
+   (<new-area> ^id <id>
+               ^vertices <vertices>)
+-->
+   (<vertices> ^vertex4 <new4>)
+   (<new4> ^x <x4> ^y <y4>)
+}
+
+sp {UCBot*apply*record-area*copy-area-vertices*5
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^num-vertices >= 5
+           ^vertices.vertex5 <v5>)
+   (<v5> ^x <x5> ^y <y5>)
+   (<new-area> ^id <id>
+               ^vertices <vertices>)
+-->
+   (<vertices> ^vertex5 <new5>)
+   (<new5> ^x <x5> ^y <y5>)
+}
+
+sp {UCBot*apply*record-area*copy-area-vertices*6
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+           ^num-vertices >= 6
+           ^vertices.vertex6 <v6>)
+   (<v6> ^x <x6> ^y <y6>)
+   (<new-area> ^id <id>
+               ^vertices <vertices>)
+-->
+   (<vertices> ^vertex6 <new6>)
+   (<new6> ^x <x6> ^y <y6>)
+}
+
+# This is a DEBUG rule so that we don't get stuck when we're in an area and there is no way out...
+sp {UCBot*apply*record-area*mark-bad-area-recorded*DEBUG
+   (state <s> ^name UCBot
+              ^operator.name record-area
+              ^io.input-link.area <area>
+              ^map.areas.area <new-area>)
+   (<area> ^id <id>
+          -^negative-spaces.negative-space)
+   (<new-area> ^id <id>
+               ^vertices.vertex1.x)
+-->
+   (<new-area> ^recorded true
+               ^recorded false -)
+}

@@ -1,0 +1,41 @@
+sp {retreat*propose*abandon-objective
+   (state <s> ^name retreat
+              ^top-state.mission.active-objective <obj>)
+#              ^current-area <area>)
+#   (<area> ^retreat-door)  # If it hides and then retreats, it never abandons its objective
+   (<obj> ^status active
+          ^defensive-position.area <area>)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name abandon-objective)
+}
+
+sp {apply*abandon-objective*status
+   (state <s> ^operator <o>
+              ^top-state.io.input-link.agent.time <t>
+              ^top-state.mission.active-objective <obj>)
+   (<o> ^name abandon-objective)
+-->
+   (<obj> ^status abandoned
+                  active -
+          ^time-abandoned <t>)}
+
+sp {apply*abandon-objective*mark-retreat-room
+   (state <s> ^operator <o>
+              ^top-state.mission <mission>)
+   (<mission> ^active-objective <obj>)
+   (<obj> ^status active
+          ^defensive-position.area <area>)
+   (<o> ^name abandon-objective)
+-->
+   (<mission> ^abandoned-area <area>)}
+
+sp {retreat*compare*abandon-objective
+   (state <s> ^name retreat
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name abandon-objective)
+   (<o2> ^name << determine-retreat-door detect-no-retreat-door >>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+}

@@ -1,0 +1,25 @@
+
+
+# jump on top of target object
+sp {climb-and-x*propose*step-1-climb
+   (state <s> ^type climb-and-x
+             -^on-target
+              ^target <target>)
+   (<target> ^position <pos>
+             ^height <h>
+             ^radius <r>)
+   (<pos> ^x <x> ^y <y>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-near-and-x
+         ^type move-near-and-x
+         ^target <target>
+         ^next-action <na>)
+   (<na> ^name jump
+         ^type jump
+         ^actions <a>)
+   (<a> ^jump <j>)
+   (<j> ^x <x> ^y <y>
+        ^strength (/ (sqrt (* (+ <h> 10) 950 5)) 325)  # MJP: add 20 to height to make sure it gets there
+        ^thrust 1)
+}

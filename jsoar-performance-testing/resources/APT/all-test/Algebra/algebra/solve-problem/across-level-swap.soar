@@ -1,0 +1,123 @@
+## Across Level Swap
+
+## [A + B] + C ==> [A + C] + B
+## [A - B] - C ==> [A - C] - B
+
+## A + [B + C] ==> B + [A + C]
+
+sp {algebra*propose*across-level-swap
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << add subtract >>
+         ^left-side.operation << add subtract >>
+         ^right-side <rs>)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name across-level-swap
+         ^side left)
+}
+
+sp {algebra*propose*across-level-swap*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation add
+         ^right-side.operation << subtract add >>
+         ^left-side <rs>)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name across-level-swap
+         ^side right)
+}
+
+sp {algebra*apply*across-level-swap*left
+   (state <s> ^operator <op>
+              ^quiescence t
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<ls> ^operation <oper>
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name across-level-swap
+         ^side left)
+-->
+   (write (crlf) |[A + B] + C ==> [A + C] + B|)
+   (<cc> ^right-side <rs> -
+                     <rs2>)
+   (<ls> ^failed yes -
+         ^right-side <rs>
+                     <rs2> -)
+}
+
+sp {algebra*apply*across-level-swap*left*op-diff
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<cc> ^operation <oper>
+         ^left-side <ls>
+         ^right-side <rs>)
+   (<ls> ^operation {<> <oper> <oper2> }
+         ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name across-level-swap
+         ^side left)
+-->
+   (write (crlf) |[A + B] - C ==> [A + C] - B|)
+   (<cc> ^operation <oper> -
+                    <oper2>
+         ^right-side <rs> -
+                     <rs2>)
+   (<ls> ^operation <oper>
+                    <oper2> -
+         ^failed yes -
+         ^right-side <rs>
+                     <rs2> -)
+}
+
+
+sp {algebra*apply*across-level-swap*right
+   (state <s> ^operator <op>
+              ^quiescence t
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^right-side <rs>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>)
+   (<op> ^name across-level-swap
+         ^side right)
+-->
+   (write (crlf) |[A + [B + C] ==> [B + [A + C]|)
+   (<cc> ^left-side <ls> -
+                    <ls2>)
+   (<rs> ^failed yes -
+         ^left-side <ls>
+                    <ls2> -)
+}
+
+######### SEarch control - if A = C
+sp {algebra*propose*across-level-swap*prefer*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>
+              ^operator <op> +)
+   (<cc> ^operation subtract 
+         ^left-side.left-side.value <x>
+         ^right-side.value <x>)
+   (<op> ^name across-level-swap
+         ^side left)         
+-->
+   (<s> ^operator <op> >)
+}
+
+sp {algebra*propose*across-level-swap*prefer*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>
+              ^operator <op> +)
+   (<cc> ^right-side <rs>
+         ^left-side.value <x>)
+   (<rs> ^operation subtract
+         ^right-side.value <x>)
+   (<op> ^name across-level-swap
+         ^side right)         
+-->
+   (<s> ^operator <op> >)
+}

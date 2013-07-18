@@ -1,0 +1,37 @@
+echo "\nLoading execute-mission/defend/predict-enemy/internal-simulation"
+
+#If the last-node's area is not our current area
+#then update the current area (as we move through
+#the environment).
+sp {predict-enemy*apply*goto-next-room*internal-simulation
+   (state <s> ^name { <> predict-enemy <name> }
+              ^predicting true
+              ^top-state.map <m> 
+              ^operator <o>)
+   (<o> ^type move-to-area)
+   (<m> ^current-area { <> <dest-area> <ca> }
+        ^last-node.area <dest-area>)
+-->
+   (write (crlf) |+++++++++ Moving from | <ca> | to | <dest-area>)
+   (<m> ^current-area <ca> -
+        ^current-area <dest-area>)
+}
+
+#Every time we move to a node in a new room, increment
+#the predicted-distance
+#FIXME:  Where does this get initialized to zero?
+sp {predict-enemy*apply*goto-next-room*internal-simulation*distance
+   (state <s> ^name { <> predict-enemy <name> }
+              ^predicting true
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^predicted-distance <pd>
+         ^map <m>)
+   (<o> ^type move-to-area)
+   (<m> ^current-area { <> <dest-area> <ca> }
+        ^last-node.area <dest-area>)
+-->
+   (write (crlf) |+++++++++ Distance traveled | (+ <pd> 1))
+   (<ts> ^predicted-distance <pd> -
+         ^predicted-distance (+ <pd> 1))
+}

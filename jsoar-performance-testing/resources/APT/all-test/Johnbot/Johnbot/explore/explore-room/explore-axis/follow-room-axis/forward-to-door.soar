@@ -1,0 +1,20 @@
+## Move ahead until find door or end of axis.
+
+sp {follow-room-axis*propose*forward-to-door
+   (state <s> ^name follow-room-axis
+             -^door
+             -^end-wall
+             -^axis.end-of-wall true
+             -^axis.backing-out true)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name forward-to-door
+        ^actions.thrust forward)}
+
+sp {follow-room-axis*apply*forward-to-door*remove*old-door
+   (state <s> ^operator.name forward-to-door
+              ^explore-room <cr>)
+   (<cr> ^current-door <cd>)
+   -->
+   (<cr> ^current-door <cd> -)}
+

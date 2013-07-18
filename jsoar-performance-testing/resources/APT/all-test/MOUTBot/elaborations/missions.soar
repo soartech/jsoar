@@ -1,0 +1,167 @@
+echo "\nLoading elaborations/missions"
+
+#Copy the mission down to all substates 
+sp {elaborate*state*mission
+   (state <s> ^superstate <> nil
+              ^name { <> predict-enemy }
+              ^top-state.mission <m>)
+-->
+   (<s> ^mission <m>)
+}
+
+#Since we are usually looking for the active
+#objective, elaborate a pointer directly to it.
+sp {elaborarate*mission*active-objective
+   (state <s> ^name unreal
+              ^mission <m>)
+   (<m> ^objective <ob>)
+   (<ob> ^status active)
+-->
+   (<m> ^active-objective <ob>)}
+
+
+sp {unreal*elaborate*mission*area
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^mission.objective <obj>)
+   (<obj> ^<< offensive-position threat defensive-position >> <dp>)
+   (<dp> ^area-name <df-name>)
+   (<area> ^name <df-name>)
+   -->
+   (<dp> ^area <area>)}
+
+sp {unreal*elaborate*achieved*area
+   (state <s> ^name unreal
+              ^map.current-area <area>
+              ^mission.active-objective.<< offensive-position threat defensive-position >> <dp>)
+   (<dp> ^area <area>)
+-->
+   (<dp> ^area-achieved true)}
+
+##############ORIENTATION
+
+### POSITION
+
+sp {unreal*elaborate*orientation*achieved-threat-away-from-agent
+   (state <s> ^name unreal
+              ^io.input-link.objects.node <visnode>
+              ^map.current-area.threat-door.node.name <node-name>
+              ^mission.active-objective <ob>)
+   (<ob> ^<< offensive-position  defensive-position >> <dp>)
+   (<visnode> ^name <node-name>
+              ^angle-off.h  <= 2)
+-->
+   (<dp> ^orientation-achieved true)}
+
+sp {unreal*elaborate*orientation*achieved-threat-away-from-agent2
+   (state <s> ^name unreal
+              ^io.input-link.objects.node <visnode>
+              ^map.current-area.threat-door.node.name <node-name>
+              ^mission.active-objective <ob>)
+   (<ob> ^<< offensive-position  defensive-position >> <dp>)
+   (<visnode> ^name <node-name>
+              ^angle-off.h  >= 358)
+-->
+   (<dp> ^orientation-achieved true)}
+
+#### CONNECTOR
+sp {unreal*elaborate*orientation*achieved-near-agent
+   (state <s> ^name unreal
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^map.current-area.threat-door.node <node>
+              ^mission.active-objective <ob>)
+   (<ob> ^<< offensive-position  defensive-position >> <dp>)
+   (<node> ^connect-heading <yaw>)
+-->
+   (<dp> ^orientation-achieved true)}
+
+### DIRECTION - Window
+
+sp {unreal*elaborate*orientation*achieved-threat-window
+   (state <s> ^name unreal
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^mission.active-objective <ob>)
+   (<ob> ^<< offensive-position defensive-position >> <dp>
+         ^threat.direction <yaw>)
+   (<dp> ^type window)
+-->
+   (<dp> ^orientation-achieved true)}
+
+# REW: 2002-08-28: Bug somewhere in the map or determine-threat-door
+### DIRECTION - Absolute
+
+sp {unreal*elaborate*orientation*achieved-threat-absolute
+   (state <s> ^name unreal
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^mission.active-objective <ob>)
+   (<ob> ^<< offensive-position defensive-position >> <dp>
+         ^threat.direction <yaw>)
+   (<dp> ^type absolute)
+-->
+   (<dp> ^orientation-achieved true)}
+
+
+############################################3
+sp {unreal*elaborate*position*achieved*position*diff-x
+   (state <s> ^name unreal
+              ^top-state.io.input-link.agent.position.x <x1>
+              ^mission.active-objective.<< offensive-position threat defensive-position >> <dp>)
+   (<dp> ^position.x <x2>)
+-->
+   (<dp> ^x-diff (- <x1> <x2>))}
+
+sp {unreal*elaborate*position*achieved*position*diff-y
+   (state <s> ^name unreal
+              ^top-state.io.input-link.agent.position.y <x1>
+              ^mission.active-objective.<< offensive-position threat defensive-position >> <dp>)
+   (<dp> ^position.y <x2>)
+-->
+   (<dp> ^y-diff (- <x1> <x2>))}
+
+sp {unreal*elaborate*position*achieved*position
+   (state <s> ^name unreal
+              ^parameters <p>
+              ^mission.active-objective.<< offensive-position threat defensive-position >> <dp>)
+   (<p> ^position-achieved-pos <pos>
+        ^position-achieved-neg <neg>)
+   (<dp> ^x-diff > <neg> < <pos>
+         ^y-diff > <neg> < <pos>)
+-->
+   (<dp> ^position-achieved true)}
+
+sp {unreal*elaborate*mission*threat
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^mission.objective.threat <dp>)
+   (<dp> ^area-name <df-name>
+         ^node-name <n-name>)
+   (<area> ^name <df-name>
+           ^node <node>)
+   (<node> ^name <n-name>)
+-->
+   (<dp> ^area <area>
+         ^node <node>)}
+
+
+sp {unreal*elaborate*mission*retreat-objective
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^mission.retreat-objective <ro>)
+   (<ro> ^name <ro-name>)
+   (<area> ^name <ro-name>)
+-->
+   (<ro> ^area <area>)}
+
+
+sp {roam*elaborate*substate*current-roam-room-area
+   (state <s> ^name unreal
+              ^map.area <area>
+              ^mission.objective.current-roam-area <crr>)
+   (<area> ^name <an>)
+   (<crr> ^area-name <an>)
+-->
+   (<crr> ^area <area>)
+}
+
+
+

@@ -1,0 +1,150 @@
+#echo "\nLoading follow-room-axis/elaborations"
+
+## Copy down direction
+
+sp {follow-room-axis*elaborate*direction
+   (state <s> ^name follow-room-axis
+              ^superstate.operator.direction <dir>)
+   -->
+   (<s> ^direction <dir>)}
+
+## Copy down axis
+
+sp {follow-room-axis*elaborate*axis
+   (state <s> ^name follow-room-axis
+              ^superstate.axis <ax>)
+   -->
+   (<s> ^axis <ax>)}
+
+#### Looking for marked doors
+
+sp {follow-room-axis*elaborate*door-left*classname
+   (state <s> ^name follow-room-axis
+              ^io.input-link.map.left.classname door)
+   -->
+   (write (crlf) |Door on the Left.|)
+   (<s> ^door left)}
+
+sp {follow-room-axis*elaborate*door-right*classname
+   (state <s> ^name follow-room-axis
+              ^io.input-link.map.right.classname door)
+   -->
+   (write (crlf) |Door on the Right.|)
+   (<s> ^door right)}
+
+sp {follow-room-axis*elaborate*sidestep
+   (state <s> ^name follow-room-axis
+              ^io.input-link.feedback.sidestep << left right >>)
+   -->
+   (<s> ^sidestep true)}
+
+
+##### ROOMS - Looking for doors that poke out
+
+sp {follow-room-axis*elaborate*door-left*distance-max
+   (state <s> ^name follow-room-axis
+             -^sidestep true
+              ^explore-room.type room
+              ^axis.left.max-distance <cr-left-max>
+              ^io.input-link.map.left.distance > <cr-left-max>)
+   -->
+   (write (crlf) |Door on the Left.|)
+   (<s> ^door left)}
+
+sp {follow-room-axis*elaborate*door-right*distance-max
+   (state <s> ^name follow-room-axis
+             -^sidestep true
+              ^explore-room.type room
+              ^axis.right.max-distance <cr-right-max>
+              ^io.input-link.map.right.distance > <cr-right-max>)
+   -->
+   (write (crlf) |Door on the Right.|)
+   (<s> ^door right)}
+
+#### POKE-in means end of room if now in hall
+
+sp {follow-room-axis*elaborate*door-left*distance-min
+   (state <s> ^name follow-room-axis
+              ^explore-room.detected-type hall
+              ^axis.left.min-distance <cr-left-min>
+              ^io.input-link.map.left.distance < <cr-left-min>)
+   -->
+   (write (crlf) |End Door on the Left.|)
+   (<s> ^end-wall left)}
+
+sp {follow-room-axis*elaborate*door-right*distance-min
+   (state <s> ^name follow-room-axis
+              ^explore-room.detected-type hall
+              ^axis.right.min-distance <cr-right-min>
+              ^io.input-link.map.right.distance < <cr-right-min>)
+   -->
+   (write (crlf) |End Door on the Right.|)
+   (<s> ^end-wall right)}
+
+sp {follow-room-axis*elaborate*end-wall
+   (state <s> ^name follow-room-axis
+             -^operator.name process-door
+              ^top-state.parameters.wall-end <wclose>
+              ^axis <a>
+              ^io.input-link.map.forward.distance < <wclose>)
+   -->
+   (write (crlf) |EOW Distance follow-room-axis/elaborations.|)
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<a> ^end-of-wall true)
+   (<s> ^end-wall forward)}
+
+
+sp {follow-room-axis*elaborate*end-wall*stuck
+   (state <s> ^name follow-room-axis
+             -^operator.name process-door
+              ^io.input-link.agent.cycle <ct>
+              ^top-state.self <self>
+              ^axis <a>)
+   (<self> ^stopped true
+           ^stuck-time.stuck-time < <ct>
+           ^stuck <side>)
+   -->
+   (write (crlf) |EOW stuck follow-room-axis/elaborations.|)
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<a> ^end-of-wall true)
+   (<s> ^end-wall forward)}
+        
+## Expecting doors from earlier
+
+sp {follow-room-axis*elaborate*expect-door*x
+   (state <s> ^axis <a>
+              ^top-state.direction-map.<ns>.<side> <we>
+              ^direction { <ns> << east west >> }
+              ^io.input-link.agent.origin <or>)
+   (<or> -^x < <min-x>
+         -^x > <max-x>)
+   (<a> ^wall.door <d>)
+   (<d> ^direction { <we> << north south >> }
+        ^mmin-x <min-x>
+        ^mmax-x <max-x>)
+ -{(<s> ^explore-room.current-door <cd>)
+   (<cd> ^direction <we>)}
+   -->
+   (write (crlf) |Expect door on | <side>)
+   (<s> ^expect-door <side>)}
+
+
+sp {follow-room-axis*elaborate*expect-door*y
+   (state <s> ^axis <a>
+              ^top-state.direction-map.<we>.<side> <ns>
+              ^direction  { <we> << north south >> }
+              ^io.input-link.agent.origin <or>)
+   (<or> -^y < <min-y>
+         -^y > <max-y>)
+   (<a> ^wall.door <d>)
+   (<d> ^direction { <ns> << east west >> }
+        ^mmin-y  <min-y>
+        ^mmax-y <max-y>)
+ -{(<s> ^explore-room.current-door <cd>)
+   (<cd> ^direction <ns>)}
+   -->
+   (write (crlf) |Expect door on | <side>)
+   (<s> ^expect-door <side>)}
+
+
+

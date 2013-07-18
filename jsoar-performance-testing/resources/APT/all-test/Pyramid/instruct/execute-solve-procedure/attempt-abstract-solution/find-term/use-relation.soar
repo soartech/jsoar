@@ -1,0 +1,23 @@
+sp {propose*use-relation
+   (state <s> ^name find-term
+              ^define <arg>
+             -^relation)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name use-relation)
+}
+
+## Bogus - Replacement
+sp {attempt*use-relation
+   (state <s> ^name find-term
+              ^operator.name use-relation
+              ^define <arg>
+              ^top-state <ts>
+              ^superstate <ss>)
+   (<ts> ^instructions.relations <r1>)
+   (<r1> ^term <arg>)
+  -{(<ss> ^define <thing>)
+    (<r1> ^{<slot> <> term} <thing>)}
+-->
+   (<s> ^relation <r1>)
+}

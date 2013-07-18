@@ -1,0 +1,10 @@
+sp {grasp-ied*elaborate*substate
+   (state <s> ^name grasp-ied
+              ^superstate.operator <so>
+              ^top-state.objects.object <b>)
+   (<so> ^name grasp-ied
+         ^id <id>)
+   (<b> ^id <id>)
+-->
+   (<s> ^object <b>)
+}

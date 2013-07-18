@@ -1,0 +1,16 @@
+#echo "\nLoading align-with-axis/forward"
+
+## Move forward if in wrong room - gone beyond where it should be.
+
+sp {align-with-axis*propose*forward
+   (state <s> ^name align-with-axis
+              ^achieved heading
+              ^achieved close-to-wall
+              ^top-state.map.current-room <cr>
+              ^explore-room <> <cr>)
+   -->
+   (write (crlf) |Moving forward to get back into room.|)
+   (<s> ^operator <o> + >)
+   (<o> ^name forward
+        ^actions.thrust forward)}
+

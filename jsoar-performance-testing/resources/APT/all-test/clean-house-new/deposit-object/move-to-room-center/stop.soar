@@ -1,0 +1,11 @@
+sp {move-to-room-center*propose*stop*in-range
+   (state <s> ^name move-to-room-center
+              ^collision true
+              ^top-state.io.input-link <input>)
+   (<input> ^self.stopped no)
+-->
+   (write (crlf) |Stop.|)
+   (<s> ^operator <op> + =, >)
+   (<op> ^name stop
+         ^actions.stop <stop>)
+}

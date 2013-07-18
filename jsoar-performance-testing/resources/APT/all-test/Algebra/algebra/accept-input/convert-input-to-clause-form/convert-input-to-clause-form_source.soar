@@ -1,0 +1,9 @@
+source elaborations.soar
+pushd elaborations
+source elaborations_source.soar
+popd
+source process-close-bracket.soar
+source process-end.soar
+source process-open-bracket.soar
+source process-operation.soar
+source process-value.soar

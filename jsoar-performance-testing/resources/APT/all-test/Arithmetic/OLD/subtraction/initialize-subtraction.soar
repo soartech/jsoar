@@ -1,0 +1,139 @@
+sp {subtraction*propose*initialize-subtraction
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-subtraction)
+}
+
+sp {subtraction*apply*initialize-subtraction
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-subtraction)
+-->
+   (<s> ^name subtraction
+        ^subtraction-problem <ap>
+        ^subtraction.facts
+                          <a01> <a02> <a03> <a04> <a05> <a06> <a07> <a08> <a09> <a00>
+                          <a11> <a12> <a13> <a14> <a15> <a16> <a17> <a18> <a19> <a10>
+                          <a21> <a22> <a23> <a24> <a25> <a26> <a27> <a28> <a29> <a20>
+                          <a31> <a32> <a33> <a34> <a35> <a36> <a37> <a38> <a39> <a30>
+                          <a41> <a42> <a43> <a44> <a45> <a46> <a47> <a48> <a49> <a40>
+                          <a51> <a52> <a53> <a54> <a55> <a56> <a57> <a58> <a59> <a50>
+                          <a61> <a62> <a63> <a64> <a65> <a66> <a67> <a68> <a69> <a60>
+                          <a71> <a72> <a73> <a74> <a75> <a76> <a77> <a78> <a79> <a70>
+                          <a81> <a82> <a83> <a84> <a85> <a86> <a87> <a88> <a89> <a80>
+                          <a91> <a92> <a93> <a94> <a95> <a96> <a97> <a98> <a99> <a90>)
+   (<ap> ^columns <c1> <c2> <c3>
+         ^current-column <c1>
+         ^one-column <c1>)
+   (<c1> ^sub1 7
+         ^sub2 8
+         ^next-column <c2>)
+   (<c2> ^sub1 0
+         ^sub2 7
+         ^next-column <c3>)
+   (<c3> ^sub1 2
+         ^sub2 1
+         ^next-column nil)
+   (<a00> ^sub1 0 ^sub2 0 ^subt1 0 ^borrow 0)
+   (<a01> ^difference 0 ^sub2 1 ^sub1 1 ^borrow 0)
+   (<a02> ^difference 0 ^sub2 2 ^sub1 2 ^borrow 0)
+   (<a03> ^difference 0 ^sub2 3 ^sub1 3 ^borrow 0)
+   (<a04> ^difference 0 ^sub2 4 ^sub1 4 ^borrow 0)
+   (<a05> ^difference 0 ^sub2 5 ^sub1 5 ^borrow 0)
+   (<a06> ^difference 0 ^sub2 6 ^sub1 6 ^borrow 0)
+   (<a07> ^difference 0 ^sub2 7 ^sub1 7 ^borrow 0)
+   (<a08> ^difference 0 ^sub2 8 ^sub1 8 ^borrow 0)
+   (<a09> ^difference 0 ^sub2 9 ^sub1 9 ^borrow 0)
+   (<a10> ^difference 1 ^sub2 0 ^sub1 1 ^borrow 0)
+   (<a11> ^difference 1 ^sub2 1 ^sub1 2 ^borrow 0)
+   (<a12> ^difference 1 ^sub2 2 ^sub1 3 ^borrow 0)
+   (<a13> ^difference 1 ^sub2 3 ^sub1 4 ^borrow 0)
+   (<a14> ^difference 1 ^sub2 4 ^sub1 5 ^borrow 0)
+   (<a15> ^difference 1 ^sub2 5 ^sub1 6 ^borrow 0)
+   (<a16> ^difference 1 ^sub2 6 ^sub1 7 ^borrow 0)
+   (<a17> ^difference 1 ^sub2 7 ^sub1 8 ^borrow 0)
+   (<a18> ^difference 1 ^sub2 8 ^sub1 9 ^borrow 0)
+   (<a19> ^difference 1 ^sub2 9 ^sub1 0 ^borrow 1)
+   (<a20> ^difference 2 ^sub2 0 ^sub1 2 ^borrow 0)
+   (<a21> ^difference 2 ^sub2 1 ^sub1 3 ^borrow 0)
+   (<a22> ^difference 2 ^sub2 2 ^sub1 4 ^borrow 0)
+   (<a23> ^difference 2 ^sub2 3 ^sub1 5 ^borrow 0)
+   (<a24> ^difference 2 ^sub2 4 ^sub1 6 ^borrow 0)
+   (<a25> ^difference 2 ^sub2 5 ^sub1 7 ^borrow 0)
+   (<a26> ^difference 2 ^sub2 6 ^sub1 8 ^borrow 0)
+   (<a27> ^difference 2 ^sub2 7 ^sub1 9 ^borrow 0)
+   (<a28> ^difference 2 ^sub2 8 ^sub1 0 ^borrow 1)
+   (<a29> ^difference 2 ^sub2 9 ^sub1 1 ^borrow 1)
+   (<a30> ^difference 3 ^sub2 0 ^sub1 3 ^borrow 0)
+   (<a31> ^difference 3 ^sub2 1 ^sub1 4 ^borrow 0)
+   (<a32> ^difference 3 ^sub2 2 ^sub1 5 ^borrow 0)
+   (<a33> ^difference 3 ^sub2 3 ^sub1 6 ^borrow 0)
+   (<a34> ^difference 3 ^sub2 4 ^sub1 7 ^borrow 0)
+   (<a35> ^difference 3 ^sub2 5 ^sub1 8 ^borrow 0)
+   (<a36> ^difference 3 ^sub2 6 ^sub1 9 ^borrow 0)
+   (<a37> ^difference 3 ^sub2 7 ^sub1 0 ^borrow 1)
+   (<a38> ^difference 3 ^sub2 8 ^sub1 1 ^borrow 1)
+   (<a39> ^difference 3 ^sub2 9 ^sub1 2 ^borrow 1)
+   (<a40> ^difference 4 ^sub2 0 ^sub1 4 ^borrow 0)
+   (<a41> ^difference 4 ^sub2 1 ^sub1 5 ^borrow 0)
+   (<a42> ^difference 4 ^sub2 2 ^sub1 6 ^borrow 0)
+   (<a43> ^difference 4 ^sub2 3 ^sub1 7 ^borrow 0)
+   (<a44> ^difference 4 ^sub2 4 ^sub1 8 ^borrow 0)
+   (<a45> ^difference 4 ^sub2 5 ^sub1 9 ^borrow 0)
+   (<a46> ^difference 4 ^sub2 6 ^sub1 0 ^borrow 1)
+   (<a47> ^difference 4 ^sub2 7 ^sub1 1 ^borrow 1)
+   (<a48> ^difference 4 ^sub2 8 ^sub1 2 ^borrow 1)
+   (<a49> ^difference 4 ^sub2 9 ^sub1 3 ^borrow 1)
+   (<a50> ^difference 5 ^sub2 0 ^sub1 5 ^borrow 0)
+   (<a51> ^difference 5 ^sub2 1 ^sub1 6 ^borrow 0)
+   (<a52> ^difference 5 ^sub2 2 ^sub1 7 ^borrow 0)
+   (<a53> ^difference 5 ^sub2 3 ^sub1 8 ^borrow 0)
+   (<a54> ^difference 5 ^sub2 4 ^sub1 9 ^borrow 0)
+   (<a55> ^difference 5 ^sub2 5 ^sub1 0 ^borrow 1)
+   (<a56> ^difference 5 ^sub2 6 ^sub1 1 ^borrow 1)
+   (<a57> ^difference 5 ^sub2 7 ^sub1 2 ^borrow 1)
+   (<a58> ^difference 5 ^sub2 8 ^sub1 3 ^borrow 1)
+   (<a59> ^difference 5 ^sub2 9 ^sub1 4 ^borrow 1)
+   (<a60> ^difference 6 ^sub2 0 ^sub1 6 ^borrow 0)
+   (<a61> ^difference 6 ^sub2 1 ^sub1 7 ^borrow 0)
+   (<a62> ^difference 6 ^sub2 2 ^sub1 8 ^borrow 0)
+   (<a63> ^difference 6 ^sub2 3 ^sub1 9 ^borrow 0)
+   (<a64> ^difference 6 ^sub2 4 ^sub1 0 ^borrow 1)
+   (<a65> ^difference 6 ^sub2 5 ^sub1 1 ^borrow 1)
+   (<a66> ^difference 6 ^sub2 6 ^sub1 2 ^borrow 1)
+   (<a67> ^difference 6 ^sub2 7 ^sub1 3 ^borrow 1)
+   (<a68> ^difference 6 ^sub2 8 ^sub1 4 ^borrow 1)
+   (<a69> ^difference 6 ^sub2 9 ^sub1 5 ^borrow 1)
+   (<a70> ^difference 7 ^sub2 0 ^sub1 7 ^borrow 0)
+   (<a71> ^difference 7 ^sub2 1 ^sub1 8 ^borrow 0)
+   (<a72> ^difference 7 ^sub2 2 ^sub1 9 ^borrow 0)
+   (<a73> ^difference 7 ^sub2 3 ^sub1 0 ^borrow 1)
+   (<a74> ^difference 7 ^sub2 4 ^sub1 1 ^borrow 1)
+   (<a75> ^difference 7 ^sub2 5 ^sub1 2 ^borrow 1)
+   (<a76> ^difference 7 ^sub2 6 ^sub1 3 ^borrow 1)
+   (<a77> ^difference 7 ^sub2 7 ^sub1 4 ^borrow 1)
+   (<a78> ^difference 7 ^sub2 8 ^sub1 5 ^borrow 1)
+   (<a79> ^difference 7 ^sub2 9 ^sub1 6 ^borrow 1)
+   (<a80> ^difference 8 ^sub2 0 ^sub1 8 ^borrow 0)
+   (<a81> ^difference 8 ^sub2 1 ^sub1 9 ^borrow 0)
+   (<a82> ^difference 8 ^sub2 2 ^sub1 0 ^borrow 1)
+   (<a83> ^difference 8 ^sub2 3 ^sub1 1 ^borrow 1)
+   (<a84> ^difference 8 ^sub2 4 ^sub1 2 ^borrow 1)
+   (<a85> ^difference 8 ^sub2 5 ^sub1 3 ^borrow 1)
+   (<a86> ^difference 8 ^sub2 6 ^sub1 4 ^borrow 1)
+   (<a87> ^difference 8 ^sub2 7 ^sub1 5 ^borrow 1)
+   (<a88> ^difference 8 ^sub2 8 ^sub1 6 ^borrow 1)
+   (<a89> ^difference 8 ^sub2 9 ^sub1 7 ^borrow 1)
+   (<a90> ^difference 9 ^sub2 0 ^sub1 9 ^borrow 0)
+   (<a91> ^difference 9 ^sub2 1 ^sub1 0 ^borrow 1)
+   (<a92> ^difference 9 ^sub2 2 ^sub1 1 ^borrow 1)
+   (<a93> ^difference 9 ^sub2 3 ^sub1 2 ^borrow 1)
+   (<a94> ^difference 9 ^sub2 4 ^sub1 3 ^borrow 1)
+   (<a95> ^difference 9 ^sub2 5 ^sub1 4 ^borrow 1)
+   (<a96> ^difference 9 ^sub2 6 ^sub1 5 ^borrow 1)
+   (<a97> ^difference 9 ^sub2 7 ^sub1 6 ^borrow 1)
+   (<a98> ^difference 9 ^sub2 8 ^sub1 7 ^borrow 1)
+   (<a99> ^difference 9 ^sub2 9 ^sub1 8 ^borrow 1)
+}
+

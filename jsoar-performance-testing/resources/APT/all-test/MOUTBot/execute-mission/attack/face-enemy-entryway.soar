@@ -1,0 +1,15 @@
+echo "\nLoading attack/face-enemy"
+
+sp {attack*propose*face-enemy-entryway
+   (state <s> ^name attack
+             -^enemy-angle-off-achieved true
+              ^top-state <ts>)
+   (<ts> ^self.selected-enemy.area <area-name>
+         ^map.area <area>)
+   (<area> ^name <area-name>)
+-->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-enemy-entryway
+        ^actions.face <p>)
+}
+

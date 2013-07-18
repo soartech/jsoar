@@ -1,0 +1,4 @@
+## MJP 5/28/03: The only purpose of this file is to print out a message in the soar window to notify that
+## all files were scanned, since this is the alphabetically last file loaded
+
+echo "\n\nLoading Complete\n\n"

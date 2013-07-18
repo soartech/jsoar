@@ -1,0 +1,20 @@
+sp {defend*propose*maintain-position
+   (state <s> ^uses-defensive-position true
+              ^objective.defensive-position <dp>)
+   (<dp> ^area-achieved true
+         ^position-achieved true
+         ^orientation-achieved true)
+
+-->
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name maintain-position
+        ^type wait)
+}
+sp {apply*maintain-position
+   (state <s> ^operator <o>
+              ^top-state.self <self>)
+   (<o> ^name maintain-position)
+   (<self> ^move-to-xyz <mtx>)
+   -->
+   (<self> ^move-to-xyz <mtx> -)
+}

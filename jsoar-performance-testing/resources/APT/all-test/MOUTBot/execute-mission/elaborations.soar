@@ -1,0 +1,50 @@
+echo "\nLoading execute-mission/elaborations"
+
+# Don't change this
+#sp {execute-mission*elaborate*selection-probabilities
+#   (state <s> ^name execute-mission)
+#-->
+#   (<s> ^selection-probability <sp>)
+#   (<sp> ^defend 60
+#         ^alert 100
+#         ^attack 80
+#         ^attack-grenade 10
+#         ^defend 60
+#         ^hide 40
+#         ^hunt 40
+#         ^hiding 100
+#         ^reload 44
+#         ^retreat 30
+#         ^roam 10
+#         ^sentry-watch 10
+#         ^surrender 50)
+#}
+#
+# Change this to debug
+sp {execute-mission*elaborate*selection-probabilities
+   (state <s> ^name execute-mission)
+-->
+   (<s> ^selection-probability <sp>)
+   (<sp> ^defend 60
+         ^alert 100
+         ^attack 80
+         ^attack-grenade 10
+         ^defend 60
+         ^hide 20     
+         ^hiding 100
+         ^hunt 40
+         ^reload 44
+         ^retreat 30
+         ^roam 10
+         ^sentry-watch 10
+         ^surrender 50)
+}
+
+sp {execute-mission*select-random*operator
+   (state <s> ^name execute-mission
+              ^selection-probability.<name> <value>
+              ^operator <o> +)
+   (<o> ^name <name>)
+   -->
+   (<s> ^operator <o> = <value>)
+}

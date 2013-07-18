@@ -1,0 +1,8 @@
+sp {instruct*propose*execute-step
+   (state <s> ^name execute-solve-procedure
+              ^current-problem.current-step <cs> 
+             -^execute-step)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-step)
+}

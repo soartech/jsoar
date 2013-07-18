@@ -1,0 +1,26 @@
+echo "\nLoading collect-powerups"
+
+sp {propose*collect-powerups
+   (state <s> ^name quake
+              ^map.explored true
+             -^enemy
+              ^top-state.self.get-objects-exist true)
+-->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name collect-powerups
+        ^actions <a>)
+   (<a> ^attack off
+        ^climb off
+        ^centerview on
+        ^speed on
+        )}
+
+sp {select*collect-powerups
+   (state <s> ^name quake
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name collect-powerups)
+   (<o2> ^name wander)
+   -->
+   (<s> ^operator <o1> > <o2>)}

@@ -1,0 +1,121 @@
+## Generates problems
+## For now only generates 3 column addition problems
+
+sp {arithmetic*propose*generate-problem
+   (state <s> ^name arithmetic
+             -^arithmetic-problem
+              ^digits.complete true
+             -^count 0)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name generate-problem)
+}
+
+
+# Terminated in generate-problem/finish-problem-generation
+
+
+###########################################
+## If have a current-problem (pre-generated) in working memory
+
+sp {generate-problem*apply*generate-problem
+   (state <s> ^operator.name generate-problem
+              ^current-problem <cp>)
+   (<cp> ^top-number <tn> ^bottom-number <bn>)
+-->
+   (<cp> ^top-number-1 (mod <tn> 10) ^top-number-10 (mod (div <tn> 10) 10) ^top-number-100 (mod (div <tn> 100) 10)
+         ^bottom-number-1 (mod <bn> 10) ^bottom-number-10 (mod (div <bn> 10) 10) ^bottom-number-100 (mod (div <bn> 100) 10))}
+
+sp {generate-problem*apply*generate-operation*addition
+   (state <s> ^operator.name generate-problem
+              ^current-problem <cp>
+              ^digits.digit <tn10> <tn100> <tn1000> <bn10> <bn100> <bn1000>)
+   (<cp> ^operation addition
+         ^top-number-1 <tnn10> ^top-number-10 <tnn100> ^top-number-100 <tnn1000>
+         ^bottom-number-1 <bnn10> ^bottom-number-10 <bnn100> ^bottom-number-100 <bnn1000>)
+   (<tn10> ^digit <tnn10>)
+   (<tn100> ^digit <tnn100>)
+   (<tn1000> ^digit <tnn1000>)
+   (<bn10> ^digit <bnn10>)
+   (<bn100> ^digit <bnn100>)
+   (<bn1000> ^digit <bnn1000>)
+-->
+   (<s> ^arithmetic-problem <p>)
+   (<p> ^operation addition
+        ^operation-symbol |+|
+        ^current-column <c1>
+        ^one-column <c1>)
+   (<c1> ^next-column <c2>
+         ^digit1 <tn10>
+         ^digit2 <bn10>
+         ^column t)
+   (<c2> ^next-column <c3>
+         ^digit1 <tn100>
+         ^digit2 <bn100>
+         ^column t)
+   (<c3> ^next-column nil
+         ^digit1 <tn1000>
+         ^digit2 <bn1000>
+         ^column t)}
+
+sp {generate-problem*apply*generate-operation*subtraction
+   (state <s> ^operator.name generate-problem
+              ^current-problem <cp>
+              ^digits.digit <tn10> <tn100> <tn1000> <bn10> <bn100> <bn1000>)
+   (<cp> ^operation subtraction
+         ^top-number-1 <tnn10> ^top-number-10 <tnn100> ^top-number-100 <tnn1000>
+         ^bottom-number-1 <bnn10> ^bottom-number-10 <bnn100> ^bottom-number-100 <bnn1000>)
+   (<tn10> ^digit <tnn10>)
+   (<tn100> ^digit <tnn100>)
+   (<tn1000> ^digit <tnn1000>)
+   (<bn10> ^digit <bnn10>)
+   (<bn100> ^digit <bnn100>)
+   (<bn1000> ^digit <bnn1000>)
+-->
+   (<s> ^arithmetic-problem <p>)
+   (<p> ^operation subtraction
+        ^operation-symbol |-|
+        ^current-column <c1>
+        ^one-column <c1>)
+   (<c1> ^next-column <c2>
+         ^digit1 <tn10>
+         ^digit2 <bn10>
+         ^column t)
+   (<c2> ^next-column <c3>
+         ^digit1 <tn100>
+         ^digit2 <bn100>
+         ^column t)
+   (<c3> ^next-column nil
+         ^digit1 <tn1000>
+         ^digit2 <bn1000>
+         ^column t)}
+
+
+####### If no problem - try retrieving the first from smem
+
+sp {generate-problem*apply*generate-problem*retrieve*first*problem*from*smem
+   (state <s> ^operator.name generate-problem
+              ^smem.command <cmd>
+             -^current-problem <cp>)
+-->
+   (<cmd> ^query.problem 0)}
+
+sp {generate-problem*apply*generate-problem*use-retrieval
+   (state <s> ^operator.name generate-problem
+              ^smem <smem>)
+   (<smem> ^command <cmd>
+           ^result.retrieved <problem>)
+   (<cmd> ^query <q>)
+   (<q> ^problem 0)
+-->
+   (<s> ^current-problem <problem>)}
+####### If problem not defined - try retrieving the rest of it from smem
+
+sp {generate-problem*apply*generate-problem*retrieve*from*smem
+   (state <s> ^operator.name generate-problem
+              ^smem.command <cmd>
+              ^current-problem <cp>)
+  -(<cp> ^top-number <tn> 
+         ^bottom-number <bn>)
+-->
+   (<cmd> ^retrieve <cp>)}

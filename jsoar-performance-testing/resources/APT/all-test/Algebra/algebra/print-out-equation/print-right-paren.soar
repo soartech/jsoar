@@ -1,0 +1,42 @@
+sp {print-out-equation*propose*print-right-paren
+   (state <s> ^type print-out-equation
+              ^current-clause <cc>
+              ^print-id <pn>)
+   (<cc> ^print <p>)
+   (<p> ^flag right-side
+       -^flag complete
+        ^print-id <pn>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name print-right-paren)
+}
+
+sp {print-out-equation*apply*print-right-paren*add
+   (state <s> ^operator.name print-right-paren
+              ^top-state.problem.problem-list <pl>
+              ^current-clause <cc>)
+   (<cc> ^operation <> equal)
+   (<pl> ^count <c>
+         ^pointer <pp>)
+-->
+   (<pl> ^count <c> -
+                (+ <c> 1)
+         ^pointer <pp> -
+                  <next>)
+   (<pp> ^next <next>)
+   (<next> ^value |]|)
+}
+
+sp {print-out-equation*apply*print-right-paren*multiply
+   (state <s> ^operator.name print-right-paren
+              ^top-state.problem.problem-list <pl>
+              ^print-id <pn>
+              ^current-clause <cc>)
+   (<cc> ^operation
+         ^print <pp>)
+   (<pp> ^print-id <pn>)
+   (<pl> ^count <c>
+         ^pointer <pr>)
+-->
+   (<pp> ^flag complete)
+}

@@ -1,0 +1,125 @@
+##################################### 
+# file: actors.soar 
+# created: ????
+## 
+# Change history: 
+# 
+#  [1] REW: 2002-09-15
+#      Modified actors.actor so that enemy is now elaborated 
+#      under actor, rather than just being a copy of the input-link
+#      info.  This makes it easier to identify internally created
+#      elaborations of the actor, vs those directly from the input
+#      link (now all under ^actor.enemy).
+##################################### 
+echo "\nLoading ./elaborations/actors.soar "
+                                                                    #Holds data about actor levels
+
+sp {elaborate*actors
+   (state <s> ^name haunt)
+   -->
+   (<s> ^actors <actors>)}
+
+sp {elaborate*actors*enemy*in-near-room
+   (state <s> ^name haunt
+              ^actors <actors>
+              ^map.current-area <ca>)
+   (<actors> ^controlled-area.path <path>
+              ^actor.enemy.visible true 
+# REW: 2002-08-27: Don't consider actor very high if it comes from outside and agent is inside
+# REW: Joy: Both negated conditions are necessary becausae the actor data structrue isn't uniform.....
+#              -^actor.area |Outside|
+#              -^actor.enemy.area.name |Outside|
+                                       )
+   (<path> ^destination-area <ca>
+           ^distance <= 2)
+   -->
+   (<actors> ^level very-high)}
+
+sp {elaborate*actors*enemy*in-adjoining-room
+   (state <s> ^name haunt
+              ^actors <actors>
+              ^map.current-area <ca>)
+   (<actors> ^controlled-area.path <path>
+          # REW: 2002-08-27: Don't consider actor very high if it comes from outside and agent is inside
+#              -^actor.area |Outside|
+#               -^actor.enemy.area.name |Outside|
+                                                   )
+   (<path> ^destination-area <ca>
+           ^distance 1)
+   -->
+   (<actors> ^level very-high)}
+
+sp {elaborate*actors*in-same-room
+   (state <s> ^name haunt
+              ^actors <actors>
+              ^map.current-area.name <area-name>)
+   (<actors> ^actor <actor>)
+   # REW: 2002-08-27: commented out ^alive true because it doesn't appear on the input-link
+   (<actor> #^alive true 
+             ^enemy.area <area-name>)
+   -->
+   (<actors> ^level very-high)}
+
+sp {elaborate*actors*visible
+   (state <s> ^name haunt
+              ^actors <actors>)
+   (<actors> ^actor.enemy.visible true)
+   -->
+   (<actors> ^level medium)}
+
+################### actor
+
+##DELME:  Removed by :AMN:  2002-Aug-29.  
+##        Because enemy's area must now be calculated using the max/min
+##        dimensions of all rooms on the map, it is too expensive for
+##        an elaboration and is now recorded with the actor.
+#sp {elaborations*elaborate*enemy-area
+#   (state <s> ^name haunt
+#              ^map.area <area>
+#              ^actors.actor <e>)
+#   (<area> ^name <name>)
+#   (<e> ^area-name <name>)
+#-->
+#   (<e> ^area <area>)
+#}
+
+
+# Copy actor information from script to actors
+sp {haunt*elaborate*actors*script*initialization*objective
+   (state <s> ^name haunt
+              ^script.objective <obj>
+              ^actors <actors>)
+   (<obj> ^status active
+          ^actor <th>)
+   (<th> ^area <area>
+         ^type <type>)
+   -->
+   (<actors> ^controlled-area <area>
+              ^type <type>)
+}
+
+sp {haunt*monitor*enemy*visible
+   (state <s> ^name haunt
+              ^io.input-link.objects.entity <en>)
+   (<en> ^name <ename>
+         ^visible <v>)
+   -->
+   (write (crlf) |Actor | <ename> |, visible: | <v>)}
+
+
+sp {haunt*elaborate*actors*selected-actor
+   (state <s> ^name haunt
+              ^actors <ths>)
+   (<ths> ^actor <th>)
+   (<th> ^enemy <e>)
+   (<e> ^visible true
+        -^health 0
+         ^range <r>)
+  -{(<ths> ^actor.enemy <ex>)
+    (<ex> ^visible true
+          -^health 0
+           ^range < <r>)}
+--> 
+    (<ths> ^selected-actor <th>)}
+
+

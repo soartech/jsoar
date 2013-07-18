@@ -1,0 +1,30 @@
+#echo "\nLoading exit-hall/elaboration"
+ 
+sp {exit-hall*elaborate*current-door
+   (state <s> ^name exit-hall
+              ^superstate.operator.door <idoor>)
+   -->
+   (<s> ^door <idoor>)}
+
+sp {exit-hall*elaborate*door*heading*hall
+   (state <s> ^name exit-hall
+              ^door.direction <dir>
+              ^top-state.direction-map.<dir>.angle <ang>)
+   -->
+   (<s> ^door-heading <ang>)}
+
+sp {exit-hall*elaborate*door*angle-off*room
+   (state <s> ^name exit-hall
+              ^door-heading <dh>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   -->
+   (<s> ^door-angle-off (round-off-heading (- <yaw> <dh>) 2) )}
+
+sp {exit-hall*elaborate*door*angle-off-check
+   (state <s> ^name exit-hall
+              ^door-angle-off { > -6 < 6 })
+   -->
+   (<s> ^door-angle-off-check true)}
+
+
+

@@ -1,0 +1,14 @@
+source elaborations.soar
+source attempt-abstract-solution.soar
+pushd attempt-abstract-solution
+source attempt-abstract-solution_source.soar
+popd
+source attempt-simple-problem.soar
+pushd attempt-simple-problem
+source attempt-simple-problem_source.soar
+popd
+source detect-long-problem.soar
+source execute-step.soar
+pushd execute-step
+source execute-step_source.soar
+popd

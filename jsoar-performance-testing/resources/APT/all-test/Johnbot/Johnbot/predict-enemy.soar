@@ -1,0 +1,89 @@
+echo "\nLoading predict-enemy"
+
+################################
+## Propose predict-enemy if enemy-sensed on radar 
+##  but enemy is facing away and do not have any
+##  predicted enemy actions
+################################
+
+sp {propose*predict-enemy*1
+   (state <s> ^name quake
+              ^superstate nil
+              ^enemy-detected <se>
+              ^map.explored true
+              ^enemy <e>
+              ^self.tactics full)
+   (<e>  ^predict-range true
+        -^prediction-final-room-number)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name predict-enemy
+        ^enemy <e>
+        ^actions.sidestep off
+        ^actions.thrust off)}
+
+sp {propose*predict-enemy*3
+   (state <s> ^name quake
+              ^superstate nil
+             -^enemy-detected <se>
+              ^map.explored true
+              ^enemy <e>
+              ^self.tactics full)
+   (<e> ^forget-time
+        ^predict-range true
+       -^prediction-final-room-number)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name predict-enemy
+        ^enemy <e>
+        ^actions.thrust off)}
+
+sp {quake*select*predict-enemy
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name predict-enemy)
+   (<o2> ^name << deny-powerups collect-powerups ambush 
+                  wander explore hunt attack >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {quake*apply*predict-enemy*record-enemy*visible
+   (state <s> ^operator <o>)
+   (<o> ^name predict-enemy
+        ^enemy <e>)
+   (<e> ^sensed-enemy <se>
+       -^old-aspect-h)
+   (<se> ^sensor.visible true
+         ^aspect.h <ah>
+         ^angle-yaw <ay>
+         ^health <health>
+         ^origin <or>
+         ^name <name>
+         ^skin <skin>
+         ^team <team>
+         ^weapon <wname>)
+   (<or> ^x <x>
+         ^y <y> 
+         ^z <z>)
+    -->
+    (<e> ^old-aspect-h <ah>
+         ^health <health>
+         ^name <name>
+         ^skin <skin>
+         ^team <team>
+         ^weapon <wname>
+         ^x <x>
+         ^y <y> 
+         ^z <z>
+         ^old-yaw (round-off-heading <ay> 1))}
+
+sp {quake*apply*predict-enemy*record-enemy-room
+   (state <s> ^operator <o>
+              ^top-state.map.enemy-room <er>)
+   (<o> ^name predict-enemy
+        ^enemy <e>)
+   (<e> -^old-room <er>)
+    -->
+   (<e> ^old-room <er>)}
+

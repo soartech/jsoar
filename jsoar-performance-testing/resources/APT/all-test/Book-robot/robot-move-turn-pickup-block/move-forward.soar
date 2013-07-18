@@ -1,0 +1,17 @@
+sp {robot-move-turn-pickup-block*propose*move-forward
+   (state <s> ^name robot
+              ^parameters <param>
+              ^io.input-link.object <o>)
+   (<param> ^pickup-range <pr>
+            ^pickup-angle-off-pos <aop>
+            ^pickup-angle-off-neg <aon>)
+   (<o> ^type block
+        ^visible yes
+       -^angle-off >= <aop> 
+       -^angle-off <= <aon> 
+       -^range < <pr>)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name move-forward
+         ^actions.move.direction forward)
+}

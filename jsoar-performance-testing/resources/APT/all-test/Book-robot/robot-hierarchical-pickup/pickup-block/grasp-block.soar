@@ -1,0 +1,23 @@
+sp {pickup-block*propose*grasp-block
+   (state <s> ^name pickup-block
+              ^block-id <id>
+              ^top-state.parameters <param>
+              ^io.input-link <input>)
+   (<param> ^pickup-range <pr>
+            ^pickup-angle-off-pos <paop>
+            ^pickup-angle-off-neg <paon>)
+   (<input> -^self.carry.id
+             ^object <o>)
+   (<o> ^type block
+        ^visible yes
+        ^range < <pr>
+        ^id <id>
+        ^position.angle-off { < <paop> > <paon>})
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name grasp-block
+         ^actions <a>)
+   (<a> ^get.id <id>
+        ^rotate.direction stop
+        ^move.direction stop)
+}

@@ -1,0 +1,126 @@
+sp {determine-last-bid*propose*check-bid
+   (state <s> ^name determine-last-bid
+              ^current-bid)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name check-bid)
+}
+
+sp {apply*check-bid*skip*pass
+   (state <s> ^operator.name check-bid
+              ^current-bid <cb>)
+   (<cb> ^action pass
+         ^next <next>)
+-->
+   (<s> ^current-bid <cb> -
+                     <next>)
+}
+
+## If looking for second prior, ignore pushes
+sp {apply*check-bid*skip*push*second-bid
+   (state <s> ^operator.name check-bid
+              ^found-prior-bid true
+              ^current-bid <cb>)
+   (<cb> ^action push
+         ^next <next>)
+-->
+   (<s> ^current-bid <cb> -
+                     <next>)
+}
+
+sp {apply*check-bid*push*is-failure
+   (state <s> ^operator.name check-bid
+              ^superstate <ss>
+              ^found-prior-bid false
+              ^current-bid.action push)
+-->
+   (write (crlf) |Last bid was a push - ignore - failure.|)
+   (<ss> ^last-bid failure)
+}
+
+sp {apply*check-bid*first-bid*not-me
+   (state <s> ^operator.name check-bid
+              ^found-prior-bid false
+              ^current-bid <cb>)
+   (<cb> ^action bid
+         ^multiplier <m>
+         ^face <f>
+         ^next <next>
+        -^player.me true)
+-->
+   (write (crlf) |Last bid was a | <m> | | <f> |'s|)
+   (<s> ^last-bid <cb>)
+   (<s> ^found-prior-bid false -
+                         true)
+   (<s> ^current-bid <cb> -
+                     <next>)
+}
+
+## If find me that means no prior bid worth considering - passes
+sp {apply*check-bid*first-bid*me
+   (state <s> ^operator.name check-bid
+              ^superstate <ss>
+              ^found-prior-bid false
+              ^current-bid <cb>)
+   (<cb> ^action bid
+         ^player.me true)
+-->
+   (write (crlf) |Last bid was by me - failure.|)
+   (<ss> ^last-bid failure)
+}
+
+sp {apply*check-bid*second-bid*same-face
+   (state <s> ^operator.name check-bid
+              ^last-bid <lb>
+              ^superstate <ss>
+              ^found-prior-bid true
+              ^current-bid <cb>)
+   (<lb> ^face <f>)
+   (<cb> ^face <f>)
+-->
+   (write (crlf) |Bid before last bid was same face as last bid.|)
+   (<lb> ^same-prior-bid-face true)
+   (<ss> ^last-bid <lb>)
+}
+
+sp {apply*check-bid*second-bid*not-same-face
+   (state <s> ^operator.name check-bid
+              ^last-bid <lb>
+              ^found-prior-bid true
+              ^current-bid <cb>)
+   (<lb> ^face <f>)
+   (<cb> ^face <> <f>)
+-->
+   (write (crlf) |Bid before last bid was different face as last bid.|)
+   (<lb> ^same-prior-bid-face false)
+}
+
+sp {apply*check-bid*first-bid-fail
+   (state <s> ^operator.name check-bid
+              ^superstate <ss>
+              ^found-prior-bid false
+              ^current-bid nil)
+-->
+   (write (crlf) |Did not find previous bid.|)
+   (<ss> ^last-bid failure)
+}
+
+sp {apply*check-bid*second-bid-fail
+   (state <s> ^operator.name check-bid
+              ^last-bid <lb>
+              ^found-prior-bid true
+              ^current-bid nil)
+-->
+   (write (crlf) |Did not find bid before last bid.|)
+   (<lb> ^same-prior-bid-face false)
+}
+
+sp {apply*check-bid*passback-result
+   (state <s> ^operator.name check-bid
+              ^superstate <ss>
+              ^last-bid <lb>)
+   (<lb> ^same-prior-bid-face <spb>)
+-->
+   (<ss> ^last-bid <lb>)
+}
+

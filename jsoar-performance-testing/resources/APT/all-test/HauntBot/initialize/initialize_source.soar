@@ -1,0 +1,3 @@
+source finished-nodes.soar
+source record-area-extents.soar
+source record-path-node.soar

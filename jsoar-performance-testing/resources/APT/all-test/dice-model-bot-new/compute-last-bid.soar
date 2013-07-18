@@ -1,0 +1,68 @@
+sp {dice*propose*compute-last-bid
+   (state <s> ^name dice
+              ^superstate nil
+              ^very-safe-bid-computed <vs>
+              ^players-initialized true
+             -^last-bid)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name compute-last-bid)
+}
+
+sp {apply*compute-last-bid*no-prior-bid
+   (state <s> ^operator <op>
+              ^very-safe-bid-computed <vsb>
+              ^io.input-link.state.last-bid nil)
+   (<vsb> ^face <facev>
+          ^count <multiplierv>)
+   (<op> ^name compute-last-bid)
+-->
+   (write (crlf) |No prior bid - use very safe bid. Face: | <facev> |, count: | <multiplierv>)
+   (<s> ^last-bid <lb>)
+   (<lb> ^face <facev>
+         ^count <multiplierv>)
+}
+
+sp {apply*compute-last-bid*ok-last-bid
+   (state <s> ^operator <op>
+              ^very-safe-bid-computed <vsb>
+              ^io.input-link.state.last-bid <last-bid>)
+   (<vsb> ^count <multiplierv>)
+   (<last-bid> ^face { <> 1 <face> }
+               ^multiplier { >= <multiplierv> <multiplier> })
+   (<op> ^name compute-last-bid)
+-->
+   (write (crlf) |Prior bid ok. Face: | <face> |, count: | <multiplier>)
+   (<s> ^last-bid <lb>)
+   (<lb> ^face <face>
+         ^count <multiplier>)
+}
+
+sp {apply*compute-last-bid*ok-last-bid*1
+   (state <s> ^operator <op>
+              ^io.input-link.state.last-bid <last-bid>)
+   (<last-bid> ^face 1
+               ^multiplier <multiplier>)
+   (<op> ^name compute-last-bid)
+-->
+   (write (crlf) |Prior bid was a 1 bid - use it. Face: 1, count: | <multiplier>)
+   (<s> ^last-bid <lb>)
+   (<lb> ^face 1
+         ^count <multiplier>)
+}
+
+sp {apply*compute-last-bid*not-ok-last-bid
+   (state <s> ^operator <op>
+              ^very-safe-bid-computed <vsb>
+              ^io.input-link.state.last-bid <last-bid>)
+   (<vsb> ^count <multiplierv>
+          ^face <facev>)
+   (<last-bid> ^face { <> 1 <face> }
+               ^multiplier { < <multiplierv> <multiplier> })
+   (<op> ^name compute-last-bid)
+-->
+   (write (crlf) |Prior bid too low - use safe bid. count: | <multiplierv> |, Face: | <facev>)
+   (<s> ^last-bid <lb>)
+   (<lb> ^face <facev>
+         ^count <multiplierv>)
+}

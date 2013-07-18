@@ -1,0 +1,81 @@
+echo "\nLoading all/communicate"
+  
+# REW: 2002-07-08
+# [1] Created REW
+#     The communicate operator
+#        This operator is proposed whenever there is comm.commnicate
+#        message with a definition on the top-state.   The
+#        applications here simply recognize when a message has been
+#        transmitted to all registered devices and then removes the
+#        comm.communicate structure.  Communicate applications in
+#        communicate/<device>/applications.soar actually format the
+#        message for particular devices and send it (and mark the
+#        message as transmitted for a particular device).
+# [2] REW: 2002-07-10
+#     Added state test to communicate proposal to ensure top-state
+#     justifications create o-supported preferences for output-link
+#     WMEs.
+
+
+sp {any-ps*propose*communicate
+   (state <s> ^top-state <ts>
+              # [2] The following is needed only for o-support for output-link results
+              ^name <state-name>)
+  # Floating operator
+  -(state <ss> ^superstate <s>)
+   (<ts> ^comm <comm>)
+   (<comm> ^communicate <c>)
+   (<c> ^name <message>
+        ^definition)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name communicate
+        ^message <c>)
+}
+
+# If there are 2 communication operators proposed and one is for a
+# send-message-immediately message, prefer it over the other.
+
+sp {any-ps*communicate*prefer*send-message-immediately
+   (state <s> ^operator <o1> +
+              ^operator <o2> + )
+   (<o1> ^name communicate
+         ^message.send-message-immediately)
+   (<o2> ^name communicate
+        -^message.send-message-immediately)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+# no registered devices for this message have not transmitted the
+# message (all devices have transmitted this message)
+
+sp {communicate*apply*all-devices-transmitted
+   (state <s>  ^operator <o>
+               ^top-state.comm <c>)
+   (<o> ^name communicate
+        ^message <message>)
+  -{ (<message> ^device <d> )
+     (<d> -^transmitted *yes*) }
+-->
+   (<o> ^message-transmitted-to-all-devices *yes*)
+}
+
+# When the message has been transmitted to all registered devices,
+# remove it.
+
+sp {communicate*apply*delete*comm-message-type
+   (state <s>  ^operator <o>
+               ^top-state.comm <c>)
+   (<o> ^name communicate
+        ^message <message>
+        ^message-transmitted-to-all-devices *yes*)
+   (<c> ^communicate <message>)
+   (<message> ^name <type>)
+-->
+#   (write (crlf) | Removing comm.| <type> )
+   (<c> ^communicate <message>  -)
+}
+
+

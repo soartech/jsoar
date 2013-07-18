@@ -1,0 +1,46 @@
+
+#sp {update-all-paths*elaborate*substate
+#   (state <s> ^name update-all-paths
+#              ^superstate.map.areas.area <a>)
+#   (<a> ^path <p> { <> <p> <p2> })
+#   (<p> ^to-area <t1> ^area-count <a1>)
+#   (<p2> ^to-area <t1> ^area-count <a2>)
+#   (<t1> ^id <id>)
+#-->
+#   (write (crlf) |Duplicate path: | <t1> |: | <id> | ,| <p>  |(| <a1> |) | <p2> |(| <a2> |) |)
+#}
+
+sp {update-all-paths*propose*delete-duplicate-paths
+   (state <s> ^name update-all-paths
+              ^superstate.map.areas.area <a>)
+   (<a> ^path <p> { <> <p> <p2> })
+   (<p> ^to-area <t1> ^area-count <a1>)
+   (<p2> ^to-area <t1> ^area-count > <a1>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name delete-duplicate-paths
+         ^area <a>
+         ^path <p2>)
+}
+sp {update-all-paths*apply*delete-duplicate-paths
+   (state <s> ^operator <op>)
+   (<op> ^name delete-duplicate-paths
+         ^area <a>
+         ^path <p2>)
+   (<a> ^path <p2> ^id <id1>)
+   (<p2> ^to-area.id <id2>)
+-->
+   (<a> ^path <p2> -)
+}
+
+sp {update-all-paths*monitor*delete-duplicate-paths
+   (state <s> ^operator <op>
+              ^top-state.parameters.monitor-level all)
+   (<op> ^name delete-duplicate-paths
+         ^area <a>
+         ^path <p2>)
+   (<a> ^path <p2> ^id <id1>)
+   (<p2> ^to-area.id <id2>)
+-->
+   (write (crlf) |Remove duplicate path: | <p2> | from: | <id1> | to: | <id2>)
+}

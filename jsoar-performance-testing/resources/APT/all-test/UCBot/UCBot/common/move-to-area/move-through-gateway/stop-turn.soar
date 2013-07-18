@@ -1,0 +1,13 @@
+
+# When the agent shouldn't turn, it should stop turning.
+# Application of this operator is handled under "common".
+sp {move-through-gateway*propose*stop-turn
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              -^io.input-link.feedback.turn none)
+   (<headings> -^should-turn)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name stop-turn
+         ^type wait)
+}

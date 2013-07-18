@@ -1,0 +1,48 @@
+sp {get-object*propose*pickup-block
+   (state <s> ^name get-object
+             -^current-location.storage-area yes
+              ^io.input-link <input>
+              ^top-state.current-mission.object <object> 
+              ^top-state.objects.object <b>)
+   (<object> ^type <type>
+             ^color <color>)
+   (<input> ^self <self>
+            ^objects.object <obj1>)
+  -(<self> ^carry)
+   (<obj1> ^type {<> player}
+           ^id <oid>)
+   (<b> ^id <oid>
+        ^type <type>
+        ^color <color>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name pickup-block
+         ^id <oid>)
+}
+
+sp {get-object-hierarchical-pickup*compare*pickup-block
+   (state <s> ^name get-object
+              ^io.input-link.objects.object <obj1> { <> <obj1> <obj2> }
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name pickup-block
+          ^id <id1>)
+   (<op2> ^name pickup-block
+          ^id <id2>)
+   (<obj1> ^id <id1> 
+           ^distance <range>)
+   (<obj2> ^id <id2>
+           ^distance > <range>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {get-object*compare*go-to*prefer-over-go-to-seen-block
+   (state <s> ^name get-object
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name pickup-block )
+   (<op2> ^name << goto-not-clean-area goto-unvisited-area find-block-in-area >>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

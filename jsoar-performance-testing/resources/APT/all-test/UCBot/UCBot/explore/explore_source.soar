@@ -1,0 +1,5 @@
+source elaborations.soar
+source back-out.soar
+source done.soar
+source move-to-area.soar
+source propogate-path.soar

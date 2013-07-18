@@ -1,0 +1,31 @@
+echo "\nLoading all/notice-item"
+
+sp {all*propose*record-item-room
+   (state <s> ^name << forward-to-door follow-room-axis follow-hall-axis goto-door >>
+              ^top-state.map <map>)
+   (<map> ^item <item>
+          ^explore-room <er>)
+   (<item> -^room
+            ^x <x>
+            ^y <y>)
+   (<er> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x < <x>)
+   (<w2> ^side east ^x > <x>)
+   (<w3> ^side south ^y < <y>)
+   (<w4> ^side north ^y > <y>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name record-item-room
+        ^item <item>
+        ^room <er>)}
+
+sp {all*apply*record-item-room
+   (state <s> ^operator <o>)
+   (<o> ^name record-item-room
+        ^item <item>
+        ^room <er>)
+   -->
+   (<item> ^room <er>)
+   (<er> ^item <item>)}
+ 
+

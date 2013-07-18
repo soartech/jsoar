@@ -1,0 +1,59 @@
+sp {test-x*propose*evaluate-goal-completion
+   (state <s> ^name test-x
+              ^current-problem.goal-test-success <a>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name evaluate-goal-completion)
+}
+
+sp {apply*evaluate-goal-completion
+   (state <s> ^operator.name evaluate-goal-completion
+              ^superstate.x-guess <x>
+              ^current-problem.goal-test-success <a>)
+   (<a> ^variable sum
+        ^value answer)
+  -(<x> ^failed)
+  -(<x> ^newer-x-guess)
+-->
+   (<x> ^success true)
+}
+
+
+#### Bogus
+sp {apply*evaluate-goal-completion2
+   (state <s> ^operator.name evaluate-goal-completion
+              ^superstate.x-guess <x>
+              ^current-problem <cp>)
+   (<cp> ^answer <ans>
+         ^sum <ans>)
+  -(<x> ^failed)
+  -(<x> ^newer-x-guess)
+-->
+   (<x> ^success true)
+}
+
+sp {apply*evaluate-goal-completion*fail-too-large
+   (state <s> ^operator.name evaluate-goal-completion
+              ^superstate.x-guess <x>
+              ^current-problem <cp>)
+   (<cp> ^goal-test-success <a>
+         ^sum > <ans>
+         ^answer <ans>)
+   (<a> ^variable count
+        ^value height)
+-->
+   (<x> ^failed too-large)
+}
+
+sp {apply*evaluate-goal-completion*fail-too-small
+   (state <s> ^operator.name evaluate-goal-completion
+              ^superstate.x-guess <x>
+              ^current-problem <cp>)
+   (<cp> ^goal-test-success <a>
+         ^sum { < <ans> }
+         ^answer <ans>)
+   (<a> ^variable count
+        ^value height)
+-->
+   (<x> ^failed too-small)
+}

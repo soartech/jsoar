@@ -1,0 +1,168 @@
+#echo "\nLoading attack/elaborations"
+
+sp {attack*elaborate*enemy-facing1
+   (state <s> ^name attack
+              ^enemy.aspect.h { < 45 > -45 })
+   -->
+   (<s> ^enemy-facing true)}
+
+sp {attack*elaborate*enemy-facing2
+   (state <s> ^name attack
+              ^enemy.aspect.h { > 315 < 405 })
+   -->
+   (<s> ^enemy-facing true)}
+
+
+sp {attack*elaborate*facing33-enemy
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill bad
+              ^enemy.angle-off.h { < 4 > -4 })
+   -->
+   (<s> ^enemy-angle-off-achieved true)}
+
+sp {attack*elaborate*facing34-enemy
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill bad
+              ^enemy.angle-off.h { < 364 > 356 })
+   -->
+   (<s> ^enemy-angle-off-achieved true)}
+
+sp {attack*elaborate*enemy
+   (state <s> ^name attack
+              ^top-state.enemy.sensed-enemy <enemy>)
+   -->
+   (<s> ^enemy <enemy>)}
+
+sp {attack*elaborate*attack-type*circle-strafe
+   (state <s> ^name attack
+              ^top-state.self.tactics << standard full >>
+              ^enemy-facing true)
+   -->
+   (<s> ^attack-type circle-strafe)}
+
+sp {attack*elaborate*attack-type*direct-attack
+   (state <s> ^name attack
+             -^enemy-facing true)
+   -->
+   (<s> ^attack-type direct-attack)}
+
+sp {attack*elaborate*attack-type*tactics-none
+   (state <s> ^name attack
+              ^top-state.self.tactics none)
+   -->
+   (<s> ^attack-type direct-attack)}
+
+sp {attack*blocked*wall*north
+   (state <s> ^name attack
+             -^io.input-link.agent.origin.y < <y>
+              ^top-state <ts>) 
+   (<ts> ^map.current-room.wall <wall>
+         ^heading <dir>
+         ^direction-map.<dir>. { << left right >> <side> } north)
+   (<wall> ^side north
+           ^y-min <y>)
+   -->
+   (<s> ^blocked <side>)
+   }
+
+sp {attack*blocked*wall*south
+   (state <s> ^name attack
+             -^io.input-link.agent.origin.y > <y>
+              ^top-state <ts>) 
+   (<ts> ^map.current-room.wall <wall>
+         ^heading.within-5 { << east west >> <dir> }
+         ^direction-map.<dir>. { << left right >> <side> } south)
+   (<wall> ^side south
+           ^y-max <y>)
+   -->
+   (<s> ^blocked <side>)
+   }
+
+sp {attack*blocked*wall*west
+   (state <s> ^name attack
+             -^io.input-link.agent.origin.x > <x>
+              ^top-state <ts>) 
+   (<ts> ^map.current-room.wall <wall>
+         ^heading.within-5 { << north south >> <dir> }
+         ^direction-map.<dir>. { << left right >> <side> } west)
+   (<wall> ^side west
+           ^x-max <x>)
+   -->
+   (<s> ^blocked <side>)
+   }
+
+sp {attack*blocked*wall*east
+   (state <s> ^name attack
+             -^io.input-link.agent.origin.x < <x>
+              ^top-state <ts>) 
+   (<ts> ^map.current-room.wall <wall>
+         ^heading.within-5 { << north south >> <dir> }
+         ^direction-map.<dir>. { << left right >> <side> } east)
+   (<wall> ^side east
+           ^x-min <x>)
+   -->
+   (<s> ^blocked <side>)
+   }
+
+sp {attack*blocked*side
+   (state <s> ^name attack
+              ^io.input-link.map.{ << left right forward backward >> <side> }.distance < 100)
+   -->
+   (<s> ^blocked <side>)
+   }
+
+sp {attack*debugblocked*side
+   (state <s> ^name attack
+              ^top-state.debug true
+              ^blocked <dir>)
+   -->
+   (write (crlf) |Blocked | <dir>)}
+
+#sp {attack*apply*compute-door-distances
+#   (state <s> ^top-state.self.retreat
+#              ^current-room.door <door>
+#              ^io.input-link.agent.origin <origin>)
+#   (<origin> ^x <x> ^y <y>)
+#   (<door> ^x <dx> ^y <dy>)
+#   -->
+##  (write (crlf) |Door Range: | (compute-range <x> <y> <dx> <dy>))
+#   (<s> ^door-range (compute-range <x> <y> <dx> <dy>))}
+
+#######################################
+## Compute room that enemy is in.
+##
+
+sp {attack*elaborate*enemy-room
+   (state <s> ^name attack
+              ^current-room <cr>
+              ^io.input-link.entity.enemy.origin <or>)
+   (<cr> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x <west>)
+   (<w2> ^side east ^x <east>)
+   (<w3> ^side south ^y <south>)
+   (<w4> ^side north ^y <north>)
+ -{(<or> ^x { > <west> < <east> }
+         ^y { > <south> < <north> })}
+   -->
+   (<s> ^enemy-room different)}
+##############
+
+sp {attack*elaborate*enemy-room*gone
+   (state <s> ^name attack
+              ^io.input-link.agent.cycle <ct>
+              ^top-state <ts>)
+   (<ts> ^enemy <enemy>
+         ^map.room <r>)
+  -{(<s> ^enemy.sensor <es>)
+    (<es> ^visible true
+         ^infront true)}
+   (<r> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x <west>)
+   (<w2> ^side east ^x <east>)
+   (<w3> ^side south ^y <south>)
+   (<w4> ^side north ^y <north>)
+   (<enemy> ^x { > <west> < <east> }
+            ^y  { > <south> < <north> })
+   -->
+   (<s> ^enemy-room <r>)}
+

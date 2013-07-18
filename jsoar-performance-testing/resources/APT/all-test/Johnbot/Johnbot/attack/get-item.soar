@@ -1,0 +1,79 @@
+#echo "\nLoading attack/get-item"
+################################
+### Propose get-item operator
+################################
+
+sp {attack*propose*get-item*need
+   (state <s> ^name attack                
+              ^top-state <ts>)
+   (<ts> ^parameters.attack-get-item-range <gir>
+         ^self.get-object <go>
+         ^io.input-link.entity.item <item-x>)
+   (<go> ^classname <cname>
+         ^need true)
+   (<item-x> ^classname <cname>
+            -^range > <gir>)
+   -->
+   (write (crlf) |Go pick up | <cname>)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^item <item-x>
+        ^actions <a>)
+   (<a> ^attack off
+#       ^leadtarget off
+#       ^facetarget off)
+        )
+   }
+
+sp {attack*select*get-item
+   (state <s> ^name attack 
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name get-item
+         ^item.range <range>)
+   (<o2> ^name get-item
+         ^item.range > <range>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {attack*select*get-item*face-enemy
+   (state <s> ^name attack 
+              ^operator <o1> +
+              ^operator <o2> +
+              ^enemy.range <range>)
+   (<o1> ^name get-item
+         ^item.range < <range>)
+   (<o2> ^name face-enemy)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {attack*select*get-item*worst
+   (state <s> ^name attack 
+              ^operator <o1> +
+              ^enemy.range <range>)
+   (<o1> ^name get-item
+         ^item.range > <range>)
+   -->
+   (<s> ^operator <o1> <)}
+
+sp {attack*apply*get-item
+   :i-support
+   (state <s> ^name attack 
+              ^operator <o>
+              ^enemy <se>)
+   (<o> ^name get-item)
+   -->
+   (<o> ^actions.leadtarget off)}
+
+sp {attack*select*charge-enemy*get-item
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name get-item)
+   (<o2> ^name charge-enemy)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+
+### Implemented in common/get-item/
+
+

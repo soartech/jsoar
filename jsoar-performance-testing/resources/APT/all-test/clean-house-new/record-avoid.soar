@@ -1,0 +1,59 @@
+sp {clean-house-new*propose*record-avoid
+   (state <s> ^name robot
+              ^areas.area <area>
+              ^avoids.<id> true)
+   (<area> ^id <id>
+          -^avoid true)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name record-avoid
+         ^id <id>)
+}
+
+sp {clean-house-new*propose*record-avoid*compare
+   (state <s> ^name robot
+              ^operator <op1> +
+              ^operator <op2> +)
+   (<op1> ^name record-avoid)
+   (<op2> ^name {<> record-avoid <> record-label <> msg})
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {clean-house-new*propose*record-avoid*multiple
+   (state <s> ^name robot
+              ^operator <op1> +
+              ^operator {<> <op1> <op2>} +)
+   (<op1> ^name record-avoid)
+   (<op2> ^name record-avoid)
+-->
+   (<s> ^operator <op1> = <op2>)
+}
+
+# since we hadn't seen this room before,
+# we must be in a gateway pertinant to it - record
+sp {apply*record-avoid*done
+   (state <s> ^operator <op>
+              ^avoids <avoids>
+              ^areas.area <area>
+              ^io.input-link.area-description <d>
+              ^directions <dirs>)
+   (<op> ^name record-avoid
+         ^id <id>)
+   (<area> ^id <id>)
+   (<d> ^id <door-id>
+        ^gateway <gw>)
+   (<gw> ^to <tid>
+         ^to {<> <tid> <id>}
+         ^id <gid>
+         ^x <x>
+         ^y <y>
+         ^direction <gdir>)
+   (<dirs> ^value <gdir>
+           ^opposite <dir>)
+-->
+   (<area> ^avoid true
+           ^gateway <ngw>)
+   (<ngw> ^x <x> ^y <y> ^direction <dir> ^id <gid> ^to <tid>)
+   (<avoids> ^<id> true -)
+}

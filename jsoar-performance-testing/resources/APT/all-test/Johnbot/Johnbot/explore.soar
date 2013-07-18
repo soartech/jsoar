@@ -1,0 +1,21 @@
+echo "\nLoading explore"
+### Explore makes the bot visit every room in the world, building up an internal map
+
+################################
+### Propose explore operator
+###   Don't explore if everything is explored
+###   Start off with attack, facetarget, leadtarget off
+#################################
+
+sp {quake*propose*explore
+   (state <s> ^name quake
+             -^map.explored true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name explore
+        ^actions <a>)
+   (<a> ^attack off
+        ^facetarget off
+        ^leadtarget off)}
+
+

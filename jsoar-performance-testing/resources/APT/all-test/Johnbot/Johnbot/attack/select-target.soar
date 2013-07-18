@@ -1,0 +1,25 @@
+#echo "\nLoading attack/select-target"
+
+sp {attack*propose*select-target*medium*hard
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill << medium good >>
+             -^io.input-link.feedback.selecttarget <sid>
+              ^enemy <se>)
+   (<se> ^sensor <sensor>
+         ^soar-id <sid>
+        -^deadflag << dead dying >>)
+   (<sensor> ^visible true
+             ^infront true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name select-target
+        ^actions <a>)
+   (<a> ^selecttarget <sid>)}
+
+sp {attack*select*selecttarget
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name select-target)
+   (<o2> ^name update-health)
+   -->
+   (<s> ^operator <o1> > <o2>)}

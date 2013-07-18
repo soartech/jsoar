@@ -1,0 +1,29 @@
+sp {clean-house*propose*record-block
+   (state <s> ^name robot
+              ^io.input-link.object <obj>)
+   (<s> ^blocks <b>)
+  -(<b> ^block.id <id>)
+   (<obj> ^id <id>
+          ^visible yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-block
+         ^block <obj>)
+}
+
+sp {apply*record-block
+   (state <s> ^operator <op>
+              ^blocks <b>)
+   (<op> ^name record-block
+         ^block <obj>)
+   (<obj> ^position <p>
+          ^id <id>
+          ^area <area>
+          ^type <type>)
+-->
+   (<b> ^block <nb>)
+   (<nb> ^position <p>
+         ^id <id>
+         ^area <area>
+         ^type <type>)
+}

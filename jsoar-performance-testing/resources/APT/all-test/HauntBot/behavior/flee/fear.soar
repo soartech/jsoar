@@ -1,0 +1,28 @@
+# determine if a player's ghost is visible
+sp {status*elaborate*ghost-sighted
+   (state <s> ^name haunt
+              ^status <status>
+              ^io.input-link.objects.entity.name |Bob|)
+-->
+   (<status> ^ghost-sighted true)
+}
+
+
+# determine if the player/ghost has been detected
+sp {status*elaborate*ghost-detected
+   (state <s> ^name haunt
+              ^status <status>
+              ^entity-list.entity.name |Bob|)
+-->
+   (<status> ^ghost-detected true)
+}
+
+# determine if the player/ghost
+sp {status*elaborate*in-darkness
+   (state <s> ^name haunt
+              ^status <status>
+              ^io.input-link.agent.lighting dark) #TODO: add similar to input-link
+-->
+   (<status> ^in-darkness yes)
+}
+

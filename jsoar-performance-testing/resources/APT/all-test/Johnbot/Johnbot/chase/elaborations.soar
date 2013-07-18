@@ -1,0 +1,76 @@
+#If have active sound
+
+sp {chase*elaborate*state*sound-yaw*active
+    (state <s> ^name chase
+               ^io.input-link.sound.sound <sound>)
+    (<sound> ^angle-yaw <ay>
+);#             ^type player_run)
+    -->
+    (<s> ^sound-yaw <ay>)}
+
+## If Sound isn't active - use memory
+
+sp {chase*elaborate*state*sound-yaw*not-active
+    (state <s> ^name chase
+               ^top-state.sound.angle-yaw <face>
+              -^io.input-link.sound.sound.type ) ;#player_run)
+    -->
+    (write (crlf) |Use memory of sound: | <face>)
+    (<s> ^sound-yaw <face>)}
+
+sp {chase*elaborate*state*heading-achieved*active
+   (state <s> ^name chase
+              ^io.input-link.sound.sound.h { < 45 > -45 })
+   --> 
+   (<s> ^heading-achieved true)}
+
+
+sp {chase*elaborate*state*heading-achieved*not-active
+   (state <s> ^name chase
+              ^heading-difference { < 45 > -45})
+   --> 
+   (<s> ^heading-achieved true)}
+
+sp {chase*elaborate*state*closest-wall*north
+   (state <s> ^name chase
+              ^sound-yaw { > 45 < 135 })
+   -->
+   (<s> ^wall-direction north)}
+
+sp {chase*elaborate*state*closest-wall*west
+   (state <s> ^name chase
+              ^sound-yaw { > 135 < 225 })
+   -->
+   (<s> ^wall-direction west)}
+
+sp {chase*elaborate*state*closest-wall*west*neg
+   (state <s> ^name chase
+              ^sound-yaw { > -180 < -135 })
+   -->
+   (<s> ^wall-direction west)}
+
+sp {chase*elaborate*state*closest-wall*south
+   (state <s> ^name chase
+              ^sound-yaw { > 225 < 315 })
+   -->
+   (<s> ^wall-direction south)}
+
+sp {chase*elaborate*state*closest-wall*south*neg
+   (state <s> ^name chase
+              ^sound-yaw { > -135 < -45 })
+   -->
+   (<s> ^wall-direction south)}
+
+sp {chase*elaborate*state*closest-wall*east
+   (state <s> ^name chase
+              ^sound-yaw { > -45 < 45 })
+   -->
+   (<s> ^wall-direction east)}
+
+sp {chase*elaborate*state*closest-wall*east-big
+   (state <s> ^name chase
+              ^sound-yaw { > 315 < 405 })
+   -->
+   (<s> ^wall-direction east)}
+
+   

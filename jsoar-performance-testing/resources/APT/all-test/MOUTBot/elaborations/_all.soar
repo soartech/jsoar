@@ -1,0 +1,23 @@
+echo "\nLoading elaborations/_all"
+
+
+sp {elaborate*state*io
+   (state <s> ^superstate.io <io>
+              -^name predict-enemy)
+-->
+   (<s> ^io <io>)}
+
+sp {elaborate*top-state*top-state
+   (state <s> ^superstate nil)
+-->
+   (<s> ^top-state <s>)}
+
+sp {elaborate*state*top-state
+   (state <s> ^superstate.top-state <ts>
+             -^name predict-enemy)
+-->
+   (<s> ^top-state <ts>)}
+
+
+
+

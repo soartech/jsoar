@@ -1,0 +1,18 @@
+sp {add-column*propose*write-adden1
+   (state <s> ^name get-adden1
+              ^sum <a>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-adden1)
+}
+
+sp {add-column*apply*write-adden1
+   (state <s> ^operator.name write-adden1
+              ^sum <a>
+              ^carry <c> 
+              ^superstate <ss>)
+-->
+   (<ss> ^adden1 <a>
+         ^carry <c>)
+}
+

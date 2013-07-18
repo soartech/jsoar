@@ -1,0 +1,7 @@
+# proposed in move-to-node and explore
+
+# move-to-area should have a ^area attribute on the operator.  This is the
+# name of the area to move to.  
+
+# if a path from the current area to the desired area is not known, the
+# agent will explore by default

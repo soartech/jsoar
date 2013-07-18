@@ -1,0 +1,10 @@
+sp {instruct*propose*execute-solve-procedure
+   (state <s> ^name instruct
+              ^current-problem <cp>)
+   (<cp> ^encoded true
+         ^type solve
+        -^success true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-solve-procedure)
+}

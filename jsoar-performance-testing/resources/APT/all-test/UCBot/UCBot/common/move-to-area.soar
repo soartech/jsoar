@@ -1,0 +1,28 @@
+### This file contains all of the rules that are required in order to simulate moving from area to area without the UCT
+
+sp {common*apply*move-to-area
+   (state <s> ^name << go-to-flag search-for-flag >>
+              ^quiescence t
+             -^superstate.operator.name evaluate-operator
+              ^top-state <ts>
+              ^operator <op>)
+   (<ts> ^parameters.internal-simulation true
+         ^map <map>)
+   (<map> ^current-area <current-area>)
+   (<op> ^name move-to-area
+         ^path.next-area <to-area>)
+-->
+   (<map> ^current-area <current-area> -
+                        <to-area>)
+}
+
+sp {common*monitor*move-to-area
+   (state <s> ^top-state <ts>
+              ^parameters.monitor-level all
+              ^operator <op>)
+   (<ts> ^map.current-area.id <cid>)
+   (<op> ^name move-to-area
+         ^path.next-area.id { <> <cid> <id> })
+ -->
+   (write (crlf) | Move from area: | <cid> | to | <id>)
+}

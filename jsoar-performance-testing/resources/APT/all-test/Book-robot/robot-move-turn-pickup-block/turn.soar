@@ -1,0 +1,46 @@
+sp {robot-move-turn-pickup-block*propose*turn*right
+   (state <s> ^name robot
+              ^parameters.pickup-angle-off-pos <aop>
+              ^io.input-link.object <o>)
+   (<o> ^type block
+        ^id <id>
+        ^visible yes
+        ^angle-off { <ao> > <aop>})
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn
+         ^id <id>
+         ^actions.rotate-relative.amount <ao>)
+}
+
+sp {robot-move-turn-pickup-block*propose*turn*left
+   (state <s> ^name robot
+              ^parameters.pickup-angle-off-neg <aon>
+              ^io.input-link.object <o>)
+   (<o> ^type block
+        ^visible yes
+        ^id <id>
+        ^angle-off { <ao> < <aon> })
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn
+         ^id <id>
+         ^actions.rotate-relative.amount <ao>)
+}
+
+#Reject an operator that turns toward a block that isn't closest
+# could be do through negation in the above rules
+
+sp {robot-move-turn-pickup-block*reject*turn*farther-block
+   (state <s> ^name robot
+              ^io.input-link <input>
+              ^operator <o> +)
+   (<input> ^object <obj1> { <> <obj1> <obj2> })
+   (<obj1> ^id <id>
+           ^range <range>)
+   (<obj2> ^range < <range>)
+   (<o> ^name turn
+        ^id <id>)
+-->
+   (<s> ^operator <o> -)
+}

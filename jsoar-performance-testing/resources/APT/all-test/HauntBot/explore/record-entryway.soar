@@ -1,0 +1,32 @@
+echo "\nLoading explore/record-entryway"
+
+#IF:
+#  1. I'm standing at an entryway node in my area whose entryway has not been recorded
+#THEN:
+#  Propose recording that entryway with best preference
+sp {explore*propose*record-entryway
+   (state <s> ^type explore
+              ^top-state.map <map>)
+   (<map> ^near-node <my-node>
+          ^current-area.node <my-node>)
+   (<my-node> ^type << door connector >>
+              ^entryway-recorded *no*)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-entryway
+        ^node <my-node>)
+}
+
+#Prefer recording an entryway over moving to a new node
+sp {explore*compare*record-over-move
+   (state <s> ^type explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record-entryway)
+   (<o2> ^type move-to-node)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+

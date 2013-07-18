@@ -1,0 +1,5 @@
+source elaborations.soar
+source Impasse_No-Change.soar
+pushd Impasse_No-Change
+source Impasse_source.soar
+popd

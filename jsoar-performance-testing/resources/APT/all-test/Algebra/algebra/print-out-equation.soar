@@ -1,0 +1,62 @@
+sp {algebra*propose*print-out-equation
+   (state <s> ^print-id <pn>
+              ^problem <p>)
+   (<p> ^status defined
+       -^status printed
+        ^top-clause <tc>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name print-out-equation
+         ^clause <tc>
+         ^print-id <pn>)
+}
+
+sp {algebra*apply*print-out-equation*remove-old-print
+   (state <s> ^operator.name print-out-equation
+              ^print-id <pn>
+              ^problem <problem>)
+   (<problem> ^top-clause.print <p>)
+   (<p> ^flag complete
+        ^print-id <pn>)
+-->
+   (<s> ^print-id <pn> -)
+   (<problem> ^status printed
+                      defined -)
+}
+
+sp {algebra*apply*print-out-equation*write
+   (state <s> ^operator <op>
+              ^problem <p>)
+   (<op> ^name print-out-equation)
+-->
+   (<p> ^problem-list <pl>)
+   (<pl> ^count 0
+         ^pointer <pl>)
+}
+sp {algebra*apply*print-out-equation
+   (state <s> ^operator.name print-out-equation
+              ^current-clause <cc>)
+   (<cc> ^right-side.print <pp>
+         ^print <p>)
+   (<p> ^print-id <pn>)
+   (<pp> ^print-id <pn>
+         ^flag complete)
+-->
+   (<p> ^flag complete)}
+
+#
+#sp {algebra*apply*print-out-equation*other
+#   (state <s> ^operator.name solve-problem
+#              ^top-state <ts>)
+#-->
+#   (<ts> ^print-id <pn>)
+#}
+
+
+sp {algebra*apply*print-out-equation*other*print-op
+   (state <s> ^operator.name { <name> solve-problem }
+              ^top-state.io.output-link <out>)
+-->
+   (<out> ^text.next.value <name>)
+}
+

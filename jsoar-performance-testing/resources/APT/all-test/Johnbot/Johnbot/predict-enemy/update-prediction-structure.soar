@@ -1,0 +1,85 @@
+echo "\nLoading update-prediction-structure"
+##### Create prediction structure
+
+sp {predict-enemy*apply*update-prediction-structure*compute*distance
+   (state <s> ^predicting true
+              ^top-state <ts>
+              ^real-top-state <rts>
+              ^operator <o>)
+    (<ts> ^map.current-room <pcr>
+          ^predicted-distance <pd>
+          ^last-door.number <ldn>)
+    (<rts> ^map.current-room.path <path> 
+           ^enemy <e>)
+   (<e> -^prediction-final-room-number)
+   (<pcr> ^room-number <rn>
+          ^type room)
+   (<path> ^destination-room.room-number <rn>
+           ^distance < <pd>)
+-->
+   (write (crlf) |I can get there first: | <rn> )
+   (<e> ^prediction-final-room-number <rn>
+        ^prediction-last-door-number <ldn>)}
+
+sp {predict-enemy*apply*update-prediction-structure*compute*distance*same
+   (state <s> ^predicting true
+              ^top-state <ts>
+              ^real-top-state <rts>
+              ^operator <o>)
+   (<rts> ^map.current-room.room-number <rn> 
+          ^enemy <e>)
+   (<ts> ^predicted-distance > 1
+         ^map.current-room <cr>
+         ^last-door.number <ldn>)
+   (<cr> ^room-number <rn> 
+         ^type room)
+   (<e> -^prediction-final-room-number)
+ -->
+   (write (crlf) |He is coming to where I am: | <rn> )
+   (<e> ^prediction-final-room-number <rn>
+        ^prediction-last-door-number <ldn>)}
+
+sp {predict-enemy*apply*goto-next-room*done*update-prediction-structure
+   (state <s> ^name wander 
+              ^predicting true
+              ^top-state.map.current-room <cr>
+             -^top-state.self.get-object
+              ^real-top-state.enemy <e>
+              ^operator <o>)
+   (<e> -^prediction-final-room-number)
+   (<cr> ^room-number <rn>
+         ^door <d1> { <> <d1> <d2> } { <> <d1> <> <d2> })
+-->
+   (write (crlf) |Unsure where enemy will go after room | <rn>)
+   (<e> ^prediction-final-room-number <rn>)}
+
+sp {predict-enemy*apply*wait*done*update-prediction-structure
+   (state <s> ^name wander 
+              ^predicting true
+              ^top-state.map.current-room.room-number <rn>
+              ^real-top-state.enemy <e>
+              ^operator <o>)
+   (<e> -^prediction-final-room-number)
+   (<o> ^name wait)
+-->
+   (write (crlf) |Bot is heading to room | <rn>)
+   (<e> ^prediction-final-room-number <rn>)}
+
+sp {predict-enemy*apply*goto-next-room*get-item*update-prediction-structure
+   (state <s> ^name wander 
+              ^predicting true
+              ^top-state.map.current-room.room-number <rn>
+              ^real-top-state.enemy <e>
+              ^operator <o>)
+   (<o> ^name goto-item 
+        ^item <it>)
+   (<it> ^classname <cname>)
+   (<e> -^prediction-get-item)
+-->
+   (write (crlf) |Bot is getting object: | <cname>)
+   (<e> ^prediction-get-item <gi>)
+   (<gi> ^classname <cname>
+         ^room-number <rn>)}
+
+excise predict-enemy*apply*goto-next-room*get-item*update-prediction-structure
+

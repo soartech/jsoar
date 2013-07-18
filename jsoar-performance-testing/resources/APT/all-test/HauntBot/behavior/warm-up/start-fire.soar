@@ -1,0 +1,24 @@
+echo "\nLoading warm-up/start-fire"
+                
+
+# if no fire exists, start one
+sp {behavior*propose*start-fire
+   (state <s> ^name haunt
+              ^impossible true #this behavior is disabled for the demo
+              ^available <a>
+              ^status.temperature << low >>)
+   (<a> ^heat-source <heat>
+        ^fire-source <fire>)
+--> 
+   (<s> ^operator <o> +)
+   (<o> ^name start-fire
+        ^type acquire-and-x
+        ^target <fire>
+        ^next-action <na1>)
+   (<na1> ^name move-near-and-x
+          ^type move-near-and-x
+          ^target <heat>
+          ^next-action <na2>)
+   (<na2> ^name use-match-with-fireplace
+          ^type use-world)
+}

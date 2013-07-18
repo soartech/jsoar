@@ -1,0 +1,3 @@
+source elaborations.soar
+source speak.soar
+source speak-to.soar

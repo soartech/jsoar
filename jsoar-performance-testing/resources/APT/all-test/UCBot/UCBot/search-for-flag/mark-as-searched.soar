@@ -1,0 +1,18 @@
+
+# When we're searching, mark all visited areas as searched.
+sp {search-for-flag*propose*mark-as-searched
+   (state <s> ^name search-for-flag
+              ^search-radius <r>
+              ^top-state.map.current-area <cur>)
+   (<cur> -^searched true)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name mark-as-searched)
+}
+
+sp {search-for-flag*apply*mark-as-searched
+   (state <s> ^operator.name mark-as-searched
+              ^top-state.map.current-area <cur>)
+-->
+   (<cur> ^searched true)
+}

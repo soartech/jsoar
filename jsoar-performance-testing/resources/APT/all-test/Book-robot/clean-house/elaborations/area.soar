@@ -1,0 +1,15 @@
+sp {clean-house*elaborate*state*current-area
+   (state <s> ^name robot
+              ^top-state.areas.area <area>
+              ^io.input-link.self.area <area-id>)
+   (<area> ^id <area-id>)
+-->
+   (<s> ^current-area <area>)
+}
+
+sp {clean-house*elaborate*current-area
+   (state <s> ^name 
+              ^superstate.current-area <ca>)
+-->
+   (<s> ^current-area <ca>)
+}

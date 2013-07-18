@@ -1,0 +1,70 @@
+sp {count-dice-faces*propose*count-die-face
+   (state <s> ^name count-dice-faces
+              ^current-player { <> nil <cp> })
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name count-die-face)
+}
+
+sp {apply*count-die-face
+   (state <s> ^operator <op>
+              ^superstate.true-dice-counts <tdc>
+              ^current-player.dice-counts <cp>)
+   (<op> ^name count-die-face)
+   (<tdc> ^dice-count <dc>)
+   (<dc> ^face <face>
+         ^count <count>)
+   (<cp> ^<face> { <> 0 <cup-count> })
+-->
+   (write (crlf) | Face: | <face> |, Count: | (+ <count> <cup-count> ))
+   (<dc> ^count <count> -
+                (+ <count> <cup-count>))
+}
+
+sp {apply*alternative-count-die-face*me
+   (state <s> ^operator <op>
+              ^superstate.model-enabled true
+              ^superstate.alternative-dice-counts <tdc>
+              ^current-player <player>)
+   (<player> ^alternative-dice-counts <cp>)
+   (<op> ^name count-die-face)
+   (<tdc> ^dice-count <dc>)
+   (<dc> ^face <face>
+         ^count <count>)
+   (<cp> ^<face> { <> 0 <cup-count> })
+-->
+   (write (crlf) | Face: | <face> |, Count: | (+ <count> <cup-count> ))
+   (<dc> ^count <count> -
+                (+ <count> <cup-count>))
+}
+
+
+sp {apply*alternative-count-die-face*no-me
+   (state <s> ^operator <op>
+              ^superstate.model-enabled true
+              ^superstate.dice-counts <tdc>
+              ^current-player <player>)
+   (<player> ^dice-counts <cp>
+            -^me true)
+   (<op> ^name count-die-face)
+   (<tdc> ^dice-count <dc>)
+   (<dc> ^face <face>
+         ^count <count>)
+   (<cp> ^<face> { <> 0 <cup-count> })
+-->
+   (write (crlf) | Face: | <face> |, Count: | (+ <count> <cup-count> ))
+   (<dc> ^count <count> -
+                (+ <count> <cup-count>))
+}
+
+
+#### Remove in the future
+sp {apply*count-die-face*next
+   (state <s> ^operator <op>
+              ^current-player { <> nil <cp> })
+   (<cp> ^next-player <np>)
+   (<op> ^name count-die-face)
+-->
+   (<s> ^current-player <np>
+                        <cp> -)
+}

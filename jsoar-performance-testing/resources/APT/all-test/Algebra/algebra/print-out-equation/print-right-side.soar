@@ -1,0 +1,28 @@
+sp {print-out-equation*propose*print-right-side
+   (state <s> ^type print-out-equation
+              ^print-id <pn>
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^print <p>)
+   (<p> -^flag right-side
+         ^flag operation
+         ^print-id <pn>)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name print-right-side
+         ^clause <rs>
+         ^print-id <pn>)
+}
+
+sp {print-out-equation*apply*print-right-side
+   (state <s> ^operator.name print-right-side
+              ^print-id <pn>
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^print <pr>)
+   (<rs> ^print <pp>)
+   (<pp> ^print-id <pn>
+         ^flag complete)
+-->
+   (<pr> ^flag right-side)
+}

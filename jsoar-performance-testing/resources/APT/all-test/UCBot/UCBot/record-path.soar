@@ -1,0 +1,168 @@
+echo |Record Path|
+# Idea:
+#  After an area is completely recorded, the paths to all known other areas can
+#  be inferred and recorded.
+#  Only one path to each area is stored (the shortest known).
+#  Paths are only updated when an agent enters a new area.
+
+sp {UCBot*propose*record-path*connected-area
+   (state <s> ^name UCBot
+              ^map.partially-recorded-head <current-area>)
+   (<current-area> ^connected-area <connected-area>)
+  -{(<current-area> ^path <path>)
+    (<path> ^to-area <connected-area>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-path
+         ^type connected-area
+         ^area-count 1
+         ^source-area <current-area>
+         ^destination-area <connected-area>)
+}
+
+sp {UCBot*apply*record-path*connected-area
+   (state <s> ^operator <op>)
+   (<op> ^name record-path
+         ^type connected-area
+         ^destination-area <connected-area>
+         ^source-area <source-area>)
+   (<source-area> ^negative-spaces.negative-space <gateway>)
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+-->
+   (<source-area> ^path <forward-path>)
+   (<forward-path> ^area-count 1
+                   ^area-count-minus-one 0
+                   ^from-area <source-area>
+                   ^to-area <connected-area>
+                   ^next-area <connected-area>
+                   ^gateway <gateway>)
+}
+
+sp {UCBot*monitor*record-path
+   (state <s> ^operator <op>
+              ^parameters.monitor-level all)
+   (<op> ^name record-path
+         ^type <type>
+         ^area-count <area-count>
+         ^source-area.id <current-area>
+         ^destination-area.id <dest-area>)
+-->
+   (write (crlf) |Recording | <type> | path from | <current-area> | to | <dest-area> | with count | <area-count>)
+}
+
+# Prefer connected paths to unconnected
+sp {UCBot*compare*record-path
+   (state <s> ^name UCBot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name record-path
+          ^type connected-area)
+   (<op2> ^name record-path
+          ^type unconnected-area)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+# After paths have been recorded on the first path, need a rule that updates
+# paths as we enter the current area
+sp {UCBot*propose*record-path*unconnected-area*current-area
+   (state <s> ^name UCBot
+              ^mission.updated-all-paths false
+              ^map <map>)
+   (<map> -^partially-recorded-head
+           ^current-area <current-area>)
+   (<current-area> ^connected-area <connected-area>
+                   ^paths-recorded true)
+   (<connected-area> ^path <path>)
+   (<path> ^area-count <area-count>
+           ^to-area { <to-area> <> <current-area> })
+  -{(<current-area> ^path <shorter-path>)
+    (<shorter-path> ^to-area <to-area>
+                    ^area-count-minus-one <= <area-count>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-path
+         ^type unconnected-area
+         ^area-count (+ <area-count> 1)
+         ^area-count-minus-one <area-count>
+         ^source-area <current-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+}
+
+# Record paths to unconnected areas through connected areas...
+sp {UCBot*propose*record-path*unconnected-area*partially-recorded-head
+   (state <s> ^name UCBot
+              ^map.partially-recorded-head <current-area>)
+   (<current-area> ^connected-area <connected-area>)
+   (<connected-area> ^path <path>)
+   (<path> ^area-count <area-count>
+           ^to-area { <to-area> <> <current-area> })
+  -{(<current-area> ^path <shorter-path>)
+    (<shorter-path> ^to-area <to-area>
+                    ^area-count-minus-one <= <area-count>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-path
+         ^type unconnected-area
+         ^area-count (+ <area-count> 1)
+         ^area-count-minus-one <area-count>
+         ^source-area <current-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+}
+
+# Record the path in the forward direction.
+sp {UCBot*apply*record-path*unconnected-area*source-destination
+   (state <s> ^operator <op>)
+   (<op> ^name record-path
+         ^type unconnected-area
+         ^area-count <area-count>
+         ^area-count-minus-one <area-count-minus-one>
+         ^source-area <source-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+   (<source-area> ^negative-spaces.negative-space <gateway>)
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+-->
+   (<source-area> ^path <forward-path>)
+   (<forward-path> ^area-count <area-count>
+                   ^area-count-minus-one <area-count-minus-one>
+                   ^from-area <source-area>
+                   ^to-area <to-area>
+                   ^next-area <connected-area>
+                   ^gateway <gateway>)
+}
+
+# If two paths exist to an area, delete the longer path.
+sp {UCBot*apply*record-path*delete-longer-path*partially-recorded-head
+   (state <s> ^operator <op>
+              ^map.partially-recorded-head <current-area>)
+   (<op> ^name record-path
+         ^area-count <area-count>
+         ^source-area <current-area>
+         ^destination-area <to-area>)
+   (<current-area> ^path <path>)
+   (<path> ^to-area <to-area>
+           ^area-count > <area-count>)
+-->
+   (<current-area> ^path <path> -)
+}
+
+# If two paths exist to an area, delete the longer path.
+sp {UCBot*apply*record-path*delete-longer-path*current-area
+   (state <s> ^operator <op>
+              ^map.current-area <current-area>)
+   (<op> ^name record-path
+         ^area-count <area-count>
+         ^source-area <current-area>
+         ^destination-area <to-area>)
+   (<current-area> ^path <path>
+                   ^paths-recorded true)
+   (<path> ^to-area <to-area>
+           ^area-count > <area-count>)
+-->
+   (<current-area> ^path <path> -)
+}

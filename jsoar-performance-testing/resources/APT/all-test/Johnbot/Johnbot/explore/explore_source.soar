@@ -1,0 +1,14 @@
+source elaborations.soar
+source create-explore-room.soar
+source explore-room.soar
+pushd explore-room
+source explore-room_source.soar
+popd
+source update-path-data.soar
+pushd update-path-data
+source update-path-data_source.soar
+popd
+source visit-unexplored-room.soar
+pushd visit-unexplored-room
+source visit-unexplored-room_source.soar
+popd

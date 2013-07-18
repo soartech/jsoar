@@ -1,0 +1,37 @@
+#
+# since target is too high to reach from ground,
+# first we need to get something to stand on to give
+# us the required additional height
+#
+sp {acquire-and-x*propose*clear-area
+   (state <s> ^type acquire-and-x
+              ^height-required
+             -^has-object
+             -^usable-step  # nothing in position to stand on                
+              ^blocking-object.object <obj>
+              ^target.area-id <current>)
+   (<current> ^node <n>
+             -^node.connected-node.area.mid-y < <y>)  # FIXME: current hack to insure that only 1 node is selected
+   (<n> ^connected-node.area <area>)
+   (<area> ^mid-x <x>
+           ^mid-y <y>
+           ^mid-z <z>)
+-->
+   (write (crlf) |Gonna clear out the area!!|)
+   (<s> ^operator <o> + =)
+   (<o> ^name clear-area
+        ^type acquire-and-x  # recursion
+         ^target <obj>
+         ^should-empty-hand yes  #this way, agent will automatically empty his hand away from target
+         ^next-action <na1>)
+   (<na1> ^name move-and-x
+          ^type move-and-x
+          ^position <pos>
+          ^area <area>
+          ^next-action <na2>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+   (<na2> ^name drop-object
+          ^type drop-object)
+}

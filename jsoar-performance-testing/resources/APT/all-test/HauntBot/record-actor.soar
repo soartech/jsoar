@@ -1,0 +1,256 @@
+echo "\nLoading record-actor"
+
+## Create link to a new enemy
+# [1] REW: 2002-07-27
+#     Don't record a actor for an agent for any friendly team members 
+#     Note that Haunt under ^entity.agent.name is not upcased.  They have
+#     to be |HauntBot1| to match here.
+# AMN: 2002-08-02 - Added |Player| as a friendly team member so agent will
+#                   ignore the "ghost" that shows up.  (Devvan's working on it...)
+# [3] REW: 2002-08-26
+#     Added production to copy new actors to the sentry-watch structure
+# [4] REW: 2002-08-28
+#     Evidently the HauntBot names are now HauntBot so I added these to the record-actor proposal
+# [5] REW: 2002-09-11
+#     Made basic proposal depend on active objective other than sentry-watch
+#     Must assume that sentry-watch will terminate if it's ever true that a actor is present
+#     (ie, where a actor is different from a contact).
+#     Basic idea is to not use record actor for contacts made during sentry-watch
+#     This means that sentry-watch will not record actors.
+# [6] REW: 2002-09-25
+#     Completed and tested changes described in [6].
+#     Note that the actor is never deleted unless we can't determine
+#     it's name.  The ^actor.enemy is deleted/re-added as actors change
+#     from visible to not visible and back again.
+
+
+# REW: This should fire both when the active objective is not sentry-watch and also 
+# when there is no active objective at all.
+sp {haunt*propose*record-actor
+   (state <s> ^name haunt
+              ^io.input-link.objects.entity <enemy>
+             -^actors.actor.enemy.name <enemy-name>)
+   (<enemy>  ^name { <> |Player| <> |HauntBot1| <> |HauntBot2| <> |HauntBot3| <> |HauntBot4| <> |HauntBot5| 
+                                 <> |HauntBot1| <> |HauntBot2| <> |HauntBot3| <> |HauntBot4| <> |HauntBot5|          <enemy-name> } )
+   -->
+   #(write (crlf) | Recording actor for enemy | <enemy-name>)
+    (<s> ^operator <o> + =, >)
+   (<o> ^name record-actor
+        ^type new
+        ^enemy <enemy>)}
+
+## If have saved a actor and the enemy reappears on vision - replace the 
+## saved version with the new enemey
+
+sp {haunt*propose*enemy-record*replace
+   (state <s> ^name haunt
+              ^io.input-link.objects.entity <enemy>
+              ^actors.actor.enemy { <> <enemy> <old-enemy> })
+   (<old-enemy> ^name <enemy-name>
+             ^visible false)
+   (<enemy> ^name <enemy-name>
+            ^visible true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name record-actor
+        ^enemy <enemy>
+        ^old-enemy <old-enemy>
+        ^type replace)}
+
+## If the enemy disappears off vision, then create a record of him
+
+sp {haunt*propose*enemy-record*save
+   (state <s> ^name haunt
+              ^io.input-link.objects.entity <enemy>
+              ^actors.actor <th>)
+   (<th> ^enemy <enemy>)
+   (<enemy>  ^name <enemy-name>
+             ^visible false)
+-->
+   (write (crlf) |Actor | <enemy> | has disappeared - visible false.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name record-actor
+        ^enemy <enemy>
+        ^type save)} 
+                     
+###### ELABORTIONS ######
+       
+#Elaborate the enemy with the area that it currently resides in
+sp {haunt*record-actor*area
+   (state <s> ^name haunt
+              ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name record-actor
+        ^enemy <enemy>)
+   (<enemy> ^position <pos>)
+   (<map> ^area <area>)
+   (<area> ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>)
+   (<pos> -^x > <max-x>
+          -^x < <min-x>
+          -^y > <max-y>
+          -^y < <min-y>
+          -^z < <min-z>
+          -^z > <max-z>)
+-->
+   (<enemy> ^area-id <area>)
+}
+
+
+###### APPLICATIONS #####
+
+#### NEW
+
+sp {apply*record-actor*new
+   (state <s> ^operator <o1>
+              ^actors <th>)
+   (<o1> ^name record-actor
+         ^type new
+         ^enemy <enemy>)
+   -->
+   (<th> ^actor <x1> )
+   (<x1> ^enemy <enemy>)
+}
+
+
+# REW: 2002-08-26
+# If there is a sentry-watch going on and we record a actor, then also record that it has not been
+# reported (not all actors will be reported but we generally want to report actors observed while
+# on sentry-watch)
+# REW: 2002-09-26 (deleted: apply*record-actor*sentry-watch*new-actor)
+
+## Mark all areas that the enemy is seen in.
+
+sp {apply*record-actor*area
+   (state <s> ^operator <o>
+              ^actors <th>)
+   (<o> ^name record-actor
+        ^enemy.area-id <area>)
+   (<th> -^controlled-area <area>)
+-->
+   (<th> ^controlled-area <area>)
+}
+
+#### SAVE 
+
+## REW: Not sure what this is supposed to do:  
+## Just delete a actor that doesn't have a name?
+sp {haunt*apply*record-actor*clean-up
+   (state <s> ^operator <o>
+              ^actors <actors>)
+   (<o> ^name record-actor)
+   (<actors> ^actor <th>)
+   (<th> -^enemy.name) 
+-->
+   (write (crlf) |Deleting actor |  <th> | .|)
+   (<actors> ^actor <th> -)}
+
+sp {haunt*apply*record-actor*save*remove-old-enemy
+   (state <s> ^operator <o>
+              ^io.input-link.objects.entity <enemy>
+              ^actors <actors>)
+   (<o> ^name record-actor
+        ^type save
+        ^enemy <enemy>)
+   (<actors> ^actor <th>)
+   (<th> ^enemy <enemy>)
+   -->   
+   (<th> ^enemy <enemy> -)}
+   
+sp {haunt*apply*record-actor*save
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^parameters.actor-remember-time <ert>
+              ^actors <actors>)
+   (<actors> ^actor <th>)
+   (<th> ^enemy <enemy>)
+   (<o> ^name record-actor
+        ^type save
+        ^enemy <enemy>)
+   (<enemy> ^range <r>
+            ^area <area-name>
+            ^aspect <a>
+            ^angle-off <ay>
+            ^health <health>
+            ^weapon <wcname>
+            ^position <p>
+            ^team <team>
+            ^name <name>)
+   (<ay> ^v <av>
+         ^h <ah>)
+   (<p> ^x <x>
+        ^y <y>
+        ^z <z>)
+   (<a> ^v <asv>
+        ^h <ash>)
+-->
+   (write (crlf) |Saving information about disappearing actor: | <name>)
+   (<th> ^enemy <enemy-new>
+         ^area-name <area-name>
+                    ^last-seen-time <ct>)
+   (<enemy-new> ^name <name>
+                ^area <area-name>
+                ^team <team>
+                ^position <p1>
+                ^health <health>
+                ^weapon <wcname>
+                ^aspect <asp>
+                ^angle-off <an-off>
+                ^visible false
+                )
+   (<an-off> ^h <ah>
+             ^v <av>)
+   (<p1>    ^x <x>
+            ^y <y>
+            ^z <z>)
+   (<asp> ^v <asv>
+          ^h <ash>)
+}
+#### REPLACE 
+
+sp {haunt*apply*record-actor*replace
+   (state <s> ^operator <o>
+              ^actors <actors>)
+   (<o> ^name record-actor
+        ^type replace
+        ^enemy <enemy>
+        ^old-enemy <old-enemy>)
+   (<actors> ^actor <th>)
+   (<th> ^enemy <old-enemy>)
+   -->
+   (<th> ^enemy <old-enemy> - <enemy> +)}
+
+# REW: 2002-09-25
+# When replacing a actor, delete the last-seen-time
+sp {haunt*apply*record-actor*replace*delete*last-seen-time
+   (state <s> ^operator <o>
+              ^actors <actors>)
+   (<o> ^name record-actor
+        ^type replace
+        ^enemy <enemy>
+        ^old-enemy <old-enemy>)
+   (<actors> ^actor <th>)
+   (<th> ^enemy <old-enemy> ^last-seen-time <val>)
+   -->
+   (<th> ^last-seen-time <val> -)}
+
+# REW: 2002-08-26
+# When a actor appears that we have previously seen, record it on the 
+# sentry-watch structure iff it hasn't been reported before for this
+# sentry-watch objective.
+# REW: 2002-09-26 (delete: apply*record-actor*sentry-watch*new-actor*replace)
+
+### SEARCH CONTROL
+sp {haunt*select*record-actor
+   (state <s> ^name haunt
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name record-actor)
+   (<o2> ^name << execute-script explore >>)
+-->
+   (<s> ^operator <o1> > <o2>)}
+

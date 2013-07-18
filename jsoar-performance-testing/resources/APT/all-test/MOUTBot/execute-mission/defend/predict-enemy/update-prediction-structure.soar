@@ -1,0 +1,78 @@
+echo "\nLoading execute-mission/defend/predict-enemy/update-prediction-structure"
+
+#NOTE:  All the productions in this file "cheat" to get o-support by matching the 
+#       currently selected operator.
+
+sp {predict-enemy*apply*update-prediction-structure*compute*distance
+   (state <s> ^predicting true
+              ^top-state <ts>
+              ^real-top-state <rts>
+              ^operator <o>)     
+    (<ts> ^map <emap>
+          ^predicted-distance <pred-dist>)
+    (<emap> ^current-area <current-area>
+            ^last-node <pred-last-node>)
+    (<rts> ^map.current-area.path <path>
+           ^threats.threat <e>)
+   (<e> -^prediction-final-area)
+   (<path> ^destination-area <current-area>
+           ^distance < <pred-dist>)
+-->
+   (write (crlf) |I can get there first: |  )
+   (<e> ^prediction-final-area <current-area>
+        ^prediction-last-node <pred-last-node>)
+}
+
+sp {predict-enemy*apply*update-prediction-structure*compute-return-to-current-area
+   (state <s> ^predicting true
+              ^top-state <ts>
+              ^real-top-state <rts>
+              ^operator <o>)
+   (<rts> ^map.current-area <ca>
+          ^threats.threat <e>)
+   (<ts> ^predicted-distance > 1
+         ^map <emap>)
+   (<emap> ^current-area <ca>
+           ^last-node <pred-last-node>)
+   (<e> -^prediction-final-area)
+-->
+   (write (crlf) |He is coming to where I am: | <rn> )
+   (<e> ^prediction-final-area <rn>
+        ^prediction-last-node <pred-last-node>)}
+
+#If the enemy is in a room with 3 or more exits then it is 
+#uncertain where he will go next
+#FIXME:  We could use domain knowledge to guess here
+sp {predict-enemy*apply*goto-next-room*next-room-uncertain
+   (state <s> ^name << explore hunt >>
+              ^predicting true
+              ^top-state.map.current-area <ca>
+              ^real-top-state.threats.threat <e>
+              ^operator <o>)
+   (<e> -^prediction-final-area)
+   (<ca> ^node <d1> 
+         ^node { <> <d1> <d2> } 
+         ^node { <d3> <> <d1> <> <d2> })
+   (<d1> ^type << door connector >>)
+   (<d2> ^type << door connector >>)
+   (<d3> ^type << door connector >>)
+-->
+   (write (crlf) |Unsure where enemy will go after room | <ca>)
+   (<e> ^prediction-final-area <ca>)
+}
+
+#Bot is going to a room I can't reach before he does
+#FIXME:  The op checked here will probably be
+#        "^name maintain-position" not "^type wait"
+sp {predict-enemy*apply*wait*done*update-prediction-structure
+   (state <s> ^name explore
+              ^predicting true
+              ^top-state.map.current-area <ca>
+              ^real-top-state.threats.threat <e>
+              ^operator <o>)
+   (<e> -^prediction-final-area)
+   (<o> ^type wait)
+-->
+   (write (crlf) |Bot is heading to room | <ca>)
+   (<e> ^prediction-final-area <ca>)
+}

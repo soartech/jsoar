@@ -1,0 +1,90 @@
+# "\nLoading collect-powerups/choose-best-item"
+
+################################
+### Propose choose-best-item operator
+################################
+
+sp {collect-powerups*propose*choose-best-item*health
+   (state <s> ^name collect-powerups
+             -^best-item
+              ^top-state.self.get-object <go>)
+   (<go> ^type { << health armor >> <type> }
+         ^map-item <mi>)
+   (<mi> ^available true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name choose-best-item
+        ^priority 8 
+        ^map-item <mi>)}
+
+sp {collect-powerups*propose*choose-best-item*ammo
+   (state <s> ^name collect-powerups
+             -^best-item
+              ^top-state.self.get-object <go>)
+   (<go> ^type ammo
+         ^map-item <mi>)
+   (<mi> ^available true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name choose-best-item
+        ^map-item <mi>
+        ^priority 6)}
+
+sp {collect-powerups*propose*choose-best-item*weapon
+   (state <s> ^name collect-powerups
+             -^best-item
+              ^top-state.self.get-object <go>)
+   (<go> ^type weapon 
+         ^map-item <mi>
+         ^classname <w-class>)
+   (<mi> ^available true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name choose-best-item
+        ^map-item <mi>
+        ^priority 7)}
+
+sp {collect-powerups*propose*choose-best-item*quad-damage
+   (state <s> ^name collect-powerups
+             -^best-item
+              ^top-state.self.get-object <go>)
+   (<go> ^type quad
+         ^map-item <mi>)
+   (<mi> ^available true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name choose-best-item
+        ^priority 3
+        ^map-item <mi>)}
+
+sp {collect-powerups*select*choose-best-item
+   (state <s> ^name collect-powerups
+              ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<o1> ^priority <p1>)
+   (<o2> ^priority < <p1>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {collect-powerups*select*choose-best-weapon
+   (state <s> ^name collect-powerups
+              ^top-state.self.parameters.weapons <w1> 
+              ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<w1> ^classname <class2>
+         ^better <class1>)
+   (<o1> ^map-item <m1>)
+   (<m1> ^type weapon
+         ^classname <class1>)         
+   (<o2> ^map-item <m2>)
+   (<m2> ^type weapon
+         ^classname <class2>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {collect-powerups*apply*choose-best-item
+   (state <s> ^operator <o1>)
+   (<o1> ^name choose-best-item
+         ^map-item <mi>)
+   -->
+   (<s> ^best-item <mi>)}

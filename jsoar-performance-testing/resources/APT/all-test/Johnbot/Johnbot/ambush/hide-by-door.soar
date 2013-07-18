@@ -1,0 +1,8 @@
+sp {ambush*propose*hide-by-door
+   (state <s> ^name ambush
+              ^top-state.enemy.prediction-last-door-number
+              ^ambush-type prediction)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name hide-by-door)}
+

@@ -1,0 +1,16 @@
+#echo "\nLoading align-with-axis/stop"
+
+## Only do little spurts of thrust so turn off as soon as it is on.
+
+sp {align-with-axis*propose*stop*close-to-wall
+   (state <s> ^name align-with-axis
+              ^achieved heading
+              ^io.input-link.feedback.thrust << backward forward >>)
+   -->
+   (write (crlf) |Stop Forward to get aligned near back wall.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name stop
+        ^actions.thrust off)}
+
+
+

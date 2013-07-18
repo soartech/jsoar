@@ -1,0 +1,31 @@
+echo "\nLoading explore/record-entryway/record"
+
+#Propose that the bot side-step to get better lined
+#up with the doorway.
+sp {record-entryway*propose*side-step
+   (state <s> ^name record-entryway
+              ^reldir-lookup-table <rlt>
+              ^via-node <vn>)
+   (<vn> ^connect-heading <ch>
+         ^{ <axis> << x y >> } { <ltgt> << less-than greater-than >> })
+   (<rlt> ^entry <e>)
+   (<e> ^connect-heading <ch>
+        ^axis <axis>
+        ^<ltgt> <reldir>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name side-step
+        ^actions.side-step <reldir>)
+}
+
+#Don't side-step if we're facing the wrong way
+#or can already see the other node.
+sp {record-entryway*compare*side-step*others
+   (state <s> ^name record-entryway
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name << record face-entryway >>)
+   (<o2> ^name side-step)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

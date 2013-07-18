@@ -1,0 +1,9 @@
+sp {instruct*elaborate*state
+   (state <s> ^name instruct
+              ^current-problem.result <r>)
+   (<r> ^height <h>
+        ^base <b>
+        ^sum <sum>)
+-->
+   (<r> ^complete true)
+}

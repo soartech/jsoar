@@ -1,0 +1,4 @@
+source elaborations.soar
+source face-entryway.soar
+source record.soar
+source side-step.soar

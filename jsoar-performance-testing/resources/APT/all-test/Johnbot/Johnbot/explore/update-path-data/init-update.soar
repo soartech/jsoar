@@ -1,0 +1,35 @@
+
+sp {update-path-data*propose*init-update
+   (state <s> ^name update-path-data
+             -^room.update-data.active-rooms)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name init-update)}
+
+sp {update-path-date*apply*init-update
+   (state <s> ^operator.name init-update
+              ^room <er>)
+   -->
+   (<er> ^update-data <ud>)
+   (<ud> ^current-distance <cd>)
+   (<cd> ^number 1
+         ^extended false
+         ^tested false)}
+
+sp {update-path-date*apply*init-update*active-rooms
+   (state <s> ^operator.name init-update
+              ^room <er>)
+   (<er> ^update-data <ud>)
+   -->
+   (<ud> ^active-rooms <er>)}
+
+sp {update-path-date*apply*init-update*active-rooms*path
+   (state <s> ^operator.name init-update
+              ^room <er>)
+   (<er> ^update-data <ud>
+         ^path <p1>)
+   (<p1> ^destination-room <dr>
+         ^distance 1)
+   -->
+   (<ud> ^active-rooms <dr>)}
+

@@ -1,0 +1,12 @@
+#
+# prefer greeting over moving closer to user (so that when close enough, agent will stop & talk
+#
+sp {greet*select*prefer-speak-over-move
+   (state <s> ^name greet
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name speak-to)
+   (<o2> ^name step-1-move)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

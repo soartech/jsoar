@@ -1,0 +1,41 @@
+echo "\nLoading hunt"
+
+sp {quake*propose*hunt*prediction
+   (state <s> ^name quake
+        ;# -^self.get-object
+         -^self.retreat
+          ^map <map>
+          ^enemy.prediction-final-room-number <frn>)
+   (<map> ^explored true
+          ^room <rm>
+         -^current-room.room-number <frn>)
+   (<rm> ^room-number <frn>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name hunt 
+        ^type prediction
+        ^room <rm>)}
+
+sp {quake*propose*hunt*disappear-enemy
+   (state <s> ^name quake
+             -^enemy-just-died true
+              ^enemy <e>)
+   (<e> -^predict-range true
+        -^prediction-final-room-number
+        -^sensed-enemy
+         ^old-room <or>)
+   -->
+##tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name hunt
+        ^type enemy-disappeared
+        ^room <or>)}
+
+sp {quake*propose*hunt*dead-enemy
+   (state <s> ^name quake
+              ^enemy-just-died true)
+   -->
+##tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name hunt
+        ^type enemy-died)}

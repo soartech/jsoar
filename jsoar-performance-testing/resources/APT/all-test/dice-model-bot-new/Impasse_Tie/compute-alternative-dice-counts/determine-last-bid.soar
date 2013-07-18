@@ -1,0 +1,7 @@
+sp {compute-alternative-dice-counts*propose*determine-last-bid*bid
+   (state <s> ^name compute-alternative-dice-counts
+             -^last-bid)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name determine-last-bid)
+}

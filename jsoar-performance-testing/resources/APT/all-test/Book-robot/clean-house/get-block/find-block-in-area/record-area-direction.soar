@@ -1,0 +1,30 @@
+sp {find-block-in-area*propose*record-area-direction
+   (state <s> ^name find-block-in-area
+              ^quiescence t
+              ^top-state.direction <dir>
+             -^current-area.search-start-direction)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-area-direction)
+}
+
+sp {apply*record-area-direction
+   (state <s> ^operator <op>
+              ^top-state <ss>)
+   (<ss> ^current-area <area>
+         ^direction <dir>)
+   (<op> ^name record-area-direction)
+-->
+   (<area> ^search-start-direction <dir>)
+}
+#
+#sp {apply*record-area-direction*remove
+#   (state <s> ^operator <op>
+#              ^current-area <area>
+#              ^superstate.direction <> <dir>)
+#   (<area> ^search-start-direction <dir>)
+#   (<op> ^name record-area-direction)
+#-->
+#   (<area> ^search-start-direction <dir> -)
+#}
+#

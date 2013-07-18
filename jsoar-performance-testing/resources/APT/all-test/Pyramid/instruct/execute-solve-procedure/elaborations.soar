@@ -1,0 +1,6 @@
+sp {execute-solve-procedure*elaborate*state*problems
+   (state <s> ^name execute-solve-procedure
+              ^superstate.current-problem <cp>)
+-->
+   (<s> ^current-problem <cp>)
+}

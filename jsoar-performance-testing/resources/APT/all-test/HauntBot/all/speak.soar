@@ -1,0 +1,302 @@
+echo "\nLoading speak"
+
+#
+#speak operator example (commented out to prevent conflict with speak-to example)
+
+#sp {any-ps*propose*speak
+#   (state <s> ^name haunt
+#               ^io.input-link.agent.name <name>)
+#  -(<s> ^spoke)
+#-->
+#   (<s> ^operator <o> + >,=)
+#   (<o> ^name speak
+#        ^phrase1 My_name_is_
+#        ^phrase2 <name>
+#        ^sender <name>
+#        ^volume 2)
+#   (write (crlf) |proposing speak operator|)
+#}
+
+sp {any-ps*apply*speak
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^name speak
+        ^phrase1 <p1>
+        ^phrase2 <p2>
+       -^phrase3
+        ^sender <sender>
+        ^volume <v>)
+-->
+   (<ol> ^speak <speak>)
+   (<speak> ^phrase1 <p1>
+             ^phrase2 <p2>
+            ^sender <sender>
+            ^volume <v>)
+   (<s> ^spoke dummy)
+   (write (crlf) |applying speak operator|)
+}
+
+#
+#speak-to operator example
+#greet Mazin once when you see him
+
+sp {any-ps*propose*speak-to
+   (state <s> ^name haunt
+               ^io.input-link <il>)
+   (<il> ^agent.name <name>
+          ^objects.entity <e>)
+   (<e> ^name { <target> Mazin }
+         ^range <r>)
+  -(<s> ^spoke <target>)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name speak-to
+        ^phrase1 Whuzzup_
+        ^phrase2 <target>
+        ^sender <name>
+        ^target <target>
+        ^range <r>)
+        #^volume 3)
+   (write (crlf) |proposing speak-to operator|)
+}
+
+#
+#these elaborations set the volume of the speak-to operator
+#depending on how far away the actor being spoken to is
+sp {any-ps*elaborate*speak-to*volume-close
+   (state <s> ^name haunt
+               ^operator <o>)
+   (<o> ^name speak-to
+         ^range <r> <= 266.7
+        -^volume)
+-->
+   (<o> ^volume 2)
+}
+
+sp {any-ps*elaborate*speak-to*volume-medium
+   (state <s> ^name haunt
+               ^operator <o>)
+   (<o> ^name speak-to
+         ^range <r> > 266.7
+         ^range <r> <= 533.3
+        -^volume)
+-->
+   (<o> ^volume 3)
+}
+
+sp {any-ps*elaborate*speak-to*volume-far
+   (state <s> ^name haunt
+               ^operator <o>)
+   (<o> ^name speak-to
+         ^range <r> > 533.3
+        -^volume)
+-->
+   (<o> ^volume 4)
+}
+
+sp {any-ps*apply*speak-to
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^name speak-to
+        ^phrase1 <p1>
+        ^phrase2 <p2>
+       -^phrase3
+        ^sender <sender>
+        ^target <target>
+        ^volume <v>)
+-->
+   (<ol> ^speak-to <speak-to>)
+   (<speak-to> ^phrase1 <p1>
+                ^phrase2 <p2>
+               ^sender <sender>
+               ^target <target>
+               ^volume <v>)
+   (<s> ^spoke <target>)
+   (write (crlf) |applying speak-to operator|)
+}
+
+#
+#clean up history when person greeted disappears
+#this way we can greet again when see person next time
+
+sp {any-ps*propose*remove*spoke
+   (state <s> ^spoke <target>
+              -^io.input-link.objects.entity.name <target> )
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name remove-spoke)
+   (write (crlf) |proposing remove spoke|)
+}
+
+sp {any-ps*apply*remove*spoke
+   (state <s> ^operator <o>
+               ^spoke <dummy>)
+   (<o> ^name remove-spoke)
+-->
+   (<s> ^spoke <dummy> -)
+   (write (crlf) |applying remove spoke|)
+}
+
+#
+#another speak example
+#when the hitchhiker sees the scientist, he says Marco
+
+sp {any-ps*propose*speak*marco
+   (state <s> ^name haunt
+               ^io.input-link <il>
+              -^spoke-marco)
+   (<il> ^agent.name { <name> Hitchhiker }
+          ^objects.entity.name Scientist)
+  
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name speak
+        ^phrase1 Marco
+        ^sender <name>
+        ^volume 4)
+   (write (crlf) |proposing speak marco operator|)
+}
+
+sp {any-ps*apply*speak*marco
+   (state <s> ^name haunt
+               ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^name speak
+        ^phrase1 { <p1> Marco }
+        ^sender <sender>
+        ^volume <v>)
+-->
+   (<ol> ^speak <speak>)
+   (<speak> ^phrase1 <p1>
+            ^sender <sender>
+            ^volume <v>)
+   (<s> ^spoke-marco dummy)
+   (write (crlf) |applying speak marco operator|)
+}
+
+#
+#When the hitchhiker no longer sees the scientist
+#he forgets that he already said Marco (so he can say it again next time)
+sp {any-ps*propose*remove*spoke-marco
+   (state <s> ^spoke-marco
+              -^io.input-link.objects.entity.name Scientist)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name remove-spoke-marco)
+   (write (crlf) |proposing remove spoke-marco|)
+}
+
+sp {any-ps*apply*remove*spoke-marco
+   (state <s> ^operator <o>
+               ^spoke-marco <dummy>)
+   (<o> ^name remove-spoke-marco)
+-->
+   (<s> ^spoke-marco <dummy> -)
+   (write (crlf) |applying remove spoke-marco|)
+}
+
+#
+#When the scientist hears Marco, he says Polo 
+#and marks the Marco message as processed
+sp {any-ps*propose*speak*polo
+   (state <s> ^name haunt
+               ^io.input-link <il>)
+   (<il> ^agent.name { <name> Scientist }
+          ^messages <ms>)
+   (<ms> ^message <m>)
+   (<m> -^status processed
+          ^phrase <p>)
+   (<p> ^word Marco
+         ^next nil)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name speak
+        ^phrase1 Polo
+        ^sender <name>
+        ^volume 4
+        ^message <m>)
+   (write (crlf) |proposing speak polo operator|)
+}
+
+sp {any-ps*apply*speak*polo
+   (state <s> ^name haunt
+               ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^name speak
+        ^phrase1 { <p1> Polo }
+        ^sender <sender>
+        ^volume <v>
+        ^message <m>)
+-->
+   (<ol> ^speak <speak>)
+   (<speak> ^phrase1 <p1>
+            ^sender <sender>
+            ^volume <v>)
+   (<m> ^status processed)
+   (write (crlf) |applying speak polo operator|)
+}
+
+#
+#The scientist marks as processed messages he doesn't care about
+sp {any-ps*propose*scientist*process-no-response-messages
+   (state <s> ^name haunt
+               ^io.input-link <il>)
+   (<il> ^agent.name Scientist
+          ^messages.message <m>)
+   (<m> -^status processed
+          ^phrase << Polo Whuzzup >>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name process-no-response-messages
+         ^message <m>)
+}
+
+#
+#The hitchhiker marks as processed messages he doesn't care about
+sp {any-ps*propose*hitchhiker*process-no-response-messages
+   (state <s> ^name haunt
+               ^io.input-link <il>)
+   (<il> ^agent.name Hitchhiker
+          ^messages.message <m>)
+   (<m> -^status processed
+          ^phrase.word << Polo Whuzzup Marco >>)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name process-no-response-messages
+         ^message <m>)
+}
+
+sp {any-ps*apply*process-no-response-messages
+   (state <s> ^name haunt
+               ^io.input-link.messages.message <m>
+               ^operator <o>)
+   (<o> ^name process-no-response-messages
+         ^message <m>)
+-->
+   (<m> ^status processed)
+}
+          
+#sp {any-ps*propose*clean-up-messages
+#   (state <s> ^name haunt
+#               ^io.input-link <il>)
+#   (<il> ^messages.message <m>)
+#   (<m> ^status processed)
+#-->
+#   (<s> ^operator <o> + >,=)
+#   (<o> ^name clean-up-messages
+#         ^message <m>)
+#   (write (crlf) |proposing clean-up-messages|)
+#}
+#
+#sp {any-ps*apply-clean-up-messages
+#   (state <s> ^name haunt
+#               ^operator <o>
+#               ^io.input-link <il>)
+#   (<il> ^messages.message <m>)
+#   (<m> ^status processed)
+#   (<o> ^name clean-up-messages
+#         ^message <m>)
+#-->
+#   (<il> ^messages.message <m> -)
+#   (write (crlf) |applying clean-up-messages|)
+#}

@@ -1,0 +1,215 @@
+echo "\nLoading execute-mission/retreat"
+
+################################
+## retreat operator
+##   Determine-retreat-door
+##   Mark objective abandon
+##   Options:
+##     Create new objective to defend room that you are going into
+##     Go to room furthest from enemy
+##   Record time-abandoned
+
+##   REW: 2002-07-10
+##        Added ^condition to express the reason that the retreat was proposed (eg, wounded, out of ammo, etc.)
+##        Added new application prods that test ^condition and generate an appropriate communication
+
+################################
+#
+
+sp {execute-mission*propose*retreat*wounded
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.hurt true
+        -^map.current-area.retreat-door none
+         ^threats.level very-high)
+-->
+   (write (crlf) |Propose retreat wounded|)
+   (<s> ^operator <o> +, = 70)
+   (<o> ^name retreat
+        ^condition wounded)
+}
+
+sp {execute-mission*propose*retreat*no-ammo
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> -^self.armed yes
+         -^map.current-area.retreat-door none
+          ^threats.level very-high)
+-->
+   (write (crlf) |Propose retreat no-ammo|)
+   (<s> ^operator <o> +, = 90)
+   (<o> ^name retreat
+        ^condition weapon-dry)}
+
+sp {execute-mission*propose*retreat*heavy-fire
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.underfire.value heavy
+         -^map.current-area.retreat-door none)
+-->
+   (write (crlf) |Propose retreat heavy-fire|)
+   (<s> ^operator <o> +, = 30)
+   (<o> ^name retreat
+        ^condition heavy-fire)}
+
+
+# 2003-06-11
+# If I'm subordinate of a pair, and I get message that leader
+# says pull-out, then propose retreat with high prob
+
+sp {execute-mission*propose*retreat*achieve*pull-out
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^comm.accepted-messages.accept-message <am>
+         ^mission.team <team>
+         ^self.name <name>
+# I'm not already retreating
+        -^mission.retreat-objective.retreat-initiated )
+   (<team> ^agents <ags>
+           ^leader <leader-name>
+           ^subordinate <name>)
+   (<ags> ^agent <me>
+          ^agent <leader>)
+   (<me> ^name {<> <leader-name> <name>} )
+   (<leader> ^name <leader-name>)
+   (<am> ^pointer-to-first-content-word.word pull-out
+         ^message.phrase.word <leader-name>)
+-->
+   (write (crlf) |Propose retreat Recevied pull out order|)
+   (<s> ^operator <o> +, = 100)
+   (<o> ^name retreat
+        ^condition pull-out)}
+
+sp {execute-mission*propose*retreat*buddy*pulling-out
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^comm.accepted-messages.accept-message <am>
+         ^self.name <name>
+         ^scenario.<< REDFOR BLUEFOR >> <teamid>
+         ^io.input-link.agent.team <red>
+# I'm not already retreating
+         -^mission.retreat-objective.retreat-initiated)
+   (<teamid> ^team <red>
+             ^name {<> <name> <buddy-name> } )
+   (<am> ^pointer-to-first-content-word.word pulling-out
+         ^message.phrase.word <buddy-name>)
+-->
+   (write (crlf) |Propose retreat Received pulling out message|)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name retreat
+        ^condition pulling-out)}
+
+
+
+sp {execute-mission*propose*retreat*retreat-door  # Because of prior retreat
+   (state <s> ^name execute-mission
+              ^top-state.map.current-area.retreat-door { <> none <door> })
+-->
+   (write (crlf) |Propose retreat retreat-door: | <door>)
+   (<s> ^operator <o> +, = 20)
+   (<o> ^name retreat
+        ^condition prior-retreat)}
+
+# JEL: 2003-2-14
+#  Retreat if enemy disappears - low probability
+sp {execute-mission*propose*retreat*enemy*not-visible
+   (state <s> ^name execute-mission
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state.threats.selected-threat.entity.visible false)
+-->
+   (write (crlf) |Propose Retreat - enemy not visible|)
+   (<s> ^operator <o> +, = 10)  
+   (<o> ^name retreat
+        ^condition enemy-visible)
+}
+
+#  Retreat as soon as see enemy - low probability
+sp {execute-mission*propose*retreat*enemy*visible
+   (state <s> ^name execute-mission
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state.threats.selected-threat.entity.visible true)
+-->
+   (write (crlf) |Propose Retreat - see enemy|)
+   (<s> ^operator <o> +, = 20)  
+   (<o> ^name retreat
+        ^condition enemy-visible)
+}
+
+
+# REW: 2003-06-13
+# Mark the retreat objective when retreat is initiated
+sp {retreat*apply*retreat-initiated
+   (state <s> ^operator <o> ^top-state <ts>)
+   (<ts> ^mission.retreat-objective <ro>)
+   (<ro> -^retreat-initiated)
+   (<o> ^name retreat )
+-->
+   (<ro> ^retreat-initiated true)
+}
+
+# REW: 2003-04-30
+# When retreating, if there is someone else on my team visible, tell them
+# 2003-06-13 and haven't yet initiated the retreat
+# BUG: Will fire multiple times, okay for now...
+sp {retreat*apply*communicate*pulling-out
+   (state <s> ^operator <o> ^top-state <ts>)
+   (<ts> ^comm <comm>
+         ^mission.team <team>
+        -^mission.retreat-objective.retreat-initiated
+         ^io.input-link.objects.entity <e>
+         ^self.name <> <name>)
+   (<e> ^visible true ^name <name>)
+   (<team> ^type <> individual ^agents.agent.name <name>)
+   (<o> ^name retreat
+        ^condition {<> pull-out <> pulling-out} )
+-->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name pulling-out)
+}
+
+# REW: 2003-06-12
+# Send pull-out message if I'm retreating and the leader
+# 2003-06-13 and haven't yet initiated the retreat
+sp {retreat*apply*communicate*pull-out
+   (state <s> ^operator <o> ^top-state <ts>)
+   (<ts> ^comm <comm>
+         ^mission.team <team>
+        -^mission.retreat-objective.retreat-initiated
+         ^io.input-link.objects.entity <e>
+         ^self.name {<> <name> <leader-name> } )
+   (<e> ^visible true ^name <name>)
+   (<team> ^type <> individual ^agents.agent.name <name>
+           ^leader <leader-name> 
+           ^subordinate <name>)
+   (<o> ^name retreat
+        ^condition {<> pull-out <> pulling-out} )
+-->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name pull-out)
+}
+
+# REW: 2002-07-10
+# If condition for retreat is wounded, communicate i-am-hit
+# REW: 2002-10-10 (i-am-hit moved to elaborations/self)
+#sp {retreat*apply*communicate*i-am-hit
+#   (state <s> ^operator <o> ^top-state.comm <comm>)
+#   (<o> ^name retreat
+#        ^condition wounded)
+#-->
+#   (<comm> ^communicate <cc>)
+#   (<cc> ^name i-am-hit)
+#}
+
+
+# REW: 2002-07-10
+# If condition for retreat is weapon-dry, communicate weapon-dry
+# REW: 2002-09-27 (moved to reload)
+#sp {retreat*apply*communicate*weapon-dry
+#   (state <s> ^operator <o> ^top-state.comm <comm>)
+#   (<o> ^name retreat
+#        ^condition weapon-dry)
+#-->
+#   (<comm> ^communicate <cc>)
+#   (<cc> ^name weapon-dry)
+#}
+

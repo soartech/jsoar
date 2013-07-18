@@ -1,0 +1,90 @@
+#echo "\nLoading attack/approach-enemy"
+
+sp {attack*propose*approach-enemy*forward
+   (state <s> ^name attack
+              ^io.input-link.agent.weapon-selected <cname>
+              ^enemy <e>
+             -^io.input-link.feedback.thrust forward
+              ^top-state.parameters <param>)
+   (<e> -^range < <range>
+         ^sensor <se>)
+   (<se> ^visible true
+         ^infront true)
+   (<param> ^weapon <w>
+            ^attack-distances.<wrange>.max <range>)
+   (<w> ^classname <cname>
+        ^range <wrange>)
+   -->
+#  (write (crlf) |Thrust forward to get within | <wrange> |: | <range>)
+   (<s> ^operator <o> + =)
+   (<o> ^name approach-enemy
+        ^actions.thrust forward)
+   }
+
+sp {attack*propose*approach-enemy*backward
+   (state <s> ^name attack
+              ^io.input-link.agent.weapon-selected <cname>
+              ^enemy <e>
+             -^io.input-link.map.backward.distance < 50
+             -^io.input-link.feedback.thrust backward
+              ^top-state.parameters <param>)
+   (<e> -^range > <range>
+         ^sensor <se>)
+   (<se> ^visible true
+         ^infront true)
+   (<param> ^weapon <w>
+            ^attack-distances.<wrange>.min <range>)
+   (<w> ^classname <cname>
+        ^range <wrange>)
+   -->
+#  (write (crlf) |Thrust backward to get within | <wrange> |: | <range>)
+   (<s> ^operator <o> + =)
+   (<o> ^name approach-enemy
+        ^actions.thrust backward)
+   }
+
+sp {attack*propose*approach-enemy*off
+   (state <s> ^name attack
+              ^io.input-link.agent.weapon-selected <cname>
+              ^enemy <e>
+             -^io.input-link.feedback.thrust off
+              ^top-state.parameters <param>)
+   (<e> -^range < <min-range>
+        -^range > <max-range>
+         ^sensor <se>)
+   (<se> ^visible true
+         ^infront true)
+   (<param> ^weapon <w>
+            ^attack-distances.<wrange> <xxx>)
+   (<xxx> ^min <min-range>
+          ^max <max-range>)
+   (<w> ^classname <cname>
+        ^range <wrange>)
+   -->
+#  (write (crlf) |Stop thrust within | <wrange> |: | <min-range> |-| <max-range>)
+   (<s> ^operator <o> + =)
+   (<o> ^name approach-enemy
+        ^actions.thrust off)
+   }
+
+sp {attack*propose*approach-enemy*blocked
+   (state <s> ^name attack
+              ^blocked left right backward
+             -^io.input-link.feedback.thrust forward)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name approach-enemy
+        ^actions.thrust forward)
+   }
+
+sp {attack*propose*approach-enemy*blocked*back
+   (state <s> ^name attack    
+              ^blocked backward 
+             -^blocked <dir>
+              ^top-state.strafe-direction.direction <dir>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name approach-enemy
+        ^actions.thrust forward)
+   }
+

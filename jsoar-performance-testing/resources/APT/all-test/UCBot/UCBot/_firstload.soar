@@ -1,0 +1,229 @@
+echo |Fisrt-load|
+# ________                             _____  ___________________        _____
+# __  ___/______ ______ ________       __  / / /__  ____/___  __ )______ __  /_
+# _____ \ _  __ \_  __ `/ / ___/       _  / / / _  /     __  __  |_  __ \_  __/
+# ____/ / / /_/ // /_/ / / /           / /_/ /  / /___   _  /_/ / / /_/ // /_  
+# /____/  \____/ \__,_/ /_/            \____/   \____/   /_____/  \____/ \__/  
+
+#####################################################
+##
+## If parameter load-map is true, then enable one of 
+## the productions that build map information here.
+
+#####################################################
+## NEW MAPS
+## use these when possible
+
+## Level 2 Scenario 1 Source
+## Fully explored, all paths recorded
+#rete-net --load "maps/l2s1_source_full.soarx"
+
+## level 1 source scenario 1, attempt 1 (partial, all-paths)
+#rete-net --load "maps/l1s1_go-to-flag_1.soarx"
+
+#source "/home/ngorski/results/l0s2_source_partial_5.soar"
+
+#####################################################
+## OLD MAPS - these will be going away soon
+## IF YOU'RE USING ONE OF THESE, BE SURE TO UNCOMMENT
+## THE CENTROID ELABORATION IN go-to-flag/elaborations
+
+## uncomment to load the full map with all path
+## path information
+#rete-net --load "maps/map.apt.0.3.0.soarx"
+
+## Level 2 Source scenario 1, SSPS v0.3, num 0
+#rete-net --load "maps/map.l2s1.0.3.0.soarx"         # note: update-all-paths not yet run
+#source "maps/partial-s2.soar"                       # note: partially explored, but update-all-paths run
+
+## Level 2 Target scenario 1, SSPS v0.3, num 0
+#rete-net --load "maps/map.l2t1.0.3.0.soarx"         # note: update-all-paths not yet run; also: SSPS info incomplete, XML needs to be fixed
+
+## uncomment to load a small map (areas 2, 16, and
+## all in between).
+#source "maps/load-map.small.soar"
+
+## END OLD MAPS
+#####################################################
+
+## Load selection space for search around obstacles
+#source "../../default/selection.soar"
+#source "../../default/selection-optimal.soar"
+
+#excise top-goal*halt*success
+
+##
+#####################################################
+
+multi-attributes area 80
+multi-attributes negative-space 5
+multi-attributes path 80
+multi-attributes connected-area 3
+multi-attributes previous-area 6                                 
+
+## NAG's TODO before 3/31:
+##  5. gather results for levels 0 through 2, parameterized based on full-exploration or go-to-flag immediately
+
+## NAG's TODO after 3/31:
+##  0. Refactor!  I can improve lots of the code that I wrote early on; examine the rules on a file by file basis, examine
+##     the memories for costly rules, etc.
+##  1. per JEL, change move-to-area.path to not be "path" (path is multi-attributed)
+##  2. remove unnecessary rules pertaining to partially-recorded-head -- no need to move there anymore, no need to propagate
+##     I think that these are all redundant, but they're not hurting anything now
+##  3. move propogate-path to the top level.  Move proposal to a state-no-change impasse, use record-path apply rules.  Possibly
+##     add a type to the rule so that the monitor rules can pick up on everything.
+##  4. really think about how we're recording paths during exploration and going
+##     to the flag...
+
+#####################################################
+##
+##                 Change log
+
+### JEL 3/27/06
+## 1. Changed go-to-flag/impasse_operator_tie/evaluation-operator/elaborations - made it so it correctly copies down the top-state
+## 2. Corrected detect-flag.soar so it handles top-state correctly
+
+### NAG 3/25/06
+## Lots of changes to get things running on line.  Lost track of them at some point.  I'll merge changes in to this copy after
+## results have been gathered.
+
+### NAG 3/23/06
+## 1. Interface now throws the gateway midpoint up to the input-link as ^centroid
+##     commented out the elaboration, will uncomment for now when using maps previously generated
+## 2. DEBUG
+##     modified DEBUG*common*set-blocked; not o: supported, checks for internal simulation
+## 3. go-to-flag/move-to-area:
+##     added go-to-flag*compare*move-to-area*area-counts
+## 4. Added update-gateway operator and rules
+##     added rules for blocked gateways, as well as new gateways
+## 5. elaborations/canvas
+##     draw the flags as static points
+## 6. initialize-UCBot
+##     bumped gateway buffer down to 10 from 25
+## 7. record-area
+##     modified UCBot*apply*record-area*connected-new-area to only record areas that are
+##     reachable from the input-link (so we no longer record the tops of buildings for
+##     example)
+## 8. go-to-flag
+##     bufix: UCBot*propose*go-to-flag*explore-all changed ^map.search-complete to test for true
+
+### JEL 3/23/06
+## 1. clean up go-to-flag*select*move-to-area*avoid-previous-area & go-to-flag*select*move-to-area*avoid-previous-area2
+## 2. goto-flag*propose*move-to-area*new-area
+## 3. Canvas - add rule to draw the gateways
+## 4. go-to-flag/impasse_operator_tie/evaluate-operator/elaborations - added unexplored as an evaluation that is better than failure or partial-failure## 5. added negation to explore*elaborate*gateway*centroid so it only fires once - should be i-supported, but is o-supported
+## 5. Add better lower to flag (used in selection space).
+
+### NAG 3/23/06
+## 1. explore/propogate-path
+##     rewrote partially-recorded-head proposal in style of the unrecorded proposal
+## 2. record-area
+##     UCBot*apply*record-area*copy-negative-spaces*top -- now copies centroid from the input-link
+
+### NAG 3/22/06 -- merge changes
+## 1. Updated datamap for JEL's changes
+## 2. common/move-to-xy/move-forward
+##     updated the avoid-drainpipes rules, but left them commented out for now
+## 3. DEBUG
+##     commented out the preference for area 5 from area 2
+## 4. detect-flag
+##     modified first proposal to be =, > (was conflicting on-line)
+## 5. detect-record-area-complete
+##     on-line wasn't playing nicely with record-area, added a compare rule that
+##     gives record-area priority
+## 6. explore/propogate-path
+##     apply rule adds ^next-area to new path (bugfix)
+## 7. Updated this file for loading maps (moved maps to a ./maps directory)
+
+### JEL 3/21/06
+## 1. Consider changing move-to-area.path to be not path - which is declared to be a multiattribute
+###2. go-to-flag/elaborations - add computation of centroid...
+## 3. elaborate*canvas*draw-area add superstate nil
+## 4. Don't copy the canvas - create new on for each state (avoids redrawing map in substates)evaluate*operator*copy-top-state
+## 5. elaborate*canvas*agent-area*simulation*blocked add
+### JEL 3/21/06
+## 1. A bunch of changes to improve chunking: 
+##     go-to-flag*elaborate*failure add quiescence t
+##     common*apply*move-to-area add quiescence t
+##     go-to-flag*apply*move-to-area*record-previous-area quiescence t
+##     evaluate*elaborate*copy-previous-area
+## 2. Add depth for bounded lookahead
+##    Depth 0 in go-to-flag subgoal
+##    go-to-flag*elaborate*success*depth
+##    Copy depth in subgoal
+##    Add depth for move-to-area internal
+## 3. Changes to handled blocked pathes and dead ends
+##    Modify go-to-flag*elaborate*path*blocked go-to-flag*propose*move-to-area go-to-flag*propose*move-to-area-previous-id path-blocked off of area
+##    go-to-flag*apply*move-to-area*record-previous-area
+##    go-to-flag*elaborate*mark-dead-end
+## 4. modify common*apply*move-to-area evaluate-operator*apply*move-to-area - use next-area...
+## 5. Consider modifying UCBot*propose*propogate-path*unrecorded UCBot*propose*propogate-path*partially-recorded-head to use next-area
+
+
+### NAG 3/19/06
+## 1. _firstload:
+##   a. modified the default map: brought up to SSPS 0.3 data, now includes areas that can be reached by jumping
+##   b. added commented-out rete loads to load the level 2 source & target maps (they are both incomplete at the moment, however)
+##   c. commented out the selection.soar source
+## 2. elaborations/canvas:
+##   a. Regions now drawn as static rather than dynamic objects
+##   b. Now draw regions and id labels separately
+##   c. 2-stage elaboration to draw regions: first, elaborate*canvas*draw-area, then elaborate*canvas*convex-region rules fire
+##   d. Added appropriate rules to draw dynamic regions according to new structure & RHS fxns as well
+##   e. Updated datamap to include ^canvas and its attributes off of the state 
+## 3. common/move-to-area/move-through-gateway/move-forward:
+##   a. rewrote proposal as two rules, one that walks through a gateway and one that jumps through it
+##   b. related to (a) above: modified stop moving rules in record-area, explore/move-to-area, and explore/done to stop jumping
+## 4. common/move-to-xy/move-forward:
+##   a. apply rule to jump if the move-forward operator specifies jump added
+## 5. record-path:
+##   a. Updated path rules to annotate paths with ^next-area
+## 6. search-for-flag/initialize-search, move-to-area:
+##   a. start-id now carried on the flag, was carried on the state previously (avoids GDS errors now)
+## 7. update-all-paths:
+##   a. checks for new ^parameters.update-all-paths true in proposal
+## 8. record-area
+##   a. Commented out the ^info attribute from several rules -- SSPS 0.3 doesn't provide this (perhaps temporarily?)
+##   b. UCBot*apply*record-area*connected-area: only copy over areas that you can walk, fall or jump to
+##   c. UCBot*apply*record-area*copy-area-vertices*3: copy over centroid information
+## 9. detect-record-area-complete:
+##   a. Added compare rule to prefer updating this over detecting a flag (was giving a tie impasse)
+## 9. initialize-UCBot:
+##   a. Added ^canvas identifier to init rule
+## 10. Interface & datamap:
+##   a. Added ^area.vertices.centroid, comes in from the input-link and copied over by record-area
+##   b. Added ^jump enumeration to move-forward op in move-through-gateway and move-to-xy
+##   c. Added ^next-area to paths
+##   d. Added ^start-id integer to flag structure
+##   e. Added ^parameters.update-all-paths to control proposal of update-all-paths
+
+
+### JEL 3/17/06
+## 1. Moved swap-flags to top-level
+## 2. Removed simulate-UC and moved rule to common/move-to-area (and renamed)
+## 3. Modify apply*initialize-UCBot add problem space and desired, which are necessary for internal search.
+## 4. Redo initialization so it sets current-area if internal simulation - requires modifying a few rules.
+## 5. Modify go-to-flag*propose*move-to-area - add check that path isn't blocked.
+## 6. Add go-to-flag/elaborations - compute path blocked and copy down problem space and desired
+## 7. Added area to flag structure - that is the area the flag is in. This will simplify other rules.
+## 8. Modify goto-flag proposals so they use the area structure off the flag instead of ids.
+## 9. Also modify detect-flag so doesn't use id
+## 10. Add rule to set gateway blocked (initially 7) for testing block avoidance
+## 11. Add proposals to go-to-flag/move-to-area that are available to go around a blockage
+## 12. Add in rules under the tie impasse under go-to-flag to make the search work
+## 13. Add detect-record-area-complete - this puts a flag on the map (search-complete true) that can be tested. It should speed up overall performance
+
+
+### NAG 3/16/06 
+## First merged copy.  From here on out, I'll track changes here.
+## General things that changed:
+##  1. initialize-UCBot collapsed (shouldn't have had sub-operators to begin with)
+##  2. added another record-path application rule that deletes paths created in
+##     the current-state -- this fixes the duplicate paths bug
+##  3. connected-areas are o: supported now, previously were elaborated
+##  4. exploit changed to go-to-flag
+##  5. created the rete files to load the rules that load the map
+##  6. merged in all of JEL's simulation code
+##  7. added search-for-flag and its suboperators
+##      - performs breadth-first-search centered around the original flag location
+##      - BFS around starting location (to solve level 2 for example) is buggy still

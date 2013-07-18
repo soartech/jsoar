@@ -1,0 +1,5 @@
+source elaborations.soar
+source create-x.soar
+source process-prior-result.soar
+source retrieve-last-guess.soar
+source special-guess.soar

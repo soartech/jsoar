@@ -1,0 +1,61 @@
+##################################### 
+# file: unjam.soar 
+# created: REW: 2001-09-25
+##
+## Unjam the weapon when it jams
+# Change history: 
+# 
+#  [1] Created REW
+#      Added and tested productions provided by AMN
+#  [2] REW: 2002-09-27
+#      Should unjam in any problem-space, not just attack
+
+echo "\nLoading ./execute-mission/attack/unjam.soar "
+
+sp {attack*propose*unjam
+    (state <s> ^name << attack defend retreat >>
+               ^top-state <ts>)
+    (<ts> ^parameters.error-codes.{<< weapon-jam unjam-failed >> <attr>}<wj>
+               ^io.output-link.reload.error-code <wj>)
+-->
+    (<s> ^operator <o> +, = 50)
+    (<o> ^name unjam
+         ^actions.unjam true
+         ^error-code <ec>)
+    (<ec> ^attribute <attr> ^value <wj>)
+}
+
+sp {apply*unjam*bad-reload
+    (state <s> ^operator <o>
+               ^top-state.io.output-link <ol>)
+    (<o> ^name unjam
+         ^error-code <ec>)
+    (<ec> ^attribute weapon-jam ^value <wj>)
+    (<ol> ^reload <rl>)
+    (<rl> ^error-code <wj>)
+-->
+    (<ol> ^reload <rl> -)
+#    (write (crlf) |GUN JAMMED ON RELOAD.  UNJAMMING.|)
+}
+
+sp {apply*unjam*bad-unjam
+    (state <s> ^operator <o>
+               ^top-state.io.output-link <ol>)
+    (<o> ^name unjam
+         ^error-code <ec>)
+    (<ec> ^attribute unjam-failed ^value <wj>)
+    (<ol> ^unjam <uj>)
+    (<uj> ^error-code <wj>)
+-->
+    (<ol> ^unjam <uj> -)
+#    (write (crlf) |GUN JAMMED ON UNJAM.  UNJAMMING.|)
+}
+
+sp {apply*unjam*say*weapon-jammed
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>)
+   (<o1> ^name unjam)
+   -->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name weapon-jammed)
+}

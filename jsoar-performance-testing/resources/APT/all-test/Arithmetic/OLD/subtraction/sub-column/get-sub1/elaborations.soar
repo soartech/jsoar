@@ -1,0 +1,9 @@
+sp {get-sub1*elaborate*state
+   (state <s> ^name get-sub1
+              ^superstate.current-column.sub1 <a>)
+-->
+   (<s> ^sub1 <a>
+        ^sub2 1)
+}
+
+

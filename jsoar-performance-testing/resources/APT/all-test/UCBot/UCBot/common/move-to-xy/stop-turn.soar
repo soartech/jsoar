@@ -1,0 +1,19 @@
+
+# Stop turning when you shouldn't turn.
+sp {move-to-xy*propose*stop-turn
+   (state <s> ^name move-to-xy
+              ^headings <headings>
+              -^io.input-link.feedback.turn none)
+   (<headings> -^should-turn)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name stop-turn
+         ^type wait)
+}
+
+sp {move-to-xy*apply*stop-turn
+   (state <s> ^operator.name stop-turn
+              ^io.output-link <o-link>)
+-->
+   (<o-link> ^turn.direction none)
+}

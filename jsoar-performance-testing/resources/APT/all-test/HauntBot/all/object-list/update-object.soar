@@ -1,0 +1,87 @@
+echo "\nLoading update-object"
+
+## Update the location of any objects (items/decorations) that have moved
+## Only proposed when position or area has changed 
+
+## NOTE: Tracking position might be nice for some
+## decisions.  It could add alot of overhead though, so
+## we should examine carefully if we want to do this
+
+sp {all*propose*update-object
+   (state <s> ^superstate nil
+              ^io.input-link.objects.{<< item decoration >> <cat> } <newobj>)
+   (<s> ^object-list.<cat> <oldobj>)
+   (<newobj> ^name <name>
+             ^area-name <newarea>
+             ^position <pos>
+             ^base <base>
+             ^top <top>
+             ^locked <locked>)
+   (<pos> ^x <newx>
+          ^y <newy>
+          ^z <newz>)
+    (<oldobj> ^name <name>)
+  -{(<oldobj> ^area-name <newarea>
+            ^position <pos2>
+            ^base <base>
+            ^top <top>
+            ^locked <locked>)
+    (<pos2> ^x <newx>
+            ^y <newy>
+            ^z <newz>)}
+   -->
+ #  (write (crlf) |Updating Object: | <name>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-object
+        ^new-object <newobj>
+        ^old-object <oldobj>)
+}
+
+
+
+
+sp {all*apply*update-object*other
+   (state <s> ^operator <o>)
+   (<o> ^name update-object
+        ^new-object <newobj>
+        ^old-object <oldobj>)
+   (<newobj> ^{ << area-name area-id top base locked >> <type>} <new-val>)
+   (<oldobj> ^<type> { <> <new-val> <old-val> })
+   -->
+   (<oldobj>  ^<type> <old-val> -
+                      <new-val>)
+}
+
+
+
+
+# special rule to update z and height-required values
+sp {all*apply*update-object*position*z-height
+   (state <s> ^operator <o>)
+   (<o> ^name update-object
+        ^old-object <oldobj>
+        ^new-object.position.z <z-new>)
+   (<oldobj> ^position <p>
+             ^height-required <h-old>)
+   (<p> ^z { <> <z-new> <z-old> })
+   -->
+   (<p> ^z <z-new>
+           <z-old> -)
+   (<oldobj> ^height-required (- <z-new> 150)  # FIXME pick better value & make it parameter
+                                  <h-old> -)
+}
+
+
+# used to update x,y coordinates
+sp {all*apply*update-object*position*x-y
+   (state <s> ^operator <o>)
+   (<o> ^name update-object    
+        ^old-object.position <p>
+        ^new-object.position. { << x y >> <x> } <x-new>)
+   (<p> ^<x> { <> <x-new> <x-old> })
+   -->
+#   (write (crlf) |Position update|)
+   (<p> ^<x> <x-new>
+             <x-old> -)
+}
+

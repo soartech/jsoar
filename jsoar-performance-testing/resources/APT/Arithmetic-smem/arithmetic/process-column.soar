@@ -1,0 +1,14 @@
+### Process the column and produce a result
+##    Result may include a carry-borrow which impacts next column
+
+sp {arithmetic*propose*process-column
+   (state <s> ^name arithmetic
+              ^arithmetic-problem.current-column <cc>)
+  -(<cc> ^result)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-column)
+}
+
+
+

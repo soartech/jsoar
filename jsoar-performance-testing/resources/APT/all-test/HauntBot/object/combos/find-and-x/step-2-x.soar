@@ -1,0 +1,22 @@
+
+#
+# If desired object has been found, execute specified
+# action. (Note that parameters will be copied in a separate
+# elaboration rule to allow for multiple entries)
+#
+# The 'found' object is also copied to the sub-state, since
+# it is assumed that the secondary action will most likely 
+# need this information. (Otherwise why find it? :)
+#
+sp {find-and-x*propose*step-2-x
+   (state <s> ^type find-and-x
+              ^available-object <obj>
+              ^next-action <na>)
+   (<na> ^name <name>
+         ^type <type>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name <name>
+        ^type <type>
+        ^target <obj>)
+}

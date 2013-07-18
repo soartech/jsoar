@@ -1,0 +1,12 @@
+echo "\nLoading explore/record-entryway/elaborations"
+
+sp {record-entryway*elaborate*via-node
+   (state <s> ^name record-entryway
+              ^superstate.operator <so>)
+   (<so> ^name record-entryway
+         ^node <via-node>)
+-->
+   (<s> ^via-node <via-node>)
+}
+
+

@@ -1,0 +1,3 @@
+pushd robot-move-turn-pickup-block
+source robot-move-turn-pickup-block_source.soar
+popd

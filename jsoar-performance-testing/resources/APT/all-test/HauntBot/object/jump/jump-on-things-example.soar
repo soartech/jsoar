@@ -1,0 +1,77 @@
+#/jump-on-things/move-to-thing
+#You may want to modify the range constraint so that it is a function 
+#of the objects radius and the agents radius.
+#Currently agent radius = 20, MedWoodenBox radius = 20.3.
+#Take into consideration that the agent and box objects have a different Z
+#coordinate, so if the agent is touching the object, its range will not be
+# (a.r + o.r), but instead sqrt( (a.r+o.r)^2 + (a.z-o.z)^2 )
+#A good estimate may be 2*(a.r + o.r), but this hasn't been tested extensively.
+#You may also consider not moving to the objects center position, but a
+#nearby point outside of the objects collision radius.
+
+#if we are not near that item, go to it
+
+sp {jump-on-things*propose*move-to-item
+   (state <s> ^operator <o>)
+   (<o> ^type jump-on-things
+        ^target <target>)
+   (<target> ^range <r> > 75
+             ^position <pos>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-thing
+        ^type move-to-xyz
+        ^position <pos>)
+}
+
+
+
+
+
+#jump-on-things/jump
+#See comments about range constraint in /jump-on-things/move-to-thing
+#regarding ^strength:
+# strength is a float ranging from 0 to 1 (inclusive) specifying the 
+# upward velocity of the jump.
+# 325 is the agent's JumpZ variable, and refers to the maximum Z velocity
+# of the jumping agent.  If strength = 1, the agents velocity will be set
+# to 325 in the Z direction.  This value will be passed on the i-link in
+# the future, instead of being hard-coded.
+# Do not confuse the Z velocity of a jump with the height the agent will
+# jump.  Objects are accelerated downward by gravity, so the max height
+# an agent can jump is JumpZ^2 / (2*g).  Standard gravity in UT is -950
+# so an agent can jump about 55.9 UnrealUnits high.  If you want an
+# agent to jump a certain height, h, we can derive from this:
+#  strength = sqrt(2*g*h)/JumpZ
+# The height of objects in UT is measured from the center, so from bottom 
+# to top an object measures 2*collisionHeight.  The height on the i-link 
+# can be changed to the objects true height if needed, however the 
+# half-height may be more useful.  You can easily calculate the Z coordinate
+# of the top or bottom of an object by doing (+ <z> <h>) or (- <z> <h>).
+# The current equation is sqrt(2*g * 2*h * 1.25)/JumpZ, so the agent will
+# jump slightly heigher than the height of the box.
+#regarding ^thrust:
+# thrust is a float ranging from 0 to 1 (inclusive) specifying the 
+# lateral velocity of the jump.  The agent will jump in the direction of
+# ^x and ^y, with a velocity equal to the agents MaxGroundSpeed * ^thrust
+
+# if we are close enough to item, jump on it
+
+sp {jump-on-things*propose*jump
+   (state <s> ^operator <o>)
+   (<o> ^type jump-on-things
+        ^target <target>)
+   (<target> ^range <= 75
+             ^position <pos>
+             ^height <h>
+             ^radius <r>)
+   (<pos> ^x <x> ^y <y>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name jump
+        ^actions <a>)
+   (<a> ^jump <j>)
+   (<j> ^x <x> ^y <y>
+        ^strength (/ (sqrt (* <h> 950 5)) 325)
+        ^thrust 1)
+}

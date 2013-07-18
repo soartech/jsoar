@@ -1,0 +1,26 @@
+#
+# locate and obtain the target object
+#
+sp {acquire-and-x*propose*step-1b-acquire
+   (state <s> ^type acquire-and-x
+              ^target <target>
+              ^usable-step <step>
+             -^has-object
+              ^height-required)
+   (<step> ^position <pos>
+             ^height <h>
+             ^radius <r>)
+   (<pos> ^x <x> ^y <y>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name climb-and-x
+        ^type climb-and-x
+        ^target <step>
+        ^next-action <na>)
+   (<na> ^name grab-object
+         ^type grab-object
+         ^target <target>)
+}
+
+
+

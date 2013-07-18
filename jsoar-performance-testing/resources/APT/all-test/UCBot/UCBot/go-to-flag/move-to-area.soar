@@ -1,0 +1,155 @@
+sp {go-to-flag*propose*move-to-area-previous-id
+   (state <s> ^name go-to-flag
+              ^top-state.map <map>
+              ^flag.previous-id <id>)
+   (<map> ^current-area <ca>)
+   (<ca> ^path <path>)
+   (<s> -^path-blocked true)
+   (<path> ^to-area <to-area>)
+   (<to-area> ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-area
+         ^path <path>
+         ^speed run)
+}
+
+sp {go-to-flag*propose*move-to-area
+   (state <s> ^name go-to-flag
+              ^top-state <ts>)
+   (<ts> ^map <map>
+         ^flag.area <to-area>)
+   (<map> ^current-area <ca>)
+   (<ca> ^path <path>)
+   (<s> -^path-blocked true)
+   (<path> ^to-area <to-area>)
+   (<to-area> ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-area
+         ^path <path>
+         ^speed run)
+}
+
+##### These are all added to support going around blocked gateways
+sp {go-to-flag*propose*move-to-area*blocked
+   (state <s> ^name go-to-flag
+              ^top-state.map <m>)
+   (<m> ^current-area <ca>
+       -^previous-area <con-area>)
+   (<ca> ^path <p>)
+   (<p> ^to-area <con-area>
+        ^area-count 1
+        ^gateway <gw>)
+   (<gw> -^blocked true)
+  -(<con-area> ^dead-end true)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name move-to-area
+         ^path <p>
+         ^speed run
+         ^type connected-area)
+}
+
+
+sp {go-to-flag*compare*move-to-area*area-counts
+   (state <s> ^name go-to-flag
+              ^operator <o1> +
+                        { <> <o1> <o2> } +)
+   (<o1> ^name move-to-area
+         ^type connected-area
+         ^path <path1>
+         ^distance-to-flag <dtf1>)
+   (<path1> ^next-area <narea>
+            ^to-area <narea>)
+   (<narea> ^id <tid1>
+           -^recorded true)
+   (<o2> ^name move-to-area
+         ^type connected-area
+         ^path <path2>
+         ^distance-to-flag { <dtf2> > <dtf1> })
+   (<path2> ^next-area <narea2>
+            ^to-area <narea2>)
+   (<narea2> ^id <tid2>
+            -^recorded true)
+-->
+   (<s> ^operator <o1> > <o2>)
+#   (write (crlf) |*Prefer | <o1> |-| <tid1> |@| <dtf1> | to | <o2> |-| <tid2> |@| <dtf2>  )
+}
+
+
+sp {go-to-flag*select*move-to-area*avoid-previous-area
+   (state <s> ^top-state.map.previous-area <con-area>
+              ^operator <op> +)
+   (<op> ^name move-to-area
+         ^path.to-area <con-area>)
+-->
+   (<s> ^operator <op> -)
+}
+
+sp {go-to-flag*select*move-to-area*avoid-previous-area2
+   (state <s> ^top-state.map.previous-area <con-area>
+              ^operator <op> +)
+   (<op> ^name move-to-area
+         ^path.next-area <con-area>)
+-->
+   (<s> ^operator <op> -)
+}
+
+
+## Two steps to record previous area to avoid problems with updating
+## BUG BUG
+sp {go-to-flag*apply*move-to-area*record-last-area*goto-flag
+   (state <s> ^top-state.map <map>
+              ^superstate.operator.name go-to-flag
+              ^quiescence t
+              ^operator <op>)
+   (<op> ^name move-to-area
+         ^type connected-area)
+   (<map> ^current-area <current-area>
+         -^previous-area <current-area>
+         -^last-area <current-area>)
+-->
+   (<map> ^last-area <current-area>)}
+
+## Last-area moved to previous area in goto-flag
+
+#####
+
+sp {go-to-flag*apply*move-to-area*record-previous-area*internal-simulation
+   (state <s> ^top-state.map <map>
+              ^top-state.parameters.internal-simulation true
+              ^operator <op>)
+   (<op> ^name move-to-area
+         ^type connected-area)
+   (<map> ^current-area <current-area>
+         -^previous-area <current-area>)
+-->
+   (<map> ^previous-area <current-area>)
+}
+#
+#sp {go-to-flag*apply*move-to-area*record-previous-area*evaluate-operator
+#   (state <s> ^top-state.map <map>
+#              ^superstate.operator.name evaluate-operator
+#              ^operator <op>)
+#   (<op> ^name move-to-area
+#         ^type connected-area)
+#   (<map> ^current-area <current-area>
+#         -^previous-area <current-area>)
+#-->
+#   (<map> ^previous-area <current-area>)
+#}
+
+sp {go-to-flag*monitor*move-to-area*not-connected
+   (state <s> ^operator <op>
+              ^top-state <ts>)
+   (<ts> ^parameters.monitor-level all
+         ^map.current-area <cur>)
+   (<op> ^name move-to-area
+         ^path.to-area { <ca> <> <cur> }
+         ^type connected-area)
+   (<ca> ^id <cid>)
+   (<cur> ^id <cuid>)
+-->
+   (write (crlf) |Goal: move-to-area from: | <cuid> | to | <cid>)
+}

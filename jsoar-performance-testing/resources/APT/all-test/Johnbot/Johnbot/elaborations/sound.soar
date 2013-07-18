@@ -1,0 +1,7 @@
+sp {quake*elaborate*sound
+   (state <s> ^io.input-link.sound.sound <ss>)
+   (<ss> ^type player_run
+        ^range > 200)
+   -->
+   (<s> ^enemy-sound true)}
+            

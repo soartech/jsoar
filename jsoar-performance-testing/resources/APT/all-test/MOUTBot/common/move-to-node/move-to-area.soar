@@ -1,0 +1,20 @@
+echo "\nLoading move-to-node/move-to-area"
+
+#IF
+#   The node is not in the same area as we are
+#THEN:
+#    Propose move to the area the node is in first
+sp {move-to-node*propose*move-to-area
+   (state <s> -^name move-to-connected-node
+               ^type move-to-node
+               ^top-state.map.current-area <current-area>
+               ^superstate.operator.node.area { <nodearea> <> <current-area> })
+-->
+#   (write (crlf) |Propose move to new node's area: | <nodearea>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-new-nodes-area
+        ^type move-to-area
+        ^area <nodearea>)
+}
+
+

@@ -1,0 +1,41 @@
+sp {subtract-via-counting*propose*detect-completion
+   (state <s> ^name subtract-via-counting
+              ^stored yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name detect-completion)
+}
+
+sp {subtract-via-counting*propose*detect-completion*no*smem
+   (state <s> ^name subtract-via-counting
+              ^counter <counter>
+              ^subtrahend <counter>
+              ^top-state.parameters.store no)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name detect-completion)
+}
+sp {subtract-via-counting*apply*detect-completion*no-borrow
+   (state <s> ^name subtract-via-counting
+              ^operator.name detect-completion
+              ^superstate.superstate <ss>
+              ^top-state.zero <zero>
+              ^base-number <base>
+              ^borrow false) # which is 0 !!!
+-->
+   (<ss> ^result <base>
+         ^carry-borrow <zero>)
+}
+
+sp {subtract-via-counting*apply*detect-completion*borrow
+   (state <s> ^name subtract-via-counting
+              ^operator.name detect-completion
+              ^superstate.superstate <ss>
+              ^base-number <base>
+              ^borrow true
+              ^top-state.zero.next <one>) #!!!!
+-->
+   (<ss> ^result <base>
+         ^carry-borrow <one>)
+}
+#

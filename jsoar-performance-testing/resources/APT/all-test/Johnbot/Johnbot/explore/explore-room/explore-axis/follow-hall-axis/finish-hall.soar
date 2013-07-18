@@ -1,0 +1,350 @@
+#echo "\nLoading follow-hall-axis/finish-hall"
+
+## Detect done with hall.
+## Should fire after hit end of wall (either left or right - probably both).
+
+sp {follow-hall-axis*propose*finish-hall
+   (state <s> ^name follow-hall-axis
+              ^direction <dir>
+              ^end-wall << right left >> )
+   -->
+   (<s> ^operator <o> + =, <)
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<o> ^name finish-hall
+        ^direction <dir>
+        ^actions.thrust off)}
+###
+### Add door to current hall at its end  
+###
+
+sp {follow-hall-axis*apply*finish-hall*create*door*east
+   (state <s> ^operator <o>
+              ^top-state.parameters <par>
+              ^io.input-link.agent.origin.x <x>
+              ^explore-room <cr>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>)
+   (<o> ^name finish-hall
+        ^direction east)
+   (<cr> -^wall.side east
+          ^wall <w1> <w2>)
+   (<w1> ^side south
+         ^y <y1>)
+   (<w2> ^side north
+         ^y <y2>)
+   -->
+   (write (crlf) |Create new door and wall on east side of room.|)
+   (<cr> ^door <cd>
+         ^wall <w>
+         ^current-door <cd>)
+   (<cd> ^direction east
+         ^updated true
+         ^room <cr>
+         ^wall <w>
+         ^y (/ (+ <y1> <y2>) 2)
+         ^max-y <y2>
+         ^min-y <y1>
+         ^mmin-y (- (/ (+ <y1> <y2>) 2) <bbb>)
+         ^mmax-y (+ (/ (+ <y1> <y2>) 2) <bbb>)
+         ^x (- <x> <drift>)
+         ^min-x (- (- <x> <drift>) <bb>)
+         ^max-x (+ (- <x> <drift>) <bb>)
+         ^mmin-x (- (- <x> <drift>) <bbb>)
+         ^mmax-x (+ (- <x> <drift>) <bbb>))
+   (<w> ^side east
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^x (- <x> <drift>)   ;# Guess
+        ^x-min (- (- <x> <drift>) <wclose>))}
+
+sp {follow-hall-axis*apply*finish-hall*create*door*west
+   (state <s> ^operator <o>
+              ^top-state.parameters <par>
+              ^io.input-link.agent.origin.x <x>
+              ^explore-room <cr>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>)
+   (<o> ^name finish-hall
+        ^direction west)
+   (<cr> -^wall.side west
+          ^wall <w1> <w2>)
+   (<w1> ^side south
+         ^y <y1>)
+   (<w2> ^side north
+         ^y <y2>)
+   -->
+   (write (crlf) |Create new door and wall on west side of room.|)
+   (<cr> ^door <cd>
+         ^wall <w>
+         ^current-door <cd>)
+   (<cd> ^direction west
+         ^updated true
+         ^room <cr>
+         ^wall <w>
+         ^y (/ (+ <y1> <y2>) 2)
+         ^min-y <y1>
+         ^max-y <y2>
+         ^mmin-y (- (/ (+ <y1> <y2>) 2) <bbb>)
+         ^mmax-y (+ (/ (+ <y1> <y2>) 2) <bbb>)
+         ^x (+ <x> <drift>)
+         ^min-x (- (+ <x> <drift>) <bb>)
+         ^max-x (+ (+ <x> <drift>) <bb>)
+         ^mmin-x (- (+ <x> <drift>) <bbb>)
+         ^mmax-x (+ (+ <x> <drift>) <bbb>))
+   (<w> ^side west
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^x (+ <x> <drift>)   ;# Guess
+        ^x-max (+ (+ <x> <drift>) <wclose>))}
+
+sp {follow-hall-axis*apply*finish-hall*create*door*south
+   (state <s> ^operator <o>
+              ^top-state.parameters <par>
+              ^io.input-link.agent.origin.y <y>
+              ^explore-room <cr>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>)
+   (<o> ^name finish-hall
+        ^direction south)
+   (<cr> -^wall.side south
+          ^wall <w1> <w2>)
+   (<w1> ^side east
+         ^x <x1>)
+   (<w2> ^side west
+         ^x <x2>)
+   -->
+   (write (crlf) |Create new door and wall on south side of room.|)
+   (<cr> ^door <cd>
+         ^wall <w>
+         ^current-door <cd>)
+   (<cd> ^direction south
+         ^updated true
+         ^room <cr>
+         ^wall <w>
+         ^x (/ (+ <x1> <x2>) 2)
+         ^min-x <x2>
+         ^max-x <x1>
+         ^mmin-x (- (/ (+ <x1> <x2>) 2) <bbb>)
+         ^mmax-x (+ (/ (+ <x1> <x2>) 2) <bbb>)
+         ^y (+ <y> <drift>)
+         ^min-y (- (+ <y> <drift>) <bb>)
+         ^max-y (+ (+ <y> <drift>) <bb>)
+         ^mmin-y (- (+ <y> <drift>) <bbb>)
+         ^mmax-y (+ (+ <y> <drift>) <bbb>))
+   (<w> ^side south
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^y (+ <y> <drift>)   ;# Guess
+        ^y-max (+  (+ <y> <drift>) <wclose>))}
+
+sp {follow-hall-axis*apply*finish-hall*create*door*north
+   (state <s> ^operator <o>
+              ^top-state.parameters <par>
+              ^io.input-link.agent.origin.y <y>
+              ^explore-room <cr>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>)
+   (<o> ^name finish-hall
+        ^direction north)
+   (<cr> -^wall.side north
+          ^wall <w1> <w2>)
+   (<w1> ^side east
+         ^x <x1>)
+   (<w2> ^side west
+         ^x <x2>)
+   -->
+   (write (crlf) |Create new door and wall on north side of room.|)
+   (<cr> ^door <cd>
+         ^wall <w>
+         ^current-door <cd>)
+   (<cd> ^direction north
+         ^updated true
+         ^room <cr>
+         ^wall <w>
+         ^x (/ (+ <x1> <x2>) 2)
+         ^min-x <x2>
+         ^max-x <x1>
+         ^mmin-x (- (/ (+ <x1> <x2>) 2) <bbb>)
+         ^mmax-x (+ (/ (+ <x1> <x2>) 2) <bbb>)
+         ^y (- <y> <drift>)
+         ^min-y (- (- <y> <drift>) <bb>)
+         ^max-y (+ (- <y> <drift>) <bb>)
+         ^mmin-y (- (- <y> <drift>) <bbb>)
+         ^mmax-y (+ (- <y> <drift>) <bbb>))
+   (<w> ^side north
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^y (- <y> <drift>)   ;# Guess
+        ^y-min (- (- <y> <drift>) <wclose>))}
+
+
+## UPDATE Which Room I'm in
+## Path data created in follow-room-axis/process-door
+   
+sp {follow-hall-axis*apply*finish-hall*new-room
+   (state <s> ^name follow-hall-axis
+              ^operator <o>
+              ^top-state.map <map>)
+   (<map> ^last-room <lr>
+          ^explore-room <cr>)
+   (<cr> ^current-door <cdoor>
+         ^path <path>)
+   (<path> ^destination-room <room>
+           ^distance 1
+           ^in-room-door <cdoor>)
+   (<o> ^name finish-hall)
+   (<cdoor> ^new-room.wall.door)  ;# wait until created door in new room
+   -->
+   (write (crlf) |Change Current Room new room:| <room>)
+   (write (crlf) |Last room | <lr> | --> | <cr>)
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<map> ^explore-room <cr> -
+          ^explore-room <room>
+          ^last-room <lr> -
+          ^last-room <cr>)
+   (<cr> ^explored true)}
+   
+sp {follow-hall-axis*apply*finish-hall*connecting-room
+   (state <s> ^name follow-hall-axis
+              ^operator <o>
+              ^top-state.map <map>)
+   (<map> ^last-room <lr>
+          ^explore-room <cr>)
+   (<cr> ^current-door <cdoor>
+         ^path <path>)
+   (<path> ^destination-room <room>
+           ^distance 1
+           ^in-room-door <cdoor>)
+   (<o> ^name finish-hall)
+   (<cdoor> ^connecting-door <con-dor>)  ;# wait until found connecting door 
+  -(<con-dor> ^new-room)
+   -->
+   (write (crlf) |Change Current Room to exisiting room:| <room>)
+   (write (crlf) |Last room | <lr> | --> | <cr>)
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<map> ^explore-room <cr> -
+          ^explore-room <room>
+          ^last-room <lr> -
+          ^last-room <cr>)
+   (<cr> ^explored true)}
+
+########################################################
+## Create new room data structure
+## With known wall
+
+sp {follow-hall-axis*apply*finish-hall*new-room*west
+   (state <s> ^operator.name finish-hall 
+              ^top-state.parameters.wall-close <wclose>
+              ^top-state.map <m>
+              ^explore-room.current-door <cd>)
+   (<cd> ^new-room <new-room>
+        -^connecting-door
+         ^wall <www>)
+   (<www> ^side east
+          ^x <x>)
+   -->
+   (<m> ^room <new-room>)
+   (<new-room> ^wall <wall>
+               ^type room
+               ^axis <a1> <a2>)
+   (<a1> ^orientation east-west)
+   (<a2> ^orientation north-south
+         ^wall <wall>)
+   (<wall> ^marked true
+           ^tentative true
+           ^connects-to-door <cd>
+           ^side west
+           ^x <x>
+           ^x-max (+ <x> <wclose>))}
+
+
+sp {follow-hall-axis*apply*finish-hall*new-room*east
+   (state <s> ^operator.name finish-hall 
+              ^top-state.parameters.wall-close <wclose>
+              ^top-state.map <m>
+              ^explore-room.current-door <cd>)
+   (<cd> ^new-room <new-room>
+        -^connecting-door
+         ^wall <www>)
+   (<www> ^side west
+          ^x <x>)
+   -->
+   (<m> ^room <new-room>)
+   (<new-room> ^wall <wall>
+               ^type room
+               ^axis <a1> <a2>)
+   (<a1> ^orientation east-west)
+   (<a2> ^orientation north-south
+         ^wall <wall>)
+   (<wall> ^marked true
+           ^tentative true
+           ^connects-to-door <cd>
+           ^side east
+           ^x <x>
+           ^x-min (- <x> <wclose>))}
+
+
+sp {follow-hall-axis*apply*finish-hall*new-room*north
+   (state <s> ^operator.name finish-hall
+              ^top-state.parameters.wall-close <wclose>
+              ^top-state.map <m>
+              ^explore-room.current-door <cd>)
+   (<cd> ^new-room <new-room>
+        -^connecting-door
+         ^wall <www>)
+   (<www> ^side south
+          ^y <y>)
+   -->
+   (<m> ^room <new-room>)
+   (<new-room> ^wall <wall>
+               ^type room
+               ^axis <a1> <a2>)
+   (<a1> ^orientation east-west
+         ^wall <wall>)
+   (<a2> ^orientation north-south)
+   (<wall> ^marked true
+           ^tentative true
+           ^connects-to-door <cd>
+           ^side north
+           ^y <y>
+           ^y-min (- <y> <wclose>))}
+
+
+sp {follow-hall-axis*apply*finish-hall*new-room*south
+   (state <s> ^operator.name finish-hall
+              ^top-state.parameters.wall-close <wclose>
+              ^top-state.map <m>
+              ^explore-room.current-door <cd>)
+   (<cd> ^new-room <new-room>
+        -^connecting-door
+         ^wall <www>)
+   (<www> ^side north
+          ^y <y>)
+   -->
+   (<m> ^room <new-room>)
+   (<new-room> ^wall <wall>
+               ^type room
+               ^axis <a1> <a2>)
+   (<a1> ^orientation east-west
+         ^wall <wall>)
+   (<a2> ^orientation north-south)
+   (<wall> ^marked true
+           ^tentative true
+           ^connects-to-door <cd>
+           ^side south
+           ^y <y>
+           ^y-max (+ <y> <wclose>))}
+
+

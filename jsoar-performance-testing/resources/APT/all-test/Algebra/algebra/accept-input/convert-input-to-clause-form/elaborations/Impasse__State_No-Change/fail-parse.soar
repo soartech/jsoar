@@ -1,0 +1,16 @@
+sp {elaborations*propose*Impasse__State_No-Change
+   (state <s> ^superstate.name convert-input-to-clause-form)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name fail-parse)}
+   
+sp {Impasse__State_No-Change*apply*fail-parse
+   (state <s> ^operator <op>
+              ^quiescence t
+              ^top-state.problem.current-input-value <x>)
+   (<op> ^name fail-parse)
+-->
+   (write (crlf) |Could not parse input: | <x>)
+   (halt)
+}
+

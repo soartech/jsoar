@@ -1,0 +1,67 @@
+
+sp {unlock*elaborate*path-distance
+   (state <s> ^operator <o> +
+              ^io.input-link.agent.position <agent-pos>)
+   (<o> ^target.position <target-pos>
+        ^tool.position <tool-pos>)
+   (<target-pos> ^x <target-x>
+                 ^y <target-y>)
+   (<tool-pos> ^x <tool-x>
+               ^y <tool-y>)
+   (<agent-pos> ^x <agent-x>
+                ^y <agent-y>)
+-->
+   (<o> ^path-distance (+ (compute-range <agent-x> <agent-y> <tool-x> <tool-y>)
+                          (compute-range <tool-x> <tool-y> <target-x> <target-y>)))
+}
+
+
+### If a key is tried on a lock and doesn't work, remember 
+### so that it won't be tried again.
+sp {unlock*elaborate*propose*bad-key
+   (state <s> ^name unlock
+              ^io <io>
+              ^top-state <ts>)
+   (<ts> ^object-list.<< decoration item >> <obj>
+         ^status.decoration <key>)
+   (<io> ^output-link.use-with.object <name>
+         ^input-link.messages.message.phrase <p1>)
+   (<obj> ^name <name>
+         -^bad-key <key>)
+   (<key> ^name <keyname>)
+   (<p1> ^word |This|
+         ^next <p2>)
+   (<p2> ^word |key|
+         ^next <p3>)
+   (<p3> ^word |does|
+         ^next <p4>)
+   (<p4> ^word |not|
+         ^next <p5>)
+   (<p5> ^word |fit|
+         ^next <p6>)
+   (<p6> ^word |in|
+         ^next <p7>)
+   (<p7> ^word |the|
+         ^next <p8>)
+   (<p8> ^word |lock|)
+-->
+   (write (crlf) |The | <keyname> | doesn't fit in the | <name> |!!!|)
+   (<s> ^operator <o> + >,=)
+   (<o> ^name mark-bad-key
+        ^object <obj>
+        ^key <key>)
+}
+
+sp {unlock*elaborate*apply*bad-key
+   (state <s> ^operator <o>)
+   (<o> ^name mark-bad-key
+        ^object <obj>
+        ^key <key>)
+-->
+   (write (crlf) |Applying mark-bad-key|)
+   (<obj> ^bad-key <key>)
+}
+
+
+
+   

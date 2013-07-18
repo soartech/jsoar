@@ -1,0 +1,13 @@
+echo "\nLoading elaborations/items"
+
+sp {navigation*elaborate*item-list
+   (state <s> ^superstate nil)
+   -->
+   (<s> ^item-list <items>)
+}
+
+sp {navigation*elaborate*item-properties
+   (state <s> ^superstate nil)
+   -->
+   (<s> ^item-properties <properties>)
+}

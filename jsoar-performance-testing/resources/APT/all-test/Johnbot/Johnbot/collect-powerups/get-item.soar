@@ -1,0 +1,96 @@
+# "\nLoading collect-powerups/get-item"
+
+################################
+### Propose get-item operator
+################################
+
+sp {collect-powerups*propose*get-item
+   (state <s> ^name collect-powerups
+              ^best-item <bi>)
+   (<bi> ^type <type>
+         ^classname <cname>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name get-item
+        ^type <type>
+        ^find-item true
+        ^classname <cname>)}
+
+sp {collect-powerups*propose*get-item*in-room*better*current-weapon
+   (state <s> ^name collect-powerups
+              ^top-state.self.parameters.weapons <weaps>
+              ^io.input-link <il>)
+   (<il> ^agent.weapon-selected <cname2>
+         ^entity.item <item-x>)
+   (<item-x> ^classname <cname1>
+             ^type weapon
+             ^in-current-room true)
+   (<weaps> ^classname <cname2>
+            ^better <cname1>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item-x>
+        ^place in-room
+        ^classname <cname>)
+   }
+
+sp {collect-powerups*propose*get-item*in-room*weapon
+   (state <s> ^name collect-powerups
+              ^top-state.parameters <par>
+              ^io.input-link.entity.item <item-x>)
+   (<par> ^weapon <weap>
+          ^close-weapon-range <cwr>)
+   (<item-x> ^classname <cname>
+             ^type weapon
+             ^in-current-room true
+            -^range > <cwr>)
+   (<weap> ^classname <cname>
+           ^quality > 4)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item-x>
+        ^place in-room
+        ^classname <cname>)
+   }
+
+sp {collect-powerups*propose*get-item*in-room*weapon*not-visible
+   (state <s> ^name collect-powerups
+              ^top-state.parameters.weapon <weap>
+              ^current-room.item <item>
+              ^io.input-link <il>)
+   (<il> -^agent.weapon.classname <cname>
+         -^entity.item.classname <cname>)
+   (<item> ^type weapon
+     ^available true
+           ^classname <cname>)
+   (<weap> ^classname <cname>
+           ^quality > 4)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item>
+        ^priority 7
+        ^place recorded-in-room
+        ^classname <cname>)
+   }
+excise collect-powerups*propose*get-item*in-room*weapon*not-visible
+########### HACK
+
+sp {get-item*elaborate*turn-off-face-target
+:i-support
+   (state <s> ^operator <o>
+              ^io.input-link.feedback <fd>)
+   (<fd> ^selecttarget <> <sid>
+         ^facetarget on)
+   (<o> ^name get-item
+        ^item <item>
+        ^classname <cname>)
+   (<item> ^soar-id <sid>)
+   -->
+#   (write (crlf) |Turn off Face Target: | <item> |, | <cname>)
+   (<o> ^actions.facetarget off)}

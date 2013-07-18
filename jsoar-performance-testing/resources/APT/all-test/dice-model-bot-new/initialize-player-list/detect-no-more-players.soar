@@ -1,0 +1,15 @@
+sp {initialize-player-list*propose*detect-no-more-players
+   (state <s> ^name initialize-player-list)
+-->
+   (<s> ^operator <op> + =, <)  # Will be selected when all players have been processed.
+   (<op> ^name detect-no-more-players)
+}
+sp {apply*detect-no-more-players
+   (state <s> ^superstate.player-list <pl>
+              ^operator <op>)
+   (<op> ^name detect-no-more-players)
+   (<pl> ^complete false)
+-->
+   (<pl> ^complete true
+                   false -)
+}

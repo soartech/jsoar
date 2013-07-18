@@ -1,0 +1,22 @@
+sp {count-blocks*propose*spin
+   (state <s> ^name count-blocks
+              ^io.input-link <io>)
+   (<io> ^self.velocity.speed 0.0
+        -^object)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name spin
+         ^actions.rotate.direction left)
+}
+
+sp {count-blocks*propose*spin-all-counted
+   (state <s> ^name count-blocks
+              ^io.input-link <io>)
+   (<io> ^self.velocity.speed 0.0)
+  -{(<s> ^io.input-link.object.id <obj>
+        -^counted-block-ids <obj>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name spin
+         ^actions.rotate.direction left)
+}

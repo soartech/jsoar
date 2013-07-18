@@ -1,0 +1,8 @@
+sp {record-label*elaborate*substate
+   (state <s> ^name record-label
+              ^superstate.operator <so>)
+   (<so> ^name record-label
+         ^object <b>)
+-->
+   (<s> ^object <b>)
+}

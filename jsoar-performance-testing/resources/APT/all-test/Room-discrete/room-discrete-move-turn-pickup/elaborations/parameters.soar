@@ -1,0 +1,8 @@
+sp {robot*elaborate*state
+   (state <s> ^name robot
+              ^superstate nil)   
+-->
+   (<s> ^parameters <p>)
+   (<p> ^pickup-angle-off-pos 1.0
+        ^pickup-angle-off-neg -1.0)
+}

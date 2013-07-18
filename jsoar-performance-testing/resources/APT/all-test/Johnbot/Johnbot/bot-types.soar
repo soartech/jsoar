@@ -1,0 +1,63 @@
+
+sp {elaborate*self*aggressiveness
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   (<self> ^aggressiveness standard)         # Legal values are passive standard aggressive
+                                             # aggressive - don't retreat. attack if have blaster
+                                             #            - always run
+                                             # standard & passive, retreat, don't attack or chase if low health
+                                             #                     or only blaster (and enemy has better weapon)
+                                             #            - walk during wander
+                                             # these also vary on how much they pursue health and armor
+                                             # Maybe change distances for weapons???
+   }
+
+sp {elaborate*self*tactics
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   (<self> ^tactics full)         # Legal values are none standard full
+                                  # full is default
+                                  # full - track sound, predict-enemy, ambush, circle-strafe, jump
+                                  # standard - circle-strafe
+                                  # none - none
+   }
+
+sp {elaborate*self*aiming-skill
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   (<self> ^aiming-skill good)         # Legal values are bad medium good
+                                       # bad = bot tries to aim
+                                       # medium = facetarget
+                                       # good = leadtarget - default
+}
+
+sp {elaborate*self*reaction-time*static
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   #tcl |set real_time_per_decision 0|)
+   (<self> ^adjust-skill false    # Will not adjust aiming-skill and reaction-time dynamically
+           ^reaction-time fast             # Legal values are slow medium fast - fast is default
+           ^reaction-time-delay 0)         # set real_time_per_decision <milliseconds>
+                                           # fast = 0, fast as possible and shortcut on aiming and firing in select-enemy
+                                           # for final runs - all tracing disabled for fast
+}
+# excise elaborate*self*reaction-time*static
+
+sp {elaborate*self*reaction-time*dynamic
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   #tcl |set real_time_per_decision 100|)
+   (<self> ^adjust-skill true
+           ^reaction-time medium             # Legal values are slow medium fast 
+           ^reaction-time-delay 100)    # set real_time_per_decision <milliseconds>
+                                        # fast = 0, fast as possible and shortcut on aiming and firing in select-enemy
+                                        # for final runs - all tracing disabled for fast
+}
+
+excise elaborate*self*reaction-time*dynamic
+

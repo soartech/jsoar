@@ -1,0 +1,34 @@
+sp {robot*propose*record-object
+   (state <s> ^name robot
+              ^io.input-link <i>
+             -^recorded-object.id <id>)
+   (<i> -^self.carry.id <id>
+         ^object <obj>)
+   (<obj> ^id <id>
+          ^visible no)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-object
+         ^block-id <id>)
+}
+
+sp {apply*record-object
+   (state <s> ^operator <op>
+              ^io.input-link.object <obj>)
+   (<op> ^name record-object
+         ^block-id <id>)
+   (<obj> ^area <area>
+          ^id <id>
+          ^position <pos>
+          ^type <type>)
+   (<pos>  ^col <col>
+           ^row <row>)
+-->
+   (<s> ^recorded-object <ro>)
+   (<ro> ^area <area>
+         ^id <id>
+         ^position <npos>
+         ^type <type>)
+   (<npos> ^col <col>
+           ^row <row>)
+}

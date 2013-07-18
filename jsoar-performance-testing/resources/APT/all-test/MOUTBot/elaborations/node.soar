@@ -1,0 +1,25 @@
+######### Detect node in Area
+
+sp {unreal*elaborate*node*area
+   (state <s> ^name unreal
+              ^io.input-link.objects.node <node>
+              ^top-state.map.area <area>)
+   (<node> ^type <> none
+           ^position <p>)
+   (<p> ^x <= <max-x>
+        ^x >= <min-x>
+        ^y <= <max-y>
+        ^y > <min-y>
+        ^z > <min-z>
+        ^z <= <max-z>)
+   (<area> ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>
+           ^name <name>)
+   -->
+   (<node> ^area-id <area>
+           ^area-name <name>)
+}

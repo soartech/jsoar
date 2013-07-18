@@ -1,0 +1,50 @@
+## Propose operator to compute model-based dice counts
+
+#c.  Compute likelihood of challenge for prior opponent given [0, 1, 2, 3] of bid (max under cup) - not doing
+#d.  Compute likelihood of opponents bid based on [0, 1, 2, 3]?
+#e.  Pick lowest value where bid probability > challenge probability or where bid probability > .5 (some threshold).
+#f.  If no 1 bid, assume average value for 1’s[impact is when thinking about biding 1’s and opponent bid something else – could assume ½ are the other value and ½ are 1’s.
+
+
+## Prior-bid
+## face
+## multiplier
+
+## players.player.cup.count
+# Last-bid [face multiplier player action]
+
+sp {selection*propose*compute-alternative-dice-counts
+   :default
+   (state <s> ^name selection
+             -^top-state.io.input-link.state.last-bid nil
+              ^superstate.model-enabled true
+             -^alternative-dice-counts.updated true
+             -^alternative-dice-counts failure)
+-->
+   (<s> ^operator <o> +, <, =)
+   (<o> ^name compute-alternative-dice-counts)}
+
+sp {selection*apply*compute-alternative-dice-counts
+   (state <s> ^name selection
+              ^operator <o>)
+   (<o> ^name compute-alternative-dice-counts)
+-->
+   (<s> ^alternative-dice-counts <adc>)}
+
+sp {selection*apply*compute-alternative-dice-counts*fail-push
+   (state <s> ^name selection
+              ^top-state.io.input-link.history.action push
+              ^operator <o>)
+   (<o> ^name compute-alternative-dice-counts)
+-->
+   (<s> ^alternative-dice-counts failure)}
+
+sp {selection*apply*compute-alternative-dice-counts*copy
+   (state <s> ^name selection
+              ^alternative-dice-counts <adc>
+              ^top-state.true-dice-counts <tdc>
+              ^operator <o>)
+   (<tdc> ^dice-count <dc>)
+   (<o> ^name compute-alternative-dice-counts)
+-->
+   (<adc> ^dice-count <dc>)}

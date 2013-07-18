@@ -1,0 +1,34 @@
+sp {go-to*propose*set-waypoint
+   (state <s> ^name go-to
+             -^cross-doorway yes
+              ^set-waypoint false)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name set-waypoint)
+}
+
+sp {apply*go-to*add-waypoint-output-link
+#   :interrupt
+   (state <s> ^operator.name set-waypoint
+              ^top-state.io.output-link <ol>
+              ^destination <w>)
+   (<w> ^id <ida>
+        ^x <x>
+        ^y <y>)
+--> (write (crlf) |Add waypoint: | <ida>)
+    (<ol> ^add-waypoint <aw>)
+    (<aw> ^id <ida>
+          ^x <x>
+          ^y <y>)
+}
+
+sp {apply*go-to*remove-waypoint-output-link
+   (state <s> ^operator.name set-waypoint
+              ^top-state.io <io>
+              ^destination.id { <id2> <> <id> })
+   (<io> ^input-link.waypoints.waypoint.id <id>
+         ^output-link <output>)
+-->
+   (write (crlf) |Remove waypoint: | <id> | | <id2>)
+   (<output> ^remove-waypoint.id <id>)
+}

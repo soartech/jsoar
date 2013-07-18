@@ -1,0 +1,27 @@
+
+#
+# locate and obtain the target object
+#
+sp {acquire-and-x*propose*step-1a-acquire
+   (state <s> ^type acquire-and-x
+              ^target <target>
+             -^has-object
+             -^height-required)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-near-and-x
+         ^type move-near-and-x
+         ^target <target>
+         ^should-empty-hand yes  #this way, agent will automatically empty his had away from target
+         ^next-action <na2>)
+   (<na2> ^name pickup-object
+          ^type grab-object)
+}
+
+
+
+
+
+
+
+

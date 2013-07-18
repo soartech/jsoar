@@ -1,0 +1,64 @@
+echo "\nLoading execute-mission/hide"
+
+################################
+## hide operator
+# Add if see enemy - low probability
+# If need to reload
+################################
+#  Add hiding as possibility when reloading
+
+sp {execute-mission*propose*hide*grenade
+   (state <s> ^name execute-mission
+              ^top-state.self.threw-grenade.active true)
+-->
+   (write (crlf) |Propose Hide Grenade|)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name hide
+        ^condition grenade)
+}
+
+sp {execute-mission*propose*hide*heavy-fire
+   (state <s> ^name execute-mission
+              ^top-state.self.underfire.value heavy)
+-->
+   (write (crlf) |Propose hide heavy-fire|)
+   (<s> ^operator <o> +, = 20)
+   (<o> ^name hide
+        ^condition heavy-fire)}
+
+sp {execute-mission*propose*hide*enemy*visible
+   (state <s> ^name execute-mission
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state.threats.selected-threat.entity.visible true)
+-->
+   (write (crlf) |Propose Hide Enemy|)
+   (<s> ^operator <o> +, = 10)   
+   (<o> ^name hide
+        ^condition enemy-visible)
+}
+
+sp {execute-mission*propose*hide*enemy*visible*false
+   (state <s> ^name execute-mission
+              ^top-state.map.current-area <ca>   # so will have to rematch
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state.threats.selected-threat.entity.visible false)
+-->
+   (write (crlf) |Propose Hide No Enemy|)
+   (<s> ^operator <o> +, = 10)
+   (<o> ^name hide
+        ^condition enemy-disappear)
+}
+
+sp {execute-mission*propose*hide*reload
+   (state <s> ^name execute-mission
+              ^top-state.self.weapons.selected-weapon <sw> 
+              ^top-state.map.current-area <ca>             # Reconsider when change area
+             -^io.output-link.reload.error-code)
+   (<sw> ^all-ammo-exhausted true
+        -^type << grenade knife >>)
+   -->
+   (write (crlf) |Propose Hide Reload|)
+   (<s> ^operator <o> +, >, = 40)
+   (<o> ^name hide
+        ^condition enemy-disappear)
+}

@@ -1,0 +1,29 @@
+sp {execute-step*propose*next-step
+   (state <s> ^name execute-step
+              ^superstate <ss>)
+   (<ss> ^current-problem <cp>)
+   (<cp> ^current-step <cs>
+         ^completed-step <cs>
+        -^goal-test-success)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name next-step)
+}
+
+sp {apply*next-step
+   (state <s> ^operator.name next-step
+              ^superstate.current-problem <cp>)
+   (<cp> ^current-step <cs>)
+   (<cs> ^next <ns>)
+-->
+   (<cp> ^current-step <cs> -
+                       <ns>)
+}
+
+sp {apply*next-step*clean-up*actions
+   (state <s> ^operator.name next-step
+              ^superstate.current-problem <cp>)
+   (<cp> ^completed-action <ca>)
+-->
+   (<cp> ^completed-action <ca> -)
+}

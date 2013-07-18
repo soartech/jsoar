@@ -1,0 +1,7 @@
+source elaborations.soar
+source finish-update.soar
+source increment-distance.soar
+source init-update.soar
+source update-doors.soar
+source update-room.soar
+source update-tested.soar

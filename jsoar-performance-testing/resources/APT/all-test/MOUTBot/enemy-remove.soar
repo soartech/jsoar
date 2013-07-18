@@ -1,0 +1,72 @@
+echo "\nLoading remove-enemy"
+
+########################################################
+## If enemy dies, then removed it
+## If time runs out, remove enemy - time in milliseconds
+########################################################
+
+sp {unreal*propose*enemy-remove*dead
+   (state <s> ^name unreal
+              ^io.input-link.entities.enemy <enemy>
+              ^enemy <saved-enemy>)
+   (<enemy> ^health 0
+            ^name <name>)
+   (<saved-enemy> ^name <name>)
+   -->
+   (write (crlf) |=Enemy Died.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name enemy-remove
+        ^enemy <saved-enemy>
+        ^actions.attack off)}
+
+sp {unreal*propose*enemy-remove*out-of-date
+   (state <s> ^name unreal
+             -^io.input-link.agent.cycle < <ct>
+              ^enemy <enemy>)
+   (<enemy> ^forget-time <ct>)
+   -->
+   (write (crlf) |Enemy out of date.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name enemy-remove
+        ^enemy <enemy>        
+        ^actions.attack off)}
+
+sp {unreal*propose*enemy-remove*moved
+   (state <s> ^name unreal
+              ^io.input-link.entities.enemy <io-enemy>
+              ^enemy <enemy>)
+   (<io-enemy> ^name <name>
+               ^area <area>)
+   (<enemy> ^name <name>
+            ^area <> <area>)
+   -->
+   (write (crlf) |Enemy moved.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name enemy-remove
+        ^enemy <enemy>)}
+
+sp {unreal*select*enemy-remove
+   (state <s> ^name unreal
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name enemy-remove)
+   (<o2> ^name << execute-mission explore enemy-select enemy-record >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {unreal*apply*enemy-remove
+   (state <s> ^operator <o>
+              ^enemy <enemy>)
+   (<o> ^name enemy-remove
+        ^enemy <enemy>)
+   -->
+   (write (crlf) |Remove enemy | <enemy>)
+   (<s> ^enemy <enemy> -)}
+
+sp {unreal*apply*enemy-remove2
+   (state <s> ^operator <o>
+              ^selected-enemy <enemy>)
+   (<o> ^name enemy-remove
+        ^enemy <enemy>)
+   -->
+   (<s> ^selected-enemy <enemy> -)}

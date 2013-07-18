@@ -1,0 +1,14 @@
+sp {clean-house-new*propose*halt
+   (state <s> ^name robot
+              ^current-mission.status terminated
+             -^missions.mission.status << executing proposed suspended urgent >>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name halt)
+}
+sp {apply*halt
+   (state <s> ^operator <op>)
+   (<op> ^name halt)
+-->
+   (halt)
+}

@@ -1,0 +1,53 @@
+#sp {UCBot*propose*detect-flag
+#   (state <s> ^headings.flag-range < 50
+#              ^flag <flag>
+#             -^mission.achieved-flag <flag>)
+#-->
+#   (<s> ^operator <op> + =, >)
+#   (<op> ^name detect-flag)
+#}
+
+sp {UCBot*propose*detect-flag
+   (state <s> ^flag <flag>
+             -^mission.achieved-flag <flag>
+              ^io.input-link.status.is-bleeding > 0)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name detect-flag)
+}
+
+sp {UCBot*propose*detect-flag*internal-simulation
+   (state <s> ^top-state <ts>)
+   (<ts> ^parameters.internal-simulation true
+         ^flag <flag>
+        -^mission.achieved-flag <flag>
+         ^map.current-area <area>)
+   (<flag> ^area <area>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name detect-flag)
+}
+
+sp {UCBot*apply*detect-flag
+   (state <s> ^operator.name detect-flag
+              ^top-state <ts>)
+   (<ts>              ^flag <flag>
+                      ^mission <mission>)
+-->
+   (<mission> ^achieved-flag <flag>)
+}
+
+sp {UCBot*monitor*detect-flag
+   (state <s> ^operator.name detect-flag
+             -^parameters.monitor-level none)
+-->
+   (write (crlf) |***** ACHIEVED FLAG *****|)
+}
+
+sp {UCBot*apply*detect-flag*log
+   (state <s> ^operator.name detect-flag
+              ^parameters.internal-simulation false
+              ^io.output-link <ol>)
+-->
+   (<ol> ^mark.value achieved-flag)
+}

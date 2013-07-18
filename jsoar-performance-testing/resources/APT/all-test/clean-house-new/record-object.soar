@@ -1,0 +1,258 @@
+sp {clean-house*propose*record-object
+   #:interrupt
+   (state <s> ^name robot
+              ^parameters.objects-held-in << wm smem >>
+              ^io.input-link.objects.object <obj>)
+   (<s> ^objects <b>)
+  -(<b> ^object.id <id>)
+   (<obj> ^id <id>
+         -^type << player robot >>
+          ^visible true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-object
+         ^object <obj>)
+}
+
+sp {apply*record-object*record*report
+   (state <s> ^operator <op>
+              ^top-state.parameters.communication true
+              ^io.output-link <out>)
+   (<op> ^name record-object
+         ^object <b>)
+   (<b> ^x <x> ^y <y>
+        ^id <id>
+        ^type <type>
+        ^color <color>
+        ^height <height>
+        ^smell <smell>
+        ^shape <shape>)
+-->
+   (<out> ^send-message <m1> <m2>)
+   (<m1> ^first <one>
+         ^destination operator)
+   (<one> ^word |saw|
+          ^next <two>)
+   (<two> ^word <type>
+          ^next <three>)
+   (<three> ^word |at|
+            ^next <four>)
+   (<four> ^word |(|
+           ^next <five>)
+                  (<five> ^word <x>
+                          ^next <six>)
+                  (<six> ^word <y>
+                         ^next <seven>)
+                  (<seven> ^word |),|
+                           ^next <eight>)
+   (<eight> ^word |height:|
+            ^next <nine>)
+   (<nine> ^word <height>
+           ^next <ten>)
+   (<ten> ^word |, shape:|
+          ^next <eleven>)
+   (<eleven> ^word <shape>
+             ^next <twelve>)
+   (<twelve> ^word |, color:|
+             ^next <thirteen>)
+   (<thirteen> ^word <color>
+               ^next <fourteen>)
+   (<fourteen> ^word |, smell:|
+               ^next <fifteen>)
+   (<fifteen> ^word <smell>
+              ^next nil)
+   (<m2> ^destination operator
+         ^first <first>)
+   (<first> ^word |PICTURE|
+            ^next <second>)
+   (<second> ^word <type>
+             ^next nil)
+}
+
+sp {apply*record-object*wm*storage
+   (state <s> ^operator <op>
+              ^parameters.objects-held-in wm
+              ^current-location <area>
+              ^desired.storage-area-id <id>
+              ^objects <b>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<obj> ^x <x> 
+          ^y <y>
+          ^id <id>
+          ^type <type>
+          ^color <color>
+          ^height <height>
+          ^smell <smell>
+          ^shape <shape>)
+-->
+   (<b> ^object <nb>)
+   (<nb> ^x <x> ^y <y>
+         ^id <id>
+         ^in-storage-room yes
+         ^area <area>
+         ^class object
+         ^type <type>
+         ^color <color>
+         ^height <height>
+         ^shape <shape>
+         ^smell <smell>)
+}
+
+sp {apply*record-object*wm*storage*no
+   (state <s> ^operator <op>
+              ^parameters.objects-held-in wm
+              ^current-location <area>
+             -^desired.storage-area-id <id>
+              ^objects <b>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<obj> ^x <x> ^y <y>
+          ^id <id>
+          ^type <type>
+          ^color <color>
+          ^height <height>
+          ^smell <smell>
+          ^shape <shape>)
+-->
+   (<b> ^object <nb>)
+   (<nb> ^x <x> ^y <y>
+         ^id <id>
+         ^in-storage-room no
+         ^area <area>
+         ^class object
+         ^type <type>
+         ^color <color>
+         ^height <height>
+         ^shape <shape>
+         ^smell <smell>)
+}
+
+
+## Test to see if already know block exists
+sp {apply*record-object*smem*query
+   (state <s> ^smem.command <cmd>
+              ^parameters.objects-held-in smem
+              ^operator <op>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<obj> ^id <id>
+          ^type { <> player <type> })
+-->
+   (<cmd> ^query <q>)
+   (<q> ^type <type>
+        ^class object
+        ^id <id>)
+}
+
+sp {apply*record-object*retrieve*smem
+   (state <s> ^parameters.objects-held-in smem
+              ^objects <objects>
+              ^smem <smem>
+              ^operator <op>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<smem> ^command <cmd>
+           ^result <res>)
+   (<cmd> ^query <q>)
+   (<res> ^retrieved <cp>
+          ^success <q>)
+   (<q> ^id <id>
+        ^type <type>)
+-->
+   (write (crlf) |Retrieved block | <cp> | id | <id> | type | <type>)
+   (<objects> ^object <cp>)}
+
+sp {apply*record-object*failed-query*store-new*storage-room
+   (state <s> ^operator <op>
+              ^current-location <area>
+              ^storage-area <area>
+              ^parameters.objects-held-in smem
+              ^objects <objects>
+              ^smem <smem>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<obj> ^x <x>
+          ^y <y>
+          ^shape <shape>
+          ^color <color>
+          ^weight <weight>
+          ^height <height>
+          ^smell <smell>
+          ^id <id>
+          ^type <type>)
+   (<smem> ^result.failure <q>
+           ^command <cmd>)
+   (<cmd> ^query <q>)
+   (<q> ^id <id>)
+-->
+   (write (crlf) |Retrieval failed.|)
+   (write (crlf) |Stored object | <block> | id | <id> | type | <type>)
+   (<objects> ^object <block>)
+   (<cmd> ^store <block>)
+   (<block> ^x <x>
+            ^y <y>
+            ^shape <shape>
+            ^in-storage-room yes
+            ^color <color>
+            ^weight <weight>
+            ^height <height>
+            ^smell <smell>
+            ^area <area>
+            ^id <id>
+            ^class object
+            ^type <type>)
+}
+
+sp {apply*record-object*failed-query*store-new*not-storage-room
+   (state <s> ^operator <op>
+              ^current-location <area>
+             -^storage-area <area>
+              ^parameters.objects-held-in smem
+              ^objects <objects>
+              ^smem <smem>)
+   (<op> ^name record-object
+         ^object <obj>)
+   (<obj> ^x <x>
+          ^y <y>
+          ^shape <shape>
+          ^color <color>
+          ^weight <weight>
+          ^height <height>
+          ^smell <smell>
+          ^id <id>
+          ^type <type>)
+   (<smem> ^result.failure <q>
+           ^command <cmd>)
+   (<cmd> ^query <q>)
+   (<q> ^id <id>)
+-->
+   (write (crlf) |Retrieval failed.|)
+   (write (crlf) |Stored object | <block> | id | <id> | type | <type>)
+   (<objects> ^object <block>)
+   (<cmd> ^store <block>)
+   (<block> ^x <x>
+            ^y <y>
+            ^shape <shape>
+            ^in-storage-room no
+            ^color <color>
+            ^weight <weight>
+            ^height <height>
+            ^smell <smell>
+            ^area <area>
+            ^id <id>
+            ^class object
+            ^type <type>)
+}
+
+sp {clean-house-new*compare*record-object
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name << patrol deposit-object get-object >>)
+   (<op2> ^name record-object)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+

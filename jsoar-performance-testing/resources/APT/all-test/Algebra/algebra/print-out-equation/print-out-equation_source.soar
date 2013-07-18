@@ -1,0 +1,7 @@
+source elaborations.soar
+source print-left-paren.soar
+source print-left-side.soar
+source print-operation.soar
+source print-right-paren.soar
+source print-right-side.soar
+source print-value.soar

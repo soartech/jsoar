@@ -1,0 +1,41 @@
+# Try to take a pot-shot just before he comes into the room.
+
+sp {hide-by-door*propose*shoot
+   (state <s> ^name hide-by-door
+              ^hiding-place.final-facing-achieved true
+              ^io.input-link <il>)
+   (<il> -^feedback.attack on
+          ^sound.sound <sound>
+          ^agent.weapon-selected weapon_rocketlauncher)
+   (<sound> ^type player_run
+            ^h { < 30 > -30 }
+            ^range < 500)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack on)}
+
+sp {hide-by-door*propose*shoot2
+   (state <s> ^name hide-by-door
+              ^hiding-place.final-facing-achieved true
+              ^io.input-link <il>)
+   (<il> -^feedback.attack on
+          ^sound.sound <sound>
+          ^agent.weapon-selected <> weapon_rocketlauncher)
+   (<sound> ^type player_run
+            ^h { < 30 > -30 }
+            ^range < 300)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack on)}
+
+sp {hide-by-door*select*shoot
+   (state <s> ^name hide-by-door
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name shoot)
+   (<o2> ^name face-door)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

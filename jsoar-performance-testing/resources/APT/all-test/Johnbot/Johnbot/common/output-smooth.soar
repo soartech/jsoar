@@ -1,0 +1,159 @@
+#echo "\nLoading common/output"
+
+#######################
+sp {apply*operator*create-action-command
+   (state <s> ^operator <o>
+#             -^io.input-link.feedback.<att> <> <value>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^{ <> faceabs <> face-difference <> new-face <att> } <value>)
+-->
+#   (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att> <value>)}
+
+sp {apply*operator*remove-old*action-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+  -(state <ss> ^superstate <s>)
+   (<ol> ^<att> <value>)
+   (<o> ^actions <act>)
+   (<act> ^<att> <> <value>)
+-->
+#   (write (crlf) |<-=  | <att> |: | <value>)
+   (<ol> ^<att> <value> -)}
+ 
+
+###############
+
+sp {apply*operator*face-abs*difference
+   :i-support
+   (state <s> ^operator.actions <act>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   (<act> ^faceabs <fabs>)
+-->
+   (write (crlf) |Facing difference | (round-off-heading (- <yaw> <fabs>) 1))
+   (<act> ^face-difference (round-off-heading (- <yaw> <fabs>) 1))}
+
+sp {apply*operator*face-abs*difference*pos
+   (state <s> ^operator.actions <act>
+              ^io.output-link <ol>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   (<act> ^face-difference > 30)
+-->
+   (write (crlf) |Turn right: |)
+   (<ol> ^turn right
+         ^turn off - )}
+
+sp {apply*operator*face-abs*difference*neg
+
+   (state <s> ^operator.actions <act>
+              ^io.output-link <ol>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   (<act> ^face-difference < -30)
+-->
+   (write (crlf) |Turn Left: |)
+   (<ol> ^turn left
+         ^turn off -)}
+
+sp {apply*operator*face-abs*difference*close
+   :i-support
+   (state <s> ^operator.actions <act>
+              ^io.output-link <ol>)
+   (<act> ^faceabs <fabs>
+          ^face-difference <= 30 >= -30)
+-->
+   (write (crlf) |New =face: | <fabs>)
+   (<ol> ^faceabs <fabs>
+         ^turn off)}
+
+sp {apply*operator*remove*action-command*faceabs
+   (state <s> ^operator <o>
+              ^io.output-link <ol>
+              ^io.input-link.agent.angle.yaw <value>)
+   (<ol> ^faceabs <value>)
+-->
+#   (write (crlf) |<--  done faceabs: | <value>)
+   (<ol> ^faceabs <value> -)}
+
+sp {apply*operator*remove-old*action-command*faceabs
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^turn { <> off <dir> })
+   (<o> ^actions.face-difference { < 30 > -30 })
+-->
+#   (write (crlf) |<--  turn: | <dir>)
+   (<ol> ^turn <dir> -)}
+
+sp {apply*operator*turn-off
+   (state <s> ^operator <o>
+              ^io.input-link <il>
+              ^io.output-link <ol>)
+   (<il> ^turn <> off)
+   (<o> ^actions <act>)
+   (<act> ^<< facetarget leadtarget >> on)
+-->
+#   (write (crlf) |<--  | <att> |: | <value> | Target |)
+   (<ol> ^turn off)}
+ 
+sp {apply*operator*remove-old*target
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face faceabs turn >> <att> } { <> off <value> })
+   (<o> ^actions <act>)
+   (<act> ^{ << facetarget leadtarget >> <> <att> } on)
+-->
+#   (write (crlf) |<--  | <att> |: | <value> | Target |)
+   (<ol> ^<att> <value> -)}
+ 
+sp {apply*operator*remove-old*faceabs
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^faceabs <value>)
+   (<o> ^actions.faceabs <> <value>)
+-->
+#   (write (crlf) |<--  faceabs: | <value>)
+   (<ol> ^faceabs <value> -)}
+
+sp {apply*operator*remove-old*face
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face faceabs facetarget leadtarget >> <att> } { <> off <value> })
+   (<o> ^actions <act>)
+   (<act> ^{ << faceabs face >> <> <att> } { <> <value> <> off })
+-->
+# (write (crlf) |<--  | <att> |: | <value>)
+   (<ol> ^<att> <value> -)}
+
+sp {apply*operator*remove-old*turn-to-heading
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face facetarget leadtarget >> <att> } <value>)
+   (<o> ^actions.faceabs <value>)
+-->
+#   (write (crlf) |<--  | <att> |: | <value> | from faceabs.|)
+   (<ol> ^<att> <value> -)}
+
+sp {apply*operator*remove-command*feedback
+   (state <s> ^name quake
+              ^operator <o>
+              ^io <io>)
+   (<io> ^input-link.feedback <il>
+         ^output-link <ol>)
+   (<ol> ^<att> <value>)
+   (<il> ^<att> <value>)
+-->
+#   (write (crlf) |<==  | <att> |: | <value>)
+   (<ol> ^<att> <value> -)}
+
+###### If selecttarget, remove old facetarget or leadtarget
+sp {apply*operator*remove-old*select-target
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^ { << facetarget leadtarget >> <att> } on)
+   (<o> ^actions <act>)
+   (<act> ^selecttarget)
+-->
+#   (write (crlf) |<==  | <att> |: | <value>)
+   (<ol> ^<face> <value> -)}
+
+

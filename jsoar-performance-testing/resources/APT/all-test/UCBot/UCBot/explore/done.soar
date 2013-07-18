@@ -1,0 +1,26 @@
+
+# A temporary operator.
+# At this point, when all reachable areas have been explored the agent
+# falls into an impasse b/c it no longer knows how to explore.  Propose
+# halting to stop execution.
+#sp {explore*propose*done
+#   (state <s> ^name explore
+#             -^top-state.map.areas.area.recorded false)
+#-->
+#   (<s> ^operator <op> + <)
+#   (<op> ^name done)
+#}
+#
+#sp {explore*apply*done
+#   (state <s> ^operator <op>
+#              ^io.output-link <o-link>)
+#   (<op> ^name done)
+#-->
+#   (write (crlf) |The entire map is explored!|)
+#   (<o-link> ^move.direction none
+#             ^turn.direction none
+#             ^strafe.direction none
+#             ^jump.direction none)
+#   (halt)
+#}
+#

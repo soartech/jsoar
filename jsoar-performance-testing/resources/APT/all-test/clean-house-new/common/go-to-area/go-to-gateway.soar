@@ -1,0 +1,203 @@
+## If crossing through a gateway area to get to a room
+## if next isn't avoided, do it
+sp {go-to-area*propose*go-to-gateway*cross-doorway-area
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway yes
+              ^current-location <ca>
+              ^top-state.areas.area <new-area>)
+   (<ca> ^previous-area.id <id>
+         ^type door
+         ^gateway <gw>)
+   (<gw> ^to { <> <id> <new-area-id> })
+   (<new-area> ^id <new-area-id>
+              -^avoid true)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^cross-doorway yes)
+}
+
+## if crossing through a gateway area to get to a room
+## and next is avoided, go to previous
+sp {go-to-area*propose*go-to-gateway*avoid-next-area
+   (state <s> ^type go-to-area
+              ^current-location <ca>
+              ^top-state.areas.area <next-area>)
+   (<ca> ^type door
+         ^previous-area.id <prev-id>
+         ^gateway <gw1> {<> <gw1> <gw2>})
+   (<gw1> ^to <prev-id>)
+   (<gw2> ^to <next-id>)
+   (<next-area> ^id <next-id>
+                ^avoid true)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw1>
+         ^cross-doorway yes)
+}
+
+
+
+#### No previous-area and in a gateway area
+## do whatever isn't avoided
+sp {go-to-area*propose*go-to-gateway*in-doorway-area
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway yes
+              ^current-location <ca>
+              ^top-state.areas.area <new-area>)
+   (<ca> -^previous-area.id <id>
+          ^type door
+          ^gateway <gw>)
+   (<gw> ^to <new-area-id>)
+   (<new-area> ^id <new-area-id>
+              -^avoid true)
+-->
+   (<s> ^operator <op> + =)  
+   (<op> ^name go-to
+         ^destination <gw>
+         ^cross-doorway yes)
+}
+
+# voigtjr 5/13/10: This is a duplicate name for the production above
+# and this version doesn't exist in the 2009 bot. Commenting it out.
+#sp {go-to-area*propose*go-to-gateway*in-doorway-area
+#   (state <s> ^type go-to-area
+#              ^top-state.parameters.search-control-go-to-gateway yes
+#              ^current-location <ca>)
+#   (<ca> -^previous-area.id <id>
+#          ^type door
+#          ^gateway <gw>)
+#-->
+#   (<s> ^operator <op> +, =)
+#   (<op> ^name go-to
+#         ^destination <gw>
+#         ^cross-doorway yes)
+#}
+
+####SMEM
+sp {go-to-area*propose*go-to-gateway*cross-doorway-area*smem
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway yes
+              ^top-state.parameters.areas-held-in smem
+              ^current-location <ca>)
+   (<ca> ^previous-area.id <id>
+         ^neighbor-area <new-area>
+         ^type door
+         ^gateway <gw>)
+   (<gw> ^to { <> <id> <new-area-id> })
+   (<new-area> ^id <new-area-id>
+              -^avoid true)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^cross-doorway yes)
+}
+### IF final destination is the next area
+## do it
+sp {go-to-area*propose*go-to-waypoint*door
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway yes
+              ^destination-area.id <daid>
+              ^current-location <ca>)
+   (<ca> ^gateway <gw>
+         ^type door)
+   (<gw> ^to <daid>)
+-->
+   (<s> ^operator <op> +, =, >)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^gateway-area-id <daid>
+         ^cross-doorway yes)
+}
+sp {go-to-area*propose*go-to-waypoint
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway yes
+             -^name evaluate-operator
+              ^destination-area.id <daid>
+              ^current-location <ca>)
+   (<ca> ^type room
+         ^gateway <gw>)
+   (<gw> ^to <daid>)
+-->
+   (<s> ^operator <op> +, =, >)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^gateway-area-id <daid>)
+}
+
+# voigtjr 5/13/10: This production is a duplicate name of a production
+# above which was added from the 2009 bot. This version doesn't seem to
+# consider previous area. Commented out.
+#sp {go-to-area*propose*go-to-gateway*avoid-next-area
+#   (state <s> ^type go-to-area
+#              ^current-location <ca>
+#              ^top-state.areas.area <new-area>)
+#   (<ca> ^type door
+#         ^gateway <gw>)
+#   (<gw> ^to { <id> <> <new-area-id> })
+#   (<new-area> ^id <new-area-id>
+#               ^avoid true)
+#-->
+#   (<s> ^operator <op> +, =)
+#   (<op> ^name go-to
+#         ^destination <gw>
+#         ^cross-doorway yes)
+#}
+
+
+
+############### Random
+
+sp {go-to-area*propose*go-to-gateway*cross-doorway-area*no-sc
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway no
+              ^current-location <ca>
+              ^top-state.areas.area <new-area>)
+   (<ca> ^previous-area.id <id>
+         ^type door
+         ^gateway <gw>)
+   (<gw> ^to { <> <id> <new-area-id> })
+  -(<new-area> ^id <new-area-id>
+               ^avoid true)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^cross-doorway yes)
+}
+
+
+### IF final destination is the next area
+sp {go-to-area*propose*go-to-waypoint*door*no-sc
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway no
+              ^destination-area.id <daid>
+              ^current-location <ca>)
+   (<ca> ^gateway <gw>
+         ^type door)
+   (<gw> ^to <daid>)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^gateway-area-id <daid>
+         ^cross-doorway yes)
+}
+sp {go-to-area*propose*go-to-waypoint*no-sc
+   (state <s> ^type go-to-area
+              ^top-state.parameters.search-control-go-to-gateway no
+             -^name evaluate-operator
+              ^destination-area.id <daid>
+              ^current-location <ca>)
+   (<ca> ^type room
+         ^gateway <gw>)
+   (<gw> ^to <daid>)
+-->
+   (<s> ^operator <op> +, =)
+   (<op> ^name go-to
+         ^destination <gw>
+         ^gateway-area-id <daid>)
+}

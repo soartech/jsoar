@@ -1,0 +1,19 @@
+sp {propose*init-describe
+   (state <s> ^name describe
+             -^current-problem-ptr)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name init-describe)
+}
+
+sp {apply*init-describe
+   (state <s> ^operator.name init-describe
+              ^superstate <ss>)
+   (<ss> ^current-problem <p1>
+         ^instructions.problem-structure <ps1>)
+    (<p1> ^problem-name <name>)
+-->
+   (write (crlf) |Problem: | <name>)
+   (<s> ^current-problem-ptr <p1>
+        ^current-problem-structure-ptr  <ps1>)
+}

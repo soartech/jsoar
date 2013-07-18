@@ -1,0 +1,6 @@
+source elaborations.soar
+source cross-room.soar
+source move-to-exit.soar
+source move-to-new-area.soar
+source move-to-stack-position.soar
+source update-objective.soar

@@ -1,0 +1,16 @@
+source communicate.soar
+source entity-list.soar
+pushd entity-list
+source entity-list_source.soar
+popd
+source haunted-area.soar
+pushd haunted-area
+source haunted-area_source.soar
+popd
+source object-list.soar
+pushd object-list
+source object-list_source.soar
+popd
+source record-node.soar
+source record-stuck.soar
+source remove-stuck.soar

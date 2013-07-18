@@ -1,0 +1,11 @@
+sp {die*elaboarate*death-quotient
+   (state <s> ^name die
+              ^top-state <ts>)
+   (<ts> ^self.deaths { <> 0 <sdeaths> }
+         ^self.adjust-skill true
+         ^enemy-data.deaths <edeaths>)
+   -->
+   (write (crlf) |Death Sum: | (+ <edeaths> <sdeaths>))
+   (write (crlf) |Death Quotient: | (/ <sdeaths> (+ <edeaths> <sdeaths>)))
+   (<s> ^death-sum (+ <edeaths> <sdeaths>)
+        ^death-quotient (/ <sdeaths> (+ <edeaths> <sdeaths>)))}

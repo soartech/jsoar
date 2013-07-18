@@ -1,0 +1,88 @@
+#echo "\nLoading explore-axis/init-axis"
+
+## Initailize this axis.
+## Includes creating walls on the room and search-directions on axis.
+
+sp {explore-axis*propose*init-axis
+   (state <s> ^name explore-axis
+              ^axis <a>)
+   (<a> -^marked
+        -^initialized true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name init-axis
+        ^axis <a>)}
+
+#### Create walls
+sp {explore-axis*apply*init-axis*create-walls*east
+   (state <s> ^operator.name init-axis
+              ^axis.orientation north-south
+              ^explore-room <cr>)
+  -(<cr> ^wall.side east)
+   -->
+   (<cr> ^wall.side east)}
+
+sp {explore-axis*apply*init-axis*create-walls*west
+   (state <s> ^operator.name init-axis
+              ^explore-room <cr>
+              ^axis.orientation north-south)
+  -(<cr> ^wall.side west)
+   -->
+   (<cr> ^wall.side west)}
+
+sp {explore-axis*apply*init-axis*create-walls*north
+   (state <s> ^operator.name init-axis
+              ^axis.orientation east-west
+              ^explore-room <cr>)
+  -(<cr> ^wall.side north)
+   -->
+   (<cr> ^wall.side north)}
+
+sp {explore-axis*apply*init-axis*create-walls*south
+   (state <s> ^operator.name init-axis
+              ^axis.orientation east-west
+              ^explore-room <cr>)
+  -(<cr> ^wall.side south)
+   -->
+   (<cr> ^wall.side south)}
+
+####
+
+sp {explore-axis*apply*init-axis*create-wall*north-south
+   (state <s> ^operator.name init-axis
+              ^axis <a>
+              ^explore-room <cr>)
+   (<a> ^orientation north-south)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side west)
+   (<w2> ^side east)
+   -->
+   (<a> ^search-directions north south
+        ^wall <w1> <w2>
+        ^initialized true)}
+
+sp {explore-axis*apply*init-axis*create-wall*east-west
+   (state <s> ^operator.name init-axis
+              ^axis <a>
+              ^explore-room <cr>)
+   (<a> ^orientation east-west)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side north)
+   (<w2> ^side south)
+   -->
+   (<a> ^search-directions east west
+        ^wall <w1> <w2>
+        ^initialized true)}
+
+############################
+## Debug
+
+sp {explore-axis*apply*init-axis*debug
+   (state <s> ^operator.name init-axis
+              ^axis.orientation <wall-dir>
+              ^top-state.debug true
+              ^explore-room <cr>)
+   -->
+   (write (crlf) |init-axis: | <wall-dir> | room | <cr>)}
+
+

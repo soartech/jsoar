@@ -1,0 +1,175 @@
+#echo "\nLoading attack/circle-strafe"
+
+sp {attack*propose*circle-strafe*right
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+              ^blocked << left backward forward >>
+             -^blocked right
+             -^enemy-room different
+             -^top-state.enemy.forget-time <> 0
+              ^top-state.strafe-direction.direction left)
+   -->
+#   (write (crlf) |Change strafe direction because left blocked|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction right)
+   }
+
+sp {attack*propose*circle-strafe*left
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+             -^blocked left
+             -^enemy-room different
+              ^blocked  << right backward forward >>
+             -^top-state.enemy.forget-time <> 0
+              ^top-state.strafe-direction.direction right)
+   -->
+#   (write (crlf) |Change strafe direction because right blocked|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction left)
+   }
+
+sp {attack*propose*circle-strafe*expire*right
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+             -^blocked right
+              ^io.input-link.agent.cycle <ct>
+             -^top-state.enemy.forget-time <> 0
+              ^top-state.strafe-direction <sd>)
+   (<sd> ^direction left
+         ^expire-time < <ct>)
+   -->
+#   (write (crlf) |Change strafe direction because time|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction right)
+   }
+
+sp {attack*propose*circle-strafe*expire*left
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+             -^blocked left
+             -^top-state.enemy.forget-time <> 0
+              ^io.input-link.agent.cycle <ct>
+              ^top-state.strafe-direction <sd>)
+   (<sd> ^direction right
+         ^expire-time < <ct>)
+   -->
+#   (write (crlf) |Change strafe direction because time|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction left)
+   }
+
+sp {attack*propose*no*circle-strafe*right
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+             -^blocked right
+              ^top-state <ts>)
+   (<ts> -^strafe-direction 
+         -^enemy.forget-time)
+   -->
+#   (write (crlf) |Propose initial strafe direction: right|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction right)
+   }
+
+sp {attack*propose*no*circle-strafe*left
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+             -^blocked left
+              ^top-state <ts>)
+   (<ts> -^strafe-direction 
+         -^enemy.forget-time)
+   -->
+#   (write (crlf) |Propose initial strafe direction: left|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction left)
+   }
+
+sp {attack*propose*slide-off*circle-strafe*right
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+              ^io.input-link.feedback.sidestep off
+             -^blocked right
+              ^top-state <ts>)
+   (<ts> -^enemy.forget-time)
+   -->
+#   (write (crlf) |Propose re strafe direction: right|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction right)
+   }
+
+sp {attack*propose*slide-off*circle-strafe*left
+   (state <s> ^name attack    
+              ^attack-type circle-strafe
+              ^io.input-link.feedback.sidestep off
+             -^blocked left
+              ^top-state <ts>)
+   (<ts> -^enemy.forget-time)
+   -->
+#   (write (crlf) |Propose re strafe direction: left|)
+   (<s> ^operator <o> + =)
+   (<o> ^name circle-strafe
+        ^direction left)
+   }
+
+#sp {attack*apply*circle-strafe*add
+#   (state <s> ^operator <o>
+#             ^io.input-link.feedback.sidestep
+#             ^io.input-link.agent.cycle <ct>
+#              ^top-state <ts>)
+#  -(<ts> ^strafe-direction.direction <dir>)
+#   (<o> ^name circle-strafe
+#        ^direction <dir>)    
+#   -->
+#   (write (crlf) |Start Straffing: | <sd> | for 3 seconds.|)
+#   (<ts> ^circle-strafe <sd>)
+#  (<sd> ^direction <dir>
+#        ^expire-time (+ 3000 <ct>))
+#   }
+
+sp {attack*apply*circle-strafe*add
+   (state <s> ^operator <o>
+              ^io.input-link <il>
+              ^top-state <ts>)
+   (<il> ^feedback.sidestep
+         ^agent.cycle <ct>
+         ^agent.random-number <rand>)
+  -(<ts> ^strafe-direction.direction <dir>)
+   (<o> ^name circle-strafe
+        ^direction <dir>)    
+   -->
+#   (write (crlf) |Start Straffing: | <sd> | for |
+#     (/ (+ 1000 (* <rand> 40)) 1000) | seconds. |)
+   (<ts> ^strafe-direction <sd>)
+   (<sd> ^direction <dir>
+         ^expire-time (+ (+ 1000 (* <rand> 40)) <ct>))
+   }
+
+sp {attack*apply*circle-strafe*remove
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<o> ^name circle-strafe
+        ^direction <dir>)    
+   (<ts> ^strafe-direction <sd>)
+   (<sd> ^direction <> <dir>)
+   -->
+#   (write (crlf) |Remove old Strafe structure|)
+   (<ts> ^strafe-direction <sd> -)
+   }
+
+sp {attack*apply*circle-strafe*start
+   :i-support
+   (state <s> ^operator <o>
+             -^io.input-link.feedback.sidestep <side>)
+   (<o> ^name circle-strafe
+        ^direction <side>)
+   -->
+   (<o> ^actions.sidestep <side>)
+   }
+

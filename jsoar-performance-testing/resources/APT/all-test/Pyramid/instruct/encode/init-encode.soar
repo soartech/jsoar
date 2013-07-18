@@ -1,0 +1,23 @@
+## Init-encode 
+
+sp {encode*propose*init-encode
+   (state <s> ^name encode
+             -^current-problem-ptr)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name init-encode)
+}
+
+sp {apply*init-encode
+   (state <s> ^operator.name init-encode
+              ^superstate <ss>)
+   (<ss> ^current-problem <p1>
+         ^instructions.problem-structure <ps1>)
+   (<p1> ^problem-name <name>
+         ^problem-number <pnum>
+         ^element <e1>)
+-->
+   (write (crlf) |Problem: | <pnum> | | <pnum> | | <pnum> | | <pnum> | -> | <name>)
+   (<s> ^current-problem-ptr <e1>
+        ^current-problem-structure-ptr <ps1>)
+}

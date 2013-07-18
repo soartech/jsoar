@@ -1,0 +1,42 @@
+echo "\nLoading behavior/eat-and-drink"
+
+#
+# Eating involves acquiring a food item and using it. 
+# Priority for this behavior is set based on
+# how hungry the agent is.
+#
+# If no food is available, and the agent's hunger is 'high', 
+# the agent will attempt to look for food. Otherwise, if 
+# 'medium' or 'low', the eat operator will not be proposed.
+#
+
+sp {behavior*propose*eat*if-available
+   (state <s> ^name haunt
+              ^status.hunger << medium high >>
+              ^available.food-source <food>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name eat
+        ^type acquire-and-x
+        ^target <food>
+        ^next-action <na>)
+   (<na> ^name use-object
+         ^type use-object)
+}
+
+#
+# If agent is starving, it will drop all activity 
+# and search for food
+#
+sp {behavior*propose*eat*at-all-costs
+   (state <s> ^name haunt              
+              ^status.hunger high
+             -^available.food-source)
+-->
+   (write (crlf) |Proposed looking for food because I'm starving!!|)
+   (<s> ^operator <o> +)
+   (<o> ^name find-food
+        ^type explore)
+}
+
+

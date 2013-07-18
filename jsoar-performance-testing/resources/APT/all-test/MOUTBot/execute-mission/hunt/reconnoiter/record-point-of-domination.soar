@@ -1,0 +1,64 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/point of domination"
+
+
+#AMN: 2002-07-31
+#IF:
+#1.  The corner-of-responsibility has been recorded
+#2.  The point-of-domination has not been recorded
+#2.  There is a node in the current area of type "none" (i.e., corner node)
+#THEN:
+#    Propose making that node a point of domination
+sp {reconnoiter*propose*record-point-of-domination
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map.current-area.node <node>)
+   (<eorders> ^corner-of-responsibility
+             -^point-of-domination)
+   (<node> ^type none)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-point-of-domination
+        ^node <node>)
+}
+
+#AMN: 2002-07-31
+#Elaborate each operator with its node's difference along
+#the entrance axis compared to the corner of responsibility
+sp {record-point-of-domination*elaborate*parallel-difference
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^operator <o> +)
+   (<eorders> ^axis <axis>
+              ^corner-of-responsibility.position <cpos>)
+   (<cpos> ^<axis> <eval>)
+   (<o> ^name record-point-of-domination
+        ^node.position <npos>)
+   (<npos> ^<axis> <nval>)
+-->
+   (<o> ^parallel-difference (abs (- <eval> <nval>)))
+}
+
+#AMN: 2002-07-30
+#Reject operators which are not in-line with the corner node
+sp {reconnoiter*reject*excess-parallell-difference
+   (state <s> ^name reconnoiter
+              ^operator <o> +)
+   (<o> ^name record-point-of-domination
+        ^parallel-difference > 100)
+-->
+   (<s> ^operator <o> -)
+}
+
+#AMN: 2002-07-30
+sp {apply*record-point-of-domination
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <eorders>)
+   (<o> ^name record-point-of-domination
+        ^node <node>)
+-->
+   (<eorders> ^point-of-domination <node>)
+}
+
+
+
+

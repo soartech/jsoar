@@ -1,0 +1,45 @@
+echo "\nLoading attack"
+
+################################
+## Propose attack operator 
+################################
+#
+# [1] REW: 2002-09-27
+#     Propose to attack when the selected-weapon has rounds in the chamber available.
+# [2] JEL: 2002-10-06
+#     Test not at-ease - allow alert to be selected first
+# [3] REW: 2003-01-24
+#     Add ^types for selected weapon (both proposals).  attack doesn't work if grenade is the selected weapon.
+sp {propose*attack
+   (state <s> ^name execute-mission
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state <ts>)
+   (<ts> ^self <self>
+         ^threats.attackable yes)
+   (<self>  ^weapons.selected-weapon <sw>
+           -^hurt true
+           -^posture at-ease)
+   (<sw> ^rounds-available
+         ^type << assault-rifle handgun >>)
+-->
+   (<s> ^operator <o> +, = 90)
+   (<o> ^name attack)}
+
+# Attack sometimes even if hurt
+# Separate rule so that we can do something interesting with selecting this versus
+# retreat in the future. Also, it means once hurt, a decision is made whether to 
+# continue attach or retreat. Otherwise, would always stick with attack
+sp {propose*attack*hurt
+   (state <s> ^name execute-mission
+              ^mission.active-objective.type << offensive roam defensive >>
+              ^top-state <ts>)
+   (<ts> ^self <self>
+         ^threats.attackable yes)
+   (<self>  ^weapons.selected-weapon <sw>
+            ^hurt true
+           -^posture at-ease)
+   (<sw> ^rounds-available
+         ^type << assault-rifle handgun >>)
+-->
+   (<s> ^operator <o> +, = 30)
+   (<o> ^name attack)}

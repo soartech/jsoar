@@ -1,0 +1,64 @@
+echo "\nLoading execute-mission/hunt/goto-next-room"
+                
+#IF:
+#1.  My current room is clear
+#2.  There is an exit to this room that does not lead Outside
+#THEN:
+#    Propose moving to the next room via the exit
+sp {hunt*propose*goto-next-room
+   (state <s> ^name hunt
+              ^top-state.map.current-area <ca>)
+   (<ca> ^cleared yes
+         ^node <enode>)
+   (<enode> ^type << door connector >>
+           ^connected-node.area <new-area>)
+   (<new-area> -^name |Outside|)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name goto-next-room
+        ^exit-node <enode>
+        ^new-area <new-area>)
+}
+
+#Prefer moving to the next (uncleared) area
+sp {hunt*compare*goto-next-room*prefer-uncleared
+   (state <s> ^name hunt
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name goto-next-room
+         -^new-area.cleared yes)
+   (<o2> ^name goto-next-room
+         ^new-area.cleared yes)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#Elaborate uncleared areas with the range to them
+sp {hunt*elaborate*goto-next-room*range
+   (state <s> ^name hunt
+              ^operator <o> +
+              ^io.input-link.objects.node <visnode>)
+   (<o> ^name goto-next-room
+        ^exit-node.name <enode-name>)
+   (<visnode> ^name <enode-name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+
+#Given two uncleared areas, move to the nearest one
+sp {hunt*compare*goto-next-room*nearest-uncleared
+   (state <s> ^name hunt
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name goto-next-room
+        -^new-area.cleared yes
+         ^range <range>)
+   (<o2> ^name goto-next-room
+        -^new-area.cleared yes
+         ^range > <range>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

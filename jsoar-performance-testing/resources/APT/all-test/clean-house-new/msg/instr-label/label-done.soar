@@ -1,0 +1,20 @@
+sp {instr-label*propose*label-done
+   (state <s> ^name instr-label
+              ^input nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name label-done)
+}
+
+sp {apply*label-done
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>
+              ^prev <prev>)
+   (<op> ^name label-done)
+   (<prev> ^next <next>)
+-->
+   (<ss-op> ^done true)
+   (<prev> ^next <next> -
+           ^next nil)
+        
+}

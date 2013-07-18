@@ -1,0 +1,17 @@
+#####################################
+# file: search-area/search-complete
+# created: JEL 11-05-02
+#
+
+sp {search-area*propose*search-complete
+   (state <s> ^name search-area)
+-->
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name search-complete)
+}
+sp {apply*search-complete
+   (state <s> ^top-state.map.current-area <area>
+              ^operator.name search-complete)
+   -->
+   (<area> ^searched true)
+}

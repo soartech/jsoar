@@ -1,0 +1,37 @@
+#echo "\nLoading speak"
+#
+## (CODE COPIED DIRECTLY FROM Bob's Example)
+##speak operator example (commented out to prevent conflict with speak-to example)
+#
+#sp {any-ps*propose*speak
+#   (state <s> ^name haunt
+#               ^io.input-link.agent.name <name>)
+#  -(<s> ^spoke)
+#-->
+#   (<s> ^operator <o> + >,=)
+#   (<o> ^name speak
+#        ^phrase1 My_name_is_
+#        ^phrase2 <name>
+#        ^sender <name>
+#        ^volume 2)
+#   (write (crlf) |proposing speak operator|)
+#}
+#
+sp {any-ps*apply*speak
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^name speak
+        ^phrase1 <p1>
+        ^phrase2 <p2>
+       -^phrase3
+        ^sender <sender>
+        ^volume <v>)
+-->
+   (<ol> ^speak <speak>)
+   (<speak> ^phrase1 <p1>
+             ^phrase2 <p2>
+            ^sender <sender>
+            ^volume <v>)
+   (<s> ^spoke dummy)
+   (write (crlf) |applying speak operator|)
+}

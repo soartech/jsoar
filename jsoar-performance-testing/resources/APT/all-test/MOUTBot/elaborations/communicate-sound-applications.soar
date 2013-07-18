@@ -1,0 +1,33 @@
+##################################### 
+# file: sound-applications.soar 
+# created: 2002-10-04
+## 
+# Play the sound file associated the message
+#
+# NOTE:
+#       2002-10-04
+#       This production will send the message-name to the interface, which then will use a 
+#            match with lookup table to actually play the correct file.
+
+# Change history: 
+# 
+# [1] Created REW
+
+##################################### 
+
+# REW: 2002-10-08
+# Changed output representation to normal (OL ^command ID ^subcommand) configuration
+sp {apply*communicate*sound-file*play-sound
+   (state <s> ^operator <o> ^top-state.io.output-link <ol>)
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <name>
+              ^device <d>)
+   (<d> ^type voice
+        ^name sound-file)
+-->
+#  (write (crlf) |Playing sound-file for : | <name>)
+   (<d> ^transmitted *yes*)
+   (<ol> ^play-sound <ps>)
+   (<ps> ^sound <name>)
+}

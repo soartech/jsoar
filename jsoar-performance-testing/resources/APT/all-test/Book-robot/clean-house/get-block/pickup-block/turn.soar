@@ -1,0 +1,14 @@
+sp {pickup-block*propose*turn*right
+   (state <s> ^name pickup-block
+              ^block-id <id>
+              ^object-lined-up no
+              ^io.input-link.object <o>)
+   (<o> ^id <id>
+        ^angle-off <ao>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn
+         ^actions.rotate-relative <ao>)
+}
+
+

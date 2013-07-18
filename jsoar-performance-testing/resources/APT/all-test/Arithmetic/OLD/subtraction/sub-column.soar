@@ -1,0 +1,11 @@
+sp {subtraction*propose*sub-column
+   (state <s> ^name subtraction
+              ^subtraction-problem.current-column <cc>)
+  -(<cc> ^difference)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name sub-column)
+}
+
+
+

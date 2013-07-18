@@ -1,0 +1,10 @@
+sp {attempt-simple-problem*propose*execute-solve-procedure
+   (state <s> ^name attempt-simple-problem
+              ^current-problem <cp>)
+   (<cp> ^encoded true
+         ^type solve
+        -^success true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-solve-procedure)
+}

@@ -1,0 +1,31 @@
+
+sp {carry-borrow*propose*new-column
+   (state <s> ^name carry-borrow
+              ^current-column.next-column nil)
+-->
+   (<s> ^operator.name new-column)}
+
+
+## Remove when chunking is fixed !!!!!!!!!!!
+sp {carry-borrow*elaborate*operator*zero
+   (state <s> ^name carry-borrow
+              ^top-state.zero <zero>
+              ^operator <o>)
+   (<o> ^name new-column)
+-->
+   (<o> ^zero <zero>)
+}
+
+sp {carry-borrow*apply*new-column
+   (state <s> ^operator <o>
+              ^current-column <cc>)
+   (<o> ^name new-column
+        ^zero <zero>)
+-->
+   (<cc> ^next-column <nc>
+                      nil -)
+   (<nc> ^digit1 <zero>
+         ^digit2 <zero>
+         ^column t
+         ^next-column nil)
+}

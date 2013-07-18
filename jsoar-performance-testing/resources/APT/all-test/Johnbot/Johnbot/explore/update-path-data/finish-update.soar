@@ -1,0 +1,17 @@
+#echo "\nLoading update-path-data/finish-update"
+
+sp {update-path-data*propose*finish-update
+   (state <s> ^name update-path-data
+              ^room.update-data.current-distance <cd>)
+   (<cd> ^tested true
+         ^extended false)
+   -->
+   (<s> ^operator <o> +)
+   (<o> ^name finish-update)}
+ 
+sp {update-path-data*apply
+   (state <s> ^operator.name finish-update
+              ^room <cr>)
+   -->
+   (<cr> ^updated-paths true)}
+

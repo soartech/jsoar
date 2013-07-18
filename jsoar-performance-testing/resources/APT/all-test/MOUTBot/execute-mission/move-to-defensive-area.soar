@@ -1,0 +1,23 @@
+sp {execute-mission*propose*move-to-defensive-area
+   (state <s> ^name execute-mission
+              ^mission.active-objective <ob>)
+    (<ob> ^type << defend-entryway defend-hall defend-room >>
+          ^defensive-position <dp>)
+    (<dp> ^area <area>
+         -^area-achieved true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-defensive-area
+        ^type move-to-area
+        ^area <area>) 
+}
+
+sp {execute-mission*compare*move-to-defensive-area-trumps-threat-retreat-door
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-defensive-area)
+   (<o2> ^name << determine-threat-door determine-retreat-door >>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

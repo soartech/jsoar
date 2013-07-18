@@ -1,0 +1,26 @@
+sp {subtract-via-counting*propose*initialize-counting
+   (state <s> ^name subtract-via-counting
+             -^base-number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name initialize-counting)
+}
+
+### Base-number is one that will be subtracted from
+### counter starts at zero and is incremented as base-number is decremented
+### when counter achieves subtrahend, base-number has the right value
+### If borrowing is necessary - borrow flag gets set
+### subtract-in is the smaller (count down)
+sp {subtract-via-counting*apply*initialize-counting
+   (state <s> ^name subtract-via-counting
+              ^top-state.zero <zero>
+              ^operator.name initialize-counting
+              ^superstate.operator <o>)
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+   (<s> ^base-number <d1>
+        ^counter <zero>
+        ^subtrahend <d2>
+        ^borrow false)
+}

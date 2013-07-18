@@ -1,0 +1,382 @@
+#echo "\nLoading explore-axis/finish-axis"
+
+## When done with axis.
+
+sp {explore-axis*propose*finish-axis
+   (state <s> ^name explore-axis
+              ^axis <a>)
+   (<a> ^initialized true
+        ^marked wall
+       -^retry
+       -^mapped true
+        ^followed-to-end true)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name finish-axis
+        ^actions.thrust off)}
+
+sp {explore-axis*apply*finish-axis
+   (state <s> ^operator.name finish-axis
+              ^axis <a>)
+   (<a> ^wall <w>
+        ^marked wall
+       -^retry true
+       -^updated <side>)
+   -->
+   (write (crlf) |Finished mapping|)
+   (<a> ^mapped true)
+   (<w> ^mapped true)}
+
+sp {explore-axis*apply*reset*axis
+   (state <s> ^operator.name finish-axis
+              ^axis <a>)
+   (<a> ^updated <side>              #if updated, might have missed door
+       -^retry)
+   -->
+   (write (crlf) |Retry mapping|)
+   (<a> ^retry true
+        ^updated <side> -)}
+
+sp {explore-axis*apply*reset*axis*clean-up
+   (state <s> ^operator.name finish-axis
+              ^axis <a>)
+   (<a> ^updated <side>
+        ^retry true
+        ^wall <w>)
+   (<w> ^side <side>
+       -^door)
+   -->
+   (write (crlf) |Finished retry mapping|)
+   (<a> ^retry true -
+        ^updated <side> -)}
+
+
+####### Correct walls that were mapped when going through doors
+
+### Doesn't correct the door of the hall that connects...
+ 
+sp {explore-axis*apply*finish-axis*correct-wall-east
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^east <new-x>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <w>)
+   (<w> ^tentative true
+        ^side east
+        ^door <d>
+        ^x { <> <new-x> <x> }
+        ^x-min <x-min>)
+   (<d> ^direction east        
+        ^x <x>
+         ^min-x <min-x>
+         ^max-x <max-x>
+         ^mmin-x <mmin-x>
+         ^mmax-x <mmax-x>)
+   -->
+   (write (crlf) |Correct east wall: | <x> | --> | <new-x>)
+   (<d> ^x <x> -
+        ^min-x <min-x> -
+        ^max-x <max-x> -
+        ^mmin-x <mmin-x> -
+        ^mmax-x <mmax-x> -)
+   (<d> ^x <new-x>
+        ^min-x (- <new-x> <bb>)
+        ^max-x (+ <new-x> <bb>)
+        ^mmin-x (- <new-x> <bbb>)
+        ^mmax-x (+ <new-x> <bbb>))
+   (<w> ^tentative true -
+        ^x <x> -
+        ^x <new-x> 
+        ^x-min <x-min> -
+        ^x-min (-  <new-x> <wclose>))}
+
+sp {explore-axis*apply*finish-axis*correct-wall-west
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^west <new-x>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <w>)
+   (<w> ^tentative true
+        ^side west
+        ^door <d>
+        ^x { <> <new-x> <x> }
+        ^x-max <x-max>)
+   (<d> ^direction west        
+        ^x <x>
+         ^min-x <min-x>
+         ^max-x <max-x>
+         ^mmin-x <mmin-x>
+         ^mmax-x <mmax-x>)
+   -->
+   (write (crlf) |Correct west wall: | <x> | --> | <new-x>)
+   (<d> ^x <x> -
+        ^min-x <min-x> -
+        ^max-x <max-x> -
+        ^mmin-x <mmin-x> -
+        ^mmax-x <mmax-x> -)
+   (<d> ^x <new-x>
+        ^min-x (- <new-x> <bb>)
+        ^max-x (+ <new-x> <bb>)
+        ^mmin-x (- <new-x> <bbb>)
+        ^mmax-x (+ <new-x> <bbb>))
+   (<w> ^tentative true -
+        ^x <x> -
+        ^x <new-x> 
+        ^x-max <x-max> -
+        ^x-max (-  <new-x> <wclose>))}
+
+sp {explore-axis*apply*finish-axis*correct-connecting-wall-east
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^east <new-x>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <ow>)
+   (<ow> ^connects-to-door <d>
+         ^side east)
+   (<d> ^direction west
+         ^wall <w>        
+         ^x <x>
+         ^min-x <min-x>
+         ^max-x <max-x>
+         ^mmin-x <mmin-x>
+         ^mmax-x <mmax-x>)
+   (<w> ^side west
+        ^tentative true
+        ^door <d>
+        ^x { <> <new-x> <x> }
+        ^x-max <x-max>)
+   -->
+   (write (crlf) |Correct connected west wall: | <x> | --> | <new-x>)
+   (<d> ^x <x> -
+        ^min-x <min-x> -
+        ^max-x <max-x> -
+        ^mmin-x <mmin-x> -
+        ^mmax-x <mmax-x> -)
+   (<d> ^x <new-x>
+        ^min-x (- <new-x> <bb>)
+        ^max-x (+ <new-x> <bb>)
+        ^mmin-x (- <new-x> <bbb>)
+        ^mmax-x (+ <new-x> <bbb>))
+   (<w> ^tentative true -
+        ^x <x> -
+        ^x <new-x> 
+        ^x-max <x-max> -
+        ^x-max (-  <new-x> <wclose>))}
+
+
+sp {explore-axis*apply*finish-axis*correct-connecting-wall-west
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^west <new-x>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <ow>)
+   (<ow> ^connects-to-door <d>
+        ^side west)
+   (<d> ^direction east
+         ^wall <w>        
+         ^x <x>
+         ^min-x <min-x>
+         ^max-x <max-x>
+         ^mmin-x <mmin-x>
+         ^mmax-x <mmax-x>)
+   (<w> ^side east
+        ^tentative true
+        ^door <d>
+        ^x { <> <new-x> <x> }
+        ^x-min <x-min>)
+   -->
+   (write (crlf) |Correct connected east wall: | <x> | --> | <new-x>)
+   (<d> ^x <x> -
+        ^min-x <min-x> -
+        ^max-x <max-x> -
+        ^mmin-x <mmin-x> -
+        ^mmax-x <mmax-x> -)
+   (<d> ^x <new-x>
+        ^min-x (- <new-x> <bb>)
+        ^max-x (+ <new-x> <bb>)
+        ^mmin-x (- <new-x> <bbb>)
+        ^mmax-x (+ <new-x> <bbb>))
+   (<w> ^tentative true -
+        ^x <x> -
+        ^x <new-x> 
+        ^x-min <x-min> -
+        ^x-min (-  <new-x> <wclose>))}
+
+
+sp {explore-axis*apply*finish-axis*correct-wall-north
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^north <new-y>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <w>)
+   (<w> ^tentative true
+        ^side north
+        ^door <d>
+        ^y { <> <new-y> <y> }
+        ^y-min <y-min>)
+   (<d> ^direction north        
+        ^y <y>
+         ^min-y <min-y>
+         ^max-y <max-y>
+         ^mmin-y <mmin-y>
+         ^mmax-y <mmax-y>)
+   -->
+   (write (crlf) |Correct north wall: | <y> | --> | <new-y>)
+   (<d> ^y <y> -
+        ^min-y <min-y> -
+        ^max-y <max-y> -
+        ^mmin-y <mmin-y> -
+        ^mmax-y <mmax-y> -)
+   (<d> ^y <new-y>
+        ^min-y (- <new-y> <bb>)
+        ^max-y (+ <new-y> <bb>)
+        ^mmin-y (- <new-y> <bbb>)
+        ^mmax-y (+ <new-y> <bbb>))
+   (<w> ^tentative true -
+        ^y <y> -
+        ^y <new-y> 
+        ^y-min <y-min> -
+        ^y-min (-  <new-y> <wclose>))}
+
+
+sp {explore-axis*apply*finish-axis*correct-wall-south
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^south <new-y>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <w>)
+   (<w> ^tentative true
+        ^side south
+        ^door <d>
+        ^y { <> <new-y> <y> }
+        ^y-max <y-max>)
+   (<d> ^direction south        
+        ^y <y>
+         ^min-y <min-y>
+         ^max-y <max-y>
+         ^mmin-y <mmin-y>
+         ^mmax-y <mmax-y>)
+   -->
+   (write (crlf) |Correct south wall: | <y> | --> | <new-y>)
+   (<d> ^y <y> -
+        ^min-y <min-y> -
+        ^max-y <max-y> -
+        ^mmin-y <mmin-y> -
+        ^mmax-y <mmax-y> -)
+   (<d> ^y <new-y>
+        ^min-y (- <new-y> <bb>)
+        ^max-y (+ <new-y> <bb>)
+        ^mmin-y (- <new-y> <bbb>)
+        ^mmax-y (+ <new-y> <bbb>))
+   (<w> ^tentative true -
+        ^y <y> -
+        ^y <new-y> 
+        ^y-max <y-max> -
+        ^y-max (-  <new-y> <wclose>))}
+
+
+
+sp {explore-axis*apply*finish-axis*correct-wall-connected-north
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^north <new-y>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <ow>)
+   (<ow> ^connects-to-door <d>
+        ^side north)
+   (<d> ^direction south  
+        ^wall <w>     
+        ^y <y>
+         ^min-y <min-y>
+         ^max-y <max-y>
+         ^mmin-y <mmin-y>
+         ^mmax-y <mmax-y>)
+   (<w> ^tentative true
+        ^side south
+        ^door <d>
+        ^y { <> <new-y> <y> }
+        ^y-max <y-max>)
+   -->
+   (write (crlf) |Correct connected south wall: | <y> | --> | <new-y>)
+   (<d> ^y <y> -
+        ^min-y <min-y> -
+        ^max-y <max-y> -
+        ^mmin-y <mmin-y> -
+        ^mmax-y <mmax-y> -)
+   (<d> ^y <new-y>
+        ^min-y (- <new-y> <bb>)
+        ^max-y (+ <new-y> <bb>)
+        ^mmin-y (- <new-y> <bbb>)
+        ^mmax-y (+ <new-y> <bbb>))
+   (<w> ^tentative true -
+        ^y <y> -
+        ^y <new-y> 
+        ^y-max <y-max> -
+        ^y-max (-  <new-y> <wclose>))}
+
+
+sp {explore-axis*apply*finish-axis*correct-wall-connected-south
+   (state <s> ^operator.name finish-axis
+              ^axis <a>
+              ^south <new-y>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>)
+   (<a> ^wall <ow>)
+   (<ow> ^connects-to-door <d>
+         ^side south)
+   (<d> ^direction north       
+        ^y <y>
+        ^wall <w>
+         ^min-y <min-y>
+         ^max-y <max-y>
+         ^mmin-y <mmin-y>
+         ^mmax-y <mmax-y>)
+   (<w> ^tentative true
+        ^side north
+        ^door <d>
+        ^y { <> <new-y> <y> }
+        ^y-min <y-min>)
+   -->
+   (write (crlf) |Correct connected north wall: | <y> | --> | <new-y>)
+   (<d> ^y <y> -
+        ^min-y <min-y> -
+        ^max-y <max-y> -
+        ^mmin-y <mmin-y> -
+        ^mmax-y <mmax-y> -)
+   (<d> ^y <new-y>
+        ^min-y (- <new-y> <bb>)
+        ^max-y (+ <new-y> <bb>)
+        ^mmin-y (- <new-y> <bbb>)
+        ^mmax-y (+ <new-y> <bbb>))
+   (<w> ^tentative true -
+        ^y <y> -
+        ^y <new-y> 
+        ^y-min <y-min> -
+        ^y-min (-  <new-y> <wclose>))}
+
+
+

@@ -1,0 +1,22 @@
+
+sp {algebra*elaborate*print-out-equation*other*snc
+   (state <s> ^attribute state
+              ^quiescence t
+              ^superstate <ss>)
+   (<ss> ^name solve-problem
+         ^superstate <sss>)
+-->
+   (<sss> ^print-id <pn>)
+}
+
+
+sp {algebra*apply*print-out-equation*other*snc
+   (state <s> ^attribute state
+              ^quiescence t
+              ^superstate <ss>)
+   (<ss> ^name solve-problem)
+-->
+   (<ss> ^operator <o>)
+   (<o> ^name retry)
+}
+

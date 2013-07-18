@@ -1,0 +1,20 @@
+sp {follow-room-axis*propose*finished-follow
+   (state <s> ^name follow-room-axis
+              ^axis <a>)
+   (<a> ^initialized true
+        ^marked wall
+       -^retry
+       -^mapped true
+        ^end-of-wall true)
+   -->
+   (write (crlf) |Proposed finished-follow.|)
+  # #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name finished-follow
+        ^actions.thrust off)}
+
+sp {follow-room-axis*apply*finish-follow
+   (state <s> ^operator.name finished-follow
+              ^axis <a>)
+   -->
+   (<a> ^followed-to-end true)}

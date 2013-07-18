@@ -1,0 +1,43 @@
+#echo "\nLoading attack/follow-enemy"
+
+## Turn and move toward last position of enemy.
+
+sp {attack*propose*follow-enemy
+   (state <s> ^name attack
+              ^current-room <cr>
+             -^enemy-room <> <cr>
+             -^io.input-link.map.forward.blocked true
+              ^top-state.enemy <e>)
+   (<e> ^forget-time
+        ^old-yaw <oh>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name follow-enemy
+        ^actions <a>)
+   (<a> ^facetarget off
+        ^leadtarget off
+        ^faceabs <oh>
+        ^sidestep off
+        ^attack off
+        ^thrust forward)}
+
+sp {attack*propose*follow-enemy*blocked
+   (state <s> ^name attack
+              ^current-room <cr>
+             -^enemy-room <> <cr>
+              ^io.input-link.map.forward.blocked true
+              ^top-state.enemy <e>)
+   (<e> ^forget-time
+        ^old-yaw { <> 0 <oh> })
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name follow-enemy
+        ^actions <a>)
+   (<a> ^facetarget off
+        ^leadtarget off
+        ^faceabs <oh>
+        ^sidestep off
+        ^attack off)}
+
+
+

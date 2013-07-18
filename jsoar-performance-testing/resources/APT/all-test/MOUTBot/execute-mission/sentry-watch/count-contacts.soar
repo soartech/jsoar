@@ -1,0 +1,149 @@
+##################################### 
+# file: count-contacts soar 
+# created: REW: 2001-08-26
+## 
+# Count any new contacts that need to be reported.  Recognize old contacts that have not been visible.
+# Delete any new-contacts that have no additional information (problem: info flashes in/out in one decision)
+#
+# Change history: 
+# 
+#  [1]
+
+echo "\nLoading execute-mission/sentry-watch/count-contacts.soar"
+                
+# If there is a new contact, then it hasn't previously been counted
+
+sp {sentry-watch*propose*count-contacts
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.contacts.new-contact <nt>)
+   -->
+#   (write (crlf) |Proposing count contacts for contact: | <nt>)
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name count-contacts
+        ^contact <nt>)
+}
+
+# if there isn't already a total-contacts structure, then create it and initialize it to 0.
+sp {apply*count-contacts*no*total-contact*count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts)
+   (<th> -^total-contacts)
+   -->
+   (<th> ^total-contacts 0)
+}
+
+# if there isn't already a visible-contacts structure, then create it and initialize it to 0.
+sp {apply*count-contacts*no*visible-contact*count
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts)
+   (<th> -^visible-contacts)
+   -->
+   (<th> ^visible-contacts 0)
+}
+
+# REW: We can uniquely identify each contact by name (assuming names are unique)
+# Normally, we'll only see a new-contact if it's not already reported but the
+# negated condition takes care of the possibility that a reported-contact 
+# will be repeated.
+# For a contact that is really new, increment both the total count
+#   and the visible count.
+sp {apply*count-contacts*increment-count*new-contact
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts
+         ^contact <nt>)
+   (<th> ^total-contacts <count>
+         ^visible-contacts <vc>
+         ^new-contact <nt>
+        -^reported-contact.entity.name <name>
+        -^remembered-contact.entity.name <name>)
+   (<nt> ^entity.name <name>)
+   -->
+#   (write (crlf) |This is a new contact (not remembered or reported)|)
+   (<th> ^total-contacts <count> - (+ <count> 1) 
+         ^visible-contacts <vc> -  (+ <vc> 1)
+         ^new-contact <nt> -
+         ^reported-contact <nt> )
+}
+
+
+
+# For a remembered contact, do not update the total count
+# but increment the visible count and delete the 
+# old remembered contact.
+sp {apply*count-contacts*replace*remembered-contact
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts
+         ^contact <nt>)
+   (<th> ^visible-contacts <count>
+         ^new-contact <nt>
+         ^remembered-contact <rc>)
+   (<rc> ^entity <rce>)
+   (<rce> ^name <name>)
+   (<nt> ^entity <nte>)
+   (<nte> ^name <name>)
+   -->
+#   (write (crlf) |Replacing a remembered contact with new contact: | <nt>)
+   (<th> ^visible-contacts <count> - (+ <count> 1) 
+         ^remembered-contact <rc> -
+         ^new-contact <nt> -
+         ^reported-contact <nt> )
+}
+
+# For a reported contact, do not update the total count or
+# visible count and delete the reported contact.
+# REW: Potential bug here if new-contact and reported-contacted same ID
+sp {apply*count-contacts*replace*reported-contact
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts
+         ^contact <nt>)
+   (<th>          ^new-contact <nt>
+         ^reported-contact <rc>)
+   (<rc> ^entity.name <name>)
+   (<nt> ^entity.name <name>)
+   -->
+#   (write (crlf) | Replacing a previously reported contact |)
+   (<th> ^reported-contact <nt> + <rc> -
+         ^new-contact <nt> -)
+}
+
+# Sometimes, agent will glimpse new-contact for a single decision
+# (ie, new-contact info will disappear).  In that case, just delete
+# the contact.
+sp {apply*count-contacts*delete*new-contact*no-information
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.contacts <th>)
+   (<o1> ^name count-contacts
+         ^contact <nt>)
+   (<th>          ^new-contact <nt>)
+   (<nt> -^entity.name )
+   -->
+#   (write (crlf) |Ignore a contact with no deeper information |)
+   (<th>          ^new-contact <nt> -)
+}
+
+# There should never simultaneously be a remembered and 
+# reported contact for the same agent.  If this happens,
+# print a warning message.
+sp {unreal*monitor-state*sentry-watch*contacts*remembered-and-reported-contact
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.contacts <con>)
+   (<con> ^remembered-contact <rc>
+          ^reported-contact <rp>)
+   (<rc> ^entity.name <name>)
+   (<rp> ^entity.name <name>)
+   -->
+#   (write (crlf) |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|)
+#   (write (crlf) |Warning!!!! See remembered and reported contact simultanesouly for | <name>)
+#   (write (crlf) |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|)
+ }
+
+
+
+
+
+

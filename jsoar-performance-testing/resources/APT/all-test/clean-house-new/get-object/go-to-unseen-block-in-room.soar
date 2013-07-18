@@ -1,0 +1,31 @@
+sp {get-object*propose*go-to-unseen-block-in-room
+   (state <s> ^name get-object
+              ^current-location <area>
+              ^top-state <ts>)
+   (<ts> ^parameters.pickup-range <r>
+         ^objects.object <block>
+         ^current-mission.object <object>)
+   (<area> -^storage-area yes)
+   (<object> ^type <obj>
+             ^color <color>)
+   (<block> ^area <area>
+            ^type <obj>
+            ^color <color>
+           -^in-storage-room yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name go-to
+         ^destination <block>
+         ^range <r>)
+}
+  
+sp {get-object*compare*pickup*prefer*visible
+   (state <s> ^name get-object
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name pickup-block)
+   (<op2> ^name go-to)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+

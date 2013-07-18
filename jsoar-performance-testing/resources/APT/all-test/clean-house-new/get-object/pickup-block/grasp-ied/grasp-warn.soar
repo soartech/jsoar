@@ -1,0 +1,33 @@
+sp {grasp-ied*propose*grasp-warn
+   (state <s> ^name grasp-ied
+             -^clear)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name grasp-warn)
+}
+
+sp {apply*grasp-warn*avoid
+   (state <s> ^operator <op>
+              ^top-state.io <io>)
+   (<op> ^name grasp-warn)
+   (<io> ^input-link <in>
+         ^output-link <out>)
+   (<in> ^objects.object <obj>
+         ^area-description.id <area>)
+   (<obj> ^type player
+          ^name <name>)
+-->
+   (<out> ^send-message <m>)
+   (<m> ^destination <name>
+        ^first <first>)
+   (<first> ^word |avoid|
+            ^next <second>)
+   (<second> ^word <area>
+             ^next nil)}
+
+sp {apply*grasp-warn*clear
+   (state <s> ^operator <op>)
+   (<op> ^name grasp-warn)
+-->
+   (<s> ^clear true)
+}

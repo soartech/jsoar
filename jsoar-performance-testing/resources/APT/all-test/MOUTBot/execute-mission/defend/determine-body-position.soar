@@ -1,0 +1,58 @@
+echo "loading determine-body-position"
+
+# compute the desired body position in the current situation
+# REW: 2003-06-09
+# For now, just put a desired body position on the state and propose operators based on that
+# via random choice
+# Someday, want more complex reasoning here
+
+sp {defend*propose*determine-body-position*stand
+   (state <s> ^name defend
+              ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+             -^desired-body-position)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true
+        )
+   -->
+   (<s> ^operator <o> +, = 25)
+   (<o> ^name determine-body-position
+        ^type stand)
+}
+
+
+sp {defend*propose*determine-body-position*kneel
+   (state <s> ^name defend
+              ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+             -^desired-body-position)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true
+        )
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-body-position
+        ^type kneel)
+}
+
+sp {defend*propose*determine-body-position*lie-prone
+   (state <s> ^name defend
+              ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+             -^desired-body-position)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true
+        )
+   -->
+   (<s> ^operator <o> +, = 15)
+   (<o> ^name determine-body-position
+        ^type lie-prone)
+}
+
+sp {apply*determine-body-position
+   (state <s> ^operator <o1>)
+   (<o1> ^name determine-body-position
+         ^type <type>)
+   -->
+   (<s> ^desired-body-position <type>)
+}

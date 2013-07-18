@@ -1,0 +1,78 @@
+#echo "\nLoading all/update-health-armor"
+
+################################
+### Propose update-health-armor operator
+################################
+
+sp {all*propose*update-health
+   (state <s> ^name <name> 
+              ^top-state.self.saved-health <sh>
+              ^io.input-link.agent <ag>) 
+  -(<s> ^name quake         # don't do this at the top level if there is an enemy - attack instead
+         ^enemy)
+   (<ag> ^cycle <ct>
+         ^health <health>)
+   (<sh> ^value <> <health>
+         ^cycle < <ct>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-health)}
+
+sp {all*apply*update-health
+   (state <s> ^operator <o>
+              ^top-state.self.saved-health <ss>
+              ^io.input-link.agent.health <current-health>)
+   (<ss> ^value { <health> <> <current-health> })
+   (<o> ^name update-health)
+   -->
+   (<ss> ^value <current-health>)
+   (<ss> ^value <health> -)}
+
+sp {all*apply*update-health*cycle  # if health went down
+   (state <s> ^operator <o>
+              ^top-state.self.saved-health <ss>
+              ^io.input-link.agent.cycle <ct>
+              ^io.input-link.agent.health <current-health>)
+   (<ss> ^cycle <oct>
+         ^value > <current-health>)
+   (<o> ^name update-health)
+   -->
+   (<ss> ^cycle (+ 300 <ct> )
+                <oct> -)}
+
+## ARMOR
+
+sp {all*propose*update-armor
+   (state <s> ^name <name>
+              ^top-state.self.saved-armor <sh>
+              ^io.input-link.agent <ag>) 
+   (<ag> ^cycle <ct>
+         ^armor-amount <armor>)
+   (<sh> ^value <> <armor>
+         ^cycle < <ct>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-armor)}
+
+sp {all*apply*update-armor
+   (state <s> ^operator <o>
+              ^top-state.self.saved-armor <ss>
+              ^io.input-link.agent.armor-amount <current-armor>)
+   (<ss> ^value { <armor> <> <current-armor> })
+   (<o> ^name update-armor)
+   -->
+   (<ss> ^value <current-armor>)
+   (<ss> ^value <armor> -)}
+
+sp {all*apply*update-armor*cycle  # if armor went down
+   (state <s> ^operator <o>
+              ^top-state.self.saved-armor <ss>
+              ^io.input-link.agent.cycle <ct>
+              ^io.input-link.agent.armor-amount <current-armor>)
+   (<ss> ^cycle <oct>
+         ^value > <current-armor>)
+   (<o> ^name update-armor)
+   -->
+   (<ss> ^cycle (+ 300 <ct> )
+                <oct> -)}
+

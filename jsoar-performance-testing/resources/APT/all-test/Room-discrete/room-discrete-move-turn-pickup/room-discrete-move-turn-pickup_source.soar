@@ -1,0 +1,15 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source drop-block.soar
+source move-forward.soar
+source move-forward-to-wall.soar
+source pickup-block.soar
+source record-object.soar
+source remove-recorded-object.soar
+source spin.soar
+source turn.soar

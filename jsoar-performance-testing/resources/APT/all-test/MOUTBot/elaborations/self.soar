@@ -1,0 +1,325 @@
+#Holds data about the agent
+
+sp {elaborate*self
+   (state <s> ^name unreal)
+-->
+   (<s> ^self <self>)
+   (<self> ^body-position stand)
+}
+
+### ARMED
+### REW: 2002-09-27
+### As long as you have weapon has some ammo, you are armed.
+### The semantics of this is now a little different than it was
+### previously.  Your selected weapon can be ammo exhausted and
+### the agent still be armed.
+sp {elaborate*self*armed
+   (state <s> ^name unreal
+              ^self <self>)
+   (<self> ^weapons <w>)
+   (<w> ^weapon <w2>)
+   (<w2> -^all-ammo-exhausted)
+-->
+   (<self> ^armed yes)}
+
+### Health
+## REW: 2002-10-10
+# Probably this should be an operator that gets selected after
+# each hit on health.  In any case, it makes sense to say
+# "I am hit" with this production.
+sp {elaborate*self*hurt
+   (state <s> ^name unreal
+              ^self <self>
+              ^parameters.hurt-level <hl>
+             -^io.input-link.agent.health > <hl>
+              ^comm <comm>)
+-->
+   (write (crlf) | I am hit ! | )
+   (<self> ^hurt true)
+   (<comm> ^communicate <cc>)
+   (<cc> ^name i-am-hit)}
+
+sp {elaborate*self*speed
+   (state <s> ^name unreal
+              ^self <self>
+              ^io.input-link.agent.velocity <v>)
+   (<v> ^x { > -1 < 1 }
+        ^y { > -1 < 1 })
+-->
+   (<self> ^stopped true)
+}
+
+########################
+
+sp {elaborate*self*stuck
+   (state <s> ^self <self>
+             -^predicting true
+              ^io.input-link <il>)
+   (<il> -^agent.time < <st>)
+   (<self> ^stopped true
+           ^move-to-xyz.stuck-time <st>)
+-->
+   (write (crlf) |Stuck!|)
+   (<self> ^stuck true)
+}
+
+sp {elaborate*self*stuck*bad
+   (state <s> ^self <self>
+             -^predicting true
+              ^io.input-link <il>)
+   (<il> -^agent.time < <st>)
+   (<self> ^stopped true
+           ^move-to-xyz.stuck-bad-time <st>)
+-->
+   (write (crlf) |Stuck BAD!|)
+   (<self> ^stuck-bad true)
+}
+
+# REW: 2002-09-30
+# Feeler distance changed, which broke side-step.
+# Now, these productions depend on the new parameter, feeler-max-distance
+sp {elaborate*self*stuck*front
+   (state <s> ^self <self>
+              ^io.input-link.map.front <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck Front!|)
+   (<self> ^stuck front)
+}
+
+sp {elaborate*self*stuck*back
+   (state <s> ^self <self>
+              ^io.input-link.map.back <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck back!|)
+   (<self> ^stuck back)
+}
+
+sp {elaborate*self*stuck*left
+   (state <s> ^self <self>
+              ^io.input-link.map.left <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck left!|)
+   (<self> ^stuck left)
+}
+
+sp {elaborate*self*stuck*right
+   (state <s> ^self <self>
+              ^io.input-link.map.right <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck right!|)
+   (<self> ^stuck right)
+}
+
+sp {elaborate*self*stuck*left-front
+   (state <s> ^self <self>
+              ^io.input-link.map.left-front <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck left-front!|)
+   (<self> ^stuck left)
+}
+
+sp {elaborate*self*stuck*right-front
+   (state <s> ^self <self>
+              ^io.input-link.map.right-front <f>
+              ^parameters.feeler-max-distance <fmd>)
+   (<f> ^range < <fmd>
+        ^object-state <> none <> |None|)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck right-front!|)
+   (<self> ^stuck right)
+}
+
+###### Detect stuck direction if there is another object nearby: ^io.input-link.entity.. <x> .range < object-distance
+
+
+sp {elaborate*self*stuck*object*front-right
+   (state <s> ^self <self>
+              ^io.input-link.objects.<< item decoration entity >> <object>
+              ^parameters.object-distance <od>)
+   (<object> ^range < <od>
+             ^angle-off.h { <= 45 >= 0 })
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck object front!|)
+   (<self> ^stuck front)
+}
+
+sp {elaborate*self*stuck*object*front-left
+   (state <s> ^self <self>
+              ^io.input-link.objects.<< item decoration entity >> <object>
+              ^parameters.object-distance <od>)
+   (<object> ^range < <od>
+             ^angle-off.h >= 315)
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck object front!|)
+   (<self> ^stuck front)
+}
+
+sp {elaborate*self*stuck*object*right
+   (state <s> ^self <self>
+              ^io.input-link.objects.<< item decoration entity >> <object>
+              ^parameters.object-distance <od>)
+   (<object> ^range < <od>
+             ^angle-off.h { > 45 < 135 })
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck object right!|)
+   (<self> ^stuck right)
+}
+
+sp {elaborate*self*stuck*object*back
+   (state <s> ^self <self>
+              ^io.input-link.objects.<< item decoration entity >> <object>
+              ^parameters.object-distance <od>)
+   (<object> ^range < <od>
+             ^angle-off.h { < 225 >= 135 } )
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck object back!|)
+   (<self> ^stuck back)
+}
+
+sp {elaborate*self*stuck*object*left
+   (state <s> ^self <self>
+              ^io.input-link.objects.<< item decoration entity >> <object>
+              ^parameters.object-distance <od>)
+   (<object> ^range < <od>
+             ^angle-off.h { >= 225 < 315})
+   (<self> ^stuck true)
+-->
+   (write (crlf) |Stuck object left!|)
+   (<self> ^stuck left)
+}
+
+## REW: 2002-09-27
+## Create underfire data structure
+sp {elaborate*self*underfire
+   (state <s> ^name unreal
+              ^self <self>)
+-->
+   (<self> ^underfire <u>)
+   (<u> ^value none
+        ^expires 0)
+}
+
+# REW: 2002-10-01
+# Create persistent posture.  This will be changed by external events + operator knowledge.
+sp {elaborate*self*posture
+   (state <s> ^name unreal
+              ^self <self>)
+-->
+   (<self> ^posture at-ease)
+}
+
+# REW: 2002-10-01
+# Provide easy access to agent name
+sp {elaborate*self*name
+   (state <s> ^name unreal
+              ^io.input-link.agent.name <name>
+              ^self <self>)
+-->
+   (<self> ^name <name>)
+}
+#########
+## mark which state in grenade throwing it is in -
+## Makes other tests simplier
+sp {elaborations*self*throwing
+   (state <s> ^name unreal
+             -^io.input-link.agent.time > <ct>
+              ^self.threw-grenade <tg>)
+   (<tg> ^throwing-time <ct>)
+-->
+   (<tg> ^throwing true)
+}
+sp {elaborations*self*grenade-active
+   (state <s> ^name unreal
+             -^io.input-link.agent.time > <ct>
+              ^self.threw-grenade <tg>)
+   (<tg> ^expire-time <ct>)
+-->
+   (<tg> ^active true)
+}
+
+####
+## Freeze
+sp {elaborations*self*freez
+   (state <s> ^name unreal
+              ^self <self>)
+   (<self> ^threw-grenade.throwing true)
+-->
+   (<self> ^freeze true)
+}
+
+
+## Note when the bot is changing body position (crouching, going prone, etc)
+# The operator copies the action to the body position, so we just check to see
+# that the body-position value is an identifier to know that we're
+# changing body position
+sp {elaborations*self*changing-body-position
+   (state <s> ^name unreal
+              ^self <self>)
+   (<self> ^body-position <bp>)
+   (<bp> ^{ << crouch kneel lie-prone stand >> <pos> })
+-->
+   (write (crlf)  |Output link on body position.  Changing body position to | <pos>)
+   (<self> ^changing-body-position <pos>)
+}
+
+# REW: 2003-06-12
+# Status complete comes back before anim is played so we ned to wait until posture 
+# is indicated okay on the input link 
+sp {elaborations*self*changing-body-position*input-link
+   (state <s> ^name unreal
+              ^self <self>
+              ^io.input-link.agent.posture { << standing kneeling going-prone >> <pos> } )
+   (<self> ^body-position <bp>)
+-->
+   (write (crlf)  |Input link indicates bot is changing body position | <bp> | to | <pos>)
+   (<self> ^changing-body-position <pos>)
+}
+
+
+## REW: 2003-05-27
+# Add my team to my representation of self
+sp {elaborations*self*team
+   (state <s> ^name unreal
+              ^io.input-link.agent.team <my-team>
+              ^self <self>)
+-->
+   (<self> ^force <my-team>)}
+
+####### REMOVE HIDING TIME
+
+sp {elaborate*self*hiding-time
+   :o-support
+   (state <s> ^self <self>
+              ^io.input-link <il>)
+   (<il> -^agent.time < <ht>)
+   (<self> ^hiding <h>)
+   (<h> ^hiding-time <ht>)
+-->
+   (write (crlf) |Remove Hiding time|)
+   (<self> ^hiding <h> -)
+}

@@ -1,0 +1,93 @@
+#echo "\nLoading common/output"
+### Currently disable in common/common_source.soar and replaced by output-smooth which is supposse
+###  Make the turns smoother.
+#######################
+sp {apply*operator*create-action-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^<att> <value>)
+-->
+#   (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att>.value <value>)}
+
+sp {apply*operator*remove-old*action-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+#  -(state <ss> ^superstate <s>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^value <value>)
+   (<o> ^actions <act>)
+   (<act> ^<att> <> <value>)
+-->
+#   (write (crlf) |<-=  | <att> |: | <value>)
+   (<ol> ^<att> <valuex> -)}
+ 
+sp {apply*operator*remove-old*action-command*faceabs
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^faceabs <valuex>)
+   (<valuex> ^value <value>)
+   (<o> ^actions.faceabs <> <value>)
+-->
+#   (write (crlf) |<--  faceabs: | <value>)
+   (<ol> ^faceabs <valuex> -)}
+ 
+sp {apply*operator*remove-old*face
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face faceabs facetarget leadtarget >> <att> } <valuex>)
+   (<valuex> ^value { <> off <value> })
+   (<o> ^actions <act>)
+   (<act> ^{ << faceabs face >> <> <att> })
+-->
+#   (write (crlf) |<--  | <att> |: | <value>)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-old*target
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face faceabs >> <att> } <valuex>)
+   (<valuex> ^value  <value>)
+   (<o> ^actions <act>)
+   (<act> ^{ << facetarget leadtarget >> <> <att> } on)
+-->
+#   (write (crlf) |<--  | <att> |: | <value> | Target |)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-old*turn-to-heading
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face facetarget leadtarget >> <att> } <valuex>)
+   (<valuex> ^value  <value>)
+   (<o> ^actions.faceabs <value>)
+-->
+#   (write (crlf) |<--  | <att> |: | <value> | from faceabs.|)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-command*feedback
+   (state <s> ^name quake
+              ^operator <o>
+              ^io <io>)
+   (<io> ^input-link.feedback <il>
+         ^output-link <ol>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^value <value>)
+   (<il> ^<att> <value>)
+-->
+#   (write (crlf) |<==  | <att> |: | <value>)
+   (<ol> ^<att> <valuex> -)}
+
+###### If selecttarget, remove old facetarget or leadtarget
+sp {apply*operator*remove-old*select-target
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^ { << facetarget leadtarget >> <att> } <valuex>)
+   (<valuex> ^value on)
+   (<o> ^actions <act>)
+   (<act> ^selecttarget)
+-->
+#   (write (crlf) |<==  | <att> |: | <value>)
+   (<ol> ^<att> <valuex> -)}
+
+

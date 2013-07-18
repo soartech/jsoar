@@ -1,0 +1,9 @@
+
+# copy down target info from parent state
+sp {object*elaborate*subgoal*target
+   (state <s> ^type << drop-object grab-object use-object use-object-with >> 
+              ^superstate.operator <o>)
+   (<o> ^target <target>)
+-->
+   (<s> ^target <target>)
+}

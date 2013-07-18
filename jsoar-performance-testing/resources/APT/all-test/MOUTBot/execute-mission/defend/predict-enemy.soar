@@ -1,0 +1,91 @@
+echo "\nLoading defend/predict-enemy"
+
+#%%%%%%%%%%%%%%% TESTING ONLY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#This rule creates a fake enemy to test the predict-enemy code
+#
+#sp {defend*elaborate*state*shadow-enemy
+#   (state <s> ^name defend
+#              ^top-state <top>)
+#   (<top> ^map.area <area>)
+#   (<area> ^name |Outside|)
+#-->
+#   (<top> ^threats.threat <e>)
+#   (<e> ^angle-off <ao> 
+#        ^area <area> 
+#        ^area-name |Outside| 
+#        ^aspect <aspect> 
+#        ^health 100 
+#        ^name |Shadow| 
+#        ^position <pos>
+#        ^team |None| 
+#        ^weapon AKMSU)
+#   (<ao> ^h 356
+#         ^v 10)
+#   (<aspect> ^h 345
+#             ^v 0)
+#   (<pos> ^x 992.149
+#          ^y -578.983
+#          ^z -925.335)
+#}
+#
+#%%%%%%%%%%%%%%% END OF TESTING ONLY SECTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+#IF:
+#1.  I have very recently seen an enemy
+#2.  But he is no longer visible
+#THEN:
+#  Propose: Attempt to predict the enemy's actions
+#JEL 8/20/02 - Commented out because it doesn't work with new initialize
+#sp {defend*propose*predict-enemy
+#   (state <s> ^name defend
+#              ^top-state <top>
+#              ^io.input-link.objects <objects>)
+#   (<top> ^threats.threat <e>)
+#   (<e>  -^prediction-final-area)
+#-->
+#   (<s> ^operator <o> +, = 50)
+#   (<o> ^name predict-enemy
+#        ^entity <e>)
+#}
+
+#predict-enemy only when other defend ops aren't available
+sp {defend*compare*predict-enemy*worse-than-other-active-ops
+   (state <s> ^name defend
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name { <> predict-enemy <> maintain-position })
+   (<o2> ^name predict-enemy)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#predict-enemy is better than maintain-position
+sp {defend*compare*predict-enemy*better-than-maintain-position
+   (state <s> ^name defend
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name predict-enemy)
+   (<o2> ^name maintain-position)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#Initialize enemy's ^old-area to the current room.  
+#This is used to keep track of where the enemy 
+#has come from as the bot simulates his movements.
+sp {apply*predict-enemy*record-enemy-room
+   (state <s> ^operator <o>)
+   (<o> ^name predict-enemy
+        ^entity <e>)
+   (<e> -^old-area <er>
+         ^area <er>)
+-->
+   (<e> ^old-area <er>)
+   (interrupt)
+}
+
+
+
+
+

@@ -1,0 +1,15 @@
+sp {clean-house*propose*no-storage-area
+   (state <s> ^name robot
+              ^no-storage-area yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name no-storage-area)
+}
+
+sp {apply*no-storage-area
+   (state <s> ^operator <op>)
+   (<op> ^name no-storage-area)
+-->
+   (write (crlf) |No Storage Area Found.|)
+   (halt)
+}

@@ -1,0 +1,9 @@
+sp {dice*propose*count-dice-faces
+   (state <s> ^name dice
+              ^my-turn true
+              ^players-initialized true
+             -^true-dice-counts.dice-counted true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name count-dice-faces)
+}

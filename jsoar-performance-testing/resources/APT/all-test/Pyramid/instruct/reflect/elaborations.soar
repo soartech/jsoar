@@ -1,0 +1,14 @@
+sp {reflect*elaborate*state
+   (state <s> ^name reflect
+              ^superstate.current-problem <cp>)
+-->
+   (<s> ^current-problem <cp>)
+}
+
+sp {reflect*elaborate*state*terms
+   (state <s> ^name reflect
+              ^superstate.current-problem.terms <t>)
+-->
+   (<s> ^term <t>)
+}
+

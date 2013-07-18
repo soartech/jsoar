@@ -1,0 +1,157 @@
+sp {guess-x*propose*process-prior-result
+   (state <s> ^name guess-x
+              ^prior-result <pr>
+              ^superstate <ss>)
+   (<ss> -^operator.prior-x-guess <x>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-prior-result)
+}
+
+sp {apply*process-prior-result*answer-equal*height-equal
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height <height>
+         ^answer <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H= A= base: | <base>)
+   (<ss> ^x-guess <x>)
+   (<x> ^value <base>)
+}
+#### A bit bogus
+sp {apply*process-prior-result*answer-equal*height-greater
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height { <last-height> > <height> }
+         ^answer <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H> A= base: | (-  <base> (- <last-height> <height>)))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (-  <base> (- <last-height> <height>)))
+}
+
+sp {apply*process-prior-result*answer-equal*height-less
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height < <height>
+         ^answer <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H< A= base: | (+ 1 <base>))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (+ 1 <base>))
+}
+
+sp {apply*process-prior-result*answer-less*height-equal
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height <height>
+         ^answer { <current-height>  < <a> })
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H= A< base: | (- <base> 2))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (- <base> 2))
+}
+sp {apply*process-prior-result*answer-greater*height-equal
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height <height>
+         ^answer > <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H= A> base: | (+ 1 <base>))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (+ 1 <base>))
+}
+sp {apply*process-prior-result*answer-greater*height-greater
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height > <height>
+         ^answer > <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H> A> base: | <base>)
+   (<ss> ^x-guess <x>)
+   (<x> ^value <base>)
+}
+sp {apply*process-prior-result*answer-less*height-less
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height < <height>
+         ^answer < <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H< A< base: | <base>)
+   (<ss> ^x-guess <x>)
+   (<x> ^value <base>)
+}
+sp {apply*process-prior-result*answer-greater*height-less
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height < <height>
+         ^answer > <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H< A> base: | (+ 2 <base>))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (+ 2 <base>))
+}
+sp {apply*process-prior-result*answer-less*height-greater
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^current-problem <cp>
+              ^prior-result <pr>)
+   (<cp> ^height > <height>
+         ^answer < <a>)
+   (<pr> ^base <base>
+         ^height <height>
+         ^answer <a>)
+   (<op> ^name process-prior-result)
+-->
+   (write | Propose H> A< base: | (- <base> 2))
+   (<ss> ^x-guess <x>)
+   (<x> ^value (- <base> 2))
+}

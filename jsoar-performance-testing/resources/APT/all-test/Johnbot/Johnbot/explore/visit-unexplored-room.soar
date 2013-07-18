@@ -1,0 +1,36 @@
+#echo "\nLoading explore/visit-unexplored-room"
+
+## This goal will decide which room to explore next
+##  and then go through the door on the way to that room.
+##  Terminates when current-room changes.
+ 
+sp {explore*propose*unexplored-room
+   (state <s> ^name explore
+              ^explore-room.updated-paths true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name visit-unexplored-room)}
+
+sp {explore*propose*unexplored-room*no-last-room
+   (state <s> ^name explore
+              ^explore-room.explored true
+              ^top-state.map.last-room none)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name visit-unexplored-room)}
+
+sp {explore*apply*visit-unexplored-room*remove*deleted-room
+   (state <s> ^operator.name visit-unexplored-room
+              ^top-state.map <map>)
+   (<map> ^deleted-room <droom>
+          ^unexplored-rooms <ur>)
+   (<ur> ^room <droom>
+         ^next <next>)
+   -->
+   (write (crlf) |Delete room | <droom>)
+   (<map> ^deleted-room <droom> -
+          ^unexplored-rooms <ur> -
+          ^unexplored-rooms <next>)
+   }
+
+

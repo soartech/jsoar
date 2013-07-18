@@ -1,0 +1,15 @@
+source _all.soar
+source area.soar
+source avoids.soar
+source blocks-epmem.soar
+source control.soar
+source desired.soar
+source diffusing.soar
+source direction.soar
+source io-errors.soar
+source labels.soar
+source output.soar
+source parameters.soar
+source self.soar
+source smem.soar
+source top-state.soar

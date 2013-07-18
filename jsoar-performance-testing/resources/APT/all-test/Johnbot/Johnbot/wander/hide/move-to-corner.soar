@@ -1,0 +1,15 @@
+#echo "\nLoading hide/move-to-corner"
+
+sp {hide*propose*move-to-corner
+   (state <s> ^name hide
+              ^corner-heading <ch>
+              ^corner-range > 100)
+   -->
+ #  (write (crlf) |Move into corner.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name move-to-corner
+        ^actions <a>)
+   (<a> ^faceabs <ch>
+        ^thrust forward)}
+
+

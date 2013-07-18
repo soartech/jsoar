@@ -1,0 +1,99 @@
+##################################### 
+# file: orient-toward-threat 
+# created: JEL
+## 
+# 
+# Move to the (x,y,z) indicated in mission.defensive-position
+#
+# Change history: 
+# 
+#  [1] 
+
+# REW: 2002-09-30
+# Changed from ^name defend to ^uses-defensive-position
+sp {defend*propose*orient-toward-threat*away-from-agent
+   (state <s> ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+              ^top-state.self.stopped true
+              ^top-state.map <map>)
+    (<map> -^near-node <tn>
+            ^current-area.threat-door.node <tn>)
+    (<dp> ^position-achieved true
+          ^area-achieved true
+          ^type << barricade hall room >>
+         -^orientation-achieved true)
+    (<tn> ^name <threat-name>
+          ^position <pos>)
+-->
+#   (write (crlf) |Propose orient to face threat: | <threat-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name orient-toward-threat
+        ^actions.face <pos>)
+}
+
+sp {defend*propose*orient-toward-threat*near-agent
+   (state <s> ^name defend 
+              ^objective.defensive-position <dp>
+              ^top-state.self.stopped true
+              ^top-state.map <map>)
+    (<map> ^near-node <tn>
+           ^current-area.threat-door.node <tn>)
+    (<dp> ^position-achieved true
+          ^area-achieved true
+          ^type << barricade hall room >>
+         -^orientation-achieved true)
+    (<tn> ^name <threat-name>
+          ^connect-heading <heading>)
+-->
+#   (write (crlf) |Propose orient to face-abs of threat: | <threat-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name orient-toward-threat
+        ^actions.face-abs <heading>)
+}
+
+### Orient toward window
+sp {defend*propose*orient-toward-threat*window
+   (state <s> ^uses-defensive-position true
+              ^top-state.self.stopped true
+              ^objective <ob>)
+   (<ob> ^defensive-position <dp>
+         ^threat.direction <dir>)
+   (<dp> ^position-achieved true
+         ^area-achieved true
+         ^type window
+        -^orientation-achieved true)
+-->
+#   (write (crlf) |Propose orient to face window direction: | <dir>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name orient-toward-threat
+        ^actions.face-abs <dir>)
+}
+
+# REW: 2002-08-28: Bug in map or determine-threat-door.  Don;t ahve time to deal with it.
+### Orient toward absolute direction
+sp {defend*propose*orient-toward-threat*absolute
+   (state <s> ^uses-defensive-position true
+              ^top-state.self.stopped true
+              ^objective <ob>)
+   (<ob> ^defensive-position <dp>
+         ^threat.direction <dir>)
+   (<dp> ^position-achieved true
+         ^area-achieved true
+         ^type absolute
+        -^orientation-achieved true)
+-->
+#   (write (crlf) |Propose orient to face absolute direction: | <dir>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name orient-toward-threat
+        ^actions.face-abs <dir>)
+}
+
+#### Don't turn while we are waiting for grenade to be thrown
+sp {defend*reject*orient-toward-threat*grenade
+   (state <s> ^operator <o> +
+              ^top-state.self.threw-grenade.throwing true)
+   (<o> ^name orient-toward-threat)
+-->
+   (<s> ^operator <o> -)}
+
+

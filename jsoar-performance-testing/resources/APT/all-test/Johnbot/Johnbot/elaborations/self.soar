@@ -1,0 +1,319 @@
+#echo "\nLoading elaborations/self"
+
+sp {elaborate*top-state*self
+   (state <s> ^name quake)
+   -->
+   (<s> ^self <self>)
+   (<self> ^parameters <param>)
+   }
+
+sp {elaborate*self*speed
+   (state <s> ^name quake
+              ^self <self>
+              ^io.input-link.agent.velocity <v>)
+   (<v> ^x { > -1 < 1 }
+        ^y { > -1 < 1 })
+   -->
+   (<self> ^stopped true)
+   }
+
+########################
+
+sp {elaborate*self*stuck*left
+   (state <s> ^self <self>
+              ^io.input-link <il>)
+   (<il> ^feedback.thrust forward
+         ^map <m>)
+   (<m> ^leftlos.distance < 30
+      );#  ^left.distance > 30)
+   (<self> ^stopped true)
+   -->
+#   (write (crlf) |Stuck Left!|)
+   (<self> ^stuck left)
+   }
+
+sp {elaborate*self*stuck*right
+   (state <s> ^self <self>
+              ^io.input-link <il>)
+   (<il> ^feedback.thrust forward
+         ^map <m>)
+   (<m> ^rightlos.distance < 30
+      );#  ^right.distance > 30)
+   (<self> ^stopped true)
+   -->
+#   (write (crlf) |Stuck Right!|)
+   (<self> ^stuck right)
+   }
+
+###############################
+sp {elaborate*self*health-need
+   (state <s> ^parameters.health-need <health-need>
+              ^self <self>              
+              ^io.input-link.agent.health { < <health-need>})
+   -->
+   (<self> ^need health)}
+
+sp {elaborate*self*health-want
+   (state <s> ^self <self>
+              ^parameters.health-want <health-want>
+              ^io.input-link.agent.health { < <health-want>})
+   -->
+   (<self> ^want health)}
+
+sp {elaborate*self*armor-need
+   (state <s> ^self <self>
+              ^parameters.armor-need <armor-need>
+              ^io.input-link.agent.armor-amount { < <armor-need>})
+   -->
+   (<self> ^need armor)}
+
+sp {elaborate*self*armor-want
+   (state <s> ^self <self>
+              ^parameters.armor-want <armor-want>
+              ^io.input-link.agent.armor-amount { < <armor-want>})
+   -->
+   (<self> ^need armor)}
+
+sp {elaborate*self*ammo-need
+   (state <s> ^self <self>
+              ^parameters <param>
+              ^io.input-link.agent <a>)
+   (<a> ^weapon-selected <wname>
+        ^weapon <ws>)
+   (<ws> ^classname <wname>
+         ^ammo-count { < <al> }
+         ^ammo-type <ammo>)
+   (<param> ^weapon <w>)
+   (<w> ^classname <wname>
+        ^ammo-need <al>)
+   -->
+   (<self> ^need <ammo>)
+   }
+
+sp {elaborate*self*ammo-want
+   (state <s> ^self <self>
+              ^parameters <param>
+              ^io.input-link.agent.weapon <ws>)
+   (<self> ^need <ammo>)
+   (<ws> ^classname <wname>
+         ^ammo-type <ammo>
+         ^ammo-count { < <al> })
+   (<param> ^weapon <w>)
+   (<w> ^classname <wname>
+        ^ammo-type <ammo-cname>
+        ^ammo-want <al>)
+   -->
+   (<self> ^want <ammo-cname>)
+   }
+
+# Have weapon that is better than current, but it needs ammo,
+#  so try to get ammo
+
+sp {elaborate*self*ammo-want*better*weapon
+   (state <s> ^self <self>
+              ^parameters.weapon <o-weapon>
+              ^io.input-link.agent <agent>)
+   (<self> ^need <ammo>
+           ^parameters.weapons <weapon>)
+   (<agent> ^weapon-selected <wname>
+            ^weapon <other-ws>)
+   (<weapon> ^classname <wname>
+             ^better <o-name>)
+   (<other-ws> ^classname <o-name>)
+   (<o-weapon> ^classname <o-name>
+               ^ammo-type <ammo>)
+   -->
+   (<self> ^need <ammo>)
+   }
+
+sp {elaborate*self*weapon-need
+   (state <s> ^self <self>
+              ^top-state.map.item.classname <o-name>
+              ^self.parameters.weapons <wp>
+              ^io.input-link.agent <agent>)
+   (<agent> ^weapon-selected <wname>
+           -^weapon.classname <o-name>)
+   (<wp> ^better <o-name>
+         ^classname <wname>)
+   -->
+   (<self> ^need <o-name>)
+   }
+
+sp {elaborate*self*weapon-need*recorded 
+   (state <s> ^self <self>
+              ^top-state.map.current-room.search.recorded.classname <o-name>
+              ^self.parameters.weapons <wp>
+              ^io.input-link.agent <agent>)
+   (<agent> ^weapon-selected <wname>
+           -^weapon.classname <o-name>)
+   (<wp> ^better <o-name>
+         ^classname <wname>)
+   -->
+   (<self> ^need <o-name>)
+   }
+
+sp {elaborate*self*weapon-want*empty
+   (state <s> ^self <self>
+              ^top-state.map.item.classname <o-name>
+              ^self.parameters.weapons <wp>
+              ^io.input-link.agent <agent>)
+   (<agent> ^weapon-selected <wname>
+            ^weapon <weap>)
+   (<weap> ^classname <o-name>
+           ^ammo-count 0)
+   (<wp> ^better <o-name>
+         ^classname <wname>)
+   -->
+   (<self> ^need <o-name>)
+   }
+
+#################
+sp {item*elaborate*get*weapon-ammo
+   (state <s> ^name quake
+              ^map.item <item>
+              ^self <self>)
+   (<self> ^need <name>)
+   (<item> ^classname <name>
+           ^type <type>
+           ^available true)
+   -->
+   (<self> ^get-object <go>)
+   (<go> ^type <type>
+         ^classname <name>
+         ^need true
+         ^map-item <item>)}
+
+sp {item*elaborate*get*health-armor
+   (state <s> ^name quake
+              ^map.item <item>
+              ^self <self>)
+   (<self> ^need <type>)
+   (<item> ^type <type>
+           ^available true
+           ^classname <name>)
+   -->
+   (<self> ^get-object <go>)
+   (<go> ^type <type>
+         ^need true
+         ^classname <name>
+         ^map-item <item>)}
+
+sp {item*elaborate*get*health-armor*want
+   (state <s> ^name quake
+              ^io.input-link.entity.item <item>
+              ^self <self>)
+   (<self> ^want <type>)
+   (<item> ^type <type>
+             ^classname <name>
+             ^in-current-room true)
+   -->
+   (<self> ^get-object <go>)
+   (<go> ^type <type>
+         ^want true
+         ^classname <name>
+         ^map-item <item>)}
+
+sp {item*elaborate*get*quad-dammage
+   (state <s> ^name quake
+              ^map.item <item>
+              ^self <self>)
+   (<item> ^classname item_quad
+           ^available true)
+   -->
+   (<self> ^get-object <go>)
+   (<go> ^type quad
+         ^classname item_quad
+         ^need true
+         ^map-item <item>)}
+
+########
+
+sp {self*elaborate*get-objects-exist*true
+   (state <s> ^name quake
+              ^self <self>)
+   (<self> ^get-object <go>)
+   -->
+   (<self> ^get-objects-exist true)}
+
+################
+
+sp {elaborate*top-state*inroom-item
+   (state <s> ^name quake
+              ^io.input-link.entity.item <item>
+              ^map.current-room <cr>)
+   (<item> ^origin <or>)
+   (<or> ^x <x> ^y <y>)
+   (<cr> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side south ^y < <y>)
+   (<w2> ^side north ^y > <y>)
+   (<w3> ^side east ^x > <x>)
+   (<w4> ^side west ^x < <x>)
+   -->
+#   (write (crlf) |Item | <item> | in this room.|)
+   (<item> ^in-current-room true)}
+
+#################################################33
+## Retreat information
+
+
+sp {elaborate*attack*low-health
+   (state <s> ^name quake
+             ^io.input-link.entity.enemy.health > 30
+             ^self <self>)
+   (<self> ^need health)
+   -->
+   (write (crlf) |Retreat low health. See enemy.|)
+   (<self> ^retreat  <ret>)
+   (<ret> ^reason low-health)}
+
+sp {elaborate*attack*worse-weapon
+   (state <s> ^name quake
+              ^self.parameters.weapons <w1> 
+              ^io.input-link.agent.weapon-selected <cname>
+              ^enemy.sensed-enemy.weapon <ecname>
+              ^self <self>)
+   (<w1> ^classname <cname>
+         ^better <ecname>)
+   -->
+   (write (crlf) |Retreat low weapon. See enemy.|)
+   (<self> ^retreat <ret>)
+   (<ret> ^reason low-weapon)}
+
+sp {elaborate*attack*low-health*remembered
+   (state <s> ^name quake
+             ^enemy.health > 30
+             ^self <self>)
+   (<self> ^need health)
+   -->
+   (write (crlf) |Retreat low health. Don't see enemy.|)
+   (<self> ^retreat <ret>)
+   (<ret> ^reason low-health)}
+
+sp {elaborate*attack*worse-weapon*remembered
+   (state <s> ^name quake
+              ^self.parameters.weapons <w1> 
+              ^io.input-link.agent.weapon-selected <cname> 
+              ^enemy.weapon <ecname>
+              ^self <self>)
+   (<w1> ^classname <cname>
+         ^better <ecname>)
+   -->
+   (write (crlf) |Retreat low weapon. Don't see enemy.|)
+   (<self> ^retreat  <ret>)
+   (<ret> ^reason low-weapon)}
+
+#########SAVED-HEALTH SAVED-ARMOR
+
+sp {elaborate*self*saved-health*saved-armor
+   (state <s> ^name quake
+              ^self <self>)
+   -->
+   (<self> ^saved-health <sh>
+           ^saved-armor <sa>)
+   (<sh> ^value 100
+         ^cycle 0)
+   (<sa> ^value 0
+         ^cycle 0)}
+
+
+  

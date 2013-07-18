@@ -1,0 +1,20 @@
+
+# REQUIRED ATTRIBUTES:
+#            ^type use-world
+#            ^target.name
+#
+#
+
+
+#
+# use an object with a target object
+# Will first have agent face target
+#
+sp {use-world*propose*use
+   (state <s> ^operator <o>)
+   (<o> ^type use-world
+        ^target.name <name>)
+-->
+   (write (crlf) |Using world object | <name> )
+   (<o> ^actions.use-world.object <name>)
+}

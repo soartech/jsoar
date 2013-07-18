@@ -1,0 +1,19 @@
+
+# determine if agent is standing on the target
+sp {climb-and-x*elaborate*on-target
+   (state <s> ^type climb-and-x
+              ^target.name <name>
+              ^io.input-link.agent.base <name>)
+-->
+   (<s> ^on-target yes)
+}
+
+
+# copy down the computed "range" and "target" info
+sp {climb-and-x*elaborate*subgoal*target
+   (state <s> ^type climb-and-x
+              ^superstate.operator <o>)
+   (<o> ^target <target>)
+   -->
+   (<s> ^target <target>)
+}

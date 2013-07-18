@@ -1,0 +1,19 @@
+
+# Move to gateway uses the common move-to-xy operator to move to the
+# midpoint of the gateway.
+sp {move-to-gateway*propose*move-to-xy
+   (state <s> ^name move-to-gateway
+              ^superstate.operator.gateway.vertices <vertices>
+              ^speed <speed>)
+   (<vertices> ^vertex1 <a>
+               ^vertex2 <b>)
+   (<a> ^x <ax> ^y <ay>)
+   (<b> ^x <bx> ^y <by>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-xy
+         ^speed <speed>
+         ^x (/ (+ <ax> <bx>) 2)
+         ^y (/ (+ <ay> <by>) 2))
+}
+

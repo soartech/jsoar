@@ -1,0 +1,11 @@
+sp {move-around-wall*propose*move-forward
+   (state <s> ^name move-around-wall
+              ^quiescence t
+              ^top-state.direction <dir>
+              ^superstate.operator.direction <dir>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-forward
+         ^actions.move.direction forward
+         ^actions.rotate.direction stop)
+}

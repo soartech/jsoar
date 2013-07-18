@@ -1,0 +1,13 @@
+source elaborations.soar
+source approach-enemy.soar
+source charge-enemy.soar
+source circle-strafe.soar
+source clean-up-enemy.soar
+source direct-attack.soar
+source face-enemy.soar
+source get-item.soar
+source goto-next-room.soar
+source jump.soar
+source record-enemy-weapon.soar
+source select-target.soar
+source shoot.soar

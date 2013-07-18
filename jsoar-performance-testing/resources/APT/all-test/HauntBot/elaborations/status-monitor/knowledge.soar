@@ -1,0 +1,43 @@
+
+
+# DEMO ONLY:
+# if bot reads book, it will know about a plant in a different room
+sp {knowledge*read*food-location
+   :o-support
+   (state <s> ^name haunt
+              ^object-list <list>
+              ^map.area <area>
+              ^io.input-link.messages.message.phrase.word |08/09/2002|)
+   (<area> ^name library)
+-->
+   (write (crlf) |Got Info!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|)
+   (<list> ^decoration <obj>)
+   (<obj> ^name EdiblePlant0
+          ^area-id <area>
+          ^area-name library
+          ^class EdiblePlant
+          ^class EdiblePlant0
+          ^position <pos>)
+   (<pos> ^x -381
+          ^y -226
+          ^z 20)
+ }
+
+# DEMO ONLY:
+# if bot reads book, it will learn that the fireplace room is HAUNTED
+sp {knowledge*read*haunted-fireplace
+   :o-support
+   (state <s> ^name haunt
+              ^object-list <list>
+              ^map.area <area>
+              ^io.input-link <il>)
+   (<il> ^messages.message.phrase.word |08/09/2002|
+         ^agent.time <time>)
+   (<area> ^name fireplaceroom)
+-->
+   (write (crlf) |Read that the 'Fireplaceroom' is HAUNTED!!!|)
+   (<list> ^decoration <obj>)
+   (<obj> ^haunted <h>)
+   (<h> ^record-time <time>
+        ^expire-time 99999999)
+}

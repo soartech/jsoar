@@ -1,0 +1,11 @@
+#echo "\nLoading elaborations/ammo"
+
+sp {elaborate*type*ammo
+   (state <s>  ^name quake
+               ^io.input-link.entity.item <item>)
+   (<item> ^classname << ammo_cells ammo_slugs ammo_rockets
+                         ammo_grenades ammo_bullets ammo_shells >> )
+   -->
+   (<item> ^type ammo)}
+
+

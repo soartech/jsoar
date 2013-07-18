@@ -1,0 +1,33 @@
+sp {explore*elaborate*currentarea
+   (state <s> ^name explore
+              ^operator <o> +
+              ^io.input-link.agent.area <currentarea>)
+   (<o> ^name move-to-area
+        ^area <currentarea>)
+-->
+   (<o> ^currentarea |yes|)
+   (<s> ^operator <o> <)
+}
+
+
+sp {explore*elaborate*lastarea
+   (state <s> ^name explore
+              ^operator <o> +
+              ^top-state.map.last-area <lastarea>)
+   (<o> ^name move-to-area
+        ^area <lastarea>)
+   -->
+   (<o> ^lastarea |yes|)
+   (<s> ^operator <o> <)
+}
+
+sp {explore*elaborate*unvisited
+   (state <s> ^name explore
+              ^operator <o> +)
+   (<o> ^name move-to-area
+        ^area <area>)
+   (<area> ^visited 0)
+   -->
+   (<o> ^unvisited |yes|)
+   (<s> ^operator <o> >)
+}

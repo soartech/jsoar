@@ -1,0 +1,241 @@
+echo "\nLoading common/output"
+
+#######################
+## REW: 2002-09-26
+## Added surrender and alert
+# REW: 2003-06-04
+# Add knell to allowed commands
+sp {apply*operator*create-action-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^{ << kneel stand lie-prone face-target brake choose-weapon jump lead-target no-op reload use surrender alert toss-slung-weapon toss-weapon >> <att> } <value>)
+-->
+    # (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att>.value <value>)}
+
+                      #REW: 2003-05-23 crouch (removed: 2003-06-09, kneel)
+#sp {apply*operator*create-action-command*crouch
+#   (state <s> ^operator <o>
+#              ^io.output-link <ol>)
+#   (<o> ^actions <act>)
+#   (<act> ^crouch.height <dir>)
+#-->
+# #  # (write (crlf) |++>   crouch : | <dir>)
+#   (<ol> ^crouch.value <dir>)}
+
+sp {apply*operator*create-thrust-side-step-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^{ << side-step  thrust >> <att> } <value>)
+-->
+   # (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att>.direction <value>)}
+
+sp {apply*operator*create-face-abs-command
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^{ << face-abs >> <att> } <value>)
+-->
+  # (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att>.angle <value>)}
+
+## say ( ^phrase |Message| ^target |Player|)
+# REW: 2002-07-10
+# Removed "say" and "broadcast" -- these are now implemented via communication operator
+sp {apply*operator*create-action-command*complex
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^{ << attack turn-to play-animation user-choices  >> <att> } <value>)
+-->
+   (write (crlf) |++>  | <att> |: | <value>)
+   (<ol> ^<att> <value>)}
+
+sp {apply*operator*create-action-command*face
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^face <value>)
+   (<value> ^x <x> ^y <y> ^z <z>)
+-->
+   # (write (crlf) |++>  face:| <x> |, | <y> |, | <z>)
+   (<ol> ^face <valuen>)
+   (<valuen> ^x <x> ^y <y> ^z <z>)}
+
+sp {apply*operator*create-action-command*move-to
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^move-to <value>)
+   (<value> ^x <x> ^y <y> ^z <z> -^speed)
+-->
+  # (write (crlf) |++>  move-to: | <x> |, | <y> |, | <z>)
+   (<ol> ^move-to <valuen>)
+   (<valuen> ^x <x> ^y <y> ^z <z>)}
+
+sp {apply*operator*create-action-command*move-to-with-speed
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<o> ^actions <act>)
+   (<act> ^move-to <value>)
+   (<value> ^x <x> ^y <y> ^z <z> ^speed <speed>)
+-->
+  # (write (crlf) |++>  | move-to |: | <x> |, | <y> |, | <z> | at speed | <speed>)
+   (<ol> ^move-to <valuen>)
+   (<valuen> ^x <x> ^y <y> ^z <z> ^speed <speed>)
+}
+# REW: 2003-05-01 (not a bug, a "feature")
+# Soar: :o-support productions will remove any status
+# complete messages when they appear.  This fires in the
+# top-state.  So any operator looking for a status complete
+# message (not in the top state) will never see it.
+#
+# My solution is to make this fire in the lowest state.
+sp {apply*operator*remove*status-complete
+   :o-support
+   (state <s> ^top-state <ts>)
+  -(state <ss> ^superstate <s>)
+   (<ts> ^io.output-link <ol>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^status complete)
+-->
+   (write (crlf) |<-=  | <att> |.status complete|)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-old*action-command
+   (state <s> ^operator.actions.{ <att>
+                                  << face-target brake choose-weapon jump lead-target no-op reload use surrender alert toss-slung-weapon toss-weapon >>} <> <value>
+              ^io.output-link <ol>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^value <value>)
+-->
+  # (write (crlf) |<-x  | <att> |: | <value> | Current action: | <valuex>)
+   (<ol> ^<att> <valuex> -)}
+ 
+sp {apply*operator*remove-old*move
+   (state <s> ^operator.actions.thrust <> <value>
+              ^io.output-link <ol>)
+   (<ol> ^thrust <valuex>)
+   (<valuex> ^direction <value>)
+-->
+  # (write (crlf) |<-=  thrust: | <value>)
+   (<ol> ^thrust <valuex> -)}
+ 
+sp {apply*operator*remove-old*face
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face face-abs face-target lead-target >> <att> } <valuex>)
+   (<valuex> ^value { <> off <value> })
+   (<o> ^actions <act>)
+   (<act> ^{ << face-abs face >> <> <att> } )
+-->
+  # (write (crlf) |<--  | <att> |: | <value>)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-old*target
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face face-abs >> <att> } <valuex>)
+   (<valuex> ^value <value>)
+   (<o> ^actions <act>)
+   (<act> ^{ << face-target lead-target >> <> <att> } on)
+-->
+   # # (write (crlf) |<--  | <att> |: | <value> | Target |)
+   (<ol> ^<att> <valuex> -)}
+
+sp {apply*operator*remove-old*turn-to-heading
+   (state <s> ^operator <o>
+              ^io.output-link <ol>)
+   (<ol> ^{ << face face-target lead-target >> <att> } <valuex>)
+   (<valuex> ^value <value>)
+   (<o> ^actions.face-abs <value>)
+-->
+   # # (write (crlf) |<--  | <att> |: | <value> | from face-abs.|)
+   (<ol> ^<att> <valuex> -)}
+
+# REW: 2003-06-15
+# HACK: For now, don't delete attack commands and see what happens
+sp {apply*operator*remove-command*feedback
+   (state <s> ^name unreal
+              ^operator <o>
+              ^io <io>)
+   (<io> ^input-link.feedback <il>
+         ^output-link <ol>)
+   (<ol> ^{ <> attack <att>} <valuex>)
+   (<valuex> ^value <value>)
+   (<il> ^<att> <value>)
+-->
+   (write (crlf) |<==  | <att> |: | <value> | Feedback|)
+   (<ol> ^<att> <valuex> -)}
+
+
+# REW: 2003-06-16
+# Turn off attack via feedback
+sp {apply*operator*remove-command*feedback*attack
+   (state <s> ^name unreal
+              ^operator <o>
+              ^io <io>)
+   (<io> ^input-link.feedback <il>
+         ^output-link <ol>)
+   (<ol> ^attack <valuex>
+        -^attack.value off)
+   (<valuex> ^value { << normal charge >> <val>} )
+   (<il> ^attack <val>)
+-->
+   (write (crlf) |<==  attack : | <val> | Feedback received from attack.  Removing old attack & Setting attack off|)
+   (<ol> ^attack <valuex> - <off> +)
+   (<off> ^value off
+          ^strength 1)
+}
+
+sp {apply*operator*remove-command*feedback*attack*no-existing-attack-command
+   (state <s> ^name unreal
+              ^operator <o>
+              ^io <io>)
+   (<io> ^input-link.feedback <il>
+         ^output-link <ol>)
+   (<ol> -^attack.value <val>
+         -^attack.value off)
+   (<il> ^attack {<< normal charge >> <val>} )
+-->
+   (write (crlf) |<==  attack : | <val> | Feedback received from attack.  Setting attack off (no attack on ol)|)
+   (<ol> ^attack <valuex> - <off> +)
+   (<off> ^value off ^strength 1)
+}
+
+
+sp {apply*operator*monitor*status-error
+   (state <s> ^superstate nil
+              ^io.output-link <ol>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^status error
+             ^{ <> status  <att2>} <value>)
+-->
+   (write (crlf) |Output-link error  ^| <att> |.| <att2> |: | <value>)
+}
+
+sp {apply*operator*status-error*unknown-command*remove
+   (state <s> ^superstate nil
+              ^operator <o>
+              ^top-state.parameters.error-codes.unknown-command <val>
+              ^io.output-link <ol>)
+   (<o> ^name <name>)
+   (<ol> ^<att> <valuex>)
+   (<valuex> ^status error
+             ^error-code <val>)
+-->
+    (write (crlf) |Output-link error : Removing unknown command ^| <att> )
+    # (write (crlf) |Error code: | <val>)
+   (<ol> ^<att> <valuex> -)
+}
+
+#sp {monitor*output
+#   (state <s> ^io.output-link <ol> ^superstate nil)
+#   (<ol> ^<att> <val>)
+#   (<val> ^<att2> <val2>)
+#-->
+#   # (write (crlf) |Output link: | <att> | |  <val> | |  <att2> | |  <val2> )}
+

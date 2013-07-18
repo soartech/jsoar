@@ -1,0 +1,158 @@
+
+sp {evaluate-operator*propose*compute-challenge-probability
+   (state <s> ^name evaluate-operator
+              ^top-state.probabilities true
+              ^top-state.io.input-link.history.action << bid push >>
+              ^superstate.operator <eo>)
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge
+         ^target <t>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-probability
+         ^target <t>)
+}
+
+## If there was an intervening PASS consider challenging previous bid
+
+sp {evaluate-operator*propose*compute-challenge-probability*intervening-pass
+   (state <s> ^name evaluate-operator
+              ^top-state.probabilities true
+              ^top-state.io.input-link <input>
+              ^superstate.operator <eo>)
+   (<input> ^history.action pass
+            ^state.last-bid <lb>)
+   (<lb> ^action << bid push >>
+         ^player.name <name>)
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge        # player being challenged is one that made bid
+         ^target <t>)
+   (<t> ^name <name>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-probability
+         ^target <t>)
+}
+
+## Thinking of challenging a one bid
+sp {apply*compute-challenge-probability*1*bid
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-challenge-probability
+         ^target <t>)
+   (<t> ^id <player-id>)
+   (<ts> ^io.input-link.state.last-bid <lb>
+         ^io.output-link <out>)
+   (<dc1> ^face 1
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face 1
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | 1's.  Bid: | <bid-multi> |, Known:| <multi-1>)
+   (<s> ^total-known (- <multi-1> <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate lt)
+}
+
+## Thinking of challenging a non-one bid with special rules
+sp {apply*compute-challenge-probability*special-rules
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-challenge-probability
+         ^target <t>)
+   (<t> ^id <player-id>)
+   (<ts> ^io.input-link.state.last-bid <lb>
+         ^io.output-link <out>
+         ^io.input-link.state.special true)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face { <> 1 <face> }
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | | <face> |'s. Special rules.|)
+   (<s> ^total-known (- <multi-1> <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^source dice
+         ^results all
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> <multi-1>)
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 6
+          ^predicate lt)
+}
+
+## Thinking of challenging a non-one bid with normal rules
+sp {apply*compute-challenge-probability*normal-rules
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <so>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2> <dc3>)
+   (<op> ^name compute-challenge-probability
+         ^target <t>)
+   (<t> ^id <player-id>)
+   (<ts> ^io.input-link.state.last-bid <lb>
+         ^io.input-link.state.special false
+         ^io.output-link <out>)
+   (<dc1> ^face {<> 1 <face> }
+          ^count <multi-face>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<dc3> ^face 1
+          ^count <multi-1>)
+   (<lb> ^action bid
+         ^face { <> 1 <face> }
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | | <face>
+   |'s. Normal rules. Need: | (- <bid-multi>  (+ <multi-1> <multi-face> ))
+                              |. Out of: |  <multi-unknown>)
+   (<s> ^total-known (- (+ <multi-1> <multi-face> ) <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-face> <multi-1>) <bid-multi>))
+   (<out> ^qna-query <qq>)
+   (<so> ^qna-query <qq>)
+   (<qq> ^query compute-probability
+         ^results all
+         ^source dice
+         ^parameters <par>)
+   (<par> ^count (- <bid-multi> (+ <multi-face> <multi-1>))
+          ^number-of-dice <multi-unknown>
+          ^number-of-faces 3
+          ^predicate lt)
+}
+
+sp {apply*compute-challenge-probability*use-result
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <e>)
+   (<e> ^qna-query <qq>)
+   (<qq> ^result.features.probability <prob>)
+   (<op> ^name << compute-challenge-probability compute-bid-probability compute-exact-probability
+                  compute-bid-push-probability >> )
+-->
+   (write (crlf) |>>>Probability: | <prob>)
+   (<e> ^probability <prob>)
+}

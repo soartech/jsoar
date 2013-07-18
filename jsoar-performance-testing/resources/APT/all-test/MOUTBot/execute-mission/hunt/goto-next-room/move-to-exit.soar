@@ -1,0 +1,46 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/move-to-exit"
+                
+#AMN: 2002-07-25
+#IF:
+#1.  I am not at the exit node
+#THEN:
+#    Propose moving to the exit node.
+sp {goto-next-room*propose*move-to-exit
+   (state <s> ^name goto-next-room
+              ^exit-node <enode>
+             -^top-state.map.near-node <enode>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-exit
+        ^type move-to-node
+        ^node <enode>)
+}
+
+#AMN: 2002-07-26
+#Ignore the stack position if this is a narrow area
+sp {goto-next-room*compare*move-to-exit*worse-than-stack-pos
+   (state <s> ^name goto-next-room
+              ^operator <o1> +
+                        <o2> +
+              ^top-state.map.current-area.narrow-area yes)
+   (<o1> ^name move-to-exit)
+   (<o2> ^name move-to-stack-position)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+
+#AMN: 2002-07-25
+#Otherwise, prefer moving to the stack position before moving to the exit
+sp {goto-next-room*compare*move-to-exit*worse-than-stack-pos2
+   (state <s> ^name goto-next-room
+              ^operator <o1> +
+                        <o2> +
+             -^top-state.map.current-area.narrow-area yes)
+   (<o1> ^name move-to-stack-position)
+   (<o2> ^name move-to-exit)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

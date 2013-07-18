@@ -1,0 +1,24 @@
+echo "\nLoading object/move-to-pos"
+                
+
+# 
+# This is a high-level movement operator that combines move-to-area and move-to-xyz,
+# allowing an easy command to move to ANY location in the house
+#
+# It works as follows, skipping any unnecessary steps
+# 
+#  1) Move to correct area
+#  2) Move to correct x-y-z position
+#
+# ASSUMPTIONS: This suboperator expects ^position and ^area attributes, 
+#              which both describe the target location.
+
+
+
+
+
+
+
+
+
+

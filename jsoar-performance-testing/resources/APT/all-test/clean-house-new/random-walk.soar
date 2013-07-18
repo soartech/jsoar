@@ -1,0 +1,10 @@
+sp {clean-house*propose*random-walk
+   (state <s> ^name robot
+              ^current-mission <cm>)
+   (<cm> ^status executing
+         ^name random-walk)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name random-walk)
+}
+

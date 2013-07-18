@@ -1,0 +1,49 @@
+sp {done-abstract
+   (state <s> ^name attempt-abstract-solution
+              ^value <val>
+             -^less-than                            ## Bogus? Why here
+              ^superstate <ss>)
+   (<ss> ^execute-step fail)
+-->
+   (<ss> ^execute-step fail -
+                       <val>)
+}
+
+##### BOGUS!
+
+sp {return-to-concrete-solution
+   (state <s> ^name attempt-abstract-solution
+              ^superstate <ss>
+              ^value <val>
+              ^less-than last-term
+              ^last-term <term>)
+   (<ss> ^execute-step fail
+         ^current-problem <p>)
+   (<p> ^minimum-math-computations <bound>)
+-->
+   (<ss> ^execute-step fail -)
+   (<p> ^sum <val>
+        ^term (- <term> 1)
+        ^minimum-math-computations <bound> -
+                                   unknown
+        ^base-list <head>
+        ^count (+ <bound> 1))
+   (<head> ^current <x>
+           ^next <x>)
+}
+
+sp {give-up-on-term
+   (state <s> ^name use-relation ^superstate <ss>)
+   (<ss> ^define <term> ^superstate <sss>)
+-->
+   (<sss> ^<term> impossible)
+}
+
+## Very General - Bogus?
+sp {give-up-on-term1
+   (state <s> ^<term> impossible
+              ^define <term1>
+              ^superstate <ss>)
+-->
+   (<ss> ^<term1> impossible)
+}

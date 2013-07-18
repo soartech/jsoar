@@ -1,0 +1,59 @@
+sp {count-dice-faces*propose*initialize-dice-count
+   (state <s> ^name count-dice-faces
+             -^current-player)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name initialize-dice-count)
+}
+
+sp {apply*initialize-dice-count1
+   (state <s> ^operator <op>
+              ^superstate <ss>)
+   (<ss> ^player-list.first-player <fp>)
+   (<op> ^name initialize-dice-count)
+-->
+   (<s> ^current-player <fp>)
+}
+
+
+sp {apply*initialize-dice-count2
+   (state <s> ^operator <op>
+              ^superstate <ss>)
+   (<ss> ^true-dice-counts <tdc>
+         ^alternative-dice-counts <edc>)
+   (<tdc> -^dice-count)
+   (<op> ^name initialize-dice-count)
+-->
+   (<tdc> ^dice-count <dc1> <dc2> <dc3> <dc4> <dc5> <dc6> <dc7>)
+   (<dc7> ^face unknown
+          ^count 0)
+   (<dc1> ^face 1
+          ^count 0)
+   (<dc2> ^face 2
+          ^count 0)
+   (<dc3> ^face 3
+          ^count 0)
+   (<dc4> ^face 4
+          ^count 0)
+   (<dc5> ^face 5
+          ^count 0)
+   (<dc6> ^face 6
+          ^count 0)
+   (<edc> ^dice-count <edc1> <edc2> <edc3> <edc4> <edc5> <edc6> <edc7>)
+   (<edc7> ^face unknown
+           ^count 0)
+   (<edc1> ^face 1
+           ^count 0)
+   (<edc2> ^face 2
+           ^count 0)
+   (<edc3> ^face 3
+           ^count 0)
+   (<edc4> ^face 4
+           ^count 0)
+   (<edc5> ^face 5
+           ^count 0)
+   (<edc6> ^face 6
+           ^count 0)
+}
+
+

@@ -1,0 +1,73 @@
+sp {arithmetic*propose*finish-problem
+   (state <s> ^name arithmetic
+              ^arithmetic-problem.current-column <c>)
+   (<c> ^result
+        ^next-column nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name finish-problem)
+}
+
+sp {arithmetic*apply*finish-problem*1column*result
+   (state <s> ^name arithmetic
+              ^operator.name finish-problem
+              ^arithmetic-problem <ap>)
+   (<ap> ^one-column <oc>
+         ^operation-symbol <as>)
+   (<oc> ^digit1 <n1>
+         ^digit2 <n2>
+         ^result <n3>
+         ^next-column nil)
+-->
+   (write (crlf) | | <n1> )
+   (write (crlf) <as> <n2> )
+   (write (crlf) |---|)
+   (write (crlf) | | <n3> )
+   (halt)
+}
+sp {arithmetic*apply*finish-problem*2column*result
+   (state <s> ^name arithmetic
+              ^operator.name finish-problem
+              ^arithmetic-problem <ap>)
+   (<ap> ^one-column <oc>
+         ^operation-symbol <as>)
+   (<oc> ^digit1 <n1>
+         ^digit2 <n2>
+         ^result <a1>
+         ^next-column <tc>)
+   (<tc> ^digit1 <n3>
+         ^digit2 <n4>
+         ^result <a2>
+         ^next-column nil)
+-->
+   (write (crlf) | |   <n3> <n1> )
+   (write (crlf)  <as> <n4> <n2> )
+   (write (crlf) |----|)
+   (write (crlf) | |   <a2> <a1>)
+   (halt)
+}
+sp {arithmetic*apply*finish-problem3*column*result
+   (state <s> ^name arithmetic
+              ^operator.name finish-problem
+              ^arithmetic-problem <ap>)
+   (<ap> ^one-column <oc>
+         ^operation-symbol <as>)
+   (<oc> ^digit1 <n1>
+         ^digit2 <n2>
+         ^result <a1>
+         ^next-column <tc>)
+   (<tc> ^digit1 <n3>
+         ^digit2 <n4>
+         ^result <a2>
+         ^next-column <vc>)
+   (<vc> ^digit1 <n5>
+         ^digit2 <n6>
+         ^result <a3>
+         ^next-column nil)
+-->
+   (write (crlf) | |   <n5> <n3> <n1> )
+   (write (crlf)  <as> <n6> <n4> <n2> )
+   (write (crlf) |----|)
+   (write (crlf) | |   <a3> <a2> <a1>)
+   (halt)
+}

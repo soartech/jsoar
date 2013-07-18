@@ -1,0 +1,12 @@
+echo "\nLoading attack/face-enemy"
+
+sp {attack*propose*face-enemy
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy.position <p>
+             -^enemy-angle-off-achieved true)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name face-enemy
+        ^actions.face <p>)
+}
+

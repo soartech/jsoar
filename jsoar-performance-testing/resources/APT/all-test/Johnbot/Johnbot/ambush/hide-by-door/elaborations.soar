@@ -1,0 +1,97 @@
+#echo "\nLoading hide-by-door/elaborations"
+
+sp {hide-by-door*elaborate*inroom-door
+   (state <s> ^name hide-by-door
+              ^top-state.enemy.prediction-last-door-number <ldn> 
+              ^current-room <rm>)
+   (<rm> ^door <door>)
+   (<door> ^connecting-door.number <ldn>
+           ^direction <side>)
+   -->
+   (<s> ^inroom-door <door>)}
+
+sp {hide-by-door*elaborate*hiding-place-heading
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>
+              ^io.input-link.agent.origin <origin>)
+   (<hp> ^x <item-x>
+         ^y <item-y>)
+   (<origin> ^x <x>
+             ^y <y>)
+   -->
+   (<hp> ^heading
+        (round-off-heading (compute-heading <y> <x> <item-y> <item-x>) 1))}
+
+sp {hide-by-door*elaborate*hiding-place-heading-difference
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>
+              ^io.input-link.agent.angle.yaw <y>)
+   (<hp> ^heading <h>)
+   -->
+   (<hp> ^heading-difference
+        (round-off-heading (- <y> <h>) 1))}
+
+sp {hide-by-door*elaborate*hiding-place-heading-difference-achieved
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>)
+   (<hp> ^heading-difference < 5)
+   -->
+   (<hp> ^heading-achieved true)}
+
+sp {hide-by-door*elaborate*hiding-place-range
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>
+              ^io.input-link.agent.origin <origin>)
+   (<hp> ^x <item-x>
+         ^y <item-y>)
+   (<origin> ^x <x>
+             ^y <y>)
+   -->
+   (write (crlf) |Range:| (compute-range <y> <x> <item-y> <item-x>))
+   (<hp> ^range (compute-range <y> <x> <item-y> <item-x>))}
+
+sp {hide-by-door*elaborate*hiding-place-range*close
+   (state <s> ^name hide-by-door
+              ^top-state.parameters.hiding-place-close <hpc>
+              ^hiding-place <hp>)
+   (<hp> -^range > <hpc>)
+   -->
+   (write (crlf) |Range is close.|)
+   (<hp> ^range-close true)}
+
+##########################
+
+sp {hide-by-door*elaborate*final-facing
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>
+              ^inroom-door <idoor>
+              ^io.input-link.agent.origin <origin>)
+   (<hp> ^range-close true)
+   (<origin> ^x <x>
+             ^y <y>)
+   (<idoor> ^x <x1>
+            ^y <y1>)
+   -->
+   (<hp> ^final-facing
+        (round-off-heading (compute-heading <y> <x> <y1> <x1>) 1))}
+
+sp {hide-by-door*elaborate*final-facing-difference
+   (state <s> ^name hide-by-door
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^hiding-place <hp>)
+    (<hp> ^range-close true
+          ^final-facing <ff>)
+   -->
+   (<hp> ^final-facing-difference (round-off-heading (- <yaw> <ff>) 1))}
+
+sp {hide-by-door*elaborate*final-facing-achieved
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>)
+   (<hp> ^final-facing-difference < 5 > -5)
+   -->
+   (<hp> ^final-facing-achieved true)}
+
+
+
+
+

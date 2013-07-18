@@ -1,0 +1,24 @@
+sp {defend*propose*determine-defensive-window-position
+   (state <s> ^name defend
+              ^top-state.map.current-area <ca> 
+              ^objective <obj>)
+   (<ca> ^node <node>
+          ^threat-window <twindow>)
+   (<obj> ^defensive-position <dp>)
+    (<dp> -^position <pos>
+           ^area-achieved true
+           ^type window)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-defensive-window-position
+        ^node <twindow>)
+}
+
+sp {apply*determine-defensive-window-position
+   (state <s> ^operator <o>
+              ^objective.defensive-position <dp>)
+   (<o> ^name determine-defensive-window-position
+        ^node.position <pos>)
+   -->
+   (<dp> ^position <pos>)
+}

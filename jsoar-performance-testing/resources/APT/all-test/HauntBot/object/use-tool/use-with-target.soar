@@ -1,0 +1,17 @@
+#
+# with key in hand, move to the target object and unlock it
+#
+
+sp {use-tool*propose*move-and-use-with
+   (state <s> ^type use-tool
+              ^has-tool
+              ^target <obj>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name move-and-use-with
+        ^type move-near-and-x
+        ^target <obj>
+        ^next-action <na>)
+   (<na> ^name use-tool-with-target
+         ^type use-object-with)
+}

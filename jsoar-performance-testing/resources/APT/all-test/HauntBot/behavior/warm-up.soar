@@ -1,0 +1,9 @@
+echo "\nLoading behavior/warm-up"
+                
+#
+# If agent is cold, stand by a fire.
+# If no fire exists, start one if possible
+#
+
+
+

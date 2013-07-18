@@ -1,0 +1,46 @@
+#echo "\nLoading update-path-data/update-room"
+
+sp {update-path-data*propose*update-room
+   (state <s> ^name update-path-data
+              ^room <er>
+              ^top-state.map.room { <> <er> <room> })
+  -(<room> ^path.destination-room <er>)
+   (<room> ^path <p1>)
+   (<p1> ^in-room-door <door>
+         ^distance 1
+         ^destination-room.path <p2>)
+   (<p2> ^destination-room <er>
+         ^distance-plus-one <dist>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name update-room
+        ^door <door>
+        ^distance <dist>
+        ^room <room>)}
+
+sp {update-path-date*select*update-room*closest
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name update-room
+         ^distance <dist>)
+   (<o2> ^name update-room
+         ^distance > <dist>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {update-path-data*apply*update-room
+   (state <s> ^operator <o>
+              ^room <cr>)
+     (<o> ^name update-room
+         ^room <room>
+         ^door <door>
+         ^distance <dist>)
+   -->
+   (write (crlf) |Create path | <p> | from | <room> | to |  <cr> )
+   (<room> ^path <p>)
+   (<p> ^in-room-door <door>
+        ^destination-room <cr>
+        ^distance <dist>
+        ^distance-plus-one (+ 1 <dist>))}
+
+

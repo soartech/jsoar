@@ -1,0 +1,30 @@
+sp {get-digit1*propose*compute-result
+   (state <s> ^name get-digit1
+              ^digit1 <a1>
+              ^digit2 <a2>
+             -^result)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-result)
+}
+
+### Add in the carry for multiplication
+
+sp {get-digit1*apply*compute-result*addition
+   (state <s> ^name get-digit1
+              ^operator.name compute-result
+              ^arithmetic.facts <af>
+              ^arithmetic-problem.operation multiplication
+              ^digit1 <a1>
+              ^digit2 <a2>)
+   (<af> ^digit1 <a1>
+         ^digit2 <a2>
+         ^sum <result>
+         ^carry-borrow <carry-borrow>)
+-->
+   (<s> ^result <result>
+        ^carry-borrow <carry-borrow>)
+}
+
+### Add in the carry for addition will be done by process-column*apply*compute-result*addition
+### Subtract the borrow will be done by process-column*apply*compute-result*subtraction

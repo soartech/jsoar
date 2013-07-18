@@ -1,0 +1,104 @@
+#sp {propose*initialize-dice
+#   (state <s> ^superstate nil
+#             -^dice-data-initialized true)
+#-->
+#   (<s> ^operator <o> +)
+#   (<o> ^name initialize-dice)
+#}
+
+sp {apply*initialize-dice
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-dice)
+-->
+   (<s> ^true-dice-counts <tdc>
+        ^alternative-dice-counts <edc>
+        ^dice-data-initialized true
+        ^name dice
+        ^probabilities true
+        ^model-enabled true
+        ^dice-data <dd>)
+   (<dd> ^next-bid <nb22> <nb23> <nb24> <nb25> <nb26>
+                   <nb32> <nb33> <nb34> <nb35> <nb36>
+                   <nb42> <nb43> <nb44> <nb45> <nb46>
+                   <nb52> <nb53> <nb54> <nb55> <nb56>
+                   <nb62> <nb63> <nb64> <nb65> <nb66>                   
+         ^next-one-bid-normal <nobn>
+         ^next-one-bid-special <nobs>)
+   (<nb22> ^current-face 2
+           ^new-face 2
+           ^increment-multiplier 1)
+   (<nb23> ^current-face 2
+           ^new-face 3
+           ^increment-multiplier 0)
+   (<nb24> ^current-face 2
+           ^new-face 4
+           ^increment-multiplier 0)
+   (<nb25> ^current-face 2
+           ^new-face 5
+           ^increment-multiplier 0)
+   (<nb26> ^current-face 2
+           ^new-face 6
+           ^increment-multiplier 0)
+   (<nb32> ^current-face 3
+           ^new-face 2
+           ^increment-multiplier 1)
+   (<nb33> ^current-face 3
+           ^new-face 3
+           ^increment-multiplier 1)
+   (<nb34> ^current-face 3
+           ^new-face 4
+           ^increment-multiplier 0)
+   (<nb35> ^current-face 3
+           ^new-face 5
+           ^increment-multiplier 0)
+   (<nb36> ^current-face 3
+           ^new-face 6
+           ^increment-multiplier 0)
+   (<nb42> ^current-face 4
+           ^new-face 2
+           ^increment-multiplier 1)
+   (<nb43> ^current-face 4
+           ^new-face 3
+           ^increment-multiplier 1)
+   (<nb44> ^current-face 4
+           ^new-face 4
+           ^increment-multiplier 1)
+   (<nb45> ^current-face 4
+           ^new-face 5
+           ^increment-multiplier 0)
+   (<nb46> ^current-face 4
+           ^new-face 6
+           ^increment-multiplier 0)
+   (<nb52> ^current-face 5
+           ^new-face 2
+           ^increment-multiplier 1)
+   (<nb53> ^current-face 5
+           ^new-face 3
+           ^increment-multiplier 1)
+   (<nb54> ^current-face 5
+           ^new-face 4
+           ^increment-multiplier 1)
+   (<nb55> ^current-face 5
+           ^new-face 5
+           ^increment-multiplier 1)
+   (<nb56> ^current-face 5
+           ^new-face 6
+           ^increment-multiplier 0)
+   (<nb62> ^current-face 6
+           ^new-face 2
+           ^increment-multiplier 1)
+   (<nb63> ^current-face 6
+           ^new-face 3
+           ^increment-multiplier 1)
+   (<nb64> ^current-face 6
+           ^new-face 4
+           ^increment-multiplier 1)
+   (<nb65> ^current-face 6
+           ^new-face 5
+           ^increment-multiplier 1)
+   (<nb66> ^current-face 6
+           ^new-face 6
+           ^increment-multiplier 1)
+}
+
+

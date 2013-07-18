@@ -1,0 +1,22 @@
+sp {robot-pickup-block*propose*pickup-block
+   (state <s> ^name robot
+              ^io.input-link.object <o>)
+   (<o> ^type block
+        ^visible yes
+        ^range < 1                 
+        ^id <id>
+        ^angle-off { < 0.3 > -0.3 })  
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name pickup-block
+         ^block-id <id>)
+}
+
+sp {apply*pickup-block
+   (state <s> ^operator <op>
+              ^io.output-link <out>)
+   (<op> ^name pickup-block
+         ^block-id <id>)
+-->
+   (<out> ^get.id <id>)
+}

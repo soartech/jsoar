@@ -1,0 +1,14 @@
+
+
+# carry out the specified secondary action
+sp {climb-and-x*propose*step-2-x
+   (state <s> ^type climb-and-x
+              ^on-target yes
+              ^next-action <na>)
+   (<na> ^name <name>
+         ^type <type>)
+ -->
+   (<s> ^operator <o> + >)
+   (<o> ^name <name>
+        ^type <type>)
+}

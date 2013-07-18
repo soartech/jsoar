@@ -1,0 +1,54 @@
+echo "\nLoading attack-grenade/select-target-node"
+
+sp {attack-grenade*propose*select-target-node*inroom
+   (state <s> ^name attack-grenade
+             -^selected-target-node
+              ^visible-enemy-node <node>)
+-->
+   (write (crlf) |Use visible-enemy-node | <node>)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name select-target-node
+        ^target-node <node>)
+}
+
+#Use only as default
+sp {attack-grenade*propose*select-target-node*connector
+   (state <s> ^name attack-grenade
+             -^selected-target-node
+              ^visible-enemy-connected-node <node>)
+-->
+   (write (crlf) |Use visible-enemy-connected-node | <node>)
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name select-target-node
+        ^target-node <node>)
+}
+
+# USe only as a default
+sp {attack-grenade*propose*select-target-node*inroom2
+   (state <s> ^name attack-grenade
+             -^selected-target-node
+             -^visible-enemy-connected-node <node>
+              ^enemy-area <ea>
+              ^top-state.threats.selected-threat <threat>
+              ^top-state.map.current-area <ca>)
+   (<ca> ^path <p>)
+   (<p> ^destination-area <ea>
+        ^via-node <node>)
+   (<threat> ^visible <ca>)
+-->
+   (write (crlf) |Use visible-enemy-node | <node>)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name select-target-node
+        ^target-node <node>)
+}
+
+sp {apply*select-target-node
+   (state <s> ^operator <o>)
+   (<o> ^name select-target-node
+        ^target-node <node>)
+-->
+   (write (crlf) |Use | <node>)
+   (<s> ^selected-target-node <node>)
+}
+
+

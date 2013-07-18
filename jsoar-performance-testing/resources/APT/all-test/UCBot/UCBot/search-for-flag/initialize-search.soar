@@ -1,0 +1,25 @@
+
+# Initialize the search
+sp {search-for-flag*propose*initialize-search*start-location
+   (state <s> ^name search-for-flag
+             -^search-radius)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name initialize-search)
+}
+
+# Search starts with an initial radius of 1 around the starting location.
+sp {search-for-flag*apply*initialize-search*init-radius
+   (state <s> ^operator.name initialize-search)
+-->
+   (<s> ^search-radius 1)
+}
+
+# Clear out any existing search flags
+sp {search-for-flag*apply*initialize-search*clear-prev-searches
+   (state <s> ^operator.name initialize-search
+              ^top-state.map.areas.area <area>)
+   (<area> ^searched true)
+-->
+   (<area> ^searched true -)
+}

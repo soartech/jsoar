@@ -1,0 +1,11 @@
+sp {clean-house*propose*deposit-object
+   (state <s> ^name robot
+              ^current-mission <cm>
+             -^no-storage-area yes
+              ^io.input-link.self.carry)
+   (<cm> ^status executing
+         ^name clean-rooms)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name deposit-object)
+}

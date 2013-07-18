@@ -1,0 +1,179 @@
+echo "\nLoading common/get-item"
+
+sp {get-item*elaborate*in-room*visible
+#   :i-support
+   (state <s> ^io.input-link.entity.item <item>
+              ^operator <o> +)
+   (<item> ^classname <cname>
+           ^in-current-room true)
+   (<o> ^name get-item
+        ^find-item true
+        ^classname <cname>)
+   -->
+   (<o> ^place in-room
+        ^item <item>)
+   }
+
+sp {get-item*elaborate*visible*not-in-room
+#   :i-support
+   (state <s> ^io.input-link.entity.item <item>
+              ^operator <o> +)
+   (<item> ^classname <cname>
+          -^in-current-room true)
+   (<o> ^name get-item
+        ^find-item true
+       -^place in-room
+        ^classname <cname>)
+   -->
+   (<o> ^place other-room
+        ^item <item>)
+   }
+
+sp {get-item*elaborate*range
+#   :i-support
+   (state <s> ^operator <o> +)
+   (<o> ^name get-item
+        ^item.range <range>)
+   -->
+   (<o> ^range <range>)
+   }
+
+sp {get-item*elaborate*in-room*stored
+#   :i-support
+   (state <s> ^top-state.map.current-room.item <item>
+              ^operator <o> +)
+   (<item> ^classname <cname>
+           ^available true)
+   (<o> ^name get-item
+       -^place in-room
+        ^find-item true
+        ^classname <cname>)
+   -->
+   (<o> ^place recorded-in-room
+        ^item <item>)
+   }
+
+sp {get-item*elaborate*recorded*in-room
+#  :i-support
+   (state <s> ^top-state.map.current-room.search.recorded <item>
+             -^io.input-link.agent.cycle < <rt>
+              ^operator <o> +)
+   (<item> ^classname <cname>
+           ^regeneration-time <rt>)
+   (<o> ^name get-item
+       -^place in-room
+        ^find-item true
+        ^classname <cname>)
+   -->
+   (<o> ^place recorded-in-room
+        ^item <item>)
+   }
+
+sp {get-item*elaborate*not*in-room
+#   :i-support
+   (state <s> ^operator <o> +
+              ^top-state <ts>)
+   (<ts> ^map.current-room <cr>)
+   (<cr> -^item.classname <cname>
+         -^search.recorded.classname <cname>)
+   (<o> ^name get-item
+        ^find-item true
+       -^place in-room
+        ^classname <cname>)
+   -->
+   (<o> ^place other-room)
+   }
+
+
+######### Prefer in-room > recorded-in-room > other-room
+
+sp {get-item*prefer*in-room
+   (state <s> ^operator <o1> +
+              ^top-state.parameters.get-item-close-range <gicr>
+              ^operator { <> <o1> <o2> } +)
+   (<o1> ^name get-item
+        -^range > <gicr>
+         ^place in-room)
+   (<o2> ^name get-item
+        -^range < <gicr>)
+#       -^place in-room)
+   -->
+   (<s> ^operator <o2> -)
+   }
+
+### Prefer closest non weapon in room
+
+sp {get-item*prefer*inroom*closest
+   (state <s> ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<o1> ^name get-item
+         ^place in-room
+        -^type weapon
+         ^priority <x>
+         ^range <range>
+        -^range <> <range>)
+   (<o2> ^name get-item
+        -^type weapon
+         ^priority <x>
+         ^place in-room
+         ^range { > <range> <range2> }
+        -^range <> <range2>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+
+sp {get-item*closest-room*weapon*not-better
+   (state <s> ^top-state.self.parameters.weapons <w1>
+              ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<w1> ^classname <class1>
+        -^better <class2>)
+   (<o1> ^name get-item
+         ^range <range>
+         ^classname <class1>)
+   (<o2> ^name get-item
+         ^range { <range2> > <range> }
+         ^classname <class2>)
+   -->
+ #  (write (crlf) |Prefer Weapon: | <class1> | (| <range> |) to | <class2> | (| <range2> |)|)
+   (<s> ^operator <o1> > <o2>)
+   }
+
+sp {get-item*best-weapon*inroom
+   (state <s> ^top-state.self.parameters.weapons <w1> 
+             ^operator <o1> +
+             ^operator { <> <o1> <o2> } +)
+  (<w1> ^classname <class1>
+        ^better <class2>)
+  (<o1> ^name get-item
+        ^type weapon
+        ^classname <class1>)
+  (<o2> ^name get-item
+        ^place << recorded-in-room in-room >>
+        ^type weapon
+        ^classname <class2>)
+  -->
+#   (write (crlf) |Prefer Weapon: | <class2> | to | <class1>)
+   (<s> ^operator <o1> < <o2>)
+  }
+
+sp {get-item*best-weapon*out-room-not-close-other
+   (state <s> ^top-state.self.parameters.weapons <w1> 
+              ^top-state.parameters.close-weapon-range <cwr>
+             ^operator <o1> +
+             ^operator { <> <o1> <o2> } +)
+  (<w1> ^classname <class1>
+        ^better <class2>)
+  (<o1> ^name get-item
+         ^range > <cwr>
+        ^type weapon
+        ^classname <class1>)
+  (<o2> ^name get-item
+        ^type weapon
+        ^classname <class2>)
+  -->
+#   (write (crlf) |Prefer Weapon: | <class2> | to | <class1>)
+   (<s> ^operator <o1> < <o2>)
+  }
+

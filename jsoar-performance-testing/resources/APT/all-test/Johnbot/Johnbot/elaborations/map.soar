@@ -1,0 +1,18 @@
+#echo "\nLoading elaborations/map"
+
+sp {elaborate*state*current-room
+   (state <s> ^name quake
+             -^predicting true
+              ^io.input-link.agent.origin <il>
+              ^map <m>)
+   (<m> ^room <r>)
+   (<il> ^x <x> ^y <y>)
+   (<r> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x < <x>)
+   (<w2> ^side east ^x > <x>)
+   (<w3> ^side south ^y < <y>)
+   (<w4> ^side north ^y > <y>)
+   -->
+   (<m> ^current-room <r>)}
+
+

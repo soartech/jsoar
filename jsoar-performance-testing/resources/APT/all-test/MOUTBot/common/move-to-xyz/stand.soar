@@ -1,0 +1,14 @@
+# 2003-06-07
+# Stand if in lie-prone or kneel body position and want to move
+
+
+# someday this should be an input link test.  This soln is brittle
+sp {move-to-xyz*propose*stand
+   (state <s> ^type move-to-node
+              ^top-state.self.body-position << lie-prone kneel >>
+             -^top-state.self.changing-body-position)
+   -->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name stand
+        ^actions.stand true) 
+}

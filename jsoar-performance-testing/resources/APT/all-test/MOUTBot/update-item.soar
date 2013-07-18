@@ -1,0 +1,51 @@
+## NOTE: UPDATE TO WORK WITH DECORATIONS
+
+echo "\nLoading upadate-item"
+
+## Update the location of any items that have moved
+## Only proposed when position or area has changed 
+
+## NOTE: Tracking position might be nice for some
+## decisions.  It could add alot of overhead though, so
+## we should examine carefully if we want to do this
+
+sp {unreal*propose*update-item
+   (state <s> ^name unreal
+              ^io.input-link.entities.item <newitem>)
+   (<s> ^item-list.item <item>)
+   (<newitem> ^name <newname>)
+   (<item> ^name <newname>)
+   (<newitem> ^area <newarea>
+              ^position.x <newx>
+              ^position.y <newy>
+              ^position.z <newz>)
+  -(<item> ^area <newarea>
+           ^position.x <newx>
+           ^position.y <newy>
+           ^position.z <newz>)
+   -->
+   (write (crlf) |Updating Item: | <newname>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-item
+        ^item <newitem>)
+}
+
+sp {unreal*apply*update-item
+   (state <s> ^operator <o>
+              ^item-list.item <item>)
+   (<o> ^name update-item
+        ^item <newitem>)
+   (<newitem> ^name <newname>
+              ^area <newarea>
+              ^position <newpos>)
+   (<item> ^name <newname>
+           ^position <oldpos>
+           ^area <oldarea>)
+   -->
+   (write (crlf) |Update item: | <newname> )
+   (<item> ^position <oldpos> -)
+   (<item> ^area <oldarea> -)
+   (<item> ^position <newpos>)
+   (<item> ^area <newarea>)
+}
+

@@ -1,0 +1,9 @@
+sp {get-digit1*elaborate*state
+   (state <s> ^name get-digit1
+              ^superstate.current-column.digit1 <a>)
+-->
+   (<s> ^digit1 <a>
+        ^digit2 1)
+}
+
+

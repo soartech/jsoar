@@ -1,0 +1,11 @@
+sp {addition*propose*add-column
+   (state <s> ^name addition
+              ^addition-problem.current-column <cc>)
+  -(<cc> ^sum)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-column)
+}
+
+
+

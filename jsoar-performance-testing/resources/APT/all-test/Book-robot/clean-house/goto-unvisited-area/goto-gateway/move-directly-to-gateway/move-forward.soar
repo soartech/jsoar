@@ -1,0 +1,10 @@
+sp {move-directly-to-gateway*propose*move-forward
+   (state <s> ^name move-directly-to-gateway
+              ^quiescence t
+              ^lined-up yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-forward
+         ^actions.move.direction forward
+         ^actions.rotate.direction stop)
+}

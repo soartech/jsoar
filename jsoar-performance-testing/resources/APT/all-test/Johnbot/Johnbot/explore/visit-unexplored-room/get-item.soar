@@ -1,0 +1,21 @@
+#echo "\nLoading visit-upexplored-room/get-item"
+
+###############################
+### Propose get-item operator
+################################
+
+#sp {visit-unexplored-room*propose*get-item*need
+#   (state <s> ^name visit-unexplored-roomx
+#              ^io.input-link.entity.item <item>
+#              ^top-state.self.get-object.classname <cname>)
+#   (<item> ^classname <cname>
+#           ^in-current-room true)
+#   -->
+#   (write (crlf) |Go pick up | <cname>)
+#   (<s> ^operator <o> + =, >)
+#   (<o> ^name get-item
+#        ^classname <cname>
+#        ^place in-room
+#        ^item <item>)
+#   }
+

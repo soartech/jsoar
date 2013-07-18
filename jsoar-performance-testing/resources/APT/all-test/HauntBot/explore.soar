@@ -1,0 +1,34 @@
+echo "\nLoading explore"
+    
+#propose exploring as a base action
+sp {haunt*propose*explore
+   (state <s> ^name haunt)
+-->
+   (<s> ^operator <o> + <)
+   (<o> ^name default-exploration
+        ^type explore)
+}
+             
+# Explore should explore any unvisited territory 
+# first, and then randomly select new areas to 
+# move to (ie, wander). 
+#
+# Preference is given first to unexplored nodes 
+# in the current area, then areas that have 
+# unexplored nodes.  
+#
+# Once everything has been visited, the agent
+# should randomly select an adjacent are to move
+# to.  It will backtrack only as a last resort.
+#
+#
+#
+# MJP: 5/28/03
+# Exploration has been modified. Once an agent has visited
+# everything, new areas will be selected based upon the 
+# number of times they have been visited, stored by 
+# each area's 'visit' count. This simple method will
+# force the agent to move throughout the entire house.
+# This is especially useful for agents that are starting
+# with a pre-explored map and still need to look for
+# objects.

@@ -1,0 +1,136 @@
+sp {addition*propose*initialize-addition
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-addition)
+}
+
+sp {addition*apply*initialize-addition
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-addition)
+-->
+   (<s> ^name addition
+        ^addition-problem <ap>
+        ^addition.facts
+                          <a01> <a02> <a03> <a04> <a05> <a06> <a07> <a08> <a09> <a00>
+                          <a11> <a12> <a13> <a14> <a15> <a16> <a17> <a18> <a19> <a10>
+                          <a21> <a22> <a23> <a24> <a25> <a26> <a27> <a28> <a29> <a20>
+                          <a31> <a32> <a33> <a34> <a35> <a36> <a37> <a38> <a39> <a30>
+                          <a41> <a42> <a43> <a44> <a45> <a46> <a47> <a48> <a49> <a40>
+                          <a51> <a52> <a53> <a54> <a55> <a56> <a57> <a58> <a59> <a50>
+                          <a61> <a62> <a63> <a64> <a65> <a66> <a67> <a68> <a69> <a60>
+                          <a71> <a72> <a73> <a74> <a75> <a76> <a77> <a78> <a79> <a70>
+                          <a81> <a82> <a83> <a84> <a85> <a86> <a87> <a88> <a89> <a80>
+                          <a91> <a92> <a93> <a94> <a95> <a96> <a97> <a98> <a99> <a90>)
+   (<ap> ^columns <c1> <c2>
+         ^current-column <c1>
+         ^one-column <c1>)
+   (<c1> ^adden1 5
+         ^adden2 6
+         ^next-column <c2>)
+   (<c2> ^adden1 3
+         ^adden2 9
+         ^next-column nil)
+   (<a00> ^addend1 0 ^addend2 0 ^sum 0 ^carry 0)
+   (<a01> ^addend1 0 ^addend2 1 ^sum 1 ^carry 0)
+   (<a02> ^addend1 0 ^addend2 2 ^sum 2 ^carry 0)
+   (<a03> ^addend1 0 ^addend2 3 ^sum 3 ^carry 0)
+   (<a04> ^addend1 0 ^addend2 4 ^sum 4 ^carry 0)
+   (<a05> ^addend1 0 ^addend2 5 ^sum 5 ^carry 0)
+   (<a06> ^addend1 0 ^addend2 6 ^sum 6 ^carry 0)
+   (<a07> ^addend1 0 ^addend2 7 ^sum 7 ^carry 0)
+   (<a08> ^addend1 0 ^addend2 8 ^sum 8 ^carry 0)
+   (<a09> ^addend1 0 ^addend2 9 ^sum 9 ^carry 0)
+   (<a10> ^addend1 1 ^addend2 0 ^sum 1 ^carry 0)
+   (<a11> ^addend1 1 ^addend2 1 ^sum 2 ^carry 0)
+   (<a12> ^addend1 1 ^addend2 2 ^sum 3 ^carry 0)
+   (<a13> ^addend1 1 ^addend2 3 ^sum 4 ^carry 0)
+   (<a14> ^addend1 1 ^addend2 4 ^sum 5 ^carry 0)
+   (<a15> ^addend1 1 ^addend2 5 ^sum 6 ^carry 0)
+   (<a16> ^addend1 1 ^addend2 6 ^sum 7 ^carry 0)
+   (<a17> ^addend1 1 ^addend2 7 ^sum 8 ^carry 0)
+   (<a18> ^addend1 1 ^addend2 8 ^sum 9 ^carry 0)
+   (<a19> ^addend1 1 ^addend2 9 ^sum 0 ^carry 1)
+   (<a20> ^addend1 2 ^addend2 0 ^sum 2 ^carry 0)
+   (<a21> ^addend1 2 ^addend2 1 ^sum 3 ^carry 0)
+   (<a22> ^addend1 2 ^addend2 2 ^sum 4 ^carry 0)
+   (<a23> ^addend1 2 ^addend2 3 ^sum 5 ^carry 0)
+   (<a24> ^addend1 2 ^addend2 4 ^sum 6 ^carry 0)
+   (<a25> ^addend1 2 ^addend2 5 ^sum 7 ^carry 0)
+   (<a26> ^addend1 2 ^addend2 6 ^sum 8 ^carry 0)
+   (<a27> ^addend1 2 ^addend2 7 ^sum 9 ^carry 0)
+   (<a28> ^addend1 2 ^addend2 8 ^sum 0 ^carry 1)
+   (<a29> ^addend1 2 ^addend2 9 ^sum 1 ^carry 1)
+   (<a30> ^addend1 3 ^addend2 0 ^sum 3 ^carry 0)
+   (<a31> ^addend1 3 ^addend2 1 ^sum 4 ^carry 0)
+   (<a32> ^addend1 3 ^addend2 2 ^sum 5 ^carry 0)
+   (<a33> ^addend1 3 ^addend2 3 ^sum 6 ^carry 0)
+   (<a34> ^addend1 3 ^addend2 4 ^sum 7 ^carry 0)
+   (<a35> ^addend1 3 ^addend2 5 ^sum 8 ^carry 0)
+   (<a36> ^addend1 3 ^addend2 6 ^sum 9 ^carry 0)
+   (<a37> ^addend1 3 ^addend2 7 ^sum 0 ^carry 1)
+   (<a38> ^addend1 3 ^addend2 8 ^sum 1 ^carry 1)
+   (<a39> ^addend1 3 ^addend2 9 ^sum 2 ^carry 1)
+   (<a40> ^addend1 4 ^addend2 0 ^sum 4 ^carry 0)
+   (<a41> ^addend1 4 ^addend2 1 ^sum 5 ^carry 0)
+   (<a42> ^addend1 4 ^addend2 2 ^sum 6 ^carry 0)
+   (<a43> ^addend1 4 ^addend2 3 ^sum 7 ^carry 0)
+   (<a44> ^addend1 4 ^addend2 4 ^sum 8 ^carry 0)
+   (<a45> ^addend1 4 ^addend2 5 ^sum 9 ^carry 0)
+   (<a46> ^addend1 4 ^addend2 6 ^sum 0 ^carry 1)
+   (<a47> ^addend1 4 ^addend2 7 ^sum 1 ^carry 1)
+   (<a48> ^addend1 4 ^addend2 8 ^sum 2 ^carry 1)
+   (<a49> ^addend1 4 ^addend2 9 ^sum 3 ^carry 1)
+   (<a50> ^addend1 5 ^addend2 0 ^sum 5 ^carry 0)
+   (<a51> ^addend1 5 ^addend2 1 ^sum 6 ^carry 0)
+   (<a52> ^addend1 5 ^addend2 2 ^sum 7 ^carry 0)
+   (<a53> ^addend1 5 ^addend2 3 ^sum 8 ^carry 0)
+   (<a54> ^addend1 5 ^addend2 4 ^sum 9 ^carry 0)
+   (<a55> ^addend1 5 ^addend2 5 ^sum 0 ^carry 1)
+   (<a56> ^addend1 5 ^addend2 6 ^sum 1 ^carry 1)
+   (<a57> ^addend1 5 ^addend2 7 ^sum 2 ^carry 1)
+   (<a58> ^addend1 5 ^addend2 8 ^sum 3 ^carry 1)
+   (<a59> ^addend1 5 ^addend2 9 ^sum 4 ^carry 1)
+   (<a60> ^addend1 6 ^addend2 0 ^sum 6 ^carry 0)
+   (<a61> ^addend1 6 ^addend2 1 ^sum 7 ^carry 0)
+   (<a62> ^addend1 6 ^addend2 2 ^sum 8 ^carry 0)
+   (<a63> ^addend1 6 ^addend2 3 ^sum 9 ^carry 0)
+   (<a64> ^addend1 6 ^addend2 4 ^sum 0 ^carry 1)
+   (<a65> ^addend1 6 ^addend2 5 ^sum 1 ^carry 1)
+   (<a66> ^addend1 6 ^addend2 6 ^sum 2 ^carry 1)
+   (<a67> ^addend1 6 ^addend2 7 ^sum 3 ^carry 1)
+   (<a68> ^addend1 6 ^addend2 8 ^sum 4 ^carry 1)
+   (<a69> ^addend1 6 ^addend2 9 ^sum 5 ^carry 1)
+   (<a70> ^addend1 7 ^addend2 0 ^sum 7 ^carry 0)
+   (<a71> ^addend1 7 ^addend2 1 ^sum 8 ^carry 0)
+   (<a72> ^addend1 7 ^addend2 2 ^sum 9 ^carry 0)
+   (<a73> ^addend1 7 ^addend2 3 ^sum 0 ^carry 1)
+   (<a74> ^addend1 7 ^addend2 4 ^sum 1 ^carry 1)
+   (<a75> ^addend1 7 ^addend2 5 ^sum 2 ^carry 1)
+   (<a76> ^addend1 7 ^addend2 6 ^sum 3 ^carry 1)
+   (<a77> ^addend1 7 ^addend2 7 ^sum 4 ^carry 1)
+   (<a78> ^addend1 7 ^addend2 8 ^sum 5 ^carry 1)
+   (<a79> ^addend1 7 ^addend2 9 ^sum 6 ^carry 1)
+   (<a80> ^addend1 8 ^addend2 0 ^sum 8 ^carry 0)
+   (<a81> ^addend1 8 ^addend2 1 ^sum 9 ^carry 0)
+   (<a82> ^addend1 8 ^addend2 2 ^sum 0 ^carry 1)
+   (<a83> ^addend1 8 ^addend2 3 ^sum 1 ^carry 1)
+   (<a84> ^addend1 8 ^addend2 4 ^sum 2 ^carry 1)
+   (<a85> ^addend1 8 ^addend2 5 ^sum 3 ^carry 1)
+   (<a86> ^addend1 8 ^addend2 6 ^sum 4 ^carry 1)
+   (<a87> ^addend1 8 ^addend2 7 ^sum 5 ^carry 1)
+   (<a88> ^addend1 8 ^addend2 8 ^sum 6 ^carry 1)
+   (<a89> ^addend1 8 ^addend2 9 ^sum 7 ^carry 1)
+   (<a90> ^addend1 9 ^addend2 0 ^sum 9 ^carry 0)
+   (<a91> ^addend1 9 ^addend2 1 ^sum 0 ^carry 1)
+   (<a92> ^addend1 9 ^addend2 2 ^sum 1 ^carry 1)
+   (<a93> ^addend1 9 ^addend2 3 ^sum 2 ^carry 1)
+   (<a94> ^addend1 9 ^addend2 4 ^sum 3 ^carry 1)
+   (<a95> ^addend1 9 ^addend2 5 ^sum 4 ^carry 1)
+   (<a96> ^addend1 9 ^addend2 6 ^sum 5 ^carry 1)
+   (<a97> ^addend1 9 ^addend2 7 ^sum 6 ^carry 1)
+   (<a98> ^addend1 9 ^addend2 8 ^sum 7 ^carry 1)
+   (<a99> ^addend1 9 ^addend2 9 ^sum 8 ^carry 1)
+}
+

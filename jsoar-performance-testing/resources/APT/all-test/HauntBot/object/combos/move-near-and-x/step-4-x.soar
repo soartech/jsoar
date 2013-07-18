@@ -1,0 +1,20 @@
+# grab item if within 'grabbing distance',
+# defined as being close enough to object
+# but no TOO close... these values are set in
+# "elaborations/parameters.soar"
+sp {move-near-and-x*propose*step-4-x
+   (state <s> ^type move-near-and-x
+              ^target <target>
+              ^at-target yes
+             -^need-to-discard 
+              ^facing-target yes
+              ^next-action <na>)
+   (<na> ^name <name>
+         ^type <type>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name <name>
+        ^type <type>  
+        ^target <target>)
+}
+

@@ -1,0 +1,35 @@
+echo "\nLoading update-lastarea"
+      
+#update the current and last area 
+#fires as soon as we enter a new area
+
+sp {unreal*propose*update-lastarea
+   (state <s> ^name unreal
+              ^map <map>
+              ^io.input-link.agent.area <currentarea>)
+   (<map> ^current-area {<oldarea> <> <currentarea>})
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-lastarea
+        ^newname <currentarea>
+        ^oldname <oldarea>)
+}
+
+sp {unreal*apply*update-lastarea
+   (state <s> ^operator <o>
+              ^map <map>)
+   (<o> ^name update-lastarea
+        ^newname <nname>
+        ^oldname <oname>)
+   (<map> ^last-area <lastname>)
+   (<map> ^area <area>)
+   (<area> ^name <nname>
+           ^visited <num>)
+-->
+   (<map> ^last-area <lastname> -)
+   (<map> ^last-area <oname>)
+   (<map> ^current-area <oname> -)
+   (<map> ^current-area <nname>)
+   (<area> ^visited (+ <num> 1))
+   (<area> ^visited <num> -)
+}

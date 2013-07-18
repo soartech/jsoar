@@ -1,0 +1,72 @@
+echo "\nLoading execute-mision/defend/predict-enemy/create-enemy-state"
+
+#These rules selectively copy the input-link from the superstate in order
+#to allow the prediction to occur without looking at the real input-link.
+
+#Copy input-link.game.mapname
+sp {predict-enemy*propose*create-enemy-state
+   (state <s> ^name predict-enemy
+             -^map.current-area)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name create-enemy-state)
+}
+
+#copy enemy information to the false input-link so that the 
+#agent is the enemy (role reversal)
+sp {predict-enemy*apply*create-enemy-state*agent
+   (state <s> ^operator.name create-enemy-state
+              ^io.input-link.agent <agent>
+              ^superstate.operator.entity <enemy>)
+   (<enemy> ^health <health>
+            ^team <team>
+            ^weapon <wname>
+            ^position <pos>
+            ^aspect <asp>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+   (<asp> ^h <h>
+          ^v <v>)
+-->
+  (<agent>  ^armor-amount 0
+            ^health <health>
+            ^position <npos>
+            ^name predicted-enemy
+            ^team <team>
+            ^weapon <nwid>
+            ^angle <nasp>)
+  (<nwid> ^ammo-amount 30 
+          ^name <wname>
+          ^selected yes)
+  (<npos> ^x <x>
+          ^y <y>
+          ^z <z>)
+  (<nasp> ^yaw <h>
+          ^pitch <v>
+          ^roll 0)
+}
+
+#Copy all areas from the agent's map to the enemy's map
+sp {predict-enemy*apply*create-enemy-state*copy-map-areas
+   (state <s> ^operator.name create-enemy-state
+              ^top-state.map <map>
+              ^real-top-state.map.area <area>)
+   (<map> -^area <area>)
+-->
+   (<map> ^area <area>)
+}
+
+
+#Make the agent's current room the enemy's current room
+sp {predict-enemy*apply*create-enemy-state*current-area
+   (state <s> ^operator.name create-enemy-state
+              ^top-state.map <map>
+              ^superstate.operator.entity.area <area>)
+   (<map> -^current-area)
+-->
+   (<map> ^current-area <area>)
+}
+
+
+

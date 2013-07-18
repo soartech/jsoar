@@ -1,0 +1,20 @@
+sp {pickup-block*propose*move-forward
+   (state <s> ^name pickup-block
+              ^block-id <id>
+              ^top-state.parameters <param>
+              ^io.input-link.object <o>)
+   (<param> ^pickup-range <pr>
+            ^pickup-angle-off-pos <aop>
+            ^pickup-angle-off-neg <aon>)
+   (<o> ^type block
+        ^id <id>
+       -^position.angle-off >= <aop>
+       -^position.angle-off <= <aon>
+        ^visible yes
+       -^range < <pr>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-forward
+         ^actions.move.direction forward
+         ^actions.rotate.direction stop)
+}

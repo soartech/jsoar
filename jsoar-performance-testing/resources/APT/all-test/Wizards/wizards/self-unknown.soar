@@ -1,0 +1,29 @@
+## Do'nt know your own mark
+
+sp {wizards*propose*self-unknown
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^name <name>
+         ^wizard <w>)
+   (<w> ^name <name>
+       -^mark)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name self-unknown
+         ^wizard <w>
+         ^knows <k1>)
+}
+
+sp {apply*self-unknown
+   (state <s> ^operator <op>)
+   (<op> ^name self-unknown
+         ^wizard <w>
+         ^knows <k1>)
+   (<w> ^name <name>)
+   (<k1> ^name <kname>)
+-->
+   (write (crlf) |From | <kname> |'s view | <name> | is unknown.|)
+   (<w> ^mark <m>)
+   (<m> ^type variable
+         ^untried-value white black)
+}

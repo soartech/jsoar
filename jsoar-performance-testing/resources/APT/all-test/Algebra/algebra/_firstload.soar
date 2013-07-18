@@ -1,0 +1,4 @@
+# Algebra:
+#    Does simple algebra problems (one variable). It parses raw
+#    text input (from SoarTextIO) into a tree structure, solves
+#    the problem in that representation and then prints out the answer.

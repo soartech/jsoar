@@ -1,0 +1,23 @@
+echo "\nLoading behavior/unlock"
+                
+#
+# if a key and a locked item both exist, propose 
+# unlocking the item
+#
+sp {behavior*propose*unlock
+   (state <s> ^name haunt
+              ^available <a>)
+   (<a> ^text-source <book>    ##FIXME: currently only considers books
+        ^unlock-tool <tool>)
+   (<book> ^locked true)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name unlock
+        ^type use-tool
+        ^target <book>
+        ^tool <tool>)
+}
+
+
+
+

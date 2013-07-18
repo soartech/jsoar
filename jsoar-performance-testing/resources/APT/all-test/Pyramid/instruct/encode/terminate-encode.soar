@@ -1,0 +1,14 @@
+sp {encode*propose*terminate-encode
+   (state <s> ^name encode
+              ^current-problem-ptr nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name terminate-encode)
+}
+
+sp {apply*terminate-encode
+   (state <s> ^operator.name terminate-encode
+              ^superstate.current-problem <p>)
+-->
+   (<p> ^encoded true)
+}

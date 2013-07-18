@@ -1,0 +1,19 @@
+#####################################
+# file: goto-next-location
+# created: JEL 11-05-02
+## Modified elaborations/missions.soar - unreal*elaborate*achieved*area
+#
+
+sp {roam*propose*goto-next-location
+   (state <s> ^name roam
+             -^top-state.map.current-area <area>
+              ^objective.current-roam-area.area <area>
+              ^top-state.parameters.default-walk-speed <spd>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name goto-next-location
+        ^type move-to-area
+        ^speed <spd>
+        ^area <area>)
+}
+

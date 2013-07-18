@@ -1,0 +1,3 @@
+pushd UCBot
+source UCBot_source.soar
+popd

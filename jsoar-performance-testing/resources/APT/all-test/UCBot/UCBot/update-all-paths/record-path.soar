@@ -1,0 +1,48 @@
+### Should not have to have test for negative-spaces and gateway in these proposals. 
+## I think this is an artifact of the way the map is originally built.
+
+
+sp {update-all-paths*propose*record-path*connected-area
+   (state <s> ^name update-all-paths
+              ^top-state.map.areas.area <current-area>)
+   (<current-area> ^connected-area <connected-area>
+                   ^negative-spaces.negative-space <gateway>)
+  -{(<current-area> ^path <path>)
+    (<path> ^to-area <connected-area>)}
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name record-path
+         ^type connected-area
+         ^area-count 1
+         ^source-area <current-area>
+         ^destination-area <connected-area>)
+}
+
+# If the agent is in an area, and there are paths in adjacent areas to areas for
+# which paths don't exist from the current area to (or which are longer), then record
+# the new path.
+sp {update-all-paths*propose*record-path*unconnected-area
+   (state <s> ^name update-all-paths
+              ^top-state.map <map>)
+   (<map> ^areas.area <current-area>)
+   (<current-area> ^connected-area <connected-area>
+                   ^negative-spaces.negative-space <gateway>)
+   (<connected-area> ^path <path>)
+   (<path> ^area-count <area-count>
+           ^to-area { <to-area> <> <current-area> })
+  -(<current-area> ^path.to-area <to-area>)
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+-->
+   (<s> ^operator <op> + = 1)
+   (<op> ^name record-path
+         ^type unconnected-area
+         ^area-count (+ <area-count> 1)
+         ^area-count-minus-one <area-count>
+         ^source-area <current-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+}
+

@@ -1,0 +1,35 @@
+sp {algebra*propose*clean-up-problem
+   (state <s> ^name algebra
+              ^problem.status solved)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name clean-up-problem)
+}
+
+sp {algebra*apply*clean-up-problem1
+   (state <s> ^operator.name clean-up-problem
+              ^problem <p>
+              ^current-clause <cc>
+              ^io.input-link.text <text>)
+-->
+   (<s> ^current-clause <cc> -
+         ^processed <text>
+         ^problem <np>
+                 <p> -)
+   (<np> ^status initialized)
+}
+
+sp {algebra*apply*clean-up-problem1*print-id
+   (state <s> ^operator.name clean-up-problem
+              ^print-id <pid>)
+-->
+   (<s> ^print-id <pid> -)
+}
+
+sp {algebra*apply*clean-up-problem1*added
+   (state <s> ^operator.name clean-up-problem
+              ^added <a>)
+-->
+   (<s> ^added <a> -)
+}
+

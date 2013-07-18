@@ -1,0 +1,20 @@
+sp {move-to-room-center*propose*go-to
+   (state <s> ^name move-to-room-center
+             -^collision true
+              ^top-state.parameters.default-storage-displacement <dsd>
+              ^top-state.current-location <cl>)
+   (<dsd> ^x <dx>
+          ^y <dy>)
+   (<cl> ^x <x>
+         ^y <y>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name go-to
+         ^destination <d>
+         ^range 1.0
+         ^pickup-block yes)
+   (<d> ^id 1001001
+        ^x (+ <dx> <x>)
+        ^y (+ <dy> <y>))
+}
+

@@ -1,0 +1,4 @@
+source elaborations.soar
+source forget-dead-enemy.soar
+source goto-next-room.soar
+source turn-to-enemy.soar

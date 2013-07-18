@@ -1,0 +1,85 @@
+##################################### 
+# file: sweep-step.soar 
+# created: REW: 2001-08-23
+## 
+# Take a step in the process of executing a scan sweep.
+#
+# Change history: 
+# 
+#  [1]  
+
+echo "\nLoading execute-mission/sentry-watch/scan-for-contacts/sweep-step.soar"
+                
+# When there is no ^next-step-time, propose the operator to start stepping.
+# The actual step action is embedded in the actions computation, but is not 
+# executed until the operator is selected.
+sp {scan-for-contacts*propose*sweep-step*start
+   (state <s> ^name scan-for-contacts
+              ^objective.sentry-watch.scan <scan>
+              ^step-rate <sr>
+              ^top-state.io.input-link.agent.angle.yaw <yaw>)
+   (<scan> ^number-of-steps <nos>
+          -^next-step-time)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name sweep-step
+        ^initialized false
+        ^actions.face-abs (+ <yaw> <sr>) )
+#   (write (crlf) | Starting scan....|)
+}
+
+
+# when there is a next-step-time, when propose to take another step when the time is greater
+# than the next scan time.
+sp {scan-for-contacts*propose*sweep-step*time-for-next-step
+   (state <s> ^name scan-for-contacts
+              ^objective.sentry-watch.scan <scan>
+              ^step-rate <sr>
+              ^top-state.io.input-link.agent <ag>
+                                             )
+   (<ag>  -^time < <t>
+          ^angle.yaw <yaw>)
+   (<scan> ^number-of-steps <nos>
+           ^next-step-time <t>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name sweep-step
+        ^actions.face-abs (+ <yaw> <sr>) )
+   (write (crlf) |Continuing scan .....|)
+}
+
+# Create next-step-time with the computed value of the next step time.
+sp {apply*sweep-step*scan*next-step-time*initialize
+   (state <s> ^operator <o1>
+              ^step-rate <sr>
+              ^objective.sentry-watch.scan <scan>
+              ^top-state.io.input-link.agent.time <t>)
+   (<o1> ^name sweep-step
+         ^initialized false)
+   -->
+   (<scan> ^next-step-time (+ <t> <sr>) )
+#   (write (crlf) |Current time | <t> | Next step in scan at: | (+ <t> <sr>) )
+}
+
+# Update the next-step-time
+sp {apply*sweep-step*scan*next-step-time
+   (state <s> ^operator <o1>
+              ^step-rate <sr>
+              ^objective.sentry-watch.scan <scan>
+              ^top-state.io.input-link.agent.time <t>)
+   (<o1> ^name sweep-step
+        -^initialized false)
+   (<scan> ^next-step-time <nst>)
+   -->
+   (<scan> ^next-step-time <nst> - (+ <t> <sr> ) )
+}
+
+# Decrement the number of steps.
+sp {apply*sweep-step*decrement*number-of-steps
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.scan <scan>)
+   (<o1> ^name sweep-step)
+   (<scan> ^number-of-steps <nos>)
+   -->
+   (<scan> ^number-of-steps <nos> - (- <nos> 1) )
+}

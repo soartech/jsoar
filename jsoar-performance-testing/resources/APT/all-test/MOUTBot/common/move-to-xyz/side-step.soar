@@ -1,0 +1,16 @@
+echo "\nLoading move-to-xyz/sidestep"
+
+sp {all*propose*sidestep
+   (state <s> ^type move-to-xyz
+              ^top-state <ts>)
+   (<ts> ^parameters.opposite.{ << left right >> <side> } <oside>
+         ^self.stuck <side>)
+  - (<s> ^io.input-link.feedback.side-step <oside>
+        -^top-state.self.stopped true)
+   -->
+  (write (crlf) |SIDE STEP | <oside>)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name side-step
+        ^actions <a>)
+   (<a> #^thrust back
+        ^side-step <oside>)}

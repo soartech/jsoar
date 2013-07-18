@@ -1,0 +1,83 @@
+##################################### 
+# file: move-to-concealment.soar 
+# created: REW: 2001-08-21
+## 
+# 
+# An agent on sentry-watch should find a reaasonably concealed position.  
+#
+# For now, this is only
+# a gross approximation until we find the right kinds of environmental feedback to determine
+# concealment.
+#
+# Change history: 
+# 
+#  [1]
+
+echo "\nLoading execute-mission/sentry-watch/find-concealed-position.soar"
+
+# If there's not yet a concealed-position computed, then propose find-concealed-position.
+
+sp {sentry-watch*propose*find-concealed-position
+   (state <s> ^name sentry-watch
+              ^objective <obj>)
+   (<obj> ^type sentry-watch
+          ^sentry-watch.status executing
+          -^defensive-position.concealed-position)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name find-concealed-position)
+}
+
+# REW: 2002-08-21
+# Just changing the x val is a hack until I can figure out how to do this.... after feelers are fixed
+# Make sure to compute the concealed position from the original defensive position, not the current position
+# (this probably will not make sense once feelers are working)
+
+sp {apply*find-concealed-position*window
+   (state <s> ^operator <o1>
+              ^objective <obj> 
+              ^top-state.parameters.window-half-width <width>)
+   (<o1> ^name find-concealed-position)
+   (<obj> ^defensive-position <dp>)
+   (<dp> ^type window ^original-position <op> ^position <pos>)
+   (<op> ^x <x> ^y <y> ^z <z>)
+   -->
+   (<dp> ^concealed-position <cp>)
+   (<cp> ^x (- <x> <width>) ^y <y> ^z <z>)
+   (<dp> ^position <pos> - <cp> +)
+}
+
+
+# REW: 2002-08-22 
+# For now, I'm just assuming that the agent begins at the 
+# right window.  When the feelers are fixed, we'll need to 
+# update this so that the agent actually determines if it's
+# to the left or right of the window.
+
+# Assume if you are to the left of a window, you want to look
+# out to the right so adjust the orientation by adding.
+sp {apply*find-concealed-position*left-side-of-window
+   (state <s> ^operator <o1> 
+              ^objective <obj>
+              ^top-state.parameters.sentry-threat-offset <sto>)
+   (<o1> ^name find-concealed-position)
+   (<obj> ^threat <th> ^defensive-position.type window)
+   (<th> ^direction <dir>)
+   -->
+   (<th> ^direction <dir> - (+ <dir> <sto>) + )
+}
+
+# REW: 2002-09-30
+# For absolute position defns, just assume this position is concealed
+sp {apply*find-concealed-position*absolute
+   (state <s> ^operator <o1>
+              ^objective <obj> )
+   (<o1> ^name find-concealed-position)
+   (<obj> ^defensive-position <dp>)
+   (<dp> ^type absolute ^original-position <op> ^position <pos>)
+   (<op> ^x <x> ^y <y> ^z <z>)
+   -->
+   (<dp> ^concealed-position <cp>)
+   (<cp> ^x <x> ^y <y> ^z <z>)
+   (<dp> ^position <pos> - <cp> +)
+}

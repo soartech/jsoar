@@ -1,0 +1,90 @@
+echo |Finish Trial|
+sp {UCBot*propose*finish-trial*go-to-flag*source
+   (state <s> ^name UCBot
+              ^mission <m>
+              ^flag <f>
+              ^parameters <p>)
+   (<p> ^update-all-paths true
+        ^explore-or-flag go-to-flag)
+   (<m> ^updated-all-paths true
+        ^achieved-flag <f>
+       -^complete true)
+-->
+   (<s> ^operator <op> !)
+   (<op> ^name finish-trial
+         ^type finish)
+}
+
+sp {UCBot*propose*finish-trial*go-to-flag*target
+   (state <s> ^name UCBot
+              ^mission <m>
+              ^flag <f>
+              ^parameters <p>)
+   (<p> -^update-all-paths true
+         ^explore-or-flag go-to-flag)
+   (<m> ^achieved-flag <f>
+       -^complete true)
+-->
+   (<s> ^operator <op> !)
+   (<op> ^name finish-trial
+         ^type finish)
+}
+
+sp {UCBot*propose*finish-trial*explore-all*source
+   (state <s> ^name UCBot
+              ^mission <m>
+              ^flag <f>
+              ^parameters <p>
+              ^map.search-complete true)
+   (<p> ^update-all-paths true
+        ^explore-or-flag explore-all)
+   (<m> ^updated-all-paths true
+        ^achieved-flag <f>
+       -^complete true)
+-->
+   (<s> ^operator <op> !)
+   (<op> ^name finish-trial
+         ^type finish)
+}
+
+sp {UCBot*apply*finish-trial
+   (state <s> ^operator <op>
+              ^io.output-link <ol>
+              ^mission <m>)
+   (<op> ^name finish-trial
+         ^type finish)
+-->
+   (<ol> ^mark.value halt
+         ^move.direction none
+         ^turn.direction none
+         ^strafe.direction none
+         ^jump.direction none)
+   (<m> ^complete true)
+}
+
+sp {UCBot*monitor*finish-trial
+   (state <s> ^operator <op>
+             -^parameters.monitor-level none)
+   (<op> ^name finish-trial
+         ^type finish)
+-->
+   (write (crlf) |Trial is complete!|)
+}
+
+#oh, shush
+sp {UCBot*propose*finish-trial*halt
+   (state <s> ^name UCBot
+              ^mission.complete true)
+-->
+   (<s> ^operator <op> !)
+   (<op> ^name finish-trial
+         ^type halt)
+}
+
+sp {UCBot*apply*finish-trial*halt
+   (state <s> ^operator <op>)
+   (<op> ^name finish-trial
+         ^type halt)
+-->
+   (halt)
+}

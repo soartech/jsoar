@@ -1,0 +1,32 @@
+
+# Compute actual cartesian distance to area, based on nearest entry node
+sp {explore*elaborate*move-to-area*straightline-dist
+   (state <s> ^type explore
+              ^operator <o> +
+              ^map.current-area.path <path>
+              ^io.input-link.agent.position <apos>)
+   (<o> ^type move-to-area
+         ^area <area>)
+   (<path> ^destination-area <area>
+           ^via-node.position <npos>)
+   (<npos> ^x <node-x>
+           ^y <node-y>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+-->
+   #(write (crlf) |Distance to via-node leading to area | <area> | = | (compute-range <node-x> <node-y> <agent-x> <agent-y>))
+   (<o> ^straightline-dist (compute-range <node-x> <node-y> <agent-x> <agent-y>))
+}
+
+
+
+sp {explore*elaborate*unvisited
+   (state <s> ^type explore
+              ^operator <o> +)
+   (<o> ^type move-to-area
+        ^area.completed-search no)
+   -->
+   (<s> ^operator <o> >)
+   (<o> ^unvisited yes)
+}
+

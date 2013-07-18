@@ -1,0 +1,160 @@
+echo "\nLoading explore/record-path"
+
+#GENERAL NOTES:
+#After much anguish and frustration the design for pathing in Haunt (currently)
+#stands as follows:  The bot records only one path from an area to any other 
+#area even if there might be multiple paths of equal (or near-equal length).
+#
+#Calculating more paths is expensive.  There are O(N^N) paths that do not 
+#traverse a room more than once, for any map of N rooms.  Andy's attempts
+#to calculate the shortest, useful paths have met with disaster.  His
+#best disaster included 244,000+ partial matches on the worst rule.
+#Andy and John both agree that multiple paths would be tactically useful,
+#but they disagree as to how often.  Andy thinks that more paths should be
+#recorded on the map and would like to pursue a method or recording the paths
+#using an incremental method in a subgoal (which hopefully wouldn't put 
+#unreasonable demands on the RETE).  John thinks that alternate paths will 
+#be needed infrequently enough that they can be calculated during the simulation
+#using a search algorithm.  Since John is wiser and signs the paychecks, so
+#Andy has deferred...but he waits silently in the wings for his
+#opportunity to *POUNCE* should more effective paths be needed on the map.
+
+
+#IF:
+#1.  I have finished searching my current area
+#2.  There is an entryway path (distance 1) from my current 
+#    area to some nearby area
+#3.  The nearby area is not a dead-end
+#4.  There is a path from the nearby area to some distant area
+#5.  The same path has been recorded in the opposite direction.
+#6.  A shorter path between the current area and the distant area
+#    has not already been recorded.
+#THEN:
+#    Propose recording a path from the distant area to the 
+#    current area (and vice-versa) via the nearby area.
+sp {explore*propose*record-path
+   (state <s> ^type explore
+              ^top-state.map.current-area <current-area>)
+   (<current-area> ^completed-search yes
+                   ^path <entry-path>)
+   (<entry-path> ^distance 1
+                 ^via-node <src-via-node>
+                 ^destination-area <nearby-area>)
+   (<nearby-area> ^path <long-path>
+                  ^dead-end false)
+   (<long-path>  ^destination-area { <distant-area> <> <current-area> }
+                 ^distance <dist>)
+   (<distant-area> ^path <reverse-path>)
+   (<reverse-path> ^destination-area <nearby-area>
+                   ^distance <dist>
+                   ^via-node <dest-via-node>)
+  -{
+   (<current-area> ^path <shorter-path>)
+   (<shorter-path> ^destination-area <distant-area>
+                   ^distance-minus-one <= <dist>)
+   }
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name record-path
+        ^source-area <current-area>
+        ^nearby-area <nearby-area>
+        ^intermediate-area <nearby-area>
+        ^destination-area <distant-area>
+        ^distance (+ 1 <dist>)
+        ^distance-minus-one <dist>
+        ^src-via-node <src-via-node>
+        ^dest-via-node <dest-via-node>)
+   (write (crlf) <o> |: Propose record path: current-area:| <current-area> | nearby-area:| <nearby-area> | distant:| <distant-area> | distance:| (+ 1 <dist>) | src-via-node:| <src-via-node>)
+}
+
+
+
+#Record all new paths before moving on
+sp {explore*compare*record-path-trumps-movement
+   (state <s> ^type explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record-path)
+   (<o2> ^type << move-to-area move-to-node >>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#Record the path
+sp {apply*record-path-src-to-dest
+   (state <s> ^operator <o>)
+   (<o> ^name record-path
+        ^source-area <current-area>
+        ^destination-area <dest-area>
+        ^distance <dist>
+        ^distance-minus-one <dmo>
+        ^src-via-node <src-via-node>
+        ^dest-via-node <dest-via-node>)
+   (<current-area> ^name <src-area-name>)
+   (<dest-area> ^name <dest-area-name>)
+-->
+   (<current-area> ^path <new-path>)
+   (<new-path> ^destination-area <dest-area>
+               ^distance <dist>
+               ^distance-minus-one <dmo>
+               ^via-node <src-via-node>)
+   (write (crlf) <o> |: Record a path | <new-path> | between | <src-area-name> | and | <dest-area-name>)
+}
+
+#Record the path in the opposite direction
+sp {apply*record-path-dest-to-src
+   (state <s> ^operator <o>)
+   (<o> ^name record-path
+        ^source-area <current-area>
+        ^destination-area <dest-area>
+        ^distance <dist>
+        ^distance-minus-one <dmo>
+        ^dest-via-node <dest-via-node>
+        ^src-via-node <src-via-node>)
+   (<current-area> ^name <src-area-name>)
+   (<dest-area> ^name <dest-area-name>)
+-->
+   (<dest-area> ^path <new-path>)
+   (<new-path> ^destination-area <current-area>
+               ^distance <dist>
+               ^distance-minus-one <dmo>
+               ^via-node <dest-via-node>)
+   (write (crlf) <o> |: Record a path | <new-path> | between | <dest-area-name> | and | <src-area-name>)
+}
+
+#If the new path is shorter than the existing one,
+#then delete the existing one
+sp {apply*record-path*remove-old-src-to-dest-path
+   (state <s> ^operator <o>)
+   (<o> ^name record-path
+        ^source-area <current-area>
+        ^destination-area <dest-area>
+        ^distance <dist>
+        ^src-via-node <src-via-node>)
+   (<current-area> ^path <existing-path>)
+   (<existing-path> ^destination-area <dest-area>
+                    ^distance > <dist>)
+-->
+   (<current-area> ^path <existing-path> -)
+}
+
+#Delete the existing path in reverse as well
+#NOTE: This rule could be combined with the above since
+#      paths are always created in pairs. I'm not aware 
+#      of any advantage to doing it either way.
+sp {apply*record-path*remove-old-dest-to-src-path
+   (state <s> ^operator <o>)
+   (<o> ^name record-path
+        ^source-area <current-area>
+        ^destination-area <dest-area>
+        ^distance <dist>
+        ^dest-via-node <dest-via-node>)
+   (<dest-area> ^path <existing-path>)
+   (<existing-path> ^destination-area <current-area>
+                    ^distance > <dist>)
+-->
+   (<dest-area> ^path <existing-path> -)
+}
+
+##############################################
+

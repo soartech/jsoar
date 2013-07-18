@@ -1,0 +1,54 @@
+sp {clean-house*elaborate*block
+   (state <s> ^name robot
+              ^parameters.objects-held-in epmem
+              ^current-location <area>
+             -^current-location.storage-area yes
+              ^io.input-link.objects.object <obj>)
+   (<s> ^objects <b>)
+   (<obj> ^x <x> ^y <y>
+          ^id <id>
+          ^type <type>
+          ^color <color>
+          ^height <height>
+          ^smell <smell>
+          ^shape <shape>)
+-->
+   (<b> ^object <nb>)
+   (<nb> ^x <x> ^y <y>
+         ^id <id>
+         ^in-storage-room no
+         ^area <area>
+         ^class object
+         ^type <type>
+         ^color <color>
+         ^height <height>
+         ^smell <smell>
+         ^shape <shape>)
+}
+sp {clean-house*elaborate*block*storage
+   (state <s> ^name robot
+              ^current-location.storage-area yes
+              ^current-location <area>
+              ^parameters.objects-held-in epmem
+              ^io.input-link.objects.object <obj>)
+   (<s> ^objects <b>)
+   (<obj> ^x <x> ^y <y>
+          ^id <id>
+          ^type <type>
+          ^color <color>
+          ^height <height>
+          ^smell <smell>
+          ^shape <shape>)
+-->
+   (<b> ^object <nb>)
+   (<nb> ^x <x> ^y <y>
+         ^id <id>
+         ^area <area>
+         ^in-storage-room yes
+         ^class object
+         ^type <type>
+         ^color <color>
+         ^height <height>
+         ^smell <smell>
+         ^shape <shape>)
+}

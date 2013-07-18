@@ -1,0 +1,43 @@
+#echo "\nLoading wander/hide"
+
+################################
+### Propose hide operator
+################################
+
+## Hide in rooms at random
+##  Look for enemies and items to pick up.
+
+sp {wander*propose*hide
+   (state <s> ^name wander
+             -^top-state.self.get-object
+              ^current-room.hiding-place <hp>)
+  -{(<s> ^io.input-link.agent.cycle > <ht>
+         ^current-room.search.hide-time <ht>)}
+   -->
+#  (tcl |tsiDisplayAndSendCommand stop-soar|)
+#  (write (crlf) |Suggest Hide here.|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name hide)
+   }
+
+sp {wander*reject*hide
+   (state <s> ^operator <o> +
+             -^io.input-link.agent.cycle < <ht>
+              ^current-room.search.hide-time <ht>)
+   (<o> ^name hide)
+   -->
+   (<s> ^operator <o> -)
+   }
+
+sp {wander*apply*hide*record-hide-time
+   (state <s> ^operator.name hide
+              ^io.input-link.agent <agent>
+              ^current-room.search <ss>)
+   (<agent> ^cycle <ct>
+	    ^random-number <rand>)
+   (<ss> -^hide-time)
+   -->
+   (<ss> ^hide-time (+ <ct> (* <rand> 200)))
+   }
+
+

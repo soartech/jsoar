@@ -1,0 +1,73 @@
+
+sp {propose*face-attack*health
+   (state <s> ^name quake
+             -^enemy-detected
+             -^self.retreat
+             -^predicting true
+              ^self.saved-health.cycle <ct>
+              ^io.input-link.agent <agent>)
+   (<agent> -^cycle >= <ct>
+             ^angle.yaw <yaw>)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-attack
+        ^actions.faceabs (round-off-heading (+ 180 <yaw>) 1))}
+
+sp {apply*face-attack
+   (state <s> ^operator.name update-health
+              ^self.saved-health <ss>
+              ^io.input-link.agent.cycle <ct>)
+   (<ss> ^cycle { <oct> <> <ct> })
+   -->
+   (<ss> ^cycle <oct> -
+                <ct>)}
+
+sp {propose*face-attack*armor
+   (state <s> ^name quake
+             -^enemy-detected
+             -^self.retreat
+             -^predicting true
+              ^self.saved-armor.cycle <ct>
+              ^io.input-link.agent <agent>)
+   (<agent> -^cycle >= <ct>
+             ^angle.yaw <yaw>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-attack
+        ^actions.faceabs (round-off-heading (+ 180 <yaw>) 1))}
+
+sp {apply*face-attack*armor
+   (state <s> ^operator.name update-armor
+              ^self.saved-armor <ss>
+              ^io.input-link.agent.cycle <ct>)
+   (<ss> ^cycle { <oct> <> <ct> })
+   -->
+   (<ss> ^cycle <oct> -
+                <ct>)}
+
+sp {select*face-attack
+   (state <s> ^name quake
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name face-attack)
+   (<o2> ^name << explore chase record-sound remove-sound predict-enemy ambush hunt collect-powerups deny-powerups wander >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+
+sp {propose*face-attack*shot
+   (state <s> ^name quake
+             -^enemy-detected
+             -^self.retreat
+             -^predicting true
+              ^io.input-link.agent.angle.yaw <> <ay>
+              ^io.input-link.sound.sound <sound>)
+   (<sound> ^angle-yaw <ay>
+            ^type << railgun_fire chaingun_fire hyperblaster_fire blaster_fire shotgun_fire supershotgun_fire machinegun_fire rocket_fire >>)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-attack
+        ^actions.faceabs <ay>)}
+

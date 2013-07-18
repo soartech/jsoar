@@ -1,0 +1,173 @@
+# Initialization routines for the bot.
+
+sp {propose*initialize-UCBot
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-UCBot)
+}
+
+# Initialize the mission, the basic map skeleton, and some
+# parameters.
+sp {apply*initialize-UCBot
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-UCBot)
+-->
+   (<s> ^problem-space <ps>
+        ^depth 0
+        ^desired <f1>
+        ^mission <mission>
+        ^map <map>
+        ^parameters <params>
+        ^headings <head>
+        ^flags <flags>
+        ^flag <f1>
+        ^canvas <canvas>)
+   (<ps> ^name uct
+         ^default-state-copy no)
+   (<mission> ^type first-to-flag
+              ^updated-all-paths true) ### true ### false
+   (<map> ^areas <areas>
+          ^search-complete false)
+   (<head> ^north 90
+           ^south 270
+           ^east 0
+           ^west 180)
+   (<params> ^heading-left-threshold 7.5
+             ^heading-right-threshold -7.5
+             ^gateway-buffer 17
+             ^explore-or-flag go-to-flag
+             ^load-map true ###true ### false
+             ^update-all-paths false ###false ### true
+             ^search-origin none
+             ^search-strategy breadth-first
+             ^internal-simulation true
+             ^initial-area-id 115
+             ^monitor-level all)
+   (<flags> ^flag <f1>)
+## JEL's flags
+#   (<f2> ^x 1150 ^y 2200
+#         ^area-id 29 ^previous-id 29)
+#   (<f1> ^x 1500 ^y 1800
+#         ^area-id 107 ^previous-id 107)
+# level 0 scenario 2
+   (<f1> ^x 1846.0 ^y 115
+         ^area-id 107 ^previous-id 107
+         ^better lower)   
+## level 1 scenario 1 source 
+#   (<f1> ^x 2064.0 ^y -272.0
+#         ^area-id 100 ^previous-id 100
+#         ^better lower)
+## level 1 scenario 1 target 
+#   (<f1> ^x 1872.0 ^y 496.0
+#         ^area-id 100 ^previous-id 100
+#         ^better lower)
+## level 2 scenario 1
+#   (<f1> ^x -471.0 ^y -552.0
+#         ^area-id 115 ^previous-id 115
+#         ^better lower)
+#   (<f2> ^x 1846.0 ^y -196.9
+#         ^area-id 107 ^previous-id 107
+#         ^better lower)
+## level 2 scenario 2
+#   (<f1> ^x 1776.0 ^y -304.0
+#         ^area-id 107 ^previous-id 107
+#         ^better lower)
+#   (<f2> ^x -471.0 ^y -552.0
+#         ^area-id 115 ^previous-id 115
+#         ^better lower)
+   (exec set_scale |-696 2296 -688 2748|)
+}
+
+sp {apply*initialize-UCBot*start-log
+   (state <s> ^operator.name initialize-UCBot
+              ^parameters.internal-simulation false
+              ^io.output-link <ol>)
+-->
+   (<ol> ^mark.value start)
+}
+
+#sp {apply*initialize-UCBot
+#   (state <s> ^operator <op>)
+#   (<op> ^name initialize-UCBot)
+#-->
+#   (<s> ^problem-space <ps>
+#        ^desired <f1>
+#        ^mission <mission>
+#        ^map <map>
+#        ^parameters <params>
+#        ^headings <head>
+#        ^flags <flags>
+#        ^flag <f1>)
+#   (<ps> ^name uct
+#         ^default-state-copy no)
+#   (<mission> ^type first-to-flag)
+#   (<map> ^areas <areas>
+#          ^search-complete false)
+#   (<head> ^north 90
+#           ^south 270
+#           ^east 0
+#           ^west 180)
+#   (<params> ^heading-left-threshold 7.5
+#             ^heading-right-threshold -7.5
+#             ^gateway-buffer 25
+#             ^explore-or-flag go-to-flag
+#             ^load-map true
+#             ^search-origin original-location
+#             ^search-strategy breadth-first
+#             ^internal-simulation true
+#             ^initial-area-id 3)
+#   (<flags> ^flag <f1>
+#            ^flag <f2>)
+#   (<f2> ^x 1150 ^y 2200
+#         ^area-id 29
+#         ^previous-id 15) # s/b 2
+#   (<f1> ^x 1500 ^y 1800
+#         ^area-id 3
+#         ^previous-id 3) # s/b 16
+#   (exec set_scale |-696 2296 -688 2748|)
+#}
+## Set start area for internal-simulation
+sp {apply*initialize-UCBot*set-current-area-internal-simulation
+   (state <s> ^operator.name initialize-UCBot
+              ^map <m>
+              ^parameters <p>)
+   (<m> ^areas.area <area>)
+   (<p> ^load-map true
+        ^initial-area-id <id>
+        ^internal-simulation true)
+   (<area> ^id <id>)
+-->
+   (<s> ^name UCBot)
+   (<m> ^current-area <area>)}
+
+sp {apply*initialize-UCBot*internal-map
+   (state <s> ^operator.name initialize-UCBot
+              ^map.areas
+              ^parameters <p>)
+   (<p> ^load-map true
+       -^internal-simulation true)
+-->
+   (<s> ^name UCBot)}
+
+# If we're not loading the map, finish initialization by setting the top-state name.
+sp {apply*initialize-UCBot*dont-load-map
+   (state <s> ^operator.name initialize-UCBot
+             -^parameters.load-map true
+              ^map.areas)
+-->
+   (<s> ^name UCBot)
+}
+
+sp {go-to-flag*elaborate*mark-dead-end
+   (state <s> ^operator.name initialize-UCBot
+              ^top-state.map <m>)
+   (<m> ^areas.area <ca>)
+   (<ca> ^connected-area <con-area1>)
+  -(<ca> ^connected-area <> <con-area1>)
+   (<ca> ^id <id>)
+   (<con-area1> ^id <cid>)
+-->
+   (<ca> ^dead-end true)
+}

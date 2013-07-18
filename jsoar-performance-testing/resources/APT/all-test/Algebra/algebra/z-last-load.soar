@@ -1,0 +1,10 @@
+
+#sp {algebra*propose*finish-failed
+#   (state <s> ^name algebra
+#              ^problem.status printed)
+#-->
+#   (<s> ^operator <op> !)
+#   (<op> ^name finish)
+#}
+#
+#excise algebra*propose*solve-problem

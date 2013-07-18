@@ -1,0 +1,20 @@
+
+sp {propose*use-relation-to-describe
+   (state <s> ^name describe-variable
+              ^define failure
+             -^relation)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name use-relation)
+}
+
+sp {attempt*use-relation-to-describe
+   (state <s> ^name describe-variable
+              ^operator.name use-relation
+              ^role <arg>
+              ^top-state <ts> )
+   (<ts> ^instructions.relations <r1>)
+   (<r1> ^term <arg>)
+-->
+   (<s> ^relation <r1>)
+}

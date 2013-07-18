@@ -1,0 +1,22 @@
+echo "\nLoading init-lastnode"
+      
+#seed the last node
+#should fire once on game entry
+
+sp {all*propose*init-lastnode
+   (state <s> ^name unreal
+              ^top-state.map <map>)
+   (<map> -^last-node <x>)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name init-lastnode)
+}
+
+sp {all*apply*init-lastnode
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name init-lastnode)
+-->
+   (<map> ^last-node <ln>)
+   (<ln> ^name |none|)
+}

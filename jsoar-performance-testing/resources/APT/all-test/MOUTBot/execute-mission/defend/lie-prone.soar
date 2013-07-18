@@ -1,0 +1,25 @@
+echo "Loading defend/lie-prone"
+
+# Conditions under which it makes sense to lie-prone when defend
+
+# REW: 2003-06-09
+# For now, just lie-prone whenever defensive position is achieved
+# and desired body position is lie-prone
+
+sp {defend*propose*lie-prone
+   (state <s> ^name defend
+              ^objective.defensive-position <dp>
+              ^desired-body-position lie-prone
+              ^top-state <ts>)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true)
+   (<ts> 
+         ^self.body-position <> lie-prone
+        -^self.changing-body-position)
+   -->
+   (write (crlf) |lie-prone on defend|)
+   (<s> ^operator <o> + = )
+   (<o> ^name lie-prone
+        ^actions.lie-prone true)
+}
+

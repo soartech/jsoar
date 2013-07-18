@@ -1,0 +1,66 @@
+##################################### 
+# file: report-contacts.soar 
+# created: REW: 2001-08-26
+## 
+# Report any contacts (or changes in number of contacts)
+#
+# Note: For now, we assume that all contacts can be reported together.  
+# In reality, we likely need to be able to sort, at least by quadrant
+# and range (ie, 3 targets bearing 230, range 60m; 2 targets bearing 290,
+# range 80m, rather than just "5 targets" as reported now)
+#
+# Change history: 
+# 
+#  [1]
+
+sp {sentry-watch*propose*report-contacts*new-count
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.contacts <th>)
+   (<th> ^last-report <lr> ^total-contacts { > 0 <count> }
+         # Ensures that all counting is complete at this time
+        -^new-contact)
+   (<lr> ^time <time> ^count { < <count> <oldcount> })
+   -->
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name report-contacts)
+}
+
+# REW: this is a hack of a sort.  I assume that the contact reported
+# is in the direction of the agent's current orientation.  In reality,
+# the agent should determine the actual direction(s) of the contact(s),
+# but .... for another day.
+sp {apply*report-contacts*report
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>
+              ^objective <obj>
+              ^top-state.io.input-link.agent.angle.yaw <dir>)
+   (<obj> 
+          ^sentry-watch.contacts.total-contacts <num>)
+   (<o1> ^name report-contacts)
+   -->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name enemy-approaching 
+         ^content <con>)
+   (<con> ^number <num>
+          ^from <dir>)
+}
+
+# Whenever the agent sends a report, it remembers what is sent last and when, in order to 
+# be able to decide when/if to send another.
+
+sp {apply*report-contacts*update-last-report
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>
+              ^objective <obj>
+              ^top-state.io.input-link.agent.time <time>)
+   (<obj> 
+          ^sentry-watch.contacts <th>)
+   (<th> ^last-report <lr> 
+         ^total-contacts <num>)
+   (<o1> ^name report-contacts)
+   (<lr> ^time <otime> ^count <onum>)
+   -->
+   (<lr> ^time <otime> - <time> +
+         ^count <onum> - <num> +)
+}
+

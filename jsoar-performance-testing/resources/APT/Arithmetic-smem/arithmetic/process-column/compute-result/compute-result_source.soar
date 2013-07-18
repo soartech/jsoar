@@ -1,0 +1,12 @@
+source elaborations.soar
+source add-ten.soar
+source add-via-counting.soar
+pushd add-via-counting
+source add-via-counting_source.soar
+popd
+source borrow.soar
+source compute-result.soar
+source subtract-via-counting.soar
+pushd subtract-via-counting
+source subtract-via-counting_source.soar
+popd

@@ -1,0 +1,35 @@
+sp {hide*propose*move-to-new-room
+   (state <s> ^name hide
+              ^current-area.hide-door.connected-node.area <area>
+              ^top-state.parameters.default-run-speed <spd>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-new-room
+        ^type move-to-area
+        ^area <area>
+        ^speed <spd>)
+}
+
+sp {hide*apply*move-to-new-room
+   (state <s> ^name hide
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^map.current-area <carea>
+         ^self <self>
+         ^io.input-link.agent <agent>
+         ^parameters.hiding-time <ht>)
+   (<agent> ^rand <rand>
+            ^time <time>)
+  -{(<self> ^hiding <h>)
+    (<h> ^original-area <carea>
+         ^hiding-area <harea>)}
+   (<o> ^name move-to-new-room
+        ^area <harea>)
+-->
+   (write (crlf) |Hide until : | (+ <time> (* <rand> (+ 5 <ht>))) |, now: | <time>| seconds.|)
+   (<self> ^hiding <h>)
+   (<h> ^original-area <carea>
+        ^hiding-area <harea>
+        ^hiding-time (+ <time> (* <rand> (+ 5 <ht>))) )
+}
+

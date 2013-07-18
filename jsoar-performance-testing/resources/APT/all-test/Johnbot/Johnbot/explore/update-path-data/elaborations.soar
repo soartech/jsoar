@@ -1,0 +1,6 @@
+sp {update-path-data*elaborate*room
+   (state <s> ^name update-path-data
+              ^superstate.operator.room <r>)
+   -->
+   (<s> ^room <r>)}
+

@@ -1,0 +1,41 @@
+### Not an operator in Soar - just an elaboration
+
+## If see two black marks on other wizards, must have a white.
+
+sp {wizards*propose*deduce-bbw
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^wizard <w1> { <w2> <> <w1> } { <w3> <> <w1> <> <w2> }
+        ^name <name>)
+   (<w1> ^mark black)
+   (<w2> ^mark black)
+   (<w3> ^name <name>)
+-->
+   (write (crlf) | Deduce that from | <name> |'s view | <name> |'s mark is white.|)
+   (<w3> ^mark white)}
+
+sp {wizards*propose*deduce-bbw*v1
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^wizard <w1> { <w2> <> <w1> } { <w3> <> <w1> <> <w2> }
+        ^name <name>)
+   (<w1> ^mark.value black)
+   (<w2> ^mark black)
+   (<w3> ^name <name>)
+-->
+   (write (crlf) | Deduce that from | <name> |'s view | <name> |'s mark is white.|)
+   (<w3> ^mark white)}
+
+
+sp {wizards*propose*deduce-bbw*v3
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^wizard <w1> { <w2> <> <w1> } { <w3> <> <w1> <> <w2> }
+        ^name <name>)
+   (<w1> ^mark.value black)
+   (<w2> ^mark.value black)
+   (<w3> ^name <name>)
+-->
+   (write (crlf) | Deduce that from | <name> |'s view | <name> |'s mark is white.|)
+   (<w3> ^mark white)
+}

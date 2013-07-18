@@ -1,0 +1,250 @@
+echo "\nLoading common/move-to-xyz"
+                
+# Move to an arbitrary xyz coordinate
+# should have a ^pos attribute on the operator (xyz coordinate)
+sp {unreal*apply*move-to-xyz
+   (state <s> ^operator <o>
+             -^top-state.self.stuck << left right front >>)
+   (<o> ^type move-to-xyz
+        ^position <pos>
+       -^actions)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+-->
+#   (write (crlf) |Moving to xyz without thrust: | <pos> |:| <x> |, | <y> |, | <z> )
+   (<o> ^actions <act>)
+   (<act> ^move-to <pos1>)
+   (<pos1> ^z <z>)}
+
+sp {unreal*apply*move-to-xyz*x-ok
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area <area>
+        ^actions.move-to <pos>
+        ^position.x { >= <min-e-x> <= <max-e-x> <x>} )
+   (<area> ^min-edge-x <min-e-x>
+           ^max-edge-x <max-e-x>)
+-->
+   (<pos> ^x <x>)}
+
+sp {unreal*apply*move-to-xyz*x-low
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area.min-edge-x <min-e-x>
+        ^actions.move-to <pos>
+        ^position.x { <x> < <min-e-x> })
+-->
+#   (write (crlf) |*** Corrected x too small *** | <x> |: | <min-e-x>)
+   (<pos> ^x <min-e-x>)}
+
+sp {unreal*apply*move-to-xyz*x-high
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area.max-edge-x <max-e-x>
+        ^actions.move-to <pos>
+        ^position.x { <x> > <max-e-x> })
+-->
+#   (write (crlf) |*** Corrected x too big *** | <x> |: | <max-e-x>)
+   (<pos> ^x <max-e-x>)}
+
+sp {unreal*apply*move-to-xyz*y-ok
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area <area>
+        ^actions.move-to <pos>
+        ^position.y { >= <min-e-y> <= <max-e-y> <y>})
+   (<area> ^min-edge-y <min-e-y>
+           ^max-edge-y <max-e-y>)
+-->
+   (<pos> ^y <y>)}
+
+sp {unreal*apply*move-to-xyz*y-low
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area.min-edge-y <min-e-y>
+        ^actions.move-to <pos>
+        ^position.y { < <min-e-y> <y>})
+-->
+#   (write (crlf) |*** Corrected y too small *** | <y> |: | <min-e-y>)
+   (<pos> ^y <min-e-y> )}
+
+sp {unreal*apply*move-to-xyz*y-high
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^area.max-edge-y <max-e-y>
+        ^actions.move-to <pos>
+        ^position.y { <y> > <max-e-y> })
+-->
+#   (write (crlf) |*** Corrected y too large *** | <y> |: | <max-e-y>)
+   (<pos> ^y <max-e-y>)}
+
+
+# Add speed if available
+sp {move-to-xyz*elaborate*speed
+   (state <s> ^operator <o> +)
+   (<o> ^type move-to-xyz
+        ^position <pos>
+        ^speed <speed>)
+-->
+   (<pos> ^speed <speed>)
+#   (write (crlf) | Set speed to | <speed>)
+}
+
+sp {unreal*apply*move-to-xyz*speed
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^position.speed <speed>
+        ^actions.move-to <pos>)
+-->
+   (<pos> ^speed <speed>)}
+
+##############
+
+
+sp {unreal*apply*move-to-xyz*create-movement-structure
+   (state <s> ^operator <o>
+              ^io.input-link.agent.time <time>
+              ^top-state <ts>)
+   (<ts> ^parameters <p>
+         ^self <self>)
+   (<p> ^detect-stuck-time <dst>
+        ^detect-stuck-bad-time <dsbt>)
+   (<o> ^type move-to-xyz
+        ^actions.move-to <pos>)
+   (<pos> ^x <x>
+          ^y <y>
+          ^z <z>)
+  -(<self> ^move-to-xyz.actions <act>)
+-->
+   (<self> ^move-to-xyz <xyz>)
+   (<xyz> ^position <pos1>
+          ^actions.move-to <pos1>
+          ^stuck-time (+ <time> <dst>)
+          ^stuck-bad-time (+ <dsbt> <time>))
+   (<pos1> ^x <x>
+           ^y <y>
+           ^z <z>)
+}
+
+sp {unreal*apply*move-to-xyz*remove-movement-structure*changed*action
+   (state <s> ^operator <o>
+              ^top-state.self <self>)
+   (<o> ^type move-to-xyz
+        ^actions.move-to <pos1>)
+   (<pos1> ^x <x>
+           ^y <y>
+           ^z <z>)
+   (<self> ^move-to-xyz <xyz>)
+   (<xyz> ^actions.move-to <pos2>)
+  -(<pos2> ^x <x>
+           ^y <y>
+           ^z <z>)
+-->
+   (<self> ^move-to-xyz <xyz> -)}
+
+#AMN: 2002-Aug-27
+#Elaborate the range to the bot's destination
+sp {move-to-xyz*elaborate*range-to-destination
+   (state <s> ^operator <o> +
+              ^top-state.self.speed-lookup-table <slt>
+              ^io.input-link.agent.position <pos>)
+   (<o> ^type move-to-xyz
+        ^position <dest-pos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<dest-pos> ^x <dx>
+               ^y <dy>)
+-->
+   #This is causing datamap errors I do not understand...
+   (<o> ^range (compute-range <x> <y> <dx> <dy>))
+}
+
+
+#AMN: 2002-Aug-27
+#Elaborate the speed bot should travel to its destination
+#based on the range.  (See ^self.speed-lookup-table)
+
+# REW: 2002-09-27
+# (AMN email, 2002-09-27, 20:31)
+#sp {move-to-xyz*elaborate*speed
+#   (state <s> ^operator <o> +
+#              ^top-state.self.speed-lookup-table <slt>)
+#   (<o> ^type move-to-xyz
+#        ^range <range>
+#        ^actions.move-to <pos>)
+#   (<slt> ^entry <e>)
+#   (<e> ^min-thresh <= <range>
+#        ^max-thresh > <range>
+#        ^speed <speed>)
+#-->
+#   (<pos> ^speed <speed>)
+#   #(write (crlf) | Adjusting speed to | <speed>)
+#}
+
+
+#
+#sp {unreal*elaborate*move-xyz*xyz-heading
+#   (state <s> ^operator <o>
+#              ^top-state.io.input-link.agent.position <ap>)
+#   (<ap> ^x <x1>
+#         ^y <y1>)
+#   (<o> ^type move-to-xyz
+#        ^position <pos>)
+#   (<pos> ^x <x2>
+#          ^y <y2>)
+#   -->
+#   (write (crlf) |Move-to-xyz heading: | (round-off-heading (- 90 (compute-heading <x1> <y1> <x2> <y2>)) 1))
+#   (<o> ^xy-heading (round-off-heading (- 90 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+#
+#sp {unreal*elaborate*move-xyz*action*face-abs
+#   (state <s> ^operator <o>)
+#   (<o> ^type move-to-xyz
+#        ^xy-heading <heading>)
+#   -->
+#   (<o> ^actions.face-abs <heading>)}
+#
+#sp {unreal*elaborate*move-xyz*xyz-range
+#   (state <s> ^operator <o>
+#              ^top-state.io.input-link.agent.position <ap>)
+#   (<ap> ^x <x1>
+#         ^y <y1>)
+#   (<o> ^type move-to-xyz
+#        ^position <pos>)
+#   (<pos> ^x <x2>
+#          ^y <y2>)
+#   -->
+#   (write (crlf) |Move-to-xyz range: | (compute-range <x1> <y1> <x2> <y2>))
+#   (<o> ^xy-range (compute-range <x1> <y1> <x2> <y2>))}
+#
+#
+#sp {unreal*elaborate*move-xyz*action*thrust
+#   (state <s> ^operator <o>
+#              ^top-state.parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { > <near-range> })
+#   -->
+#   (<o> ^actions.thrust front)}
+#
+#sp {unreal*elaborate*move-xyz*action*thrust*stopped
+#   (state <s> ^operator <o>
+#              ^top-state <ts>)
+#   (<ts> ^self.stopped true
+#         ^parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { <= <near-range> })
+#   -->
+#   (<o> ^actions.thrust front)}
+#
+#sp {unreal*elaborate*move-xyz*action*brake
+#   (state <s> ^operator <o>
+#              ^top-state <ts>)
+#   (<ts> -^self.stopped true
+#          ^parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { <= <near-range> })
+#   -->
+#   (<o> ^actions.brake on)}
+#
+#
+#

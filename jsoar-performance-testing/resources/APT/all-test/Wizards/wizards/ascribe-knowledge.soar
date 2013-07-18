@@ -1,0 +1,61 @@
+#Ascribes public knowledge to internal model of another wizard
+
+## If somebody knows that there is a mark on another wizard, then
+##  a wizard he is thinking about has access to that unless it is about 
+## that second wizard
+
+sp {wizards*propose*ascribe-knowledge
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^wizard <w1> 
+         ^knows <k2>)
+   (<w1> ^mark <m> 
+         ^name <n1>)
+   (<k2> ^name <> <n1>)
+  -{(<k2> ^wizard <ww>)
+    (<ww> ^name <n1>
+          ^mark <m>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name ascribe-knowledge
+         ^knows <k2>
+         ^wizard-name <n1>
+         ^attribute mark
+         ^mark <m>)
+}
+sp {wizards*propose*ascribe-knowledge*guess
+   (state <s> ^name wizards
+              ^knows <k1>)
+   (<k1> ^wizard <w1> 
+         ^knows <k2>)
+   (<w1> ^guessed <m> 
+         ^name <n1>)
+  -(<k2> ^name <n1>)
+  -{(<k2> ^wizard <ww>)
+    (<ww> ^name <n1>
+          ^guessed <m>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name ascribe-knowledge
+         ^knows <k2>
+         ^wizard-name <n1>
+         ^attribute guessed
+         ^guessed <m>)
+}
+
+sp {apply*ascribe-knowledge
+   (state <s> ^operator <op>)
+   (<op> ^name ascribe-knowledge
+         ^knows <k>
+         ^wizard-name <n>
+         ^attribute <var>
+         ^<var> <m>)
+   (<k> ^wizard <w>
+        ^name <wname>)
+   (<w> ^name <n>)
+-->
+   (write (crlf) |In wizard's | <wname> | view, wizard | <n> | has | <var> | | <m>)
+   (<w> ^<var> <m>)
+}
+
+

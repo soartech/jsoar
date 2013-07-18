@@ -1,0 +1,3 @@
+pushd wizards
+source wizards_source.soar
+popd

@@ -1,0 +1,73 @@
+sp {initialize-player-list*propose*add-player
+   (state <s> ^name initialize-player-list
+              ^superstate <ss>)
+   (<ss> ^io.input-link.players.player <player>
+         ^player-list <pl>)
+  -(<pl> ^player.id <id>)
+   (<player> ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-player
+         ^player <player>)
+}
+
+sp {apply*add-player
+   (state <s> ^operator <op>
+              ^superstate <ss>)
+   (<ss> ^player-list <pl>)
+   (<pl> ^current-player <cp>
+         ^first-player)
+   (<op> ^name add-player
+         ^player <player>)
+   (<cp> ^next-player nil)
+   (<player> ^id <id>
+             ^me <me>
+             ^dice-counts <dcs>
+             ^alternative-dice-counts <acs>
+             ^name <string>
+             ^pushed <pushed>
+             ^cup <cup>)
+-->
+   (<pl> ^current-player <cp> -
+                         <np>
+         ^player <np>)
+   (<cp> ^next-player <np>
+                      nil -)
+   (<np> ^id <id>
+         ^me <me>
+         ^name <string>
+         ^dice-counts <dcs>
+         ^alternative-dice-counts <acs>
+         ^next-player nil
+         ^pushed <pushed>
+         ^cup <cup>)
+}
+
+sp {apply*add-player*first-player
+   (state <s> ^operator <op>
+              ^superstate <ss>)
+   (<ss> ^player-list <pl>)
+   (<pl> -^first-player)
+   (<op> ^name add-player
+         ^player <player>)
+   (<player> ^id <id>
+             ^me <me>
+             ^name <string>
+             ^dice-counts <dcs>
+             ^alternative-dice-counts <acs>
+             ^pushed <pushed>
+             ^cup <cup>)
+-->
+   (<pl> ^current-player <np>
+         ^first-player <np>
+         ^player <np>)
+   (<np> ^id <id>
+         ^me <me>
+         ^name <string>
+         ^dice-counts <dcs>
+         ^alternative-dice-counts <acs>
+         ^next-player nil
+         ^pushed <pushed>
+         ^cup <cup>)
+}
+ 

@@ -1,0 +1,51 @@
+sp {exploit*elaborate*substate
+   (state <s> ^name go-to-flag
+              ^superstate <ss>)
+   (<ss> ^problem-space <ps>
+         ^desired <d>
+         ^operator.flag <f>)
+-->
+   (<s> ^problem-space <ps>
+        ^desired <d>
+        ^flag <f>)
+}
+#
+sp {go-to-flag*elaborate*path*blocked
+   (state <s> ^name go-to-flag
+              ^top-state.map.current-area.path <path>
+              ^flag.area-id <id>)
+   (<path> ^to-area.id <id>
+           ^gateway.blocked true)
+-->
+   (<s> ^path-blocked true)
+}
+
+########################
+## This will go away soon - avoid chunking this
+#sp {explore*elaborate*gateway*centroid
+#   (state <s> ^operator <op> +
+#              ^quiescence t)
+#   (<op> ^path.gateway <gateway>)
+#   (<gateway> ^id <id>
+#              ^vertices <v>
+#             -^centroid)
+#   (<v> ^vertex1 <v1>
+#        ^vertex2 <v2>)
+#   (<v1> ^x <x1> ^y <y1>)
+#   (<v2> ^x <x2> ^y <y2>)
+#-->
+#   (<gateway> ^centroid <c>)
+#   (<c> ^x (/ (+ <x1> <x2>) 2)
+#        ^y (/ (+ <y1> <y2>) 2))}
+#
+#sp {go-flag*elaborate*gateway*centroid*distance*to*flag
+#  (state <s> ^name go-to-flag
+#             ^operator <op> +
+#             ^top-state.flag <f>)
+#  (<op> ^path.gateway <gateway>
+#        ^type connected-area)
+#  (<gateway> ^centroid <c>)
+#  (<f> ^x <fx> ^y <fy>)
+#  (<c> ^x <x1> ^y <y1>)
+#-->
+#  (<op> ^distance-to-flag (compute-range <x1> <y1> <fx> <fy>))}

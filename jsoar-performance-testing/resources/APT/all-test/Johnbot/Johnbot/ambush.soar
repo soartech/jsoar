@@ -1,0 +1,86 @@
+echo "\nLoading ambush"
+## Suggest ambush if there is a hiding place
+
+sp {quake*propose*ambush*hide
+   (state <s> ^name quake
+              ^map.explored true
+             -^predicting true
+             -^self.get-objects-exist true
+              ^map.current-room.hiding-place <hp>
+              ^self.tactics full)
+  -{(<s> ^io.input-link.agent.cycle > <ht>
+         ^map.current-room.search.hide-time <ht>)}
+   -->
+   (write (crlf) |Suggest ambush here.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name ambush
+        ^type hide)
+   }
+
+sp {quake*select*ambush*random
+   (state <s> ^name quake
+              ^io.input-link.agent.random-number > 80
+              ^operator <o1> +)
+   (<o1> ^name ambush ^type hide)
+   -->
+   (<s> ^operator <o1> >)}
+
+## Suggest ambush if in room enemy goes to a lot
+
+sp {quake*propose*ambush*enemy-room
+   (state <s> ^name quake
+              ^map.explored true
+              ^self.tactics full
+             -^self.get-objects-exist true
+              ^parameters.enemy-visit-cutoff <ecc>
+              ^map <map>)
+   (<map> -^room.enemy-visit-count > <evc>
+           ^current-room.enemy-visit-count { > <ecc> <evc> })
+  -{(<s> ^io.input-link.agent.cycle > <ht>
+         ^map.current-room.search.hide-time <ht>)}
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name ambush
+        ^type enemy-room)}
+
+sp {quake*select*ambush-hide
+   (state <s> ^name quake
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name ambush ^type hide)
+   (<o2> ^name ambush ^type enemy-room)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+## Suggest Ambush if in room I predict enemy will go to.
+
+sp {quake*propose*ambush*predict-final-room
+   (state <s> ^name quake
+              ^map.explored true
+              ^top-state <ts>)
+   (<ts> #-^self.get-objects-exist true
+          ^enemy.prediction-final-room-number <frn>
+          ^map.current-room.room-number <frn>)
+ # -{(<s> ^io.input-link.agent.cycle > <ht>
+ #        ^map.current-room.search.hide-time <ht>)}
+ # Base prediction hide-time on enemy
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name ambush
+        ^type prediction)}
+
+## Record how long will sit in ambush spot.
+
+sp {quake*apply*ambush*record-hide-time
+   (state <s> ^operator.name ambush
+              ^io.input-link.agent <agent>
+              ^top-state.parameters.max-hide-time <mht>
+              ^map.current-room.search <ss>)
+   (<agent> ^cycle <ct>
+	    ^random-number <rand>)
+   (<ss> -^hide-time)
+   -->
+   (<ss> ^hide-time (+ <ct> (* <rand> <mht>)))
+   }
+
+

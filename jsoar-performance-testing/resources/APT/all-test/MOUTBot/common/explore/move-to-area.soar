@@ -1,0 +1,52 @@
+echo "\nLoading explore/move-to-area"
+
+#propose moving to any known area
+sp {move-to-node*propose*move-to-known-area
+   (state <s> ^name explore
+              ^io.input-link.agent.area <currentarea>
+              ^top-state.map <map>)
+   (<map> ^area <area1>)
+   (<area1> ^name <currentarea>
+            ^path <path>)
+   (<path> ^destination-area <area2>
+           ^distance <dist>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-area
+        ^area <area2>
+        ^path-length <dist>) 
+}
+
+#prefer shorter paths
+sp {explore*compare*move-to-area*unvisited
+   (state <s> ^name explore             
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-area
+         ^path-length <dist>
+         ^unvisited)
+   (<o2> ^name move-to-area
+         ^path-length > <dist>
+         ^unvisited)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#prefer shorter paths
+sp {explore*compare*move-to-area*visited 
+   (state <s> ^name explore             
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-area
+         ^path-length <dist>
+        -^unvisited
+        -^currentarea
+        -^lastarea)
+   (<o2> ^name move-to-area
+         ^path-length > <dist>
+         -^unvisited
+         -^currentarea
+         -^lastarea)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

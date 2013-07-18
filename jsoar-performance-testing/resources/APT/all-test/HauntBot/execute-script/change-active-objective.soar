@@ -1,0 +1,31 @@
+##################################### 
+# file: change-active-objective.soar 
+# created: REW: 2001-08-27
+## 
+# Determine what the active objective should be.  
+#
+# Note: For now, this is really change the achieved sentry-watch to defensieve-position (and back), but the general idea
+# is to make this the operator that handles new objectives.
+#
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-script/change-active-objective.soar"
+
+
+
+
+# SEARCH CONTROL
+# Changing the active objective should take precedence over everything else
+
+sp {execute-script*compare*change-active-objective
+   (state <s> ^name execute-script
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name change-active-objective)
+   (<o2> ^name <> change-active-objective)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

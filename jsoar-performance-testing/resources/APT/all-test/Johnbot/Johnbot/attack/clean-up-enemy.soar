@@ -1,0 +1,38 @@
+#echo "\nLoading attack/clean-up-enemy"
+
+## If enemy reappears, remove old stuff.
+
+sp {attack*propose*clean-up-enemy
+   (state <s> ^name attack
+              ^top-state.enemy <e>)
+   (<e> ^forget-time 
+        ^sensed-enemy.sensor <sensor>)
+   (<sensor> ^visible true
+             ^infront true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name clean-up-enemy)}
+
+sp {attack*apply*clean-up-enemy*remove
+   (state <s> ^operator.name clean-up-enemy
+              ^top-state.enemy <e>)
+   (<e> ^forget-time <x>
+        ^old-angle-off <oao>
+        ^old-range <or>)
+   -->
+   (<e> ^forget-time <x> -
+        ^old-angle-off <oao> -
+        ^old-range <or> -)}
+
+
+sp {attack*select*clean-up-enemy
+   (state <s> ^name attack
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name clean-up-enemy)
+   (<o2> ^name << shoot approach-enemy >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+
+

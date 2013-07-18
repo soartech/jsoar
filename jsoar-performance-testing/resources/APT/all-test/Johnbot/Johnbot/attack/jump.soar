@@ -1,0 +1,69 @@
+#echo "\nLoading attack/jump"
+
+## door-facing and door-facing-check computed in elaborations.soar
+
+sp {attack*propose*jump
+   (state <s> ^name attack
+             -^io.input-link.agent.cycle < <ct>
+             -^io.output-link.jump
+              ^top-state.self.jump-time <ct>  
+             -^enemy.weapon << weapon_railgun weapon_chaingun weapon_rocketlauncher >>
+              ^top-state.self.tactics full)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |Propose Jump!|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name jump
+        ^actions.jump up)}
+
+sp {attack*apply*jump
+   (state <s> ^io.input-link.agent.cycle <ct>
+              ^top-state.self <self> 
+              ^operator.name jump)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<self> ^jump-time (+ <ct> 200))}
+
+sp {attack*apply*jump*remove
+   (state <s> ^io.input-link.agent.cycle <ct>
+              ^top-state.self <self> 
+              ^operator.name attack)
+   (<self> ^jump-time { <jt> < <ct> })
+   -->
+   (<self> ^jump-time <jt> -)}
+
+sp {attack*apply*output-link*remove
+   (state <s> ^io.input-link.agent.cycle <ct>
+              ^io.output-link <ol> 
+              ^top-state.self.jump-time { <jt> < <ct> } 
+              ^operator.name attack)
+    (<ol> ^jump <v>)
+    (<v> ^value up)
+   -->
+   (<ol> ^jump <v> -)}
+
+#sp {attack*propose*jump
+#   (state <s> ^name attack
+#              ^io.input-link <il>)
+#   (<il> -^feedback.climb up
+#          ^entity.projectile.will-hit true)
+#   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+#   (write (crlf) |Jump!|)
+#   (<s> ^operator <o> + =, >)
+#   (<o> ^name jump
+#        ^actions.climb up)}
+
+#sp {attack*propose*crouch
+#  (state <s> ^name attack
+#            -^io.input-link.feedback.jump on
+#             ^io.input-link.entity.projectile.will-hit true)
+#  -->
+#  (<s> ^operator <o> + =, >)
+#  (<o> ^name crouch
+#       ^actions.crouch on)}
+
+
+
+
+

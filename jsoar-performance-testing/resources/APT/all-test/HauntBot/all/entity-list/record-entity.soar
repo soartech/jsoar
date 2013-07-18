@@ -1,0 +1,52 @@
+echo "\nLoading all/record-entity"
+
+#
+# add an entity to the internal list
+#
+
+sp {all*propose*record-entity
+   (state <s> ^name haunt
+              ^io.input-link.objects.entity <entity>
+             -^entity-list.entity.name <new-name>)
+(<entity> ^name <new-name>
+             ^visible true)
+
+-->
+#   (write (crlf) |Propose record entity: | <new-name>) 
+   (<s> ^operator <o> + >,=)
+   (<o> ^name record-entity
+        ^entity <entity>)
+}
+
+# remove entity specified by parent state's operator
+sp {all*apply*record-entity
+   (state <s> ^name haunt
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts>      ^entity-list <e-list>
+              ^io.input-link.agent.time <time>
+              ^parameters.record-entity-duration <duration>)
+   (<o> ^name record-entity
+        ^entity <entity>)
+   (<entity> ^area-name <area-name>
+             ^name <name>
+             ^position <pos>)
+   (<pos> ^x <x>
+          ^y <y> 
+          ^z <z>)
+-->
+#   (write (crlf) |Recording entity|)
+   (<e-list> ^entity <new>)
+   (<new> ^name <name>
+          ^area-name <area-name>
+          ^position <new-pos>
+          ^record-time (+ 5 <time>)
+          ^expire-time (+  <time> <duration>))
+   (<new-pos> ^x <x>
+              ^y <y>
+              ^z <z>)
+}
+
+
+
+                         

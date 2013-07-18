@@ -1,0 +1,111 @@
+# Idea:
+#  When the agent is exploring, it builds up current paths from the current area
+#  to all of the areas that it can see from connected areas.  Unfortunately, as our
+#  paths are one-way, this means that occasionally an agent can return to an area and
+#  not be able to build all of the paths that it needs.
+#   Example: Agent starts in an area in a corner with one area that it can see from the
+#   current area.  It explores for a while, and then happens to fall back into the initial
+#   area.  Unfortunately, it hasn't visited the one connected area in a while either, so
+#   it has no paths to get to areas that it wants to explore.
+#  During exploration, there are two types of areas that an agent might want to visit
+#  (as destinations, not waypoints): the first is an unrecorded area, and the second is
+#  a partially recorded area.  If the agent finds itself in a situation in which it can't
+#  find a path from the current area to either of those two types of areas, it will propagate
+#  path information around.
+#  Propagation is accomplished by iteratively improving paths to areas of interest.
+
+# Propose propagating paths to unrecorded areas when the agent is at an impasse.
+# A possible path to build is one that combines a one-step path to a connected region with a
+# path from the connected region to an unrecorded area.  Since all proposed path propagations
+# aren't necessarily executed, this guarantees that the agent won't encounter the situation
+# where two areas think that the path to an area go through each other, and the agent gets
+# stuck in an infinite loop.
+
+sp {explore*propose*propogate-path*unrecorded
+   (state <s> ^superstate.name explore
+              ^attribute state
+              ^choices none
+              ^top-state.map <map>)
+   (<map> ^areas.area <no-path>)
+   (<no-path> ^connected-area <has-path>
+             -^path.to-area <unrecorded>)
+   (<has-path> ^path <base-path>)
+   (<base-path> ^to-area <unrecorded>
+                ^area-count <unrecorded-count>)
+   (<unrecorded> -^recorded true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name propogate-path
+         ^area-count (+ <unrecorded-count> 1)
+         ^area-count-minus-one <unrecorded-count>
+         ^source-area <no-path>
+         ^destination-area <unrecorded>
+         ^connected-area <has-path>)
+}
+
+# Propose propagating path information to the head of the partially-
+# recorded list.  Paths are built as in the above production.
+sp {explore*propose*propogate-path*partially-recorded-head
+   (state <s> ^superstate.name explore
+              ^attribute state
+              ^choices none
+              ^top-state.map <map>)
+   (<map> ^areas.area <no-path>
+          ^partially-recorded-head <partial>)
+   (<no-path> ^connected-area <has-path>
+             -^path.to-area <partial>)
+   (<has-path> ^path <base-path>)
+   (<base-path> ^to-area <partial>
+                ^area-count <partial-count>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name propogate-path
+         ^area-count (+ <partial-count> 1)
+         ^area-count-minus-one <partial-count>
+         ^source-area <no-path>
+         ^destination-area <partial>
+         ^connected-area <has-path>)
+}
+
+# Performs the path propagation.  This rule is very similar to the
+# record-path application productions.
+sp {explore*apply*propogate-path
+   (state <s> ^operator <op>)
+   (<op> ^name propogate-path
+         ^area-count <area-count>
+         ^area-count-minus-one <area-count-minus-one>
+         ^source-area <source-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+   (<source-area> ^negative-spaces.negative-space <gateway>
+                  ^id <source-id>)
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+   (<to-area> ^id <to-id>)
+-->
+   (<source-area> ^path <forward-path>)
+   (<forward-path> ^area-count <area-count>
+                   ^area-count-minus-one <area-count-minus-one>
+                   ^from-area <source-area>
+                   ^to-area <to-area>
+                   ^next-area <connected-area>
+                   ^gateway <gateway>)
+}
+
+sp {explore*monitor*propogate-path
+   (state <s> ^operator <op>
+              ^top-state.parameters.monitor-level all)
+   (<op> ^name propogate-path
+         ^area-count <area-count>
+         ^area-count-minus-one <area-count-minus-one>
+         ^source-area <source-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+   (<source-area> ^negative-spaces.negative-space <gateway>
+                  ^id <source-id>)
+   (<gateway> ^id <id>)
+   (<connected-area> ^id <id>)
+   (<to-area> ^id <to-id>)
+-->
+   (write (crlf) |PROPOGATING path from | <source-id> | to | <to-id> | with count | <area-count>)
+}

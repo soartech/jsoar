@@ -1,0 +1,24 @@
+
+# The agent will move through the gateway if it can walk on a heading that is
+# orthogonal to the gateway and will cross the gateway between the two vertices.
+sp {move-to-area*propose*move-through-gateway
+   (state <s> ^name move-to-area
+              ^quiescence t
+              ^superstate.operator.path.gateway <gateway>
+              ^within-gateway true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-through-gateway
+         ^gateway <gateway>
+         ^speed walk)
+}
+
+sp {move-to-area*monitor*move-through-gateway
+   (state <s> ^operator <op>
+              ^top-state.parameters.monitor-level all)
+   (<op> ^name move-through-gateway
+         ^gateway <gateway>)
+   (<gateway> ^id <id>)
+-->
+   (write (crlf) |Moving through gateway | <gateway> |, area | <id>)
+}

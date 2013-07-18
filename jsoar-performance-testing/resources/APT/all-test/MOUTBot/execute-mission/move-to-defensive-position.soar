@@ -1,0 +1,14 @@
+sp {execute-mission*propose*move-to-defensive-position
+   (state <s> ^name execute-mission
+              ^mission.active-objective <ob>)
+    (<ob> ^type << defend-entryway defend-hall defend-room >>
+          ^defensive-position <dp>)
+    (<dp> ^position <pos>
+         ^area-achieved true
+        -^position-achieved true)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-defensive-position
+        ^type move-to-xyz
+        ^position <pos>) 
+}

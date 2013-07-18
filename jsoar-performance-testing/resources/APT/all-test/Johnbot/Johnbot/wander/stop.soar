@@ -1,0 +1,20 @@
+sp {search-room*propose*stop
+   (state <s> ^name search-room
+              ^top-state.direction-map.<d>.angle <ang>
+              ^direction <d> 
+             -^current-room.search.searched stop)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name stop)}
+#        ^actions <a>)
+ #  (<a> ^thrust off
+  #      ^faceabs <ang>)}
+
+sp {search-room*apply*stop
+   (state <s> ^current-room.search <ss>
+              ^operator.name stop)
+   -->
+   (<ss> ^searched stop)}
+
+        
+              

@@ -1,0 +1,15 @@
+
+sp {goto-item*propose*select-target 
+   (state <s> ^name goto-item
+              ^item <item>
+             -^io.input-link.feedback.selecttarget <sid>)
+   (<item> ^sensor.visible true
+           ^sensor.infront true
+           ^soar-id <sid>
+           ^classname <cname>)
+   -->
+#   (write (crlf) |Try using select-target: | <item> |, | <cname>)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name select-target
+        ^actions.selecttarget <sid>)}
+

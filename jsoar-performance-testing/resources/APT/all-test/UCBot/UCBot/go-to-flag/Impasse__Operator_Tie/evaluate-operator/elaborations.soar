@@ -1,0 +1,153 @@
+sp {evaluate*operator*copy-top-state
+   (state <s> ^superstate <ss>)
+   (<ss> ^operator.name evaluate-operator
+         ^top-state <ts>)
+   (<ts> ^map <map>
+         ^depth <depth>
+         ^flag <flag>
+         ^mission <mission>
+         ^parameters <para>
+         ^problem-space <ps>
+         ^canvas <canvas>
+         ^desired <d>)
+   (<map> ^areas <areas>
+          ^search-complete <sc>
+          ^current-area <current-area>)
+   (<mission> ^type <type>)
+-->
+   (<s> ^top-state <ts2>
+        ^problem-space <ps>)
+   (<ts2> ^depth <depth>
+          ^map <map1>
+          ^flag <flag>
+          ^problem-space <ps>
+          ^canvas <canvas>
+          ^mission <mission1>
+          ^parameters <para>
+          ^desired <d>)
+   (<map1> ^areas <areas>
+           ^search-complete <sc>
+           ^current-area <current-area>)
+   (<mission1> ^type <type>)}
+
+sp {evaluate*elaborate*copy-previous-area
+   (state <s> ^superstate <ss>
+              ^top-state.map <map>)
+   (<ss> ^operator.name evaluate-operator
+         ^top-state <ts>)
+   (<ts> ^map { <> <map> <map2> })
+   (<map2> ^previous-area <area>)
+-->
+   (<map> ^previous-area <area>)}
+
+#################################
+## Evaluation Success
+
+#################################
+## Evaluation Success
+
+sp {go-to-flag*elaborate*success
+   (state <s> ^name go-to-flag
+              ^top-state <ts>)
+   (<ts> ^mission.achieved-flag <flag>
+         ^desired <d>)
+-->
+   (<s> ^success <d>)}
+
+sp {go-to-flag*elaborate*success*depth
+   (state <s> ^name go-to-flag
+              ^top-state <ts>)
+   (<ts> ^mission.achieved-flag <flag>
+         ^reward-link <rl>
+         ^depth <depth>)
+-->
+   (<rl> ^reward.value 1)
+   (write (crlf) |State: Success Depth: | <depth>)
+   (<s> ^success-depth <depth>)}
+
+sp {go-to-flag*elaborate*unexplored
+   (state <s> ^name go-to-flag
+              ^top-state <ts>)
+   (<ts> ^depth <depth>
+         ^top-state <ts>)
+   (<ts> ^map.current-area <ca>
+         ^desired <d>)
+   (<ca> -^recorded true)
+-->
+   (<s> ^numeric-value <depth>)
+   (write (crlf) |*****Depth of unexplored****** | <depth>)}
+#
+sp {evaluation*operator*count-depth
+   :default
+   (state <s> ^name evaluate-operator
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^depth <d>)
+   (<o> ^name move-to-area
+        ^path <p>)
+   (<p> ^from-area.id <fid>
+        ^to-area.id <tid>)
+-->
+   (<ts> ^depth <d> -
+                (+ 1 <d>))}
+
+sp {evaluation*operator*count-depth2
+   :default
+   (state <s> ^name go-to-flag
+             -^name evaluate-operator
+              ^quiescence t
+              ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^depth <d>)
+   (<o> ^name move-to-area
+        ^path <p>)
+   (<p> ^from-area.id <fid>
+        ^to-area.id <tid>)
+-->
+   (<ts> ^depth <d> -
+                (+ 1 <d>))}
+
+
+
+## From these it learns chunks that cause it to get in trouble
+#
+#sp {go-to-flag*elaborate*dead-end-failure*2
+#   (state <s> ^superstate.operator.name evaluate-operator
+#              ^top-state.map <m>
+#              ^desired <d>)
+#   (<m> ^current-area <ca>
+#        ^previous-area <con-area1>
+#                       <con-area2>)
+#   (<ca> ^connected-area <con-area1> { <con-area2> <> <con-area1> })
+#  -(<ca> ^connected-area { <> <con-area1> <> <con-area2> })
+#   (<ca> ^id <id>)
+#   (<con-area1> ^id <x1>)
+#   (<con-area2> ^id { < <x1> <x2> })
+#-->
+#   (write (crlf) |Dead End | <id> | connected | <x1> | | <x2>)
+#   (<s> ^failure <d>)}
+#
+#sp {go-to-flag*elaborate*dead-end-failure*1
+#   (state <s> ^superstate.operator.name evaluate-operator
+#              ^top-state.map <m>
+#              ^desired <d>)
+#   (<m> ^current-area <ca>
+#        ^previous-area <con-area1>)
+#   (<ca> ^connected-area <con-area1>)
+#  -(<ca> ^connected-area <> <con-area1>)
+#   (<ca> ^id <id>)
+#   (<con-area1> ^id <cid>)
+#-->
+#   (write (crlf) |Dead End | <id> | connected | <cid>)
+#   (write (crlf) |State: | <s>)
+#   (<s> ^failure <d>)}
+#
+sp {evaluate-operator*elaborate*state*name
+   :default
+   (state <s> ^impasse no-change
+              ^attribute operator
+              ^superstate.operator <so>)
+   (<so> ^name evaluate-operator
+         ^superstate.name {<> evaluate-operator <name> })
+-->
+   (<s> ^name <name>)}

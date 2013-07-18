@@ -1,0 +1,25 @@
+sp {accept-input*propose*convert-input-to-clause-form
+   (state <s> ^name accept-input
+              ^top-state <ts>)
+   (<ts> ^io.input-link.text <text>
+        -^processed <text>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name convert-input-to-clause-form
+         ^text <text>)
+}
+
+sp {accept-input*apply*convert-input-to-clause-form
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<o> ^name convert-input-to-clause-form
+        ^text <text>)
+   (<ts> ^problem <p>
+         ^io.input-link.text <text>)
+   (<text> ^next <ntext>)
+   (<p> ^top-clause <tp>
+       -^current-input-value)
+-->
+   (<p> ^current-input-value <ntext>)
+}
+

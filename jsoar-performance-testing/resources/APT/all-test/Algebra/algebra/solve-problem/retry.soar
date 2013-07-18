@@ -1,0 +1,45 @@
+# Retries a clause - also proposed if there is a state no-change.
+# Probably could do as a low probability when there is a failure
+
+sp {algebra*propose*retry*right
+   (state <s> ^name solve-problem
+              ^superstate.name algebra
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>)
+   (<rs> ^failed yes)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name retry
+         ^clause <rs>)
+}
+
+sp {algebra*propose*retry*left
+   (state <s> ^name solve-problem
+              ^superstate.name algebra
+              ^current-clause <cc>)
+   (<cc> ^left-side <rs>)
+   (<rs> ^failed yes)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name retry
+         ^clause <rs>)
+}
+
+sp {apply*retry
+   (state <s> ^operator <op>)
+   (<op> ^name retry
+         ^clause <clause>)
+   (<clause> ^failed yes)
+-->
+   (<clause> ^failed yes -)
+}
+
+
+sp {apply*retry-swapped
+   (state <s> ^operator <op>)
+   (<op> ^name retry
+         ^clause <clause>)
+   (<clause> ^swapped yes)
+-->
+   (<clause> ^swapped yes -)
+}

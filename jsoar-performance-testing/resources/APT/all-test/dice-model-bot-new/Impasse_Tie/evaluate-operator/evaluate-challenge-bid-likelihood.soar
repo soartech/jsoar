@@ -1,0 +1,69 @@
+sp {evaluate-operator*propose*evaluate-challenge-bid-likelihood
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name challenge
+              ^bid-difference <bd>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name evaluate-challenge-bid-likelihood)
+}
+
+# 0 and above mean that there are more dice than the bid
+
+sp {apply*evaluate-challenge-bid-likelihood*very-risky
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { >= -1.0 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-challenge-bid-likelihood)
+-->
+   (write (crlf) |  Challenge success likelihood is very risky.|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference <bd>) #for me to challenge
+}
+
+sp {apply*evaluate-challenge-bid-likelihood*risky
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { < -1.0 >= -1.4 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-challenge-bid-likelihood)
+-->
+   (write (crlf) |  Challenge success likelihood is  risky.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference <bd>) # for me to challenge
+}
+
+sp {apply*evaluate-challenge-bid-likelihood*safe
+   (state <s> ^operator <op>
+              ^total-known < 0.0
+              ^total-possible >= 0.0
+              ^bid-difference { < -1.4 <bd> }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-challenge-bid-likelihood)
+-->
+   (write (crlf) |  Challenge success likelihood is safe.|)
+   (<e> ^symbolic-value safe
+        ^bid-difference <bd>) # for me to challenge
+}
+
+sp {apply*evaluate-challenge-bid-likelihood*lose
+   (state <s> ^operator <op>
+              ^total-known >= 0.0
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name << compute-challenge-probability evaluate-challenge-bid-likelihood >>)
+-->
+   (write (crlf) |  Challenge success likelihood is lose.|)
+   (<e> ^symbolic-value lose) # for me to challenge
+}
+
+sp {apply*evaluate-challenge-bid-likelihood*certain
+   (state <s> ^operator <op>
+              ^total-possible < 0.0
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name << compute-challenge-probability evaluate-challenge-bid-likelihood >>)
+-->
+   (write (crlf) |  Challenge success likelihood is certain.|)
+   (<e> ^symbolic-value certain) # for me to challenge
+}

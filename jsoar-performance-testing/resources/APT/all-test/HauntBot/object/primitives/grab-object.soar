@@ -1,0 +1,47 @@
+# ACTION: grab-object
+#
+# REQUIRED ATTRIBUTES:
+#             ^type grab-object
+#             ^target.name
+#
+#
+
+
+
+# these rules will pickup a nearby item. Currently held items will be dropped.
+
+# propose grabbing the target object if it is nearby
+# rough guess at a good distance within which it is possible to grab an object
+sp {grab-object*propose*pickup
+   (state <s> ^type grab-object
+              ^target.name <name>)
+   -->
+   (<s> ^operator <o> +)
+   (<o> ^name pickup
+        ^actions <a>)
+   (<a> ^grab.object <name>)
+}
+
+
+# drop the currently held object if target object is in the air
+sp {grab-object*propose*drop-current-object
+   (state <s> ^type grab-object
+              ^target.position.z >= 35
+              ^io.input-link.agent.decoration <> |none|)
+   -->
+   (<s> ^operator <o> +)
+   (<o> ^name drop-current-object
+        ^type drop-object)  #call the primitive operation
+}
+# drop the currently held object if target object is on the ground
+sp {grab-object*propose*throw-current-object
+   (state <s> ^type grab-object
+              ^target.position.z < 35
+              ^io.input-link.agent.decoration <> |none|)
+   -->
+   (<s> ^operator <o> +)
+   (<o> ^name throw-current-object
+        ^type throw-object)  #call the primitive operation
+}
+
+

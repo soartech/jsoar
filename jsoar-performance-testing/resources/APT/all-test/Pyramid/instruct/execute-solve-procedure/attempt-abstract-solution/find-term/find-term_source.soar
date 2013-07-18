@@ -1,0 +1,5 @@
+source elaborations.soar
+source calculate.soar
+source find-term.soar
+source use-definition.soar
+source use-relation.soar

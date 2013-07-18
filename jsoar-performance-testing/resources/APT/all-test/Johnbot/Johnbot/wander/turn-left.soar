@@ -1,0 +1,47 @@
+sp {search-room*propose*turn-left
+   (state <s> ^name search-room
+              ^current-room.search <ss>)
+   (<ss> ^searched stop
+        -^searched turn-left)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name turn-left)}
+
+sp {search-room*propose*turn-left*faceabs
+   :i-support
+   (state <s> ^name search-room
+              ^operator <o> +
+              ^turn-left-angle <tla>
+              ^left-side-size > 400)
+   (<o> ^name turn-left)
+   -->
+   (<o> ^actions.faceabs <tla>)}
+
+sp {search-room*apply*turn-left
+   (state <s> ^current-room.search <ss>
+              ^turn-left-achieved true
+              ^operator.name turn-left)
+   -->
+   (<ss> ^searched turn-left)}
+
+sp {search-room*apply*turn-left2
+   (state <s> ^current-room.search <ss>
+              ^operator.name turn-left
+              ^left-side-size <= 400)
+   -->
+   (<ss> ^searched turn-left)}
+
+# Try to turn left last if there is a door to left (so will turn second to side with door).
+sp {search-room*select*turn-left
+   (state <s> ^name search-room
+              ^operator <o1> +
+              ^direction <d>
+              ^top-state.direction-map.<d>.left <nd>
+              ^current-room.wall <w>)
+   (<w> ^side <nd>
+        ^door)
+   (<o1> ^name turn-left)
+   -->
+   (<s> ^operator <o1> <)}
+        
+              

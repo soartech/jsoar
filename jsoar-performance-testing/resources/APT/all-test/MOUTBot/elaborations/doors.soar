@@ -1,0 +1,35 @@
+# REW: 2002-09-30
+# If this production directly elaborates the map, then the map cration process
+# includes the doors.  So, for now, we just create the doors structure on
+# top-state.
+
+sp {unreal*elaborate*state*doors
+   (state <s> ^name unreal)
+-->
+   (<s> ^doors <d>)
+}
+
+# REW: 2002-09-10
+# Compute door positions as the average of the two connecting node
+# positions. Just arbitrarily choose one node over another by choosing
+# with smallest x.  Will miss a door if x's are exactly equal for
+# connecting nodes, but this seems unlikely (3 dec places in
+# the x values).
+sp {elaborate*map*doors
+   (state <s> ^doors <d>
+              ^map <m>)
+   (<m> ^area <a> {<> <a> <b> } )
+   (<a> ^node <na>)
+   (<b> ^node <nb>)
+   (<na> ^area <a> ^area-name <aname> ^connected-node <nb> ^type door
+         ^position <ap>)
+   (<nb> ^area <b> ^area-name <bname> ^connected-node <na> ^type door
+         ^position <bp>)
+   (<ap> ^x <ax> ^y <ay> ^z <az> )
+   (<bp> ^x { < <ax> <bx> } ^y <by> ^z <bz>)
+-->
+   (<d> ^door <door>)
+   (<door> ^position <pos> ^location <aname> ^location <bname> ^near-node <na> ^near-node <nb>)
+   (<pos> ^x (/ (+ <ax> <bx>) 2)  ^y (/ (+ <ay> <by>) 2) ^z (/ (+ <az>
+             <bz>) 2) )
+}
