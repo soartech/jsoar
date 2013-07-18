@@ -7,22 +7,22 @@ package org.jsoar.soarunit.jsoar;
 
 import java.util.List;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.runtime.ThreadedAgent;
 
 /**
  * @author ray
  */
 public class TestRhsFunction extends StandaloneRhsFunctionHandler
 {
-    private final Agent agent;
+    private final ThreadedAgent agent;
     private boolean called = false;
     private List<Symbol> arguments;
     
-    public static TestRhsFunction addTestFunction(Agent agent, String name)
+    public static TestRhsFunction addTestFunction(ThreadedAgent agent, String name)
     {
         final TestRhsFunction succeededFunction = new TestRhsFunction(agent, name);
         agent.getRhsFunctions().registerHandler(succeededFunction);
@@ -32,7 +32,7 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
     /**
      * @param name
      */
-    public TestRhsFunction(Agent agent, String name)
+    public TestRhsFunction(ThreadedAgent agent, String name)
     {
         super(name);
         
