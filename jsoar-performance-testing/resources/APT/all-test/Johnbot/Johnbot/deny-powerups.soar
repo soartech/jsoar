@@ -1,0 +1,21 @@
+echo "\nLoading deny-powerups"
+
+sp {quake*propose*deny-powerups*enemy
+   (state <s> ^name quake
+              ^top-state <ts>)
+   (<ts> -^self.get-object
+          ^map.room <rm>
+          ^enemy.prediction-get-item <pgi>)
+   (<pgi> ^classname <cname>
+          ^room-number <rn>)
+   (<rm> ^item <it>
+         ^room-number <rn>)
+   (<it> ^classname <cname>
+         ^available true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name deny-powerups 
+        ^type prediction
+        ^item <it>
+        ^room <rm>)}
+

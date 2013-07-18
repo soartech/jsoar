@@ -1,0 +1,163 @@
+# Idea:
+#  These elaborations describe the heading orthogonal to the gateway, and
+#  then elaborate the direction that the agent should turn in to align
+#  its self.
+
+# Copy the speed down to the current state
+sp {move-through-gateway*elaborate*speed
+   (state <s> ^name move-through-gateway
+              ^quiescence t
+              ^superstate.operator.speed <speed>)
+-->
+   (<s> ^speed <speed>)
+}
+
+# Elaborates the agent's position relative to the gateway, such that
+# pos-rel-to-gate is positive if the agent is above the gateway and negative
+# if it is below.  Necessary to determine the sign of delta-y and delta-x
+# in computing the heading below.
+sp {move-through-gateway*elaborate*position-relative-to-gateway
+   (state <s> ^name move-through-gateway
+              ^io.input-link.location <loc>
+              ^superstate <super>)
+   (<super> ^line-through-gateway <d>
+            ^trans-x <x1> ^trans-y <y1>)
+   (<d> ^x <dx> <> 0.0
+        ^y <dy>)
+   (<loc> ^x <x> ^y <y>)
+-->
+   (<s> ^pos-rel-to-gate (- (- <y> <y1>) (* (- <x> <x1>) (/ <dy> <dx>))))
+}
+
+#
+#sp {move-through-gateway*elaborate*first-half*x1-bigger
+#   (state <s> ^name move-through-gateway
+#              ^superstate.superstate.operator.path.gateway.vertices <vertices>
+#              ^io.input-link.location <loc>)
+#   (<loc> ^x <x> ^y <y>)
+#   (<vertices> ^vertex1 <v1> ^vertex2 <v2>)
+#   (<v1> ^x <x1> ^y <y1>)
+#   (<v2> ^x <x2> <= <x1> ^y <y2>)
+#-->
+#   (<s> ^within-gateway-first-half-int (within-gateway <x> <y> <x2> <y2> (/ (+ <x1> <x2>) 2) (/ (+ <y1> <y2>) 2) 0))
+#}
+#              
+#sp {move-through-gateway*elaborate*first-half*x2-bigger
+#   (state <s> ^name move-through-gateway
+#              ^superstate.superstate.operator.path.gateway.vertices <vertices>
+#              ^io.input-link.location <loc>)
+#   (<loc> ^x <x> ^y <y>)
+#   (<vertices> ^vertex1 <v1> ^vertex2 <v2>)
+#   (<v1> ^x <x1> ^y <y1>)
+#   (<v2> ^x <x2> > <x1> ^y <y2>)
+#-->
+#   (<s> ^within-gateway-first-half-int (within-gateway <x> <y> <x1> <y1> (/ (+ <x1> <x2>) 2) (/ (+ <y1> <y2>) 2) 0))
+#}
+#
+
+
+# These three rules elaborate the target-heading, or the heading that the
+# agent must align its self with in order to face the gateway and cross it.
+# Three special cases:
+#  1. The slope is undefined, and so pos-rel-to-gate above cannot be calc'd.
+#sp {move-through-gateway*elaborate*target-heading*undef-slope
+#   (state <s> ^name move-through-gateway
+#              ^io.input-link.location <loc>
+#              ^superstate <super>)
+#   (<super> ^line-through-gateway <d>
+#            ^trans-x <x1>)
+#   (<d> ^x 0.0)
+#   (<loc> ^x <x>)
+#-->
+#   (<s> ^headings.target-heading (compute-heading (- <x> <x1>) 0 0 0))
+#}
+#
+#  2. The agent is "above" the gateway (in the 2d plane).
+#sp {move-through-gateway*elaborate*target-heading*above
+#   (state <s> ^name move-through-gateway
+#              ^pos-rel-to-gate >= 0
+#              ^superstate.line-through-gateway <d>)
+#   (<d> ^x <dx> ^y <dy>)
+#-->
+#   (<s> ^headings.target-heading (compute-heading (- 0 <dy>) <dx> 0 0))
+#}
+#
+##  3. The agent is "below" the gateway.
+#sp {move-through-gateway*elaborate*target-heading*below
+#   (state <s> ^name move-through-gateway
+#              ^pos-rel-to-gate < 0
+#              ^superstate.line-through-gateway <d>)
+#   (<d> ^x <dx> ^y <dy>)
+#-->
+#   (<s> ^headings.target-heading (compute-heading <dy> (- 0 <dx>) 0 0))
+#}
+
+# Calculates the difference between the agent's current heading and its
+# target-heading.
+#sp {move-through-gateway*elaborate*normalized-heading-difference
+#   (state <s> ^name move-through-gateway
+#              ^io.input-link.angles.yaw <yaw>
+#              ^headings <headings>)
+#   (<headings> ^target-heading <t-head>)
+#-->
+#   (<headings> ^normalized-head (normalize-heading (- <t-head> <yaw>)))
+#}
+
+# These two rules elaborate the direction that the agent should turn in
+# so that it can align most quickly with the target-heading.
+sp {move-through-gateway*elaborate*should-turn*right
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^top-state.parameters.heading-right-threshold <thresh>)
+   (<headings> -^normalized-head <norm> > <thresh>)
+-->
+   (<headings> ^should-turn right)
+}
+
+sp {move-through-gateway*elaborate*should-turn*left
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^top-state.parameters.heading-left-threshold <thresh>)
+   (<headings> -^normalized-head <norm> < <thresh>)
+-->
+   (<headings> ^should-turn left)
+}
+
+# The below productions are intended to determine which half of the 
+# gateway the agent is within, and then strafe towards the center of
+# the gateway as it walks across the boundary.
+sp {move-through-gateway*elaborate*should-strafe*left*above
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^pos-rel-to-gate > 0
+              ^within-gateway-first-half-int 1)
+-->
+   (<headings> ^should-strafe left)
+}
+
+sp {move-through-gateway*elaborate*should-strafe*right*above
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^pos-rel-to-gate > 0
+              ^within-gateway-first-half-int <> 1)
+-->
+   (<headings> ^should-strafe right)
+}
+
+sp {move-through-gateway*elaborate*should-strafe*left*below
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^pos-rel-to-gate < 0
+              ^within-gateway-first-half-int <> 1)
+-->
+   (<headings> ^should-strafe left)
+}
+
+sp {move-through-gateway*elaborate*should-strafe*right*below
+   (state <s> ^name move-through-gateway
+              ^headings <headings>
+              ^pos-rel-to-gate < 0
+              ^within-gateway-first-half-int 1)
+-->
+   (<headings> ^should-strafe right)
+}

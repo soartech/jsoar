@@ -1,0 +1,60 @@
+
+sp {explore*reject*move-to-current-area
+   (state <s> ^type explore
+              ^operator <o> +
+              ^top-state.map.current-area <current-area>)
+   (<o> ^type move-to-area
+        ^area <current-area>)
+-->
+   (<s> ^operator <o> -)
+   (<o> ^current-area yes)
+}
+
+
+#prefer shorter paths
+# MJP 5/21/03: Modified to compare both visited and unvisited paths
+# If two nodes have the same visit-time, move along the shortest path
+sp {explore*compare*move-to-area*prefer-shortest-distance
+   (state <s> ^type explore             
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^type move-to-area
+         ^area.visit-time <v>
+         ^straightline-dist <dist>)
+   (<o2> ^type move-to-area
+         ^area.visit-time <v>
+        -^straightline-dist <= <dist>)
+-->
+  #(write (crlf) |Preferred moving to area| <area> | with distance = | <dist>)
+   (<s> ^operator <o1> > <o2>)
+}
+
+# Prefer moving to areas with lower visit counts
+sp {explore*compare*move-to-area*prefer-lower-visit-time
+   (state <s> ^type explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^type move-to-area
+         ^area.visit-time <v>)
+   (<o2> ^type move-to-area
+         ^area.visit-time > <v>
+         ^area <area>) #this line is for debug msg only
+-->
+   #(write (crlf) |Preferred moving to area| <area> | with visit count = | <v>)
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+
+# 
+# reject moving to an area if it's 'haunted'
+#
+sp {explore*reject*move-to-haunted-area
+   (state <s> ^type explore
+              ^operator <o> +)
+   (<o> ^type move-to-area
+        ^area.haunted)
+-->
+   (<s> ^operator <o> -)
+   (<o> ^haunted yes)
+}

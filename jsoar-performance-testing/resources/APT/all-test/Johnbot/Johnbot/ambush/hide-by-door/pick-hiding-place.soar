@@ -1,0 +1,207 @@
+
+sp {hide-by-door*propose*pick-hiding-place*north*west
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction north)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction west
+        ^x (- <x> 300)
+        ^y (- <y> 40))}
+
+sp {hide-by-door*propose*pick-hiding-place*north*east
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction north)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction east
+        ^x (+ <x> 300)
+        ^y (- <y> 40) )}
+
+sp {hide-by-door*propose*pick-hiding-place*south*west
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction south)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction west
+        ^x (- <x> 300)
+        ^y (+ <y> 40) )}
+
+sp {hide-by-door*propose*pick-hiding-place*south*east
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction south)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction east
+        ^x (+ <x> 300)
+        ^y (+ <y> 40) )}
+
+sp {hide-by-door*propose*pick-hiding-place*east*north
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction east)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction north
+        ^x (- <x> 40)
+        ^y (+ <y> 300) )}
+
+sp {hide-by-door*propose*pick-hiding-place*east*south
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction east)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction south
+        ^x (- <x> 40)
+        ^y (- <y> 300) )}
+
+sp {hide-by-door*propose*pick-hiding-place*west*north
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction west)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction north
+        ^x (+ <x> 40)
+        ^y (+ <y> 300) )}
+
+sp {hide-by-door*propose*pick-hiding-place*west*south
+   (state <s> ^name hide-by-door
+             -^hiding-place
+              ^inroom-door <idoor>)
+   (<idoor> ^x <x>
+            ^y <y>
+            ^direction west)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name pick-hiding-place
+        ^direction south
+        ^x (+ <x> 40)
+        ^y (- <y> 300) )}
+
+###########################
+
+sp {hide-by-door*reject*pick-hiding-place*not-in-room*east
+   :i-support
+   (state <s> ^name hide-by-door
+              ^current-room.wall <w>
+              ^operator <o> +)
+   (<o> ^name pick-hiding-place
+        ^direction east
+        ^x <x>)
+   (<w> ^side east
+        ^x < <x>)
+   -->
+  (<s> ^operator <o> -)}
+
+sp {hide-by-door*reject*pick-hiding-place*not-in-room*west
+   :i-support
+   (state <s> ^name hide-by-door
+              ^current-room.wall <w>
+              ^operator <o> +)
+   (<o> ^name pick-hiding-place
+        ^direction west
+        ^x <x>)
+   (<w> ^side west
+        ^x > <x>)
+   -->
+  (<s> ^operator <o> -)}
+
+sp {hide-by-door*reject*pick-hiding-place*not-in-room*north
+   :i-support
+   (state <s> ^name hide-by-door
+              ^current-room.wall <w>
+              ^operator <o> +)
+   (<o> ^name pick-hiding-place
+        ^direction north
+        ^y <x>)
+   (<w> ^side north
+        ^y < <x>)
+   -->
+  (<s> ^operator <o> -)}
+
+sp {hide-by-door*reject*pick-hiding-place*not-in-room*south
+   :i-support
+   (state <s> ^name hide-by-door
+              ^current-room.wall <w>
+              ^operator <o> +)
+   (<o> ^name pick-hiding-place
+        ^direction south
+        ^y <x>)
+   (<w> ^side south
+        ^y > <x>)
+   -->
+  (<s> ^operator <o> -)}
+
+
+###################################
+
+sp {hide-by-door*elaborate*pick-hiding-place*range
+   :i-support
+   (state <s> ^name hide-by-door
+              ^top-state.io.input-link.agent.origin <or>
+              ^operator <o> +)
+   (<o> ^name pick-hiding-place
+        ^x <x>
+        ^y <y>)
+   (<or> ^x <x1> 
+         ^y <y1>)
+   -->
+  (<o> ^range (compute-range <y> <x> <y1> <x1>))}
+
+sp {hide-by-door*select*pick-hiding-place*range
+   (state <s> ^name hide-by-door
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name pick-hiding-place
+         ^range <r1>)
+   (<o2> ^name pick-hiding-place
+         ^range > <r1>)
+   -->
+  (<s> ^operator <o1> > <o2>)}
+
+######################### APPLY
+
+
+sp {hide-by-door*apply*pick-hiding-place
+   (state <s> ^name hide-by-door
+              ^operator <o>)
+   (<o> ^name pick-hiding-place
+        ^x <x>
+        ^y <y>)
+   -->
+  (<s> ^hiding-place <hp>)
+  (<hp> ^x <x>
+        ^y <y>)}

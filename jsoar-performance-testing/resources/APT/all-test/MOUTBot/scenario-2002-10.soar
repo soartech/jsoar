@@ -1,0 +1,445 @@
+#####################################
+# file: scenario-2002-10.soar
+# created: REW: 2003-05-27
+##
+# These are the initialization prods for the first demo scenario
+# (Kell'y McCann's scanrio: 5 bots defending a room).  These prods
+# are unchanged except that they now depend on a scenario variable.
+# Demo'd to VIRTE PM in Oct 2002
+
+# Note: these will not work any longer since MOUTBot5 is defined to
+# to be a BlueFOR bot.
+#
+# Change history:
+#
+#  [1] REW: 2003-05-27
+#      Added test of scenario and mission creation elaboration
+
+
+sp {elaborate*state*scenario-2002-10*details
+   (state <s> ^name unreal
+              ^scenario <x1>)
+   (<x1> ^name scenario-2002-10)
+-->
+   (<x1>
+         ^REDFOR <XR>
+         ^BLUEFOR <XB>
+         ^IGNORE <XI>)
+   (<XR> ^name |MOUTBot1|
+         ^name |MOUTBot2|
+         ^name |MOUTBot3|
+         ^name |MOUTBot4|
+         ^name |MOUTBot5|
+         ^team |Red|)
+   (<XB> ^name |Player|
+         ^name |Bob|
+         ^name |Mazin|
+         ^team |Blue|)
+   (<XI> ^name |Watcher|
+         ^team |Non-combatant|)
+}
+
+
+#################################################################
+# MOUTBot1
+#################################################################
+
+# REW: 2002-12-13
+# Updated new position for changed map.  Was y=350
+
+sp {unreal*apply*initialize*mission*MOUTBot1
+   (state <s> ^name unreal
+              ^operator.name initialize
+                             # REW: 2002-10-08
+              ^io.input-link.agent.name |MOUTBot1|
+              ^scenario.name scenario-2002-10
+                             )
+-->
+#   (write (crlf) |Initializing MOUTBot1 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        # [2]
+        ^team <team1>
+        ^team <team2>
+        ^team <team3>)
+   (<ro> ^name room5
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag1>)
+   (<team2> ^agents <ags2>
+            ^name |EntryFireTeam|
+            ^type pair
+            ^objective <obj>)
+   (<ags2> ^agent <ag1>
+           ^agent <ag2>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<ag3> ^name |MOUTBot3|
+          ^status active)
+   (<ag4> ^name |MOUTBot4|
+          ^status active)
+   (<ag5> ^name |MOUTBot5|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type defensive
+          ^area-type entryway
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team2>)
+   (<threat> ^area-name room0
+             ^node-name |EntryNode62|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name room6
+         ^type room
+         ^position <pos>)
+#   (<pos> ^x 890.0            #Initial defensive position assigned
+#          ^y 450.0
+#          ^z -905.0)
+   (<pos> ^x 800.0            #Initial defensive position assigned
+          ^y 300.0
+          ^z -905.0)
+}
+
+
+
+#################################################################
+# MOUTBot2
+#################################################################
+
+sp {unreal*apply*initialize*mission*MOUTBot2
+   (state <s> ^operator.name initialize
+                             # [1] REW: 2002-07-26
+              ^io.input-link.agent.name |MOUTBot2|
+              ^scenario.name scenario-2002-10)
+-->
+#   (write (crlf) |Initializing MOUTBot2 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        # [2]
+        ^team <team1>
+        ^team <team2>
+        ^team <team3>)
+   (<ro> ^name room11
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag2>)
+   (<team2> ^agents <ags2>
+            ^name |EntryFireTeam|
+            ^type pair
+            ^objective <obj>)
+   (<ags2> ^agent <ag1>
+           ^agent <ag2>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<ag3> ^name |MOUTBot3|
+          ^status active)
+   (<ag4> ^name |MOUTBot4|
+          ^status active)
+   (<ag5> ^name |MOUTBot5|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type defensive
+          ^area-type entryway
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team2>)
+   (<threat> ^area-name room0
+             ^node-name |EntryNode62|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name room6
+         ^type barricade
+         ^barricade-door <bd>)
+   (<bd> ^primary-room room6
+         ^secondary-room room3)
+   (<dp> ^area-name room6
+         ^type room
+         ^position <pos>)
+#   (<pos> ^x 950.0            #Initial defensive position assigned
+#          ^y 500.0
+#          ^z -905.0)
+   (<pos> ^x 782.0            #Initial defensive position assigned
+          ^y  472.0                # Barricase room6 door
+          ^z -905.0)
+}
+
+
+#################################################################
+# MOUTBot3
+#################################################################
+
+# REW: 2002-12-13 update position for new map
+#
+sp {unreal*apply*initialize*mission*MOUTBot3
+   (state <s> ^operator.name initialize
+                             # [1] REW: 2002-10-03
+              ^io.input-link.agent.name |MOUTBot3|
+              ^scenario.name scenario-2002-10)
+-->
+#   (write (crlf) |Initializing MOUTBot3 (new)|)
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        # [2]
+        ^team <team1>
+        ^team <team3>)
+   (<ro> ^name room11
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag3>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<ag3> ^name |MOUTBot3|
+          ^status active)
+   (<ag4> ^name |MOUTBot4|
+          ^status active)
+   (<ag5> ^name |MOUTBot5|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+    # REW: 2002-08-20
+          ^type sentry-watch
+          ^area-type room
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team1>
+                )
+   (<threat> ^area-name |Outside|
+             ^direction 270
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name room4
+         ^type window
+         ^position <pos>)
+   # REW: 2003-01-28: Bot should "stand in shadows" not next to window
+   (<pos> ^x 245.0            #Initial defensive position assigned
+          ^y -440.0
+          ^z -905.0)
+}
+
+#################################################################
+# MOUTBot4
+#################################################################
+
+sp {unreal*apply*initialize*mission*MOUTBot4
+   (state <s> ^operator.name initialize
+                             # [1] REW: 2002-07-26
+              ^io.input-link.agent.name |MOUTBot4|
+              ^scenario.name scenario-2002-10)
+-->
+#   (write (crlf) |Initializing (new) MOUTBot4 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        # [2]
+        ^team <team1>
+        ^team <team3>)
+   (<ro> ^name room11
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag4>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^leader |MOUTBot4|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<ag3> ^name |MOUTBot3|
+          ^status active)
+   (<ag4> ^name |MOUTBot4|
+          ^status active)
+   (<ag5> ^name |MOUTBot5|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type roam
+          ^current-roam-area <r1>
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team3>)
+   (<r1> ^area-name room5
+         ^next <r2>)
+   (<r2> ^area-name |EastHall|
+         ^next <r3>)
+   (<r3> ^area-name room4
+         ^next <r1>)
+# REW: Comment out for testing roam
+#  (<obj> ^status active
+#          ^type lead-squad
+#          ^area-type hall
+#          ^threat <threat>
+#          ^defensive-position <dp>
+#          ^team <team3>)
+   (<threat> ^area-name room0
+             ^node-name |EntryNode62|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name |WestHall|
+         ^type barricade
+         ^barricade-door <bd>)
+   (<bd> ^primary-room |WestHall|
+         ^secondary-room room2
+         ^type room
+         ^position <pos>)
+# AGent movement is too fragile for barricades....
+#   (<pos> ^x -388.0            #Initial defensive position assigned: Room2 barricade
+#          ^y 160.0
+#          ^z -905.0)
+#   (<pos> ^x -388.0            #Initial defensive position assigned: Room2 barricade
+#          ^y 47.0              # middle of hallway
+#          ^z -905.0)
+}
+
+#################################################################
+# MOUTBot5
+#################################################################
+
+sp {unreal*apply*initialize*mission*MOUTBot5
+   (state <s> ^operator.name initialize
+                             # [1] REW: 2002-10-03
+              ^io.input-link.agent.name  |MOUTBot5|
+              ^scenario.name scenario-2002-10)
+-->
+   (write (crlf) |Initializing MOUTBot5 (new)|)
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        # [2]
+        ^team <team1>
+        ^team <team3>)
+   (<ro> ^name room11
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag5>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<ag3> ^name |MOUTBot3|
+          ^status active)
+   (<ag4> ^name |MOUTBot4|
+          ^status active)
+   (<ag5> ^name |MOUTBot5|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+    # REW: 2002-08-27
+    # Makes no sense to guard a closed stairwell.
+          ^type sentry-watch
+          ^area-type room
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team1>)
+   (<threat> ^area-name |WestHall|
+             ^team |None|              #Change this once teams are working
+             ^type absolute
+             ^direction 145)
+   (<dp> ^area-name |WestHall|
+         ^type absolute
+         ^position <pos>)
+   (<pos> ^x -513.0            #Initial defensive position assigned
+          ^y -76.0
+          ^z -905.0)
+# Bur in determine threat door, for now just absolute
+#   (<dp> ^area-name |WestHall|
+#         ^type barricade
+#         ^barricade-door <bd>)
+#   (<bd> ^primary-room |WestHall|
+#         ^secondary-room room5)
+#   (<dp> ^area-name |WestHall|
+#         ^type absolute
+#         ^position <pos>)
+#   (<pos> ^x -513.0            #Initial defensive position assigned
+#          ^y -76.
+#          ^z -905.0)
+}

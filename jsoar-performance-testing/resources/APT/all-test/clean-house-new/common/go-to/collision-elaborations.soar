@@ -1,0 +1,173 @@
+## JEL MOD
+
+sp {go-to*elaborate*compute*front-clear
+   (state <s> ^name go-to
+              ^obstacle true
+              ^top-state.parameters.collision-range <cr>
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 0
+           -^distance < <cr>)
+-->
+   (write (crlf) |Front Clear|)
+   (<s> ^front-clear true)}
+
+sp {go-to*elaborate*compute*front-clear*false
+   (state <s> ^name go-to
+              ^obstacle true
+              ^top-state.parameters.collision-range <cr>
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 0
+           -^distance >= <cr>)
+-->
+   (write (crlf) |Front blocked|)
+   (<s> ^front-clear false)}
+
+sp {go-to*elaborate*compute*id*clear
+   (state <s> ^name go-to
+              ^obstacle true
+              ^top-state.parameters.collision-range <cr>
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id <id>
+           -^distance < <cr>)
+-->
+   (write (crlf) <id> | Clear|)
+   (<s> ^clear <c>)
+   (<c> ^id <id>
+        ^clear true)}
+
+sp {go-to*elaborate*compute*id*clear*false
+   (state <s> ^name go-to
+              ^obstacle true
+              ^top-state.parameters.collision-range <cr>
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id <id>
+           -^distance >= <cr>)
+-->
+   (write (crlf) <id> | Not Clear|)
+   (<s> ^clear <c>)
+   (<c> ^id <id>
+        ^clear false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*18-18*no-collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+             -^waypoint-data.relative-bearing < -18 < 18
+             -^waypoint-data.relative-bearing >= 18
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 0
+           -^distance < <cr>)
+-->
+#   (write (crlf) |No collision 0|)
+   (<s> ^obstacle false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*18-18*collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { >= -18 < 18 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 0
+           -^distance >= <cr>)
+-->
+ #  (write (crlf) |Collision!! 0|)
+   (<s> ^obstacle true)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*-18-54*no-collsion
+   (state <s> ^name go-to
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { >= -54 < -18 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id -1
+           -^distance < <cr>)
+-->
+#   (write (crlf) |No collision -1|)
+   (<s> ^obstacle false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*-18-54*collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { >= -54 < -18 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id -1
+           -^distance >= <cr>)
+-->
+ #  (write (crlf) |Collision!! -1|)
+   (<s> ^obstacle true)}
+
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*-54-72*no-collsion
+   (state <s> ^name go-to
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { >= -90 < -54 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id -2
+           -^distance < <cr>)
+-->
+  # (write (crlf) |No collision -2|)
+   (<s> ^obstacle false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*-54-72*collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { >= -90 < -54 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id -2
+           -^distance >= <cr>)
+-->
+ #  (write (crlf) |Collision!! -2|)
+   (<s> ^obstacle true)}
+
+### positive
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*18-54*no-collsion
+   (state <s> ^name go-to
+              ^top-state.parameters.collision-range <cr>
+             -^waypoint-data.relative-bearing  <= 54
+             -^waypoint-data.relative-bearing  < 18
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 1
+           -^distance < <cr>)
+-->
+#   (write (crlf) |No collision 1|)
+   (<s> ^obstacle false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*18-54*collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing  { < 54 >= 18 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 1
+           -^distance >= <cr>)
+-->
+   (write (crlf) |Collision!! 1|)
+   (<s> ^obstacle true)}
+
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*54-72*no-collsion
+   (state <s> ^name go-to
+              ^top-state.parameters.collision-range <cr>
+             -^waypoint-data.relative-bearing >= 90
+             -^waypoint-data.relative-bearing  < 54
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 2
+           -^distance < <cr>)
+-->
+   (write (crlf) |No collision 2|)
+   (<s> ^obstacle false)}
+
+sp {go-to*elaborate*compute*lidr-vs-waypoint*54-72*collsion
+   (state <s> ^name go-to
+             -^superstate.operator.pickup-block yes
+              ^top-state.parameters.collision-range <cr>
+              ^waypoint-data.relative-bearing { < 90 >= 54 }
+              ^io.input-link.lidar.range <range>)
+   (<range> ^id 2
+           -^distance >= <cr>)
+-->
+   (write (crlf) |Collision!! 2|)
+   (<s> ^obstacle true)}
+

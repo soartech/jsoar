@@ -1,0 +1,3 @@
+source elaborations.soar
+source stand-by-fire.soar
+source start-fire.soar

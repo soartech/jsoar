@@ -1,0 +1,16 @@
+sp {elaborate*state*name
+   (state <s> ^superstate.operator.name <name>)
+-->
+   (<s> ^name <name>)
+}
+
+sp {elaborate*state*type
+   (state <s> ^superstate.operator.type <name>)
+-->
+   (<s> ^type <name>)
+}
+
+sp {elaborate*state*io
+   (state <s> ^superstate.io <io>)
+-->
+   (<s> ^io <io>)}

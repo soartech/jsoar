@@ -1,0 +1,162 @@
+#####################################
+# file: scenario-Lhall.soar
+# created: REW: 2003-06-11
+##
+# L-shaped hallway scenario: 2 bots
+#
+# Change history:
+#
+#  [1] 
+
+# To enable this scenario, select scenario-lhall in scenario-selection
+
+sp {elaborate*state*scenario-lhall*details
+   (state <s> ^name unreal
+              ^scenario <x1>)
+   (<x1> ^name scenario-lhall)
+-->
+   (<x1>
+         ^REDFOR <XR>
+         ^BLUEFOR <XB>
+         ^IGNORE <XI>
+         ^initial-position <x2>
+         ^initial-position <x3>)
+   (<XR> ^name |MOUTBot1|
+         ^name |MOUTBot2|
+         ^team |Red|)
+   (<XB> ^name |User|
+         ^team |Blue|)
+   (<XI> ^name |Watcher|
+         ^team |Non-combatant|)
+   (<x2> ^agent |MOUTBot1|
+         ^location |3flSHall|)
+   (<x2> ^agent |MOUTBot2|
+         ^location |3flSHall|)
+}
+
+
+#################################################################
+# MOUTBot1
+#################################################################
+
+sp {unreal*apply*initialize*mission*MOUTBot1*1hall
+   (state <s> ^name unreal
+              ^operator.name initialize
+              ^io.input-link.agent.name |MOUTBot1|
+              ^scenario.name scenario-lhall
+                             )
+-->
+#   (write (crlf) |Initializing MOUTBot1 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        ^team <team1>
+        ^team <team2>)
+   (<ro> ^name |3flWHall|
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+  (<team2> ^agents <ags2>
+            ^name |HallFireTeam|
+            ^type pair
+            ^objective <obj>
+            ^leader |MOUTBot1|
+            ^subordinate |MOUTBot2|)
+  (<ags2> ^agent <ag1>
+           ^agent <ag2>)
+   (<ags1> ^agent <ag1>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type defensive
+          ^area-type room
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team2>)
+   (<threat> ^area-name |3flSRoom|
+             ^node-name |EntryNode98|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name |3flSHall|
+         ^type room)
+#         ^position <pos>)
+#   (<pos> ^x 890.0            #Initial defensive position assigned
+#          ^y 450.0
+#          ^z -905.0)
+#   (<pos> ^x 800.0            #Initial defensive position assigned
+#          ^y 300.0
+#          ^z -905.0)
+}
+
+#################################################################
+# MOUTBot2
+#################################################################
+
+sp {unreal*apply*initialize*mission*MOUTBot2*1hall
+   (state <s> ^name unreal
+              ^operator.name initialize
+              ^io.input-link.agent.name |MOUTBot2|
+              ^scenario.name scenario-lhall
+                             )
+-->
+#   (write (crlf) |Initializing MOUTBot1 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        ^team <team1>
+        ^team <team2>)
+   (<ro> ^name |3flWHall|
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+  (<team2> ^agents <ags2>
+            ^name |HallFireTeam|
+            ^type pair
+            ^objective <obj>
+            ^leader |MOUTBot1|
+            ^subordinate |MOUTBot2|)
+  (<ags2> ^agent <ag1>
+           ^agent <ag2>)
+   (<ags1> ^agent <ag1>)
+   (<ag1> ^name |MOUTBot2|
+          ^status active)
+   (<ag2> ^name |MOUTBot1|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type defensive
+          ^area-type room
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team2>)
+   (<threat> ^area-name |3flSRoom|
+             ^node-name |EntryNode98|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name |3flSHall|
+         ^type room)
+#         ^position <pos>)
+#   (<pos> ^x 890.0            #Initial defensive position assigned
+#          ^y 450.0
+#          ^z -905.0)
+#   (<pos> ^x 800.0            #Initial defensive position assigned
+#          ^y 300.0
+#          ^z -905.0)
+}
+
+

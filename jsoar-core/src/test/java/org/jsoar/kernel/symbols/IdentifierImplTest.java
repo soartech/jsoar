@@ -42,7 +42,6 @@ public class IdentifierImplTest extends JSoarTest
         super.setUp();
         
         this.agent = new Agent();
-        this.agent.initialize();
     }
 
     /**

@@ -1,0 +1,30 @@
+sp {deposit-block*propose*goto-storage-area
+   (state <s> ^name deposit-block
+              ^quiescence t
+              ^top-state <ts>)
+   (<ts> ^areas.area <area>
+         ^current-area <> <area>
+         ^desired.storage-area-id <id>)
+   (<area> ^id <id>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name goto-storage-area
+         ^type goto-area
+         ^area <area>)
+}
+
+sp {deposit-block*propose*find-storage-area
+   (state <s> ^name deposit-block
+              ^top-state <ts>)
+   (<ts> -^areas.area.id <id>
+          ^current-area <ca>
+          ^areas.area <area>
+          ^desired.storage-area-id <id>)
+   (<area> -^visited yes)
+
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name goto-storage-area
+         ^type goto-area
+         ^area <area>)
+}

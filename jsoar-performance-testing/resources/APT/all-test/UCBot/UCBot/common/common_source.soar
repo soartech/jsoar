@@ -1,0 +1,9 @@
+source move-to-area.soar
+pushd move-to-area
+source move-to-area_source.soar
+popd
+source move-to-xy.soar
+pushd move-to-xy
+source move-to-xy_source.soar
+popd
+source wait.soar

@@ -1,0 +1,5 @@
+source elaborations.soar
+source increment-radius.soar
+source initialize-search.soar
+source mark-as-searched.soar
+source move-to-area.soar

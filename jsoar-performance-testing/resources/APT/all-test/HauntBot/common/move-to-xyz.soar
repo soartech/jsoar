@@ -1,0 +1,158 @@
+echo "\nLoading common/move-to-xyz"
+                
+# Move to an arbitrary xyz coordinate
+# should have a ^position attribute on the operator (xyz coordinate)
+
+# NOTE:  should use turn and thrust eventually
+#
+sp {haunt*apply*move-to-xyz
+   (state <s> ^operator <o>
+             -^top-state.self.stuck << left right front >>)
+   (<o> ^type move-to-xyz
+        ^position <pos>
+       -^actions)
+   (<pos> ^x <x>
+          ^y <y> 
+          ^z <z>)
+-->
+ # (write (crlf) |Moving to xyz without thrust: | <pos> |:| <x> |, | <y> |, | <z> )
+   (<o> ^actions <act>)
+   (<act> ^move-to <pos>)}
+
+#Fixed? by AMN 2002-08-21.  The problem was the result 
+#of two ^actions appearing on the operator.  I modified
+#the rule above to prevent that.
+#Uncommented out by JEL 2002-08-13 because it is needed to detect if the agent is stuck
+# I haven't seen max elaborations - if you see it, try to figure out why
+#Commented out by AMN 2002-08-02 b/c it was causing
+#max elaborations errors.
+
+sp {haunt*apply*move-to-xyz*create-movement-structure
+   (state <s> ^operator <o> 
+              ^io.input-link.agent.time <time>
+              ^top-state <ts>)
+   (<ts> ^parameters.detect-stuck-time <dst>
+         ^self <self>)
+   (<o> ^type move-to-xyz
+        ^actions <act>
+        ^position <pos>)
+  -(<self> ^move-to-xyz.actions <act>)
+-->
+   (<self> ^move-to-xyz <xyz>)
+   (<xyz> ^position <pos>
+          ^actions <act>
+          ^stuck-time (+ <time> <dst>))
+}
+
+sp {haunt*apply*move-to-xyz*remove-movement-structure*changed*action
+   (state <s> ^operator <o> 
+              ^top-state.self <self>)
+   (<o> ^type move-to-xyz
+        ^actions <act>)
+   (<self> ^move-to-xyz <xyz>)
+   (<xyz> ^actions <> <act>)
+-->
+   (<self> ^move-to-xyz <xyz> -)}
+
+#AMN: 2002-Aug-27
+#Elaborate the range to the bot's destination
+sp {move-to-xyz*elaborate*range-to-destination
+   (state <s> ^operator <o> +
+              ^top-state.self.speed-lookup-table <slt>
+              ^io.input-link.agent.position <pos>)
+   (<o> ^type move-to-xyz
+        ^position <dest-pos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<dest-pos> ^x <dx>
+               ^y <dy>)
+-->
+   #This is causing datamap errors I do not understand...
+   (<o> ^range (compute-range <x> <y> <dx> <dy>))
+}
+
+
+#AMN: 2002-Aug-27
+#Elaborate the speed bot should travel to its destination
+#based on the range.  (See ^self.speed-lookup-table)
+sp {move-to-xyz*elaborate*speed
+   (state <s> ^operator <o> +
+              ^top-state.self.speed-lookup-table <slt>)
+   (<o> ^type move-to-xyz
+        ^range <range>
+        ^actions.move-to <pos>)
+   (<slt> ^entry <e>)
+   (<e> ^min-thresh <= <range>
+        ^max-thresh > <range>
+        ^speed <speed>)
+-->
+   (<pos> ^speed <speed>)
+   #(write (crlf) | Adjusting speed to | <speed>)
+}
+
+
+#
+#sp {haunt*elaborate*move-xyz*xyz-heading
+#   (state <s> ^operator <o>
+#              ^top-state.io.input-link.agent.position <ap>)
+#   (<ap> ^x <x1> 
+#         ^y <y1>)
+#   (<o> ^type move-to-xyz
+#        ^position <pos>)
+#   (<pos> ^x <x2>
+#          ^y <y2>)
+#   -->
+#   (write (crlf) |Move-to-xyz heading: | (round-off-heading (- 90 (compute-heading <x1> <y1> <x2> <y2>)) 1))
+#   (<o> ^xy-heading (round-off-heading (- 90 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+#
+#sp {haunt*elaborate*move-xyz*action*face-abs
+#   (state <s> ^operator <o>)
+#   (<o> ^type move-to-xyz
+#        ^xy-heading <heading>)
+#   -->
+#   (<o> ^actions.face-abs <heading>)}
+#
+#sp {haunt*elaborate*move-xyz*xyz-range
+#   (state <s> ^operator <o>
+#              ^top-state.io.input-link.agent.position <ap>)
+#   (<ap> ^x <x1> 
+#         ^y <y1>)
+#   (<o> ^type move-to-xyz
+#        ^position <pos>)
+#   (<pos> ^x <x2>
+#          ^y <y2>)
+#   -->
+#   (write (crlf) |Move-to-xyz range: | (compute-range <x1> <y1> <x2> <y2>))
+#   (<o> ^xy-range (compute-range <x1> <y1> <x2> <y2>))}
+#
+#
+#sp {haunt*elaborate*move-xyz*action*thrust
+#   (state <s> ^operator <o>
+#              ^top-state.parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { > <near-range> })
+#   -->
+#   (<o> ^actions.thrust front)}
+#
+#sp {haunt*elaborate*move-xyz*action*thrust*stopped
+#   (state <s> ^operator <o>
+#              ^top-state <ts>)
+#   (<ts> ^self.stopped true
+#         ^parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { <= <near-range> })
+#   -->
+#   (<o> ^actions.thrust front)}
+#
+#sp {haunt*elaborate*move-xyz*action*brake
+#   (state <s> ^operator <o>
+#              ^top-state <ts>)
+#   (<ts> -^self.stopped true
+#          ^parameters.near-xy-range <near-range>)
+#   (<o> ^type move-to-xyz
+#        ^xy-range { <= <near-range> })
+#   -->
+#   (<o> ^actions.brake on)}
+#
+#
+#

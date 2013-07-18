@@ -1,0 +1,5 @@
+sp {compute-bid-probability-with-assumed-dice*elaborate*state
+   (state <s> ^name compute-bid-probability-with-assumed-dice)
+-->
+   (<s> ^dice-counts <dcs>)
+}

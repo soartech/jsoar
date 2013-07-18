@@ -1,0 +1,16 @@
+sp {record-label*propose*record-label-first
+   (state <s> ^name record-label
+             -^cond)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name record-label-first)
+}
+
+sp {apply*record-label-first
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>)
+   (<op> ^name record-label-first)
+   (<ss-op> ^label.first.next <cond>)
+-->
+   (<s> ^cond <cond>)
+}

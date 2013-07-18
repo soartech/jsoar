@@ -1,0 +1,154 @@
+smem --add {
+           (<zero> ^digit 0
+                   ^name zero
+                   ^single-digit true
+                   ^next-carry false
+                   ^next <one>
+                   ^plus-ten <ten>
+                   ^next-generate <one>
+                   ^previous <nine>
+                   ^previous-borrow true)
+           (<one> ^digit 1
+                  ^name one
+                  ^single-digit true
+                  ^next-carry false
+                  ^next <two>
+                  ^plus-ten <eleven>
+                  ^next-generate <two>
+                  ^previous <zero>)
+           (<two> ^digit 2
+                  ^name two
+                  ^single-digit true
+                  ^next-carry false
+                  ^next <three>
+                  ^plus-ten <twelve>
+                  ^next-generate <three>
+                  ^previous <one>)
+           (<three> ^digit 3
+                    ^name three
+                    ^single-digit true
+                    ^next-carry false
+                    ^next <four>
+                    ^plus-ten <thirteen>
+                    ^next-generate <four>
+                    ^previous <two>)
+           (<four> ^digit 4
+                   ^name four
+                   ^single-digit true
+                   ^next-carry false
+                   ^next <five>
+                   ^next-generate <five>
+                   ^plus-ten <fourteen>
+                   ^previous <three>)
+           (<five> ^digit 5
+                   ^name five
+                   ^single-digit true
+                   ^next-carry false
+                   ^next <six>
+                   ^next-generate <six>
+                   ^plus-ten <fifteen>
+                   ^previous <four>)
+           (<six> ^digit 6
+                  ^name six
+                  ^single-digit true
+                  ^next-carry false
+                  ^next <seven>
+                  ^next-generate <seven>
+                  ^plus-ten <sixteen>
+                  ^previous <five>)
+           (<seven> ^digit 7
+                    ^name seven
+                    ^single-digit true
+                    ^next-carry false
+                    ^next <eight>
+                    ^next-generate <eight>
+                    ^plus-ten <seventeen>
+                    ^previous <six>)
+           (<eight> ^digit 8
+                    ^name eight
+                    ^single-digit true
+                    ^next-carry false
+                    ^next <nine>
+                    ^next-generate <nine>
+                    ^plus-ten <eightteen>
+                    ^previous <seven>)
+           (<nine> ^digit 9
+                   ^name nine
+                   ^single-digit true
+                   ^next-carry true
+                   ^next <zero>
+                   ^next-generate <ten>
+                   ^plus-ten <nineteen>
+                   ^previous <eight>)
+           (<ten> ^digit 10
+                  ^name ten
+                  ^single-digit false
+                  ^next-carry true
+                  ^next <eleven>
+                  ^next-generate <eleven>
+                  ^previous <nine>)
+           (<eleven> ^digit 11
+                     ^name eleven
+                     ^single-digit false
+                     ^next-carry true
+                     ^next <twelve>
+                     ^next-generate <twelve>
+                     ^previous <ten>)
+           (<twelve> ^digit 12
+                     ^name twelve
+                     ^single-digit false
+                     ^next-carry true
+                     ^next <thirteen>
+                     ^next-generate <thirteen>
+                     ^previous <eleven>)
+           (<thirteen> ^digit 13
+                       ^name thirteen
+                       ^single-digit false
+                       ^next-carry true
+                       ^next <fourteen>
+                       ^next-generate <fourteen>
+                       ^previous <twelve>)
+           (<fourteen> ^digit 14
+                       ^name fourteen
+                       ^single-digit false
+                       ^next-carry true
+                       ^next <fifteen>
+                       ^next-generate <fifteen>
+                       ^previous <thirteen>)
+           (<fifteen> ^digit 15
+                      ^name fifteen
+                      ^single-digit false
+                      ^next-carry true
+                      ^next <sixteen>
+                      ^next-generate <sixteen>
+                      ^previous <fourteen>)
+           (<sixteen> ^digit 16
+                      ^name sixteen
+                      ^single-digit false
+                      ^next-carry true
+                      ^next <seventeen>
+                      ^next-generate <seventeen>
+                      ^previous <fifteen>)
+           (<seventeen> ^digit 17
+                        ^name seventeen
+                        ^single-digit false
+                        ^next-carry true
+                        ^next <eightteen>
+                        ^next-generate <eightteen>
+                        ^previous <sixteen>)
+           (<eightteen> ^digit 18
+                        ^name eightteen
+                        ^single-digit false
+                        ^next-carry true
+                        ^next <nineteen>
+                        ^next-generate <nineteen>
+                        ^previous <seventeen>)
+           (<nineteen> ^digit 19
+                       ^name nineteen
+                       ^single-digit false
+                       ^next-carry true
+                       ^next <zero>
+                       ^next-generate nil
+                       ^previous <eightteen>)
+}
+

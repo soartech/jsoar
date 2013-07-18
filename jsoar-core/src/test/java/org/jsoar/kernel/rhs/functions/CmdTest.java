@@ -24,10 +24,14 @@ public class CmdTest
     @Before
     public void setUp() throws Exception
     {
-        this.agent = new Agent();
+        this.agent = new Agent(false);
         this.agent.getPrinter().addPersistentWriter(
                 outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
+        
+        // Since this compares text and .initialize() writes a \n to the trace
+        // These tests will fail unless the trace is off when .initialize() is
+        // called.
         this.agent.initialize();
     }
 
@@ -48,7 +52,7 @@ public class CmdTest
         outputWriter.flush();
         agent.runFor(1, RunType.DECISIONS);
         String output = outputWriter.getBuffer().toString();
-        assertEquals("(S1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n", output);
+        assertEquals("(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n", output);
     }
     
     @Test

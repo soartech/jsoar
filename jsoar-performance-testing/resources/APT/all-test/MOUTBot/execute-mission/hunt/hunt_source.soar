@@ -1,0 +1,9 @@
+source elaborations.soar
+source goto-next-room.soar
+pushd goto-next-room
+source goto-next-room_source.soar
+popd
+source reconnoiter.soar
+pushd reconnoiter
+source reconnoiter_source.soar
+popd

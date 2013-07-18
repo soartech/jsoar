@@ -1,0 +1,10 @@
+#
+# Compound operator that will first obtain a tool 
+# and then use it with the target object
+#
+# REQUIRED ATTRIBUTES:
+#
+#        ^target  (object to be unlocked)
+#        ^tool    (object to use-with/unlock target)
+#
+

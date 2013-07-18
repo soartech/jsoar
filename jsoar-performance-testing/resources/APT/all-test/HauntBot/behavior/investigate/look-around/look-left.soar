@@ -1,0 +1,15 @@
+sp {look-around*propose*look-left
+   (state <s> ^type look-around
+              ^io.input-link.agent.position <apos>
+              ^target <target>)
+   (<target> ^should-investigate.direction left
+             ^position <tpos>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name look-left
+        ^actions.face-abs (* -1 (+ 180 (compute-heading <agent-x> <agent-y> <target-x> <target-y>))))
+}

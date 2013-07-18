@@ -1,0 +1,10 @@
+# copy down area & position data for use in above rules
+sp {move-to-pos*elaborate*copy-pos-info
+   (state <s> ^type move-to-pos
+              ^superstate.operator <o>)
+   (<o> ^area <area> 
+        ^position <pos>)
+   -->
+   (<s> ^area <area> 
+        ^position <pos>)
+}

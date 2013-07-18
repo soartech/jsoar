@@ -1,0 +1,52 @@
+
+
+sp {UCBot*propose*detect-record-area-complete
+   (state <s> ^map <map>
+              ^name UCBot)
+   (<map> ^search-complete false
+         -^areas.area.recorded false)
+-->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name detect-record-area-complete)}
+
+sp {UCBot*apply*detect-record-area-complete
+   (state <s> ^operator.name detect-record-area-complete
+              ^map <map>)
+-->
+   (<map> ^search-complete true
+                           false -)}
+
+sp {UCBot*monitor*detect-record-area-complete
+   (state <s> ^operator.name detect-record-area-complete
+             -^parameters.monitor-level none)
+-->
+   (write (crlf) |*** ALL AREAS RECORDED, search-complete now marked true ***|)
+}
+
+sp {UCBot*apply*detect-record-area-complete*log
+   (state <s> ^operator.name detect-record-area-complete
+              ^parameters.internal-simulation false
+              ^io.output-link <ol>)
+-->
+   (<ol> ^mark.value all-areas-recorded)
+}
+
+# Prefer recording an area over this
+sp {UCBot*compare*detect-record-area-complete*record-area
+   (state <s> ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name detect-record-area-complete)
+   (<op2> ^name record-area)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+# Prefer updating the record-area status over detecting a flag
+sp {UCBot*compare*detect-record-area-complete
+   (state <s> ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name detect-record-area-complete)
+   (<op2> ^name detect-flag)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

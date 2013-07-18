@@ -34,7 +34,6 @@ public class ReinforcementLearningTest
     public void setUp()
     {
         this.agent = new Agent();
-        this.agent.initialize();
         this.rl = Adaptables.adapt(this.agent, ReinforcementLearning.class);
         assertNotNull(rl);
     }

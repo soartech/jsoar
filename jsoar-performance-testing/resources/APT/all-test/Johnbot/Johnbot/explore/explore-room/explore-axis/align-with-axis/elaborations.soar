@@ -1,0 +1,110 @@
+#echo "\nLoading align-with-axis/elaborations"
+
+## Copy down the current axis being aligned
+
+sp {align-with-axis*elaborate*axis
+   (state <s> ^name align-with-axis
+              ^superstate.axis <a>)
+   -->
+   (<s> ^axis <a>)}
+
+## Copy down new heading to achieve
+
+sp {align-with-axis*elaborate*new-heading
+   (state <s> ^name align-with-axis
+              ^superstate.operator.new-heading <nh>)
+   -->
+   (<s> ^new-heading <nh>)}
+
+## Copy down the direction
+
+sp {align-with-axis*elaborate*direction
+   (state <s> ^name align-with-axis
+              ^superstate.operator.direction <dir>)
+   -->
+   (<s> ^direction <dir>)}
+
+## Compute difference between current heading (yaw) and
+## desired heading
+
+sp {align-with-axis*elaborate*heading-difference
+   (state <s> ^name align-with-axis
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^new-heading <nh>)
+   -->
+   (<s> ^heading-difference (round-off-heading (- <yaw> <nh>) 1))}
+
+## Detect achieved desired heading.
+
+sp {align-with-axis*elaborate*achieved*heading
+   (state <s> ^name align-with-axis
+              ^heading-difference { > -5 < 5 })
+   -->
+   (<s> ^achieved heading)}
+
+## Detect backed up so close to a wall.
+
+sp {align-with-axis*elaborate*achieved*close-to-wall
+   (state <s> ^name align-with-axis
+              ^top-state.parameters.wall-close <wclose>
+              ^io.input-link.map.backward.distance <= <wclose>)
+   -->
+   (<s> ^achieved close-to-wall)}
+
+## The following detect if close to wall, but do it based on
+##   the know position of a wall.
+##  Need to test based on walls because there could be a doorway
+##  behind and so the backward distance would be irrelevant.
+
+sp {align-with-axis*elaborate*achieved*close-to-wall*north
+   (state <s> ^name align-with-axis
+              ^direction north
+              ^explore-room.wall <w>
+              ^io.input-link.agent.origin.y < <y>)
+   (<w> ^side south
+        ^y-max <y>)
+   -->
+   (<s> ^achieved close-to-wall)}
+
+sp {align-with-axis*elaborate*achieved*close-to-wall*south
+   (state <s> ^name align-with-axis
+              ^direction south
+              ^explore-room.wall <w>
+              ^io.input-link.agent.origin.y > <y>)
+   (<w> ^side north
+        ^y-min <y>)
+   -->
+   (<s> ^achieved close-to-wall)}
+
+sp {align-with-axis*elaborate*achieved*close-to-wall*east
+   (state <s> ^name align-with-axis
+              ^direction east
+              ^explore-room.wall <w>
+              ^io.input-link.agent.origin.x < <x>)
+   (<w> ^side west
+        ^x-max <x>)
+   -->
+   (<s> ^achieved close-to-wall)}
+
+sp {align-with-axis*elaborate*achieved*close-to-wall*west
+   (state <s> ^name align-with-axis
+              ^direction west
+              ^explore-room.wall <w>
+              ^io.input-link.agent.origin.x > <x>)
+   (<w> ^side east
+        ^x-min <x>)
+   -->
+   (<s> ^achieved close-to-wall)}
+
+## Check to make sure really in the room, achieved close-to-wall, 
+## and thrust is off.
+
+sp {align-with-axis*elaborate*detect*backed-up*back-wall
+   (state <s> ^name align-with-axis
+              ^achieved close-to-wall
+              ^explore-room <cr>
+             -^top-state.map.current-room <> <cr>
+              ^io.input-link.feedback.thrust off)
+   -->
+   (<s> ^backed-up true)}
+

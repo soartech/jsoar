@@ -1,0 +1,39 @@
+source _firstload.soar
+source _notes.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source scenario-2002-10.soar
+source scenario-3rdfloor.soar
+source scenario-ambush.soar
+source scenario-lhall.soar
+source scenario-lroom.soar
+source scenario-selection.soar
+source scenario-thall.soar
+source accept-message.soar
+source common.soar
+pushd common
+source common_source.soar
+popd
+source execute-mission.soar
+pushd execute-mission
+source execute-mission_source.soar
+popd
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source freeze.soar
+source initialize.soar
+pushd initialize
+source initialize_source.soar
+popd
+source record-controlled-area.soar
+source record-threat.soar
+source z-patches.soar
+pushd z-patches
+source z-patches_source.soar
+popd

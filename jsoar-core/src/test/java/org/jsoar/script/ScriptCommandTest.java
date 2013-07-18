@@ -72,7 +72,6 @@ public class ScriptCommandTest
         final Agent agent = new Agent("testCanCleanupRegisteredListenersWhenReset");
         try
         {
-            agent.initialize();
             // Initialize javascript engine and register a handler for our test
             // event. It throws an exception.
             agent.getInterpreter().eval("script javascript { soar.onEvent('org.jsoar.script.ScriptCommandTest$TestEvent', function() { throw 'Failed'; }); }");
@@ -95,7 +94,6 @@ public class ScriptCommandTest
         final Agent agent = new Agent("testCanCleanupRegistersRhsFunctionsWhenReset");
         try
         {
-            agent.initialize();
             // Initialize javascript engine and register a handler for our test
             // function. It throws an exception.
             agent.getInterpreter().eval("script javascript {\n" +

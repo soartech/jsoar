@@ -1,0 +1,24 @@
+#echo "\nLoading attack/charge-enemy"
+
+sp {attack*propose*charge-enemy
+   (state <s> ^name attack
+              ^enemy <e>
+              ^io.input-link.feedback <fb>    
+             -^top-state.self.retreat <reason>
+              ^enemy-room different)
+   (<fb> ^facetarget on             
+         ^selecttarget <sid>)           
+   (<e> ^sensor <se>
+        ^soar-id <sid>)
+   (<se> ^visible true
+         ^infront true)
+   -->
+   (write (crlf) |Charge-enemy in other room.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name charge-enemy
+        ^actions <a>)
+   (<a> ^sidestep off
+        ^attack on
+        ^thrust forward)}
+
+

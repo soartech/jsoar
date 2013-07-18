@@ -1,0 +1,67 @@
+#echo "\nLoading wander/remove-search-room"
+
+
+################################
+### Propose remove-search-room operator
+################################
+
+##  Remove record of searching old room.
+##  Look for enemies and items to pick up.
+
+sp {wander*propose*remove-search-room
+   (state <s> ^name wander
+              ^top-state.map.room <r>
+              ^current-room <> <r>)
+   (<r> ^search <ss>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-search-room
+        ^room <r>)
+   }
+
+#sp {wander*propose*remove-search-room*moved
+#   (state <s> ^name wander
+#             ^current-room <r>
+#             ^io.input-link.agent.origin <or>)
+#  (<or> ^x <x>
+#        ^y <y>)
+#  (<r> ^search <ss>)
+#   (<ss>   ^x <> <x>
+#        ^y <> <y>)
+#  -->
+#   (<s> ^operator <o> + =, >)
+#  (<o> ^name remove-search-room
+#       ^room <r>)
+#  }
+
+sp {wander*select*remove-search-room
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name remove-search-room)
+   (<o2> ^name search-room)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+sp {wander*apply*remove-search-room
+   (state <s> ^operator <o>)
+   (<o> ^name remove-search-room
+        ^room <r>)
+   (<r> ^search <ss>)
+   -->
+   (<r> ^search <ss> -)
+   }
+
+sp {wander*apply*remove-search-room2
+   (state <s> ^operator <o>
+              ^current-room <r>)
+   (<o> ^name remove-search-room
+        ^room <r>)
+   -->
+   (<r> ^search <nss>)
+   (<nss> ^turned-right true
+          ^turned-left true)
+   }
+
+
+

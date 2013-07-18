@@ -1,0 +1,21 @@
+echo "\nLoading behavior/greet"
+
+#
+# simple behavior to walk near and greet player
+#
+sp {behavior*propose*greet
+   (state <s> ^name haunt
+              ^impossible true  #MJP: Disable greeting for now
+              ^map.area <area>
+              ^io.input-link.objects.entity <entity>)
+   (<area> ^name <area-name>)
+   (<entity> ^name |Bob|
+             ^visible true
+             ^position <pos>
+             ^area <area-name>)
+-->
+   (write (crlf) |Ah... I see you!|)
+   (<s> ^operator <o> +)
+   (<o> ^name greet)
+}
+

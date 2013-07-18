@@ -1,0 +1,6 @@
+sp {retreat*elaborate*substate*current-area
+   (state <s> ^name retreat
+              ^top-state.map.current-area <ca>)
+   -->
+   (<s> ^current-area <ca>)
+}

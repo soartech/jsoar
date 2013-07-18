@@ -1,0 +1,34 @@
+sp {compute-result*propose*add-ten
+   (state <s> ^name compute-result
+              ^current-column.new-digit1 <r>
+              ^result <r>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-ten)
+}
+
+#sp {compute-result*apply*add-ten*wm
+#   (state <s> ^operator <op>
+#              ^arithmetic.add10-facts <af>
+#              ^superstate <ss>
+#              ^top-state.parameters.fact-source wm)
+#   (<ss> ^digit1 <d>)
+#   (<af> ^digit1 <d>
+#         ^digit-10 <d10>)
+#   (<op> ^name add-ten)
+#-->
+#   (<ss> ^digit1 <d> -
+#                 <d10>)
+#}
+#
+
+sp {compute-result*apply*add-ten*smem*result
+   (state <s> ^operator.name add-ten
+              ^superstate <ss>)
+   (<ss> ^digit1 <d>)
+   (<d> ^plus-ten <d10>)
+-->
+   (<ss> ^digit1 <d> -
+                 <d10>)
+}
+

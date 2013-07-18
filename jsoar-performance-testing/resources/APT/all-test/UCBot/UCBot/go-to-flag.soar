@@ -1,0 +1,75 @@
+
+# If we're going to the flag as soon as we find it, and not exploring completely:
+sp {UCBot*propose*go-to-flag*go-to-flag
+   (state <s> ^name UCBot
+              ^parameters <params>
+              ^flag <f>
+             -^mission.achieved-flag <f>)
+   (<params> ^explore-or-flag go-to-flag)
+   (<f> ^area.recorded true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name go-to-flag
+         ^flag <f>)
+}
+
+#sp {UCBot*propose*go-to-flag*go-to-flag-immediately*know-location
+#   (state <s> ^name UCBot
+#              ^parameters <params>
+#              ^flag <f>)
+#   (<params> ^explore-or-flag go-to-flag)
+#   (<f> ^area-id <id>
+#        ^previous-id <id>
+#        ^area.recorded true)
+#-->
+#   (<s> ^operator <op> + =)
+#   (<op> ^name go-to-flag
+#         ^flag <f>)
+#}
+
+# If we're exploring the entire map:
+sp {UCBot*propose*go-to-flag*explore-all
+   (state <s> ^name UCBot
+              ^parameters <params>
+              ^flag <f>
+              ^map.search-complete true)
+   (<params> ^explore-or-flag explore-all)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name go-to-flag
+         ^flag <f>)
+}
+
+sp {go-to-flag*apply*search-for-flag
+   (state <s> ^operator.name go-to-flag
+              ^map.current-area <cur-area> 
+              ^flag <f>
+              ^mission <m>)
+   (<f> ^previous-id <id>
+        ^area-id <> <id>)
+   (<cur-area> ^id <id>)
+-->
+   (<m> ^search-for-flag <cur-area>)
+}
+   
+## This updates a recorded last area and moves it to previous-area
+sp {go-to-flag*apply*move-to-area*record-previous-area*go-to-flag
+   (state <s> ^operator.name go-to-flag
+              ^map <map>)
+   (<map> ^current-area <current-area>
+          ^last-area { <> <current-area> <prior-area> })
+-->
+   (<map> ^previous-area <prior-area>
+          ^last-area <prior-area> -)
+}
+
+sp {UCBot*compare*go-to-flag
+   (state <s> ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name go-to-flag)
+   (<op2> ^name << record-area record-path update-paths-recorded >>)
+-->
+   (<s> ^operator <op2> > <op1>)
+}
+
+   

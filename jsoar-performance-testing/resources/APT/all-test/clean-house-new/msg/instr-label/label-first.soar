@@ -1,0 +1,23 @@
+sp {instr-label*propose*label-first
+   (state <s> ^name instr-label
+             -^input)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name label-first)
+}
+
+sp {apply*label-first
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>
+              ^top-state.labels <labels>)
+   (<op> ^name label-first)
+   (<ss-op> ^label <label-name>
+            ^conds <conds>)
+-->
+   (<s> ^input <conds>
+        ^output <first>
+        ^prev nil)
+   (<labels> ^label <l>)
+   (<l> ^name <label-name>
+        ^first <first>)
+}

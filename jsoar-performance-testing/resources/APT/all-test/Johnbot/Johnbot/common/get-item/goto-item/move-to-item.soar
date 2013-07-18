@@ -1,0 +1,82 @@
+echo "\nLoading goto-item/move-to-item"
+
+## item-distance and item-distance-check computed in elaborations.soar
+
+sp {goto-item*propose*move-to-item
+   (state <s> ^name goto-item
+             -^weave-check
+              ^item-angle-off-check true
+             -^item-distance-check true)
+   -->
+#  (write (crlf) |Move to item, angle-off-check true.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-item
+        ^actions.sidestep off
+#       ^actions.turn off
+        ^actions.thrust forward)}
+
+sp {goto-item*propose*move-to-item*selected
+   (state <s> ^name goto-item
+             -^weave-check
+              ^io.input-link.feedback <fb>
+              ^item <item> 
+             -^item-distance-check true)
+   (<item> ^soar-id <sid>)
+   (<fb> ^selecttarget <sid>
+         ^facetarget on)
+   -->
+ #  (write (crlf) |Move to item: | <item>)
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-item
+        ^actions.sidestep off
+#       ^actions.turn off
+        ^actions.thrust forward)}
+
+sp {goto-item*propose*move-to-item*closer
+   (state <s> ^name goto-item
+              ^top-state.self.stopped true
+              ^io.input-link.feedback.thrust << off backward >>
+              ^item-angle-off-check true)
+   -->
+ #  (write (crlf) |Move to item, stopped.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-item
+#       ^actions.sidestep off
+#       ^actions.turn off
+        ^actions.thrust forward)}
+
+sp {goto-item*propose*move-to-item*weave
+   (state <s> ^name goto-item
+              ^io.input-link.feedback.sidestep off
+              ^weave-check <dir>)
+   -->
+#   (write (crlf) |Move to item, weave.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-item
+        ^actions <a>)
+   (<a> ^thrust forward
+        ^sidestep <dir>)}
+
+sp {goto-item*propose*move-to-item*stop-weave
+   (state <s> ^name goto-item
+              ^io.input-link.feedback.sidestep <> off
+)#           -^weave-check <dir>)
+   -->
+ #  (write (crlf) |Move to item, stop weave.|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name move-to-item
+        ^actions <a>)
+   (<a> ^thrust forward
+        ^sidestep off)}
+
+### Remove record of any items - information is now out of date.
+
+#sp {goto-item*apply*move-to-item*closer
+#  (state <s> ^operator.name move-to-item
+#             ^top-state.map.current-room.search <ss>)
+#  (<ss> ^recorded <item>)
+#  -->
+#  (<ss> ^recorded <item> -)}
+
+
+

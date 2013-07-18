@@ -1,0 +1,19 @@
+## Init-write
+
+sp {write*propose*init-write
+   (state <s> ^name write-answer
+             -^current-problem-ptr)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name init-write)
+}
+
+sp {apply*init-write
+   (state <s> ^operator.name init-write
+              ^superstate <ss>)
+   (<ss> ^instructions.problem-structure <ps1>
+         ^current-problem.element <p1>)
+-->
+   (<s> ^current-problem-ptr <p1>
+        ^current-problem-structure-ptr <ps1>)
+}

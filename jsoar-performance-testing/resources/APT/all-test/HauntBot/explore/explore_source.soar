@@ -1,0 +1,12 @@
+source elaborations.soar
+source move-to-area.soar
+pushd move-to-area
+source move-to-area_source.soar
+popd
+source move-to-node.soar
+source record-entryway.soar
+pushd record-entryway
+source record-entryway_source.soar
+popd
+source record-path.soar
+source record-visible-area.soar

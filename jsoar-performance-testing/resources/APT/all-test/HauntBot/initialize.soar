@@ -1,0 +1,269 @@
+echo "\nLoading initialize"
+      
+sp {haunt*apply*initialize
+   (state <s> ^operator.name initialize
+             -^choice-set)
+-->
+   (<s> ^initialized true)
+}
+
+sp {haunt*apply*initialize*selection-set
+   (state <s> ^operator.name initialize
+              ^selection-set.selected-choice
+              ^map.initialized-nodes true)
+-->
+   (<s> ^initialized true)
+}
+
+
+# REW: 2002-07-26
+# This is a default script production.  In general, each specific bot file (eg, HauntBot1) will
+# have it's own script initialization production that will excise this one.  Anyway, that's the
+# story this week...
+# REW: 2002-07-26
+# [1] JEL says we don't want the script initialization to be dependent on agent name, so that's
+#     now unbound.  Previously, it was ....agent.name |HauntInterface|
+#     Need to talk with Andy to understand role of clear-building script production and if it should
+#     be agent-specific?
+#
+#     Note that for now the input-link says that the agent is |HauntBot1| while to
+#     other agents it appears as |HauntBot1|.  Since Soar equivalance testing for
+#     strings is case-dependent, we need these to be the same.
+
+sp {haunt*apply*initialize*script
+   (state <s> ^operator.name initialize
+              ^impossible # until we create the map
+                             # [1] REW: 2002-07-26
+              ^io.input-link.agent.name <something>)
+-->
+   (<s> ^script <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^runaway-objective <ro>)
+   (<ro> ^name room11)
+   (<po> ^name |Scare Hitchhiker|
+         ^status active
+         ^type safety)
+   (<obj> ^status active
+          ^area-type entryway
+          ^actor <actor>
+          ^position <dp>)
+   (<actor> ^area-name stairway
+            ^node-name |EntryNode30|
+            ^team |None|              #Change this once teams are working
+            ^type Hitchhiker)
+   (<dp> ^area-name room6
+         ^type room
+         ^position <pos>)
+   (<pos> ^x 890.0            #Initial defensive position assigned
+          ^y 450.0
+          ^z -905.0)
+}
+#
+
+
+
+#seed the last node
+#should fire once on game entry
+sp {haunt*apply*initialize-last-node
+   (state <s> ^operator.name initialize
+              ^map <map>)
+  -(<map> ^last-node)
+-->
+   (<map> ^last-node <ln>)
+   (<ln> ^name none)
+}
+
+#JEL: 2002-08-08
+#Add creation of areas
+## This operator generates a new area on the map
+## This was originally done in all/record-area
+## Should modify test for <> none ... once map is fixed
+## JEL: 2002-10-18 Added write statement, tests <> |Pathnode| <> |Entrynode| <> |none|
+
+sp {haunt*apply*initialize*create*area-names
+   (state <s> ^operator.name initialize
+              ^map.area-names <an>
+              ^io.input-link.map.nodes.node <node>)
+   (<node> ^type << |None| |none| none >>                    # only base on path nodes
+           ^area { <> none <> |None| <> |Entrynode| <> |PathNode| <> |none| <area-name> }
+           ^name <name>)
+-->
+#   (write (crlf) | AREA: | <area-name> | Node name: | <name>)
+   (<an> ^name <area-name>)
+}
+
+sp {haunt*apply*initialize*create*area
+   (state <s> ^operator.name initialize
+              ^map <map>)
+   (<map> ^area-names.name <an>
+         -^area.name <an>)
+-->
+   (<map> ^area <area>)
+   (<area> ^name <an>)
+}
+#AMN: 2002-08-02
+#Added ^derived yes to nodes created by the
+#following rules to differentiate them nodes
+#actually visible on the input-link.
+
+sp {haunt*apply*initialize*nodes*max-max
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^max-x <x>
+           ^max-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^name <new-name>
+            ^visited 1
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                  
+sp {haunt*apply*initialize*nodes*max-min
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^max-x <x>
+           ^min-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                          
+sp {haunt*apply*initialize*nodes*min-min
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^min-x <x>
+           ^min-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                                  
+sp {haunt*apply*initialize*nodes*min-max
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^min-x <x>
+           ^max-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+
+               
+#### CHOICE SET INITIALIZATION
+
+## Use the random number to generate a number between .0 and 1.0 from different digits of the random number
+
+sp {haunt*apply*initialize*choice-set*random-number
+   (state <s> ^operator.name initialize
+              ^io.input-link.agent.rand <rand>
+              ^choice-set <cs>)
+   (<cs> ^random-index <num>)
+-->
+   (<cs> ^random-number (- (* <num> <rand>) (int (* <num> <rand>))))
+}
+
+
+## Create the selection-set for each choice
+
+sp {haunt*apply*initialize*selected-set
+   (state <s> ^operator.name initialize
+              ^choice-set.state-name <name>
+             -^selection-set.state-name <name>)
+-->
+   (<s> ^selection-set.state-name <name>)
+}
+
+## Use the random number to select the choice to be used - unfortunately, one random number
+## would be used for all choices, so the choices would not be independent
+
+sp {haunt*apply*initialize*selected-choice
+   (state <s> ^operator.name initialize
+              ^selection-set <ss>
+              ^choice-set <cs>)
+   (<cs> ^state-name <name>
+         ^choice <ch1>
+         ^random-number <rand>)
+   (<ch1> ^choice-number { <cn> > <rand> })
+  -(<cs> ^choice.choice-number { < <cn> > <rand> })
+   (<ss> ^state-name <name>)
+-->
+   (<ss> ^selected-choice <ch1>)
+}
+
+
+sp {haunt*apply*initialize*not-selected-choice*less-than
+   (state <s> ^operator.name initialize
+              ^selection-set <ss>
+              ^choice-set <cs>)
+   (<cs> ^state-name <name>
+         ^choice <ch1>
+         ^random-number <rand>)
+   (<ch1> ^choice-number { <cn> < <rand> })
+   (<ss> ^state-name <name>)
+-->
+   (<ss> ^not-selected-choice <ch1>)
+}
+
+
+sp {haunt*apply*initialize*not-selected-choice*greater-than-but
+   (state <s> ^operator.name initialize
+              ^selection-set <ss>
+              ^choice-set <cs>)
+   (<cs> ^state-name <name>
+         ^choice <ch1>
+         ^random-number <rand>)
+   (<ch1> ^choice-number { <cn> > <rand> })
+   (<cs> ^choice.choice-number { < <cn> > <rand> })
+   (<ss> ^state-name <name>)
+-->
+   (<ss> ^not-selected-choice <ch1>)
+}
+
+

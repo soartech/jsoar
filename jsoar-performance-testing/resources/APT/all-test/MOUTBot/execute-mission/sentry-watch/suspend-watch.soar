@@ -1,0 +1,83 @@
+##################################### 
+# file: suspend-watch.soar 
+# created: REW: 2001-08-27
+## 
+# Suspend the watch.  Specifies the conditions under which the 
+# watch should be suspended. Suspension involves changing the 
+# status of the objective.status to suspended which will cause
+# sentry-watch to be retracted (active-objective changes)
+#
+# Change history: 
+# 
+#  [1] REW: 2002-09-30
+#      This file is deprecated but I don't yet want to delete it.
+#      The threat-level comes from record-threat and now record=threat
+#      does not interrupt sentry-watch, so these productions should
+#      never fire.
+
+echo "\nLoading execute-mission/defend/sentry-watch/suspend-watch.soar"
+
+# REW: 2002-08-27
+# Need more proposals here for change in assignment, 
+# recognition of incoming fire (concealment lost), etc.
+
+#sp {sentry-watch*propose*suspend-watch*high-level-threats
+#   (state <s> ^name sentry-watch
+#              ^top-state.threats.level << high very-high >>
+#           
+#              ^objective <obj>)
+#   (<obj> ^status active 
+#          ^type sentry-watch
+#          ^sentry-watch <sw>)
+#   (<sw> 
+#         ^status << executing interrupted >>)
+#   -->
+#   (<s> ^operator <o> +, = 50)
+#   (<o> ^name suspend-watch)
+#}
+
+
+# This will mark the sentry-watch assignment as suspended.  A change-objective
+# operator will be necessary to actually cause another objective to be chosen 
+
+sp {apply*suspend-watch*objective*status*suspend
+   (state <s> ^operator <o1>
+              ^objective <obj> )
+   (<o1> ^name suspend-watch)
+   (<obj> ^status <active>   )
+   -->
+#   (write (crlf) |************************************|)
+#   (write (crlf) |Suspending the watch|)
+   (<obj> ^status <active> - suspended +)
+}
+
+# Also mark the sentry-watch status as suspended, as both the objective and its execution 
+# are to be suspended.  This avoids having to copy/save the sentry-watch structure
+sp {apply*suspend-watch*objective*sentry-watch*status*suspend
+   (state <s> ^operator <o1>
+              ^objective <obj> )
+   (<o1> ^name suspend-watch)
+   (<obj> ^sentry-watch <sw>)
+   (<sw> ^status <exe>   )
+   -->
+   (<sw> ^status <exe> - suspended +)
+}
+
+
+
+### SEARCH CONTROL
+
+# REW: 2002-08-27
+# Choose suspend-watch whenever it's proposed, as it's an indcation
+# that the goal should be terminated immediately.  There may be exceptions to this
+# So it's here rather than in the proposal.
+
+sp {sentry-watch*compare*suspend-watch
+   (state <s> ^name sentry-watch
+              ^operator <o1> +)
+                    
+   (<o1> ^name suspend-watch)
+
+   -->
+   (<s> ^operator <o1> > )
+}

@@ -1,0 +1,106 @@
+sp {grasp-ied*propose*grasp-plan
+   (state <s> ^name grasp-ied
+              ^clear
+              ^top-state.diffusing.force <wire>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name grasp-plan
+         ^wire <wire>)
+}
+
+sp {grasp-ied*propose*grasp-plan*wires
+   (state <s> ^name grasp-ied
+              ^clear
+              ^object <b>
+              ^top-state <ts>)
+   (<b> ^id <id>)
+   (<ts> ^diffusing.unique <wire>
+         ^io.input-link.objects.object <obj>)
+   (<obj> ^id <id>
+         -^diffused true)
+-->
+   (<s> ^operator <op> + = 0)
+   (<op> ^name grasp-plan
+         ^wire <wire>)
+}
+
+sp {grasp-ied*propose*grasp-plan*strength
+   (state <s> ^name grasp-ied
+              ^object <b>
+              ^top-state <ts>
+              ^operator <op> +)
+   (<ts> ^labels.unique <label-name>
+         ^diffusing <dh>)
+   (<b> ^type <label-name>)
+   (<dh> ^heuristic <h>)
+   (<h> ^label <label-name>
+        ^wire <wire>
+        ^strength <strength>)
+   (<op> ^name grasp-plan
+         ^wire <wire>)
+-->
+   (<s> ^operator <op> = <strength>)
+}
+
+sp {apply*grasp-plan*check
+   (state <s> ^operator <op>
+              ^top-state.io.output-link <out>
+              ^object <b>)
+   (<op> ^name grasp-plan
+         ^wire <wire>)
+   (<b> ^id <id>
+       -^confirmation received)
+-->
+   (<b> ^confirmation waiting)
+   (<out> ^send-message <m1> <m2>)
+   (<m1> ^first <one>
+         ^destination operator)
+   (<one> ^word |best|
+          ^next <two>)
+   (<two> ^word |guess|
+          ^next <three>)
+   (<three> ^word |to|
+            ^next <four>)
+   (<four> ^word |diffuse|
+           ^next <five>)
+   (<five> ^word <id>
+           ^next <six>)
+   (<six> ^word |via|
+          ^next <seven>)
+   (<seven> ^word <wire>
+            ^next <eight>)
+   (<eight> ^word |wire,|
+            ^next <nine>)
+   (<nine> ^word |please|
+           ^next <ten>)
+   (<ten> ^word |confirm|
+          ^next nil)
+   (<m2> ^destination operator
+         ^first <first>)
+   (<first> ^word |WIRES|
+            ^next nil)
+}
+
+sp {apply*grasp-plan*clean-force
+   (state <s> ^operator <op>
+              ^top-state.diffusing <dh>
+              ^object.confirmation received)
+   (<op> ^name grasp-plan)
+   (<dh> ^force <wire>)
+-->
+   (<dh> ^force <wire> -)
+}
+
+sp {apply*grasp-plan*diffuse
+   (state <s> ^operator <op>
+              ^top-state.io.output-link <out>
+              ^object <b>)
+   (<op> ^name grasp-plan
+         ^wire <wire>)
+   (<b> ^id <id>
+        ^confirmation received)
+-->
+   (<out> ^diffuse-object-by-wire <d>)
+   (<d> ^id <id>
+        ^color <wire>)
+}

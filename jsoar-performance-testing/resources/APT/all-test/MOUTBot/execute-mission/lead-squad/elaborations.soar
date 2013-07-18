@@ -1,0 +1,19 @@
+##################################### 
+# file: lead-squad/elaborations.soar 
+# created: REW: 2001-08-28
+## 
+## Elaborations for the lead-squad substate
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/lead-squad/elaborations.soar"
+                
+sp {lead-squad*elaborate*substate*objective
+   (state <s> ^name lead-squad
+              ^superstate.operator <so>)
+   (<so> ^name lead-squad
+         ^objective <obj>)
+   -->
+   (<s> ^objective <obj>)
+}

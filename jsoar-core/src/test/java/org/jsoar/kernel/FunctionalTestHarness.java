@@ -25,9 +25,9 @@ public class FunctionalTestHarness
 {
     public Agent agent;
     
-    private boolean halted = false;
-    private boolean failed = false;
-   
+    protected boolean halted = false;
+    protected boolean failed = false;
+        
     /**
      * Sources rules
      * @param testName the test to perform
@@ -57,7 +57,7 @@ public class FunctionalTestHarness
         assertFalse(testName + " functional test failed", failed);
         if(expectedDecisions >= 0)
         {
-            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
+            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
         }
         
         agent.getInterpreter().eval("stats");
@@ -78,12 +78,6 @@ public class FunctionalTestHarness
         halted = false;
         failed = false;
         agent = new Agent();
-        agent.getTrace().enableAll();
-        agent.initialize();
-        
-        agent.getTrace().disableAll();
-        //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
-        //agent.trace.setEnabled(false);
         
         installRHS(agent);
     }
@@ -108,7 +102,7 @@ public class FunctionalTestHarness
         // set up the agent with common RHS functions
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);     
-
+        
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
             @Override

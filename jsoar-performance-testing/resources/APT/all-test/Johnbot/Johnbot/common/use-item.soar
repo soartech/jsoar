@@ -1,0 +1,11 @@
+#echo "\nLoading common/use-item"
+
+sp {common*apply*use-item
+   (state <s> ^operator <o>)
+   (<o> ^name use-item
+        ^classname <iname>)
+   -->
+   (<o> ^actions.use <iname>)
+   }
+
+

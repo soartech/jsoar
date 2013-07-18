@@ -1,0 +1,32 @@
+#
+# since target is too high to reach from ground,
+# first we need to get something to stand on to give
+# us the required additional height
+#
+sp {acquire-and-x*propose*place-step
+   (state <s> ^type acquire-and-x
+              ^target <target>
+             -^has-object
+             -^blocking-object
+              ^height-required <h>
+             -^usable-step  # nothing in position to stand on
+              ^top-state.available.height-source {<source> <> <target>})
+   (<target> ^area-id <area>
+             ^position <pos>)
+   (<source> ^height >= <h>)
+   -->
+   (write (crlf) |Getting a box to stand on|)
+   (<s> ^operator <o> + =)
+   (<o> ^name place-step
+         ^type acquire-and-x  # recursion
+         ^target <source>
+         ^should-empty-hand yes  #this way, agent will automatically empty his hand away from target
+         ^next-action <na1>)
+   (<na1> ^name move-and-x
+          ^type move-and-x
+          ^area <area>
+          ^position <pos>
+          ^next-action <na2>)
+   (<na2> ^name drop-object
+          ^type drop-object)
+}

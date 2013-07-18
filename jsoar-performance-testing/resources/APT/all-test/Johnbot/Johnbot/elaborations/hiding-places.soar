@@ -1,0 +1,70 @@
+#echo "\nLoading quake/elaborations/hiding-places"
+
+
+#########################
+## FIND HIDING PLACE
+
+sp {quake*elaborate*room*hiding-place*south-west
+   (state <s> ^name quake
+              ^map.room <cr>)
+   (<cr> ^type room
+         ^door <d1> { <> <d1> <d2> }
+        -^door { <> <d1> <> <d2> })
+   (<d1> ^direction west
+         ^wall.x <x>)
+   (<d2> ^direction south
+         ^wall.y <y>)
+   -->
+#   (write (crlf) |Hiding Place: | <x> | | <y>)
+   (<cr> ^hiding-place <hp>)
+   (<hp> ^x <x> ^y <y>
+         ^final-facing 45)}
+
+sp {quake*elaborate*room*hiding-place*south-east
+   (state <s> ^name quake
+              ^map.current-room <cr>)
+   (<cr> ^type room
+         ^door <d1> { <> <d1> <d2> }
+        -^door { <> <d1> <> <d2> })
+   (<d1> ^direction east
+         ^wall.x <x>)
+   (<d2> ^direction south
+         ^wall.y <y>)
+   -->
+#  (write (crlf) |Hiding Place: | <x> | | <y>)
+   (<cr> ^hiding-place <hp>)
+   (<hp> ^x <x> ^y <y>
+         ^final-facing 135)}
+
+sp {quake*elaborate*room*hiding-place*north-west
+   (state <s> ^name quake
+              ^map.room <cr>)
+   (<cr> ^type room
+         ^door <d1> { <> <d1> <d2> }
+        -^door { <> <d1> <> <d2> })
+   (<d1> ^direction west
+         ^wall.x <x>)
+   (<d2> ^direction north
+         ^wall.y <y>)
+   -->
+#   (write (crlf) |Hiding Place: | <x> | | <y>)
+   (<cr> ^hiding-place <hp>)
+   (<hp> ^x <x> ^y <y>
+         ^final-facing -45)}
+
+sp {quake*elaborate*room*hiding-place*north-east
+   (state <s> ^name quake
+              ^map.room <cr>)
+   (<cr> ^type room
+         ^door <d1> { <> <d1> <d2> }
+        -^door { <> <d1> <> <d2> })
+   (<d1> ^direction east
+         ^wall.x <x>)
+   (<d2> ^direction north
+         ^wall.y <y>)
+   -->
+# (write (crlf) |Hiding Place: | <x> | | <y>)
+   (<cr> ^hiding-place <hp>)
+   (<hp> ^x <x> ^y <y>
+         ^final-facing -135)}
+

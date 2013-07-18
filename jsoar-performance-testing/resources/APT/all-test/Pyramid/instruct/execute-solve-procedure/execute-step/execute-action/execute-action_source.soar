@@ -1,0 +1,11 @@
+source elaborations.soar
+source guess-x.soar
+pushd guess-x
+source guess-x_source.soar
+popd
+source repair-equal.soar
+source return-x.soar
+source test-x.soar
+pushd test-x
+source test-x_source.soar
+popd

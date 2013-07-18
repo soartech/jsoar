@@ -1,0 +1,75 @@
+##################################### 
+# file: messages.soar 
+# created: REW: 2001-07-08
+## 
+# Change history: 
+# 
+#  [1] Created REW
+# This file provides the definition of the information necessary for
+# each message.  This file should be generated automatically from a
+# more maintainable format (eg, a spreadsheet).
+
+# Note: variabilizing all the content attribute names and then copying
+# them to the attributes in the defintion (rather than just re-typing)
+# is probably unnecessary.  Certainly, with the automated creation of
+# these productions, this variabilization would not be necessary.
+
+##################################### 
+
+# Note: These should likely be located under the communicate operator as they are functionally related to the operator. 
+# But Visual Soar does not like them there (no production error checking) so they are here in this directory, which I
+# assume is going to get messy fast....
+
+echo "\nLoading ./elaborations/communicate-message-definitions.soar "
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*tell
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^name { << ready
+                      >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+  ^performative <p>)
+   (<p> ^language kqml
+  ^type     tell)
+   }
+
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*reply
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^name { << roger
+                                            >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+  ^performative <p>)
+   (<p> ^language kqml
+  ^type     reply)
+   }
+
+# Note: The distinction between ask and achieve is that ask requires that an agent
+# tell something about it's current state, while achieve requires the agent to do
+# something in the environment to make the sentence true.
+
+sp {top-ps*elaborate*state*comm*communicate*message-definition*simple-utterance*achieve
+   (state <s> ^comm.communicate <comm>)
+   (<comm> ^name { << wait-here
+                      hide
+                      follow-me
+                      help
+                      move                  ;# as in clearing a room
+                                            >> <name> } )
+-->
+   (<comm> ^definition <d> )
+   (<d> ^type simple-utterance
+        ^identify-self *no*
+        ^performative <p>)
+   (<p> ^language kqml
+        ^type achieve)
+   }
+
+
+
+

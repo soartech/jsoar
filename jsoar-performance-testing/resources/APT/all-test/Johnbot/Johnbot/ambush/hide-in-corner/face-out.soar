@@ -1,0 +1,16 @@
+#echo "\nLoading hide-in-corner/face-out"
+
+sp {hide-in-corner*propose*face-out
+   (state <s> ^name hide-in-corner
+              ^current-room.hiding-place.final-facing <ff>
+              ^io.input-link.agent.angle.yaw
+             -^achieved-final-facing { < 5 > -5 }
+              ^corner-range <= 100)
+   -->
+ #  (write (crlf) |Turn toward middle.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-out
+        ^actions <a>)
+   (<a> ^faceabs <ff>
+        ^thrust off)}
+

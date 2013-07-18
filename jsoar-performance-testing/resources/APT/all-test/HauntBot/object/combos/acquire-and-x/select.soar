@@ -1,0 +1,23 @@
+#sp {acquire-and-x*compare*select
+#   (state <s> ^name acquire-and-x
+#              ^operator <o1> +
+#                        <o2> +)
+#   (<o1> ^name clear-area
+#         ^target.range-to-target <r>)
+#   (<o2> ^name clear-area
+#         ^target.range-to-target < <r>)
+#   -->
+#   (<s> ^operator <o1> > <o2>)
+#}
+
+sp {acquire-and-x*compare*select
+   (state <s> ^name acquire-and-x
+              ^top-state.status.decoration <obj>
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name clear-area
+         ^target <obj>)
+   (<o2> ^name clear-area)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

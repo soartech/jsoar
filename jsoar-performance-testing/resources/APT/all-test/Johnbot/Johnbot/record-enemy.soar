@@ -1,0 +1,105 @@
+#echo "\nLoading record-enemy"
+
+## When enemy is no longer visible (or in front)
+##  record range and angle-off, and time to forget.
+##   
+sp {quake*propose*record-enemy
+   (state <s> ^name quake
+              ^io.input-link.entity.enemy <se>
+             -^enemy-detected <se>
+              ^enemy <enemy>)
+   (<enemy> ^sensed-enemy <se>
+           -^forget-time)
+   (<se>  -^deadflag << dead dying >>)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name record-enemy
+        ^actions.attack off
+        ^enemy <enemy>)}
+
+sp {quake*propose*record-enemy*hunt # record enemy before hunting
+   (state <s> ^name quake
+          ^enemy <enemy> 
+          ^map.room.room-number <frn>)
+   (<enemy> -^forget-time
+             ^prediction-final-room-number <frn>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name record-enemy
+        ^actions.attack off
+        ^enemy <enemy>)}
+
+excise quake*propose*record-enemy*hunt
+
+sp {quake*apply*record-enemy
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^top-state.parameters.enemy-remember-time <ert>)
+   (<o> ^name record-enemy
+        ^enemy <enemy>)
+   (<enemy> ^sensed-enemy <sense>)
+   (<sense> ^range <r>
+            ^aspect.h <ah>
+            ^angle-yaw <ay>
+            ^health <health>
+            ^weapon <wcname>
+            ^origin <or>
+            ^skin <skin>
+            ^team <team>
+            ^name <name>)
+   (<or> ^x <x>
+         ^y <y>
+         ^z <z>)
+   -->
+   (<enemy> ^sensed-enemy <sense> -
+            ^old-range <r>
+            ^old-aspect-h <ah>
+            ^name <name>
+            ^skin <skin>
+            ^team <team>
+            ^x <x>
+            ^y <y>
+            ^z <z> 
+            ^health <health>
+            ^weapon <wcname>
+            ^old-yaw (round-off-heading <ay> 1)
+            ^forget-time (+ <ct> <ert>))}  
+
+sp {quake*apply*record-enemy2
+   (state <s> ^operator <o>
+             -^enemy.old-yaw)
+   (<o> ^name record-enemy
+        ^enemy <enemy>)
+   (<enemy> ^sensed-enemy <sense>)
+  -(<sense> ^range <r>
+            ^angle-off.h <ah>)
+   -->
+   (write (crlf) |Remove Enemy - disappeared.|)
+   (<s> ^enemy <enemy> -)}
+
+sp {quake*apply*record-enemy*first-time
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+             -^enemy-data.name <name>)
+   (<o> ^name record-enemy
+        ^enemy.sensed-enemy <sense>)
+   (<sense> ^name <name>)
+   -->
+   (<s> ^enemy-data <ed>)
+   (<ed> ^deaths 0
+         ^parameters <param>
+         ^last-dead-time 0
+         ^last-see-time <ct>
+         ^last-weapon none
+         ^name <name>)}
+
+sp {quake*select*record-enemy
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name record-enemy)
+   (<o2> ^name << explore ambush collect-powerups attack wander retreat predict-enemy hunt >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

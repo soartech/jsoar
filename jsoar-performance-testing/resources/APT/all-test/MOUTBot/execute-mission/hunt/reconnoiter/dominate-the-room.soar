@@ -1,0 +1,24 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/dominate-the-room"
+
+#AMN: 2002-07-31
+#IF:
+#1.  I have reached the point of domination
+#2.  The room is not clear
+#3.  I am not facing toward the entrance
+#THEN:
+#    Propose facing the entrance node 
+#    (dominate the room)
+sp {reconnoiter*propose*dominate-the-room
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map <map>)
+   (<eorders> ^moved-to-pod yes
+              ^entrance-node <enode>)
+   (<map> ^current-area.cleared yes
+         -^in-front-node <enode>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name dominate-the-room
+        ^actions.face <enode>)
+}
+

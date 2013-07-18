@@ -1,0 +1,15 @@
+echo "\nLoading roam/search-area.soar"
+####################################
+# file: roam/search-area
+# created: JEL 11-05-02
+#
+                
+sp {roam*propose*search-area
+   (state <s> ^name roam
+              ^top-state.map.current-area <area>
+              ^objective.current-roam-area.area <area>)
+   (<area> -^searched true)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name search-area)
+}

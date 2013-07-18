@@ -70,28 +70,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     /*
      * (non-Javadoc)
      * 
-     * @see org.jsoar.soarunit.TestAgent#getCycleCount()
-     */
-    @Override
-    public long getCycleCount()
-    {
-        return agent.GetDecisionCycleCounter();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jsoar.soarunit.TestAgent#getFailMessage()
-     */
-    @Override
-    public String getFailMessage()
-    {
-        return failFunction.getArguments();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.jsoar.soarunit.TestAgent#getFiringCounts()
      */
     @Override
@@ -109,7 +87,19 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
             return new FiringCounts();
         }
     }
-
+    
+    static FiringCounts extractFiringCountsFromPrintedOutput(String in)
+    {
+        final FiringCounts result = new FiringCounts();
+        final Pattern pattern = Pattern.compile("^\\s*(\\d+):\\s*(.*)$", Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(in);
+        while (matcher.find())
+        {
+            result.adjust(matcher.group(2), Long.parseLong(matcher.group(1)));
+        }
+        return result;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -120,7 +110,53 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     {
         return output.toString();
     }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#isFailCalled()
+     */
+    @Override
+    public boolean isFailCalled()
+    {
+        return failFunction.isCalled();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#getFailMessage()
+     */
+    @Override
+    public String getFailMessage()
+    {
+        return failFunction.getArguments();
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#printMatchesOnFailure()
+     */
+    @Override
+    public void printMatchesOnFailure()
+    {
+        output.append("\n# Matches for pass rules #\n");
+        // TODO use executeCommandLineXml to get list of user rules and print
+        // matches output.append("\n" + executeCommandLine("matches pass"));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#isPassCalled()
+     */
+    @Override
+    public boolean isPassCalled()
+    {
+        return passFunction.isCalled();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -132,7 +168,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // TODO Auto-generated method stub
         return passFunction.getArguments();
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -198,6 +234,74 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         return false;
     }
 
+    /**
+     * creates the agent, sets up update event, RHS functions assumes kernel has
+     * already been created
+     * 
+     * @param test
+     */
+    private void commonInitialize(Test test)
+    {
+        initializeRhsFunctions();
+        this.kernel.RegisterForUpdateEvent(
+                sml.smlUpdateEventId.smlEVENT_AFTER_ALL_OUTPUT_PHASES, this,
+                null);
+        this.agent = kernel.CreateAgent(test.getName());
+        this.inputLink = agent.GetInputLink();
+        this.soarUnitWme = this.inputLink.CreateIdWME("soar-unit");
+        this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count",this.getCycleCount());
+    }
+    
+    private void initializeRhsFunctions()
+    {
+        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
+        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
+    }
+
+    private void loadTestCode(Test test) throws SoarException
+    {
+        executeCommandLine(String.format("pushd \"%s\"", 
+                FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')), true);
+        executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
+        executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
+    }
+    
+    private String prepSoarCodeForSml(String code)
+    {
+        return code.replace("(pass)", "(exec pass)") // when there are no args
+                .replace("(fail)", "(exec fail)")
+                .replace("(pass ", "(exec pass ")    // when there are args
+                .replace("(fail ", "(exec fail ");
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#run()
+     */
+    @Override
+    public void run()
+    {
+        agent.RunSelf(50000);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.soarunit.TestAgent#getCycleCount()
+     */
+    @Override
+    public long getCycleCount()
+    {
+        return agent.GetDecisionCycleCounter();
+    }
+    
+    public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
+    {
+        // update the cycle count
+        this.cycleCountWme.Update(this.getCycleCount());
+    }
+    
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
         int port = getAvailablePort();
@@ -237,84 +341,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // polling function here.
     }
 
-    /**
-     * creates the agent, sets up update event, RHS functions assumes kernel has
-     * already been created
-     * 
-     * @param test
-     */
-    private void commonInitialize(Test test)
-    {
-        initializeRhsFunctions();
-        this.kernel.RegisterForUpdateEvent(
-                sml.smlUpdateEventId.smlEVENT_AFTER_ALL_OUTPUT_PHASES, this,
-                null);
-        this.agent = kernel.CreateAgent(test.getName());
-        this.inputLink = agent.GetInputLink();
-        this.soarUnitWme = this.inputLink.CreateIdWME("soar-unit");
-        this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count",this.getCycleCount());
-    }
-
-    private void initializeRhsFunctions()
-    {
-        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
-        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
-    }
-
-    private void loadTestCode(Test test) throws SoarException
-    {
-        executeCommandLine(String.format("pushd \"%s\"", 
-                FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')), true);
-        executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
-        executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jsoar.soarunit.TestAgent#isFailCalled()
-     */
-    @Override
-    public boolean isFailCalled()
-    {
-        return failFunction.isCalled();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jsoar.soarunit.TestAgent#isPassCalled()
-     */
-    @Override
-    public boolean isPassCalled()
-    {
-        return passFunction.isCalled();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jsoar.soarunit.TestAgent#printMatchesOnFailure()
-     */
-    @Override
-    public void printMatchesOnFailure()
-    {
-        output.append("\n# Matches for pass rules #\n");
-        // TODO use executeCommandLineXml to get list of user rules and print
-        // matches output.append("\n" + executeCommandLine("matches pass"));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jsoar.soarunit.TestAgent#run()
-     */
-    @Override
-    public void run()
-    {
-        agent.RunSelf(50000);
-    }
-
     private String executeCommandLine(String code, boolean echo)
             throws SoarException
     {
@@ -325,15 +351,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         }
         return result;
     }
-
-    private String prepSoarCodeForSml(String code)
-    {
-        return code.replace("(pass)", "(exec pass)") // when there are no args
-                .replace("(fail)", "(exec fail)")
-                .replace("(pass ", "(exec pass ")    // when there are args
-                .replace("(fail ", "(exec fail ");
-    }
-
+    
     @Override
     public void printEventHandler(int eventID, Object data, Agent agent,
             String message)
@@ -343,22 +361,4 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // System.out.flush();
     }
 
-    static FiringCounts extractFiringCountsFromPrintedOutput(String in)
-    {
-        final FiringCounts result = new FiringCounts();
-        final Pattern pattern = Pattern.compile("^\\s*(\\d+):\\s*(.*)$", Pattern.MULTILINE);
-        final Matcher matcher = pattern.matcher(in);
-        while (matcher.find())
-        {
-            result.adjust(matcher.group(2), Long.parseLong(matcher.group(1)));
-        }
-        return result;
-    }
-
-    @Override
-    public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
-    {
-        // update the cycle count
-        this.cycleCountWme.Update(this.getCycleCount());
-    }
 }

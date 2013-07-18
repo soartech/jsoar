@@ -1,0 +1,58 @@
+## Assign a value (black/white) to a variable that is unknown. 
+
+sp {wizards*propose*assign
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^wizard <w>
+        ^name <name>)
+   (<w> ^mark <m>
+       -^name <name>)
+   (<m> ^type variable
+       -^value
+        ^untried-value <v>)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name assign
+         ^knows <k>
+         ^wizard <w>
+         ^mark <m>
+         ^value <v>)
+}
+
+sp {apply*assign
+   (state <s> ^knows <k>
+              ^operator <op>)
+   (<op> ^name assign
+         ^mark <m>
+         ^wizard.name <name> 
+         ^knows <k>
+         ^value <v>)
+   (<k> ^name <kname>)
+-->
+   (write (crlf) | From | <kname> |'s view, assume for the moment that wizard | <name> | has a | <v> | mark.|)
+   (<m> ^untried-value <v> -
+        ^value <v>
+        ^assigned <k>)
+}
+
+sp {wizards*compare*assign
+   (state <s> ^name wizards
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name assign)
+   (<op2> ^name consider-knows)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {wizards*compare*assign-assign-black
+   (state <s> ^name wizards
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name assign
+          ^value black)
+   (<op2> ^name assign
+          ^value white)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

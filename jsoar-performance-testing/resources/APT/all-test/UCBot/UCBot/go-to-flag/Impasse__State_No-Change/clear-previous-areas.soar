@@ -1,0 +1,37 @@
+
+# If it reaches a dead end, we get a state no-change impasse and blow away
+# the previously visited areas so that it can start its search over.
+# This actually works even better than I anticipated -- while it non-deterministically
+# selects ^previous-areas to clear, it pops out of the impasse as soon as clearing
+# one triggers a new proposal -- so not all of the previously visited areas
+# are cleared.
+sp {go-to-flag*propose*clear-previous-areas
+   (state <s> ^superstate <ss>
+              ^quiescence t
+              ^attribute state
+              ^choices none
+              ^top-state.map <map>)
+   (<map> ^previous-area <pa>)
+   (<ss> ^name go-to-flag
+         ^quiescence t)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name clear-previous-areas
+         ^to-clear <pa>)
+}
+
+sp {go-to-flag*apply*clear-previous-areas
+   (state <s> ^operator <op>
+              ^top-state.map <map>)
+   (<op> ^name clear-previous-areas
+         ^to-clear <pa>)
+-->
+   (<map> ^previous-area <pa> -)
+}
+
+sp {go-to-flag*monitor*clear-previous-areas
+   (state <s> ^operator.name clear-previous-areas
+              ^top-state.parameters.monitor-level all)
+-->
+   (write (crlf) |Clearing a previous area.|)
+}

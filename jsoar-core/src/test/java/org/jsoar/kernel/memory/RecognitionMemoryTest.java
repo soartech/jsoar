@@ -48,7 +48,6 @@ public class RecognitionMemoryTest
     {
         this.agent = new Agent();
         agent.getTrace().disableAll();
-        this.agent.initialize();
     }
     
     @Test

@@ -1,0 +1,18 @@
+sp {elaborate*hunt*type
+   (state <s> ^name hunt
+              ^superstate.operator.type <type>)
+   -->
+   (<s> ^hunt-type <type>)}
+
+sp {elaborate*hunt*room
+   (state <s> ^name hunt
+              ^superstate.operator.room <room>)
+   -->
+   (<s> ^room <room>)}
+
+
+sp {hunt*elaborate*resurrection-heading*achieved
+   (state <s> ^name hunt
+	      ^resurrect-heading-difference { < 30 > -30 })
+   -->
+   (<s> ^resurrect-heading-achieved true)}

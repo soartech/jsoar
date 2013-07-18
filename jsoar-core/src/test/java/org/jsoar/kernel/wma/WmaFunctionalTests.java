@@ -20,7 +20,7 @@ public class WmaFunctionalTests extends FunctionalTestHarness
     @Test
     public void testSimpleActivation() throws Exception
     {
-        runTest("testSimpleActivation", 2680);
+        runTest("testSimpleActivation", 2679);
         final StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
         agent.getInterpreter().eval("print s1 -i");

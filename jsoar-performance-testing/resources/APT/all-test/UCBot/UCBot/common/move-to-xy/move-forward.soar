@@ -1,0 +1,79 @@
+
+# Walk forward when you're within an acceptable amount of the target-heading.
+sp {move-to-xy*propose*move-forward
+   (state <s> ^name move-to-xy
+              ^headings <headings>
+              ^io.input-link.feedback <feedback>
+              ^speed <speed>)
+  -(<feedback> ^movement-type <speed>
+               ^movement-dir forward)
+   (<headings> -^should-turn)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name move-forward
+         ^type wait
+         ^speed <speed>)
+}
+
+sp {move-to-xy*apply*move-forward
+   (state <s> ^operator <op>
+              ^io.output-link <o-link>)
+   (<op> ^name move-forward
+         ^speed <speed>)
+-->
+   (<o-link> ^<speed>.direction forward
+             ^turn.direction none)
+}
+
+sp {move-to-xy*apply*move-forward*jump
+   (state <s> ^operator <op>
+              ^io.output-link <o-link>)
+   (<op> ^name move-forward
+         ^jump true)
+-->
+   (<o-link> ^jump.direction jump)
+}
+
+# This is a temporary production that is supposed to jump when the agent accidentally
+# begins to climb a drainpipe.  Unfortunately, it's not working -- the jump command 
+# is sent to the effectors, but the agent doesn't jump off of the drainpipe.  
+#sp {move-to-xy*apply*move-forward*avoid-drainpipes
+#   (state <s> ^operator <op>
+#              ^io <io>
+#              ^top-state <ts>)
+#   (<io> ^input-link <i-link>
+#         ^output-link <o-link>)
+#   (<i-link> ^status.is-ladder 1)
+#-->
+#   (write (crlf) |Avoiding a drainpipe by jumping|)
+#   (<o-link> ^jump.direction jump)
+#   (<ts> ^jumping-off-drainpipe true)
+#}
+#
+#sp {common*stop-jumping*drain-pipes
+#   (state <s> ^operator <op>
+#              ^io <io>
+#              ^top-state <ts>)
+#   (<ts> ^jumping-off-drainpipe true)
+#   (<io> ^input-link <i-link>
+#         ^output-link <o-link>)
+#   (<i-link> -^status.is-ladder 1)
+#-->
+#   (write (crlf) |Done avoiding the drainpipe|)
+#   (<o-link> ^jump.direction none)
+#   (<ts> ^jumping-off-drainpipe true -)
+#}
+
+# If the agent should be strafing, then this piggy-backs the move-forward rule
+# and strafes in the appropriate direction towards the center of the gateway.
+# Unfortunately, the shared-mem interface has a bug that prevents this from working.
+# It *should* work when the interface is fixed.
+#sp {move-to-xy*apply*move-forward*strafe
+#   (state <s> ^operator.name move-forward
+#              ^headings.should-strafe <dir>
+#              ^io <io>)
+#   (<io> ^output-link <o-link>
+#        -^input-link.feedback.strafe <dir>)
+#-->
+#   (<o-link> ^strafe.direction <dir>)
+#}

@@ -1,0 +1,58 @@
+sp {subtract-via-counting*propose*store
+   (state <s> ^name subtract-via-counting
+              ^counter <counter>
+              ^subtrahend <counter>
+             -^stored yes
+              ^top-state.parameters.store yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name store)
+}
+
+sp {subtract-via-counting*apply*store*no-borrow*store
+   (state <s> ^name subtract-via-counting
+              ^operator.name store
+              ^smem.command <cmd>
+              ^top-state.parameters.store yes
+              ^superstate.operator <o>
+              ^borrow false
+              ^base-number <base>
+              ^top-state.zero <zero>) #!!!!
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+#   (write |Store: | <d2> | + | <base> | = | <d1> | no carry |)
+#   (write |Store: | <base> | + | <d2> | = | <d1> | no carry |)
+   (<s> ^stored yes)
+   (<cmd> ^store <af> <af2>)
+   (<af> ^sum <d1>
+         ^carry-borrow <zero>
+         ^digit1 <d2>
+         ^digit2 <base>)
+   (<af2> ^sum <d1>
+          ^carry-borrow <zero>
+          ^digit1 <base>
+          ^digit2 <d2>)}
+#
+sp {subtract-via-counting*apply*store*borrow*store
+   (state <s> ^name subtract-via-counting
+              ^operator.name store
+              ^quiescence t
+              ^smem.command <cmd>
+              ^top-state.parameters.store yes
+              ^superstate.operator <o>
+              ^borrow true
+              ^base-number <base>
+              ^top-state.one <one>) #!!!!
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+   (<s> ^stored yes)
+ #  (write |Store: | <d1> | - | <d2> | = | <base> |  carry |)
+   (<cmd> ^store <af>)
+   (<af> ^sum <d1>
+         ^carry-borrow <one>
+         ^digit1 <d2>
+         ^digit2 <base>)
+}
+

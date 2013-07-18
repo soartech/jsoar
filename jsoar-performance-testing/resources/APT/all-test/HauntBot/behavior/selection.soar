@@ -1,0 +1,55 @@
+echo "Loading behavior/selection.soar"
+
+##    COMMENTED OUT FOR DEMO ONLY       
+##prefer operators with a higher priority
+## Note that '1' is highest possible priority, '2' second, and so on
+#sp {behavior*select*highest-priority
+#   (state <s> ^name haunt
+#              ^operator <o1> +
+#                        <o2> +)
+#   (<o1> ^priority <p>)
+#   (<o2> ^priority < <p>)
+#   -->
+#   (<s> ^operator <o1> > <o2>)
+#}
+
+
+
+#
+# DEMO PREFERENCES:
+#
+#     flee > eat > drink > unlock > read > explore
+#
+sp {demo*elaborate*paramaters*behavior-priorities
+   (state <s> ^name haunt
+              ^parameters <p>)
+-->
+   (<p> ^demo-priorities <dp>)
+   (<dp> ^flee 1
+         ^read 5
+         ^unlock 4
+         ^eat 2
+         ^find-food 2
+         ^drink 3
+         ^find-drink 3)
+}
+
+sp {demo*elaborate*operator*behavior-priorities
+   (state <s> ^name haunt
+              ^top-state.parameters.demo-priorities.<name> <p>
+              ^operator <o> +)
+   (<o> ^name <name>)
+-->
+   (<o> ^demo-priority <p>)
+}
+
+
+sp {demo*prefer*lower-priority
+   (state <s> ^operator <o1> +
+                        <o2> +)
+   (<o1> ^demo-priority <dp>)
+   (<o2> ^demo-priority > <dp>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+

@@ -1,0 +1,117 @@
+
+## Only evaluate after other bids (bid with no pass, challenge)
+
+sp {evaluate-operator*propose*compute-pass-likelihood
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name pass)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-pass-likelihood)
+}
+
+# Pushed Dice not the same
+sp {apply*compute-pass-likelihood*impossible*pass
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^pushed <push1>)
+   (<push1> ^die.face <n>
+            ^die.face <> <n>)
+-->
+   (write (crlf) |  Pass success likelihood is lose - different pushed dice|)
+   (<e> ^symbolic-value lose)
+   (<e> ^numeric-value 0.0)}
+
+# Good pass - all same value
+sp {apply*compute-pass-likelihood*good*pass
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^dice-counts <dcs>)
+   (<dcs> ^<face> { <> 0 <count> })
+  -{(<dcs> ^<> <face> <> 0)}
+-->
+   (write (crlf) |  Pass success likelihood is certain - all dice the same.|)
+   (<e> ^symbolic-value certain)
+   (<e> ^probability 1.0)}
+
+# one pushed - one in cup
+sp {apply*compute-pass-likelihood*risky*pass
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^pushed.count 1
+         ^cup.count 1)
+  -(<me> ^pushed.die <die>
+         ^cup.die <die>)
+-->
+   (write (crlf) |  Pass success likelihood is risky - one die under cup, one pushed.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference -0.34)
+   (<e> ^probability .4)}
+
+sp {apply*compute-pass-likelihood*risky*pass2
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me>   ^cup.count 1
+           ^pushed.die.face <face>
+          -^cup.die.face <face>
+          -^pushed.die.face <> <face>)
+-->
+   (write (crlf) |  Pass success likelihood is risky - one die under cup, one pushed.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference -0.34)
+   (<e> ^probability .4)}
+
+
+# two under cup - none pushed
+sp {apply*compute-pass-likelihood*risky*pass*no-push
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^pushed.count 0
+         ^cup.count 2)
+  -(<me> ^dice-counts.<x> 2)
+-->
+   (write (crlf) |  Pass success likelihood is risky - two dice under cup.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference -0.34)
+   (<e> ^probability .4)}
+
+####
+sp {apply*compute-pass-likelihood*risky*pass*push*2undercup
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^pushed.count > 0
+         ^cup.count >= 2)
+  -{(<me> ^dice-counts <dcs>)
+    (<dcs> ^<face> { <> 0 <count> })
+   -{(<dcs> ^<> <face> <> 0)}}
+-->
+   (write (crlf) |  Pass success likelihood is risky - two or more dice under cup.|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference -4.0)
+   (<e> ^probability .08)}
+
+## three under cup
+sp {apply*compute-pass-likelihood*impossible*pass*very-risky
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.players.me <me>
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name compute-pass-likelihood)
+   (<me> ^pushed.count 0
+         ^cup.count { <count> >= 3 })
+  -(<me> ^dice-counts.<x> <count>)
+-->
+   (write (crlf) |  Pass success likelihood is very risky - three dice under cup.|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference -4.3)
+   (<e> ^probability .08)}

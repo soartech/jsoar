@@ -1,0 +1,224 @@
+#####################################
+# file: threats.soar
+# created: ????
+##
+# Change history:
+#
+#  [1] REW: 2002-09-15
+#      Modified threats.threat so that enemy is now elaborated
+#      under threat, rather than just being a copy of the input-link
+#      info.  This makes it easier to identify internally created
+#      elaborations of the threat, vs those directly from the input
+#      link (now all under ^threat.entity).
+#####################################
+echo "\nLoading ./elaborations/threats.soar "
+                                                                    #Holds data about threat levels
+
+sp {elaborate*threats
+   (state <s> ^name unreal)
+-->
+   (<s> ^threats <threats>)}
+
+sp {elaborate*threats*enemy*in-near-room
+   (state <s> ^name unreal
+              ^threats <threats>
+              ^map.current-area <ca>)
+   (<threats> ^controlled-area.path <path>
+              ^threat.entity.visible true
+# REW: 2002-08-27: Don't consider threat very high if it comes from outside and agent is inside
+# REW: Joy: Both negated conditions are necessary becausae the threat data structrue isn't uniform.....
+#              -^threat.area |Outside|
+#              -^threat.entity.area.name |Outside|
+                                    )
+   (<path> ^destination-area <ca>
+           ^distance <= 2)
+-->
+   (<threats> ^level very-high)}
+
+sp {elaborate*threats*enemy*in-adjoining-room
+   (state <s> ^name unreal
+              ^threats <threats>
+              ^map.current-area <ca>)
+   (<threats> ^controlled-area.path <path>
+          # REW: 2002-08-27: Don't consider threat very high if it comes from outside and agent is inside
+#              -^threat.area |Outside|
+#               -^threat.entity.area.name |Outside|
+                                    )
+   (<path> ^destination-area <ca>
+           ^distance 1)
+-->
+   (<threats> ^level very-high)}
+
+sp {elaborate*threats*in-same-room
+   (state <s> ^name unreal
+              ^threats <threats>
+              ^map.current-area.name <area-name>)
+   (<threats> ^threat <threat>)
+   (<threat>  ^entity.area <area-name>)
+-->
+   (<threats> ^level very-high)}
+
+sp {elaborate*threats*visible
+   (state <s> ^name unreal
+              ^threats <threats>)
+   (<threats> ^threat.entity.visible true
+             -^level very-high)
+-->
+   (<threats> ^level medium)}
+
+################### threat
+
+##DELME:  Removed by :AMN:  2002-Aug-29.
+##        Because enemy's area must now be calculated using the max/min
+##        dimensions of all rooms on the map, it is too expensive for
+##        an elaboration and is now recorded with the threat.
+#sp {elaborations*elaborate*enemy-area
+#   (state <s> ^name unreal
+#              ^map.area <area>
+#              ^threats.threat <e>)
+#   (<area> ^name <name>)
+#   (<e> ^area-name <name>)
+#-->
+#   (<e> ^area <area>)
+#}
+
+
+# Copy threat information from mission to threats
+sp {unreal*elaborate*threats*mission*initialization*objective
+   (state <s> ^name unreal
+              ^mission.objective <obj>
+              ^threats <threats>)
+   (<obj> ^status active
+          ^threat <th>)
+   (<th> ^area <area>
+         ^team <team>
+         ^type <type>)
+-->
+   (<threats> ^controlled-area <area>
+              ^team <team>
+              ^type <type>)
+}
+
+sp {unreal*elaborate*threats*attackable*visible-threat
+   (state <s> ^name unreal
+              ^threats <th>)
+   (<th> ^threat.entity.visible true )
+-->
+   (<th> ^attackable yes)
+}
+
+# REW: 2002-09-30
+# Update the area-name with i-supported prods
+# if there is no area-id, then the agent must be outside
+sp {unreal*elaborate*threats*threat*area-name
+   (state <s> ^name unreal
+              ^threats.threat <th>)
+   (<th> ^area-id.name <name>)
+-->
+   (<th> ^area-name <name>)
+}
+
+sp {unreal*elaborate*threats*threat*area-name*Outside
+   (state <s> ^name unreal
+              ^threats.threat <th>)
+   (<th> -^area-id.name <name>)
+-->
+   (<th> ^area-name |Outside|)
+}
+
+
+#sp {unreal*monitor*enemy*visible
+#   (state <s> ^name unreal
+#              ^io.input-link.objects.entity <en>)
+#   (<en> ^name <ename>
+#         ^visible <v>)
+#   -->
+#   (write (crlf) |Enemy | <ename> |, visible: | <v>)}
+#
+
+sp {unreal*elaborate*threats*selected-threat
+   (state <s> ^name unreal
+              ^threats <ths>)
+   (<ths> ^threat <th>)
+   (<th> ^entity <e>)
+   (<e> ^visible true
+       -^health 0
+       -^name |Player|
+        ^range <r>)
+  -{(<ths> ^threat.entity <ex>)
+    (<ex> ^visible true
+         -^health 0
+          ^range < <r>)}
+-->
+   (<ths> ^selected-threat <th>)}
+
+sp {unreal*elaborate*threats*selected-threat*none-visible
+   (state <s> ^name unreal
+              ^threats <ths>)
+   (<ths> ^threat <th>)
+   (<th> ^entity <e>)
+   (<e> ^visible false
+       -^health 0
+        ^range <r>)
+  -{(<ths> ^threat.entity <ex>)
+    (<ex> ^visible true
+         -^health 0)}
+                 -{(<ths> ^threat.entity <ex1>)
+                   (<ex1> ^visible false
+                         -^health 0
+                          ^range < <r>)}
+-->
+   (<ths> ^selected-threat <th>)}
+
+sp {execute-mission*elaboration*defensive-room-position*near-threat
+   (state <s> ^superstate nil
+              ^map.current-area.threat-door.node <tnode>
+              ^mission.objective.defensive-position <dpos>)
+   (<tnode> ^position <tp>)
+   (<tp> ^x <tx>
+         ^y <ty>)
+   (<dpos> ^node <dnode>)
+   (<dnode> ^type <> real-connector
+            ^position <dp>)
+   (<dp> ^x <dx>
+        ^y <dy>)
+-->
+   (<dpos> ^threat-door-range (compute-range <tx> <ty> <dx> <dy>))}
+
+
+# Status messages for debugging
+#sp {elaborations*elaborate*state*print*threat-level*very-high
+#   (state <s> ^name unreal
+#              ^threats.level very-high)
+#   -->
+#   (write (crlf) |============================|)
+#   (write (crlf) | Threat level is very-high  |)
+#   (write (crlf) |============================|)
+#}
+#
+#sp {elaborations*elaborate*state*print*threat-level*not-very-high
+#   (state <s> ^name unreal
+#              -^threats.level very-high)
+#   -->
+#   (write (crlf) |============================|)
+#   (write (crlf) | Threat level is NOT very-high  |)
+#   (write (crlf) |============================|)
+#}
+#
+#sp {elaborations*elaborate*state*print*threat-level*medium
+#   (state <s> ^name unreal
+#              ^threats.level medium)
+#   -->
+#   (write (crlf) |============================|)
+#   (write (crlf) | Threat level is medium  |)
+#   (write (crlf) |============================|)
+#}
+#
+#sp {elaborations*elaborate*state*print*threat-level*not*medium
+#   (state <s> ^name unreal
+#              -^threats.level medium)
+#   -->
+#   (write (crlf) |============================|)
+#   (write (crlf) | Threat level is NOT medium  |)
+#   (write (crlf) |============================|)
+#}

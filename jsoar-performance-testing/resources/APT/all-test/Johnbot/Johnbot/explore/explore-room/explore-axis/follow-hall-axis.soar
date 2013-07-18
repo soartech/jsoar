@@ -1,0 +1,17 @@
+#echo "\nLoading explore-axis/follow-hall-axis"
+
+## follow a hall axis, finding doors and checking the walls.
+
+
+sp {explore-axis*propose*follow-hall-axis
+   (state <s> ^name explore-axis
+              ^explore-room.type hall
+              ^axis <a>)
+   (<a> -^end-of-wall true
+         ^aligned <dir>
+         ^marked wall)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name follow-hall-axis
+        ^direction <dir>)}
+

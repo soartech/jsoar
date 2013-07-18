@@ -1,0 +1,45 @@
+sp {robot*elaborate*direction*north
+   (state <s> ^name robot
+              ^io.input-link.self.angle.yaw { >= 3.90 < 5.46 })
+-->
+   (<s> ^direction north)
+}
+
+sp {robot*elaborate*direction*east
+   (state <s> ^name robot
+              ^io.input-link.self.angle.yaw { >= 5.46 })
+-->
+   (<s> ^direction east)
+}
+
+sp {robot*elaborate*direction*east2
+   (state <s> ^name robot
+              ^io.input-link.self.angle.yaw { < .78 })
+-->
+   (<s> ^direction east)
+}
+
+sp {robot*elaborate*direction*south
+   (state <s> ^name robot
+              ^io.input-link.self.angle.yaw { >= .78 < 2.34 })
+-->
+   (<s> ^direction south)
+}
+
+sp {robot*elaborate*direction*west
+   (state <s> ^name robot
+              ^io.input-link.self.angle.yaw { >= 2.34 3.90 })
+-->
+   (<s> ^direction west)
+}
+
+sp {robot*elaborate*directions
+   (state <s> ^name robot)
+-->
+   (<s> ^directions <n> <ss> <e> <w>)
+   (<n> ^value north ^opposite south)
+   (<ss> ^value south ^opposite north)
+   (<e> ^value east ^opposite west)
+   (<w> ^value west ^opposite east)
+}
+

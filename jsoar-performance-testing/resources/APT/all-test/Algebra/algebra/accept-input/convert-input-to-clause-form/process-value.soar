@@ -1,0 +1,184 @@
+sp {convert-input-to-clause-form*propose*process-value
+   (state <s> ^name convert-input-to-clause-form
+              ^top-state.problem.current-input-value { <> nil <civ> })
+   (<civ> -^value << |+| |*| |-| |/| |[| |]| |=| >>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-value)
+}
+## Split between nil and not nil cases is required for chunking to work 
+##   can learn a general rule (with variable) and specific (test for nil)
+##   that overlap
+
+########## If next is nil
+#sp {convert-input-to-clause-form*apply*process-value*clause-beginning*number*nil
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc>  ^parse-status clause-beginning)
+#   (<cw> ^value { <> x <> |x| <value> }
+#         ^next.value nil)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             nil)
+#   (<pc> ^left-side <ls>)
+#   (<ls> ^type number
+#         ^value (int <value>))
+#}
+#
+#sp {convert-input-to-clause-form*apply*process-value*clause-beginning*variable*nil
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc>  ^parse-status clause-beginning)
+#   (<cw> ^value { << x |x| >> <value> }
+#         ^next.value nil)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             nil)
+#
+#   (<pc> ^left-side <ls>)
+#   (<ls> ^type variable
+#         ^value <value>)
+#}
+#
+#
+#sp {convert-input-to-clause-form*apply*process-value*post-operation*nil
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc> ^parse-status post-operation)
+#   (<cw> ^value { <> x <> |x| <value> }
+#         ^next.value nil)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             nil)
+#   (<pc> ^right-side <rs>)
+#   (<rs> ^type number
+#         ^value (int <value>))
+#}
+#
+#sp {convert-input-to-clause-form*apply*process-variable*post-operation*nil
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc> ^parse-status post-operation)
+#   (<cw> ^value { << x |x| >> <value> }
+#         ^next.value nil)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             nil)
+#   (<pc> ^right-side <rs>)
+#   (<rs> ^type variable
+#         ^value <value>)
+#}
+#
+#sp {convert-input-to-clause-form*apply*process-value*error*nil
+#   (state <s> ^operator.name process-value
+#              ^top-state.problem <p>)
+#   (<p> ^parse-clause <pc>
+#        ^current-input-value <cw>)
+#   (<pc> ^parse-status << post-right post-left post-close-bracket >>)
+#   (<cw> ^value <value>
+#         ^next.value nil)
+#-->
+#   (<p> ^current-input-value <cw> -
+#                             nil)
+#   (<pc> ^right-side <rs>)
+#   (<rs> ^type number
+#         ^value (int <value>))
+#}
+######### If next is not nil
+sp {convert-input-to-clause-form*apply*process-value*clause-beginning*number
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc>  ^parse-status clause-beginning)
+   (<cw> ^value { <> x <> |x| <value> }
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^left-side <ls>)
+   (<ls> ^type number
+         ^value (int <value>))
+}
+
+sp {convert-input-to-clause-form*apply*process-value*clause-beginning*variable
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc>  ^parse-status clause-beginning)
+   (<cw> ^value { << x |x| >> <value> }
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+
+   (<pc> ^left-side <ls>)
+   (<ls> ^type variable
+         ^value <value>)
+}
+
+
+sp {convert-input-to-clause-form*apply*process-value*post-operation
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc> ^parse-status post-operation)
+   (<cw> ^value { <> x <> |x| <> nil <value> }
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^right-side <rs>)
+   (<rs> ^type number
+         ^value (int <value>))
+}
+
+sp {convert-input-to-clause-form*apply*process-variable*post-operation
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc> ^parse-status post-operation)
+   (<cw> ^value { << x |x| >> <value> }
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^right-side <rs>)
+   (<rs> ^type variable
+         ^value <value>)
+}
+
+sp {convert-input-to-clause-form*apply*process-value*error
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc> ^parse-status << post-right post-left post-close-bracket >>)
+   (<cw> ^value <value>
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^right-side <rs>)
+   (<rs> ^type number
+         ^value (int <value>))
+}
+sp {convert-input-to-clause-form*apply*process-value*failure
+   (state <s> ^operator.name process-value
+              ^top-state.problem <p>)
+   (<p> ^parse-clause.parse-status { <> post-operation <> clause-beginning } )
+-->
+   (write (crlf) |Unexpected value.|)
+   (<p> ^failed true)
+}

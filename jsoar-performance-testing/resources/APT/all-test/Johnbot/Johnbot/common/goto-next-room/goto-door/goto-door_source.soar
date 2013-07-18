@@ -1,0 +1,9 @@
+source elaborations.soar
+source align-with-door.soar
+source face-door.soar
+source move-to-door.soar
+source record-at-door.soar
+source remove-at-door.soar
+source sidestep-to-door.soar
+source stop-move-to-door.soar
+source stop-sidestep-to-door.soar

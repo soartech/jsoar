@@ -1,0 +1,133 @@
+## Overview of heuristics for picking a defensive position in a room
+## 0. Propose all nodes in a room
+## 0.5 compute range from threat doors to that position
+## 1. Reject threat doors of distance 1
+## 2. Prefer doors and to other positions
+## 3. Prefer connectors to other positions except doors.
+## 4. Prefer positions that are farther away, up to defensive-position-far
+##     Don't want to be close, but don't want to be too far.
+## 5. Avoid windows
+##  What is missing is if are near a door, probably don't want to be at door,
+##    but maybe at a corner near the door?
+##  Doesn't calculate dominate positions at all.
+
+sp {defend*propose*determine-defensive-room-position
+   (state <s> ^name defend
+              ^top-state.map.current-area.node <node>
+              ^objective.defensive-position <dp>)
+   (<dp> -^position <pos>
+          ^area-achieved true
+          ^type room)
+   (<node> ^type door)
+-->
+   (<s> ^operator <o> +, = 40)
+   (<o> ^name determine-defensive-room-position
+        ^node <node>
+        ^type <type>)
+}
+
+sp {defend*propose*determine-defensive-room-position*possible-nodes
+   (state <s> ^name defend
+              ^possible-offset-door-node <node>
+              ^objective.defensive-position <dp>)
+   (<dp> -^position <pos>
+          ^area-achieved true
+          ^type room)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-defensive-room-position
+        ^node <node>
+        ^type offset-door-node)
+}
+sp {defend*compare*determine-defensive-room*reject*threat-door
+   (state <s> ^name defend
+              ^top-state.map.current-area.threat-door <td>
+              ^operator <o1> +)
+   (<td> ^node <threat>
+         ^distance 1)
+   (<o1> ^name determine-defensive-room-position
+         ^node <threat>)
+-->
+   (<s> ^operator <o1> -)
+}
+
+sp {defend*elaborate*determine-defensive-room-position*range
+   (state <s> ^operator <o1> +
+              ^top-state.map.current-area.threat-door.node.position <p1>)
+   (<o1> ^node.position <p2>)
+   (<p1> ^x <tx>
+         ^y <ty>)
+   (<p2> ^x <x>
+         ^y <y>)
+-->
+   (<o1> ^range (compute-range <x> <y> <tx> <ty>))}
+
+sp {defend*elaborate*determine-defensive-room-position*closest-range
+   (state <s> ^operator <o1> +)
+   (<o1> ^name determine-defensive-room-position
+         ^range <range>
+        -^range { < <range> })
+-->
+   (<o1> ^closest-range <range>)}
+
+sp {defend*compare*determine-defensive-room-reject-too-close
+   (state <s> ^name defend
+              ^top-state.parameters.offset-test <ot>
+              ^operator <o1> +)
+   (<o1> ^name determine-defensive-room-position
+         ^closest-range < <ot>
+         ^type <type>)
+-->
+   (<s> ^operator <o1> -)
+}
+
+sp {defend*elaborate*determine-defensive-room-team*range
+   (state <s> ^operator <o1> +
+              ^top-state.io.input-link <io>)
+   (<io> ^agent.team <team>
+         ^objects.entity <entity>)
+   (<entity> ^position <p1>
+             ^team <team>)
+   (<o1> ^name determine-defensive-room-position
+         ^node.position <p2>)
+   (<p1> ^x <tx>
+         ^y <ty>)
+   (<p2> ^x <x>
+         ^y <y>)
+-->
+   (<o1> ^teammate-range (compute-range <x> <y> <tx> <ty>))}
+
+sp {defend*compare*determine-defensive-room-reject-too-close*team
+   (state <s> ^name defend
+              ^operator <o1> +)
+   (<o1> ^name determine-defensive-room-position
+         ^node <node>
+         ^teammate-range < 20)
+-->
+   (write (crlf) |Reject node because too close to team member.| <node>)
+   (<s> ^operator <o1> -)
+}
+
+sp {defend*compare*determine-defensive-room-help-close*team
+   (state <s> ^name defend
+              ^operator <o1> +)
+   (<o1> ^name determine-defensive-room-position
+         ^node <node> 
+         ^teammate-range { > 20 < 200 })
+-->
+   (write (crlf) |Prefer node because close to team member.| <node>)
+   (<s> ^operator <o1> = 100)
+}
+
+
+sp {apply*determine-defensive-room-position
+   (state <s> ^operator <o1>
+              ^objective.defensive-position <dp>)
+   (<o1> ^name determine-defensive-room-position
+         ^node <node>)
+   (<node> ^position <pos>)
+-->
+   (<dp> ^position <pos>
+         ^node <node>)
+}
+#

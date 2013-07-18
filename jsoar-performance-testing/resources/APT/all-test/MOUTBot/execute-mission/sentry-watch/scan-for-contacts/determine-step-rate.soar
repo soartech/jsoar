@@ -1,0 +1,76 @@
+##################################### 
+# file: determine-step-rate.soar 
+# created: REW: 2001-08-23
+## 
+# Determine how far to turn and how fast
+# Change history: 
+# 
+#  [1] REW: 
+
+echo "\nLoading execute-mission/sentry-watch/scan-for-contacts/determine-step-rate.soar"
+                
+# Note: this could easily be pre-computed if the input params are
+# really fixed, but this gives us the option for determining fast,slow
+# scans, randomization, etc.
+
+sp {scan-for-contacts*propose*determine-step-rate
+   (state <s> ^name scan-for-contacts
+             -^step-rate
+              ^top-state.parameters <p>)
+   (<p> ^scan-angle <sa>
+        ^scan-period <sp>
+        ^scan-step <ss>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-step-rate
+        ^scan-angle <sa>
+        ^scan-period <sp>
+        ^scan-step <ss>)
+}
+
+# REW: 2002-10-10
+# SoarAPI bots were crashing when this production fired.  Soar printed message about thin-justification.
+# After much experiemnting, determined that separating result and local state elab resulted in no
+# crash, so that's the workaround for now (ie, number of steps and step rate are computed in separate prods).
+
+# REW: 
+#  period = period of time for the scan (sec)
+#  angle = angle to be covered during the scan
+#  step = size (in degrees) of increments in the scan
+#  step rate = period/total steps = period/(angle/step) = period * step/angle
+
+# Assume sweep to right for now, needs to be negative for left sweep
+sp {apply*determine-step-rate*right
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.scan <scan>)
+   (<scan> ^scan-direction right )
+   (<o1> ^name determine-step-rate
+         ^scan-period <p>
+         ^scan-angle <a>
+         ^scan-step <st>)
+   -->
+   (<s> ^step-rate (/ (* <p> <st>) <a> )  )
+}
+
+# Make scan-step negative for left scan
+sp {apply*determine-step-rate*left
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.scan <scan>)
+   (<scan> ^scan-direction left )
+   (<o1> ^name determine-step-rate
+         ^scan-period <p>
+         ^scan-angle <a>
+         ^scan-step <st>)
+   -->
+   (<s> ^step-rate (/ (* <p> (- 0 <st>)) <a> )  )
+}
+
+sp {apply*determine-step-rate*number-of-steps
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch.scan <scan>)
+   (<o1> ^name determine-step-rate
+         ^scan-angle <a>
+         ^scan-step <st>)
+   -->
+   (<scan>  ^number-of-steps (/ <a> <st>) )
+}

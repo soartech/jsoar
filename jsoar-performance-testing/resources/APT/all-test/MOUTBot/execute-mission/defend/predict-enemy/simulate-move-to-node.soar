@@ -1,0 +1,16 @@
+echo "\nLoading execute-mission/defend/predict-enemy/simulate-move-to-node"
+sp {apply*simulate-move-to-node*update-lastnode
+   (state <s> ^name { <> predict-enemy <name> }
+              ^predicting true
+              ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^type move-to-node
+        ^node <node>)
+   (<map> ^last-node { <old-node> <> <node> })
+-->
+   (<map> ^last-node <old-node> -
+          ^last-node <node>)
+   (write (crlf) |Updating last-node from : | <old-node> | to: | <node>)
+}
+
+

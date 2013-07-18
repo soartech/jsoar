@@ -1,0 +1,35 @@
+echo "\nLoading update-lastarea"
+      
+#update the current and last area 
+#fires as soon as we enter a new area
+
+sp {all*propose*update-lastarea
+   (state <s> ^name move-to-xyz
+              ^top-state.map <map>
+              ^io.input-link.agent.area <currentarea>)
+   (<map> ^current-area {<oldarea> <> <currentarea>})
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-lastarea
+        ^newname <currentarea>
+        ^oldname <oldarea>)
+}
+
+sp {all*apply*update-lastarea
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name update-lastarea
+        ^newname <n-name>
+        ^oldname <o-name>)
+   (<map> ^last-area <last-name>)
+   (<map> ^area <area>)
+   (<area> ^name <n-name>
+           ^visited <num>)
+-->
+   (<map> ^last-area <o-name>)
+   (<map> ^last-area <last-name> -)
+   (<map> ^current-area <n-name>)
+   (<map> ^current-area <o-name> -)  
+   (<area> ^visited (+ <num> 1))
+   (<area> ^visited <num> -)
+}

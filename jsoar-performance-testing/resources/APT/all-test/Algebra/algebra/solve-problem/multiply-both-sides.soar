@@ -1,0 +1,76 @@
+## Multiply-both-sides - x is a variable, n is a number
+## x * n = ... ==> [x * n] / n = [...] / n
+## n * x = ... ==> [n * x] / n = [...] / n
+## x / n = ... ==> [x / n] * n = [...] * n
+
+sp {algebra*propose*multiply-both-sides*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^operation equal)
+   (<ls> ^operation multiply
+         ^left-side.type variable
+         ^right-side <rs>)
+   (<rs> ^type number
+         ^value <v>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name multiply-both-sides
+         ^new-item (/ 1 <v>))
+}
+sp {algebra*propose*multiply-both-sides*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^operation equal)
+   (<ls> ^operation multiply
+         ^right-side.type variable
+         ^left-side <ls2>)
+   (<ls2> ^type number
+          ^value { <> 0 <v> })
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name multiply-both-sides
+         ^new-item (/ 1 <v>))
+}
+sp {algebra*propose*multiply-both-sides*divide*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <ls>
+         ^operation equal)
+   (<ls> ^operation divide
+         ^left-side.type variable
+         ^right-side <rs>)
+   (<rs> ^type number
+         ^value <v>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name multiply-both-sides
+         ^new-item <v>)
+}
+
+#### APPLICATION
+sp {algebra*apply*multiply-both-sides
+   (state <s> ^operator <op>
+              ^current-clause <cc>)
+   (<op> ^name multiply-both-sides
+         ^new-item <v>)
+   (<cc> ^left-side <ls>
+         ^right-side <rs>)
+-->
+   (write (crlf) |Multiply both sides by | <v>)
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^right-side <rs> -
+                     <nrs>)
+   (<nls> ^left-side <ls>
+          ^operation multiply
+          ^right-side <r-item1>)
+   (<nrs> ^left-side <rs>
+          ^operation multiply
+          ^right-side <r-item2>)
+   (<r-item1> ^type number
+              ^value <v>)
+   (<r-item2> ^type number
+              ^value <v>)
+}

@@ -1,0 +1,34 @@
+sp {get-block*propose*pickup-block
+   (state <s> ^name get-block
+              ^quiescence t
+              ^top-state.desired.storage-area-id <id>
+             -^current-area.id <id>
+              ^io.input-link <input>)
+   (<input> ^self <self>
+            ^object <obj1>)
+  -(<self> ^carry)
+   (<obj1> ^type block
+           ^id <oid>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name pickup-block
+         ^id <oid>)
+}
+
+sp {get-block-hierarchical-pickup*compare*pickup-block
+   (state <s> ^name get-block
+              ^io.input-link.object <obj1> { <> <obj1> <obj2> }
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name pickup-block
+          ^id <id1>)
+   (<op2> ^name pickup-block
+          ^id <id2>)
+   (<obj1> ^id <id1> 
+           ^range <range>)
+   (<obj2> ^id <id2>
+           ^range > <range>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+

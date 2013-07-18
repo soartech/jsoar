@@ -1,0 +1,15 @@
+#
+# first, move close to player
+#
+sp {greet*propose*step-1-move
+   (state <s> ^name greet
+              ^user-position <pos>
+              ^user-area <area>)
+-->
+   (write (crlf) |I'm gonna get you!|)
+   (<s> ^operator <o> +)
+   (<o> ^name step-1-move
+        ^type move-to-pos
+        ^position <pos>
+        ^area <area>)
+}

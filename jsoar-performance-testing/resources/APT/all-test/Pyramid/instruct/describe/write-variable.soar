@@ -1,0 +1,21 @@
+sp {propose*write-variable
+   (state <s> ^name describe 
+              ^current-problem-structure-ptr <ps> 
+              ^<name> <val>)
+   (<ps> ^type variable ^name <name>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-variable)
+}
+
+sp {apply*write-variable
+   (state <s> ^name describe 
+              ^operator.name write-variable
+              ^current-problem-structure-ptr <ps> 
+              ^<name> <val>)
+   (<ps> ^type variable ^name <name> ^next <psn>)
+-->
+   (write | | <val>)
+   (<s> ^current-problem-structure-ptr <ps> -
+                                       <psn>)
+}

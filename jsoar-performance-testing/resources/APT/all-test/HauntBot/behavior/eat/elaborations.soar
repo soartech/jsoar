@@ -1,0 +1,30 @@
+
+# augment the priority of each behavior (higher #'s win)
+#    0 = none
+#    1 = low
+#    2 = medium
+#    3 = high
+#
+sp {eat*elaborate*priority
+   (state <s> ^name haunt
+              ^operator <o> +
+              ^status.hunger <h>
+              ^parameters.behavior-priority.<h> <val>)
+   (<o> ^name << eat find-food drink find-drink >>)
+-->
+   (<o> ^priority <val>)
+}
+
+sp {eat*elaborate*range
+   (state <s> ^name haunt
+              ^operator <o> +
+              ^io.input-link.agent.position <apos>)
+   (<o> ^target.position <tpos>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>)
+-->
+   (<o> ^range (compute-range <agent-x> <agent-y> <target-x> <target-y>))
+}
+   

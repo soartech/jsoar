@@ -1,0 +1,32 @@
+#echo "\nLoading attack/create-retreat"
+
+sp {attack*propose*create-retreat
+   (state <s> ^name attack
+              ^retreat <reason>
+              ^door-range < 400
+              ^io.input-link.entity.enemy.range > 1000)
+  -->
+  (<s> ^operator <o> + >, =)
+  (<o> ^name create-retreat
+       ^reason <reason>)}
+
+sp {attack*apply*create-retreat
+   (state <s> ^name attack
+              ^top-state.map.current-room <cr>
+              ^io.input-link.agent.cycle <ct>
+              ^top-state.self <self>
+              ^operator.name create-retreat)
+   -->
+   (<self> ^retreat <r>)
+   (<r> ^time (+ <ct> 10000)
+        ^original-room <cr>)}
+
+sp {attack*apply*create-retreat*reason
+   (state <s> ^name attack
+              ^top-state.self.retreat <r>
+              ^operator <o>)
+   (<o> ^name create-retreat
+        ^reason <reason>)
+   -->
+   (<r> ^reason <reason>)}
+

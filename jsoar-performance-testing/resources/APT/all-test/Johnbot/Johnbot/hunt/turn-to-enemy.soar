@@ -1,0 +1,9 @@
+sp {hunt*propose*turn-to-enemy
+   (state <s> ^name hunt
+              ^resurrect-heading <rh>
+             -^resurrect-heading-achieved true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name turn-to-enemy
+        ^actions.faceabs <rh>)}
+

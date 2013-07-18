@@ -36,7 +36,6 @@ public class OutputEventTest
     public void setUp() throws Exception
     {
         agent = new Agent(getClass().getName());
-        agent.initialize();
     }
 
     @After

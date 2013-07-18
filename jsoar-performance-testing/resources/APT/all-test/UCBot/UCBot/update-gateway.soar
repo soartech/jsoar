@@ -1,0 +1,121 @@
+# update-gateway will fire only in the transfer task.  There are two
+# cases in which it will fire:
+#  1. a gateway which was previously available no either no longer 
+#     exists or is no longer passable
+#  2. a gateway which didn't exist previously is found on the area
+#     description on the input link
+
+#####################################################################
+## Blocked Gateways
+
+sp {UCBot*propose*update-gateway*blocked
+   (state <s> ^name UCBot
+              ^io.input-link.area <area>
+              ^map.current-area <cur-area>)
+   (<cur-area> ^id <cur-id>
+               ^path.gateway <gw>
+               ^recorded true)
+   (<gw> ^id <gw-id>
+        -^blocked true)
+   (<area> ^id <cur-id>
+          -^negative-spaces.negative-space.id <gw-id>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name update-gateway
+         ^type blocked
+         ^gate <gw>)
+}
+
+sp {UCBot*propose*update-gateway*blocked*exists-but-no-action
+   (state <s> ^name UCBot
+              ^io.input-link.area <area>
+              ^map.current-area <cur-area>)
+   (<cur-area> ^id <cur-id>
+               ^path.gateway <gw>)
+   (<gw> ^id <gw-id>
+         ^action << jump walk fall >>
+        -^blocked true)
+   (<area> ^id <cur-id>
+           ^negative-spaces.negative-space <n-space>)
+   (<n-space> ^id <gw-id>
+              ^action none)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name update-gateway
+         ^type blocked
+         ^gate <gw>)
+}
+
+sp {UCBot*apply*update-gateway*blocked
+   (state <s> ^operator <op>)
+   (<op> ^name update-gateway
+         ^type blocked
+         ^gate <gw>)
+-->
+   (<gw> ^blocked true)
+}
+
+#####################################################################
+## New Gateways
+
+sp {UCBot*propose*update-gateway*new
+   (state <s> ^name UCBot
+              ^map.current-area <cur-area>
+              ^io.input-link.area <area>)
+   (<cur-area> ^recorded true
+               ^id <cur-id>
+              -^negative-spaces.negative-space.id <gw-id>)
+   (<area> ^id <cur-id>
+           ^negative-spaces.negative-space <ns>)
+   (<ns> ^id <gw-id>
+         ^action << jump walk fall >> )
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name update-gateway
+         ^type new
+         ^gate <ns>)
+}
+
+sp {UCBot*apply*update-gateway*new
+   (state <s> ^operator <op>
+              ^map.current-area <cur-area>)
+   (<op> ^name update-gateway
+         ^type new
+         ^gate <gw>)
+   (<cur-area> ^negative-spaces <spaces>)
+   (<gw> ^action <act>
+         ^centroid <cent>
+         ^gateway-name <name>
+         ^id <id>
+         ^num-vertices <num>
+         ^vertices <verts>)
+   (<cent> ^x <cx> ^y <cy>)
+   (<verts> ^vertex1 <v1> ^vertex2 <v2>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+-->
+   (<spaces> ^negative-space <n>)
+   (<n> ^action <act>
+        ^centroid <new-cent>
+        ^gateway-name <name>
+        ^id <id>
+        ^num-vertices <num>
+        ^vertices <new-verts>)
+   (<new-cent> ^x <cx> ^y <cy>)
+   (<new-verts> ^vertex1 <new-v1> ^vertex2 <new-v2>)
+   (<new-v1> ^x <x1> ^y <y1>)
+   (<new-v2> ^x <x2> ^y <y2>)
+}
+   
+#####################################################################
+sp {UCBot*monitor*update-gateway
+   (state <s> ^operator <op>
+              ^parameters.monitor-level all
+              ^map.current-area.id <cur-id>)
+   (<op> ^name update-gateway
+         ^type <type>
+         ^gate <gw>)
+   (<gw> ^id <to-id>)
+-->
+   (write (crlf) |Updating gateway from | <cur-id> | to | <to-id> | with type | <type> |.|)
+}

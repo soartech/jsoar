@@ -1,0 +1,148 @@
+#echo "\nLoading follow-hall-axis/update-door"
+
+## Correct doors at the end of the hall
+
+sp {follow-hall-axis*propose*update-door
+   (state <s> ^name follow-hall-axis
+              ^explore-room.door <d>)
+   (<d> -^updated true)
+   -->
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) | Correct doorway | <d> )
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-door
+        ^door <d>)}
+
+## For Connected doors (in attached room)
+
+sp {follow-hall-axis*propose*update-door*connecting
+   (state <s> ^name follow-hall-axis
+              ^explore-room.door.connecting-door <d>)
+   (<d> -^updated true)
+   -->
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) | Correct doorway | <d> )
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-door
+        ^door <d>)}
+
+sp {follow-hall-axis*apply*update-door*east-west*y
+   (state <s> ^operator <o>
+              ^axis.orientation east-west
+              ^explore-room <cr>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side south
+         ^y <y1>)
+   (<w2> ^side north
+         ^y <y2>)
+   -->
+   (write (crlf) | New-y: | (/ (+ <y1> <y2>) 2))
+   (<d> ^new-y (/ (+ <y1> <y2>) 2))}
+
+sp {follow-hall-axis*apply*update-door*east-west
+   (state <s> ^operator <o>
+              ^axis.orientation east-west
+              ^top-state.parameters.room-min <bbb>
+              ^explore-room <cr>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<d> ^y <y>
+        ^new-y { <> <y> <new-y> }
+        ^min-y <min-y>
+        ^max-y <max-y>
+        ^mmin-y <mmin-y>
+        ^mmax-y <mmax-y>)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side south
+         ^y <y1>)
+   (<w2> ^side north
+         ^y <y2>)
+   -->
+   (write (crlf) |update door: | <d> | y | <y> | --> | <new-y>)
+   (<d> ^updated true
+        ^y <y> -
+        ^min-y <min-y> -
+        ^max-y <max-y> -
+        ^mmin-y <mmin-y> -
+        ^mmax-y <mmax-y> -
+        ^y <new-y>
+        ^min-y <y1>
+        ^max-y <y2>
+        ^mmin-y (- <new-y> <bbb>)
+        ^mmax-y (+ <new-y> <bbb>))}
+
+sp {follow-hall-axis*apply*update-door*east-west*no-change
+   (state <s> ^operator <o>
+              ^axis.orientation east-west
+              ^top-state.parameters.room-min <bbb>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<d> ^y <y>
+        ^new-y <y>)
+   -->
+   (write (crlf) |No update - equal y.|)
+   (<d> ^updated true)}
+
+
+##################################################
+sp {follow-hall-axis*apply*update-door*north-south*x
+   (state <s> ^operator <o>
+              ^axis.orientation north-south
+              ^explore-room <cr>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side east
+         ^x <x1>)
+   (<w2> ^side west
+         ^x <x2>)
+   -->
+   (<d> ^new-x (/ (+ <x1> <x2>) 2))}
+
+sp {follow-hall-axis*apply*update-door*north-south
+   (state <s> ^operator <o>
+              ^axis.orientation north-south
+              ^top-state.parameters.room-min <bbb>
+              ^explore-room <cr>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<d> ^x <x>
+        ^new-x { <> <x> <new-x> }
+        ^min-x <min-x>
+        ^max-x <max-x>
+        ^mmin-x <mmin-x>
+        ^mmax-x <mmax-x>)
+   (<cr> ^wall <w1> <w2>)
+   (<w1> ^side east
+         ^x <x1>)
+   (<w2> ^side west
+         ^x <x2>)
+   -->
+   (write (crlf) |update  door: | <d> | x | <x> | --> | <new-x>)
+   (<d> ^updated true
+        ^x <x> -
+        ^min-x <min-x> -
+        ^max-x <max-x> -
+        ^mmin-x <mmin-x> -
+        ^mmax-x <mmax-x> -
+        ^x <new-x>
+        ^min-x <x2>
+        ^max-x <x1>
+        ^mmin-x (- <new-x> <bbb>)
+        ^mmax-x (+ <new-x> <bbb>))}
+
+
+sp {follow-hall-axis*apply*update-door*north-south*same
+   (state <s> ^operator <o>
+              ^axis.orientation north-south
+              ^top-state.parameters.room-min <bbb>)
+   (<o> ^name update-door
+        ^door <d>)
+   (<d> ^x <x>
+        ^new-x <x>)
+   -->
+   (write (crlf) |No update - equal x.|)
+   (<d> ^updated true)}
+

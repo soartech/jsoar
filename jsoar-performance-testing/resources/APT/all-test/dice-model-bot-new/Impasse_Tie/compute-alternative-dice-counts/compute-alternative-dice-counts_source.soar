@@ -1,0 +1,12 @@
+source elaborations.soar
+source compute-bid-probability-with-assumed-dice.soar
+pushd cbpwad
+source cbpwad_source.soar
+popd
+source determine-last-bid.soar
+pushd determine-last-bid
+source determine-last-bid_source.soar
+popd
+source found-min-hold-good-bid.soar
+source found-unlikely-hold.soar
+source modify-true-dice-counts.soar

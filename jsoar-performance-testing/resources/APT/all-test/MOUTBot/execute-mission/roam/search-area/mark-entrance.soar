@@ -1,0 +1,24 @@
+#####################################
+# file: search-area/mark-entrance
+# created: JEL 11-05-02
+#
+
+sp {search-area*propose*mark-entrance
+   (state <s> ^name search-area
+             -^top-state.map.current-area.searched <node>
+              ^top-state.map.near-node <node>)
+   (<node> ^type << door window connector >>)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name mark-entrance
+        ^node <node>)
+}
+sp {apply*mark-entrance
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <area>)
+   (<o> ^name mark-entrance
+        ^node <node>)
+   -->
+   (<area> ^searched <node>)
+}
+

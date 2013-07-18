@@ -1,0 +1,9 @@
+sp {drink*elaborate*priority
+   (state <s> ^name haunt
+              ^operator <o> +
+              ^status.thirst <h>
+              ^parameters.behavior-priority.<h> <val>)
+   (<o> ^name << drink find-drinks >>)
+-->
+   (<o> ^priority <val>)
+}

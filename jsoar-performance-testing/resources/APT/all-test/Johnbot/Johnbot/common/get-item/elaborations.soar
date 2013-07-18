@@ -1,0 +1,34 @@
+#echo "\nLoading get-item/elaborations"
+
+sp {get-item*elaborate*superoperator-stuff
+   (state <s> ^name get-item
+              ^superstate.operator <o>)
+   (<o> ^place <place>
+        ^classname <cname>)
+   -->
+   (write (crlf) |Get item | <cname> )
+   (<s> ^place <place>
+        ^classname <cname>)}
+
+sp {get-item*elaborate*superoperator-type
+   (state <s> ^name get-item
+              ^superstate.operator.type <type>)
+   -->
+   (<s> ^type <type>)}
+
+sp {get-item*elaborate*current-item  ;# type = weapon, health, armor
+   (state <s> ^name get-item
+              ^superstate.operator.item <item>)
+   -->
+   (<s> ^item <item>)}
+
+sp {get-item*elaborate*compute*item*type
+   (state <s> ^name get-item
+             -^superstate.operator.item
+              ^type { <> state <type> }
+             -^classname
+              ^io.input-link.entity.item <item>)
+   (<item> ^type <type>)
+   -->
+   (<s> ^item <item>)}
+

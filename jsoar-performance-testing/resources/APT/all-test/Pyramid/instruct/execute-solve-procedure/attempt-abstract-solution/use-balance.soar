@@ -1,0 +1,24 @@
+
+sp {propose-use-balance-fact
+   (state <s> ^name attempt-abstract-solution
+              ^balanced 
+             -^value)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name use-balance )
+}
+
+sp {attempt-use-balance-fact
+   (state <s> ^operator.name use-balance  
+              ^<arg1>
+              ^<arg2>
+             -^value
+              ^top-state <ts> )
+   (<ts> ^instructions.relations <r1>)
+   (<r1> ^relation balanced 
+         ^arg1 <arg1> 
+         ^arg2 <arg2>
+         ^term <val>)
+-->
+   (<s> ^value <val>)
+}

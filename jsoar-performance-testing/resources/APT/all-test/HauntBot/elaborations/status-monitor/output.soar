@@ -1,0 +1,8 @@
+# display the most recent output link command
+sp {status-monitor*output-command*action
+   (state <s> ^io.output-link.<action>
+              ^status-monitor.init true)
+-->
+   (tcl draw-action | | <action>)
+}
+

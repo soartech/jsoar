@@ -1,0 +1,64 @@
+echo "\nLoading goto-item/elaborations"
+sp {goto-item*elaborate*current-item
+   (state <s> ^name goto-item
+              ^superstate.operator.item <item>)
+   -->
+   (<s> ^item <item>)}
+
+sp {get-item*elaborate*compute*item-heading
+   (state <s> ^name goto-item
+              ^item <item>
+              ^io.input-link <il>)
+   (<il> -^entity.item <item>
+          ^agent.origin <origin>)
+   (<item> ^classname <class>
+           ^x <item-x>
+           ^y <item-y>)
+   (<origin> ^x <x>
+             ^y <y>)
+   -->
+   (<s> ^item-heading
+        (compute-heading <y> <x> <item-y> <item-x>))}
+
+sp {goto-item*elaborate*item*angle-off-yaw-missing
+   (state <s> ^name goto-item
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^item-heading <ih>)
+   -->
+   (<s> ^angle-off (round-off-heading (- <yaw> <ih>) 1))}
+
+sp {goto-item*elaborate*item*angle-off
+   (state <s> ^name goto-item
+              ^item.angle-off.h <ih>)
+   -->
+   (<s> ^angle-off (round-off-heading <ih> 1))}
+
+sp {goto-item*elaborate*item*angle-off-check
+   (state <s> ^name goto-item
+              ^angle-off { > -4 < 4 })
+   -->
+   (<s> ^item-angle-off-check true)}
+
+sp {goto-item*elaborate*item*distance-check
+   (state <s> ^name goto-item
+              ^item.range < 70)
+   -->
+   (<s> ^item-distance-check true)}
+
+
+#Disable weaving to make testing easier
+#sp {goto-item*elaborate*item*weave-check-left
+#   (state <s> ^name goto-item
+#             -^item.range < 500
+#             -^io.input-link.map.left.distance < 400)
+#   -->
+#   (<s> ^weave-check left)}
+
+#sp {goto-item*elaborate*item*weave-check-right
+#   (state <s> ^name goto-item
+#             -^item.range < 500
+#             -^io.input-link.map.right.distance < 400)
+#   -->
+#   (<s> ^weave-check right)}
+
+

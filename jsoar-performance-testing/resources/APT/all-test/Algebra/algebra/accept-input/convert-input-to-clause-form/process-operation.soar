@@ -1,0 +1,113 @@
+sp {convert-input-to-clause-form*propose*process-operation
+   (state <s> ^name convert-input-to-clause-form
+              ^top-state.problem.current-input-value <civ>)
+   (<civ> ^value << |+| |*| |-| |/| |=| >>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name process-operation)
+}
+
+## Just processed left clause - insert operation in current clause
+sp {convert-input-to-clause-form*apply*process-operation*post-left
+   (state <s> ^operator.name process-operation
+              ^top-state <ts>)
+   (<ts> ^problem <p>
+         ^operations.<name> <value>)
+   (<p> ^parse-clause <pc>
+        ^current-input-value <cw>)
+   (<pc>  ^parse-status post-left)
+   (<cw> ^value <value>
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^operation <name>)
+}
+
+
+## Just processed right clause - push down current clause and start over above.
+
+sp {convert-input-to-clause-form*apply*process-operation*post-right*diff-op
+   (state <s> ^operator.name process-operation
+              ^top-state <ts>)
+   (<ts> ^problem <p>
+         ^operations.<name> <value>)
+   (<p> ^current-input-value <cw>
+        ^parse-clause <pc>)
+   (<pc>  ^parse-status post-right
+          ^right-side <rs>
+          ^operation { <> <name> <> equal <op> }
+          ^left-side <ls>)
+   (<cw> ^value <value>
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<pc> ^left-side <nc>
+                    <ls> -
+         ^operation <name>
+                    <op> -
+         ^right-side <rs> -)
+   (<nc> ^left-side <ls>
+         ^right-side <rs>
+         ^operation <op>)
+}
+
+sp {convert-input-to-clause-form*apply*process-operation*post-right*same-op
+   (state <s> ^operator.name process-operation
+              ^top-state <ts>)
+   (<ts> ^problem <p>
+         ^operations.<name> <value>)
+   (<p> ^parse-clause <cc>
+        ^current-input-value <cw>)
+   (<cc>  ^parse-status post-right
+          ^right-side <rs>
+          ^operation { <> equal <name>}
+          ^left-side <ls>)
+   (<cw> ^value <value>
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<cc> ^left-side <nc>
+                    <ls> -
+         ^right-side <rs> -)
+   (<nc> ^left-side <ls>
+         ^right-side <rs>
+         ^operation <name>)
+}
+
+## Just processed right clause after an =. Move down on the right side.
+
+sp {convert-input-to-clause-form*apply*process-operation*post-right*post-equal
+   (state <s> ^operator.name process-operation
+              ^top-state <ts>)
+   (<ts> ^problem <p>
+         ^operations.<name> <value>)
+   (<p> ^current-input-value <cw>
+        ^parse-clause <pc>)
+   (<pc>  ^parse-status post-right
+          ^right-side <rs>
+          ^operation equal
+          ^left-side <ls>)
+   (<cw> ^value <value>
+         ^next <nvalue>)
+-->
+   (<p> ^current-input-value <cw> -
+                             <nvalue>)
+   (<p> ^parse-clause <pc> -
+                      <nc>)
+   (<pc> ^right-side <rs> -
+                     <nc>)
+   (<nc> ^left-side <rs>
+         ^operation <name>)
+}
+
+sp {convert-input-to-clause-form*apply*process-operation*failure
+   (state <s> ^operator.name process-operation
+              ^top-state.problem <p>)
+   (<p> ^parse-clause.parse-status { <> post-right <> post-left } )
+-->
+   (write (crlf) |Unexpected operation.|)
+   (<p> ^failed true)
+}

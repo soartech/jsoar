@@ -1,0 +1,18 @@
+source elaborations.soar
+source barricade.soar
+source determine-body-position.soar
+source determine-defensive-room-position.soar
+source determine-defensive-window-position.soar
+source determine-threat-door.soar
+source determine-threat-window.soar
+source kneel.soar
+source lie-prone.soar
+source maintain-position.soar
+source move-to-defensive-area.soar
+source move-to-defensive-position.soar
+source orient-toward-threat.soar
+source predict-enemy.soar
+pushd predict-enemy
+source predict-enemy_source.soar
+popd
+source stand.soar

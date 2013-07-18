@@ -1,0 +1,76 @@
+#sp {clean-house*propose*init-robot
+#
+#   (state <s> ^name robot
+#             -^problem-space)
+#-->
+#   (<s> ^operator <op> !)
+#   (<op> ^name init-robot)
+#}
+
+sp {robot*apply*init-robot*directions
+   (state <s> ^name robot
+              ^operator.name init-robot
+              ^parameters.default-storage-area-id <dsta>)
+-->
+   (<s> ^problem-space <ps>
+        ^desired <d>
+        ^objects <b>
+        ^path-cost 0)
+   (<d> ^storage-area-id <dsta>)
+   (<ps> ^name clean-house
+         ^default-state-copy yes
+         ^one-level-attributes areas current-location destination-area type
+         ^one-level-attributes visited-area)
+}
+
+sp {robot*apply*init-robot*areas
+   (state <s> ^name robot
+              ^parameters.areas-held-in wm
+              ^io.input-link.area-description <ad>
+              ^operator.name init-robot)
+   (<ad> ^id <id>
+         ^type <type>)
+-->
+   (<s> ^areas.area <area>)
+   (<area> ^id <id>
+           ^type <type>)}
+
+
+#### Default mission is to clean-rooms of objects
+sp {apply*init-robot
+   (state <s> ^operator <op>)
+   (<op> ^name init-robot)
+-->
+   (<s> ^missions.mission <m>)
+   (<m> ^name clean-rooms  ## Random-walk
+        ^type get-object
+        ^status proposed
+        ^object <obj>)
+   (<obj> ^type block
+          ^color green)
+}
+
+#sp {apply*init-robot*patrol
+#   (state <s> ^operator <op>)
+#   (<op> ^name init-robot)
+#-->
+#   (<s> ^missions.mission <m>)
+#   (<m> ^name patrol
+#        ^status proposed
+#        ^first-area <area>)
+#   (<area> ^next <area3>
+#           ^id 0)
+##   (<area2> ^next <area3>
+##            ^id 1)
+#   (<area3> ^next <area5>
+#            ^id 2)
+##   (<area4> ^next <area5>
+##            ^id 6)
+#   (<area5> ^next <area7>
+#            ^id 10)   
+##   (<area6> ^next <area7>
+##            ^id 9)
+#   (<area7> ^next nil
+#            ^id 8)
+#}
+

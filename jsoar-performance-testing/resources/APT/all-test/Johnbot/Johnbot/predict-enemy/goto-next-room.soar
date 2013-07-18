@@ -1,0 +1,16 @@
+
+sp {predict-enemy*propose*goto-next-room
+   (state <s> ^name predict-enemy
+              ^first-room true
+              ^map.current-room <cr>
+              ^map.room <rm>
+              ^real-top-state.enemy.next-room-number <nrn>)
+    (<rm> ^room-number <nrn>)
+    (<cr> ^path <p>)
+    (<p> ^destination-room <rm>
+         ^in-room-door <door>)
+    -->
+##tcl |tsiDisplayAndSendCommand stop-soar|)
+    (<s> ^operator <o> + >, =)
+    (<o> ^name goto-next-room 
+         ^door <door>)}

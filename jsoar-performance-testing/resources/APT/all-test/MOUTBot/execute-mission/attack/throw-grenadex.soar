@@ -1,0 +1,37 @@
+#Throw a grenade if grenades are selected
+sp {z-patches*propose*throw-grenade
+   (state <s> ^name attack
+              ^io.input-link.agent <agent>
+             -^top-state.self.threw-grenade.expire-time > <ct>)
+   (<agent> ^weapon.class grenade
+            ^time <ct>)
+-->
+   (<s> ^operator <o> + = >)
+   (<o> ^name throw-grenade
+        ^actions.attack <a>)
+   (<a> ^value normal
+        ^strength 10)   # should be based on distance to enemy - compute as elaboration?
+}
+
+sp {apply*throw-grenade*record-time
+   (state <s> ^operator <o>
+              ^top-state <ts>
+              ^io.input-link.agent.time <ct>)
+   (<ts> ^self <self>
+         ^parameters.grenade-wait-time <gwt>)
+   (<o> ^name throw-grenade)
+-->
+   (<self> ^threw-grenade <tg>)
+   (<tg> ^expire-time (+ <ct> <gwt>))
+}
+
+sp {apply*throw-grenade*remove-old-time
+   (state <s> ^operator <o>
+              ^top-state.self <self>
+              ^io.input-link.agent.time > <et>)
+   (<o> ^name throw-grenade)
+   (<self> ^threw-grenade <tg>)
+   (<tg> ^expire-time <et> 0)
+-->
+   (<self> ^threw-grenade <tg> -)
+}

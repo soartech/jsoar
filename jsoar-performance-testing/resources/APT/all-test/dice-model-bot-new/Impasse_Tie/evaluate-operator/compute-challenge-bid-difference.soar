@@ -1,0 +1,117 @@
+### Unify so works with challenge of bid through a pass
+
+sp {evaluate-operator*propose*compute-challenge-bid-difference
+   (state <s> ^name evaluate-operator
+             -^estimated-total
+              ^top-state.probabilities false
+              ^top-state.io.input-link.history.action << bid push >>
+              ^superstate.operator <eo>)
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge
+         ^target <t>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-bid-difference
+         ^target <t>)
+}
+
+
+## If there was an intervening PASS consider challenging previous bid
+
+sp {evaluate-operator*propose*compute-challenge-bid-difference*intervening-pass
+   (state <s> ^name evaluate-operator
+             -^estimated-total
+              ^top-state.probabilities false
+              ^top-state.io.input-link <input>
+              ^superstate.operator <eo>)
+   (<input> ^history.action pass
+            ^state.last-bid <lb>)
+   (<lb> ^action << bid push >>
+         ^player.name <name>)
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge        # player being challenged is one that made bid
+         ^target <t>)
+   (<t> ^name <name>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-bid-difference
+         ^target <t>)
+}
+
+###################
+sp {apply*compute-challenge-bid-difference*1*bid
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.state.last-bid <lb>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-challenge-bid-difference
+         ^target.id <player-id>)
+   (<dc1> ^face 1
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face 1
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | 1's. Estimated total: | (+ (/ <multi-unknown> 6) <multi-1>) | Bid Difference: | (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>))
+   (<s> ^total-known (- <multi-1> <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>)
+        ^estimated-total (+ (/ <multi-unknown> 6) <multi-1>)
+        ^bid-difference (float (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>)))
+}
+
+sp {apply*compute-challenge-bid-difference*special-rules*bid
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.state <state>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-challenge-bid-difference
+         ^target.id <player-id>)
+   (<state> ^special true
+            ^last-bid <lb>)
+   (<dc1> ^face { <> 1 <face> }
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | | <face> |'s. Estimated total: |
+   (+ (/ <multi-unknown> 6) <multi-1>) | Bid Difference: |
+   (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>) | special rules|)
+   (<s> ^total-known (- <multi-1> <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-1>) <bid-multi>)
+        ^estimated-total (+ (/ <multi-unknown> 6) <multi-1>)
+        ^bid-difference (float (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>)))
+}
+
+sp {apply*compute-challenge-bid-difference*not-special-rules*bid
+   (state <s> ^operator <op>
+              ^top-state.io.input-link.state <state>
+              ^dice-counts.dice-count <dc1> <dc2> <dc3>)
+   (<op> ^name compute-challenge-bid-difference
+         ^target.id <player-id>)
+   (<state> ^special false
+            ^last-bid <lb>)
+   (<dc1> ^face { <> 1 <face> }
+          ^count <multi-bid>)
+   (<dc2> ^face 1
+          ^count <multi-1>)
+   (<dc3> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier  <bid-multi>)
+-->
+   (write (crlf) |  Challenge: | <bid-multi> | | <face> |'s. Estimated total: |
+   (+ (/ <multi-unknown> 3) <multi-bid> <multi-1>) | Bid Difference: |
+   (- (+ (/ <multi-unknown> 3) <multi-bid> <multi-1>) <bid-multi>) | no special rules|)
+   (<s> ^total-known (- (+ <multi-1> <multi-bid> ) <bid-multi>)
+        ^total-possible (- (+ <multi-unknown> <multi-bid> <multi-1>) <bid-multi>)
+        ^estimated-total (+ (/ <multi-unknown> 3) <multi-bid> <multi-1>)
+        ^bid-difference (float (- (+ (/ <multi-unknown> 3) <multi-bid> <multi-1>) <bid-multi>)))
+}
+

@@ -1,0 +1,27 @@
+sp {propose*initialize-wizards
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-wizards)
+}
+
+sp {apply*initialize-wizards
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-wizards)
+-->
+   (<s> ^name wizards
+        ^top-knows <k1>
+        ^knows <k1>)
+   (<k1> ^name A
+         ^wizard <w1> <w2> <w3>)
+   (<w1> ^name A
+         ^guessed no)
+   (<w2> ^mark white
+         ^guessed no
+         ^name B)
+   (<w3> ^mark white
+         ^guessed no
+         ^name C)
+}
+

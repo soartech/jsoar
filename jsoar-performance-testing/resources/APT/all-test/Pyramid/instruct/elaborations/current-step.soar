@@ -1,0 +1,9 @@
+sp {instruct*elaborate*state*completed-step
+   (state <s> ^name << instruct attempt-simple-problem test-x >>
+              ^current-problem <cp>)
+   (<cp> ^current-step <cs>)
+  -{(<cs> ^action <a>)
+    (<cp> -^completed-action <a>) }
+-->
+   (<cp> ^completed-step <cs>)
+}

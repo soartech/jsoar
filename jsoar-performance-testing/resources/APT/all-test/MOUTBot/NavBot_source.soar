@@ -1,0 +1,23 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+source attack.soar
+pushd attack
+source attack_source.soar
+popd
+source common.soar
+pushd common
+source common_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source enemy-record.soar
+source enemy-remove.soar
+source enemy-select.soar
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source init-last-node.soar

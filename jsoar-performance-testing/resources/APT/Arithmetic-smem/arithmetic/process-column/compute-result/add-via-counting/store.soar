@@ -1,0 +1,57 @@
+sp {add-via-counting*propose*store
+   (state <s> ^name add-via-counting
+              ^counter <counter>
+              ^addend <counter>
+             -^stored yes
+              ^top-state.parameters.store yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name store)
+}
+
+sp {add-via-counting*apply*store*no-carry*store
+   (state <s> ^name add-via-counting
+              ^operator.name store
+              ^smem.command <cmd>
+              ^superstate.operator <o>
+              ^carry false
+              ^sum <sum>
+              ^top-state.zero <zero>) #!!!!
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+   (<s> ^stored yes)
+   (<cmd> ^store <af> <af2>)
+   (<af> ^sum <sum>
+         ^carry-borrow <zero>
+         ^digit1 <d1>
+         ^digit2 <d2>)
+   (<af2> ^sum <sum>
+          ^carry-borrow <zero>
+          ^digit1 <d2>
+          ^digit2 <d1>)
+}
+
+sp {add-via-counting*apply*store*carry*store
+   (state <s> ^name add-via-counting
+              ^operator.name store
+              ^smem.command <cmd>
+              ^top-state.parameters.store yes
+              ^superstate.operator <o>
+              ^carry true
+              ^sum <sum>
+              ^top-state.one <one>) #!!!!
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+   (<s> ^stored yes)
+   (<cmd> ^store <af> <af2>)
+   (<af> ^sum <sum>
+         ^carry-borrow <one>
+         ^digit1 <d1>
+         ^digit2 <d2>)
+   (<af2> ^sum <sum>
+          ^carry-borrow <one>
+          ^digit1 <d2>
+          ^digit2 <d1>)
+}

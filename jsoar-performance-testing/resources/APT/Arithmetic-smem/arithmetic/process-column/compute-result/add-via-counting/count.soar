@@ -1,0 +1,45 @@
+## Given that we always pre-generate all digits to generate the problem
+##   all digits are always there so there will be no impasse.
+###   Substate included in case problem is generated without all digits generated.
+
+sp {add-via-counting*propose*count
+   (state <s> ^name add-via-counting
+              ^counter <counter>
+             -^addend <counter>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name count)
+}
+
+sp {add-via-counting*apply*count
+   (state <s> ^name add-via-counting
+              ^operator <op>
+              ^counter <cd>
+              ^sum <cu>)
+   (<cd> ^next <p>)
+   (<cu> ^next-carry false
+         ^next <n>)
+   (<op> ^name count)
+-->
+   (<s> ^counter <cd> - <p>
+        ^sum <cu> - <n>)
+}
+
+sp {add-via-counting*apply*count*carry
+   (state <s> ^name add-via-counting
+              ^operator <op>
+              ^counter <cd>
+              ^sum <cu>
+              ^carry false)
+   (<cd> ^next <p>)
+   (<cu> ^next-carry true
+         ^next <n>)
+   (<op> ^name count)
+-->
+   (<s> ^counter <cd> -
+                 <p>
+        ^sum <cu> -
+             <n>
+        ^carry false -
+               true)
+}

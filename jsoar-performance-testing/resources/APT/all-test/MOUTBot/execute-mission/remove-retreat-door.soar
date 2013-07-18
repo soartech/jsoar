@@ -1,0 +1,24 @@
+echo "\nLoading execute-mission/remove-retreat-door"
+
+sp {execute-mission*propose*remove-retreat-door
+   (state <s> ^name execute-mission
+              ^top-state.map.current-area <area>
+              ^mission.active-objective.threat <threat>)
+   (<threat> ^retreat-door <door>)
+   (<door> ^node.area <> <area>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name remove-retreat-door
+        ^threat <threat>
+        ^door <door>)
+}
+
+sp {apply*remove-retreat-door
+   (state <s> ^operator <o>)
+   (<o> ^name remove-retreat-door
+        ^threat <threat>
+        ^door <door>)
+   (<threat> ^retreat-door <door>)
+-->
+   (<threat> ^retreat-door <door> -)
+}

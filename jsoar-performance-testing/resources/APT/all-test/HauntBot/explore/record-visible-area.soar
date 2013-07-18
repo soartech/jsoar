@@ -1,0 +1,47 @@
+echo "\nLoading explore/record-visible-area"
+                
+
+#IF:
+#   I see a node that's in an area other than my current area
+#THEN:
+#   That other area is visible from my current area.  Propose
+#   recording this information on the map.
+sp {explore*propose*record-visible-area
+   (state <s> ^type explore
+              ^io.input-link.objects.node.area <area-name>
+              ^top-state.map <map>)
+   (<map> ^current-area <current-area>
+          ^area { <visible-area> <> <current-area> })
+   (<visible-area> ^name <area-name>)
+   (<current-area> -^visible-area <visible-area>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name record-visible-area
+        ^current-area <current-area>
+        ^visible-area <visible-area>)
+}
+
+#Record new visible areas
+sp {explore*compare*record-visible-area-trumps-movement
+   (state <s> ^type explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record-visible-area)
+   (<o2> ^type << move-to-area move-to-node >>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {apply*record-visible-area
+   (state <s> ^operator <o>)
+   (<o> ^name record-visible-area
+        ^current-area <current-area>
+        ^visible-area <visible-area>)
+-->
+   (<current-area> ^visible-area <visible-area>)
+   #Visibility works both ways...
+   (<visible-area> ^visible-area <current-area>)
+}
+
+echo "\nFinish loading explore/record-visible-area"
+

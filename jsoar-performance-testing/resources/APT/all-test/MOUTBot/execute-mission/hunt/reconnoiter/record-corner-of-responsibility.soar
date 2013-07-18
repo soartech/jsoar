@@ -1,0 +1,94 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/record-corner-of-responsibility"
+
+#AMN: 2002-07-30
+#IF:
+#1.  The entrance-node has been recorded
+#2.  The corner-of-responsibility has not been recorded
+#2.  There is a node in the current area of type "none" (i.e., corner node)
+#THEN:
+#    Propose making that node a corner of responsibility
+sp {reconnoiter*propose*record-corner-of-responsibility
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map.current-area.node <node>)
+   (<eorders> ^entrance-node
+             -^corner-of-responsibility)
+   (<node> ^type none)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-corner-of-responsibility
+        ^node <node>)
+}
+
+#AMN: 2002-07-30
+#Elaborate each operator with its node's difference along
+#the axis perpendicular to the entrance axis from the entrance node
+#(hard to say...easy to do)
+sp {rcor*elaborate*perpendicular-difference
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^operator <o> +)
+   (<eorders> ^axis <axis>
+             ^entrance-node.position <epos>)
+   (<epos> ^{ <axis2> << x y >> <> <axis>} <eval>)
+   (<o> ^name record-corner-of-responsibility
+        ^node.position <npos>)
+   (<npos> ^<axis2> <nval>)
+-->
+   (<o> ^perpendicular-difference (abs (- <eval> <nval>)))
+}
+
+
+#AMN: 2002-07-30
+#Reject operators which are not in-line with the entrance node
+sp {reconnoiter*reject*excess-perpendicular-difference
+   (state <s> ^name reconnoiter
+              ^operator <o> +)
+   (<o> ^name record-corner-of-responsibility
+        ^perpendicular-difference > 100)
+-->
+   (<s> ^operator <o> -)
+}
+
+#AMN: 2002-07-30
+#Prefer the operator proposing node in the offset direction
+sp {reconnoiter*select*rcor*in-offset-direction*negative
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^operator <o> +)
+   (<eorders> ^axis <axis>
+              ^offset < 0
+              ^entrance-node.position.<axis> <val>)
+   (<o> ^name record-corner-of-responsibility
+        ^node.position.<axis> < <val>)
+-->
+   (<s> ^operator <o> >)
+}
+
+sp {reconnoiter*select*rcor*in-offset-direction*positive
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^operator <o> +)
+   (<eorders> ^axis <axis>
+              ^offset > 0
+              ^entrance-node.position.<axis> <val>)
+   (<o> ^name record-corner-of-responsibility
+        ^node.position.<axis> > <val>)
+-->
+   (<s> ^operator <o> >)
+}
+
+
+#AMN: 2002-07-30
+sp {apply*record-corner-of-responsibility
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <eorders>)
+   (<o> ^name record-corner-of-responsibility
+        ^node <node>)
+-->
+   (<eorders> ^corner-of-responsibility <node>)
+}
+
+
+
+

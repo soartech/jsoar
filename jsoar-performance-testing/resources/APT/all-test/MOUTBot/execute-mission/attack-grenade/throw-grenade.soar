@@ -1,0 +1,52 @@
+# REW: 2003-06-11
+# For now, assume targets are at medium range.  Should be base on 
+# some range caluculation.
+# REW: 2003-06-13: I think the double grenade problem arises from throwing a grenade while changing bpody opsition
+#Throw a grenade if grenades are selected
+# REW: 2003-0614
+# Devvan says value of grenade attack should be charge, not normal
+sp {attack-grenade*propose*throw-grenade
+   (state <s> ^name attack-grenade
+              ^achieved-target-node-angle-off true
+             -^top-state.self.threw-grenade.active true
+              ^top-state.parameters.grenade-throw-strength <gts>
+             -^top-state.self.changing-body-position)
+   (<gts> ^distance medium
+          ^value <str>)
+-->
+   (write (crlf) |Throwing grenade with strength | <str>)
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name throw-grenade
+        ^actions.attack <a>)
+   (<a> ^value charge
+        ^strength <str>)   # should be based on distance to enemy - compute as elaboration?
+}
+
+sp {apply*throw-grenade*record-time
+   (state <s> ^operator <o>
+              ^top-state <ts>
+              ^selected-target-node <node>)
+   (<ts> ^self <self>
+         ^io.input-link.agent.time <ct>
+         ^parameters <p>)
+   (<p> ^grenade-wait-time <gwt>
+        ^grenade-throw-time <gtt>)
+   (<o> ^name throw-grenade)
+  -(<self> ^threw-grenade)
+-->
+   (write (crlf) | Threw Grenade. Current time: | <ct> |, throwing time: | (+ <ct> <gtt>))
+   (<self> ^threw-grenade <tg>)
+   (<tg> ^throwing-time (+ <ct> <gtt>)
+         ^expire-time (+ <ct> <gwt>))
+}
+
+sp {apply*throw-grenade*remove-old-time
+   (state <s> ^operator <o>
+              ^top-state.self <self>
+              ^top-state.io.input-link.agent.time > <et>)
+   (<o> ^name throw-grenade)
+   (<self> ^threw-grenade <tg>)
+   (<tg> ^expire-time <et>)
+-->
+   (<self> ^threw-grenade <tg> -)
+}

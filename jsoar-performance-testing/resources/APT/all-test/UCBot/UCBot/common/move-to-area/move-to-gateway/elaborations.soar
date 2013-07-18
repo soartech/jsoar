@@ -1,0 +1,9 @@
+
+# Copy speed down to the current state
+sp {move-to-gateway*elaborate*speed
+   (state <s> ^name move-to-gateway
+              ^quiescence t
+              ^superstate.operator.speed <speed>)
+-->
+   (<s> ^speed <speed>)
+}

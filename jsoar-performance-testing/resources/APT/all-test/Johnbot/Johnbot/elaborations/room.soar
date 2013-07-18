@@ -1,0 +1,101 @@
+#echo "\nLoading elaborations/room"
+
+sp {quake*elaborate*state*current-room
+   (state <s> -^name quake
+               ^top-state.map.current-room <cr>)
+   -->
+   (<s> ^current-room <cr>)}
+
+########## Used for determining if room or hall
+sp {quake*elaborate*forward-backward*sum
+   (state <s> ^name quake
+              ^map <map>
+              ^io.input-link.map <m>)
+   (<map> -^explored true
+           ^explore-room <er>)
+   (<er> -^explored true)
+   (<m> ^forward.distance <fd>
+        ^backward.distance <bd>)
+   -->
+   (<er> ^forward-backward-sum (+ <fd> <bd>))}
+
+sp {quake*elaborate*left-right*sum
+   (state <s> ^name quake
+              ^map <map>
+              ^io.input-link.map <m>)
+   (<map> -^explored true
+           ^explore-room <er>)
+   (<er> -^explored true) 
+   (<m> ^left.distance <fd>
+        ^right.distance <bd>)
+   -->
+#   (write (crlf) | Left-Right-Sum: | (+ <fd> <bd>))
+   (<er> ^left-right-sum (+ <fd> <bd>))}
+
+sp {quake*elaborate*type*room
+   (state <s> ^name quake
+              ^map.explore-room <room>
+              ^parameters.room-min <rmin>)
+   (<room> -^left-right-sum < <rmin>
+           -^forward-backward-sum < <rmin>)
+   -->
+   (write (crlf) | Type room.|)
+   (<room> ^detected-type room)}
+
+sp {quake*elaborate*type*hall*left-right
+   (state <s> ^name quake
+              ^map.explore-room <room>
+              ^parameters.room-min <rmin>)
+   (<room> ^left-right-sum < <rmin>)
+   -->
+   (write (crlf) | Type hall.|)
+   (<room> ^detected-type hall)}
+
+sp {quake*elaborate*type*hall*forward-backward
+   (state <s> ^name quake
+              ^map.explore-room <room>
+              ^parameters.room-min <rmin>)
+   (<room> ^forward-backward-sum < <rmin>)
+   -->
+   (write (crlf) | Type hall.|)
+   (<room> ^detected-type hall)}
+
+###
+
+sp {quake*elaborate*east-west*sum
+   (state <s> ^name quake
+              ^map.room <rm>) 
+   (<rm> ^wall <w1> <w2>)
+   (<w1> ^side east
+         ^x <x1>)
+   (<w2> ^side west
+         ^x <x2>)
+   -->
+   (<rm> ^east-west-size (- <x1> <x2>))}
+
+sp {quake*elaborate*north-south*sum
+   (state <s> ^name quake
+              ^map.room <rm>) 
+   (<rm> ^wall <w1> <w2>)
+   (<w1> ^side north
+         ^y <x1>)
+   (<w2> ^side south
+         ^y <x2>)
+   -->
+   (<rm> ^north-south-size (- <x1> <x2>))}
+
+sp {quake*elaborate*east-west*big
+   (state <s> ^name quake
+              ^parameters.big-room-size <brs>
+              ^map.room <rm>) 
+   (<rm> ^east-west-size > <brs>)
+   -->
+   (<rm> ^east-west-search true)}
+
+sp {quake*elaborate*north-south*big
+   (state <s> ^name quake
+              ^parameters.big-room-size <brs>
+              ^map.room <rm>) 
+   (<rm> ^north-south-size > <brs>)
+   -->
+   (<rm> ^north-south-search true)}

@@ -1,0 +1,13 @@
+#
+# If not in target area, move to it
+#
+sp {move-to-pos*propose*step-1-area
+   (state <s> ^type move-to-pos
+              ^map.current-area <current>
+              ^area { <target> <> <current>} )
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name step-1-area
+        ^type move-to-area-safely
+        ^area <target>)
+}

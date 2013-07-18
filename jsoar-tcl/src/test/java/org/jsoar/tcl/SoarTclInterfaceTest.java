@@ -40,7 +40,6 @@ public class SoarTclInterfaceTest
     {
         final Agent agent = new Agent();
         ifc = SoarTclInterface.findOrCreate(agent);
-        agent.initialize();
     }
 
     /**

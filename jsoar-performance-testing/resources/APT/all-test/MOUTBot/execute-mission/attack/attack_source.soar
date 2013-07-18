@@ -1,0 +1,7 @@
+source elaborations.soar
+source adjust-position.soar
+source face-enemy.soar
+source kneel.soar
+source select-enemy.soar
+source shoot.soar
+source unjam.soar

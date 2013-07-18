@@ -1,0 +1,30 @@
+sp {evaluate-operator*propose*compute-exact-difference
+   (state <s> ^name evaluate-operator
+             -^estimated-total
+              ^top-state.probabilities false
+              ^superstate.operator.superoperator.name exact)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-exact-difference)
+}
+
+sp {apply*compute-exact-difference*bid
+   (state <s> ^operator <op>
+              ^top-state <ts>
+              ^dice-counts.dice-count <dc1> <dc2>)
+   (<op> ^name compute-exact-difference)
+   (<ts> ^io.input-link.state <state>)
+   (<state> ^last-bid <lb>)
+   (<dc1> ^face <face>
+          ^count <multi-1>)
+   (<dc2> ^face unknown
+          ^count <multi-unknown>)
+   (<lb> ^action bid
+         ^face <face>
+         ^player.id <player-id>
+         ^multiplier <bid-multi>)
+-->
+   (write (crlf) |  Exact: | <bid-multi> | | <face> |'s. Estimated total: | (+ (/ <multi-unknown> 6) <multi-1>) | Bid Difference: | (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>))
+   (<s> ^estimated-total (+ (/ <multi-unknown> 6) <multi-1>)
+        ^bid-difference (float (- (+ (/ <multi-unknown> 6) <multi-1>) <bid-multi>)))
+}

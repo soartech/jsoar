@@ -1,0 +1,153 @@
+#echo "\nLoading goto-door/elaboration"
+ 
+sp {goto-door*elaborate*current-door
+   (state <s> ^name goto-door
+              ^superstate.operator.door <idoor>)
+   -->
+   (<s> ^door <idoor>)}
+
+sp {goto-door*elaborate*door*heading*room
+   (state <s> ^name goto-door
+              ^io.input-link.agent.origin <origin>
+              ^door <idoor>)
+   (<origin> ^x <x>
+             ^y <y>)
+   (<idoor> ^x <door-x>
+            ^y <door-y>)
+   -->
+   (<s> ^door-heading
+        (compute-heading <y> <x> <door-y> <door-x>))}
+
+sp {goto-door*elaborate*door*angle-off
+   (state <s> ^name goto-door
+              ^door-heading <dh>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   -->
+   (<s> ^door-angle-off (round-off-heading (- <yaw> <dh>) 2) )}
+
+sp {goto-door*elaborate*door*angle-off-check
+   (state <s> ^name goto-door
+              ^door-angle-off { > -6 < 6 })
+   -->
+   (<s> ^door-angle-off-check true)}
+
+sp {goto-door*elaborate*door-aligned
+   (state <s> ^name goto-door
+              ^top-state.direction-map.<side>.angle <d-angle>
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^door.wall.side <side>)
+   -->
+   (<s> ^door-aligned (round-off-heading (- <yaw> <d-angle>) 1)
+        ^door-angle <d-angle>)}
+
+sp {goto-door*elaborate*door-aligned*retreat
+   (state <s> ^name goto-door
+              ^mode << attack retreat >>)
+   -->
+   (<s> ^door-aligned-check true)}
+
+sp {goto-door*elaborate*door*door-aligned-check
+   (state <s> ^name goto-door
+              ^door-aligned > -6 < 6)
+   -->
+   (<s> ^door-aligned-check true)}
+
+sp {goto-door*elaborate*door*distance
+   (state <s> ^name goto-door
+              ^io.input-link.agent.origin <il>
+              ^door <idoor>)
+   (<il> ^x <x>
+         ^y <y>)
+   (<idoor> ^x <door-x>
+            ^y <door-y>)
+   -->
+   (<s> ^door-distance
+        (compute-range <x> <y> <door-x> <door-y>))}
+
+sp {goto-door*elaborate*door*distance-check
+   (state <s> ^name goto-door
+              ^door-distance  < 120 )
+   -->
+   (<s> ^door-distance-check true)}
+
+sp {goto-door*elaborate*door-overlap*north-south
+   (state <s> ^name << goto-next-room goto-door >>
+              ;#^top-state.self.stopped true
+              ^io.input-link.agent.origin.x <x>
+              ^door <cd>)
+    (<cd> ^direction << north south >>
+          ^min-x < <x>
+          ^max-x > <x>)
+   -->
+   (<s> ^door-overlap true)}
+
+sp {goto-door*elaborate*door-overlap*east-west
+   (state <s> ^name << goto-next-room goto-door >>
+              ;#^top-state.self.stopped true
+              ^io.input-link.agent.origin.y <y>
+              ^door <cd>)
+    (<cd> ^direction << east west >>
+          ^min-y < <y>
+          ^max-y > <y>)
+   -->
+   (<s> ^door-overlap true)}
+
+
+########### Compute door heading if careful
+
+#sp {goto-door*elaborate*door*heading*careful*ns-low
+#  (state <s> ^name goto-door
+#             ^mode wander
+#             ^io.input-link.agent.origin <origin>
+#             ^door <idoor>)
+#  (<origin> ^x <x>
+#            ^y { < <door-y> <y> })
+#  (<idoor> ^x <door-x>
+#           ^y <door-y>
+#           ^wall.side << north south >>)
+#  -->
+#  (<s> ^door-heading
+#       (compute-heading <y> <x> (- <door-y> 60) <door-x>))}
+
+#sp {goto-door*elaborate*door*heading*careful*ns-high
+#  (state <s> ^name goto-door
+#             ^mode wander
+#             ^io.input-link.agent.origin <origin>
+#             ^door <idoor>)
+#  (<origin> ^x <x>
+#            ^y { >= <door-y> <y> })
+#  (<idoor> ^x <door-x>
+#           ^y <door-y>
+#           ^wall.side << north south >>)
+#  -->
+#  (<s> ^door-heading
+#       (compute-heading <y> <x> (+ <door-y> 60) <door-x>))}
+
+#sp {goto-door*elaborate*door*heading*careful*ew-low
+#  (state <s> ^name goto-door
+#             ^mode wander
+#             ^io.input-link.agent.origin <origin>
+#             ^door <idoor>)
+#  (<origin> ^x { < <door-x> <x> }
+#            ^y <y>)
+#  (<idoor> ^x <door-x>
+#           ^y <door-y>
+#           ^wall.side << east west >>)
+#  -->
+#  (<s> ^door-heading
+#       (compute-heading <y> <x> <door-y> (- <door-x> 60)))}
+
+#sp {goto-door*elaborate*door*heading*careful*ew-high
+#  (state <s> ^name goto-door
+#             ^mode wander
+#             ^io.input-link.agent.origin <origin>
+#             ^door <idoor>)
+#  (<origin> ^x { >= <door-x> <x> }
+#            ^y <y>)
+#  (<idoor> ^x <door-x>
+#        ^y <door-y>
+#           ^wall.side << east west >>)
+#  -->
+#  (<s> ^door-heading
+#    (compute-heading <y> <x> <door-y> (+ <door-x> 60)))}
+

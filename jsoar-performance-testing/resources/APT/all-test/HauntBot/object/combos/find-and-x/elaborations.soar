@@ -1,0 +1,25 @@
+
+#
+# compile a list of all found objects of the specified ^class
+# (Ex: 'Food', 'Drink', 'Candle', etc
+# TODO: extend to include specific objects by adding their 
+# ^name to the list of ^classes
+# MJP: 5/29/03 added code to avoid 'haunted' areas
+sp {find-and-x*elaborate*available-object
+   (state <s> ^type find-and-x 
+              ^target-class <class>
+              #^io.input-link.objects.decoration <obj>) # this version only considers VISIBLE objects
+              ^object-list.decoration <obj>
+              ^map.area <area>)
+  (<area> ^name <area-name>
+         -^haunted)  #make sure obj is not in 'haunted' area
+  (<obj> ^class <class>   # is of target class
+         ^area-name <area-name>)
+-->
+   (<s> ^available-object <obj>)
+}
+
+
+
+
+

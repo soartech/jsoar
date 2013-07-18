@@ -1,0 +1,7 @@
+source elaborations.soar
+source determine-corner-location.soar
+source determine-door-location.soar
+source determine-initial-room-location.soar
+source finished-nodes.soar
+source record-area-extents.soar
+source record-path-node.soar

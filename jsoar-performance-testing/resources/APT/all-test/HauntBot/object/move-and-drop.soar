@@ -1,0 +1,14 @@
+echo "\nLoading object/move-and-drop"
+
+#
+# This sub-state will move to a specific position and then
+# drop a currently held item
+#
+
+
+
+
+
+
+
+

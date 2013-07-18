@@ -1,0 +1,43 @@
+sp {grasp-ied*propose*grasp-help
+   (state <s> ^name grasp-ied
+              ^clear
+              ^object <b>
+              ^top-state <ts>)
+  -(<b> ^confirmation)
+   (<ts> ^labels <ls>
+         ^diffusing <dh>)
+  -(<dh> ^force)
+  -{(<b> ^type <label-name>)
+    (<ls> ^label <l>)
+    (<l> ^name <label-name>)
+    (<dh> ^heuristic <h>)
+    (<h> ^label <label-name>)}
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name grasp-help)
+}
+
+sp {apply*grasp-help
+   (state <s> ^operator <op>
+              ^top-state.io.output-link <out>
+              ^object.id <id>)
+   (<op> ^name grasp-help)
+-->
+   (<out> ^send-message <m1> <m2>)
+   (<m1> ^first <one>
+         ^destination operator)
+   (<one> ^word |need|
+          ^next <two>)
+   (<two> ^word |help|
+          ^next <three>)
+   (<three> ^word |diffusing|
+            ^next <four>)
+   (<four> ^word |ied|
+           ^next <five>)
+   (<five> ^word <id>
+           ^next nil)
+   (<m2> ^first <first>
+         ^destination operator)
+   (<first> ^word |WIRES|
+            ^next nil)
+}

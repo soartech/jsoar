@@ -1,0 +1,18 @@
+#################
+
+## Major Changes
+## Removed problems - everything is just current-problem now
+
+## Count-pluses is split into init-count-pluses and count-pluses
+## Each count is one operator application
+
+## Could modify describe so that when hit |....| then get impasse.
+
+
+## PRior knowledge
+## describe/describe-variable/elaborations
+
+## Alternative-action handling!!
+
+## Bogus Bad
+

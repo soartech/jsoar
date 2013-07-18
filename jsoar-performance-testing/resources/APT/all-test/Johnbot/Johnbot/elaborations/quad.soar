@@ -1,0 +1,8 @@
+
+sp {elaborate*type*quad
+   (state <s>  ^name quake
+               ^io.input-link.entity.item <item>)
+   (<item> ^classname item_quad)
+   -->
+   (<item> ^type quad)}
+

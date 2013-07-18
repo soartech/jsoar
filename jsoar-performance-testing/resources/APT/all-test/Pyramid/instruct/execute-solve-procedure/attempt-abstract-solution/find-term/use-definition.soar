@@ -1,0 +1,37 @@
+sp {propose*use-definition
+   (state <s> ^name find-term
+              ^superstate <ss>)
+  -(<s> ^define <arg>)
+   (<ss> ^operator.arg <arg>
+        -^<arg>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name use-definition)
+}
+
+sp {attempt*use-definition
+   (state <s> ^operator.name use-definition
+              ^superstate <ss>
+              ^top-state <ts> )
+   (<ss> ^operator.arg <arg>)
+   (<ts> ^instructions.definitions <d1> 
+         ^current-problem <p>)
+   (<d1> ^term <term> 
+         ^function <arg>)
+   (<p> ^<term> <val>)
+-->
+   (<ss> ^<arg> <val>)
+}
+
+sp {attempt*make-definition
+   (state <s> ^operator.name use-definition
+              ^superstate <ss>
+              ^top-state <ts> )
+   (<ss> ^operator.arg <arg> )
+  -{(<ts> ^instructions.definitions <d1>
+          ^current-problem <p>)
+    (<p> ^<term>)
+    (<d1> ^term <term> ^function <arg>)}
+-->
+   (<s> ^define <arg>)
+}

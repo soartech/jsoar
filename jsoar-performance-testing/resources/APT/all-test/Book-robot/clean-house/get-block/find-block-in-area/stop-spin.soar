@@ -1,0 +1,23 @@
+sp {find-block-in-area*propose*stop-spin
+   (state <s> ^name find-block-in-area
+              ^quiescence t
+              ^top-state.direction <dir>
+              ^current-area <ca>
+             -^io.input-link.self.velocity.rotation 0.0)
+   (<ca> ^search-start-direction <dir>
+        -^cleaned yes
+         ^turning yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name stop-spin
+         ^actions.rotate.direction stop)
+}
+
+sp {apply*stop-spin
+   (state <s> ^operator <op>
+              ^current-area <area>)
+   (<op> ^name stop-spin)
+-->
+   (<area> ^cleaned yes)
+}
+

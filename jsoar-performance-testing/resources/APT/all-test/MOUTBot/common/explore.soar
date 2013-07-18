@@ -1,0 +1,22 @@
+# Explore should explore any unvisited territory 
+# first, and then randomly select new areas to 
+# move to (ie, wander).  
+#
+# Preference is given first to unexplored nodes 
+# in the current area, then areas that have 
+# unexplored nodes.  
+#
+# Once everything has been visited, the agent
+# should randomly select an adjacent are to move
+# to.  It will backtrack only as a last resort.
+
+#Prefer moves to nodes over moves to areas
+sp {select*nodes-over-areas
+   (state <s> ^name explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-node)
+   (<o2> ^name move-to-area)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

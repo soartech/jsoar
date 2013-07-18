@@ -1,0 +1,21 @@
+echo "\nLoading move-to-xyz/break"
+                
+sp {all*propose*break
+   (state <s> ^type move-to-xyz
+             -^top-state.self.stopped true
+              ^io.input-link.feedback.side-step << left right >>)
+   -->
+  (write (crlf) |STOP SIDE STEP |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name break
+        ^actions.break true)}
+
+sp {all*propose*break*back
+   (state <s> ^type move-to-xyz
+             -^top-state.self.stopped true
+              ^io.input-link.feedback.thrust back)
+   -->
+  (write (crlf) |STOP thrust back. |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name break
+        ^actions.break true)}

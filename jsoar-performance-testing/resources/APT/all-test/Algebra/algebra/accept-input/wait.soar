@@ -1,0 +1,18 @@
+sp {accept-input*propose*wait
+   (state <s> ^name accept-input
+              ^top-state.io <io> 
+             -^operator.name wait)
+  -(<io> ^input-link.text)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name wait)
+}
+sp {accept-input*propose*wait*processed
+   (state <s> ^name accept-input
+              ^top-state.io.input-link.text <text>
+             -^operator.name wait
+              ^top-state.processed <text>)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name wait)
+}

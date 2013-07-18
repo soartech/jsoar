@@ -1,0 +1,4 @@
+source elaborations.soar
+source selection.soar
+source fear.soar
+source move-to-area.soar

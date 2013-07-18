@@ -1,0 +1,9 @@
+#echo "\nLoading search-room/elaborations"
+sp {search-room*elaborate*cname
+   (state <s> ^name search-room
+              ^superstate.operator.item <item>)
+   -->
+   (<s> ^item <item>)}
+
+
+

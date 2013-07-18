@@ -1,0 +1,15 @@
+       
+sp {elaborate*create-digit-zero
+   (state <s> ^superstate nil
+              ^digits.digit <digit>)
+   (<digit> ^digit 0)
+-->
+   (<s> ^zero <digit>)}
+           
+sp {elaborate*create-digit-one
+   (state <s> ^superstate nil
+              ^digits.digit <digit>)
+   (<digit> ^digit 1)
+-->
+   (<s> ^one <digit>)}     
+        

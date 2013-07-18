@@ -1,0 +1,14 @@
+sp {ambush*propose*remove-prediction
+   (state <s> ^name ambush
+             -^top-state.enemy.prediction-last-door-number
+              ^ambush-type prediction)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name remove-prediction)}
+
+sp {ambush*apply*remove-prediction
+   (state <s> ^operator.name remove-prediction
+              ^top-state.enemy <e>)
+   (<e> ^prediction-final-room-number <frn>)
+   -->
+   (<e> ^prediction-final-room-number <frn> -)}

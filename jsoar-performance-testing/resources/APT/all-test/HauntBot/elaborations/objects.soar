@@ -1,0 +1,42 @@
+echo "\nLoading elaborations/objects"
+                
+#determine the area of a decoration or object
+
+sp {objects*elaborate*object-list
+   (state <s> ^superstate nil)
+   -->
+   (<s> ^object-list <objects>)
+}
+
+# copy object-list down to sub-states
+sp {objects*copy*sub-state*object-list
+   (state <s> ^superstate.object-list <list>)
+-->
+   (<s> ^object-list <list>)
+}
+
+
+
+
+sp {objects*elaborate*object*area
+   (state <s> ^name haunt
+              ^io.input-link.objects.<< decoration item entity >> <obj>
+              ^top-state.map.area <area>)
+   (<obj> ^position <p>)
+   (<p> ^x <= <max-x>
+        ^x >= <min-x>
+        ^y <= <max-y>
+        ^y > <min-y>
+        ^z > 0   # modified from > <min-z> due to problems w/ objects on floor
+        ^z <= <max-z>) 
+   (<area> ^min-x <min-x>
+           ^min-y <min-y>
+           ^max-x <max-x>
+           ^max-y <max-y>
+           ^min-z <min-z>
+           ^max-z <max-z>
+           ^name <name>)
+   -->
+   (<obj>  ^area-id <area>
+           ^area-name <name>)
+}

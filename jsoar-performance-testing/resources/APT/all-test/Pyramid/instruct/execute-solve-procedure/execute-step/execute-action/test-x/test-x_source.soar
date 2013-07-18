@@ -1,0 +1,4 @@
+source elaborations.soar
+source create-problem.soar
+source evaluate-goal-completion.soar
+source execute-solve-procedure.soar

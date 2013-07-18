@@ -1,0 +1,14 @@
+sp {retrieve-digits*propose*init-retrieve-digits
+   (state <s> ^name retrieve-digits
+             -^current)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name init-retrieve-digits)
+}
+sp {apply*init-retrieve-digits
+   (state <s> ^operator.name init-retrieve-digits
+              ^superstate.digits.digit <dd>)
+   (<dd> ^digit 0)
+-->
+   (<s> ^current <dd>)
+}

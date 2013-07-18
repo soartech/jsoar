@@ -1,0 +1,8 @@
+source elaborations.soar
+source detect-no-storage-area.soar
+source find-block-in-area.soar
+source goto-storage-area.soar
+source move-to-room-center.soar
+pushd move-to-room-center
+source move-to-room-center_source.soar
+popd

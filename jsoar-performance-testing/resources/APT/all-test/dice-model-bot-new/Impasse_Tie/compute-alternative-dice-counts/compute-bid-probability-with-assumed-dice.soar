@@ -1,0 +1,105 @@
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*0
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 0
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count <count>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 0)
+}
+
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*1
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 1
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count <count>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 1)
+}
+
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*2
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 2
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count >= 2)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 2)
+}
+
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*3
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 3
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count >= 3)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 3)
+}
+
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*4
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 4
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count >= 4)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 4)
+}
+
+sp {compute-alternative-dice-counts*propose*compute-bid-probability-with-assumed-dice*5
+   (state <s> ^name compute-alternative-dice-counts
+             -^bid-probability.holds 5
+             -^selected-holds
+              ^last-bid <lb>)
+   (<lb> ^player.cup.count >= 5)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds 5)
+}
+
+## Explore from smallest to largest
+sp {compute-alternative-dice-counts*compare*compute-bid-probability-with-assumed-dice
+   (state <s> ^name compute-alternative-dice-counts
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name compute-bid-probability-with-assumed-dice
+          ^holds <n>)
+   (<op2> ^name compute-bid-probability-with-assumed-dice
+          ^holds > <n>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {apply*compute-bid-probability-with-assumed-dice
+   (state <s> ^operator <op>)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds <hold>
+         ^holds-probability <hp>
+         ^probability <prob>)
+-->
+   (<s> ^bid-probability <bp>)
+   (<bp> ^holds <hold>
+         ^hold-probability <hp>
+         ^probability <prob>)
+}
+
+sp {monitor*compute-bid-probability-with-assumed-dice
+   (state <s> ^operator <op>
+              ^last-bid.face <face>)
+   (<op> ^name compute-bid-probability-with-assumed-dice
+         ^holds <hold>)
+-->
+   (write (crlf) |Assume has | <hold> | | <face> |'s under cup.|)}

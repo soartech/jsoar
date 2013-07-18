@@ -1,0 +1,42 @@
+## Given that we always pre-generate all digits to generate the problem
+##   all digits are always there so there will be no impasse.
+###   Substate included in case problem is generated without all digits generated.
+
+sp {subtract-via-counting*propose*count
+   (state <s> ^name subtract-via-counting
+              ^counter <count>
+              ^subtrahend <> <count>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name count)
+}
+
+sp {subtract-via-counting*apply*count
+   (state <s> ^name subtract-via-counting
+              ^operator <op>
+              ^base-number <base>
+              ^counter <counter>)
+   (<counter> ^next <counter-next>)
+   (<base> -^previous-borrow true
+            ^previous <base-previous>)
+   (<op> ^name count)
+-->
+   (<s> ^counter <counter> - <counter-next>
+        ^base-number <base> - <base-previous>)
+}
+
+sp {subtract-via-counting*apply*count*borrow
+   (state <s> ^name subtract-via-counting
+              ^operator <op>
+              ^base-number <base>
+              ^counter <counter>)
+   (<counter> ^next <counter-next>)
+   (<base> ^previous-borrow true
+           ^previous <base-previous>)
+   (<op> ^name count)
+-->
+   (<s> ^counter <counter> - <counter-next>
+        ^base-number <base> - <base-previous>
+        ^borrow false -
+                true)
+}

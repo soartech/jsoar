@@ -1,0 +1,271 @@
+sp {execute-step*propose*execute-action
+   (state <s> ^name execute-step
+             -^alternate-action
+              ^current-problem <cp>)
+   (<cp> ^current-step.action <a>
+        -^completed-action <a>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-action
+         ^action <a>)
+}
+
+sp {execute-step*propose*alternate-action
+   (state <s> ^name execute-step
+              ^alternate-action <a>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name execute-action
+         ^action <a>)
+}
+
+
+########## SET
+sp {apply*execute-action*set*from-constant
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command set
+        ^variable <var>
+        ^value <constant>
+        ^value-type constant)
+-->
+   (<cp> ^<var> <constant>
+         ^completed-action <a>
+         ^terms <t>)
+   (<t> ^term-name <var>
+        ^type intermediate
+        ^term-initial-value <constant>)
+   (write |Set ^| <var> | | <constant>)
+}
+
+sp {apply*execute-action*set*from-variable
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command set
+        ^variable <var>
+        ^value <from-var>
+        ^value-type variable)
+   (<cp> ^<from-var> <value>)
+-->
+   (<cp> ^<var> <value>
+         ^terms <t>)
+   (<t> ^term-name <var>
+        ^type intermediate
+        ^term-initial-value <value>)
+   (write |Set ^| <var> | | <value>)
+   (<cp> ^completed-action <a>)
+}
+
+sp {apply*execute-action*set*list
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command set
+        ^variable <var>
+        ^value-type list)
+-->
+   (<cp> ^<var> <head>)
+   (<head> ^current <x>
+           ^next <x>)
+   (<cp> ^completed-action <a>)
+   (write |Create List ^| <var> | | <head>)
+}
+########## ADD
+sp {apply*execute-action*add*from-constant
+   (state <s> ^operator <op>
+              ^current-problem <cp>
+              ^superstate <ss>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command add
+        ^variable <var>
+        ^value <value>
+        ^value-type constant)
+   (<cp> ^<var> <old-value>)
+-->
+   (<cp> ^<var> <old-value> -
+                (+ <old-value> <value>)
+         ^completed-action <a>)
+   (write (crlf) |Add ^| <var> | | <old-value> | + | <value> | = | (+ <old-value> <value>))
+}
+
+sp {apply*execute-action*add*from-variable
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command add
+        ^variable <var>
+        ^value <from-var>
+        ^value-type variable)
+   (<cp> ^<var> <old-value>
+         ^<from-var> { <> 0 <value> })
+-->
+   (write (crlf) |Add ^| <var> | | <old-value> | + | <from-var> |: | <value> | = | (+ <old-value> <value>))
+   (<cp> ^<var> <old-value> -)
+   (<cp> ^<var> (+ <old-value> <value>)
+         ^completed-action <a>)}
+ 
+sp {apply*execute-action*add*from-variable*zero
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command add
+        ^variable <var>
+        ^value <from-var>
+        ^value-type variable)
+   (<cp> ^<var> <old-value>
+         ^<from-var> 0)
+-->
+   (<cp> ^completed-action <a>)
+   (write |Add ^| <var> | | <old-value> | + | <from-var> |: 0 = | <old-value>)
+}
+
+
+########## SUBTRACT
+sp {apply*execute-action*subtract*from-constant
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command subtract
+        ^variable <var>
+        ^value <value>
+        ^value-type constant)
+   (<cp> ^<var> <old-value>)
+-->
+   (<cp> ^<var> <old-value> -
+                (- <old-value> <value>)
+         ^completed-action <a>)
+   (write |Subtract ^| <var> | | <old-value> | - | <value> | = | (- <old-value> <value>))
+}
+
+sp {apply*execute-action*subtract*from-variable
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command subtract
+        ^variable <var>
+        ^value <from-var>
+        ^value-type variable)
+   (<cp> ^<var> <old-value>
+         ^<from-var> <value>)
+-->
+   (<cp> ^<var> <old-value> -
+                (- <old-value> <value>)
+         ^completed-action <a>)
+   (write |Subtract ^| <var> | | <old-value> | - | <from-var> |: | <value> | = | (- <old-value> <value>))
+}
+
+########## INCREMENT
+
+sp {apply*execute-action*increment
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command increment
+        ^variable <var>)
+   (<cp> ^<var> <old-value>)
+-->
+   (<cp> ^<var> <old-value> -
+                (+ <old-value> 1)
+         ^completed-action <a>)
+   (write |Increment ^| <var> | | <old-value> | = | (+ <old-value> 1))
+}
+
+########## DECREMENT
+sp {apply*execute-action*decrement
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command decrement
+        ^variable <var>)
+   (<cp> ^<var> <old-value>)
+-->
+   (<cp> ^<var> <old-value> -
+                (- <old-value> 1)
+         ^completed-action <a>)
+   (write |Decrement ^| <var> | | <old-value> | = | (- <old-value> 1))
+}
+
+########## WRITE - Add to a linked list?
+sp {apply*execute-action*write
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command write
+        ^variable <var>
+        ^save-command <action>
+        ^list <list>)
+   (<cp> ^<list> <item>
+         ^<var> <value>)
+   (<item> ^current <c>)
+-->
+   (<item> ^current <c> -
+                    <nc>)
+   (<c> ^command <action>
+        ^value <value>
+        ^variable <var>
+        ^next <nc>)
+   (<cp> ^completed-action <a>)
+   (write |write: | <var> |: | <action> | (| <value> |)|)
+}
+
+
+########## GOAL-TEST
+sp {apply*execute-action*goal-test*equal*variable
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command goal-test
+        ^relation equal
+        ^variable <var>
+        ^value <value>
+        ^value-type variable)
+   (<cp> ^<var> <x>
+         ^<value> <x>)
+-->
+   (<cp> ^goal-test-success <a>
+         ^completed-action <a>)
+   (write |Success!|)
+}
+sp {apply*execute-action*goal-test*equal*variable*not-equal
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^command goal-test
+        ^relation equal
+        ^variable <var>
+        ^value <value>
+        ^value-type variable)
+   (<cp> ^<var> <x>
+        -^<value> <x>)
+-->
+   (<cp> ^completed-action <a>)
+   (write |Failure!|)
+}
+
+sp {substitute-elaborate
+   (state <s> ^operator <op>
+              ^current-problem <cp>)
+   (<op> ^name execute-action
+         ^action <a>)
+   (<a> ^substitute <a1>)
+   (<cp> ^completed-action <a>)
+-->
+   (<s> ^alternate-action <a> -)
+   (<cp> ^completed-action  <a> -
+                            <a1>)
+}

@@ -1,0 +1,20 @@
+
+
+# if target object is covered, pickup the covering object.
+# Once this object is in hand, object discard rules will
+# kick in and safely release the item away from the target
+#
+# MJP 6/5/03: This rule will not work yet, as ^top object 
+#             attribute has not yet been implemented.
+#
+sp {grab-object*propose*uncover
+   (state <s> ^type grab-object
+              ^object-list.<< item decoration >> <top>
+              ^target.top { <name> <> |none|})
+   (<top> ^name <name>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name uncover
+        ^type grab-object
+        ^target <top>)
+}

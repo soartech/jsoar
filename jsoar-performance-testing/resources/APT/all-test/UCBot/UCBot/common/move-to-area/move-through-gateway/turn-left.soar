@@ -1,0 +1,12 @@
+
+# When the agent should turn left, turn left.
+# Application of this operator is handled under "common".
+sp {move-through-gateway*propose*turn-left
+   (state <s> ^name move-through-gateway
+              ^headings.should-turn left
+             -^io.input-link.feedback.turn left)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name turn-left
+         ^type wait)
+}

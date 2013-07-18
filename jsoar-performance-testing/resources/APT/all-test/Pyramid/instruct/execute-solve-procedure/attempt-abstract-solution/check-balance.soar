@@ -1,0 +1,29 @@
+sp {propose-check-balance
+   (state <s> ^name attempt-abstract-solution
+              ^first-term
+              ^<< last-term less-than-last-term >> { <val> <> impossible}
+             -^balanced)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name check-balance ^arg (- <val>))
+}
+
+sp {attempt-check-balance-yes
+   (state <s> ^operator <op>
+              ^first-term  <val>
+              ^last-term)
+   (<op> ^name check-balance
+         ^arg <val>)
+-->
+   (<s> ^balanced true)
+}
+
+sp {attempt-check-balance-no
+   (state <s> ^operator <op>
+              ^first-term  <val>
+              ^last-term)
+   (<op> ^name check-balance
+         -^arg <val>)
+-->
+   (<s> ^balanced false)
+}

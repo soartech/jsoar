@@ -1,0 +1,54 @@
+# Set 'status-monitor' to false to disable TCL 
+# map monitoring window
+sp {elaborate*haunt*status-monitor
+   (state <s> ^name haunt)
+   -->
+   (<s> ^status-monitor <m>)
+}
+
+
+# Set monitor to false to disable TCL 
+# status monitoring window
+sp {elaborate*haunt*init-status-monitor
+   (state <s> ^name haunt
+              ^status-monitor <m>)
+   -->
+   (<m> ^init true)
+   (write (crlf) |Initializing status window|)
+   (tcl init-status )
+}
+
+
+# display decoration currently carried by agent
+sp {status-monitor*carried-decoration
+   (state <s> ^name haunt
+              ^status-monitor.init true
+              ^io.input-link.agent.decoration <dec>)
+-->
+   (tcl draw-carried-decoration | | <dec>  )
+}
+# display 'none' if agent is not carrying a decoration
+sp {status-monitor*carried-decoration*empty-handed
+   (state <s> ^name haunt
+              ^status-monitor.init true
+              ^io.input-link.agent.decoration |none|)
+-->
+   (tcl draw-carried-decoration | (none)|  )
+}
+
+
+
+# debug message to list current area
+# and time of last entry
+sp {status-monitor*area-count
+   (state <s> ^name haunt
+              ^status-monitor.init true
+              ^map.current-area <area>)
+   (<area> ^name <name>
+           ^visit-time <time>)
+-->
+   (tcl draw-area-visit-count | | <name> | | <time> )
+}
+
+
+

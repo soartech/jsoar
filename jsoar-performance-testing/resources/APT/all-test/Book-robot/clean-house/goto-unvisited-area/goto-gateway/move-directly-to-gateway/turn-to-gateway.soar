@@ -1,0 +1,73 @@
+sp {move-directly-to-gateway*propose*turn-to-gateway
+   (state <s> ^name move-directly-to-gateway
+              ^quiescence t
+             -^current-area.gateway-area yes
+              ^lined-up no
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+         ^center.angle-off <ao>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn-to-gateway
+         ^actions.rotate-relative <ao>)}
+
+
+sp {move-directly-to-gateway*propose*turn-to-gateway*stop
+   (state <s> ^name move-directly-to-gateway
+              ^operator <o> +
+              ^quiescence t
+             -^current-area.gateway-area yes
+              ^lined-up no
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+            - ^center.angle-off.yaw { < 1.0 > -1.0 })
+   (<o> ^name turn-to-gateway)
+-->
+   (<o> ^actions.move.direction stop)
+}
+
+
+sp {move-directly-to-gateway*propose*turn-to-gateway*go
+   (state <s> ^name move-directly-to-gateway
+              ^operator <o> +
+              ^quiescence t
+              ^lined-up no
+             -^current-area.gateway-area yes
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+         ^center.angle-off.yaw { < 1.0 > -1.0 })
+   (<o> ^name turn-to-gateway)
+-->
+   (<o> ^actions.move.direction forward)
+}
+
+#############In a gateway
+sp {move-directly-to-gateway*propose*turn-to-gateway*direction
+   (state <s> ^name move-directly-to-gateway
+              ^top-state.directions <dirs>
+              ^quiescence t
+              ^current-area.gateway-area yes
+              ^lined-up no
+              ^current-gateway.direction <dir>)
+   (<dirs> ^value <dir>
+           ^heading <h>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn-to-gateway
+         ^actions.rotate-absolute.yaw <h>)}
+
+
+
+sp {move-directly-to-gateway*propose*turn-to-gateway*go-ingateway
+   (state <s> ^name move-directly-to-gateway
+              ^operator <o> +
+              ^quiescence t
+              ^current-area.gateway-area yes)
+   (<o> ^name turn-to-gateway)
+-->
+   (<o> ^actions.move.direction forward)
+}
+

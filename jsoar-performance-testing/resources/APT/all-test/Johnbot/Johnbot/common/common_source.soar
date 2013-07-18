@@ -1,0 +1,14 @@
+source debug.soar
+source drop-item.soar
+source get-item.soar
+pushd get-item
+source get-item_source.soar
+popd
+source goto-next-room.soar
+pushd goto-next-room
+source goto-next-room_source.soar
+popd
+source monitor.soar
+source output.soar
+source use-item.soar
+source wait.soar

@@ -1,0 +1,31 @@
+sp {compute-alternative-dice-counts*propose*found-unlikely-hold
+   (state <s> ^name compute-alternative-dice-counts
+             -^selected-holds
+              ^bid-probability <bp>)
+   (<bp> ^hold-probability < .166
+         ^holds <holds>)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name found-unlikely-hold
+         ^holds <holds>)
+}
+
+sp {apply*found-unlikely-hold*greater-than-1
+   (state <s> ^operator <op>)
+   (<op> ^name found-unlikely-hold
+         ^holds { > 1 <holds> })
+-->
+   (write (crlf) |Probablity of | <holds> | occurring is less that 13%. Use | (- <holds> 1))
+   (<s> ^selected-holds (- <holds> 1))
+}
+
+### Should never happen because 1/6 is 16.6% - but just to be sure if I raise it
+
+sp {apply*found-unlikely-hold*1
+   (state <s> ^operator <op>)
+   (<op> ^name found-unlikely-hold
+         ^holds 1)
+-->
+   (write (crlf) |Probablity of 1 occurring is less that 16%. Still assume has 1.|)
+   (<s> ^selected-holds 1)
+}

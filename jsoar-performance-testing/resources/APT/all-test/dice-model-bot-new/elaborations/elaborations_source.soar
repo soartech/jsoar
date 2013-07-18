@@ -1,0 +1,6 @@
+source _all.soar
+source output.soar
+source player-dice-counts.soar
+source problem-space.soar
+source state.soar
+source top-state.soar

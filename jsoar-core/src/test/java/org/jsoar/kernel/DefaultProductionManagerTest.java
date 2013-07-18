@@ -28,7 +28,6 @@ public class DefaultProductionManagerTest extends JSoarTest
         super.setUp();
         this.agent = new Agent();
         this.pm = this.agent.getProductions();
-        this.agent.initialize();
     }
 
     /**

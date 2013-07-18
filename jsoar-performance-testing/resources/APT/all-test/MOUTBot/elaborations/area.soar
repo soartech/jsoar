@@ -1,0 +1,76 @@
+echo "\nLoading elaborations/area"
+                
+## Elaborations of Areas
+
+#
+##Complete search
+
+sp {unreal*elaborate*area*searched
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> -^name |Outside|
+        -^node.visited 0
+        -^node.entryway-recorded *no*
+         ^node <node1> 
+         ^node { <node2> <> <node1> })
+   (<node1> ^type << door connector >>)
+-->
+   (<a> ^completed-search yes)
+}
+
+sp {unreal*elaborate*area*not-searched*Outside
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> ^name |Outside|)
+-->
+   (<a> ^completed-search no)
+}
+
+sp {unreal*elaborate*area*not-searched*unvisited-node
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> ^node.visited 0)
+-->
+   (<a> ^completed-search no)
+}
+
+sp {unreal*elaborate*area*not-searched*unrecorded-entryway
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> ^node.entryway-recorded *no*)
+-->
+   (<a> ^completed-search no)
+}
+
+sp {unreal*elaborate*area*not-searched*no-entrynodes-yet
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> -^node.type << door connector >>)
+-->
+   (<a> ^completed-search no)
+}
+
+#Dead ends are areas with only one entrance/exit
+sp {unreal*elaborate*area*not-a-dead-end
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> ^completed-search yes
+        ^node <n1>
+        ^node { <n2> <> <n1> })
+   (<n1> ^type << door connector >>)
+   (<n2> ^type << door connector >>)
+-->
+   (<a> ^dead-end false)
+}
+
+sp {unreal*elaborate*area*dead-end
+   (state <s> ^name unreal
+              ^map.area <a>)
+   (<a> ^completed-search yes
+       -^dead-end false)
+-->
+   (<a> ^dead-end true)
+}
+
+
+

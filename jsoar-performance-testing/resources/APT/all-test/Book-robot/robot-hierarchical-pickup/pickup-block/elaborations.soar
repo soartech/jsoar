@@ -1,0 +1,6 @@
+sp {pickup-block*elaborate*state*block-id
+   (state <s> ^name pickup-block
+              ^superstate.operator.id <id>)
+-->
+   (<s> ^block-id <id>)
+}

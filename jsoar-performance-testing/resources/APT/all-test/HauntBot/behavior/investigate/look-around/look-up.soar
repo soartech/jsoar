@@ -1,0 +1,18 @@
+#looking 'up' doesn't seem to work!!!!!!!!!!!!!!!!!!!
+
+#sp {look-around*propose*look-behind
+#   (state <s> ^type look-around
+#              ^target <target>)
+#   (<target> ^should-investigate.direction up
+#             ^position <tpos>)
+#   (<tpos> ^x <x>
+#           ^y <y>
+#           ^z <z>)
+#-->
+#   (<s> ^operator <o> + =)
+#   (<o> ^name look-up
+#        ^actions.face <face>)
+#   (<face> ^x <x>
+#           ^y <y> 
+#           ^z (+ 300 <z>)) ## '300' is arbitrary number up in air
+#}

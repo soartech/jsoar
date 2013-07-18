@@ -1,0 +1,81 @@
+#echo "\nLoading explore-axis/align-with-axis"
+
+## Align bot for exploration of axis.
+## This involves not only turning to the appropriate orientation, but
+##  also moving so that the back of the bot is near the end of the room - that 
+##  is necessary to find all doors.
+## In backing up, bot might go into another room, so there is possibly lots of movement.
+
+### Propose aligning with direction so back will be close to wall.
+### Finds way to turn so closest side will be behind
+
+sp {explore-axis*propose*align-with-axis*close
+   (state <s> ^name explore-axis
+              ^axis <a>
+              ^explore-room.type room
+              ^top-state <ts>
+              ^io.input-link.map <map>)
+   (<a> -^aligned
+         ^search-directions <dir>)
+   (<ts> ^direction-map <dm>
+         ^parameters.wall-align-axis-close <wc>
+         ^direction-headings.<dir> <new-heading>
+         ^heading.within-45 { <> <dir> <odir> })
+   (<map> ^<side>.distance { <dist> < <wc> }
+         -^<oside>.distance { <dist> < <wc> })
+   (<dm> ^<odir>.<side> <cdir>
+         ^<cdir>.<oside> <odir>
+         ^<cdir>.backward <dir>)
+   -->   
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) | Turn to face | <dir> | because | <cdir> | is only | <dist> | away on the | <side> | new-heading | <new-heading>)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name align-with-axis
+        ^direction <dir>
+        ^new-heading <new-heading>)}
+
+## Closest direction to turn to
+
+sp {explore-axis*propose*align-with-axis*room
+   (state <s> ^name explore-axis
+              ^axis <a>
+              ^explore-room.type room
+              ^top-state <ts>)
+   (<ts> ^direction-headings.<dir> <new-heading>
+         ^heading.within-90 <dir>)
+   (<a> ^search-directions <dir>
+       -^aligned)
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name align-with-axis
+        ^direction <dir>
+        ^new-heading <new-heading>)}
+
+sp {explore-axis*propose*align-with-axis*hall
+   (state <s> ^name explore-axis
+              ^axis <a>
+              ^explore-room <er>
+              ^top-state <ts>)
+   (<ts> ^direction-headings.<dir> <new-heading>
+         ^direction-map.<odir>.backward <dir>)
+   (<a> ^search-directions <dir>
+       -^aligned)
+   (<er> ^type hall
+         ^wall.side <odir>) 
+   -->
+  # #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name align-with-axis
+        ^direction <dir>
+        ^new-heading <new-heading>)}
+
+sp {explore-axis*apply*align-with-axis*debug
+   (state <s> ^operator <o>
+              ^top-state.debug true)
+   (<o> ^name align-with-axis
+        ^direction <dir>
+        ^new-heading <new-heading>)
+   -->
+   (write (crlf) |Align-with-axis. Direction: | <dir> |, new-heading: | <new-heading> )}
+

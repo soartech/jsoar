@@ -1,0 +1,19 @@
+sp {propose*write-symbol
+   (state <s> ^name describe
+              ^current-problem-structure-ptr <ps>)
+   (<ps> ^type symbol ^name {<name> <> |=|})
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-symbol)
+}
+
+sp {apply*write-symbol
+   (state <s> ^name describe ^operator.name write-symbol
+              ^current-problem-structure-ptr <ps>)
+   (<ps> ^name <name>
+         ^next <psn>)
+-->
+   (write | | <name>)
+   (<s> ^current-problem-structure-ptr <ps> -
+                                       <psn>)
+}

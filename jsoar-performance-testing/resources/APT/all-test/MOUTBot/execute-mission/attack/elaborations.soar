@@ -1,0 +1,52 @@
+echo "\nLoading attack/elaborations"
+
+sp {attack*elaborate*enemy-facing1
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy.aspect.h { < 45 > -45 })
+   -->
+   (<s> ^enemy-facing true)}
+
+sp {attack*elaborate*enemy-facing2
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy.aspect.h { > 315 < 405 })
+   -->
+   (<s> ^enemy-facing true)}
+
+sp {attack*elaborate*angle-off1
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy.angle-off.h { < 4 > -4 })
+   -->
+   (<s> ^enemy-angle-off-achieved true)}
+
+sp {attack*elaborate*angle-off2
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy.angle-off.h { < 364 > 356 })
+   -->
+   (<s> ^enemy-angle-off-achieved true)}
+
+#sp {attack*elaborate*friend-in-los*left
+#   (state <s> ^name attack
+#              ^enemy-angle-off-achieved true
+#              ^top-state <ts>)
+#   (<ts> ^entity <friend>
+#         ^parameters.min-angle-off-left-when-friend-ahead <ao>)
+#   (<friend> ^egocentric-location ahead
+#             ^hostile *no*
+#             ^angle-off.h > <ao>)
+#   -->
+#   (<s> ^friend-in-los left)
+#}
+#
+#sp {attack*elaborate*friend-in-los*right
+#   (state <s> ^name attack
+#              ^enemy-angle-off-achieved true
+#              ^top-state <ts>)
+#   (<ts> ^entity <friend>
+#         ^parameters.min-angle-off-right-when-friend-ahead <ao>)
+#   (<friend> ^egocentric-location ahead
+#             ^hostile *no*
+#             ^angle-off.h < <ao>)
+#   -->
+#   (<s> ^friend-in-los left)
+#}
+

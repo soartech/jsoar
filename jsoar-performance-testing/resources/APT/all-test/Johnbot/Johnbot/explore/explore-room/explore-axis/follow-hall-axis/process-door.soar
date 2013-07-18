@@ -1,0 +1,35 @@
+#echo "\nLoading follow-hall-axis/process-door"
+
+## If encounter a structural door in front
+## Not tested!!!
+
+sp {follow-hall-axis*propose*process-door
+   (state <s> ^name follow-hall-axis
+              ^direction <dir>
+              ^explore-room <cr>
+              ^door forward
+             -^end-wall)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |**Processing Door: | <dir>)
+   (<s> ^operator <o> + =, >) 
+   (<o> ^name process-door
+        ^direction <dir>
+        ^side forward)}
+
+sp {follow-hall-axis*apply*process-door*terminate
+   (state <s> ^name follow-hall-axis
+              ^operator <o>
+              ^axis <a>
+              ^explore-room <cr>)
+   (<o> ^name process-door
+        ^side <side>)
+   (<cr> ^current-door <cd>)
+   (<cd> ^side <side>
+         ^processed true)
+   -->
+    (write (crlf) |Process-door follow-hall-axis/process-door..|)
+    (<a> ^end-of-wall true)}
+
+### APPLICATION IN follow-wall/process-door.soar
+

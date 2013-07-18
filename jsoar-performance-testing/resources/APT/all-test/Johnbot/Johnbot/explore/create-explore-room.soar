@@ -1,0 +1,23 @@
+#echo "\nLoading explore/select-current-room"
+
+## This operator handles the establishment of the current room.
+##   Current room is also established in alive - 
+## If we wake up in a new room, create the new room in the map.
+
+## New room
+
+sp {explore*propose*create-new-room*new-room
+   (state <s> ^name explore
+              ^top-state.map <m>)
+   (<m> -^explore-room)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name create-explore-room)}
+
+sp {explore*apply*create-explore-room*new-room
+   (state <s> ^top-state.map <m>
+	      ^operator.name create-explore-room)
+   -->
+   (<m> ^explore-room <cr>
+        ^room <cr>)}
+

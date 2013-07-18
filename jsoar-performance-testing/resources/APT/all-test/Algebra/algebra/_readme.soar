@@ -1,0 +1,46 @@
+## Add
+## Includes proposals for add, subtract, multiply, divide between numbers
+## Includes special cases for when one is not a value and other is
+##    0 (multiply, add, subtract, divide) or 1
+##    1 (multiply, divide)
+
+## Add to both sides 
+## Move numbers [n] to right side.
+## n = ... ==>  n - n = ... - n
+## n + ... = ... ==> n + ... - n = ... - n
+## ... + n = ... ==> ... + n - n = ... - n
+## Move variables [x] to right side.
+## x = ... ==>  x - x = ... - x
+## x + ... = ... ==> x + ... - x = ... - x
+## ... + x = ... ==> ... + x - x = ... - x
+
+## Multiply-both-sides - x is a variable, n is a number
+## x * n = ... ==> [x * n] / n = [...] / n
+## n * x = ... ==> [n * x] / n = [...] / n
+## x / n = ... ==> [x / n] * n = [...] * n
+
+## Distribute
+## Left:  A * [B + C] ==> [A * B] + [A * C]
+## Right: [B + C] * A ==> [B * A] + [C * A]
+
+## Undistribute (Opposite of distribute)
+## Left:  [A * B] + [A * C] ==> A * [B + C]
+## Right: [B * A] + [C * A] ==> [B + C] * A
+
+## Across Level Swap
+## [A + B] + C ==> [A + C] + B
+## [A - B] - C ==> [A - C] - B
+
+## Swap-sides (communative)
+## (A +/* B) ==> (B +/* A)
+
+## Associate
+## [A + B] +/- C ==> A + [B +/- C]
+## A + [B +/- C] ==> [A + B] +/- C
+## [A * B] */ C ==> A * [B */ C]
+## A * [B */ C] ==> [A * B] */ C
+
+## Convert-subtract-to-add
+## A - B ==> A + [-1 * B]
+
+## Fail if no other operators apply

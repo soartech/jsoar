@@ -1,0 +1,18 @@
+sp {propose*finish-up
+   (state <s> ^name describe 
+              ^current-problem-structure-ptr <ps>)
+   (<ps> ^type symbol ^name  |=| )
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name finish-up)
+}
+
+sp {apply*finish-up
+   (state <s> ^name describe 
+              ^operator.name finish-up
+              ^current-problem-ptr <p>)
+-->
+   (write (crlf) |FINISHED**********************************************|)
+   (<p> ^described true 
+        ^complete true)
+}

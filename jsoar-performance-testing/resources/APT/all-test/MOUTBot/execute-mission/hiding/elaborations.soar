@@ -1,0 +1,13 @@
+
+sp {hiding*propose*name*defend
+   (state <s> ^name hiding)
+-->
+   (<s> ^name defend)
+}
+
+sp {hiding*elaborate*substate*objective
+   (state <s> ^name hiding
+              ^top-state.mission.active-objective <obj>)
+-->
+   (<s> ^objective <obj>)
+}

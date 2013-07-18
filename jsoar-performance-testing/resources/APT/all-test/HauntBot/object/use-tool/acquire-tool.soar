@@ -1,0 +1,34 @@
+
+#
+# acquire a specific tool
+#
+
+sp {use-tool*propose*acquire-tool
+   (state <s> ^type use-tool
+              ^tool <tool>
+             -^has-tool)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name acquire-tool
+        ^type acquire-and-x
+        ^target <tool>
+        ^next-action <na2>)
+   (<na2> ^name ignore_this
+          ^type ignore_this)
+}
+
+
+#sp {use-tool*propose*acquire-tool
+#   (state <s> ^type use-tool
+#              ^tool <tool>
+#             -^has-tool)
+#-->
+#   (<s> ^operator <o> +)
+#   (<o> ^name acquire-tool
+#        ^type move-near-and-x
+#        ^should-empty-hand yes
+#        ^target <tool>
+#        ^next-action <na2>)
+#   (<na2> ^name grab-tool
+#          ^type grab-object)
+#}

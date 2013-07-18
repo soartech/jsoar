@@ -1,0 +1,66 @@
+#echo "\nLoading retreat/goto-next-room.soar"
+
+################################
+### Propose goto-next-room operator
+################################
+
+## Might want to use unexplored-room/goto-next-room if this doesn't work
+
+sp {retreat*propose*goto-next-room
+   (state <s> ^name retreat 
+              ^current-room.door <door>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^door <door>)}
+
+sp {retreat*propose*goto-next-room*distance
+   :i-support
+   (state <s> ^name retreat
+              ^operator <o> +
+              ^io.input-link.agent.origin <origin>)
+   (<origin> ^x <x> ^y <y>)
+   (<o> ^name goto-next-room
+        ^door <door>)
+   (<door> ^x <dx> ^y <dy>)
+   -->
+   (<o> ^distance (compute-range <x> <y> <dx> <dy>))}
+
+sp {retreat*select*goto-next-room*closest
+   (state <s> ^name retreat
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name goto-next-room
+         ^distance <d>)
+   (<o2> ^name goto-next-room
+         ^distance > <d>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {retreat*reject*goto-next-room*visited
+   (state <s> ^name retreat
+              ^operator <o> +
+              ^top-state.self.retreat.visited-room <vr>
+              ^current-room.path <p>)
+   (<p> ^destination-room <vr>
+        ^distance 1
+        ^in-room-door <door>)
+   (<o> ^name goto-next-room
+        ^door <door>)
+-->
+   (<s> ^operator <o> -)}
+
+sp {retreat*reject*goto-next-room*prediction
+   (state <s> ^name retreat
+              ^operator <o> +
+              ^top-state.enemy.prediction-final-room-number <vr>
+              ^current-room.path <p>)
+   (<p> ^destination-room.room-number <vr>
+        ^distance 1
+        ^in-room-door <door>)
+   (<o> ^name goto-next-room
+        ^door <door>)
+-->
+   (<s> ^operator <o> -)}
+
+

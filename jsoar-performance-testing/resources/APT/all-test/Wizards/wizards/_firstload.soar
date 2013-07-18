@@ -1,0 +1,4 @@
+#Based on pages 36-40 of Artificial Intelligence, a self-paced introductory course
+# by A. Newell, J. McDermott, and C. Forgy, CMU techreport, September, 1977
+
+#Some operators from Newell's original paper are cast as elaborations/entailments in this version  - th#is is extremely useful because they retract automatically

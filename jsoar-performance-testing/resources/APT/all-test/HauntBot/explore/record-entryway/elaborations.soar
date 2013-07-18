@@ -1,0 +1,62 @@
+
+sp {record-entryway*elaborate*via-node
+   (state <s> ^name record-entryway
+              ^superstate.operator <so>)
+   (<so> ^name record-entryway
+         ^node <via-node>)
+-->
+   (<s> ^via-node <via-node>)
+}
+
+#This table is for calculating sidestep directions
+#It determines the relative position of a node
+#based upon its connect-heading and whether the
+#node's x/y position is greater/less than the agent's
+sp {record-entryway*elaborate*relative-direction-lookup-table
+   (state <s> ^name record-entryway)
+-->
+   (<s> ^reldir-lookup-table <rlt>)
+   (<rlt> ^entry <e0>
+          ^entry <e90>
+          ^entry <e180>
+          ^entry <e270>)
+   (<e0> ^connect-heading 0
+         ^axis y
+         ^less-than left
+         ^greater-than right)
+   (<e90> ^connect-heading 90
+          ^axis x
+          ^less-than right
+          ^greater-than left)
+   (<e180> ^connect-heading 180
+         ^axis y
+         ^less-than right
+         ^greater-than left)
+   (<e270> ^connect-heading 270
+           ^axis x
+           ^less-than left
+           ^greater-than right)
+}
+
+#These rules determines whether the x/y-positions are 
+#less-than or greater-than the agent's
+sp {record-entryway*elaborate*via-node*less-than
+   (state <s> ^name record-entryway
+              ^io.input-link.agent.position.{ <axis> << x y >>} <agent-val>
+              ^via-node <vn>)
+   (<vn> ^position.<axis> < <agent-val>)
+-->
+   (<vn> ^<axis> less-than)
+}
+
+sp {record-entryway*elaborate*via-node*greater-than
+   (state <s> ^name record-entryway
+              ^io.input-link.agent.position.{ <axis> << x y >>} <agent-val>
+              ^via-node <vn>)
+   (<vn> ^position.<axis> > <agent-val>)
+-->
+   (<vn> ^<axis> greater-than)
+}
+
+
+

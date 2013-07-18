@@ -1,0 +1,18 @@
+sp {dice*propose*accept
+   (state <s> ^name dice
+              ^my-turn true
+              ^io.input-link.affordances.action <a>)
+   (<a> ^name accept
+        ^available true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name accept)
+}
+
+sp {apply*accept
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name accept)
+-->
+   (<ol> ^accept <accept>)
+}

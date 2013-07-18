@@ -1,0 +1,38 @@
+sp {count-blocks*elaborate*direction*north
+   (state <s> ^name count-blocks
+              ^io.input-link.self.angle.yaw { >= 0.0 < 1.55 })
+-->
+   (<s> ^direction north)
+}
+
+sp {count-blocks*elaborate*direction*east
+   (state <s> ^name count-blocks
+              ^io.input-link.self.angle.yaw { >= 1.55 < 3.14 })
+-->
+   (<s> ^direction east)
+}
+
+sp {count-blocks*elaborate*direction*south
+   (state <s> ^name count-blocks
+              ^io.input-link.self.angle.yaw { >= 3.14 < 4.7 })
+-->
+   (<s> ^direction south)
+}
+
+sp {count-blocks*elaborate*direction*west
+   (state <s> ^name count-blocks
+              ^io.input-link.self.angle.yaw { >= 4.7 < 6.28 })
+-->
+   (<s> ^direction west)
+}
+
+sp {count-blocks*elaborate*directions
+   (state <s> ^name count-blocks)
+-->
+   (<s> ^directions <n> <ss> <e> <w>)
+   (<n> ^value north ^opposite south)
+   (<ss> ^value south ^opposite north)
+   (<e> ^value east ^opposite west)
+   (<w> ^value west ^opposite east)
+}
+

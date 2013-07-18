@@ -1,0 +1,30 @@
+#echo "\nLoading goto-door/shoot"
+
+## Shoot at enemy if he is following you during a retreat.
+
+#sp {goto-door*propose*shoot
+#   (state <s> ^name goto-door
+#             -^io.input-link.feedback.attack on
+#              ^io.input-link.entity.enemy.sensor <se>)
+#   (<se> ^visible true
+#         ^infront true)
+#   -->
+#   (<s> ^operator <o> + =, >)
+#   (<o> ^name shoot
+#        ^actions.attack on)}
+
+sp {goto-door*propose*shoot-off
+   (state <s> ^name goto-door
+              ^io.input-link <il>)
+   (<il> ^feedback.attack on
+         ^entity.enemy.sensor <se>)
+  -(<se> ^visible true
+         ^infront true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack off)}
+
+
+
+

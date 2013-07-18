@@ -1,0 +1,15 @@
+#
+#sp {arithmetic*elaborate*state*print-problem
+#   (state <s> ^name arithmetic
+#              ^superstate nil
+#              ^count <c>
+#              ^parameters.total-count <tc>
+#              ^arithmetic-problem <ap>)
+#   (<ap> ^top-number <tn>
+#         ^bottom-number <bn>
+#         ^operation <op>)
+#-->
+#   (write (crlf) |(<x| (- <tc> <c>) |> ^problem | (- <tc> <c>) | ^next <x| (+ 1 (- <tc> <c>)) |> ^operation | <op> | ^top-number | <tn> | ^bottom-number | <bn> | ^result  | (+ <tn> <bn>) |)|)
+# #  (write (crlf) |Computed Addition Result : | (+ <tn> <bn>))
+#}
+#

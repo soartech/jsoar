@@ -1,0 +1,87 @@
+#echo "\nLoading follow-room-axis/backed-out"
+
+## If backing up and back up past wall, stop
+
+sp {follow-room-axis*propose*backed-out*north
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^io.input-link.agent.origin.y <y>
+              ^explore-room.wall <w>
+              ^axis <a>)
+   (<a> ^backing-out true
+        ^aligned north)
+   (<w> ^side north
+        ^y > <y>)
+   -->
+   (write (crlf) |Backed out north|)
+   (<s> ^operator <o> + =)
+   (<o> ^name backed-out
+        ^actions.thrust off)}
+
+sp {follow-room-axis*propose*backed-out*south
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^io.input-link.agent.origin.y <x>
+              ^explore-room.wall <w>
+              ^axis <a>)
+   (<a> ^backing-out true
+        ^aligned south)
+   (<w> ^side south
+        ^y < <x>)
+   -->
+   (write (crlf) |Backed out south|)
+   (<s> ^operator <o> + =)
+   (<o> ^name backed-out
+        ^actions.thrust off)}
+
+sp {follow-room-axis*propose*backed-out*west
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^io.input-link.agent.origin.x <y>
+              ^explore-room.wall <w>
+              ^axis <a>)
+   (<a> ^backing-out true
+         ^aligned west)
+   (<w> ^side west
+        ^x < <y>)
+   -->
+   (write (crlf) |Backed out west|)
+   (<s> ^operator <o> + =)
+   (<o> ^name backed-out
+        ^actions.thrust off)}
+
+sp {follow-room-axis*propose*backed-out*east
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^io.input-link.agent.origin.x <y>
+              ^explore-room.wall <w>
+              ^axis <a>)
+   (<a> ^backing-out true
+        ^aligned east)
+   (<w> ^side east
+        ^x > <y>)
+   -->
+   (write (crlf) |Backed out east|)
+   (<s> ^operator <o> + =)
+   (<o> ^name backed-out
+        ^actions.thrust off)}
+
+sp {follow-room-axis*apply*backed-out
+   (state <s> ^operator.name backed-out
+              ^axis <a>)
+   (<a> ^backing-out true)
+   -->
+   (<a> ^backing-out true -)}
+
+sp {follow-room-axis*apply*backed-out*debug
+   (state <s> ^operator.name backed-out
+              ^top-state.debug true
+              ^axis <a>)
+   (<a> ^backing-out true)
+   -->
+   (write (crlf) |Backed out back into room: | <a>)}
+
+sp {follow-room-axis*apply*backed-out*end-of-wall
+   (state <s> ^operator.name backed-out
+              ^axis <a>)
+   -->
+   (write (crlf) |Added end-of-hall axis for backed-out.|)
+   (<a> ^end-of-wall true)}
+
+

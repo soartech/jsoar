@@ -1,0 +1,98 @@
+sp {unreal*propose*execute-mission
+   (state <s> ^name unreal
+              ^mission <m>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name execute-mission)
+}
+
+# REW: 2002-09-27
+# When we see underfire, make it persist for ^parameters.perceive-underfire
+sp {apply*execute-mission*underfire*none
+   (state <s> ^operator <o>
+              ^parameters.perceive-underfire <pu>
+              ^io.input-link.agent <ag>
+              ^self.underfire <uf>
+              ^io.output-link <ol>)
+   (<o> ^name execute-mission)
+   (<ag> ^time <time>
+         ^underfire { <> none <value> })
+   (<uf> ^value none
+         ^expires <exp>)
+-->
+   (write (crlf) |Underfire!!!! | <value> | Current expires: | <exp> | Now expires at time | (+ <time> <pu>) )
+   (<uf> ^value none -
+                <value> +
+         ^expires (+ <time> <pu>) + <exp> -)
+   # REW: This doesn't work that well.  Really want a jump or startle animation here.
+   #  (<ol> ^side-step.direction right)
+      # REW: Jump is not yet implemented
+   # (<ol> ^jump.value true)
+}
+
+
+# REW: 2002-09-27
+# Once time exceeds expire, if we're not underfire, then
+# remove self.underfire.value true
+sp {apply*execute-mission*underfire*expired
+   (state <s> ^operator <o1>
+              ^io.input-link.agent <ag>
+              ^self.underfire <uf>)
+   (<o1> ^name execute-mission)
+   (<ag> ^time > <exp>
+         ^underfire none)
+   (<uf> ^value { <> none <value> }
+         ^expires <exp>)
+-->
+   (write (crlf) |No longer underfire.|)
+   (<uf> ^value <value> - none +)
+}
+
+# REW: 2002-09-27
+# If time has expired and we're underfire, then update expire time
+sp {apply*execute-mission*underfire*still-underfire
+   (state <s> ^operator <o1>
+              ^parameters.perceive-underfire <pu>
+              ^io.input-link.agent <ag>
+              ^self.underfire <uf>)
+   (<o1> ^name execute-mission)
+   (<ag> ^time {> <exp> <time>}
+         ^underfire <> none) 
+   (<uf> ^value <> none
+         ^expires <exp> )
+-->
+   (write (crlf) |Still underfire.  Expire: | <exp> | Updating expire time.| (+ <time> <pu>))
+   (<uf> ^expires <exp> - (+ <time> <pu>) +)}
+
+sp {apply*execute-mission*underfire*still-underfire*different
+   (state <s> ^operator <o1>
+              ^parameters.perceive-underfire <pu>
+              ^io.input-link.agent <ag>
+              ^self.underfire <uf>)
+   (<o1> ^name execute-mission)
+   (<ag> ^underfire <nvalue>)
+   (<uf> ^value { <value> <> <nvalue> }
+         ^expires <exp> )
+-->
+   (write (crlf) |Underfire change - old value | <value> | new value: | <nvalue>)
+   (<uf> ^value <value> - 
+                <nvalue> +)
+}
+
+## REW: 2003-06-09
+## Failure on posture change
+# when posture change fails, revert to posture as recorded on input link
+sp {apply*execute-mission*posture-change-failed
+   (state <s> ^operator <o1>
+              ^self <self>
+              ^io.input-link.agent.posture <ap>
+              ^io.output-link <out>)
+   (<out> ^{ << lie-prone stand kneel >> <dp> } <id>)
+   (<id> ^status error)
+   (<self> ^changing-body-position <dp>
+           ^body-position <id>)
+   (<o1> ^name execute-mission)
+
+   -->
+   (<self> ^body-position <id> - <ap>)
+}

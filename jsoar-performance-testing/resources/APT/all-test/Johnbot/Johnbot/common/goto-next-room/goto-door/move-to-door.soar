@@ -1,0 +1,19 @@
+#echo "\nLoading goto-door/move-to-door"
+
+## door-distance and door-distance-check computed in elaborations.soar
+
+sp {goto-door*propose*move-to-door
+   (state <s> ^name goto-door
+              ^door-angle-off-check true
+             -^top-state.self.stuck 
+             -^door-distance-check true)
+  -{(<s> ^io.input-link.feedback <fd>)
+    (<fd> ^thrust forward
+          ^sidestep off)}
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-door
+        ^actions.sidestep off
+        ^actions.thrust forward)}
+
+

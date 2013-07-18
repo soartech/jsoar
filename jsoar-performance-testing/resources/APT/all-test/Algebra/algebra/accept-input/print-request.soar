@@ -1,0 +1,21 @@
+
+sp {accept-input*propose*print-request
+   (state <s> ^name accept-input
+              ^top-state <ts>)
+   (<ts> -^io.output-link.text
+         -^problem.request-printed true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name print-request)
+}
+
+sp {accept-input*apply*print-request
+   (state <s> ^operator.name print-request
+              ^quiescence t
+              ^top-state.problem <p>
+              ^superstate.io.output-link <out>)
+-->
+  #(<out> ^text.next.value |Type in an equation or type in no to use default.|)
+   (<out> ^text.get next-line)
+  #(<p> ^request-printed true)
+}

@@ -1,0 +1,66 @@
+echo "\nloading elaborations/ontology"
+
+
+
+#
+# defines an agent's pre-existing ontology of the world
+# As an example, concepts like "sandwiches can be eaten", 
+# and "fireplaces are a source of heat if lit"
+#
+#
+sp {elaborations*ontology
+   (state <s> ^name haunt)
+   -->
+   (<s> ^ontology <k>)
+   (<k> ^heat-source <fireplace> <match> <candle>
+        ^food-source <edibleplant> <banana>
+        ^drink-source <coladrink> <koolaid>
+        ^text-source <text>
+        ^fire-source <fire-match>
+        ^light-source <light-candle> <light-match>
+        ^height-source <med-wood-box> <small-wood-box> <small-steel-box>
+        ^unlock-tool <key> <hauntkey>)
+                    # HEAT SOURCES
+                    (<fireplace> ^class fireplace ^value 100)  # technically not an unreal class, but allows uniform descriptions
+                    (<match>     ^class match1    ^value 2)
+                    (<candle>    ^class candle    ^value 10)
+
+                    # FOOD TYPES (just one for now)
+                    (<edibleplant> ^class EdiblePlant  #this just tells Soar that the UnrealScript class 'EdiblePlant' is edible
+                                   ^must-cook yes)  # example attribute to notify that food must be cooked
+                     (<banana> ^class banana  #this just tells Soar that the UnrealScript class 'EdiblePlant' is edible
+                                   ^must-cook yes)  # example attribute to notify that food must be cooked
+                                       
+                    # DRINK TYPES (just one for now)
+                    (<coladrink> ^class ColaDrink)
+                    (<koolaid> ^class KoolAid)
+                                                 
+                    # INFORMATION SOURCES
+                    (<text> ^class HauntBook)
+                    
+                    # LIGHT SOURCES
+                    (<light-candle> ^class candle
+                                    ^lightable yes)  # example attribute to notify that candle can be lit
+                    (<light-match> ^class match1
+                                   ^lightable no)  # do not need anything else to light this object
+                                                                                             
+
+                    # FIRE SOURCES (MJP: maybe combine with light sources???)
+                    (<fire-match> ^class match1)
+                                                            
+                    # HEIGHT SOURCES (items that can agent can stand on)
+                    (<med-wood-box> ^class MedWoodBox)
+                    (<small-wood-box> ^class SmallWoodBox)
+                    (<small-steel-box> ^class SmallSteelBox)  
+
+                    # UNLOCKING TOOLS - denote items that can be 'used-with' locked objects to open them
+                    (<hauntkey> ^class HauntKey)
+}
+
+
+# copy down "ontology" to each sub-state
+sp {elaborate*sub-goal*ontology
+   (state <s> ^superstate.ontology <k>)
+-->
+   (<s> ^ontology <k>)
+}

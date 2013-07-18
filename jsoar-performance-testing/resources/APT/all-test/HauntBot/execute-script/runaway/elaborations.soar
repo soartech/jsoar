@@ -1,0 +1,6 @@
+sp {runaway*elaborate*substate*current-area
+   (state <s> ^name runaway
+              ^top-state.map.current-area <ca>)
+   -->
+   (<s> ^current-area <ca>)
+}

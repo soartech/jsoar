@@ -1,0 +1,38 @@
+sp {reflect*propose*check-equality
+   (state <s> ^name reflect
+              ^term <t>)
+   (<t> ^type definition
+       -^checked true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name check-equality
+         ^term <t>)
+}
+
+sp {apply*check-equality
+   (state <s> ^operator <op>
+              ^superstate.instructions <i>
+              ^term { <> <t> <t1> })
+   (<op> ^name check-equality
+         ^term <t>)
+   (<t1> ^type intermediate
+         ^term-name <iname>
+         ^term-final-value <tfv>)
+   (<t> ^type definition
+        ^term-name <dname>
+        ^term-final-value <tfv>)
+-->
+   (write (crlf) |Detect | <dname> | = | <iname> )
+   (<i> ^relations <r>)
+   (<r> ^arg1 <dname>
+        ^arg2 <iname>
+        ^relation equal)
+}
+
+sp {apply*check-equality*checked
+   (state <s> ^operator <op>)
+   (<op> ^name check-equality
+         ^term <t>)
+-->
+   (<t> ^checked true)
+}

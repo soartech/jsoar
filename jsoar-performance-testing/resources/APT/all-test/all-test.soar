@@ -1,0 +1,93 @@
+
+
+echo |Blocks-World|
+pushd blocks-world
+source blocks-world.soar
+popd
+ 
+echo |Algebra|
+pushd Algebra
+source algebra.soar
+popd
+ 
+echo |Arithmetic|
+pushd Arithmetic
+source arithmetic.soar
+popd
+ 
+echo |Book-robot|
+pushd Book-robot
+source clean-house.soar
+popd
+ 
+echo |default|
+pushd default
+source selection-iterative-deepening.soar
+source selection.soar
+source selection-optimal.soar 
+source selection-RL.soar 
+source selection-astar.soar 
+popd
+
+echo |Eight Puzzle|
+pushd eight-puzzle
+source eight-puzzle.soar
+source fifteen-puzzle.soar
+popd
+ 
+echo |Blocks-World|
+pushd blocks-world
+source blocks-world.soar
+popd
+ 
+echo |HauntBot|
+source HauntBot.soar
+
+echo |Johnbot|
+pushd Johnbot
+source Johnbot.soar
+popd
+ 
+echo |mac|
+pushd mac
+source mac.soar
+popd
+
+source MOUTBot.soar
+
+echo |Pyramid|
+pushd Pyramid
+source instruct.soar
+popd
+ 
+echo |Room-discrete|
+pushd Room-discrete
+source discrete-agent.soar
+popd
+ 
+echo |Towers-of-hanoi|
+pushd towers-of-hanoi
+source towers-of-hanoi.soar
+popd
+
+echo |UCBot|
+pushd UCBot
+source UCBot.soar
+popd
+ 
+echo |water-jug|
+pushd water-jug
+source water-jug.soar
+popd
+
+echo |Wizards|
+pushd Wizards
+source wizards.soar
+popd
+ 
+echo |dice Game|
+source dice-model-bot-new.soar 
+
+echo |Robot|
+source clean-house-new.soar 
+

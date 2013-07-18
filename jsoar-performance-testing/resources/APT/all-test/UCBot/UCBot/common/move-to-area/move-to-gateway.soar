@@ -1,0 +1,28 @@
+
+# The agent will move to a gateway if it isn't yet aligned within the gateway's
+# endpoints.  While this action could conceivably push the agent across the boundary,
+# and likely would in the absence of the move-through-gateway rule, most likely this
+# proposal will be retracted while still in the current area and move-through-gateway
+# will fire.
+sp {move-to-area*propose*move-to-gateway
+   (state <s> ^name move-to-area
+              ^quiescence t
+              ^superstate.operator.path.gateway <gateway>
+             -^within-gateway true
+              ^speed <speed>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-gateway
+         ^gateway <gateway>
+         ^speed <speed>)
+}
+
+sp {move-to-area*monitor*move-to-gateway
+   (state <s> ^operator <op>
+              ^top-state.parameters.monitor-level all)
+   (<op> ^name move-to-gateway
+         ^gateway <gateway>)
+   (<gateway> ^id <id>)
+-->
+   (write (crlf) |Moving to gateway | <gateway> |, area | <id>)
+}

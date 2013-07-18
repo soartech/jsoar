@@ -1,0 +1,31 @@
+multi-attributes dice-counts 5
+multi-attributes player 5
+multi-attributes operator 9
+multi-attributes die 4
+multi-attributes next-bid 25
+multi-attributes action 10
+multi-attributes evaluation 10
+
+## Boltzman with low temperature
+#indifferent-selection -b
+#indifferent-selection -t .08
+
+## TODO
+# 1 Add in user model (as independent option) 
+#    A Prior player
+#    B Next player
+# 2 Add in using smem (for probability)
+# 3 Add in epmem (?? - user model?)
+# 4 RL after chunking 
+
+pushd ../default
+source selection.soar
+#source selection-epmem.soar
+popd
+
+## Not using look ahead search
+excise evaluate-operator*propose*look-ahead
+excise evaluate-operator*propose*look-ahead*reject-all-others
+
+waitsnc -e
+

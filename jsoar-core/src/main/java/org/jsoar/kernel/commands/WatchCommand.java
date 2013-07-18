@@ -52,6 +52,7 @@ public final class WatchCommand implements SoarCommand
         category(Category.PHASES, "phases");
         category(Category.RL, "rl", "R");
         category(Category.VERBOSE, "verbose");
+        category(Category.EPMEM, "epmem");
         category(Category.WM_CHANGES, "wmes");
         category(Category.WATERFALL, "waterfall", "W");
         category(EnumSet.of(Category.FIRINGS_OF_USER_PRODS, Category.FIRINGS_OF_JUSTIFICATIONS, Category.FIRINGS_OF_CHUNKS), "productions", "P");
@@ -131,6 +132,7 @@ public final class WatchCommand implements SoarCommand
         b.append("  Learning: ??\n");
         b.append(setting("Backtracing", Category.BACKTRACING));
         b.append(setting("Indifferent selection", Category.INDIFFERENT));
+        b.append(setting("Epmem", Category.EPMEM));
         b.append(setting("Soar-RL", Category.RL));
         b.append(setting("Waterfall", Category.WATERFALL));
 

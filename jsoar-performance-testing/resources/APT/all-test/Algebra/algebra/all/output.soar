@@ -1,0 +1,9 @@
+
+sp {algebra*apply*output
+   (state <s> ^operator.name 
+              ^io.output-link <out>)
+   (<out> ^<var> <value>)
+   (<value> ^status complete)
+-->
+   (<out> ^<var> <value> -)
+}

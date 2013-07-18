@@ -1,0 +1,20 @@
+
+# REQUIRED ATTRIBUTES:
+#            ^type use-object-with
+#            ^target.name
+#
+#
+
+
+#
+# use an object with a target object
+# Will first have agent face target
+#
+sp {use-object-with*propose*use-with
+   (state <s> ^operator <o>
+              ^target.name <name>)
+   (<o> ^type use-object-with)                          
+-->
+   (write (crlf) |Using carried object with | <name> )
+   (<o> ^actions.use-with.object <name>)
+}

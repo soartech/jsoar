@@ -1,0 +1,9 @@
+sp {apply*clean
+   :o-support
+   (state <s> ^io.output-link <ol>)
+   (<ol> ^{ <action-name> << bid challenge pass sleep exact push accept >> } <action>)
+   (<action> ^status)
+-->
+   (<ol> ^<action-name> <action> -)
+}
+

@@ -1,0 +1,122 @@
+echo "Loading initialize/determine-door-location"
+# DOES NOT WORK. DEPRECATED BY CHANGES TO INITIALIZE
+#  (will never be selected b/c initialize was changed to not haved a subgoal)
+
+# REW: 2003-06-02
+#initialize/determine-door-location
+#determine a location near a door
+sp {initialize*propose*determine-door-location
+   (state <s> ^name initialize
+                    ^top-state <ts>)
+   (<ts> ^self.name <name>
+         ^scenario.initial-position <ip>
+         ^mission.objective.defensive-position <dp>
+         ^map.area <area>
+         ^doors.door <d>)
+   (<area> ^name <area-name>)
+   (<ip> ^agent <name>
+         ^type door
+         ^direction  <dir> 
+         ^location <loc1>
+         ^location { <> <loc1> <loc2> } )
+   (<dp> ^area-name <area-name>)
+   (<d> ^location <loc1>
+        ^location <loc2> )
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name determine-door-location
+        ^area <area>
+        ^direction <dir>
+        ^door <d>)
+}
+
+# REW: 2003-06-02
+# Position is the x,y position of the door + min offset + (rand* (maxoffset - minoffset))
+# USe the node in the room for the y position, then compute offset in x
+sp {apply*determine-door-location*east-west
+   (state <s> ^operator <o1>
+                        ^top-state <ts>)
+   (<o1> ^name determine-door-location
+         ^area.name  <area-name>
+         ^direction { << east west >> <dir> }
+         ^door <door>)
+   (<ts> ^mission.objective.defensive-position <dp>
+         ^parameters.room-translations <rt>
+         ^io.input-link.agent.rand <rand>)
+   (<door> ^location <loc1>
+           ^location { <> <loc1> <loc2>} 
+           ^near-node <node>)
+   (<node> ^area-name <area-name>
+          ^position <dor-pos>)
+   (<dor-pos> ^x <xcor>
+              ^y <ycor>
+              ^z <zcor>)
+   (<rt> ^offset <off>
+         ^door <dt>
+         ^<sign-name> <sign>)
+   (<dt> ^transform <t1>   )
+   (<t1> ^direction <dir>
+         ^sign <sign-name>)
+   (<off> ^type door
+          ^min <offmin>
+          ^max <offmax>)
+   -->
+   (<dp>  ^position <p>)
+#   (write (crlf) |Computing position in door|)
+#   (write (crlf) |    ycor | <ycor>)
+#   (write (crlf) |    xsign | <xsign>)
+#   (write (crlf) |    offmin | <offmin>)
+#   (write (crlf) |    offmax | <offmax>)
+#   (write (crlf) |    x-dimension | <xdim>)
+#   (write (crlf) |    x-direction | <xdir>)
+#      (write (crlf) |    new x | (+ <xcor> (* <xsign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))  )
+   (<p> ^x (+ <xcor> (* <sign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))
+        ^y  <ycor>
+        ^z <zcor> )
+}
+
+# REW: 2003-06-02
+# Position is the x,y position of the door + min offset + (rand* (maxoffset - minoffset))
+# USe the node in the room for the x position, then compute offset in y for north/south doors
+sp {apply*determine-door-location*north-south
+   (state <s> ^operator <o1>
+                        ^top-state <ts>)
+   (<o1> ^name determine-door-location
+         ^area.name  <area-name>
+         ^direction { << north south >> <dir> }
+         ^door <door>)
+   (<ts> ^mission.objective.defensive-position <dp>
+         ^parameters.room-translations <rt>
+         ^io.input-link.agent.rand <rand>)
+   (<door> ^location <loc1>
+           ^location { <> <loc1> <loc2>}
+           ^near-node <node>)
+   (<node> ^area-name <area-name>
+          ^position <dor-pos>)
+   (<dor-pos> ^x <xcor>
+              ^y <ycor>
+              ^z <zcor>)
+   (<rt> ^offset <off>
+         ^door <dt>
+         ^<sign-name> <sign>)
+   (<dt> ^transform <t1>   )
+   (<t1> ^direction <dir>
+         ^sign <sign-name>)
+   (<off> ^type door
+          ^min <offmin>
+          ^max <offmax>)
+   -->
+   (<dp>  ^position <p>)
+#   (write (crlf) |Computing position in door|)
+#   (write (crlf) |    ycor | <ycor>)
+#   (write (crlf) |    xsign | <xsign>)
+#   (write (crlf) |    offmin | <offmin>)
+#   (write (crlf) |    offmax | <offmax>)
+#   (write (crlf) |    x-dimension | <xdim>)
+#   (write (crlf) |    x-direction | <xdir>)
+#      (write (crlf) |    new x | (+ <xcor> (* <xsign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))  )
+(<p> ^x <xcor>
+        ^y  (+ <ycor> (* <sign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))
+        ^z <zcor> )
+}
+                        

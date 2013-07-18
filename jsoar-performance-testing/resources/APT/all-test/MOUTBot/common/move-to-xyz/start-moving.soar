@@ -1,0 +1,39 @@
+echo "\nLoading move-to-xyz/start-moving"
+
+# REW: 2003-06-12
+# Don't start moving if the bot is changing body positions
+sp {all*propose*start-moving*forward
+   (state <s> ^type move-to-xyz
+              ^io.input-link <il>
+              ^top-state <ts>)
+   (<il> ^feedback.thrust none
+         ^map.front.range > 100
+        -^agent.time > <ct>)
+   (<ts> ^parameters.opposite.{ << left right >> <side> } <oside>
+         ^self <self>)
+   (<self> ^stopped true
+           ^stuck-time <ct>
+          -^stuck
+          -^changing-body-position)
+-->
+   (write (crlf) |-------------------Forward |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name start-moving
+        ^actions.thrust front)}
+
+sp {all*propose*start-moving*forward*stuck
+   (state <s> ^type move-to-xyz
+              ^io.input-link <il>
+              ^top-state <ts>)
+   (<il> ^feedback.thrust << none back >>
+         ^map.front.range > 100)
+   (<ts> ^parameters.opposite.{ << left right >> <side> } <oside>
+         ^self <self>)
+   (<self> ^stopped true
+           ^stuck true
+          -^changing-body-position)
+-->
+   (write (crlf) |-------------------Forward |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name start-moving
+        ^actions.thrust front)}

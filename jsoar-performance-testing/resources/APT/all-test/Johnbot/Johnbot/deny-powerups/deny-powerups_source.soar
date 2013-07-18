@@ -1,0 +1,3 @@
+source elaborations.soar
+source get-item.soar
+source goto-next-room.soar

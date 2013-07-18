@@ -1,0 +1,15 @@
+echo "\nLoading elaborations/area-visit-count"
+
+# initialize visit-time, which corresponds to the last 
+# time the agent entered a given area. It will be set
+# by the rule 'haunt*elaborate*current-area' each time
+# a new area is entered
+sp {visit-time*initialize
+   :o-support
+   (state <s> ^name haunt
+              ^top-state.map.area <area>)
+-->
+   (<area> ^visit-time 0)
+}
+
+

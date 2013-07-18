@@ -1,0 +1,3 @@
+pushd dice-model-bot-new
+source dice-model-bot-new_source.soar
+popd

@@ -1,0 +1,92 @@
+## Challenge pass 
+
+sp {evaluate-operator*propose*compute-challenge-pass-likelihood
+   (state <s> ^name evaluate-operator
+             -^estimated-total
+              ^top-state.io.input-link.history <history>
+              ^superstate.operator <eo>)
+   (<history> ^action pass  
+              ^player.name <name>) #Make sure we challenge the last pass 
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge
+         ^target <t>)
+   (<t> ^name <name>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target <t>)
+}
+
+## Challenge a pass before a pass
+sp {evaluate-operator*propose*compute-challenge-pass-pass-likelihood
+   (state <s> ^name evaluate-operator
+             -^estimated-total
+              ^top-state.io.input-link.history.next <history> # next gives previous bid
+              ^superstate.operator <eo>)
+   (<history> ^action pass  
+              ^player.name <name>) #Make sure we challenge the last pass 
+   (<eo> ^superoperator <so>)
+   (<so> ^name challenge
+         ^target <t>)
+   (<t> ^name <name>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target <t>)
+}
+
+sp {apply*compute-challenge-pass-likelihood*impossible*pass
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <e>
+              ^top-state.io.input-link.history.action pass)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target.pushed <push1>)
+   (<push1> ^die.face <n>
+            ^die.face <> <n>)
+-->
+   (write (crlf) |  Challenge success likelihood is CERTAIN.|)
+   (<e> ^symbolic-value certain)
+   (<e> ^probability 1.0)}
+
+#############
+sp {apply*compute-challenge-pass-likelihood*unlikely*pass*all-under*more-two
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <e>
+              ^top-state.io.input-link.history.action pass)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target <target>)
+   (<target> ^cup.count > 2
+             ^pushed.count 0)
+-->
+   (write (crlf) |  Challenge success likelihood is safe.|)
+   (<e> ^symbolic-value safe)
+   (<e> ^probability .95)}
+
+sp {apply*compute-challenge-pass-likelihood*reasonable*pass*all-under*2
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <e>
+              ^top-state.io.input-link.history.action pass)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target <target>)
+   (<target> ^cup.count 2
+             ^pushed.count 0)
+-->
+   (write (crlf) |  Challenge success likelihood is risky.|)
+   (<e> ^symbolic-value risky)
+   (<e> ^probability .40)}
+
+sp {apply*compute-challenge-pass-likelihood*reasonable*pass*1-under
+   (state <s> ^operator <op>
+              ^superstate.operator.evaluation <e>
+              ^top-state.io.input-link.history.action pass)
+   (<op> ^name compute-challenge-pass-likelihood
+         ^target <target>)
+   (<target> ^cup <cup>)
+   (<cup> ^count 1)
+  -{(<target> ^pushed <push1>)
+    (<push1> ^die.face <n>
+             ^die.face <> <n>)}
+-->
+   (write (crlf) |  Challenge success likelihood is risky.|)
+   (<e> ^symbolic-value risky)
+   (<e> ^probability .40)}

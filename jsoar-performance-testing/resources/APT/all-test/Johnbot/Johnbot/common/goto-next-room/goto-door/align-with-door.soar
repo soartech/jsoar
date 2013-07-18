@@ -1,0 +1,34 @@
+#echo "\nLoading goto-door/align-with-door"
+
+## door-aligned and door-aligned-check computed in elaborations.soar
+
+sp {goto-door*propose*align-with-door*explore
+   (state <s> ^name goto-door
+              ^mode explore
+              ^top-state.self.stopped true
+              ^door-distance-check true
+             -^door-aligned-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name align-with-door)}
+
+sp {goto-door*propose*align-with-door
+   (state <s> ^name goto-door
+             -^mode explore
+              ^door-distance-check true
+             -^door-aligned-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name align-with-door)}
+
+sp {goto-door*apply*align-with-door
+   :i-support
+   (state <s> ^operator <o> +
+              ^door-angle <dd>)
+   (<o> ^name align-with-door)
+   -->
+   (<o> ^actions <a>)
+   (<a> ^faceabs <dd>
+        ^sidestep off)}
+
+

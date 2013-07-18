@@ -131,12 +131,15 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public int potentials_tc;
     public int locals_tc;
     
+    public /*epmem_node_id*/ long epmem_id = 0;
+    public /*uint64_t*/ long epmem_valid = 0;
+    
     public Preference chunker_bt_pref;
     
     public GoalDependencySetImpl gds;
     public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
     
-    private WorkingMemoryActivation wma;
+    public WorkingMemoryActivation wma;
     
     /**
      * @param id
@@ -397,6 +400,23 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         }
         return super.getAdapter(klass);
     }
-    
-    
+    /**
+     * soar_module.h: 43
+     * This was placed here because it is being used as a concise version of a Wme
+     * 
+     * @author ACNickels
+     */
+    public static class SymbolTriple
+    {
+        public final SymbolImpl id;
+        public final SymbolImpl attr;
+        public final SymbolImpl value;
+
+        public SymbolTriple(SymbolImpl id, SymbolImpl attr, SymbolImpl value)
+        {
+            this.id = id;
+            this.attr = attr;
+            this.value = value;
+        }
+    }
 }

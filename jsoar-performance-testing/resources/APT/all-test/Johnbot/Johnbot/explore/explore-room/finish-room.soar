@@ -1,0 +1,22 @@
+#echo "\nLoading explore-room/finish-room"
+
+# Mark that the current room has been successfully explored.
+
+# When both axis have been explored, an elaboration with set ^room-explored true
+
+sp {explore-room*propose*finish-room
+   (state <s> ^name explore-room
+             -^explore-room.explored true
+              ^room-explored true)
+   -->
+##tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + <)          # don't select until other operators are finish
+   (<o> ^name finish-room
+        ^actions.thrust off)}
+
+sp {explore-room*apply*finish-room
+   (state <s> ^operator.name finish-room
+              ^explore-room <er>)
+   -->
+   (<er> ^explored true)}
+

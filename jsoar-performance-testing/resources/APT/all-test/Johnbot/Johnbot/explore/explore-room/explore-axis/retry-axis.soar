@@ -1,0 +1,49 @@
+#echo "\nLoading explore-axis/retry-axis"
+
+## If found that started with a door to left or right, will restart the 
+## exploration of the axis to find that door correctly.
+
+sp {explore-axis*propose*retry-axis
+   (state <s> ^name explore-axis
+              ^axis <a>)
+   (<a> ^retry true
+        ^end-of-wall true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name retry-axis
+        ^axis <a>)}
+
+## Clear off any axis flags from prior follow-hall/room-axis
+
+sp {explore-axis*apply*retry-axis*remove-old-stuff
+   (state <s> ^operator.name retry-axis
+              ^axis <a>)
+   (<a> ^aligned <x>)
+   -->
+   (<a> ^backed-up true -
+        ^backing-out true -
+        ^followed-to-end true -
+        ^retry true -
+        ^aligned <x> -
+        ^end-of-wall true -)}
+
+sp {explore-axis*apply*retry-axis*remove-updated
+   (state <s> ^operator.name retry-axis
+              ^axis <a>)
+   (<a> ^updated <y>)
+   -->
+   (<a> ^updated <y> -)}
+
+
+############################
+## Debug
+
+sp {explore-axis*apply*retry-axis*debug
+   (state <s> ^operator.name retry-axis
+              ^axis.orientation <wall-dir>
+              ^top-state.debug true
+              ^explore-room <cr>)
+   -->
+   (write (crlf) |retry-axis: | <wall-dir> | room | <cr>)}
+
+

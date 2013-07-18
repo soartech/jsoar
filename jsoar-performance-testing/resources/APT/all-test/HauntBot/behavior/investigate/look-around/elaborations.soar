@@ -1,0 +1,108 @@
+
+
+# copy down target info from parent state
+sp {look-around*elaborate*subgoal*target
+   (state <s> ^type look-around 
+              ^superstate.operator <o>)
+   (<o> ^target <target>)
+-->
+   (<s> ^target <target>)
+}
+
+
+# compute angle of object from agent's forward direction... used to make sure that agent
+# is facing the target object (for realism)
+sp {look-around*elaborate*target-angle
+   (state <s> ^type look-around
+              ^io.input-link.agent <agent>
+              ^target.position <target-pos>)
+   (<agent> ^position <agent-pos>
+            ^angle.yaw <agent-angle>)
+   (<agent-pos> ^x <agent-x>
+                ^y <agent-y>)
+   (<target-pos> ^x <target-x>
+                 ^y <target-y>
+)
+-->
+  (<s> ^target-angle (round-off-heading ( - (- 90 <agent-angle>) (compute-heading <agent-x> <agent-y> <target-x> <target-y>)) 1))
+}
+
+
+
+# determine if agent is facing left
+sp {look-around*elaborate*facing-left
+   (state <s> ^type look-around
+              ^target-angle > -100 < -80)
+-->
+   (<s> ^facing left)
+}
+
+
+# determine if agent is facing left
+sp {look-around*elaborate*facing-up
+   (state <s> ^type look-around
+              ^io.input-link.agent.pitch > 50)
+-->
+   (<s> ^facing up)
+}
+
+
+# determine if agent is facing behind
+sp {look-around*elaborate*facing-behind
+   (state <s> ^type look-around
+             -^target-angle > -170 < 170)
+-->
+   (<s> ^facing behind)
+}
+
+# determine if agent is facing right
+sp {look-around*elaborate*facing-right
+   (state <s> ^type look-around
+              ^target-angle < 100 > 80)
+-->
+   (<s> ^facing right)
+}
+
+sp {look-around*elaborate*propose*remove-direction
+   (state <s> ^type look-around
+              ^facing <dir>
+              ^target.should-investigate.direction <dir>)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name remove-direction
+        ^direction <dir>)
+}
+
+sp {look-around*elaborate*apply*remove-direction
+   (state <s> ^operator <o>
+              ^target.should-investigate <si>)
+   (<o> ^name remove-direction
+        ^direction <dir>)
+   (<si> ^direction <dir>)
+-->
+   (write (crlf) |Removing direction | <dir> | from list to investigate|)
+   (<si> ^direction <dir> -)
+}
+
+
+
+sp {look-around*elaborate*propose*remove-investigate-struct
+   (state <s> ^type look-around
+              ^facing <dir>
+              ^target <target>)
+   (<target> ^should-investigate <si>)
+   (<si> -^direction)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name remove-investigate-struct)
+}
+
+sp {look-around*elaborate*apply*remove-investigate-struct
+   (state <s> ^operator.name remove-investigate-struct
+              ^target <target>)
+   (<target> ^should-investigate <si>)
+
+-->
+   (write (crlf) |Removing investigate struct|)
+   (<target> ^should-investigate <si> -)
+}

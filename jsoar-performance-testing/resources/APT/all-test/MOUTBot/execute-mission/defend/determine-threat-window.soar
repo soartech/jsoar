@@ -1,0 +1,32 @@
+echo "\nLoading defend/determine-threat-window"
+
+sp {defend*propose*determine-threat-window
+   (state <s> ^name defend
+              ^objective <obj>
+              ^top-state.map.current-area <ca>)
+   (<ca> ^node <node>
+        -^threat-window)
+   (<obj> ^defensive-position <dp>)
+   (<dp> ^type window
+         ^area-achieved true)
+   (<node> ^type window
+           ^name <name>)
+-->
+#   (write (crlf) |Determine threat-window: | <name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name determine-threat-window
+        ^node <node>)
+}
+
+# For now, choose one at random...
+
+sp {apply*determine-threat-window
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <ca>)
+   (<o> ^name determine-threat-window
+        ^node <window>)
+-->
+   (<ca> ^threat-window <window>)
+}
+
+

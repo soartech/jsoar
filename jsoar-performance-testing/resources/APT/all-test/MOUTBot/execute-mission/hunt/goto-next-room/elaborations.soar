@@ -1,0 +1,140 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/elaborations"
+
+#FIXME:  Change the min-x/y/z and max-x/y/z values so that they are are min.x/y/z and max.x/y/z?
+
+
+#AMN: 2002-07-25
+sp {goto-next-room*elaborate*superstate-values
+   (state <s> ^name goto-next-room
+              ^superstate.operator <so>)
+   (<so> ^name goto-next-room
+         ^exit-node <enode>
+         ^new-area <new-area>)
+-->
+   (<s> ^exit-node <enode>
+        ^new-area <new-area>)
+}
+
+#AMN: 2002-07-25
+#Note that the exit door is on an east-west wall (x-axis)
+sp {goto-next-room*elaborate*east-west-door
+   (state <s> ^name goto-next-room
+              ^exit-node <enode>)
+   (<enode> ^connect-heading << 90 270 >>)
+-->
+   (<s> ^door-axis x)
+}
+
+#AMN: 2002-07-25
+#Note that the exit door is on an north-south wall (y-axis)
+sp {goto-next-room*elaborate*north-south-door
+   (state <s> ^name goto-next-room
+              ^exit-node <enode>)
+   (<enode> ^connect-heading << 0 180 >>)
+-->
+   (<s> ^door-axis y)
+}
+
+#AMN: 2002-07-25
+#Calculate the stack position east of the door
+#FIXME:  replace hardcoded stack offset with a value set in ^self.parameters.stack-offset
+sp {goto-next-room*elaborate*stack*east
+   (state <s> ^name goto-next-room
+              ^door-axis x
+              ^top-state.map.current-area.min-x <min-x>
+              ^exit-node.position <epos>
+              ^io.input-link.agent.position <pos>)
+   (<epos> ^x <x>
+           ^y <y>)
+   (<pos> ^x { <ax> < <x> >= <min-x> }
+          ^z <z>)
+-->
+   (<s> ^stack-position <p>)
+   (<p> ^x (- <x> 100)
+        ^y <y>
+        ^z <z>)
+}
+
+#AMN: 2002-07-25
+#Calculate the stack position west of the door
+sp {goto-next-room*elaborate*stack*west
+   (state <s> ^name goto-next-room
+              ^door-axis x
+              ^top-state.map.current-area.max-x <max-x>
+              ^exit-node.position <epos>
+              ^io.input-link.agent.position <pos>)
+   (<epos> ^x <x>
+           ^y <y>)
+   (<pos> ^x { <ax> >= <x> < <max-x> }
+          ^z <z>)
+-->
+   (<s> ^stack-position <p>)
+   (<p> ^x (+ <x> 100)
+        ^y <y>
+        ^z <z>)
+}
+
+#AMN: 2002-07-25
+#Calculate the stack position south of the door
+sp {goto-next-room*elaborate*stack*south
+   (state <s> ^name goto-next-room
+              ^door-axis y
+              ^top-state.map.current-area.min-y <min-y>
+              ^exit-node.position <epos>
+              ^io.input-link.agent.position <pos>)
+   (<epos> ^x <x>
+           ^y <y>)
+   (<pos> ^y { <ay> < <y> >= <min-y> }
+          ^z <z>)
+-->
+   (<s> ^stack-position <p>)
+   (<p> ^x <x>
+        ^y (- <y> 100)
+        ^z <z>)
+}
+
+#AMN: 2002-07-25
+#Calculate the stack position north of the door
+sp {goto-next-room*elaborate*stack*north
+   (state <s> ^name goto-next-room
+              ^door-axis y
+              ^top-state.map.current-area.max-y <max-y>
+              ^exit-node.position <epos>
+              ^io.input-link.agent.position <pos>)
+   (<epos> ^x <x>
+           ^y <y>)
+   (<pos> ^y { <ay> >= <y> <= <max-y> }
+          ^z <z>)
+-->
+   (<s> ^stack-position <p>)
+   (<p> ^x <x>
+        ^y (+ <y> 100)
+        ^z <z>)
+}
+
+#AMN: 2002-07-25
+#Elaborate with the range to the stack position
+sp {goto-next-room*elaborate*range-to-stack-pos
+   (state <s> ^name goto-next-room
+              ^stack-position <spos>
+              ^io.input-link.agent.position <pos>)
+   (<spos> ^x <sx>
+           ^y <sy>)
+   (<pos> ^x <x>
+          ^y <y>)
+-->
+   (<s> ^range-to-stack-pos (compute-range <x> <y> <sx> <sy>))
+}
+
+#AMN: 2002-07-25
+#Report when agent is near the stack position
+sp {goto-next-room*elaborate*near-stack-position
+   (state <s> ^name goto-next-room
+              ^top-state.parameters.near-xy-range <near-range>
+              ^range-to-stack-pos { <= <near-range> })
+-->
+   (<s> ^near-stack-position yes)
+}
+
+
+

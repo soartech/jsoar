@@ -20,6 +20,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -123,11 +124,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
     private final MultiAttributes multiAttrs = new MultiAttributes();
-    private final Rete rete = new Rete(trace, syms);
     private final WorkingMemory workingMemory = new WorkingMemory();
     private final TemporaryMemory tempMemory = new TemporaryMemory();
     private final OSupport osupport = new OSupport(predefinedSyms, printer);
-    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     private final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
@@ -139,6 +138,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultWorkingMemoryActivation wma = new DefaultWorkingMemoryActivation(this);
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
+    private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
+    
+    private final Rete rete = new Rete(trace, syms, epmem);
+    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);
@@ -179,24 +182,50 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
             debuggerProvider, decider, rl,
-            smem, wma);
+            smem, wma, epmem);
     
     /**
-     * Construct a new agent with a generated name.
+     * Construct a new agent with a generated name.  Also initializes
+     * the agent.
      * 
-     * @see #Agent(String)
+     * @see #Agent(String, boolean)
      */
     public Agent()
     {
-        this(null);
+        this(null, true);
     }
     
     /**
-     * Construct a new agent with the given name.
+     * Construct a new agent with a generated name.  Also lets you explicitly
+     * state whether to initialize the agent.
      * 
-     * @param name the name. If {@code null}, a new name is generated.
+     * @see #Agent(String, boolean)
+     */
+    public Agent(boolean initializeAgent)
+    {
+        this(null, initializeAgent);
+    }
+    
+    /**
+     * Construct a new agent with the given name.  Also initializes
+     * the agent.
+     * 
+     * @see #Agent(String, boolean)
      */
     public Agent(String name)
+    {
+        this(name, true);
+    }
+    
+    /**
+     * Construct a new agent with the given name.  Also lets you explicitly
+     * state whether to initialize the agent
+     * 
+     * @param name the name. If {@code null}, a new name is generated.
+     * @param initializeAgent lets you explicitly choose whether to initialize
+     * the agent.
+     */
+    public Agent(String name, boolean initializeAgent)
     {
         setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
         
@@ -216,11 +245,15 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         soarReteListener.initialize();
         exploration.initialize();
         smem.initialize();
+        epmem.initialize();
         wma.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
         installDefaultTraceFormats();
+        
+        if (initializeAgent)
+            this.initialize();
     }
     
     /**
@@ -239,6 +272,18 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             catch (SoarException e)
             {
                 logger.error("While closing smem database: " + e.getMessage(), e);
+            }
+        }
+        
+        if (epmem != null)
+        {
+            try
+            {
+                epmem.epmem_close();
+            }
+            catch (SoarException e)
+            {
+                logger.error("While closing epmem database: " + e.getMessage(), e);
             }
         }
         
@@ -641,6 +686,18 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     public void runFor(long n, RunType runType)
     {
         ensureInitialized();
+        
+        //  Before running, check to see if an agent is at a point other than the StopBeforePhase.
+        //  If so, we'll decrement  the RunCount before entering the Run loop so  
+        //  as not to run more Decision phases than specified in the runCount.  See bug #710.
+        if (runType == RunType.DECISIONS)
+        {
+            if (this.decisionCycle.current_phase.get() != getStopPhase() && (n > 0))
+            {
+                n--;
+            }
+        }
+        
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }
@@ -897,6 +954,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             logger.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
             printer.error("While trying to reset SMEM id counters: " + e.getMessage());
         } 
+        
+        // TODO epmem reset if any
         
         workingMemory.reset();
         decisionCycle.reset();

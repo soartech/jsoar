@@ -1,0 +1,38 @@
+#echo "\nLoading attack/select-attack"
+
+################################
+### Propose select-attack-type operator
+################################
+
+sp {attack*propose*select-attack-type*circle-strafe
+   (state <s> ^name attack
+             -^attack-type)
+    -->
+   (<s> ^operator <o> + =)
+   (<o> ^name select-attack-type
+        ^type circle-strafe)
+   }
+
+sp {attack*propose*select-attack-type*pop-out
+   (state <s> ^name attack
+              ^top-state.map.current-room.at-door <d>
+              ^top-state.heading <wall-side>
+             -^enemy.attack-type)
+   (<d> ^wall.side <wall-side>)
+    -->
+   (write (crlf) |*********** PoP OUT ************|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name select-attack-type
+        ^type pop-out)
+   }
+sp {attack*apply*select-attack-type
+   (state <s> ^name attack
+              ^operator <o>)
+   (<o> ^name select-attack-type
+        ^type <type>)
+    -->
+   (<s> ^attack-type <type>)}
+
+
+
+

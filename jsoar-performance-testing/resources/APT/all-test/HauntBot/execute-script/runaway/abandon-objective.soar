@@ -1,0 +1,22 @@
+sp {runaway*propose*abandon-objective
+   (state <s> ^name runaway
+              ^top-state.script.active-objective <obj>
+              ^current-area <area>)
+   (<area> ^runaway-door)
+   (<obj> ^status active
+          ^position.area <area>)
+-->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name abandon-objective)
+}
+
+sp {apply*abandon-objective*status
+   (state <s> ^operator <o>
+              ^top-state.io.input-link.agent.time <t>
+              ^top-state.script.active-objective <obj>)
+   (<o> ^name abandon-objective)
+-->
+    (<obj> ^status abandoned
+                   active -
+           ^time-abandoned <t>)}
+

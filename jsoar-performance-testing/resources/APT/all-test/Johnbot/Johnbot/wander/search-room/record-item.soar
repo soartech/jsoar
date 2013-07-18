@@ -1,0 +1,26 @@
+#echo "\nLoading search-room/record-item"
+
+sp {search-room*propose*record-item
+   (state <s> ^name search-room
+              ^current-room <cr>
+              ^io.input-link.entity.item <item-x>
+              ^operator <o>)
+   (<cr> ^search <ss>)
+   (<o> ^name turn)
+   (<item-x> ^classname <cname>
+             ^origin <or>)
+   (<or> ^x <x>
+         ^y <y>)
+  -(<ss> ^recorded.classname <cname>)   # Only record once
+   (<cr> ^wall <w1> <w2> <w3> <w4>)  # Test to make sure in this room
+   (<w1> ^side west ^x < <x>)
+   (<w2> ^side east ^x > <x>)
+   (<w3> ^side south ^y < <y>)
+   (<w4> ^side north ^y > <y>)
+   -->
+   (<ss> ^recorded <item>)
+   (<item> ^classname <cname>
+           ^regeneration-time 0
+           ^x <x>
+           ^y <y>)
+   }

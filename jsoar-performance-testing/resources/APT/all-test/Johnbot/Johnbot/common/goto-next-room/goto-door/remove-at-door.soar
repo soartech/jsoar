@@ -1,0 +1,16 @@
+
+sp {goto-door*propose*remove-at-door
+   (state <s> ^name << goto-door goto-next-room >>
+              ^current-room.at-door
+             -^door-overlap true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-at-door)}
+
+sp {goto-door*apply*remove-at-door
+   (state <s> ^operator.name remove-at-door
+              ^current-room <cr>)
+   (<cr> ^at-door <idoor>)
+   -->
+   (<cr> ^at-door <idoor> -)}
+

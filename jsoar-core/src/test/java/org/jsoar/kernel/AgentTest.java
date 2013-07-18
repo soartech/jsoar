@@ -26,7 +26,6 @@ public class AgentTest
     public void setUp() throws Exception
     {
         agent = new Agent();
-        agent.initialize();
     }
 
     @After
@@ -36,9 +35,9 @@ public class AgentTest
     }
 
     @Test
-    public void testDefaultStopPhaseIsInput()
+    public void testDefaultStopPhaseIsApply()
     {
-        assertEquals(Phase.INPUT, agent.getStopPhase());
+        assertEquals(Phase.APPLY, agent.getStopPhase());
     }
     
     @Test

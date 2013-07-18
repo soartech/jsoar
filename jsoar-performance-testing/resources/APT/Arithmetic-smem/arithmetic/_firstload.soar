@@ -1,0 +1,4 @@
+## Enable smem
+smem -s learning on
+## learning --on 
+

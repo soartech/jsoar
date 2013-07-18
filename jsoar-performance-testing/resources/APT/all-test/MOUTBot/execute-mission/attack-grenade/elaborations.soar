@@ -1,0 +1,98 @@
+
+sp {attack-grenade*compute-enemy-area
+   (state <s> ^name attack-grenade
+              ^top-state.map <map>
+              ^top-state.threats.selected-threat.entity.position <p>)
+   (<map> ^area <area>)
+   (<area> ^name <new-area-name>
+                   ^min-x <min-x>
+                   ^min-y <min-y>
+                   ^max-x <max-x>
+                   ^max-y <max-y>
+                   ^min-z <min-z>
+                   ^max-z <max-z>)
+   (<p> -^x > <max-x>
+        -^x < <min-x>
+        -^y > <max-y>
+        -^y < <min-y>
+        -^z < <min-z>
+        -^z > <max-z>)
+-->
+   (<s> ^enemy-area <area>)}
+
+sp {attack-grenade*elaborate*enemy-area*connector-nodes
+   (state <s> ^name attack-grenade
+              ^enemy-area.node <node>
+              ^top-state.io.input-link.objects.node <inode>)
+   (<node> ^type << connector door window >>
+           ^name <name>)
+   (<inode> ^name <name>) # visible!
+-->
+   (write (crlf) |Visible-enemy-node | <inode>)
+   (<s> ^visible-enemy-node <inode>)}
+
+sp {attack-grenade*elaborate*enemy-area*connector-nodes-not-visible
+   (state <s> ^name attack-grenade
+              ^enemy-area <ea> 
+              ^top-state <ts>)
+   (<ts> ^threats.selected-threat <threat>
+         ^map.current-area <ca>)
+   (<ea> -^visible-area <ca>)
+-->
+   (write (crlf) |Enemy area not visible from this area. |)
+   (<threat> ^not-visible <ca>)}
+
+sp {attack-grenade*elaborate*enemy-area*connector-nodes-visible
+   (state <s> ^name attack-grenade
+              ^enemy-area <ea> 
+              ^top-state <ts>)
+   (<ts> ^threats.selected-threat <threat>
+         ^map.current-area <ca>)
+   (<ea> ^visible-area <ca>)
+-->
+   (write (crlf) |Enemy area visible from this area. |)
+   (<threat> ^visible <ca>)}
+
+sp {attack-grenade*elaborate*enemy-area*enemy-area-outside-area
+   (state <s> ^name attack-grenade
+              ^enemy-area.node <node>
+              ^top-state.io.input-link.objects.node <inode>)
+   (<node> ^type << connector door window >>
+           ^connected-node.name <name>)
+   (<inode> ^name <name>) # visible!
+-->
+   (write (crlf) |Visible-enemy-connected-node | <inode>)
+   (<s> ^visible-enemy-connected-node <inode>)}
+
+#### Angle-off-target-node
+
+sp {attack-grenade*monitor*angle-offset
+   (state <s> ^name attack-grenade
+              ^selected-target-node.name <name>
+              ^io.input-link.objects.node <node>)
+   (<node> ^angle-off.h <h>
+           ^name <name>
+           ^range <range>)
+-->
+   (write (crlf) |Node name | <name> |, ID | <node> |, range | <range> |, Angle off | <h>)}
+
+#### CHANGES
+sp {attack-grenade*elaborate*angle-off1
+   (state <s> ^name attack-grenade
+              ^selected-target-node.name <name>
+              ^io.input-link.objects.node <node>)
+   (<node> ^name <name>
+           ^angle-off.h { < 2 > -2 <h> })
+-->
+   (write (crlf) |Achieved angle off | <h>)
+   (<s> ^achieved-target-node-angle-off true)}
+
+sp {attack-grenade*elaborate*angle-off2
+   (state <s> ^name attack-grenade
+              ^selected-target-node.name <name>
+              ^io.input-link.objects.node <node>)
+   (<node> ^name <name>
+           ^angle-off.h { < 362 > 358 <h> })
+-->
+   (write (crlf) |Achieved angle off | <h>)
+   (<s> ^achieved-target-node-angle-off true)}

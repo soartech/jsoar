@@ -1,0 +1,35 @@
+#echo "\nLoading hide/elaborations"
+
+sp {hide*elaborate*compute*corner-heading
+   (state <s> ^name hide
+              ^current-room.hiding-place <hp>
+              ^io.input-link.agent.origin <origin>)
+   (<hp> ^x <item-x>
+         ^y <item-y>)
+   (<origin> ^x <x>
+             ^y <y>)
+   -->
+   (<s> ^corner-heading
+        (round-off-heading (compute-heading <y> <x> <item-y> <item-x>) 1))}
+
+
+sp {hide*elaborate*compute*corner-range
+   (state <s> ^name hide
+              ^current-room.hiding-place <hp>
+              ^io.input-link.agent.origin <origin>)
+   (<hp> ^x <item-x>
+         ^y <item-y>)
+   (<origin> ^x <x>
+             ^y <y>)
+   -->
+   (<s> ^corner-range (compute-range <y> <x> <item-y> <item-x>))}
+
+
+sp {hide*elaborate*achieved-final-facing
+   (state <s> ^name hide
+              ^corner-range <= 50
+              ^current-room.hiding-place.final-facing <ff>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   -->
+   (<s> ^achieved-final-facing (round-off-heading (- <yaw> <ff>) 1))}
+

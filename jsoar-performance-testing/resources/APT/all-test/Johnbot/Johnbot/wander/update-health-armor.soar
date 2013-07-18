@@ -1,0 +1,64 @@
+#echo "\nLoading wander/update-health-armor"
+
+################################
+### Propose update-health-armor operator
+################################
+
+sp {wander*propose*update-health*search
+   (state <s> ^name wander
+              ^top-state.map.current-room.search.health <saved-health>
+              ^io.input-link.agent.health < <saved-health>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-health)}
+
+
+sp {wander*apply*update-health*turn
+   :i-support
+   (state <s> ^operator <o>
+              ^current-room.search <ss>
+              ^io.input-link.agent.angle.yaw <yaw>)
+   (<o> ^name << update-health update-armor >>)
+   -->
+   (<o> ^actions.faceabs (round-off-heading (+ 180 <yaw>) 1))}
+
+sp {wander*apply*update-health*save*yaw
+   (state <s> ^operator <o>
+              ^current-room.search <ss>
+              ^io.input-link.agent.cycle <ct>)
+   (<o> ^name << update-health update-armor >>)
+  -(<ss> ^saved-health-time <ct>)
+   -->
+   (<ss> ^saved-health-time (+ 1 <ct>))}
+
+sp {wander*apply*update-health*data
+   (state <s> ^operator.name update-health
+              ^current-room.search <ss>
+              ^io.input-link.agent.cycle <ct>
+              ^io.input-link.agent.health <current-health>)
+   (<ss> ^health { <> <current-health> <old-health> }
+         ^saved-health-time <ct>)
+   -->
+   (<ss> ^health <current-health>
+         ^health <old-health> -)
+   }
+
+sp {wander*propose*update-armor*search
+   (state <s> ^name wander
+              ^top-state.map.current-room.search.armor <saved-armor> 
+              ^io.input-link.agent.armor-type < <saved-armor>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name update-armor)}
+
+sp {wander*apply*update-health
+   (state <s> ^operator.name update-armor
+              ^current-room.search <ss>
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^io.input-link.agent.armor-type <current-armor>)
+   (<ss> ^armor { <> <current-armor> <old-armor> })
+   -->
+   (<ss> ^armor <current-armor>
+         ^armor <old-armor> -)
+}
+

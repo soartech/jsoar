@@ -1,0 +1,35 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/move-to-pod"
+
+#AMN: 2002-07-31
+#IF:
+#    1.  I have reached the corner of responsibility
+#    2.  I have not moved to the point of domination
+#    3.  I know where my point of domination is
+#THEN:
+#    Proposing moving to the point of domination
+#FIXME:  This movement should be a sidestep and currently
+#        isn't.
+sp {reconnoiter*propose*move-to-point-of-domination
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>)
+   (<eorders> ^moved-to-cor yes
+             -^moved-to-pod yes
+              ^point-of-domination <node>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-point-of-domination
+        ^type move-to-node
+        ^node <node>)
+}
+
+#AMN: 2002-07-31
+#Once I reach the point of domination, record that fact
+sp {apply*move-to-point-of-domination
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map.near-node <pnode>)
+   (<o> ^name move-to-point-of-domination)
+   (<eorders> ^point-of-domination <pnode>)
+-->
+   (<eorders> ^moved-to-pod yes)
+}

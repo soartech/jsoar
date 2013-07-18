@@ -1,0 +1,22 @@
+#echo "\nLoading all/sidestep"
+
+sp {all*propose*sidestep
+   (state <s> ^superstate.operator.name
+              << move-to-item goto-next-room forward-past-door exit-room >>
+             -^superstate.end-wall
+              ^io.input-link <il>
+              ^top-state <ts>)
+   (<il> -^feedback.sidestep <oside>
+         -^agent.cycle > <ct>)
+   (<ts> ^opposite.<side> <oside>
+         ^self <self>)
+   (<self> ^stuck <side>
+           ^stuck-time.stuck-time <ct>)
+   -->
+#   (write (crlf) |SIDE STEP | <oside>)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name sidestep
+        ^actions <a>)
+   (<a> ^thrust backward
+        ^sidestep <oside>)}
+

@@ -1,0 +1,40 @@
+#
+
+sp {haunt*propose*get-item
+   (state <s> ^name haunt
+              ^impossible true # disable for now
+              ^io.input-link.objects.<< decoration item >> <e>)
+   (<e> ^class <class>
+        ^position <p1>)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <fh>)
+   -->
+   (<s> ^operator <o> +)
+   (<o> ^name get-item
+        ^type move-to-xyz
+        ^position <p1>
+        ^item <e>)}
+
+sp {haunt*elaborate*get-item
+   (state <s> ^operator <o> +
+              ^io.input-link.agent.position <pos>)
+   (<o> ^name get-item
+        ^item.position <ipos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<ipos> ^x <dx>
+           ^y <dy>)
+-->
+   (<o> ^item-range (compute-range <x> <y> <dx> <dy>))
+}
+
+sp {HauntNavBot*compare*get-item
+   (state <s> ^name haunt
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name get-item ^item-range <x>)
+   (<o2> ^name get-item ^item-range > <x>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

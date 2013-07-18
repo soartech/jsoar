@@ -1,0 +1,30 @@
+# Wrong
+#sp {test-x*elaborate*too-large
+#   (state <s> ^name test-x
+#              ^current-problem <cp>)
+#   (<cp> ^sum <sum>
+#         ^answer { < <sum> }
+#         ^term > 0)
+#-->
+#   (<cp> ^failed too-large)
+#}#
+#
+#sp {test-x*elaborate*too-small
+#   (state <s>  ^name test-x
+#              ^current-problem <cp>)
+#   (<cp> ^sum <sum>
+#         ^answer { > <sum> }
+#         ^term <= 0)
+#-->
+#   (<cp> ^failed too-small)
+#}
+#
+#sp {test-x*pass-back-failure
+#   (state <s> ^name test-x
+#              ^current-problem.failed <reason>
+#              ^superstate.x-guess <x>)
+#-->
+#   (<x> ^failed <reason>)
+#}
+#
+

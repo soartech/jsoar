@@ -1,0 +1,6 @@
+source elaborations.soar
+source Impasse_Tie.soar
+pushd Impasse_Tie
+source Impasse_Tie.soar
+popd
+source task-operator.soar

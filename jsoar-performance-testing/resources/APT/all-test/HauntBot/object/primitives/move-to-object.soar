@@ -1,0 +1,24 @@
+#echo "\nLoading object/move-to-object.soar"
+#
+## these productions will move an agent to the exact location of
+## an object
+#
+#
+## The "move-to-object" production expects a "target" attribute, which
+## in turn has "name", "area" and "position" attributes. 
+#
+#
+## move to location of a visible object
+#sp {move-to-object*propose*move-to-visible-item
+#   (state <s> ^type move-to-object
+#              ^target.name <name>
+#              ^io.input-link.objects.decoration <dec>) #must be visible if on input-link
+#   (<dec> ^name <name>
+#          ^position <pos>)
+#   -->
+#   (<s> ^operator <o> + =)
+#   (<o> ^name move-to-visible-item
+#        ^type move-to-xyz
+#        ^position <pos>)
+#}
+#        

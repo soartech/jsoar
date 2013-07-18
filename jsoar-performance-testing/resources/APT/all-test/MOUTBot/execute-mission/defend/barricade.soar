@@ -1,0 +1,51 @@
+##################################### 
+# file: barricade.soar 
+# created: REW: 2001-10-02
+## 
+# Barricade a door
+#
+# Change history: 
+# 
+
+sp {defend*propose*barricade
+   (state <s> ^uses-defensive-position true
+              ^objective.defensive-position <dp>
+              ^top-state.doors.door <d>)
+   (<dp> ^type barricade
+        -^position
+         ^barricade-door <bd>)
+   (<bd> ^primary-room <pr>
+         ^secondary-room <sr>)
+   (<d> ^location <pr>
+        ^location <sr>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name barricade
+        ^primary-room <pr>
+        ^door <d>)
+}
+
+
+# REW: 2002-10-03 
+# For now, just define the barricade position as half the distance
+# between the primary room node position and the door position.
+sp {apply*barricade
+   (state <s> ^operator <o1>
+              ^objective.defensive-position <dp>)
+   (<o1> ^name barricade
+         ^primary-room <pr>
+         ^door <d>)
+   (<d> ^near-node <pn> ^position <dpos>)
+   (<dpos> ^x <dx> ^y <dy> ^z <dz>)
+   (<pn> ^area-name <pr> ^position <np>)
+   (<np> ^x <nx> ^y <ny> ^z <nz>)
+   -->
+   (write (crlf) | Barricading in door at: ( | (/ (+ <dx> <nx>) 2)|,| (/ (+ <dy> <ny>) 2)|,| (/ (+ <dz> <nz>) 2) |)| )
+   (<dp>  ^position <pos>)
+   (<pos> ^x (/ (+ <dx> <nx>) 2)
+          ^y (/ (+ <dy> <ny>) 2)
+          ^z (/ (+ <dz> <nz>) 2) )
+}
+
+
+

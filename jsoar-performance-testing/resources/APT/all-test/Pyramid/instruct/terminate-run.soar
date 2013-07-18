@@ -1,0 +1,14 @@
+sp {instruct*propose*terminate-run
+   (state <s> ^name instruct
+              ^current-problem nil)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name terminate-run)
+}
+sp {apply*terminate-run
+   (state <s> ^operator <op>)
+   (<op> ^name terminate-run)
+-->
+   (write (crlf) |All Problems Completed.|)
+   (halt)
+}

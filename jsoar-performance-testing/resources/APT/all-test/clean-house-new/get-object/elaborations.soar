@@ -1,0 +1,23 @@
+sp {get-object*elaborate*substate*objects
+   (state <s> ^name get-object
+              ^top-state <ts>)
+   (<ts> ^objects.object <obj>)
+-->
+   (<s> ^object <obj>)
+}
+sp {get-object*elaborate*state
+   (state <s> ^name get-object
+              ^top-state.parameters.areas-held-in wm
+              ^superstate <ss>
+              ^retrieved-objects failed)
+   (<ss> ^current-mission <cm>)
+   (<cm> ^status <status>)
+  -{(<ss> ^areas.area <area>)
+    (<area> -^cleaned yes
+            -^avoid true
+            -^storage-area yes)}
+              
+-->
+   (<cm> ^status terminated
+                 <status> -)
+}

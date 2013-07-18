@@ -1,0 +1,5 @@
+#
+# complex action that will move to a target object and use the current decoration on it
+#
+#  (Example: use match with fireplace)
+#

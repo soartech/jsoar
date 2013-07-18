@@ -1,0 +1,7 @@
+sp {elaborate*robot*reward*carry
+   (state <s> ^name robot
+              ^reward-link <r>
+              ^io.input-link.self.carry)
+-->
+   (<r> ^reward.value 1.0)
+}

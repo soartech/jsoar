@@ -1,0 +1,11 @@
+source elaborations.soar
+source exit-explore-room.soar
+source exit-hall.soar
+pushd exit-hall
+source exit-hall_source.soar
+popd
+source exit-room.soar
+source goto-door.soar
+pushd goto-door
+source goto-door_source.soar
+popd

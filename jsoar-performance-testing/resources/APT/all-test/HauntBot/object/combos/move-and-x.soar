@@ -1,0 +1,16 @@
+echo "\nLoading move-and-x"
+
+#
+# compound command that moves to a target location executes
+# a variably specified action
+#
+#
+# required attributes
+#            ^position    (destination)
+#            ^area        (destination)
+#            ^target-class (criteria for search, 1 or more entries)
+#            ^next-action
+#                  ^name
+#                  ^type
+#                  ^(OPTIONAL)     --> any other attributes for the next action
+#

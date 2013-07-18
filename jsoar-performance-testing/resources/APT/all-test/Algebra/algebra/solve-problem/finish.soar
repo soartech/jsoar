@@ -1,0 +1,40 @@
+sp {algebra*propose*finish
+   (state <s> ^name solve-problem
+              ^problem <p>)
+   (<p> -^status solved
+         ^top-clause <tc>)
+   (<tc> ^right-side.value <value>
+         ^left-side.type variable)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name finish)
+}
+
+sp {algebra*propose*finish-error
+   (state <s> ^name solve-problem
+              ^problem.top-clause <p>)
+   (<p> ^left-side.value 0
+        ^right-side.type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name finish)
+}
+
+sp {algebra*apply*finish
+   (state <s> ^operator.name finish
+              ^top-state.io.output-link <out>
+              ^top-state <ts>
+              ^problem <problem>)
+   (<problem> ^top-clause <p>)
+   (<p> ^right-side.value <value>
+        ^left-side.value <var>)
+-->
+   (<ts> ^print-id <pp>)
+   (<problem> ^status solved
+                      printed -)
+   (<out> ^text.next <n1>)
+   (<n1> ^value <var> ^next <n2>)
+   (<n2> ^value |=| ^next <n3>)
+   (<n3> ^value <value>)
+   (write (crlf) <var> | = | <value>)
+}

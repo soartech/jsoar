@@ -1,0 +1,16 @@
+source ammo.soar
+source armor.soar
+source elaborations.soar
+source enemy.soar
+source goal-type.soar
+source headings.soar
+source health.soar
+source hiding-places.soar
+source items.soar
+source map.soar
+source maps.soar
+source parameters.soar
+source quad.soar
+source room.soar
+source self.soar
+source weapons.soar

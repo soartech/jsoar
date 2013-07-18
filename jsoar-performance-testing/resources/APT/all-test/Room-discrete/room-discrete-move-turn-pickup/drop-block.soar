@@ -1,0 +1,28 @@
+sp {robot*propose*drop-block*discrete
+   (state <s> ^name robot
+              ^io.input-link.self <self>)
+   (<self> ^blocked.forward true
+           ^carry.id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name drop-block
+         ^block-id <id>)
+}
+
+sp {apply*drop-block
+   (state <s> ^operator <op>
+              ^io.output-link <out>)
+   (<op> ^name drop-block
+         ^block-id <id>)
+-->
+   (<out> ^drop.id <id>)
+}
+
+sp {robot*RL*drop-block
+   :template
+   (state <s> ^name robot
+              ^operator <o> +)
+   (<o> ^name drop-block
+        ^block-id <id>)
+-->
+   (<s> ^operator <o> = 0)}

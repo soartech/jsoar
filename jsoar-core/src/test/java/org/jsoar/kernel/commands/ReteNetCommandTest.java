@@ -33,7 +33,6 @@ public class ReteNetCommandTest
         originalAgent.getTrace().disableAll();
         revivedAgent = new Agent();
         revivedAgent.getTrace().disableAll();
-        revivedAgent.initialize();
     }
 
     @After

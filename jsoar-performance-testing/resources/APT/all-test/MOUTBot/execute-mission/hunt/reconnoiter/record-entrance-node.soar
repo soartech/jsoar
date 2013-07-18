@@ -1,0 +1,67 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/record-entrance-node"
+
+#AMN: 2002-07-30
+#Record the node that we entered this area at
+#IF: 
+#  1.  The entrance node has not yet been recorded
+#  2.  There is a node in the current area which is a 
+#      door/connector
+#THEN:
+#      Propose recording that node as the entrance node
+sp {reconnoiter*propose*record-entrance-node
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map.current-area.node <enode>)
+   (<eorders> -^entrance-node)
+   (<enode> ^type << door connector >>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record-entrance-node
+        ^node <enode>)
+}
+
+
+#AMN: 2002-07-30
+#Elaborate record-entrance-node ops with the range to that node
+sp {reconnoiter*elaborate*record-entrance-node*range
+   (state <s> ^name reconnoiter
+              ^operator <o> +
+              ^io.input-link.objects.node <visnode>)
+   (<o> ^name record-entrance-node
+        ^node.name <enode-name>)
+   (<visnode> ^name <enode-name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+#AMN: 2002-07-30
+#Since I just entered the room (a reasonable assumption)
+#the nearest eligible node must be the entrance.
+sp {reconnoiter*compare*record-entrance-node*prefer-nearest
+   (state <s> ^name reconnoiter
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record-entrance-node
+         ^range <range>)
+   (<o2> ^name record-entrance-node
+        -^range { <= <range> })
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+#AMN: 2002-07-30
+#Record the node.
+sp {apply*record-entrance-node
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <eorders>)
+   (<o> ^name record-entrance-node
+        ^node <enode>)
+-->
+   (<eorders> ^entrance-node <enode>)
+}
+
+
+
+
+

@@ -1,0 +1,103 @@
+echo "\nLoading move-to-node/move-to-xyz"
+
+#if the node is visible or we are in the same area
+#as the node, move directly to the xyz coordinate
+#for the node
+
+# REW: 2003-06-08
+# Must be standing to move to a new xyz using these proposals
+# REW: 2003-06-14
+# It' silly but we get feedback complete of stand command before stand is actually completed, so we also ned to test that body pos is not changing.
+
+#NOTE: Once cone of vision is added, we may need to turn
+#and find the node or do additional exploration
+
+#node visible
+sp {move-to-node*propose*move-to-visible-xyz
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^io.input-link.objects.node.name <name>
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position
+             -^top-state.map.current-area <area>
+             -^top-state.self.stuck-bad true
+              )
+                                          # Don't if in current area - use proposal below.
+   (<node> ^name <name>
+           ^area <area>
+           ^position <pos>)
+-->
+#   (write (crlf) |Propose move to visible xyz of node: | <name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-visible-node-xyz
+        ^type move-to-xyz
+        ^position <pos>
+        ^area <area>)
+}
+sp {move-to-node*propose*move-to-visible-xyz*stuck
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^io.input-link.objects.node.name <name>
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position
+             -^top-state.map.current-area <area>
+              ^top-state.self.stuck-bad true)
+                                          # Don't if in current area - use proposal below.
+   (<node> ^name <name>
+           ^area <area>
+           ^position <pos>)
+-->
+#   (write (crlf) |Propose move to visible xyz of node: | <name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-visible-node-xyz
+        ^type move-to-xyz
+        ^position <pos>
+        ^area <area>)
+}
+
+#node in same area as we are
+sp {move-to-node*propose*move-to-xyz
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^top-state.map.current-area <area>
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position
+             -^top-state.self.stuck-bad true)
+   (<node> ^name <name>
+           ^area <area>
+           ^position <pos>)
+-->
+ #  (write (crlf) |Propose move to same area xyz of node: | <name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-node-in-areas-xyz
+        ^type move-to-xyz
+        ^position <pos>
+        ^area <area>)
+}
+
+sp {move-to-node*propose*move-to-xyz-stuck
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^top-state.map.current-area <area>
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position
+              ^top-state.self.stuck-bad true)
+   (<node> ^name <name>
+           ^area <area>
+           ^position <pos>)
+-->
+ #  (write (crlf) |Propose move to same area xyz of node: | <name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-node-in-areas-xyz
+        ^type move-to-xyz
+        ^position <pos>
+        ^area <area>)
+}
+
+sp {move-to-node*elaborate*operator*speed
+   (state <s> ^operator <o>
+              ^speed <speed>)
+   (<o> ^type move-to-xyz)
+-->
+   (<o> ^speed <speed>)
+}

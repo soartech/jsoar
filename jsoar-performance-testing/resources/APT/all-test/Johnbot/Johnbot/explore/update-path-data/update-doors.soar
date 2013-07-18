@@ -1,0 +1,136 @@
+#echo "\nLoading update-path-data/update-door"
+
+sp {update-path-data*propose*update-doors
+   (state <s> ^name update-path-data
+              ^room.update-data <ud>
+              ^top-state.map.room <room>)
+   (<ud> ^current-distance <cd>
+         ^active-rooms { <cr> <> <room> })
+   (<cd> ^number <odist>
+         ^tested false)
+   (<cr> ^path <p1> <p0>)
+   (<p1> ^distance 1
+         ^destination-room.path <p2>)
+   (<p2> ^destination-room <room>
+         ^distance <odist>
+         ^distance-plus-one <dist>)
+   (<p0> ^destination-room <room>
+         ^distance { <oodist> > <dist> })
+   -->
+ # #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |Update room for | <cr> | and | <room> | old distance | <oodist> | --> | <dist>)
+   (<s> ^operator <o> + =)
+   (<o> ^name update-doors
+        ^distance <dist>
+        ^other-room <room>
+        ^active-room <cr>)}
+
+sp {update-path-data*apply*update-doors
+   (state <s> ^operator <o>
+              ^room.update-data <ud>)
+   (<ud> ^current-distance <cd>)
+   (<o> ^name update-doors
+        ^other-room <room>)
+   -->
+   (<ud> ^active-rooms <room>)
+   (<cd> ^extended false -
+         ^extended true)}
+
+sp {update-path-data*apply*update-doors*different-door*active
+   (state <s> ^operator <o>)
+   (<o> ^name update-doors
+        ^distance <dist>
+        ^other-room <room>
+        ^active-room <a-room>)
+   (<a-room> ^path <p1> { <> <p1> <p2> })
+   (<p1> ^destination-room <room>
+         ^in-room-door {<> <door> <ir-door> }
+         ^distance-plus-one <old-plus-one> 
+         ^distance <old-d>)
+   (<p2> ^in-room-door <door>
+         ^distance 1
+         ^destination-room.path <p3>)
+   (<p3> ^destination-room <room>
+         ^distance-plus-one <dist>)
+   -->
+   (write (crlf) |Found shorter path from: | <a-room> | to | <room> | going through | <door> | path length | <dist>)
+   (<p1> ^in-room-door <ir-door> -
+         ^in-room-door <door>
+         ^distance <dist>
+         ^distance <old-d> -
+         ^distance-plus-one <old-plus-one> -
+         ^distance-plus-one (+ 1 <dist>))}
+
+sp {update-path-data*apply*update-doors*different-door*other-room
+   (state <s> ^operator <o>)
+   (<o> ^name update-doors
+        ^distance <dist>
+        ^other-room <room>
+        ^active-room <a-room>)
+   (<room> ^path <p1> ^path <p2>)
+   (<p1> ^destination-room <a-room>
+         ^in-room-door {<> <door> <ir-door> }
+         ^distance-plus-one <old-plus-one> 
+         ^distance <old-d>)
+   (<p2> ^in-room-door <door>
+         ^distance-plus-one <dist>
+         ^destination-room.path <p3>)
+   (<p3> ^destination-room <a-room>
+         ^distance 1)
+   -->
+   (write (crlf) |Found shorter path from: | <room> | to | <a-room> | going through | <door> | path length | <dist>)
+   (<p1> ^in-room-door <ir-door> -
+         ^in-room-door <door>
+         ^distance <dist>
+         ^distance <old-d> -
+         ^distance-plus-one <old-plus-one> -
+         ^distance-plus-one (+ 1 <dist>))}
+
+## Same Door - Just update distances
+
+sp {update-path-data*apply*update-doors*same-door*active
+   (state <s> ^operator <o>)
+   (<o> ^name update-doors
+        ^distance <dist>
+        ^other-room <room>
+        ^active-room <a-room>)
+   (<a-room> ^path <p1> { <> <p1> <p2> })
+   (<p1> ^destination-room <room>
+         ^in-room-door <door> 
+         ^distance-plus-one <old-plus-one> 
+         ^distance <old-d>)
+   (<p2> ^in-room-door <door>
+         ^distance 1
+         ^destination-room.path <p3>)
+   (<p3> ^destination-room <room>
+         ^distance-plus-one <dist>)
+   -->
+   (write (crlf) |Found shorter path from: | <a-room> | to | <room> | path length | <dist> | door | <door>)
+   (<p1> ^distance <dist>
+         ^distance <old-d> -
+         ^distance-plus-one <old-plus-one> -
+         ^distance-plus-one (+ 1 <dist>))}
+
+sp {update-path-data*apply*update-doors*same-door*active*other
+   (state <s> ^operator <o>)
+   (<o> ^name update-doors
+        ^distance <dist>
+        ^other-room <room>
+        ^active-room <a-room>)
+   (<room> ^path <p1> { <> <p1> <p2> })
+   (<p1> ^destination-room <a-room>
+         ^in-room-door <door> 
+         ^distance-plus-one <old-plus-one> 
+         ^distance <old-d>)
+   (<p2> ^in-room-door <door>
+         ^distance-plus-one <dist>
+         ^destination-room.path <p3>)
+   (<p3> ^destination-room <a-room>
+         ^distance 1)
+   -->
+   (write (crlf) |Found shorter path from: | <room> | to | <a-room> | path length | <dist> | door | <door>)
+   (<p1> ^distance <dist>
+         ^distance <old-d> -
+         ^distance-plus-one <old-plus-one> -
+         ^distance-plus-one (+ 1 <dist>))}
+

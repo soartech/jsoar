@@ -1,0 +1,14 @@
+
+sp {deny-powerups*propose*goto-next-room
+   (state <s> ^name deny-powerups
+              ^superstate.operator.room <room>
+              ^top-state.map.current-room.path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^actions.centerview on
+        ^actions.speed off          # walk so can hear opponents
+        ^door <idoor>)}

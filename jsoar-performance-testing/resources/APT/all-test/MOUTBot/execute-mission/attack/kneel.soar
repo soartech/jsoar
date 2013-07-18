@@ -1,0 +1,23 @@
+echo "Loading attack/kneel"
+
+# Conditions under which it makes sense to kneel when attacking
+
+# Kneel if a friend is behind, an enemy is ahead, and bot is standing
+sp {attack*propose*kneel*friendly-behind
+   (state <s> ^name attack
+              ^top-state <ts>)
+   (<ts> ^entity <friend>
+         ^entity <foe>
+         ^self.body-position stand
+        -^self.changing-body-position)
+   (<friend> ^hostile *no*
+             ^egocentric-location behind)
+   (<foe> ^hostile *yes*
+          ^egocentric-location ahead)
+   -->
+   (write (crlf) |Kneeling to attack|)
+   (<s> ^operator <o> + =)
+   (<o> ^name kneel
+        ^actions.kneel true)
+}
+

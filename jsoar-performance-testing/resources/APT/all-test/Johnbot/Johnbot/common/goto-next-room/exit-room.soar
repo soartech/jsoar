@@ -1,0 +1,42 @@
+#echo "\nLoading goto-next-room/exit-room"
+
+sp {goto-next-room*propose*exit-room*explore-room
+   (state <s> ^name goto-next-room
+              ^door <door>
+             -^mode explore
+              ^current-room.at-door <door>)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name exit-room
+        ^door <door>)}
+
+sp {goto-next-room*apply*exit-room*go
+   :i-support
+   (state <s> ^top-state.self <self>
+              ^operator <o>)
+   (<o> ^name exit-room)
+   (<self> ^stopped true)
+   -->
+   (<o> ^actions.thrust forward)}
+
+sp {goto-next-room*apply*exit-room*sidestep
+   :i-support
+   (state <s> ^top-state.self <self>
+              ^top-state.opposite.<side> <oside>
+              ^operator <o>)
+   (<o> ^name exit-room)
+   (<self> ^stopped true
+           ^stuck <side>)
+   -->
+   (<o> ^actions.sidestep <side>)}
+
+sp {goto-next-room*apply*exit-room*nosidestep
+   :i-support
+   (state <s> ^top-state.self <self>
+              ^operator <o>)
+   (<o> ^name exit-room)
+   (<self> -^stuck <side>)
+   -->
+   (<o> ^actions.sidestep off)}
+

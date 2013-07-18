@@ -1,0 +1,21 @@
+sp {encode*propose*skip-symbol
+   (state <s> ^name encode
+              ^current-problem-ptr.type symbol)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name skip-symbol)
+}
+sp {apply*skip-symbol
+   (state <s> ^operator.name skip-symbol
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^next <ncpp>
+          ^value <v>)
+   (<cpsp> ^name <v> ^next <ncpsp>)
+-->
+   (write | | <v>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}

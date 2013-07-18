@@ -1,0 +1,10 @@
+sp {runaway*propose*move-to-new-room
+   (state <s> ^name runaway
+              ^current-area.runaway-door.connected-node.area <area>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-new-room
+        ^type move-to-area
+        ^area <area>) 
+}
+

@@ -1,0 +1,66 @@
+#echo "\nLoading attack/face-enemy"
+
+### this approach is slow and easier to kill
+
+sp {attack*propose*face-enemy*bad
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill bad 
+              ^enemy <se>
+             -^enemy-angle-off-achieved true)
+   (<se> ^sensor <sensor>
+         ^angle-yaw <head> 
+        -^deadflag << dead dying >>)
+   (<sensor> ^visible true
+             ^infront true)
+   -->
+   (write (crlf) |Bad Face Target.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-enemy
+        ^actions <a>)
+   (<a> ^faceabs <head>
+        ^sidestep off
+        ^centerview on)}
+
+sp {attack*propose*face-enemy*medium
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill medium
+              ^io.input-link.feedback.selecttarget <sid>
+             -^io.input-link.feedback.facetarget on
+              ^enemy <se>)
+   (<se> ^sensor <sensor>
+         ^soar-id <sid>
+        -^deadflag << dead dying >>)
+   (<sensor> ^visible true
+             ^infront true)
+   -->
+   (write (crlf) |Medium Face Target.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-enemy
+        ^actions.facetarget on)}
+
+sp {attack*propose*face-enemy*medium-good*good
+   (state <s> ^name attack
+              ^top-state.self.aiming-skill << medium-good good >>
+              ^io.input-link.feedback.selecttarget <sid>
+             -^io.input-link.feedback.leadtarget on
+              ^enemy <se>)
+   (<se> ^sensor <sensor>
+         ^soar-id <sid>
+        -^deadflag << dead dying >>)
+   (<sensor> ^visible true
+             ^infront true)
+   -->
+   (write (crlf) |Good lead Target.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-enemy
+        ^actions <a>)
+   (<a> ^leadtarget on)}
+
+sp {attack*select*face-enemy
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name face-enemy)
+   (<o2> ^name update-health )
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

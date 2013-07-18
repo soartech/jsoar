@@ -1,0 +1,126 @@
+# REW: 2002-09-27
+# Provide accessible computations of weapons and ammo
+#
+# [1] Note: This implementation more or less assumes a 1-to-1 mapping
+#     between ammo and weapons.  If an agent has two pistols, eg, the
+#     computations may be a little messed up?
+
+echo "\nLoading elaborations/weapons"
+                
+sp {elaborations*elaborate*state*weapons
+   (state <s> ^name unreal
+              ^self <sf>)
+-->
+   (<sf> ^weapons <w>)
+}
+
+# What does it mean for ammo-type to be none? Grenades are none
+sp {elaborations*elaborate*state*weapons*weapon
+   (state <s> ^name unreal
+              ^self.weapons <weap>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^class <class>
+        ^ammo-type <at>)
+-->
+   (<weap> ^weapon <w1>)
+   (<w1> ^name <name>
+         ^class <class>
+         ^ammo-type <at>)
+}
+
+sp {elaborations*elaborate*state*weapons*selected-weapon
+   (state <s> ^name unreal
+              ^self.weapons <weap>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^selected yes)
+   (<weap> ^weapon <w2>)
+   (<w2> ^name <name>)
+-->
+   (<weap> ^selected-weapon <w2>)
+}
+
+sp {elaborations*elaborate*state*weapons*weapon*clips-available
+   (state <s> ^name unreal
+              ^self.weapons.weapon <weap>
+              ^io.input-link.agent.item <i>)
+   (<weap> ^ammo-type <class>)
+   (<i> ^class <class>
+        ^quantity {> 0 <q>} )
+-->
+   (<weap> ^clips-available <q>)
+}
+
+# REW: Do not want this to fire every shot so elab is just t/f
+sp {elaborations*elaborate*state*weapons*weapon*rounds-available
+   (state <s> ^name unreal
+              ^self.weapons.weapon <weap>
+              ^io.input-link.agent.weapon <w>)
+   (<weap> ^name <name>)
+   (<w> ^name <name>
+       -^ammo-amount 0)
+-->
+   (<weap> ^rounds-available true)
+}
+
+sp {elaborations*elaborate*state*weapons*weapon*no-rounds*no-clips*ammo-exhausted
+   (state <s> ^name unreal
+              ^self.weapons.weapon <weap>
+              ^io.input-link.agent <ag>)
+   (<ag> ^weapon <w> )
+   (<w> ^name <name>
+        ^ammo-amount 0)
+   (<weap> ^name <name>
+          -^rounds-available
+          -^clips-available)
+-->
+   (<weap> ^all-ammo-exhausted true)
+}
+
+sp {elaborations*elaborate*state*weapons*grenade
+   (state <s> ^name unreal
+              ^self.weapons.weapon <w2>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^class |M_67|)
+   (<w2> ^name <name>)
+-->
+   (<w2> ^type grenade)
+}
+
+sp {elaborations*elaborate*state*weapons*knife
+   (state <s> ^name unreal
+              ^self.weapons.weapon <w2>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^class |INFc_KaBar|)
+   (<w2> ^name <name>)
+-->
+   (<w2> ^type knife)
+}
+
+sp {elaborations*elaborate*state*weapons*handgun
+   (state <s> ^name unreal
+              ^self.weapons.weapon <w2>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^class |INFc_FSVEN|)
+   (<w2> ^name <name>)
+-->
+   (<w2> ^type handgun)
+}
+
+sp {elaborations*elaborate*state*weapons*assault-rifle
+   (state <s> ^name unreal
+              ^self.weapons.weapon <w2>
+              ^io.input-link.agent.weapon <w>)
+   (<w> ^name <name>
+        ^class |MOUTAKMSU|)
+   (<w2> ^name <name>)
+-->
+   (<w2> ^type assault-rifle)
+}
+
+
+

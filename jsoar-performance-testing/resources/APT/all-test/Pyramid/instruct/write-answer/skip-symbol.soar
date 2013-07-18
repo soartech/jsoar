@@ -1,0 +1,7 @@
+sp {write-answer*propose*skip-symbol
+   (state <s> ^name write-answer
+              ^current-problem-ptr.type symbol)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name skip-symbol)
+}

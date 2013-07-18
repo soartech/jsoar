@@ -1,0 +1,14 @@
+
+
+# attempt to eat nearest object
+sp {eat*prefer*closest-target
+   (state <s> ^name haunt
+              ^operator <o1> +
+                       {<o2> <> <o1>} +)
+   (<o1> ^name << eat drink >>
+         ^range <r>)
+   (<o2> ^name << eat drink >>
+         ^range > <r>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

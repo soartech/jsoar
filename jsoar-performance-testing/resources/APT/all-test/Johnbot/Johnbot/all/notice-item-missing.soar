@@ -1,0 +1,62 @@
+#echo "\nLoading all/notice-item-missing"
+
+################################
+### Propose notice-item-missing operator
+################################
+
+sp {all*propose*notice-item-missing
+   (state <s> ^goal-type change-rooms
+              ^top-state.map <m>
+              ^top-state.self.get-object <cname>
+              ^io.input-link <il>)
+   (<m> ^current-room <cr>)
+   (<cr> ^item <item>
+         ^search <ss>)
+   (<il> -^entity.item.classname <cname>
+         -^agent.cycle < <rt>)
+   (<ss> -^recorded.classname <cname>)
+   (<item> ^classname <cname>
+           ^regeneration-time <rt>)
+   -->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |ITEM Missing: | <item> | - | <cname>)
+   (<s> ^operator <o> + =)
+   (<o> ^name notice-item-missing
+        ^item <item>)}
+
+sp {all*apply*notice-item-missing
+   (state <s> ^operator <o>
+              ^top-state.parameters.item-regeneration-time <irt>
+              ^io.input-link.agent.cycle <ct>)
+   (<o> ^name notice-item-missing
+        ^item <item>)
+   (<item> ^regeneration-time <rt>
+          -^classname item_quad)
+   -->
+   (<item> ^regeneration-time <rt> -
+           ^regeneration-time (+ <ct> <irt>))
+}
+
+sp {all*apply*notice-item-missing*quad
+   (state <s> ^operator <o>
+              ^top-state.parameters.item-regeneration-time <irt>
+              ^io.input-link.agent.cycle <ct>)
+   (<o> ^name notice-item-missing
+        ^item <item>)
+   (<item> ^regeneration-time <rt>
+           ^classname item_quad)
+   -->
+   (<item> ^regeneration-time <rt> -
+           ^regeneration-time (+ <ct> (* 2 <irt>)))
+}
+
+sp {all*select*notice-item-missing
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name notice-item-missing
+         ^item.classname <cname>)
+   (<o2> ^name get-item
+         ^item.classname <cname>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

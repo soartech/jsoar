@@ -1,0 +1,41 @@
+#####################################
+# file: kneel.soar
+# created: REW: 2003-05-01
+##
+# Encode all the situations in which an agent should go to a prone position
+#
+# Change history:
+#
+#  [1] REW: 2003-05-01
+#      General strategy is to only terminate these operators when
+#      the position has changed.  Position needs to be input, but for
+#      now we track it via ^self
+#      (no longer true -- operator terminates after initiating output command)
+#  [2] REW: 2003-05-01
+#      Notional proposals for now (just testing)
+
+# REW: 2003-05-23
+# For test only, but it definitely works
+#sp {common*propose*kneel*test
+#   (state <s> ^name execute-mission
+#              ^top-state.self <self>)
+#   (<self> ^body-position <> kneel
+#          -^changing-body-position)
+#   -->
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name kneel
+#        ^actions.crouch.height down)
+#}
+
+sp {apply*kneel
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^self <self>              )
+   (<self> ^body-position <something>)
+   (<o> ^name kneel
+        ^actions <a>)
+-->
+   (write (crlf) |Initiating move to kneel |)
+   (<self> ^body-position <something> - <a> +)
+}
+

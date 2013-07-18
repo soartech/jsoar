@@ -1,0 +1,36 @@
+#echo "\nLoading attack/shoot"
+
+## door-facing and door-facing-check computed in elaborations.soar
+
+sp {attack*propose*shoot
+   (state <s> ^name attack
+             -^io.input-link.feedback.attack on
+              ^enemy
+              ^enemy-angle-off-achieved true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack on)}
+
+sp {attack*propose*shoot*lead-target
+   (state <s> ^name attack
+              ^io.input-link.feedback <fd>
+              ^enemy <e>)
+   (<fd> -^attack on
+          ^leadtarget on)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack on)}
+
+sp {attack*propose*shoot*facetarget
+   (state <s> ^name attack
+             -^io.input-link.feedback.attack on
+              ^io.input-link.feedback.facetarget on
+              ^enemy)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name shoot
+        ^actions.attack on)}
+
+

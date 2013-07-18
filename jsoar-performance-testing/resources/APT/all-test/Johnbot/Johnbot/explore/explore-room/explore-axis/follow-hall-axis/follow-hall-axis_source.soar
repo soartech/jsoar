@@ -1,0 +1,5 @@
+source elaborations.soar
+source finish-hall.soar
+source forward-to-door.soar
+source process-door.soar
+source update-door.soar

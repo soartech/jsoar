@@ -1,0 +1,18 @@
+#echo "\nLoading align-with-axis/backup"
+
+## If not achieved close-to-wall, but are heading in the right way, 
+## start thrusting backward.
+
+sp {align-with-axis*propose*backup
+   (state <s> ^name align-with-axis
+             -^backed-up true
+              ^achieved heading
+             -^achieved close-to-wall
+             -^io.input-link.feedback.thrust backward)
+   -->
+   (write (crlf) |Moving backward to get aligned near back wall.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name backup
+        ^actions.thrust backward)}
+
+

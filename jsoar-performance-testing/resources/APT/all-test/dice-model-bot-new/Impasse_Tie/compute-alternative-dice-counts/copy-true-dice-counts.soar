@@ -1,0 +1,32 @@
+sp {compute-alternative-dice-counts*propose*copy-true-dice-counts
+   (state <s> ^name compute-alternative-dice-counts
+              ^last-bid <> failure)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name copy-true-dice-counts)
+}
+
+sp {apply*copy-true-dice-counts
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^top-state.true-dice-counts <tdc>)
+   (<tdc> ^dice-count <dc1> <dc2> <dc3> <dc4> <dc5> <dc6> <dc7>)
+   (<op> ^name copy-true-dice-counts)
+   (<dc7> ^face unknown
+          ^count <m1>)
+   (<dc1> ^face 1
+          ^count <m1>)
+   (<dc2> ^face 2
+          ^count <m2>)
+   (<dc3> ^face 3
+          ^count <m3>)
+   (<dc4> ^face 4
+          ^count <m4>)
+   (<dc5> ^face 5
+          ^count <m5>)
+   (<dc6> ^face 6
+          ^count <m6>)
+-->
+   (<ss> ^alternative-dice-counts <adc>)
+   (<adc> ^dice-count <dc1> <dc2> <dc3> <dc4> <dc5> <dc6> <dc7>)
+}

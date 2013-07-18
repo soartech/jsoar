@@ -1,0 +1,23 @@
+#echo "\nLoading goto-next-room/elaboration"
+
+sp {goto-next-room*elaborate*superoperator-stuff
+   (state <s> ^name goto-next-room
+              ^superstate.operator <o>)
+   (<o> ^door <door>)
+   -->
+   (<s> ^door <door>)}
+
+#sp {elaborate*state*goto-next-room
+#   (state <s> ^name goto-next-room
+#              ^io.input-link.agent.origin <or>
+#              ^top-state.map.current-room <cr>)
+#   (<cr> ^wall <w1> <w2> <w3> <w4>)
+#   (<w1> ^side west ^x <west>)
+#   (<w2> ^side east ^x <east>)
+#   (<w3> ^side south ^y <south>)
+#   (<w4> ^side north  ^y <north>)
+# -{(<or> ^x { > <west> < <east> }
+#         ^y { > <south> < <north> })}
+#   -->
+#   (<s> ^not-in-room <cr>)}
+

@@ -1,0 +1,81 @@
+## 
+# Create egocentric elaborations of entities around bot
+#
+
+sp {unreal*elaborate*state*entity
+   (state <s> ^name unreal
+              ^io.input-link.objects.entity <agent>)
+   -->
+   (<s> ^entity <agent>)
+}
+
+
+# Hostile or friendly: Probably both are redundant but this leaves
+# space for classification of non-combatants someday (ie, entities
+# that are not hostile but also not friendly
+sp {unreal*elaborate*entity*hostile
+   (state <s> ^name unreal
+              ^entity <e>
+              ^io.input-link.agent.team <my-team>)
+   (<e> ^team <> <my-team>)
+   -->
+   (<e> ^hostile *yes*
+        ^friendly *no*)
+}
+
+sp {unreal*elaborate*entity*friendly
+   (state <s> ^name unreal
+              ^entity <e>
+              ^io.input-link.agent.team <my-team>)
+   (<e> ^team <my-team>)
+   -->
+   (<e> ^hostile *no*
+        ^friendly *yes*)
+}
+
+# Compute quadrants for contacts.
+# Assume angle-off = 0..360 inclusive (no negative angles)
+
+sp {unreal*elaborate*entity*angle-off*ahead*0-60
+   (state <s> ^name unreal
+              ^entity <e>)
+   (<e> -^angle-off.h > 60)
+-->
+   (<e> ^egocentric-location ahead)
+}
+
+sp {unreal*elaborate*entity*angle-off*ahead*300-360
+   (state <s> ^name unreal
+              ^entity <e>)
+   (<e> -^angle-off.h < 300)
+-->
+   (<e> ^egocentric-location ahead)
+}
+
+
+sp {unreal*elaborate*entity*angle-off*behind
+   (state <s> ^name unreal
+              ^entity <e>)
+   (<e> -^angle-off.h < 120
+        -^angle-off.h > 240)
+-->
+   (<e> ^egocentric-location behind)
+}
+
+sp {unreal*elaborate*entity*angle-off*left
+   (state <s> ^name unreal
+              ^entity <e>)
+   (<e> -^angle-off.h < 210
+        -^angle-off.h > 330)
+-->
+   (<e> ^egocentric-location left)
+}
+
+sp {unreal*elaborate*entity*angle-off*right
+   (state <s> ^name unreal
+              ^entity <e>)
+   (<e> -^angle-off.h < 30
+        -^angle-off.h > 150)
+-->
+   (<e> ^egocentric-location right)
+}

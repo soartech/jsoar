@@ -1,0 +1,5 @@
+source elaborations.soar
+source goto-gateway.soar
+pushd goto-gateway
+source goto-gateway_source.soar
+popd

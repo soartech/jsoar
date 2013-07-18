@@ -1,0 +1,62 @@
+## NOTE: NOT UPDATED YET
+
+
+#echo "\nLoading record-sound"
+
+## Record the sound because it might disappear
+## Don't record if there is a visible enemy or if already have a sound
+
+#sp {unreal*propose*record-sound
+#   (state <s> ^name unreal
+#              ^parameters.max-sound-range <maxsr>
+#              ^parameters.min-sound-range <minsr>
+#              ^io.input-link.sounds.sound <sound>
+#             -^sound)
+#   (<sound> ^type player_run
+#            ^type <type>
+#            ^range { > <minsr> < <maxsr> <range> })
+#   -->
+###  (tcl |tsiDisplayAndSendCommand stop-soar|)
+##   (write (crlf) |Heard sound: | <type> | range | <range>)
+#   (<s> ^operator <o> + =, >)
+#   (<o> ^name record-sound
+#        ^sound <sound>)}
+
+#sp {unreal*apply*record-sound
+#   (state <s> ^operator <o>
+#              ^io.input-link.agent.cycle <ct>
+#              ^top-state.parameters.sound-remember-time <ert>)
+#   (<o> ^name record-sound
+#        ^sound <sound>)
+#   (<sound> ^range <r>
+#            ^h <ay>
+#            ^type <type>)
+#   -->
+##   (write (crlf) |Record sound: | <ay> | range | <r>)
+#   (<s> ^sound <nsound>)
+#   (<nsound> ^type <type>
+#            ^forget-time (+ <ct> <ert>)
+#            ^angle-yaw <ay>
+#            ^range <r>)}  
+#
+#sp {unreal*select*closer-sound
+#   (state <s> ^name unreal
+#              ^operator <o1> +
+#              ^operator { <> <o1> <o2> }  +)
+#   (<o1> ^name record-sound
+#         ^range <range>)
+#   (<o2> ^name record-sound
+#         ^range > <range>)
+#   -->
+#   (<s> ^operator <o1> > <o2>)}
+#
+#sp {unreal*select*record-sound
+#   (state <s> ^name unreal
+#              ^operator <o1> +
+#              ^operator <o2> +)
+#   (<o1> ^name record-sound)
+#   (<o2> ^name << wander get-object >>)
+#   -->
+#   (<s> ^operator <o1> > <o2>)}
+#
+#

@@ -1,0 +1,157 @@
+#echo "\nLoading goto-door/sidestep-to-door"
+## door-distance and door-distance-check computed in elaborations.soar
+
+sp {goto-door*propose*sidestep-to-door
+   (state <s> ^name goto-door
+              ^door-aligned-check true
+             -^door-overlap true
+              ^door-distance-check true)
+   -->
+  # #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name sidestep-to-door)}
+
+sp {goto-door*propose*sidestep-to-door2
+   (state <s> ^name goto-door
+              ^door-aligned-check true
+              ^io.input-link.map.forward.blocked true
+              ^door-overlap true
+              ^door-distance-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name sidestep-to-door)}
+
+sp {goto-door*apply*sidestep-to-door*right
+  :i-support
+   (state <s> ^name goto-door
+             -^top-state.heading.within-5
+        ^io.input-link.map.leftlos.distance < 60
+       -^io.input-link.map.rightlos.distance < 60
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep right)}
+
+sp {goto-door*apply*sidestep-to-door*left
+  :i-support
+   (state <s> ^name goto-door
+             -^top-state.heading.within-5
+             -^io.input-link.map.leftlos.distance < 60
+              ^io.input-link.map.rightlos.distance < 60
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left)}
+
+sp {goto-door*apply*sidestep-to-door*both
+  :i-support
+   (state <s> ^name goto-door
+             -^top-state.heading.within-5
+        ^io.input-link.map.leftlos.distance < 60
+        ^io.input-link.map.rightlos.distance < 60
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left)}
+
+
+sp {goto-door*apply*sidestep-to-door*east*low
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 east
+              ^io.input-link.agent.origin.y <y>
+              ^door.y > <y> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left
+        ^actions.thrust forward)}
+
+
+sp {goto-door*apply*sidestep-to-door*east*hi
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 east
+              ^io.input-link.agent.origin.y <y>
+              ^door.y < <y> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep right
+        ^actions.thrust forward)}
+
+sp {goto-door*apply*sidestep-to-door*west*low
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 west
+              ^io.input-link.agent.origin.y <y>
+              ^door.y > <y> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep right
+        ^actions.thrust forward)}
+
+sp {goto-door*apply*sidestep-to-door*west*hi
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 west
+              ^io.input-link.agent.origin.y <y>
+              ^door.y < <y> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left
+        ^actions.thrust forward)}
+
+
+sp {goto-door*apply*sidestep-to-door*south*low
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 south
+              ^io.input-link.agent.origin.x <x>
+              ^door.x < <x> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep right
+        ^actions.thrust forward)}
+
+sp {goto-door*apply*sidestep-to-door*south*hi
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 south
+              ^io.input-link.agent.origin.x <x>
+              ^door.x > <x> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left
+        ^actions.thrust forward)}
+
+sp {goto-door*apply*sidestep-to-door*north*low
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 north
+              ^io.input-link.agent.origin.x <x>
+              ^door.x < <x> 
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep left
+        ^actions.thrust forward)}
+
+sp {goto-door*apply*sidestep-to-door*north*hi
+  :i-support
+   (state <s> ^name goto-door
+              ^top-state.heading.within-5 north
+              ^io.input-link.agent.origin.x <x>
+              ^door.x > <x>  
+              ^operator <o>)
+   (<o> ^name sidestep-to-door)
+   -->
+   (<o> ^actions.sidestep right
+        ^actions.thrust forward)}
+
+
+

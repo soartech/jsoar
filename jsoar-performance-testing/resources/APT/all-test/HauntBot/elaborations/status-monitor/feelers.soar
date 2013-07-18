@@ -1,0 +1,18 @@
+#
+## FEELERS - draws yellow boxes to indicate feeler status
+#            arranged in status windows as follows:
+#
+#      left-front      front      right-front      up
+#      left                       right            knee
+#                      back                        down
+#
+#
+
+sp {status-monitor*feelers
+   (state <s> ^name haunt
+              ^status-monitor.init true
+              ^io.input-link.map.{ << left-front front right-front left right back up down knee >> 
+                                 <dir>}.object-name <name>)
+-->
+   (tcl draw-feeler | | <dir> | | <name>)
+}

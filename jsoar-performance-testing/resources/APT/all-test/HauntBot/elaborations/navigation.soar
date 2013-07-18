@@ -1,0 +1,310 @@
+echo "\nLoading elaborations/navigation"
+
+# set up the map on the top level
+
+sp {navigation*elaborate*map
+   (state <s> ^superstate nil)
+-->
+   (<s> ^map <map>)
+   (<map> ^area-names <an>)
+   (<an> ^name |Outside|)
+}
+
+sp {elaborate*direction-headings
+   (state <s> ^name haunt)
+-->
+   (<s> ^direction-headings <sd>)
+   (<sd> ^north 90
+         ^south 270
+         ^east 0
+         ^west 180)}
+
+#record that we are near a node; will
+#disappear as soon as agent moves away
+sp {navigation*elaborate*map-near-node
+   (state <s> ^name haunt
+              ^map <map>
+              ^io.input-link <il>
+              ^parameters.near-node-range <range-unit>)
+   (<il> ^objects.node <visnode>)
+   (<visnode> -^range > <range-unit>
+               ^name <node-name>
+               ^area-name <my-area>)
+   (<map> ^area <area>)
+   (<area> ^name <my-area>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^near-node <node>)
+#   (write (crlf) |I am NEAR node | <node-name>)
+}
+
+## JEL - must support both area and area-name to access area for now.
+sp {navigation*elaborate*map-near-node2
+   (state <s> ^name haunt
+              ^map <map>
+              ^io.input-link <il>
+              ^parameters.near-node-range <range-unit>)
+   (<il> ^objects.node <visnode>)
+   (<visnode> -^range > <range-unit>
+               ^name <node-name>
+               ^area <my-area>)
+   (<map> ^area <area>)
+   (<area> ^name <my-area>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^near-node <node>)
+#   (write (crlf) |I am NEAR node | <node-name>)
+}
+
+## JEL: 2002-08-13
+# Had to change so would have i-support - means lots of calculations.
+#AMN: 2002-08-02
+#If the agent is moving to a _derived_ corner node
+#(rather than one actually seen on the input-link)
+#then these rule will identify when the agent is near it
+#and elaborate the map accordingly.
+sp {navigation*elaborate*derived-node*range
+   (state <s> ^name haunt
+              ^map.current-area.node <node>
+              ^io.input-link.agent.position <pos>)
+   (<node> ^derived yes
+           ^position <npos>)
+   (<pos> ^x <x>
+          ^y <y>)
+   (<npos> ^x <nx>
+           ^y <ny>)
+-->
+   (<node> ^range (compute-range <x> <y> <nx> <ny>))
+}
+
+sp {navigation*elaborate*map-near-node*derived
+   (state <s> ^name haunt
+              ^map <map>
+              ^parameters.near-xy-range <near-range>)
+   (<map> ^current-area.node <node>)
+   (<node> ^derived yes
+          -^range > <near-range>)
+-->
+   (<map> ^near-node <node>)
+}
+
+#record the current nearest visible node in my area
+sp {navigation*elaborate*nearest-node
+   (state <s> ^name haunt
+              ^map <map>
+              ^io.input-link.objects <objects>)
+   (<map> ^current-area <area>)
+   (<area> ^name <my-area-name>
+           ^node <node>)
+   (<node> ^name <node-name>)
+   (<objects> ^node <visnode>)
+   (<visnode> ^name <node-name>
+              ^area-name <my-area-name>
+              ^range <range>)
+  -{
+   (<objects> ^node <othervisnode>)
+   (<othervisnode> ^name { <> <node-name> }
+                   ^area-name <my-area-name>
+                  -^range >= <range>)
+}
+-->
+   (<map> ^nearest-node <node>)
+}
+   
+sp {navigation*elaborate*map-nearest-node*derived
+   (state <s> ^map <map>)
+   (<map> ^current-area.node <node>
+         -^current-area.node.range < <range> )
+   (<node> ^node <node1>)
+   (<node1> ^derived yes
+            ^range  <range>)
+-->
+   (<map> ^nearest-node <node>)
+}
+#Record what nodes are in front of me
+sp {navigation*elaborate*nodes-in-front
+   (state <s> ^name haunt
+              ^map <map>
+              ^io.input-link.objects.node <visnode>
+              ^parameters <p>)
+   (<p> ^right-angle-threshold <right-thresh>
+        ^left-angle-threshold <left-thresh>)
+   (<visnode> -^angle-off.h { <h> > <right-thresh> < <left-thresh> }
+               ^name <node-name>)
+   (<map> ^area <area>)
+   (<area> # ^name <area-name>  # Doesn't work for outside nodes
+          ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^in-front-node <node>)
+#   (write (crlf) |I see | <node-name> | in front of me.|)
+}
+
+sp {navigation*elaborate*nodes-in-front2
+   (state <s> ^name haunt
+              ^map <map>
+              ^io.input-link.objects.node <visnode>
+              ^parameters <p>)
+   (<p> ^right-angle-threshold <right-thresh>
+        ^left-angle-threshold <left-thresh>)
+   (<visnode> -^angle-off.h { <h> > <right-thresh> < <left-thresh> }
+               ^name <node-name>
+               ^area <area-name>)
+   (<map> ^area <area>)
+   (<area> ^name <area-name>
+           ^node <node>)
+   (<node> ^name <node-name>)
+-->
+   (<map> ^in-front-node <node>)
+#   (write (crlf) |I see | <node-name> | in front of me.|)
+}
+#If I'm at a boundary between areas, it's useful to know what areas are nearby
+sp {haunt*elaborate*near-area
+   (state <s> ^name haunt
+              ^top-state.map <map>)
+   (<map> ^current-area <current-area>
+          ^near-node.area { <other-area> <> <current-area> })
+-->
+   (<map> ^near-area <other-area>)
+}
+
+## Maintain current-area and previous area.
+##
+## JEL 8/8/2002
+## Reimplemented way we keep track of current area because
+## it no longer comes in from the input link but must be computed from
+## x, y location.
+
+sp {haunt*initialize*current-area*previous-area
+   :o-support
+   (state <s> ^name haunt
+              ^top-state.map <map>
+              ^io.input-link.agent.position <p>)
+   (<map> ^area <current-area>
+         -^current-area)
+   (<current-area> ^name <new-area-name>
+                   ^min-x <min-x>
+                   ^min-y <min-y>
+                   ^max-x <max-x>
+                   ^max-y <max-y>
+                   ^min-z <min-z>
+                   ^max-z <max-z>)
+   (<p> -^x > <max-x>
+        -^x < <min-x>
+        -^y > <max-y>
+        -^y < <min-y>
+        -^z < <min-z>
+        -^z > <max-z>)
+-->
+   (<map> ^current-area <current-area>
+          ^previous-area none)
+}
+
+
+# MJP 5/21/03: Updated to increment area's 'visit-count' each time a new area is entered
+sp {haunt*elaborate*current-area
+   :o-support
+   (state <s> ^name haunt
+              ^top-state.map <map>
+              ^io.input-link.agent <agent>)
+   (<agent> ^position <p>
+            ^time <time>)
+   (<map> ^area <current-area>
+          ^current-area { <> <current-area> <old-current-area> }
+          ^previous-area <previous-area>)
+   (<current-area> ^name { <> |EntryNode| <> none <> |None| <new-area-name> }
+                   ^min-x <min-x>
+                   ^min-y <min-y>
+                   ^max-x <max-x>
+                   ^max-y <max-y>
+                   ^min-z <min-z>
+                   ^max-z <max-z>
+                   ^visit-time <v>)  #added by MJP 5/21/03
+   (<p> ^x <= <max-x>
+        ^x >= <min-x>
+        ^y <= <max-y>
+        ^y > <min-y>
+        ^z > <min-z>
+        ^z <= <max-z>)
+#   ## The following conditions are here because some areas overlap and we get switching
+#   (<previous-area> ^min-x <pmin-x>
+#                    ^min-y <pmin-y>
+#                    ^max-x <pmax-x>
+#                    ^max-y <pmax-y>
+#                   ^min-z <pmin-z>
+#                   ^max-z <pmax-z>)
+#  - (<p> ^x <= <max-x>
+#         ^x >= <min-x>
+#         ^y <= <max-y>
+#         ^y > <min-y>
+#        ^z > <pmin-z>
+#        ^z <= <pmax-z>)
+-->
+   (<map> ^current-area <current-area>
+                        <old-current-area> -
+          ^previous-area <previous-area> -
+                         <old-current-area>)
+#   (write (crlf) |Updating visit time|)
+   (<current-area> ^visit-time <v> -               #added by MJP 5/21/03
+                   ^visit-time <time>)
+}
+
+#### BELOW Is the original that I replaced
+#sp {haunt*initialize*current-area*previous-area
+#   :o-support
+#   (state <s> ^name haunt
+#              ^top-state.map <map>
+#              ^io.input-link.agent.area <new-area-name>)
+#   (<map> ^area <current-area>
+#         -^current-area)
+#   (<current-area> ^name <new-area-name>)
+#-->
+#   (<map> ^current-area <current-area>
+#          ^previous-area none)
+#}
+#
+#sp {haunt*elaborate*current-area
+#   :o-support
+#   (state <s> ^name haunt
+#              ^top-state.map <map>
+#              ^io.input-link.agent.area <new-area-name>)
+#   (<map> ^area <current-area>
+#          ^current-area { <> <current-area> <old-current-area> }
+#          ^previous-area <previous-area>)
+#   (<current-area> ^name <new-area-name>)
+#-->
+#   (<map> ^current-area <current-area>
+#                        <old-current-area> -
+#          ^previous-area <previous-area> -
+#                         <old-current-area>)
+#}
+#
+
+#AMN - 2002 Aug 27
+#How fast the bot should travel based upon its range
+#to destination
+sp {navigation*elaborate*speed-lookup-table
+   (state <s> ^superstate nil
+              ^self <self>)
+-->
+   (<self> ^speed-lookup-table <slt>)
+   (<slt> ^entry <e1>
+          ^entry <e2>
+          ^entry <e3>)
+   (<e1> ^name far
+         ^min-thresh 500
+         ^max-thresh 99999999
+         ^speed 1.5)
+   (<e2> ^name close
+         ^min-thresh 150
+         ^max-thresh 500
+         ^speed 1.0)
+   (<e3> ^name very-close
+         ^min-thresh 0
+         ^max-thresh 150
+         ^speed 0.5)
+}
+
+

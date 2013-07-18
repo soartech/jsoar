@@ -1,0 +1,12 @@
+sp {retreat*propose*move-to-new-room
+   (state <s> ^name retreat
+              ^current-area.retreat-door.connected-node.area <area>
+              ^top-state.parameters.default-run-speed <spd>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-new-room
+        ^type move-to-area
+        ^area <area>
+        ^speed <spd>)
+}
+

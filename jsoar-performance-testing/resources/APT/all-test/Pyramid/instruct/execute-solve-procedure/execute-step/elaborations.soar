@@ -1,0 +1,17 @@
+sp {execute-step*elaborate*state
+   (state <s> ^name execute-step
+              ^superstate.current-problem <cp>)
+-->
+   (<s> ^current-problem <cp>)
+}
+
+
+sp {elaborations*elaborate*state*success2
+   (state <s> ^superstate.current-problem  <cp>
+              ^name execute-step
+             -^alternate-action)
+   (<cp> ^goal-test-success
+         ^completed-action <a>)
+-->
+   (<cp> ^success true)
+}

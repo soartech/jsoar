@@ -1,0 +1,63 @@
+sp {robot*elaborate*at-block
+   (state <s> ^name robot
+              ^io.input-link <input>)
+   (<input> ^self.position <posself>
+             ^object <obj>)
+   (<posself> ^row <row>
+              ^col <col>)
+   (<obj> ^type block
+          ^visible yes
+          ^id <id>
+          ^position <posobj>)
+   (<posobj> ^row <row>
+             ^col <col>)
+-->
+   (<s> ^at-block <id>)}
+
+sp {robot*elaborate*closest-object
+   (state <s> ^name robot
+              ^io.input-link <i>)
+   (<i> ^object <obj>)
+   (<obj> ^range <r>)
+  -(<i> ^object.range < <r>)
+-->
+   (<s> ^closest-object <obj>)}
+
+sp {robot*elaborate*state*object-in-front
+   (state <s> ^name robot
+              ^parameters <param>
+              ^io.input-link <i>)
+   (<i> ^object <obj>
+        ^self <self>)
+   (<self> -^blocked.forward true
+           -^carry)
+   (<param> ^pickup-angle-off-pos <aop>
+            ^pickup-angle-off-neg <aon>)
+   (<obj> ^type block
+          ^visible yes
+         -^angle-off.yaw >= <aop>
+         -^angle-off.yaw <= <aon>)
+-->
+   (<s> ^object-direction front)}
+              
+sp {robot*elaborate*state*object-right
+   (state <s> ^name robot
+              ^parameters.pickup-angle-off-pos <aop>
+              ^io.input-link <i>)
+   (<i> ^object <obj>
+       -^self.carry)
+   (<obj> ^type block
+          ^angle-off.yaw > <aop>)
+-->
+   (<s> ^object-direction right)}
+
+sp {robot*elaborate*state*object-left
+   (state <s> ^name robot
+              ^parameters.pickup-angle-off-neg  <nop>
+              ^io.input-link <i>)
+   (<i> ^object <obj>
+       -^self.carry)
+   (<obj> ^type block
+          ^angle-off.yaw < <nop>)
+-->
+   (<s> ^object-direction left)}

@@ -1,0 +1,25 @@
+
+# A general operator.  The agent wait's, rather then fall into an impasse,
+# when an operator has been proposed and applied but hasn't yet sufficiently
+# changed the state.
+# At this point, only really intended to fire while moving.
+sp {common*propose*wait
+   (state <s> -^superstate.name explore
+               ^attribute state
+               ^choices none
+              -^operator.name wait)
+-->
+   (<s> ^operator <o> + <)
+   (<o> ^name wait)
+}
+
+sp {common*propose*wait*operator*type-wait
+   (state <s> ^attribute operator
+              ^choices none
+              ^superstate.operator.type wait
+             -^operator.name wait)
+-->
+   (<s> ^operator <o> +, <)
+   (<o> ^name wait)
+}
+

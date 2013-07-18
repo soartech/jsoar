@@ -1,0 +1,43 @@
+echo "\nLoading explore/move-to-node"
+
+#propose moving to any unvisited node in current area
+#NOTE: we may just do entryways once we get them set up
+sp {explore*propose*move-to-node
+   (state <s> ^name explore
+              ^top-state.map <map>
+              ^io.input-link.agent.area <currentarea>)
+   (<map> ^area <area>)
+   (<area> ^name <currentarea>
+           ^node <node>)   
+   (<node> ^visited 0)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name move-to-node
+        ^node <node>)
+}
+
+sp {explore*elaborate*move-to-node
+   (state <s> ^name explore
+              ^operator <o> +
+              ^io.input-link.entities.node <visnode>)
+   (<o> ^name move-to-node
+        ^node.name <name>)
+   (<visnode> ^name <name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+
+#prefer closer nodes
+sp {explore*compare*move-to-node
+   (state <s> ^name explore  
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name move-to-node
+         ^range <range>)
+   (<o2> ^name move-to-node
+         ^range > <range>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

@@ -1,0 +1,400 @@
+sp {elaborations*player-dice-counts*me
+   (state <s> ^name dice
+              ^io.input-link.players.me <play>)
+-->
+   (<play> ^me true)
+}
+
+sp {elaborations*player-dice-counts*not-me
+   (state <s> ^name dice
+              ^io.input-link.players.player <player>
+              ^io.input-link.players.me <> <player>)
+-->
+   (<player> ^me false)
+}
+
+
+sp {elaborations*player-dice-counts
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+-->
+   (<play> ^dice-counts <dc> 
+           ^alternative-dice-counts <adc>)
+}
+
+sp {elaborations*player-dice-counts*total
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^cup.count <ccount>
+           ^pushed.count <pcount>)
+-->
+   (<play> ^total-dice (+ <ccount> <pcount>))
+}
+
+sp {elaborations*player-dice-counts*unknown
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^cup.count <count>
+           ^dice-counts <dcs>
+          -^me true)
+-->
+   (<dcs> ^unknown <count>)
+}
+
+sp {elaborations*player-dice-counts*pushed-counts*1
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> -^me true
+            ^pushed.die <die>
+            ^dice-counts <dcs>)
+   (<die> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 1)
+}
+
+sp {elaborations*player-dice-counts*pushed-counts*2
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> -^me true
+            ^dice-counts <dcs>
+            ^pushed.die <die>
+                        { <> <die> <die2> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 2)
+}
+
+
+sp {elaborations*player-dice-counts*pushed-counts*3
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> -^me true
+            ^dice-counts <dcs>
+            ^pushed.die <die>
+                        { <> <die> <die2> }
+                        { <> <die> <> <die2> <die3> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 3)
+}
+
+
+sp {elaborations*player-dice-counts*pushed-counts*4
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> -^me true
+            ^dice-counts <dcs>
+            ^pushed.die <die>
+                        { <> <die> <die2> }
+                        { <> <die> <> <die2> <die3> }
+                        { <> <die> <> <die2> <> <die3> <die4> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <> <die4> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 4)
+}
+
+sp {elaborations*player-dice-counts*pushed-counts*5
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> -^me true
+            ^dice-counts <dcs>
+            ^pushed.die <die>
+                        { <> <die> <die2> }
+                        { <> <die> <> <die2> <die3> }
+                        { <> <die> <> <die2> <> <die3> <die4> }
+                        { <> <die> <> <die2> <> <die3> <> <die4> <die5> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+   (<die5> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <> <die4> <> <die5> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 5)
+}
+
+### Cup and Push
+
+sp {elaborations*player-dice-counts*cup-counts*1*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^<< pushed cup >>.die <die>)
+   (<die> ^face <face>)
+  -{(<play> ^<< pushed cup >>.die { <> <die> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 1)
+}
+
+sp {elaborations*player-dice-counts*cup-counts*2*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^<< pushed cup >>.die <die>
+           ^<< pushed cup >>.die { <> <die> <die2> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+  -{(<play> ^<< pushed cup >>.die { <> <die> <> <die2> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 2)
+}
+
+sp {elaborations*player-dice-counts*cup-counts*3*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^<< pushed cup >>.die <die>
+           ^<< pushed cup >>.die { <> <die> <die2> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <die3> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+  -{(<play> ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 3)
+}
+
+sp {elaborations*player-dice-counts*cup-counts*4*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^<< pushed cup >>.die  <die>
+           ^<< pushed cup >>.die { <> <die> <die2> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <die3> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <die4> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+  -{(<play> ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <> <die4> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 4)
+}
+
+sp {elaborations*player-dice-counts*cup-counts*5*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^<< pushed cup >>.die <die>
+           ^<< pushed cup >>.die { <> <die> <die2> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <die3> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <die4> }
+           ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <> <die4> <die5> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+   (<die5> ^face <face>)
+  -{(<play> ^<< pushed cup >>.die { <> <die> <> <die2> <> <die3> <> <die4> <> <die5> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 5)
+}
+
+### Cup only
+
+sp {elaborations*player-dice-counts*cup-only-counts*1*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^cup <cup>)
+   (<cup> ^die <die>)
+   (<die> ^face <face>)
+  -{(<play> ^cup.die { <> <die> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<cup> ^<face> 1)
+}
+
+sp {elaborations*player-dice-counts*cup-only-counts*2*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^cup <cup>)
+   (<cup> ^die <die>
+          ^die { <> <die> <die2> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+  -{(<play> ^cup.die { <> <die> <> <die2> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<cup> ^<face> 2)
+}
+
+sp {elaborations*player-dice-counts*cup-only-counts*3*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^cup <cup>)
+   (<cup> ^die <die>
+          ^die { <> <die> <die2> }
+          ^die { <> <die> <> <die2> <die3> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+  -{(<play> ^cup.die { <> <die> <> <die2> <> <die3> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<cup> ^<face> 3)
+}
+
+sp {elaborations*player-dice-counts*cup-only-counts*4*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^cup <cup>)
+   (<cup> ^die  <die>
+          ^die { <> <die> <die2> }
+          ^die { <> <die> <> <die2> <die3> }
+          ^die { <> <die> <> <die2> <> <die3> <die4> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+  -{(<play> ^cup.die { <> <die> <> <die2> <> <die3> <> <die4> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<cup> ^<face> 4)
+}
+
+sp {elaborations*player-dice-counts*cup-only-counts*5*me
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^me true
+           ^dice-counts <dcs>
+           ^cup <cup>)
+   (<cup> ^die <die>
+          ^die { <> <die> <die2> }
+          ^die { <> <die> <> <die2> <die3> }
+          ^die { <> <die> <> <die2> <> <die3> <die4> }
+          ^die { <> <die> <> <die2> <> <die3> <> <die4> <die5> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+   (<die5> ^face <face>)
+  -{(<play> ^cup.die { <> <die> <> <die2> <> <die3> <> <die4> <> <die5> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<cup> ^<face> 5)
+}
+
+##### Alternative Dice Counts for when using model
+## Assume under cup is unknown
+
+sp {elaborations*player-alternative-dice-counts*unknown
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^cup.count <count>
+           ^alternative-dice-counts <dcs>)
+-->
+   (<dcs> ^unknown <count>)
+}
+
+sp {elaborations*player-alternative-dice-counts*pushed-counts*1
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^pushed.die <die>
+           ^alternative-dice-counts <dcs>)
+   (<die> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 1)
+}
+
+sp {elaborations*player-alternative-dice-counts*pushed-counts*2
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^alternative-dice-counts <dcs>
+           ^pushed.die <die>
+                       { <> <die> <die2> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 2)
+}
+
+sp {elaborations*player-alternative-dice-counts*pushed-counts*3
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^alternative-dice-counts <dcs>
+           ^pushed.die <die>
+                       { <> <die> <die2> }
+                       { <> <die> <> <die2> <die3> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 3)
+}
+
+sp {elaborations*player-alternative-dice-counts*pushed-counts*4
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^alternative-dice-counts <dcs>
+           ^pushed.die <die>
+                       { <> <die> <die2> }
+                       { <> <die> <> <die2> <die3> }
+                       { <> <die> <> <die2> <> <die3> <die4> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <> <die4> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 4)
+}
+
+sp {elaborations*player-alternative-dice-counts*pushed-counts*5
+   (state <s> ^name dice
+              ^io.input-link.players.player <play>)
+   (<play> ^alternative-dice-counts <dcs>
+           ^pushed.die <die>
+                       { <> <die> <die2> }
+                       { <> <die> <> <die2> <die3> }
+                       { <> <die> <> <die2> <> <die3> <die4> }
+                       { <> <die> <> <die2> <> <die3> <> <die4> <die5> })
+   (<die> ^face <face>)
+   (<die2> ^face <face>)
+   (<die3> ^face <face>)
+   (<die4> ^face <face>)
+   (<die5> ^face <face>)
+  -{(<play> ^pushed.die { <> <die> <> <die2> <> <die3> <> <die4> <> <die5> <diex> })
+    (<diex> ^face <face>)}
+-->
+   (<dcs> ^<face> 5)
+}

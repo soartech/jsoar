@@ -1,0 +1,21 @@
+echo "\nLoading chunks"
+
+sp {chunk-19*d442*opnochange*1
+    :chunk
+    (state <s1> ^enemy <e1> ^operator <o2> ^enemy-data <e2> ^map <m1> ^io <i1>)
+    (<e1> -^prediction-final-room-number <p1> ^team none ^skin male/grunt
+          ^health 100 ^name |Ktorrek| ^old-room <o1> ^weapon weapon_chaingun)
+    (<o1> ^room-number 4)
+    (<o2> ^enemy <e1> ^name predict-enemy)
+    (<m1> ^current-room <c1>)
+    (<c1> ^room-number 3)
+    (<e2> ^parameters <p2>)
+    (<p2> ^weapons <w1>)
+    (<w1> ^classname weapon_chaingun ^better weapon_railgun
+          ^better weapon_rocketlauncher)
+    (<i1> ^input-link <i2>)
+    (<i2> ^game <g1>)
+    (<g1> ^mapname lairddemo)
+    -->
+    (<e1> ^prediction-final-room-number 3 + ^prediction-last-door-number 27 +)
+}

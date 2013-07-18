@@ -1,0 +1,31 @@
+sp {hunt*propose*forget-dead-enemy
+   (state <s> ^name hunt
+              ^hunt-type enemy-died
+              ^resurrect-heading-achieved true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name forget-dead-enemy)}
+
+sp {hunt*propose*forget-dead-enemy*far-away
+   (state <s> ^name hunt
+              ^hunt-type enemy-died
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+        ^room <rm>)
+   (<rm> ^resurrect <r>)
+ -(<cr> ^resurrect)
+ -{(<cr> ^path <path>)
+   (<path> ^destination-room <rm>
+           ^distance <= 4)}
+   -->
+   (write (crlf) |Enemy too far away to hunt down.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name forget-dead-enemy)}
+
+sp {hunt*reject*forget-dead-enemy
+   (state <s> ^operator.name forget-dead-enemy
+              ^top-state <ts>)
+   (<ts> ^enemy-just-died true)
+   -->
+   (<ts> ^enemy-just-died true -)}
+

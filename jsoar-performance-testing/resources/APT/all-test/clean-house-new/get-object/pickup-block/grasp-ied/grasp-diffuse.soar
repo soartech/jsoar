@@ -1,0 +1,23 @@
+#sp {grasp-ied*propose*grasp-diffuse
+#   (state <s> ^name grasp-ied
+#              ^object <b>
+#              ^top-state.io.input-link.objects.object <obj>)
+#   (<b> ^id <id>
+#        ^confirmation received)
+#   (<obj> ^id <id>
+#          ^type {<> player}
+#         -^diffused true)
+#-->
+#   (<s> ^operator <op> + =)
+#   (<op> ^name grasp-diffuse)
+#}
+#
+#sp {apply*grasp-diffuse
+#   (state <s> ^operator <op>
+#              ^object.id <id>
+#              ^top-state.io.output-link <out>)
+#   (<op> ^name grasp-diffuse)
+#-->
+#   (<out> ^diffuse-object.id <id>)
+#}
+#

@@ -1,0 +1,15 @@
+sp {write-answer*propose*terminate-write-answer
+   (state <s> ^name write-answer
+              ^current-problem-ptr nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name terminate-write)
+}
+
+sp {apply*terminate-write-answer
+   (state <s> ^operator.name terminate-write
+              ^superstate.current-problem <p>)
+-->
+   (write (crlf) |FINISHED**********************************************|)
+   (<p> ^complete true)
+}

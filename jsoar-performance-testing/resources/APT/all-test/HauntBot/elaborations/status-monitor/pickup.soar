@@ -1,0 +1,34 @@
+# debug message to list current area
+# and time of last entry
+sp {status-monitor*position
+   (state <s> ^name haunt
+              ^status-monitor.init true
+              ^io.input-link.agent.position <pos>)
+   (<pos> ^x <x> ^y <y> ^z <z>)
+-->
+   (tcl draw-position | | <x> | | <y> | | <z> )
+}
+
+
+sp {status-monitor*pickup*target-object
+   (state <s> ^type move-near-and-x
+              ^target.name <name>
+              ^range <range>)
+-->
+   (tcl draw-target-object | | <range> | | <name>)
+}
+
+sp {status-monitor*pickup*pickup-location
+   (state <s> ^type move-near-and-x
+              ^io.input-link.agent.position <apos>
+              ^operator <o>)
+   (<o> ^type move-to-xyz
+        ^position <tpos>)
+   (<apos> ^x <agent-x>
+           ^y <agent-y>)
+   (<tpos> ^x <target-x>
+           ^y <target-y>
+           ^z <target-z>)
+-->
+   (tcl draw-pickup-location | | <target-x> | | <target-y> | | <target-z> | | (compute-range <agent-x> <agent-y> <target-x> <target-y>))
+}

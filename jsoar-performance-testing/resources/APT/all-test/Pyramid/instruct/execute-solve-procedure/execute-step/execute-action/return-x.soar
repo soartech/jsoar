@@ -1,0 +1,21 @@
+sp {execute-action*propose*return-x
+   (state <s> ^name execute-action
+              ^x-guess <x>)
+   (<x> ^success)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name return-x
+         ^x-guess <x>)
+}
+sp {apply*return-x
+   (state <s> ^operator <op>
+              ^superstate.operator.action <a>
+              ^top-state.current-problem <cp>)
+   (<op> ^name return-x
+         ^x-guess <x>)
+   (<x> ^value <v>)
+-->
+   (<cp> ^goal-test-success <a>
+         ^base <v>
+         ^completed-action <a>)
+   (write |Success!|)}

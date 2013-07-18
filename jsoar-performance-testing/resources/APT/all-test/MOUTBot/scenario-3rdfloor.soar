@@ -1,0 +1,112 @@
+#####################################
+# file: scenario-3rdfloor.soar
+# created: JEL: 2003-06-04
+##
+# These are the initialization prods for 1 bot defending a room and then
+# performing a retreat. For testing, I have rules that make bot retreat
+# whenever he sees me.
+#
+# Change history:
+#
+#  [1] JEL: 2003-06-04
+#      Added test of scenario and mission creation elaboration
+
+# To enable this scenario, select scenario-2002-11 in scenario-selection
+
+sp {elaborate*state*scenario-2002-11*details
+   (state <s> ^name unreal
+              ^scenario <x1>)
+   (<x1> ^name scenario-2002-11)
+-->
+   (<x1>
+         ^REDFOR <XR>
+         ^BLUEFOR <XB>
+         ^IGNORE <XI>
+         ^initial-position <x2>)
+   (<XR> ^name |MOUTBot1|
+         ^name |MOUTBot2|
+         ^team |Red|)
+   (<XB> ^name |User|
+         ^team |Blue|)
+   (<XI> ^name |Watcher|
+         ^team |Non-combatant|)
+   (<x2> ^agent |MOUTBot1|
+         ^type door
+         ^direction north
+         ^location |3flRoom1|)
+}
+
+
+#################################################################
+# MOUTBot1
+#################################################################
+
+# Updated new position for changed map.
+
+sp {unreal*apply*initialize*mission*MOUTBot1*11
+   (state <s> ^name unreal
+              ^operator.name initialize
+              ^io.input-link.agent.name |MOUTBot1|
+              ^scenario.name scenario-2002-11
+                             )
+-->
+#   (write (crlf) |Initializing MOUTBot1 (new)| )
+   (<s> ^mission <m>)
+   (<m> ^primary-objective <po>
+        ^objective <obj>
+        ^retreat-objective <ro>
+        ^team <team1>
+        ^team <team2>
+        ^team <team3>)
+   (<ro> ^name |3flWHall|
+         ^team <team1>)
+   (<team1> ^agents <ags1>
+            ^name <name>
+            ^type individual
+            ^objective <ro> )
+   (<ags1> ^agent <ag1>)
+   (<team2> ^agents <ags2>
+            ^name |EntryFireTeam|
+            ^type pair
+            ^objective <obj>)
+   (<ags2> ^agent <ag1>
+           ^agent <ag2>)
+   (<team3> ^agents <ags3>
+            ^name |Squad123|
+            ^type group
+            ^objective <po>)
+   (<ags3> ^agent <ag1>
+           ^agent <ag2>
+           ^agent <ag3>
+           ^agent <ag4>
+           ^agent <ag5>)
+   (<ag1> ^name |MOUTBot1|
+          ^status active)
+   (<ag2> ^name |MOUTBot2|
+          ^status active)
+   (<po> ^name |Defend Building 47|
+         ^status active
+         ^type defend-building
+         ^team <team3>)
+   (<obj> ^status active
+          ^type defensive
+          ^area-type room
+          ^threat <threat>
+          ^defensive-position <dp>
+          ^team <team2>)
+   (<threat> ^area-name room0
+             ^node-name |EntryNode44|
+             ^team |None|              #Change this once teams are working
+             ^type US-Marines)
+   (<dp> ^area-name |3flRoom1|
+         ^type room)
+#         ^position <pos>)
+#   (<pos> ^x 890.0            #Initial defensive position assigned
+#          ^y 450.0
+#          ^z -905.0)
+#   (<pos> ^x 800.0            #Initial defensive position assigned
+#          ^y 300.0
+#          ^z -905.0)
+}
+
+

@@ -1,0 +1,16 @@
+#echo "\nLoading attack/goto-next-room"
+####################################################
+
+sp {attack*propose*goto-next-room*chase
+   (state <s> ^name attack
+              ^enemy-room <er>
+              ^current-room { <cr> <> <er> })
+   (<cr> ^door <idoor>
+         ^path <p>)  
+   (<p> ^destination-room <er>
+        ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^door <idoor>)}
+

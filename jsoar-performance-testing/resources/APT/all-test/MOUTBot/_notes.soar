@@ -1,0 +1,647 @@
+#+===================+
+#| Things to discuss |
+#+===================+
+#1. Format for productions including comments, tabs, variable names, and production names
+
+#+===================+
+#| After the 11 Oct demo|
+#+===================+
+# 2. REW: record-threat needs to be re-worked.  I propose: record-threat, remember-threat, update-threat
+#         This would lead to some duplication but there's actually little overlap now as it is and
+#         the implementation is messy, bittle, and buggy.
+# 3. Fix problem with Bot 5 and determine threat door.  Why can't
+#         it recognize the entryway threat door?
+# 4. Accept-message.  Need to develop a way to ignore own messages (best: have sim not send outgoing broadcasts to self)
+# 5. Fix the major-league-hacks
+# 6. Commit a stable, current version of the bot (not just the zip file)
+#+============+
+#| Soar To Do |
+#+============+
+#2. Have map display bots current destination area on the map
+#3. Remove requirement that offensive bot have ^map
+
+#+============================+
+#| Useful UT Console Commands |
+#+============================+
+##1. summon moutgame.soarmoutbot - summons a soar agent into Infiltration
+##2. invisible 1 - makes you invisible
+##3. invisible 0 - makes you visible again
+##4. god - makes you invincible
+##5. ghost - makes your ethereal (can walk through walls and fly)
+##6. walk - turns off ghost
+##7. F1 - F5: summon TCL moutbots 1-5
+##8. summon moutgame.soarapimoutbot0-5  (F6-F10)
+##     Summon API bots.  Must copy Agents/ to UnrealTournament/System/, and
+##                        comment any tcl functions (_firstload, elaborations/monitor.soar)
+##                                                               elaborations/status.soar
+# 'T' is bound to screenshot
+
+#+====================+
+#| UnrealScript To Do |
+#+====================+
+#UnrealScript Side
+#1. Make sure enemies are are threat team
+#2. Make sure friendlies are on same team
+#3. Should rename .enemy to .entity
+
+#+============+
+#| Changes    |
+#+============+
+
+## REW: 2003-06-15
+# 1. Added productions to remove attack commands and add "attack.value off" whenever feedbackis received that attacks are underway
+#    (this isn't the right soln, and is brittle, but bots are shooting when they're supposed to, not when they aren't)
+# 2. Devvan confirmed grenades won't work with this setup so disabled attack-grenade
+# Known bugs:
+#    - sometimes tried to move from retreat/hide in prone position
+#      (does all movement go thru move-to-xyz?)
+#    - will get stuck defending instaed of attack if switching to grenade
+#        but looses grenade-attack proposal.  Need switch to defensive weaon at level of defend
+#    - appears to sometimes issue pullig out command multiple times
+#    - feelers don't work so will get stuck against walls/other bot
+#    - deconflict on same position often fails
+#    - have seen bots sometime in middle of a room with stuck true?
+#    - race condition problem with move-to-xyz.  If true that sometimes commands need to be
+#        re-issued, then this race condition pervent same move-to xyz command
+#        from ever being re-issued
+#    - freeze -stand doesn't make any sense (stand will never be seelcted)
+
+
+## REW: 2003-06-15
+# 1. -^changing-body-position for move-to-defensive-position (scenario 2002-10)
+# 2. added prods for specific body positions for scenarios (z-patches only)
+# 3. added adjust-position operator to attack (side step toincrese angle off from 0 to friendlies)
+# 4. added elabs to determine when friendlies in line-of-sight (attack)
+# 5. added min angle off for attack params (left/right)
+# 6. commented out los elabs -- soemthing not working, see if it's ne stuff
+# 7. attak problem arose b.c feedback from shooting not being updated and so any extra outputs getting ignored 
+#    (and not copied to output link, whuich makes shoot not terminate).  Deleted attack from feedback list for now.
+
+
+## REW: 2003-06-14
+# 1. Added -^changing-body-position to move operators.  Because ^body-position stand is determned via status complete of a stand command,
+#    but status compelte doesn't really mean that the bot posture is stand, we also want to test that the body opsition isn't chaning
+#    detrmined via input link.  Ugly, but this should get us thru the demo.
+# 2. Changed grenade ^value normal to ^value chrge via Devvan's suggestion
+
+
+## JEL: 2003-06-13
+# 1. Reject defensive positions that are too close to friendly
+# 2. Don't try attack with a grenade during the waiting time for the grenade to explode
+# 3. Don't throw grenade through a doorway if off to the side
+
+## REW: 2003-06-13
+# 1. Add retreat-initiative to the retreat objective when retreat is started first time
+# 2. Changed pull/pulling out so that they will not be sent when retreat objective is initiated
+# 3. Changed pull/pulling out retreat proposals so that they don't fire once retreat is initiated
+# 4. Updated scenario ambush (re implemented files)
+# 5. Added leader/subordniate to scenarios
+# 6. Added -^changing-body-position test for attack/attack-grenade (possible source of erroroneous shooting behavior?)
+
+
+## REW: 2003-06-12
+# 1. Fixed problem in accept-message for pull/pulling out
+# 2. Fixed thall scenario name 
+# 3. Added another changing-body-position elaboration fro input-link feedback
+# 4. Added - condition for changing-body-position to start-moving
+
+## REW: 2003-06-11
+# 1. Add strength to genade (Devvan recommends b/w 80 & 1500).  Parameter.  For now, assumed medium ranges.
+# 2. Visual Saor blues: will not open scenario-ambush.  Why?  Re-creed as scenario-ambush2
+# 3. Add strength to attack for shooting (sim bug)
+# 4. Add pull-out/pulling-out as implemented comms
+# 5. Added sound/text registrations for pulllng-out
+# 6. Modified team structure to expresses leader/subordinate (scenario-lhall only)
+# 7. Added retreat proposal for rcv'd pulling out msg 
+# 8. Added retreat proposal for rcv'd pull out message (should this get a best?)
+# 9. Added retret communicate "pull out" if bot is leader and another bot on team visible
+# 10. Added retreat communicate "pullingout" if another bot on team visible and bot has decided to retreat
+
+
+## JEL: 2003-06-10
+# 1. Will change back to gun after throw grenade: choose-weapon
+# 2. Fix so labels defensive-position.area as abandoned during retreat - not current area. Should fix some problems with abandoned areas and retreat.
+# 3. Fix misc. bugs in the code to compute the defensive points in halls - where the connector is real-connector
+# 4. Shorten time to hide - was way too long.
+# 5. Make it so defend is used for hiding
+
+## REW: 2003-06-09
+# 1. added default walk/run values to parameters
+# 2. updated bot code to use default run/walk values
+#    (roam,move-todefensive-area,move-to-defensive-node, hide, etc)
+# 3. Established reasonable values for default walk/run based on recent sim changes
+# 4. Corrected retreat objective room for scenario=ambush
+# 5. Kneel/lie=prone/stand when defend.desired-body-position
+# 6. Stand up tp retreat or move to attack
+# 7. Simple error correction for failed posture: apply*execute-mission*posture-change-failed
+# 8. encode very simple determine-body-position for defend (random choice)
+# 9. Fixed minor error in apply*operator*monitor*status-error
+
+## JEL: 2003-06-08
+# 1. Add some more tracing to monitor-map.soar
+#    - now monitors moving within an area (had to add monitor*move-to-xyz*floor-displacement)
+#    - monitor inner edges
+# 2. Elaborations/parameters
+#    - decrease wall-edge to 30
+# 3. Adjusted some of the numbers is execute-mission/elaborations so they were closer to reality
+# 4. defend/determine-defensive-room-position
+#        Distinguishes between a room and a hallway - based on connectors/doorways
+
+## REW: 2003-06-07
+# 1. Fixed parse error in hide (why does binary have to come last?)
+# 2. Removed range from map
+# 3. Made wall edge param > position achieved param 30.  Added error test.
+# 4. move-to-xyz: must be standing to move 
+# 5. stand if want to move and in kneel/lie-prone positions
+
+## JEL: 2003-06-06
+# 1. Change way stuck is handled for move-to-xyz
+# 2. Change parameters for ^position-achieved-pos 30  ^position-achieved-neg -30
+# 3. Add logic so hiding persists
+
+## REW: @003-06-06
+# Added JEL changes to defend/eleborations and defend/move-to-defensive-position.  
+# These did not solve bug issue from yesterday.
+
+## REW: 2003-06-05
+# 1. Add kneel to allowed output commands
+# 2. record-threat proposal: don't recrod threats that are not behind the bot
+# 3. record-threats that are behind when underfire
+#    (not tested -- underfire isn't work on input link)
+# 4. Updated det-door -- this operator is effectively deprecated by undocumented changes to initialize but I put them in anyway
+# 5. scenario-selection
+# 6. updated scenario files for scenario selection
+# bot is not working.... narrowed to move-to-xyz
+
+## JEL: 2003-06-03
+# 1. modify elaborations/navigation.soar so it computes a max-edge-x ..
+# 2. elaborations/parameters.soar: wall-edge
+# 3. common/move-to-xyz - Don't move to point in wall
+# 4. move-to-node/move-to-xyz - add area
+# 5. defend/move-to-defensive-position - add area
+# 6. hunt/goto-next-room/move-to-new-area
+# 7./hunt/goto-next-room/move-to-stack-position
+# 8. defend*propose*move-to-defensive-area - speed .006 - slow down
+# 9. execute-mission/surrender - stay that way - retreat*propose*surrender*always                     
+# 10. defend*propose*move-to-defensive-position - speed .006
+# 11. retreat*propose*move-to-new-room - speed 1 - run!
+# 12. unreal*apply*move-to-xyz*speed
+# 13. roam*propose*goto-next-location .006
+# 14. Fix problem with output action face - didn't work if there was a speed on the position - stupid.
+# 15. Fixed problem with retreat - added a selection rule to avoid abandoning before computing retreat-door
+# 16. removed all of the choice code - we don't use it.
+# 17. Added execute-mission*elaborate*selection-probabilities - allows us to set probabilities for all of the main operators in one place - not sure if this works - values are just arbitary now
+# 18. redid selection logic for tactical operators in execute-missions - should allow better variability - all are equal with some being better than defend. 
+
+
+
+## REW: 2003-06-03
+# 1. Finished/tested determine door location.
+#    (still need to extend to connectors)
+# 2. Changed scanario prods to make it easier to switch between scenarios
+
+
+## JEL: 2003-06-02
+# 1. Modified elaborations/monitor-map to support:
+#    A. multiple floors more elagently
+#    B. new monitoring panels by MP
+#    C. new tracing of goal positions by MP
+#    D. test for ^name unreal -> ^superstate nil so rules can be used in other bots (Haunt)
+# 2. Elaborations/parameters - changed floor parameters
+# 3. Elaborations/self - remove computation of floor - now done in monitor map in different way.
+# 4. Initialize - unreal*apply*initialize - generalize to offensive-position - also require that nodes are initialized
+# 5. Added status files under elaborations (behavior, condition, feelers, general, output) for new status window
+# 6. Commented out test proposal for lie-prone
+# 7. Moved kneel to an operator instead of just a file
+# 8. Created top-level folder scenario-initialization so that datamap can work correctly
+#    Moved initialize/scenario-ambush and scenario0 there.
+# 9. Modify initialize*propose*determine-corner-location so it tests for the absence of position (which is what it calculates) so that it terminates
+# 10. Modify elaborations/self elaborate*self*stuck*...  the feelers seem to always give 0 for the range, I added a test that the object-state <> none
+
+## REW: 2003-06-01
+# 1. Added/tested determine-corner-position operator
+# 2. Added (not tested) determine-door-position (needs application)
+# 3. Commented operator-oderings based on expensive partial matchings.  Should be okay not that alert need not be issued.
+
+## REW: 2003-05-28
+# 1. Added parameters for converting between min/max x/y and directions (nsew)
+# 2. Added new sub-operator for initialize to compute initial room position (determine-initial-room-loc)
+# 3. Changed initialize so that termination depends on the presence of a computed initial position
+
+## REW: 2003-05-27
+# 1. Added new files under initialization to perform scerario-specific computations
+# 2. Added scenario elaboration until scenario is represented on the input link
+# 3. Moved MOUTBot-specific init prods to scanario files. Added scenario test
+# 4. Changed record threat to ignore same team or IGNORE bots specified in the scenario
+# 5. Added new scenario: room4-ambush (With default positions for now)
+
+## REW: 2003-05-23
+# 1. Added test operators for crouch/knell and lie-prone
+# 2. Fixed syntax error in determine-threat-door
+# 3. Added output prods for unknown command, crouch
+# 4. Created soln so that stand, kneel, etc are 1-dec ops
+#    Added ^changing-body-position elab in elabs/self
+#    Added execute-mission app in stand to update body position
+#    Tested kneel/stand and they work!
+# 5. Created elab/entities to compute addl spatial info about entities (friendly and hostile agents)
+
+## REW: 2003-05-01
+# 1. Added stand operator (but doesn't appear to work)
+
+## REW 2003-04-30
+# 1. Fix threat-door calculation
+# 2. Add msgs for leaving room (again!)
+# 3. Added temp (buggy) message for abandoning room (pulling out)
+# 4. Just become alert as soon as agent begins execute-mission
+
+## JEL 2003-2-15
+# 1. Changed the way defensive-room-positions are calculated. 
+#     Now include positions on sides of threat-door.
+
+## JEL: 2003-2-12
+# 1. Clean up datamap - eliminate most attributes that are neither tested or created.
+# 2. Also remove bad "copies" of structures and replace with pointers
+# 3. Eliminate objective off of area - it isn't really used and it clogs up the map for when
+#    we save it - the map has all of the old objectives - modify elaborations/maps
+#    - modify propose*determine-objective (eliminate test for now area.objective)
+#    - modify defend*propose*determine-threat-door*previous-area
+# 4. Found a bug! in determine-defensive-room we were testing the wrong threat structure for the node. 
+#    Modified defend*elaborate*determine-defensive-room-position*range to correct problem
+# 5. We were also trying to test threat.node for new threats, and we don't store nodes
+#    with new threats - thus, need to test threat.entity. instead
+#    changes in compute-hide-door and compute-retreat-door
+# 6. Had trouble with grenades - try to throw even if couldn't see area that enemy was in. 
+#    Modified code so if threats area is not visible from bots area, will give up on 
+#    throwing a grenade and do something else.
+# 7. Fix problems with determine-hide-door - 
+#    Fix hide so reconsidered after move to new area
+#
+## JEL: 2003-???????
+# 1. Make changes for new i/o link 
+#    (REW: The changes appear to be present but not documented....
+#          .... this code works with the new team bots).
+
+## REW: 2003-01-28
+# 1. Change watch position of MOUTBot3 to "stand in shadows" of window.
+
+## REW: 2003-01-27
+# 1. Fixed bug in change-current-object for roam operators
+# 2. Decreased probability of hide operators.  Did not solve problem: hide is best, made it just indifferent
+# 3. Added ^impossible to choose-weapon-grenade
+# 4. Fixed bug in terminate-watch.  Has "Outside" now is "None" (probably other bugs due to this?)
+# 5. BUG: udnerfire doesn't appear to be working in some cases.  Does not terminate watch when taking fire b/c underfire never changes from none.
+# 6. REally fixed terminate-watch bug.  Record-contact now computes the bot area.  If no area computed, assume it's outside.
+
+## REW: 2003-01-26
+# 1. Added a hack that leads agent to surrender if there's ever not another
+#    operator proposed under execute-mission.
+# 2. Split surrender applications. 
+
+## REW: 2003-01-24
+# Note: definitely a bug in the kernel code -- some decisions are being 
+#       re-decided due to new indifferent prefs while operator is in the slot.
+# 1. Added -^rounds-available to reload.  Not sure why this never was a problem before.
+# 2. Renamed defend*elaborate*state*uses-defensive-position under sentry-watch.  Not sure why this never was a problem before.
+# 3. Added ^type test to attack to avoid attacking with a grenade (use attack-grenade instead)
+#    (need to think about semantics of "rounds-available" -- it's true when holding a grenade)
+# 4. execute-mission/choose-weapon: rifle not better than handgun, just much more likely
+# 5. Added new prod in scan-for-contacts to handle re-entrant scan.  Was this a variability kernel bug?
+# 6. Removed apply*resume-watch*remove*next-scan-time
+
+# 
+
+## JEL: 2003-1-23
+## 1. Convert all indifferent preferences for operators under execute-mission to indifferent on own line so can adjust probability
+
+## JEL: 2003-1-21
+## 1. Modify move-to-node*propose*move-to-visible-xyz so it doesn't propose when in same area
+##    move-to-node*propose*move-to-xyz covers that case - I'm nervous about interactions from having both.
+##  2. Modify throw-grenade so stays in throwing for 10 sec. to give time to run the animation 
+##      previously it was starting to throw, and then going to defend which made it turn before being done with the throw.
+##  3. Add proposals to alert so alert before a choose-weapon (seems to be necessary).
+##  4. Add selections in choose-weapon to prefer rifle to handgun/knife
+##  5. Reject orient-toward threat while throwing grenade - might need to reject other operators
+##     Really want to grab system at top-level operator and cower or hide after a throw - 
+##  6. Add Freeze as a top level operator that is selected when there is a complex animation being run that takes time - grenade throwing
+##  7. Add hide - used for after thrown grenades - sometimes with heavy fire. Temporary retreat - 
+
+
+## JEL: 2003-1-20
+## 1. add new proposals for Choose-weapon
+##     - if grenade but enemy visible choose gun
+##     - if no rounds-available switch to one with rounds available
+
+## JEL: 2003-1-16
+# 1. Clean up MOUTBOT using new datamap commands in Visual Soar
+#    Remove direction-headings (created in navigation but never used).
+#    Remove map.near-area (created in navigation but never used).
+
+## REW: 2002-12-13
+# 1. Added new file for output command exception handling: common/output-exceptions
+# 2. Added exception handler for failed grenade seletion
+# 3. Updated positions for MOUTBot1s 1 & 5 for changed map
+# 4. Fixed sentry bug (terminating watch due to change in underfire syntax)
+
+
+
+## JEL: 2002-12-10
+# 1. Modified select-enemy so it maintains the selected-enemy structure on top-state.self 
+#    instead of the attack local state - should avoid continued reselection of same enemy
+#    and blowing away the operator through GDS so often.
+# 2. Add to weapons structure the type for grenades and use that for attack and other stuff
+# 3. Fix little things about using grenade - attack, throw-grenade, choose-weapon
+     
+
+## JEL: 2002-12-6
+# 1. Add proposal for attack even if hurt - don't want bot to be too wimpy all the time
+#     Must be a separate proposal so when hurt, will redecide whether to attack
+#     or retreat - otherwise would always attack.
+# 2. Moved reload to execute-mission because attack proposal tests that have ammo-amount
+#    > 0, but only reload when it hits zero - how does reload every get selected?
+# 3. Add change weapon if get a reload error to execute-mission
+# 4. Add choose-weapon to select grenade if enemy is out of sight but in grenade range.
+
+
+## JEL: 2002-12-5
+# 1. Add code under attack for throwing grenades - define min and max grenade range as parameters
+# 2. Add throw-grenade operator under attack
+#     add structure under self for remembering that a grenade was throw recently
+
+## JEL: 2002-12-3
+# 1. Modify execute-mission so uses new values of ^underfire: none, light, medium, heavy
+
+
+## JEL: 2002-11-20
+# 1. Fix problem with retreat - it can end up going back and forth between two rooms if there are threats at other doors.
+#    Keep memory of areas abandoned: ^mission.abandoned-area and reject retreat-doors. 
+#     Will restrict behavior a bit - but should be ok.
+#    retreat*elaborate*determine-retreat-door*reject-abandonend-area
+#    apply*abandon-objective*mark-retreat-room
+
+## JEL: 2002-11-19
+# 1. Fixed bugs in exploring, initializing, etc. that I'd discovered in the
+#    HauntNavBot, but never updated in the MOUTBOT
+#     initialize, record-area-extent, record-path-node, record-node, record.
+# 2. Install new MOUT map
+# 3. Cleaned up explore code
+# 4. Add detect-stuck-bad-time as parameter and if exceed that (20), then retry move command.
+#    requires adding nasty negated conditions to all proposals from operator.type move-to-xyz
+# 5. Comment out most write commands
+
+## JEL: 2002-11-18 [Task B1]
+# 1. Add in stuck direction detection based on close objects - add object-distance as a parameter
+# 2. Add new rules to change-active-objective for if roaming and contact-with-enemy to defend-position [PArt of Task B8]
+
+
+## JEL: 2002-11-15 [Task B4 - partial]
+# 1. Add ^role to objective structure - change initialize.soar -
+# 2. Remove lead-sqaud from many places
+#      elaborations/defensive-position.soar
+#      defend/determine-threat-door.soar
+# 3. Remove all of execute-mission/lead-squad.
+# 4. Move lead-squad/change-member-position to execute-mission and change lead to ^role lead
+
+
+## JEL: 2002: 11-11 [Task B5]
+# 1. Add speed for common/move-to-xyz: move-to-xyz*elaborate*speed
+# 2. Add speed to common/output.soar
+# 3. defend/move-to-defensive-position: defend*propose*move-to-defensive-positio
+# 4. move-to-area/elaborations: move-to-area*elaborate*node*speed
+# 5. move-to-area/move-to-node: move-to-area*elaborate*operator*speed
+# 6. move-to-node/elaborations: move-to-node*elaborate*state*speed
+# 7. move-to-node/move-to-xyz: move-to-node*elaborate*operator*speed
+# 8. roam/goto-next-location: roam*propose*goto-next-location
+
+## REW: 2002-11-11
+# 1. Added move-to-node*elaborate*updateable-node*nearest (from JEL)
+
+## JEL: 2002-11-07 [Task B8]
+# 1. Added roam operator under execute-mission
+
+## REW: 2002-11-05
+# 1. Added change to shoot operator from John (fixes stop shooting bug)
+# 2. Added: toss-weapon to surrender
+
+## REW: 2002-10-10
+# 1. Split apply*determine-step-rate due to thin-justifications bug.
+# 2. Associated "i am hit" with the self.hurt elaboration rather than retreat.
+# 3. Terminate watch better than scan-for-contacts
+
+## REW: 2002-10-09
+# 1. Added patches to accept message and communicate-sound from last night's debugging
+# 2. Had to reimplemnt initialize to be able to open file in Visual Soar
+
+
+## REW: 2002-10-08
+# 1. Added ^threats.contact to record contact made with enemy
+# 2. Added change-member-position for leader (this is a major-league-hack)
+# 3. Tested Bot3/4 interaction.  Brittle, but usable.
+
+## REW: 2002-10-07
+# 1. Added alert proposal for sentry-watch
+# 2. Updated change-active-objective for new-objective (from accept-message)
+# 3. Added go-to-door to accept-message
+
+## JEL: 2002-10-06
+# 1. Remove old files in the directories that are no longer sourced - (why am I wasting my time?)
+# 2. Create alert operator under execute mission - two proposals - a. if about to attack b. if underfire -
+#    move alert from execute-mission that Bob added to here - I don't like output commands being slapped on operators.
+# 3. Modify propose-attack so doesn't do it if posture at-ease
+                                                                                                            
+
+## REW: 2002-10-04
+# 1. Fixed problem with accept-mesage (not all states under ops have names, bottom impasse can alspo be SNC)
+# 2. Commented varios debugging, write statement, incorporated patches.
+# 3. Added device-registrations, applications for sound files.  Added ^sound-available for the sounds Bria1n is adding.
+
+## REW: 2002-10-03
+# 1. Added defend/barricade to move to doors
+# 2. Added attack suboperator for lead-squad
+# 3. Moved MOUTBot[1-5].soar files to initialize.soar (to support API bots)
+# 4. Removed tcl monitor calls for messages (to support API bots)
+
+## REW: 2002-10-01
+# 1. Added initial implementation of accept-message.
+# 2. Added self.posture to reflect at-ease/alert status
+# 3. Added execute mission application: if not alert and underfire, become alert
+# 4. map.tcl: center map on building and move window to top right of screen
+
+## REW: 2002-09-30
+# 1. Make initialize best (in case startup with enemy in sight)
+# 2. Change feeler range to 30 (broken side step).  Created param in case it changes again.
+# 3. Fixed record threat and tested it.  The operator is very brittle due to secondary effect race conditions.
+#    (computation of area-id).  Don't change main applications without preserving tests for
+#     operator.area-id == threat.area-id.  This is the hack I used to make sure record-threat
+#     would always complete.  Also brittle because area computations are different for outside
+#     vs inside.)
+# 4. Added elaboration (not application) of threats.threat.area-name.  One less thing to change
+#     as threats move about.
+# 5. Completed sentry watch. Agent now terminates sentry-watch when it comes under fire or
+#     perceives an enemy inside the building.
+# 6. Corrected MOUTBot mission initialization prods, which are dependent on
+#    on some name nodes.  All 5 bots work, but are brittle, esp together.
+
+## REW: 2002-09-27
+## 1. Added sender as first ^word of every broadcast.
+##    Explored but did not find a way to remove integer created by make-constant-symbol
+## 2. Added new map generated by AMN
+##       Changes to get map to pass "check productions against datamap"
+##       - add trialing zero's to any numbers next to parentheses: Visual Soar can't handle "^505.)" but does okay with "^505.0)"
+##       - move any node/position references until after the big area condition.  Normally, you have to move one condition.
+##       - today I had to add node.x/y greater-than/less-than and position.speed to the datampa.  Not sure why these are present.
+## 3. Added ^self.underfire to provide a persistent record of being underfire
+## 4. Added ^self.weapons to provide ready deteminations of weapons status
+##    Agent prods should be changed to refer to this as the selected weapon
+## 5. Changed retreat so that the agent retreats only when it has no rounds or clips
+##     for the selected-weapon
+## 6. Made reload and unjam not specific to attack -- they should also be used for defned and retreat.
+## 7. Added a very simple parameter to message definitions so that messages are repeated probabilistically.
+##    This makes the agent's sound less compulsive...
+## 8. Installed another map -- this one lacked the speed and x/y attributes.
+
+## REW: 2002-09-26
+## 1. Changed sentry-watch record-contact to mimic new record-threat
+## 2. Commented apply*record-contact*area
+##    This was a copy of a similar production from record-threat and was causing Soar core dumps.
+
+## REW: 2002-09-25
+## 1. Added output command to play surrender animation on surrender.
+## 2. Created ^threats.enemy structure to distinguish between elaborated and
+##       input information.  A threat ID should never change for a given entity.
+## 3. Added simulation error codes to parameters
+## 4. Added AMN's unjam code (with changes to include parameters)
+##    I am never seeing weapon-jams on input link so this is untested.
+
+
+## REW: 2002-09-12
+## 1. Fixed bug in  navigation@elaboration@map-nearest-node*derived
+## 2. Added doors to the map representation
+## 3. Added patch files (under z-patches).  Added notes to MoutBotX.soar files.
+## 4. Specialized record-threat proposals for sentry-watch
+
+
+## AMN: 2002-08-29
+## Fixed bugs resulting old rules using UT-zone-based area information given
+## on the input link
+## a.  elaborations/navigation: nearest-node rule
+## b.
+
+## AMN: 2002-08-27
+## 1.  Fixed max-elaborations problem in move-to-xyz (see comment in that file)
+## 2.  Moved max/min x/y/z recording into a sub-operator of initialize
+## 3.  Added a sidestep operator to record-entrway that fires when the agent
+##     is too far to one side of the door to see the opposite node
+## 4.  Updated the map with the new navigation system
+## 5.  Added code to adjust the agent's speed depending on range
+##     to the destination
+
+## REW: 2002-08-26
+## 1. Added sentry-watch sub-hierarchy for agents 3 and 5 (with changes to MoutBot3 and MoutBot5.soar files)
+## 2. Modified objective data structure to include remembered computations for sentry-watch
+## 3. Added elaboration (defensive-position) that identifies which states
+##    allow the use of defend operators.
+## 4. Changed operators in defend to test uses-defensive-position rather than state name.
+## 5. Added sentry-watch parameters to paramters.soar
+## 6. Added applications to record-threat specific to sentry-watch
+## 7. Added (rudimentary) change-active-objective operator
+## 8. Refined notion of very-high level threats in elabs/threats
+
+## JEL 2002-08-09
+## all/record-nodes - record all nodes at beginning, not just visible
+## elaborations/navigation.soar - change how determine which area you are in.
+## initialize.soar
+
+## AMN: 2002-08-02
+## 1. Significantly expanded the hunt subgoal to simulate
+##    standard US military doctrine.
+## 2. Changes to support the above
+##    a.  Added ^derived yes to corner pathnodes derived
+##        at initialization from actual corner pathnodes
+##    b.  Significant changes to the format of an objective's
+##        ^offensive-position.\
+##    c.  ^near-node elaborations for derived nodes (ONLY when
+##        the agent is using a move-to-node to reach that node).
+##
+## REW: 2002-07-28
+## 1. Added JEL corrections to choice-sets
+## 2. Created initialization producions for each of the 5 agents on the first floor of Scenario1.
+##    These are located in MOUTBot<x>.soar files.  They must be sourced last, to replace the default
+##    initialization application initialze.soar
+## 3. Added a hack to the record-threat operator so that agent's will not shoot other agent's
+##    on their side.  When the simulator supports team correctly, the hack can be removed.
+## 4. Added initial team representations to the agent.  The general idea is that every
+##    objective should have a team (including the "team" consisting of an individual.  As we
+##    progress, we can add knowledge about changing the teams as execution commences, as well
+##    as obviously having behavior sensitive to the team.
+##
+## 7/24/02
+## JEL
+## 1. add nodes to corners of rooms that were not originally defined.
+##    provides more places for defending a room.
+##    Added to initialize.soar
+## 2. Change defend/determine-threat-door
+##    Fix a bunch of problems and make possible for there to be
+##    multiple threat doors in a room.
+## 3. Change elaborations/self
+##    add detection of low-ammo - nothing uses it, but something that
+##    should be there.
+## 4. Add elaborations/choice-sets
+##    These allow us to have probablistic selections of specific operators
+## 5. defend/determine-defensive-room-position
+##    Handle multiple threat-doors
+## 6. retreat-determine-retreat-door
+##    Handle multiple threat-doors
+## 7. Record-threat
+##    Make it so can handle enemy structures appearing and disappearing.
+## 8. attack/reload
+##    added rule to do this.
+## 9. common/output.soar
+##    add reload to recognized output commands
+##
+## 7/22/02
+## 1.  Added hunt subgoal to execute-mission
+## 2.  External changes to support hunt
+##     a.  Added an offensive mission in the initialize rules
+##     b.
+## 7/15/02 - 7/16/02 AMN
+## 1.  Added predict-enemy subgoal under execute-mission
+## 2.  Changes to the bot to support predict-enemy
+##     a.  Added ^tactics to self
+##     b.  Prevented top-state and io from being copied to the predict-enemy subgoal
+##     c.  Special cases for the |Outside| area
+##     d.  Made ^visible-area record in both directions like paths
+##     e.  Tweaks to the map
+## 3.  Misc bug fixes
+##     a.  enemy-select*visible production wasn't verifying enemy was visible
+##     b.  Fixed aspect bug in record-enemy
+##
+## 6/27/02  JEL
+## 1. When removing enemy attributes from state, save away in enemy-history so know of all encounters with enemies
+## 2. Add threat augmentation of top state. This is maintained by elaborations/threat and is used in determining whether to retreat.
+##
+## 6/27/02 AMN
+## 1.  Made final changes to record-path.  Both now only saves shortest path between any two areas.
+## 2.  Checked in an updated map with the above.
+## 3.  Added ^visible-area attributes to areas on the map
+
+## REW: 2002-07-27
+## summoning an unnumbered moutbot no longer works.  summon must be followed
+## by a number (1-5) corresponding to a specific MOUTBot:
+## 1. summon moutgame.soarmoutbot1
+
+#+====================================================================+
+#| Place where John stores rules he's not sure he wants to delete yet |
+#+============--------------------------------------------------------+
+
+#
+#sp {retreat*propose*move
+#   (state <s> ^name unreal)
+#   -->
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name move-front
+#       # ^actions.thrust back)
+#        ^actions.face-abs -45)
+#}
+##
+
+

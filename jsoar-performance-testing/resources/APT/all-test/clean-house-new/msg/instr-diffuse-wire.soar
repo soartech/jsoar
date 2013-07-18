@@ -1,0 +1,41 @@
+sp {msg*propose*instr-diffuse-wire
+   (state <s> ^name msg
+              ^message.first <first>)
+   (<first> ^word diffuse-wire
+            ^next <second>)
+   (<second> ^word <wire>
+             ^next nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name instr-diffuse-wire
+         ^wire <wire>)
+}
+
+sp {apply*instr-diffuse-wire*force-remove
+   (state <s> ^operator <op>
+              ^top-state.diffusing <dh>)
+   (<op> ^name instr-diffuse-wire
+         ^wire <wire>)
+   (<dh> ^force {<> <wire> <wire-prime>})
+-->
+   (<dh> ^force <wire-prime> -)
+}
+
+sp {apply*instr-diffuse-wire*force
+   (state <s> ^operator <op>
+              ^top-state.diffusing <dh>)
+   (<op> ^name instr-diffuse-wire
+         ^wire <wire>)
+  -(<dh> ^force <wire>)
+-->
+   (<dh> ^force <wire>)
+}
+
+sp {apply*instr-diffuse-wire*pop
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>)
+   (<op> ^name instr-diffuse-wire)
+-->
+   (<ss-op> ^processed true)
+}
+

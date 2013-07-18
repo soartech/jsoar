@@ -1,0 +1,16 @@
+#echo "\nLoading goto-door\stop-sidestep-to-door"
+
+## door-distance and door-distance-check computed in elaborations.soar
+
+sp {goto-door*propose*stop-sidestep-to-door*explore
+   (state <s> ^name goto-door
+              ^mode explore
+             -^top-state.self.stopped true
+              ^door-overlap true)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name stop-sidestep-to-door
+        ^actions <a>)
+   (<a> ^thrust off
+        ^sidestep off)}
+

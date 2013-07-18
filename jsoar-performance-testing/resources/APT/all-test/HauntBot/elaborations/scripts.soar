@@ -1,0 +1,156 @@
+echo "\nLoading elaborations/scripts"
+
+#Copy the script down to all substates 
+sp {elaborate*state*script
+   (state <s> ^superstate <> nil
+              ^name { <> predict-actor }
+              ^top-state.script <m>)
+-->
+   (<s> ^script <m>)
+}
+
+#Since we are usually looking for the active
+#objective, elaborate a pointer directly to it.
+sp {elaborarate*script*active-objective
+   (state <s> ^name haunt
+              ^script <m>)
+   (<m> ^objective <ob>)
+   (<ob> ^status active)
+-->
+   (<m> ^active-objective <ob>)}
+
+
+sp {haunt*elaborate*script*area
+   (state <s> ^name haunt
+              ^map.area <area>
+              ^script.objective <obj>)
+   (<obj> ^<< position actor position >> <dp>)
+   (<dp> ^area-name <df-name>)
+   (<area> ^name <df-name>)
+   -->
+   (<dp> ^area <area>)
+   (<area> ^objective <obj>)}
+
+sp {haunt*elaborate*achieved*area
+   (state <s> ^name haunt
+              ^map.current-area <area>
+              ^script.active-objective.<< position actor position >> <dp>)
+   (<dp> ^area <area>)
+-->
+   (<dp> ^area-achieved true)}
+
+##############ORIENTATION
+
+### POSITION
+
+sp {haunt*elaborate*orientation*achieved-actor-away-from-agent
+   (state <s> ^name haunt
+              ^io.input-link.objects.node <visnode>
+              ^map.current-area.actor-door.node.name <node-name>
+              ^script.active-objective <ob>)
+   (<ob> ^<< position  position >> <dp>)
+   (<visnode> ^name <node-name>
+              ^angle-off.h  <= 2)
+-->
+   (<dp> ^orientation-achieved true)}
+
+sp {haunt*elaborate*orientation*achieved-actor-away-from-agent2
+   (state <s> ^name haunt
+              ^io.input-link.objects.node <visnode>
+              ^map.current-area.actor-door.node.name <node-name>
+              ^script.active-objective <ob>)
+   (<ob> ^<< position  position >> <dp>)
+   (<visnode> ^name <node-name>
+              ^angle-off.h  >= 358)
+-->
+   (<dp> ^orientation-achieved true)}
+
+#### CONNECTOR
+sp {haunt*elaborate*orientation*achieved-near-agent
+   (state <s> ^name haunt
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^map.current-area.actor-door.node <node>
+              ^script.active-objective <ob>)
+   (<ob> ^<< position  position >> <dp>)
+   (<node> ^connect-heading <yaw>)
+-->
+   (<dp> ^orientation-achieved true)}
+
+### DIRECTION - Window
+
+sp {haunt*elaborate*orientation*achieved-actor-window
+   (state <s> ^name haunt
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^script.active-objective <ob>)
+   (<ob> ^<< position position >> <dp>
+         ^actor.direction <yaw>)
+   (<dp> ^type window)
+-->
+   (<dp> ^orientation-achieved true)}
+
+# REW: 2002-08-28: Bug somewhere in the map or determine-actor-door
+### DIRECTION - Absolute
+
+sp {haunt*elaborate*orientation*achieved-actor-absolute
+   (state <s> ^name haunt
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^script.active-objective <ob>)
+   (<ob> ^<< position position >> <dp>
+         ^actor.direction <yaw>)
+   (<dp> ^type absolute)
+-->
+   (<dp> ^orientation-achieved true)}
+
+
+############################################3
+sp {haunt*elaborate*position*achieved*position*diff-x
+   (state <s> ^name haunt
+              ^top-state.io.input-link.agent.position.x <x1>
+              ^script.active-objective.<< position actor position >> <dp>)
+   (<dp> ^position.x <x2>)
+-->
+   (<dp> ^x-diff (- <x1> <x2>))}
+
+sp {haunt*elaborate*position*achieved*position*diff-y
+   (state <s> ^name haunt
+              ^top-state.io.input-link.agent.position.y <x1>
+              ^script.active-objective.<< position actor position >> <dp>)
+   (<dp> ^position.y <x2>)
+-->
+   (<dp> ^y-diff (- <x1> <x2>))}
+
+sp {haunt*elaborate*position*achieved*position
+   (state <s> ^name haunt
+              ^parameters <p>
+              ^script.active-objective.<< position actor position >> <dp>)
+   (<p> ^position-achieved-pos <pos>
+        ^position-achieved-neg <neg>)
+   (<dp> ^x-diff > <neg> < <pos>
+         ^y-diff > <neg> < <pos>)
+-->
+   (<dp> ^position-achieved true)}
+
+sp {haunt*elaborate*script*actor
+   (state <s> ^name haunt
+              ^map.area <area>
+              ^script.objective.actor <dp>)
+   (<dp> ^area-name <df-name>
+         ^node-name <n-name>)
+   (<area> ^name <df-name>
+           ^node <node>)
+   (<node> ^name <n-name>)
+-->
+   (<dp> ^area <area>
+         ^node <node>)}
+
+
+sp {haunt*elaborate*script*runaway-objective
+   (state <s> ^name haunt
+              ^map.area <area>
+              ^script.runaway-objective <ro>)
+   (<ro> ^name <ro-name>)
+   (<area> ^name <ro-name>)
+-->
+   (<ro> ^area <area>)}
+
+

@@ -1,0 +1,34 @@
+
+sp {hunt*propose*goto-next-room
+   (state <s> ^name hunt
+              ^hunt-type << prediction enemy-disappeared >>
+              ^room <room>
+              ^top-state.map.current-room.path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^actions.centerview on
+        ^actions.speed off          # walk so can hear opponents
+        ^door <idoor>)}
+
+sp {hunt*propose*goto-next-room*enemy-died
+   (state <s> ^name hunt
+              ^hunt-type enemy-died
+              ^top-state.map <m>)
+   (<m> ^current-room <cr>
+        ^room <rm>)
+   (<rm> ^resurrect <r>)
+   (<cr> ^path <path>)
+   (<path> ^destination-room <rm>
+           ^distance <= 4
+           ^in-room-door <idoor>)
+   -->
+   (write (crlf) |Try to catch enemy at spawn point.|)
+   (<s> ^operator <o> + =)
+   (<o> ^name goto-next-room
+        ^actions.centerview on
+        ^actions.speed off          # walk so can hear opponents
+        ^door <idoor>)}

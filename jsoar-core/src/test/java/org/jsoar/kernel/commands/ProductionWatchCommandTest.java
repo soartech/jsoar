@@ -22,7 +22,6 @@ public class ProductionWatchCommandTest
     public void setUp() throws Exception
     {
         agent = new Agent();
-        agent.initialize();
     }
 
     @After

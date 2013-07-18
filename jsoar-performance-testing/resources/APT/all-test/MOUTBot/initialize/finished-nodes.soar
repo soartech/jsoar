@@ -1,0 +1,14 @@
+sp {initialize*propose*finished-nodes
+   (state <s> ^name initialize)
+   -->
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name finished-nodes)
+}
+
+sp {apply*finished-nodes
+   (state <s> ^operator <o>
+              ^top-state.map <m>)
+   (<o> ^name finished-nodes)
+   -->
+   (<m> ^initialized-nodes true)
+}

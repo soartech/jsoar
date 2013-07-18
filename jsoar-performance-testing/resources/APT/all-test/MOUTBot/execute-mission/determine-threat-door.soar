@@ -1,0 +1,43 @@
+echo "\nLoading execute-mission/determine-threat-door"
+
+sp {execute-mission*propose*determine-threat-door
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^map.current-area.path <path>
+         ^mission.active-objective.threat <threat>)
+   (<threat> ^area <threat-area>
+            -^threat-door)
+   (<path> ^destination-area <threat-area>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name determine-threat-door
+        ^threat <threat>
+        ^path <path>)
+}
+
+sp {execute-mission*compare*determine-threat-door*distance
+   (state <s> ^name execute-mission
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name determine-threat-door
+         ^path.distance <dist>)
+   (<o2> ^name determine-threat-door 
+         -^path.distance <= <dist>)
+-->
+   (<s> ^operator <o1> < <o2>)
+}
+
+sp {apply*determine-threat-door
+   (state <s> ^operator <o>)
+   (<o> ^name determine-threat-door
+        ^threat <threat>
+        ^path <path>)
+   (<path> ^distance <dist>
+           ^via-node <node>)
+-->
+   (<threat> ^threat-door <door>)
+   (<door> ^threat <threat>
+           ^distance <dist>
+           ^node <node>)
+}
+

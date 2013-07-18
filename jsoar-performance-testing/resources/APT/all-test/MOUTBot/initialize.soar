@@ -1,0 +1,379 @@
+echo "\nLoading initialize"
+                
+# REW: 2002-09-30
+# There is nothing better one can do than initialize the bot if it hasn't initialized, so make initialize best
+sp {unreal*propose*initialize
+   (state <s> ^name unreal
+             -^initialized true)
+-->
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name initialize)
+}
+   
+
+# REW: 2003-05-28
+# Don't terminate until x,y,z is determined
+sp {unreal*apply*initialize
+   (state <s> ^operator.name initialize
+              ^map.initialized-nodes true)
+           #   ^mission.objective.<< defensive-position offensive-position >>.position <p>)
+  # (<p> ^x <x> ^y <y> ^z <z>)
+-->
+   (<s> ^initialized true)
+}
+
+# REW: 2002-07-26
+# This is a default mission production.  In general, each specific bot file (eg, MOUTBot1) will
+# have it's own mission initialization production that will excise this one.  Anyway, that's the
+# story this week...
+# REW: 2002-07-26
+# [1] JEL says we don't want the mission initialization to be dependent on agent name, so that's
+#     now unbound.  Previously, it was ....agent.name |MOUTInterface|
+#     Need to talk with Andy to understand role of clear-building mission production and if it should
+#     be agent-specific?
+# [2] REW: 2002-07-28
+#     Add initial team representations to the mission.  Each currently active
+#     team will be explicitly represented on the ^mission structure.  Each objective
+#     will indicate a team and each team will have a list of team-rlevant objectives.
+#     The general idea is that every objective should have a designated team,
+#     but the default "team" is just the agent by itself.  Initally, there are
+#     two teams for each agent: the "self" team and the "everyone" team.  This is
+#     a little ugly at the moment because we are requiring everything to
+#     be located in this production just due to the restrictions that we
+#     we ahve for loading agents.
+#
+#     Note that for now the input-link says that the agent is |MOUTBot1| while to
+#     other agents it appears as |MoutBot1|.  Since Soar equivalance testing for
+#     strings is case-dependent, we need these to be the same.
+#
+# REW: 2002-10-03
+# For now, the API can't source different mission files so we make the initialization
+# productions specific to each bot name.
+
+# REW: 2002-10-08
+# Hard-code the agent name in the RHS (Visual Soar issue?)
+
+# REW: 2003-05-27
+# Separate the defensive position information to make initialization dependent on the scenario
+# Visual Soar does not like this, but I've moved the init productions into scenario specific files.
+
+#sp {unreal*apply*initialize*mission
+#   (state <s> ^operator.name initialize
+#                             # [1] REW: 2002-07-26
+#              ^io.input-link.agent.name <something>)
+#-->
+#   (<s> ^mission <m>)
+#   (<m> ^primary-objective <po>
+#        ^objective <obj>
+#        ^retreat-objective <ro>
+#        # [2]
+#        ^team <team1>
+#        ^team <team2>
+#        ^team <team3>)
+#   (<ro> ^name room11
+#         ^team <team1>)
+#   (<team1> ^agents <ags1>
+#            ^name <something>
+#            ^type individual
+#            ^objective <ro> )
+#   (<ags1> ^agent <ag1>)
+#
+#   (<team2> ^agents <ags2>
+#            ^name |EntryFireTeam|
+#            ^type pair
+#            ^objective <obj>)
+#   (<ags2> ^agent <ag1>
+#          ^agent <ag2>)
+#   (<team3> ^agents <ags3>
+#            ^name |Squad123|
+#            ^type group
+#            ^objective <po>)
+#   (<ags3> ^agent <ag1>
+#          ^agent <ag2>
+#          ^agent <ag3>
+#          ^agent <ag4>
+#          ^agent <ag5>)
+#   (<ag1> ^name <something>
+#          ^status active)
+#   (<ag2> ^name |MOUTBot2|
+#          ^status active)
+#   (<ag3> ^name |MOUTBot3|
+#          ^status active)
+#   (<ag4> ^name |MOUTBot4|
+#          ^status active)
+#   (<ag5> ^name |MOUTBot5|
+#          ^status active)
+#   (<po> ^name |Defend Building 47|
+#         ^status active
+#         ^type defend-building
+#         ^team <team3>)
+#   (<obj> ^status active
+#          ^type defensive
+#          ^area-type entryway
+#          ^threat <threat>
+#          ^defensive-position <dp>
+#          ^team <team2>)
+#   (<threat> ^area-name hall0
+#             ^node-name |EntryNode130|
+#             ^team |None|              #Change this once teams are working
+#             ^type US-Marines)
+#   (<dp> ^area-name room6
+#         ^type room
+#         ^position <pos>)
+#   (<pos> ^x 890.0            #Initial defensive position assigned
+#          ^y 450.0
+#          ^z -905.0)
+#}
+
+
+
+## AMN: 2002-07-22
+## Mission:  Clear the building of OPFOR
+#sp {unreal*apply*initialize*mission*clear-building
+#   (state <s> ^operator.name initialize
+#              ^io.input-link.agent.name <any>)
+#-->
+#   (<s> ^mission <m>)
+#   (<m> ^primary-objective <po>
+#        ^objective <obj>
+#        ^retreat-objective.name |Outside|)
+#   (<po> ^name |Clear Building 47|
+#         ^status active
+#         ^type clear-building)
+#   (<obj> ^status active
+#          ^type offensive)
+#}
+
+
+#
+#sp {unreal*apply*initialize*defend-window
+#   (state <s> ^operator.name initialize
+#              ^io.input-link.agent.name |MOUTInterface|)
+#-->
+#   (<s> ^mission <m>)
+#   (<m> ^primary-objective <po>
+#        ^objective <obj>
+#        ^retreat-objective.name room16)
+#   (<po> ^name |Defend Building 47|
+#         ^status active
+#         ^type defend-building)
+#   (<obj> ^status active
+#          ^type defensive
+#          ^area-type room
+#          ^threat <threat>
+#          ^defensive-position <dp>)
+#   (<threat> ^area-name |Outside|
+#             ^direction 300
+#             ^team |None|              #Change this once teams are working
+#             ^type US-Marines)
+#   (<dp> ^area-name room4
+#         ^type window)
+#}
+#
+
+
+#seed the last node
+#should fire once on game entry
+sp {unreal*apply*initialize-last-node
+   (state <s> ^operator.name initialize
+              ^map <map>)
+  -(<map> ^last-node)
+-->
+   (<map> ^last-node <ln>)
+   (<ln> ^name none)
+}
+
+#JEL: 2002-08-08
+#Add creation of areas
+## This operator generates a new area on the map
+## This was originally done in all/record-area
+## Should modify test for <> none ... once map is fixed
+
+
+sp {unreal*apply*initialize*create*area-names
+   (state <s> ^operator.name initialize
+              ^map.area-names <an>
+              ^io.input-link.map.nodes.node <node>)
+   (<node> ^type << |None| |none| none >>                    # only base on path nodes
+           ^area { <> none <> |None| <> |Entrynode| <> |PathNode| <> |none| <area-name> }
+           ^name <name>)
+-->
+#   (write (crlf) | AREA: | <area-name> | Node name: | <name>)
+   (<an> ^name <area-name>)
+}
+
+sp {unreal*apply*initialize*create*area
+   (state <s> ^operator.name initialize
+              ^map <map>)
+   (<map> ^area-names.name <an>
+         -^area.name <an>)
+-->
+   (<map> ^area <area>)
+   (<area> ^name <an>)
+}
+#AMN: 2002-08-02
+#Added ^derived yes to nodes created by the
+#following rules to differentiate them nodes
+#actually visible on the input-link.
+
+sp {unreal*apply*initialize*nodes*max-max
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^max-x <x>
+           ^max-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^name <new-name>
+            ^visited 1
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                  
+sp {unreal*apply*initialize*nodes*max-min
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^max-x <x>
+           ^min-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                          
+sp {unreal*apply*initialize*nodes*min-min
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^min-x <x>
+           ^min-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+                                  
+sp {unreal*apply*initialize*nodes*min-max
+   (state <s> ^operator.name initialize
+              ^map.area <area>)
+   (<area> ^min-x <x>
+           ^max-y <y>
+           ^min-z <z>)
+  -{(<area> ^node <node>)
+    (<node> ^position <p>)
+    (<p> ^x <x>
+         ^y <y>)}
+-->
+   (<area> ^node <node1>)
+   (<node1> ^position <p1>
+            ^area <area>
+            ^type none
+            ^visited 1
+            ^name <new-name>
+            ^derived yes)
+   (<p1> ^x <x>
+         ^y <y>
+         ^z <z>)}
+
+               
+##### CHOICE SET INITIALIZATION
+#
+### Use the random number to generate a number between .0 and 1.0 from different digits of the random number
+#
+#sp {unreal*apply*initialize*choice-set*random-number
+#   (state <s> ^operator.name initialize
+#              ^io.input-link.agent.rand <rand>
+#              ^choice-set <cs>)
+#   (<cs> ^random-index <num>)
+#-->
+#   (<cs> ^random-number (- (* <num> <rand>) (int (* <num> <rand>))))
+#}
+#
+#
+### Create the selection-set for each choice
+#
+#sp {unreal*apply*initialize*selected-set
+#   (state <s> ^operator.name initialize
+#              ^choice-set.state-name <name>
+#             -^selection-set.state-name <name>)
+#-->
+#   (<s> ^selection-set.state-name <name>)
+#}
+#
+### Use the random number to select the choice to be used - unfortunately, one random number
+### would be used for all choices, so the choices would not be independent
+#
+#sp {unreal*apply*initialize*selected-choice
+#   (state <s> ^operator.name initialize
+#              ^selection-set <ss>
+#              ^choice-set <cs>)
+#   (<cs> ^state-name <name>
+#         ^choice <ch1>
+#         ^random-number <rand>)
+#   (<ch1> ^choice-number { <cn> > <rand> })
+#  -(<cs> ^choice.choice-number { < <cn> > <rand> })
+#   (<ss> ^state-name <name>)
+#-->
+#   (<ss> ^selected-choice <ch1>)
+#}
+#
+#
+#sp {unreal*apply*initialize*not-selected-choice*less-than
+#   (state <s> ^operator.name initialize
+#              ^selection-set <ss>
+#              ^choice-set <cs>)
+#   (<cs> ^state-name <name>
+#         ^choice <ch1>
+#         ^random-number <rand>)
+#   (<ch1> ^choice-number { <cn> < <rand> })
+#   (<ss> ^state-name <name>)
+#-->
+#   (<ss> ^not-selected-choice <ch1>)
+#}
+#
+#
+#sp {unreal*apply*initialize*not-selected-choice*greater-than-but
+#   (state <s> ^operator.name initialize
+#              ^selection-set <ss>
+#              ^choice-set <cs>)
+#   (<cs> ^state-name <name>
+#         ^choice <ch1>
+#         ^random-number <rand>)
+#   (<ch1> ^choice-number { <cn> > <rand> })
+#   (<cs> ^choice.choice-number { < <cn> > <rand> })
+#   (<ss> ^state-name <name>)
+#-->
+#   (<ss> ^not-selected-choice <ch1>)
+#}
+#
+#
+#

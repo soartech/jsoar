@@ -1,0 +1,26 @@
+# If the time for an area to be 'haunted' is up, 
+# remove the time tags
+sp {all*propose*remove-haunted-area*expired
+   (state <s> ^name haunt
+              ^io.input-link <il>
+              ^top-state.map.area <area>)
+   (<il> ^agent.time <time>)
+   (<area> ^haunted.expire-time < <time>)
+-->
+   (<s> ^operator <o> + =,>)
+   (<o> ^name remove-haunted-area*expired
+        ^area <area>)
+}
+
+#
+# remove the 'haunted' designation from the specified area
+#
+sp {all*apply*remove-haunted-area
+   (state <s> ^operator <o>)
+   (<o> ^name remove-haunted-area*expired
+        ^area <area>)
+   (<area> ^haunted <h>)
+-->
+#   (write (crlf) |## Removing haunted-expire-time|)
+   (<area> ^haunted <h> -)
+}

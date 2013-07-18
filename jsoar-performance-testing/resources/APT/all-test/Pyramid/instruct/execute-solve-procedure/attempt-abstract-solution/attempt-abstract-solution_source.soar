@@ -1,0 +1,8 @@
+source elaborations.soar
+source check-balance.soar
+source find-term.soar
+pushd find-term
+source find-term_source.soar
+popd
+source minimum-abstract-sum.soar
+source use-balance.soar

@@ -1,0 +1,51 @@
+##################################### 
+# file: scan-contacts/elaborations.soar 
+# created: REW: 2001-08-20
+## 
+## Elaborations for the sentry-watch substate
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/sentry-watch/scan-contacts/elaborations.soar"
+
+# Copy scan params from the superoperator
+#These values are never used in this subgoal!
+#sp {scan-for-contacts*elaborate*substate*scan-params
+#   (state <s> ^name scan-for-contacts
+#              ^superstate.operator <so>)
+#   (<so> ^name scan-for-contacts
+#         ^step <step>
+#         ^period <p>
+#         ^rate <r>
+#         ^angle <a>)
+#   -->
+#   (<s> ^scan-step <step>
+#        ^scan-period <p>
+#        ^scan-angle <a>
+#        ^scan-rate <r>)
+#}
+
+sp {scan-for-contacts*elaborate*substate
+   (state <s> ^name scan-for-contacts
+              ^superstate.operator <so>)
+   (<so> ^name scan-for-contacts
+         ^objective <obj>)
+   -->
+   (<s> ^objective <obj>)
+}
+
+#sp {scan-for-contacts*elaborate*state*time
+#   (state <s> ^name scan-for-contacts
+#              ^top-state.io.input-link.agent.time <time>)
+#   -->
+#   (write (crlf) | Time is | <time>)
+#}
+#
+#sp {scan-for-contacts*elaborate*state*next-scan-time
+#   (state <s> ^name scan-for-contacts
+#              ^objective.sentry-watch.scan.next-step-time <time>)
+#   -->
+#   (write (crlf) | Next scan time is | <time>)
+#}
+#

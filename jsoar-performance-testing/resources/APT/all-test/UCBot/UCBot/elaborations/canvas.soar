@@ -1,0 +1,252 @@
+
+# Draw the agent's position on the map as a dynamic blue point.
+sp {elaborate*canvas*agent-location
+   (state <s> ^superstate nil
+              ^io.input-link.location <loc>
+             -^parameters.internal-simulation true)
+   (<loc> ^x <x> ^y <y>)
+-->
+   (exec draw_point |update 0 | <x> | | <y> | blue|)
+}
+
+################# Draw flags
+sp {elaborate*canvas*flag
+   (state <s> ^flags.flag <f>)
+   (<f> ^x <x> ^y <y>)
+-->
+   (exec draw_point |static | <x> | | <y> | yellow|)
+}
+
+################# Draw Gateways
+sp {elaborate*canvas*gateway
+   (state <s> ^superstate nil
+              ^map.areas.area <area>)
+   (<area> ^vertices.centroid <area-cent>
+           ^negative-spaces.negative-space.centroid <gate-cent>)
+   (<area-cent> ^x <ax> ^y <ay>)
+   (<gate-cent> ^x <gx> ^y <gy>)  
+-->
+   (exec draw_line |static | <ax> | | <ay> | | <gx> | | <gy> | purple|)
+}
+#########################################################
+
+# Draw the convex regions as static convex polygons.  As regions
+# can have a variable number of vertices, we need to have several rules
+# (one for each possible value of num-vertices).
+
+sp {elaborate*canvas*draw-area
+   (state <s> ^superstate nil
+              ^canvas <canvas>
+              ^map.areas.area <area>)
+-->
+   (<canvas> ^region <region>)
+   (<region> ^area <area>
+             ^color red
+             ^type static)
+}
+
+# draw the id of each static region
+sp {elaborate*canvas*convex-region*static*id
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type static)
+   (<area> ^vertices.centroid <c>
+           ^id <id>)
+   (<c> ^x <x> ^y <y>)
+-->
+   (exec draw_text |static | (- <x> 20) | | (- <y> 20) | | <color> | | <id> | |)
+}
+#######################################################
+
+sp {elaborate*canvas*agent-area*simulation*blocked
+   (state <s> ^map.current-area <area>
+              ^top-state.canvas <canvas>
+              ^parameters.internal-simulation true)
+   (<area> ^path <path>)
+   (<path> ^gateway.blocked true
+           ^next-area <next-area>)
+-->
+   (<canvas> ^region <region>)
+   (<region> ^area <next-area>
+             ^color black
+             ^type static)
+}
+###########################################
+
+sp {elaborate*canvas*agent-area*simulation
+   (state <s> ^map.current-area <area>
+              ^top-state.canvas <canvas>
+              ^parameters.internal-simulation true)
+-->
+   (<canvas> ^region <region>)
+   (<region> ^area <area>
+             ^color blue
+             ^type static)
+}
+sp {elaborate*canvas*agent-area*simulation*sub
+   (state <s> ^top-state.map.current-area <area>
+              ^quiescence t 
+              ^top-state.canvas <canvas>
+              ^top-state.parameters.internal-simulation true)
+-->
+   (<canvas> ^region <region>)
+   (<region> ^area <area>
+             ^color blue
+             ^type static)
+}
+
+#sp {elaborate*canvas*agent-area*simulation*dynamic
+#   (state <s> ^map.current-area <area>
+#              ^quiescence t
+#              ^top-state.canvas <canvas>
+#              ^parameters.internal-simulation true)
+#-->
+#   (<canvas> ^region <region>)
+#   (<region> ^area <area>
+#             ^color purple
+#             ^type update)
+#}
+######################################################################
+# 3 vertices -- static
+sp {elaborate*canvas*convex-region*static*3-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type static)
+   (<area> ^num-vertices 3
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+-->
+   (exec draw_polygon |static 3 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <color> | |)
+}
+
+# 4 vertices
+sp {elaborate*canvas*convex-region*static*4-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type static)
+   (<area> ^num-vertices 4
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+-->
+   (exec draw_polygon |static 4 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <color> | |)
+}
+
+# 5 vertices
+sp {elaborate*canvas*convex-region*static*5-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type static)
+   (<area> ^num-vertices 5
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4> ^vertex5 <v5>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+   (<v5> ^x <x5> ^y <y5>)
+-->
+   (exec draw_polygon |static 5 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <x5> | | <y5> | | <color> | |)
+}
+
+# 6 vertices
+sp {elaborate*canvas*convex-region*static*6-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type static)
+   (<area> ^num-vertices 6
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4> ^vertex5 <v5> ^vertex6 <v6>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+   (<v5> ^x <x5> ^y <y5>)
+   (<v6> ^x <x6> ^y <y6>)
+-->
+   (exec draw_polygon |static 6 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <x5> | | <y5> | | <x6> | | <y6> | | <color> | |)
+}
+
+# 3 vertices -- update
+sp {elaborate*canvas*convex-region*update*3-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type update)
+   (<area> ^num-vertices 3
+           ^vertices <vertices>
+           ^id <id>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+-->
+   (exec draw_polygon |update | <id> | 3 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <color> | |)
+}
+
+# 4 vertices
+sp {elaborate*canvas*convex-region*update*4-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type update)
+   (<area> ^num-vertices 4
+           ^vertices <vertices>
+           ^id <id>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+-->
+   (exec draw_polygon |update | <id> | 4 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <color> | |)
+}
+
+# 5 vertices
+sp {elaborate*canvas*convex-region*update*5-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type update)
+   (<area> ^num-vertices 5
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4> ^vertex5 <v5>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+   (<v5> ^x <x5> ^y <y5>)
+-->
+   (exec draw_polygon |update 5 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <x5> | | <y5> | | <color> | |)
+}
+
+# 6 vertices
+sp {elaborate*canvas*convex-region*update*6-vertices
+   (state <s> ^canvas.region <region>)
+   (<region> ^area <area>
+             ^color <color>
+             ^type update)
+   (<area> ^num-vertices 6
+           ^vertices <vertices>)
+   (<vertices> ^vertex1 <v1> ^vertex2 <v2> ^vertex3 <v3> ^vertex4 <v4> ^vertex5 <v5> ^vertex6 <v6>)
+   (<v1> ^x <x1> ^y <y1>)
+   (<v2> ^x <x2> ^y <y2>)
+   (<v3> ^x <x3> ^y <y3>)
+   (<v4> ^x <x4> ^y <y4>)
+   (<v5> ^x <x5> ^y <y5>)
+   (<v6> ^x <x6> ^y <y6>)
+-->
+   (exec draw_polygon |update 6 | <x1> | | <y1> | | <x2> | | <y2> | | <x3> | | <y3> | | <x4> | | <y4> | | <x5> | | <y5> | | <x6> | | <y6> | | <color> | |)
+}
+

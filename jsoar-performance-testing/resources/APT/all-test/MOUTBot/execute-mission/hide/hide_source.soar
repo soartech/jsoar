@@ -1,0 +1,5 @@
+source elaborations.soar
+source detect-no-hide-door.soar
+source determine-hide-door.soar
+source move-away.soar
+source move-to-new-room.soar

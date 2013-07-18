@@ -1,0 +1,31 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source accept.soar
+source bid.soar
+source bid-special.soar
+source challenge.soar
+source clear-turn-data.soar
+source compute-last-bid.soar
+source compute-very-safe-bid.soar
+source count-dice-faces.soar
+pushd count-dice-faces
+source count-dice-faces_source.soar
+popd
+source exact.soar
+source Impasse__Operator_Tie.soar
+pushd Impasse__Operator_Tie
+source Impasse__Operator_Tie_source.soar
+popd
+source initialize-dice.soar
+source initialize-player-list.soar
+pushd initialize-player-list
+source initialize-player-list_source.soar
+popd
+source pass.soar
+source push.soar
+source sleep.soar

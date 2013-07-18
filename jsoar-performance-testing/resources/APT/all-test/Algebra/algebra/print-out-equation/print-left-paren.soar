@@ -1,0 +1,42 @@
+sp {print-out-equation*propose*print-left-paren
+   (state <s> ^type print-out-equation
+              ^current-clause <cc>
+              ^print-id <pid>)
+   (<cc> ^left-side <ls>)
+  -{(<cc> ^print <p>)
+    (<p> ^print-id <pid>
+         ^flag left-paren)}
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name print-left-paren)
+}
+
+sp {print-out-equation*apply*print-left-paren
+   (state <s> ^operator.name print-left-paren
+              ^top-state.problem.problem-list <pn>
+              ^current-clause <cc>)
+   (<cc> ^operation <> equal)
+   (<pn> ^count <c>
+         ^pointer <pp>)
+-->
+   (<pn> ^count <c> -
+                (+ <c> 1)
+         ^pointer <pp> -
+                  <next>)
+   (<pp> ^next <next>)
+   (<next> ^value |[|)
+}
+
+sp {print-out-equation*apply*print-left-paren*mult-divide
+   (state <s> ^operator.name print-left-paren
+              ^print-id <id>
+              ^top-state.problem.problem-list <pn>
+              ^current-clause <cc>)
+   (<cc> ^operation <op>)
+   (<pn> ^count <c>
+         ^pointer <pp>)
+-->
+   (<cc> ^print <px>)
+   (<px> ^print-id <id>
+         ^flag left-paren)
+}

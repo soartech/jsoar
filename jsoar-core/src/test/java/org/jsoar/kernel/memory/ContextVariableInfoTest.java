@@ -30,7 +30,6 @@ public class ContextVariableInfoTest
     public void testGetCurrentOperator() throws Exception
     {
         final Agent agent = new Agent();
-        agent.initialize();
         
         agent.getProductions().loadProduction("propose (state <s> ^superstate nil -^done) --> (<s> ^operator <o>)(<o> ^name test)");
         agent.getProductions().loadProduction("apply (state <s> ^operator <o>) (<o> ^name test) --> (<s> ^done *yes*)");

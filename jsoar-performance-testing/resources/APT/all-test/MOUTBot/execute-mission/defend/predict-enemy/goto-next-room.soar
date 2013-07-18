@@ -1,0 +1,18 @@
+echo "\nLoading execute-mision/defend/predict-enemy/goto-next-room"
+
+#Predict movement of the enemy to the first room
+#in order to kick start the simulation.  
+sp {predict-enemy*propose*goto-next-room
+   (state <s> ^name predict-enemy
+              ^first-room true
+              ^map.current-area <ca>
+              ^real-top-state.threats.threat.next-area <narea>)
+   (<ca> ^node <door>)
+   (<door> ^type << door connector >>
+           ^connected-node.area <narea>
+           ^area.path <path>)
+-->
+    (<s> ^operator <o> + >, =)
+    (<o> ^name goto-next-room
+         ^type move-to-area)
+}

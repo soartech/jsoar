@@ -1,0 +1,18 @@
+sp {instruct*propose*next-problem
+   (state <s> ^name instruct
+              ^current-problem.complete true)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name next-problem)
+}
+
+sp {apply*next-problem
+   (state <s> ^operator.name next-problem
+              ^current-problem { <> <n> <p> })
+   (<p> ^next-problem <n>)
+-->
+   (<s> ^reflect true - 
+        ^current-problem <p> -
+                         <n>)
+   (<n> ^prior-problem <p>) 
+}

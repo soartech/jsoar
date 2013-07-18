@@ -1,0 +1,31 @@
+##################################### 
+# file: voice-message-control.soar 
+# created: 2002-07-08
+## 
+# Change history: 
+# 
+# [1] Created REW
+
+#       This file indicates what messages of message-type should be
+#       voiced by the agent. This should just be a lookup table.  Eventually,
+#       we probably will want to make a distinction between messages sent to
+#       the agent communication pane and messages with actual recordings.
+#       This will be trivial to do -- all we have to do is create two
+#       classes of things of type voice (whereas now there is only the 
+#       single name: haunt-interface)
+
+##################################### 
+
+echo "\nLoading ./elaborations/communicate-voice-broadcast-device-registrations.soar "
+
+# REW: 2002-07-08
+# For now, we assume *any* message should be broadcast to the haunt Status box.
+
+sp {apply*communicate*register*voice*haunt-text-box
+   (state <s> ^comm.communicate <message> )
+   (<message> ^name  <anything> )
+-->
+   (<message> ^device <d>  )
+   (<d> ^type voice 
+        ^name unreal-interface)
+}

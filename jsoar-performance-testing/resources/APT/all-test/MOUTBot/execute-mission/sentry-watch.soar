@@ -1,0 +1,118 @@
+##################################### 
+# file: sentry-watch.soar 
+# created: REW: 2001-08-20
+## 
+# Defines sentry behavior for the agent.  The sentry-watch should suspend (via suspend-watch) are
+# detected in the vincinity of the agent (inside and close).  this is based on the elaboration of the
+# threat level (s1 ^threats.level).  The agent will return to a suspended watch if/when the threat level
+# drops to medium (change-active-objective).  The watch will be terminated after the max-watch-period
+# is execeeded.  A terminated watch turns into a defend objective in the same location via
+# change-active-objective.
+#
+# Note: there will be times in which tboth the status of the objective will be active and the status
+# of the sentry-watch itself will be executing, even though the sentry-watch operator is not selected.
+# In this situation, the sentry-watch is interrupted, and hence the interrupted update below.
+#
+# Change history: 
+# 
+#  [1] REW: 2002-08-22
+#      Moved sentry-watch to be at the same level as "Defend" (rather than a subgoal of it)
+#      The sentry-watch objective includes the defensive-position data structure, so we
+#      should be able to take advantage of the operators in the defend hierarchy (like
+#      move-to-defensive-position)
+#  [2] REW: 2002-08-23
+#      Save the original position and threat for reference as these values change
+#  [3] REW: 2002-08-23
+#      Want to recognize when the sentry-watch has been interrupted so we save a gensym on
+#      defensive-position and the operator, if these ever differ, then mark the task as
+#      interrupted
+
+echo "\nLoading execute-mission/sentry-watch.soar"
+
+# Start sentry duty when the agent has an active-objective of type sentry-watch
+# (assumes that sentry-watch will only be interrupted by change in active objective)
+
+sp {execute-mission*propose*sentry-watch
+   (state <s> ^name execute-mission
+              ^mission.active-objective <obj>)
+   (<obj> ^type sentry-watch)
+   -->
+   (<s> ^operator <o> +, = 100)
+   (<o> ^name sentry-watch
+        ^objective <obj>
+        ^sentry-watch-instance (make-constant-symbol sentry-watch-instance) )
+}
+
+# ^objective.sentry-watch is where tp put information specific to the sentry-watch
+# objective
+sp {apply*sentry-watch*objective*sentry-watch
+   (state <s> ^operator <o1>
+                       )
+   (<o1> ^name sentry-watch
+         ^objective <obj>)
+   (<obj> -^sentry-watch)
+   -->
+   (<obj> ^sentry-watch <sw>)
+}
+
+# [3] REW: 2002-08-23
+sp {apply*sentry-watch*sentry-watch-instance
+   (state <s> ^operator <o1>
+                       )
+   (<o1> ^name sentry-watch
+         ^sentry-watch-instance <swi>
+         ^objective.sentry-watch <sw>)
+   (<sw> -^sentry-watch-instance)
+   -->
+   (<sw> ^sentry-watch-instance <swi>)
+}
+
+# [3] REW: 2002-08-23
+sp {apply*sentry-watch*instance*interrupted
+   (state <s> ^operator <o1>
+                       )
+   (<o1> ^name sentry-watch
+         ^sentry-watch-instance <swi>
+         ^objective <obj>)
+   (<obj> ^sentry-watch <sw>)
+   (<sw> ^sentry-watch-instance { <> <swi> <oswi> }
+          ^status executing )
+   -->
+   (<sw> ^sentry-watch-instance <oswi> - <swi> +
+          ^status executing - interrupted +)
+}
+
+# [3] REW: 2002-08-23
+# It's possible to not have begun the watch before being interrupted.  So we also handle the case
+# where the sentry watch hasn't yet begun executing
+sp {apply*sentry-watch*instance*not-yet-exeucting
+   (state <s> ^operator <o1>
+                       )
+   (<o1> ^name sentry-watch
+         ^sentry-watch-instance <swi>
+         ^objective <obj>)
+   (<obj> ^sentry-watch <sw>)
+   (<sw> ^sentry-watch-instance { <> <swi> <oswi> }
+          -^status )
+   -->
+   (<sw> ^sentry-watch-instance <oswi> - <swi> +)
+       }
+
+#  [2] REW: 2002-08-23
+#  Because sentry-watch will modify the position and threat direction under defensive position, when we
+#  enter sentry-watch, we save the original values if they have not been saved previously
+sp {apply*sentry-watch*save-original-position
+   (state <s> ^operator <o1>
+              ^top-state.io.input-link.agent.time <time>)
+   (<o1> ^name sentry-watch
+         ^objective <obj>)
+   (<obj> ^defensive-position <dp> ^threat <th>)
+   (<dp> ^position <pos>
+        -^original-position-save-time)
+   -->
+   (<dp> ^original-position <pos>
+         ^original-threat <th>
+         ^original-position-save-time <time>)
+}
+
+

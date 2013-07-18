@@ -1,0 +1,16 @@
+sp {attempt-abstract*propose*solution*find-first-term
+   (state <s> ^name attempt-abstract-solution
+             -^first-term)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-term 
+         ^arg first-term)
+}
+
+sp {attempt-abstract*propose*solution*find-last-term
+   (state <s> ^name attempt-abstract-solution
+              ^first-term
+             -^last-term)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-term ^arg last-term)}

@@ -1,0 +1,15 @@
+echo "\nLoading communication\elaborations"
+
+##
+# debugging rule to prefer speaking over getting food
+#
+
+sp {communication*select*prefer-speak-over-food
+   (state <s> ^name haunt
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name speak)
+   (<o2> ^name eat)
+-->
+   (<s> ^operator <o1> > <o2>)
+}

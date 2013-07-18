@@ -1,0 +1,22 @@
+sp {dice*propose*exact
+   (state <s> ^name dice
+              ^my-turn true
+              ^last-bid <lb>
+              ^io.input-link.players.me.total-dice < 5
+              ^io.input-link.affordances.action <a>)
+   (<a> ^name exact
+        ^available true)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name exact)
+}
+
+sp {apply*exact
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name exact)
+-->
+   #interrupt#
+   (write (crlf) |Exact.|)
+   (<ol> ^exact <exact>)
+}

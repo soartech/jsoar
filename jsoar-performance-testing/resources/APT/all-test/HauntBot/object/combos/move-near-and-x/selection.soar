@@ -1,0 +1,26 @@
+#prefer the closest target of a given type (ie closest "food",
+#closest "drink", etc
+sp {move-near-and-x*select*closest-target
+   (state <s> ^operator <o1> +
+              ^operator { <> <o1> <o2>} +)
+   (<o1> ^type { << move-near-and-x >> <name> }
+         ^range <range>)
+   (<o2> ^type <name>
+         ^range > <range>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+      
+#prefer secondary action over moving
+sp {move-near-and-x*select*prefer-grabbing
+   (state <s> ^type move-near-and-x
+              ^action-name <name>
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name <name>)
+   (<o2> ^name << step-1-move-to-area step-2-move-to-xyz >>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+

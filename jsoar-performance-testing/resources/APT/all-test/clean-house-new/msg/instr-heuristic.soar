@@ -1,0 +1,62 @@
+sp {msg*propose*instr-heuristic*default
+   (state <s> ^name msg
+              ^message.first <first>)
+   (<first> ^word heuristic
+            ^next <second>)
+   (<second> ^word <label>
+             ^next <third>)
+   (<third> ^word <wire>
+            ^next nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name instr-heuristic
+         ^label <label>
+         ^wire <wire>
+         ^strength 1)
+}
+
+sp {msg*propose*instr-heuristic*strength
+   (state <s> ^name msg
+              ^message.first <first>)
+   (<first> ^word heuristic
+            ^next <second>)
+   (<second> ^word <label>
+             ^next <third>)
+   (<third> ^word <wire>
+            ^next <fourth>)
+   (<fourth> ^word <strength>
+             ^next nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name instr-heuristic
+         ^label <label>
+         ^wire <wire>
+         ^strength (int <strength>))
+}
+
+sp {apply*instr-heuristic*do
+   (state <s> ^operator <op>
+              ^top-state.diffusing <d>)
+   (<op> ^name instr-heuristic
+         ^label <label>
+         ^wire <wire>
+         ^strength <strength>)
+-->
+   (<d> ^heuristic <h>)
+   (<h> ^label <label>
+        ^wire <wire>
+        ^strength <strength>)
+}
+
+sp {apply*instr-heuristic*pop
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>
+              ^top-state.diffusing.heuristic <h>)
+   (<op> ^name instr-heuristic
+         ^wire <wire>
+         ^label <label>)
+   (<h> ^wire <wire>
+        ^label <label>)
+-->
+   (<ss-op> ^processed true)
+}

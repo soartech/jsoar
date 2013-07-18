@@ -1,0 +1,20 @@
+### BOGUS!!
+
+sp {guess-x*propose*special-guess
+   (state <s> ^name guess-x
+              ^current-problem.answer 0
+              ^superstate <ss>)
+   (<ss> -^operator.prior-x-guess)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name special-guess)
+}
+
+sp {apply*special-guess
+   (state <s> ^operator.name special-guess
+              ^superstate <ss>
+              ^current-problem.height <h>)
+-->
+   (<ss> ^x-guess <x>)
+   (<x> ^value (int (/ <h> 2)))
+}

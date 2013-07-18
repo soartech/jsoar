@@ -1,0 +1,30 @@
+##################################### 
+# file: reset-threat-report.soar 
+# created: REW: 2001-08-26
+## 
+# Delete threat reports when no more enemy are visible
+#
+# Change history: 
+# 
+#  [1] 
+
+sp {sentry-watch*propose*reset-threat-report
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.threats <th>)
+   (<th> ^last-report <lr> ^total-threats 0)
+   (<lr> ^count { > 0 <count> })
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name reset-threat-report
+        ^last-report <lr>)
+}
+
+
+sp {apply*reset-threat-report
+   (state <s> ^operator <o1>)
+   (<o1> ^name reset-threat-report
+         ^last-report <lr>)
+   (<lr> ^count <count>)
+   -->
+   (<lr> ^count <count> - 0 + )
+}

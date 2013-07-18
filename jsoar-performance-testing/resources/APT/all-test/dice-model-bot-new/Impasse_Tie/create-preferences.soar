@@ -1,0 +1,94 @@
+sp {selection*propose*create-preferences
+   (state <s> ^name selection)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name create-preferences)
+}
+
+sp {selection*compare*create-preferences
+   (state <s> ^name selection
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name create-preferences)
+   (<op2> ^name << evaluate-operator compute-alternative-dice-counts >>)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+
+sp {selection*apply*create-preferences*convert*probability*numeric-preference
+   (state <s> ^name selection
+              ^operator.name create-preferences
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^probability <nv>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> = <nv>)}
+
+sp {selection*apply*create-preferences*save*probability
+   (state <s> ^name selection
+              ^operator.name create-preferences
+              ^superstate <ss>
+              ^evaluation <e1>)
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <sop>
+         ^ << symbolic-value probability >> <nv>
+         ^desired <d>)
+-->
+   (<sop> ^probability <nv>)}
+
+
+sp {selection*apply*create-preferences*compare*bid-better-prior-bid # prefer last face for equal probability bids
+   (state <s> ^name selection
+              ^operator.name create-preferences
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>
+         ^io.input-link.state.last-bid.face <face>)
+   (<e1> ^superoperator <x>
+         ^numeric-value >= <sv>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^numeric-value <sv>
+         ^desired <d>)
+   (<x> ^name bid
+        ^face <face>)
+   (<y> ^name bid
+        ^face <> <face>)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+
+## Always prefer a bid to a challenge if it has a higher probability (don't take chances with a challenge).
+
+sp {selection*apply*create-preferences*compare*bid-better-challenge
+   (state <s> ^name selection
+              ^operator.name create-preferences
+              ^superstate <ss>
+              ^evaluation <e1> { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^numeric-value >= <sv>
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^numeric-value { <> 1.0 <sv> }
+         ^desired <d>)
+   (<x> ^name bid)
+   (<y> ^name challenge)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*apply*create-preferences*prefer*best*bid*challenge*certain*no-model
+   (state <s> ^name selection
+              ^operator.name create-preferences
+              ^superstate <ss>
+              ^evaluation <e>)
+   (<e> ^superoperator <so>
+        ^use-model true
+        ^symbolic-value certain)
+   (<so> ^name challenge)
+-->
+   (<ss> ^operator <so> = .8)}

@@ -1,0 +1,58 @@
+sp {algebra*propose*process-clause*right-side
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>)
+   (<rs> ^operation
+        -^failed yes)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name process-clause
+         ^clause <rs>
+         ^side right-side)
+}
+sp {algebra*propose*process-clause*left-side
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^left-side <rs>)
+   (<rs> ^operation
+        -^failed yes)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name process-clause
+         ^clause <rs>
+         ^side left-side)
+}
+
+sp {algebra*apply*process-clause*sub-clause*0*right
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<o> ^name process-clause
+        ^clause <sc>
+        ^side <side>)
+   (<sc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation << subtract add >>)
+   (<rs> ^type number
+         ^value 0)
+-->
+   (<cc> ^<side> <sc> -
+         ^<side> <ls>)
+}
+
+sp {algebra*apply*process-clause*sub-clause*0*left
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<o> ^name process-clause
+        ^clause <sc>
+        ^side <side>)
+   (<sc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation add)
+   (<ls> ^type number
+         ^value 0)
+  -(<rs> ^type number
+         ^value 0)
+-->
+   (<cc> ^<side> <sc> -
+         ^<side> <rs>)
+}

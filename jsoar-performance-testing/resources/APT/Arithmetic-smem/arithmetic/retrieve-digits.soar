@@ -1,0 +1,40 @@
+### Should fix so get one retrieval and then got through next pointers until get back
+### to one already retrieved.  That would eliminate the rule in elaborations so the
+### system doesn't have to already know what the numbers are.
+
+sp {arithmetic*propose*retrieve-digits
+   (state <s> ^name arithmetic
+             -^digits.complete true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name retrieve-digits)
+}
+
+sp {apply*retrieve-digits*create-digit
+   (state <s> ^operator.name retrieve-digits
+              ^digits <dd>
+              ^smem <smem>)
+   (<smem> ^command <cmd>
+           ^result.retrieved <digit>)
+   (<cmd> ^query.digit <d>)
+   (<digit> ^digit <d>)
+-->
+   (<dd> ^digit <digit>)}
+
+sp {apply*retrieve-digits*query
+   (state <s> ^operator.name retrieve-digits
+              ^smem.command <cmd>)
+-->
+   (<cmd> ^query.digit 0)
+}
+
+sp {apply*retrieve-digits
+   (state <s> ^operator.name retrieve-digits
+              ^smem <smem>
+              ^digits <dd>)
+   (<smem> ^result.retrieved <r>
+           ^command.query.digit 0)
+-->
+   (<dd> ^digit <r>)
+}
+ 

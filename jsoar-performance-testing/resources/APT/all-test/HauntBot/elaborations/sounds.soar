@@ -1,0 +1,13 @@
+sp {haunt*display-sounds
+   (state <s> ^name haunt
+              ^io.input-link.sounds <ss>)
+   (<ss> ^<sss> <ssss>)
+-->
+   (write (crlf) |Sound : | <ss> | ^| <sss> | | <ssss>)}
+
+sp {haunt*display-messages
+   (state <s> ^name haunt
+              ^io.input-link.messages <ss>)
+   (<ss> ^<sss> <ssss>)
+-->
+   (write (crlf) |Messages : | <ss> | ^| <sss> | | <ssss>)}

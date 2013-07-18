@@ -1,0 +1,35 @@
+sp {attempt-simple-problem*propose*use-answer
+   (state <s> ^name attempt-simple-problem
+              ^current-problem.goal-test-success)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name use-answer)
+}
+#
+#sp {apply*use-answer
+#   (state <s> ^operator.name use-answer
+#              ^superstate.execute-step <sum>
+#              ^current-problem.sum <sum>
+#              ^superstate.current-problem.result <r>)
+#
+#-->
+#   (<r> ^retrieved success
+#        ^complete true
+#        ^sum <sum>
+#        ^answer <sum>)
+#}
+#
+sp {apply*use-answer
+   (state <s> ^operator.name use-answer
+              ^superstate.execute-step <sum>
+              ^current-problem.sum <sum>
+              ^superstate.current-problem <p>)
+   (<p> ^result <r>)
+
+-->
+   (<r> ^retrieved success
+        ^complete true
+        ^sum <sum>
+        ^answer <sum>)
+   (<p> ^sum <sum>)       #### ?????
+}

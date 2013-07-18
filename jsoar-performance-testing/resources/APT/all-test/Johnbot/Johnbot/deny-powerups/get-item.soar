@@ -1,0 +1,20 @@
+
+sp {deny-powerups*propose*get-item*in-room
+   (state <s> ^name deny-powerups 
+              ^superstate.operator <o>
+              ^current-room <cr>)
+   (<o> ^room <cr>
+        ^item <item>)
+   (<item> ^type <type>
+           ^classname <cname>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name get-item
+        ^type <type>
+        ^item <item>
+        ^priority 9
+        ^place recorded-in-room
+        ^classname <cname>)
+   }
+
+

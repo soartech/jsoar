@@ -1,0 +1,41 @@
+
+
+# compute (estimated) range to target position.
+# Use straight-line distance b/c value is only used to detect
+# when actor is close enough to drop item. 
+sp {move-and-x*elaborate*range
+   (state <s> ^type move-and-x
+              ^io.input-link.agent.position <current>
+              ^position <target>)
+   (<current> ^x <cx> 
+              ^y <cy>
+              ^z <z>)  # z-coordinates must be equal (THIS MAY BECOME A PROBLEM IF ON THE STAIRS!!!
+   (<target> ^x <tx> 
+             ^y <ty>)
+    #         ^z <z>)   # z-coordinates must be equal!!!  MJP: THIS IS GIVING PROBLEMS... due to slight variations in z-values
+-->
+#   (write (crlf) |Computing range!!!|)
+   (<s> ^range (compute-range <cx> <cy> <tx> <ty>))
+}
+
+
+# determine if "close enough" to target
+sp {move-and-x*elaborate*at-target
+   (state <s> ^type move-and-x
+              ^parameters.at-target-range <range>
+              ^range <= <range>)   #arbitrary value, needs to be tweaked
+-->
+   (<s> ^at-target yes)
+}
+   
+
+# copy down target location info
+sp {move-and-x*elaborate*target-info
+   (state <s> ^superstate.operator <o>)
+   (<o> ^type move-and-x
+        ^area <area>
+        ^position <pos>)
+-->
+   (<s> ^area <area>
+        ^position <pos>)
+}

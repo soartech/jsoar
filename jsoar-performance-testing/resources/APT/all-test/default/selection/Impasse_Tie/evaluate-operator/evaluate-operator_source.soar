@@ -1,0 +1,14 @@
+source elaborations.soar
+source Impasse_Constraint-Failure.soar
+pushd Impasse_Constraint-Failure
+source Impasse_Constraint-Failure_source.soar
+popd
+source Impasse_Tie.soar
+pushd Impasse_Tie
+source Impasse_Tie_source.soar
+popd
+source Impasse_No-Change.soar
+pushd Impasse_No-Change
+source Impasse_No-Change_source.soar
+popd
+source task-operator.soar

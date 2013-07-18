@@ -1,0 +1,66 @@
+##################################### 
+# file: resume-watch.soar 
+# created: REW: 2001-08-20
+## 
+# Resume a previously interrupted or terminated watch.
+#
+# Change history: 
+# 
+#  [1] REW: 2002-08-23
+#      Need to determine if end-time needs to be updated.  For now, just set the status back to executing.
+
+echo "\nLoading execute-mission/defend/sentry-watch/resume-watch.soar"
+
+
+# When a watch has been suspended or interrupted, we only start executing after resuming the watch.
+# Resumption of the watch is the best operation available -- don't undertake the watch until
+# officially resuming it ....
+sp {sentry-watch*propose*resume-watch
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.status  << interrupted  suspended >> )
+   -->
+   (<s> ^operator <o> +, = 50 >)
+   (<o> ^name resume-watch)
+}
+
+# REW: Probably only want to say this when the interruption time is significant.... for now, good for debugging
+#sp {apply*resume-watch*communicate*resuming-watch
+#   (state <s> ^operator <o1> 
+#              ^top-state.comm <comm>)
+#   (<o1> ^name resume-watch)
+#   -->
+#   (<comm> ^communicate <cc>)
+#   (<cc> ^name resuming-watch)
+#}
+
+sp {apply*resume-watch*interrupted
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>)
+   (<o1> ^name resume-watch)
+   (<sw> ^status { << interrupted suspended >> <stat> })
+   -->
+#   (write (crlf) |====================================|)
+#   (write (crlf) | Resuming an interrupted watch .... |)
+   (<sw> ^status executing + <stat> -)
+}
+
+# Delete any old scan data when resuming the watch.
+sp {apply*resume-watch*remove*scan
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>)
+   (<sw> ^scan <sc>)
+   (<o1> ^name resume-watch)
+   -->
+   (<sw> ^scan <sc> -)
+}
+
+# same thing for the next-scan-time
+# REW: 2003-01-24: This is wrong because only begin-watch sets next-scan-time
+#sp {apply*resume-watch*remove*next-scan-time
+#   (state <s> ^operator <o1>
+#              ^objective.sentry-watch <sw>)
+#   (<sw> ^next-scan-time <sc>)
+#   (<o1> ^name resume-watch)
+#   -->
+#   (<sw> ^next-scan-time <sc> -)
+#}

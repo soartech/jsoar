@@ -1,0 +1,12 @@
+sp {execute-action*elaborate*state*action
+   (state <s> ^name execute-action
+              ^superstate.operator.action <a>)
+-->
+   (<s> ^action <a>)
+}
+sp {execute-action*elaborate*state*current-problem
+   (state <s> ^name execute-action
+              ^superstate.current-problem <cp>)
+-->
+   (<s> ^current-problem <cp>)
+}

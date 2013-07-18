@@ -1,0 +1,40 @@
+echo "\nLoading execute-script/runaway"
+
+################################
+## runaway operator 
+##   Determine-runaway-door
+##   Mark objective abandon
+##   Options:
+##     Create new objective to defend room that you are going into
+##     Go to room furthest from enemy
+##   Record time-abandoned
+
+##   REW: 2002-07-10
+##        Added ^condition to express the reason that the runaway was proposed (eg, wounded, out of ammo, etc.)
+##        Added new application prods that test ^condition and generate an appropriate communication
+
+################################
+#
+
+sp {execute-script*propose*runaway*wounded
+   (state <s> ^name execute-script
+              ^top-state <ts>)
+   (<ts> ^self.hurt true
+        -^map.current-area.runaway-door none
+         ^actors.level very-high)  
+-->
+   (write (crlf) |Propose runaway wounded|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name runaway
+        ^condition wounded)
+   }
+
+sp {execute-script*propose*runaway*runaway-door  # Because of prior runaway
+   (state <s> ^name execute-script
+              ^top-state.map.current-area.runaway-door { <> none <door> })
+-->
+   (write (crlf) |Propose runaway runaway-door: | <door>)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name runaway)}
+
+

@@ -1,0 +1,43 @@
+sp {UCBot*propose*update-all-paths*go-to-flag
+   (state <s> ^name UCBot
+              ^mission <m>
+              ^parameters <p>)
+   (<p> ^update-all-paths true
+        ^explore-or-flag go-to-flag)
+   (<m> ^achieved-flag <fl>
+       -^updated-all-paths true)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name update-all-paths)
+}
+
+sp {UCBot*propose*update-all-paths*explore-all
+   (state <s> ^name UCBot
+              ^mission <m>
+              ^parameters <p>
+              ^map <map>)
+   (<p> ^update-all-paths true
+        ^explore-or-flag explore-all)
+   (<m> -^updated-all-paths true)
+   (<map> ^search-complete true)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name update-all-paths)
+}
+
+sp {UCBot*monitor*update-all-paths
+   (state <s> ^operator.name update-all-paths
+             -^parameters.monitor-level none)
+-->
+   (write (crlf) |Updating all paths.|)
+}
+
+sp {UCBot*apply*update-all-paths*stop-moving
+   (state <s> ^operator.name update-all-paths
+              ^io.output-link <ol>)
+-->
+   (<ol> ^move.direction none
+         ^turn.direction none
+         ^strafe.direction none
+         ^jump.direction none)
+}

@@ -1,0 +1,114 @@
+sp {goto-gateway*elaborate*current-gateway
+   (state <s> ^name goto-gateway
+              ^superstate.operator <so>)
+   (<so> ^name goto-gateway
+         ^gateway <gw>)
+-->
+   (<s> ^current-gateway <gw>)
+}
+sp {goto-gateway*elaborate*xy*pos-true
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dirs>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dirs> ^value <dir>
+           ^move-in-rectangle <y>
+           ^move-in-rectangle-delta pos)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<cent> ^<y> <cy>)
+  -(<pos> ^<y> < <cy>)
+-->
+   (<s> ^move-direct-gateway true)
+}
+
+sp {goto-gateway*elaborate*xy*pos-false
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dirs>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dirs> ^value <dir>
+           ^opposite <new-dir>
+           ^move-in-rectangle <y>
+           ^move-in-rectangle-delta pos)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<cent> ^<y> <cy>)
+  -(<pos> ^<y> >= <cy>)
+-->
+   (<s> ^move-direct-gateway false
+        ^move-direction <new-dir>)
+}
+sp {goto-gateway*elaborate*xy*neg-true
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dir>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dir> ^value <dir>
+          ^move-in-rectangle <y>
+          ^move-in-rectangle-delta neg)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<cent> ^<y> <cy>)
+  -(<pos> ^<y> >= <cy>)
+-->
+   (<s> ^move-direct-gateway true)
+}
+
+sp {goto-gateway*elaborate*xy*neg-false
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dirs>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dirs> ^value <dir>
+           ^opposite <new-dir>
+           ^move-in-rectangle <y>
+           ^move-in-rectangle-delta neg)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<cent> ^<y> <cy>)
+  -(<pos> ^<y> < <cy>)
+-->
+   (<s> ^move-direct-gateway false
+        ^move-direction <new-dir>)
+}
+
+#############################
+
+sp {goto-gateway*elaborate*move-y
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dirs>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dirs> ^value <dir>
+           ^move-in-rectangle y
+           ^move-in-rectangle-num <num>)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<pos> ^x <x>)
+   (<cent> ^y <cy>
+           ^x <cx>)
+-->
+   (<s> ^new-destination <nd>)
+   (<nd> ^x <x>
+         ^y (+ <cy> <num>))
+}
+
+sp {goto-gateway*elaborate*move-x
+   (state <s> ^name goto-gateway
+              ^top-state.directions <dirs>
+              ^io.input-link.self.position <pos>
+              ^current-gateway <cg>)
+   (<dirs> ^value <dir>
+           ^move-in-rectangle x
+           ^move-in-rectangle-num <num>)
+   (<cg> ^center <cent>
+         ^direction <dir>)
+   (<pos> ^y <y>)
+   (<cent> ^x <cx>)
+-->
+   (<s> ^new-destination <nd>)
+   (<nd> ^x (+ <cx> <num>)
+         ^y <y>)
+}
+

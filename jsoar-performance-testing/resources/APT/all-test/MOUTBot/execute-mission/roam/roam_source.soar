@@ -1,0 +1,7 @@
+source elaborations.soar
+source goto-next-location.soar
+source search-area.soar
+pushd search-area
+source search-area_source.soar
+popd
+source update-next-location.soar

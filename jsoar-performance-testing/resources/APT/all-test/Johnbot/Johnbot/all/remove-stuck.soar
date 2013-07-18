@@ -1,0 +1,18 @@
+sp {all*propose*remove-stuck
+   (state <s> ^superstate.superstate.operator.name <c>
+              ^attribute state
+              ^impasse no-change
+              ^top-state.self <ss>)
+   (<ss> -^stopped true
+          ^stuck-time <st>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-stuck)}
+
+sp {all*apply*remove-stuck*remove
+   (state <s> ^operator <o>
+              ^top-state.self <ss>)
+   (<o> ^name remove-stuck)
+   (<ss> ^stuck-time <st>)
+   -->
+   (<ss> ^stuck-time <st> -)}

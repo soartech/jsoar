@@ -1,0 +1,38 @@
+
+sp {describe-variable*propose*count-pluses
+   (state <s> ^name describe-variable 
+             -^define failure
+              ^count <c> 
+              ^role length-add)
+-->
+   (<s> ^operator <op> + = )
+   (<op> ^name count-pluses)
+}
+
+sp {apply*count-pluses*increment
+   (state <s> ^operator.name count-pluses 
+              ^count <num>
+              ^pointer <p>)
+   (<p> ^next {<x> <> nil}
+       -^value  |....|)
+-->
+   (<s> ^pointer <p> - <x> 
+        ^count <num> - (+ <num> 1))
+}
+
+sp {apply*count-pluses*finished-counting
+   (state <s> ^operator.name count-pluses
+              ^count <num> 
+              ^pointer.next nil
+              ^superstate <ss>)
+   (<ss> ^operator.arg <arg>)
+-->
+   (<ss> ^<arg> <num>)
+}
+
+sp {apply*count-pluses*cannot-count-ellipsis
+   (state <s> ^operator.name count-pluses
+              ^pointer.value  |....|)
+-->
+   (<s> ^define failure)
+}

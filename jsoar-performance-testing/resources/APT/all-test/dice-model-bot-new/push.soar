@@ -1,0 +1,37 @@
+sp {dice-game-bot*propose*push
+   (state <s> ^name dice
+              ^push-bid)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name push
+         ^push-structure <ps>)
+}
+
+sp {apply*push*structure
+   (state <s> ^operator <op>
+              ^push-bid.die.face <die>
+              ^io.output-link <out>)
+   (<op> ^name push
+         ^push-structure <ps>)
+-->
+   #interrupt#
+   (<out> ^push <ps>)
+   (<ps> ^die.face <die>)
+}
+
+sp {apply*push*clear
+   (state <s> ^operator <op>
+              ^push-bid <pb>)
+   (<op> ^name push)
+-->
+   (<s> ^push-bid <pb> -)
+}
+
+sp {dice-game-bot*compare*push
+   (state <s> ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name push)
+   (<op2> ^name clear-turn-data)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

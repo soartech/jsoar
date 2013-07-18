@@ -1,0 +1,433 @@
+cd ..
+pushd default
+source selection.soar 
+source selection-iterative-deepening.soar
+popd
+sp {apply*next__on_p__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^a <a>)
+   (<g> ^off <o1>)
+   (<o1> ^p1 p)
+-->
+   (<g> ^on <on>)
+   (<on> ^p1 p)
+}
+sp {apply*next__off_p__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^a <a>)
+   (<g> ^on <o1>)
+   (<o1> ^p1 p)
+-->
+   (<g> ^off <off>)
+   (<off> ^p1 p)
+}
+sp {apply*next__on_p__21
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^b <b>)
+   (<g> ^on <o1>)
+   (<o1> ^p1 q)
+-->
+   (<g> ^on <on>)
+   (<on> ^p1 p)
+}
+sp {apply*next__on_q__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^b <b>)
+   (<g> ^on <o1>)
+   (<o1> ^p1 p)
+-->
+   (<g> ^on <on>)
+   (<on> ^p1 q)
+}
+sp {apply*next__off_p__21
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^b <b>)
+   (<g> ^off <o1>)
+   (<o1> ^p1 q)
+-->
+   (<g> ^off <off>)
+   (<off> ^p1 p)
+}
+sp {apply*next__off_q__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^b <b>)
+   (<g> ^off <o1>)
+   (<o1> ^p1 p)
+-->
+   (<g> ^off <off>)
+   (<off> ^p1 q)
+}
+sp {apply*next__on_q__21
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^c <c>)
+   (<g> ^on <o1>)
+   (<o1> ^p1 r)
+-->
+   (<g> ^on <on>)
+   (<on> ^p1 q)
+}
+sp {apply*next__on_r__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^c <c>)
+   (<g> ^on <o1>)
+   (<o1> ^p1 q)
+-->
+   (<g> ^on <on>)
+   (<on> ^p1 r)
+}
+sp {apply*next__off_q__21
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^c <c>)
+   (<g> ^off <o1>)
+   (<o1> ^p1 r)
+-->
+   (<g> ^off <off>)
+   (<off> ^p1 q)
+}
+sp {apply*next__off_r__1
+   (state <s> ^name game ^name game ^operator <o> ^io <i> ^gs <g>)
+   (<o> ^name progress-state)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<r> ^c <c>)
+   (<g> ^off <o1>)
+   (<o1> ^p1 q)
+-->
+   (<g> ^off <off>)
+   (<off> ^p1 r)
+}
+sp {apply*next__step__y__1
+   (state <s> ^name game ^name game ^operator <o> ^gs <g> ^facts <f>)
+   (<o> ^name progress-state)
+   (<g> ^step <s1>)
+   (<s1> ^p1 <x>)
+   (<f> ^succ <s2>)
+   (<s2> ^p1 <x> ^p2 <y>)
+-->
+   (<g> ^step <step>)
+   (<step> ^p1 <y>)
+}
+sp {apply*remove*next__step__y__
+   (state <s> ^name game ^operator <o> ^gs <g>)
+   (<o> ^name progress-state)
+   (<g> ^step <s1>)
+   (<s1> ^p1 <y>)
+-->
+   (<g> ^step <s1> -)
+}
+sp {propose*legal_robot__a__1
+   (state <s> ^name game ^io <i>)
+   (<i> ^output-link <o>)
+   (<o> -^<cmd-name> <c>)
+-->
+   (<s> ^operator <o1> +)
+   (<o1> ^name a_)
+}
+sp {apply*a_
+   (state <s> ^name game ^operator <o> ^io <i>)
+   (<o> ^name a_)
+   (<i> ^output-link <o1>)
+-->
+   (<o1> ^a <a>)
+   
+}
+sp {propose*legal_robot__b__1
+   (state <s> ^name game ^io <i>)
+   (<i> ^output-link <o>)
+   (<o> -^<cmd-name> <c>)
+-->
+   (<s> ^operator <o1> +)
+   (<o1> ^name b_)
+}
+sp {apply*b_
+   (state <s> ^name game ^operator <o> ^io <i>)
+   (<o> ^name b_)
+   (<i> ^output-link <o1>)
+-->
+   (<o1> ^b <b>)
+   
+}
+sp {propose*legal_robot__c__1
+   (state <s> ^name game ^io <i>)
+   (<i> ^output-link <o>)
+   (<o> -^<cmd-name> <c>)
+-->
+   (<s> ^operator <o1> +)
+   (<o1> ^name c_)
+}
+sp {apply*c_
+   (state <s> ^name game ^operator <o> ^io <i>)
+   (<o> ^name c_)
+   (<i> ^output-link <o1>)
+-->
+   (<o1> ^c <c>)
+   
+}
+sp {elaborate*goal_robot_100_1
+   (state <s> ^name game ^terminal <t> ^desired <d> ^gs <g>)
+   (<g> ^on <o> ^on <o1> ^on <o2>)
+   (<o> ^p1 p)
+   (<o1> ^p1 q)
+   (<o2> ^p1 r)
+-->
+   (<s> ^success <d>)
+}
+sp {elaborate*goal_robot_0_1
+   (state <s> ^name game ^terminal <t> ^desired <d> ^gs <g>)
+   -{
+     (<g> ^on <o>)
+     (<o> ^p1 p)
+   }
+-->
+   (<s> ^failure <d>)
+}
+sp {elaborate*goal_robot_0_21
+   (state <s> ^name game ^terminal <t> ^desired <d> ^gs <g>)
+   -{
+     (<g> ^on <o>)
+     (<o> ^p1 q)
+   }
+-->
+   (<s> ^failure <d>)
+}
+sp {elaborate*goal_robot_0_31
+   (state <s> ^name game ^terminal <t> ^desired <d> ^gs <g>)
+   -{
+     (<g> ^on <o>)
+     (<o> ^p1 r)
+   }
+-->
+   (<s> ^failure <d>)
+}
+sp {elaborate*terminal_1
+   (state <s> ^name game ^gs <g> ^io <i> -^duplicate-of <d>)
+   (<g> ^step <s1>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<s1> ^p1 7)
+-->
+   (halt)
+}
+sp {terminal_11
+   (state <s> ^name game ^gs <g> ^io <i> ^duplicate-of <d>)
+   (<g> ^step <s1>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<s1> ^p1 7)
+-->
+   (<s> ^terminal <terminal>)
+}
+sp {elaborate*terminal_21
+   (state <s> ^name game ^gs <g> ^io <i> -^duplicate-of <d>)
+   (<g> ^on <o> ^on <o1> ^on <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<o> ^p1 p)
+   (<o1> ^p1 q)
+   (<o2> ^p1 r)
+-->
+   (halt)
+}
+sp {terminal_211
+   (state <s> ^name game ^gs <g> ^io <i> ^duplicate-of <d>)
+   (<g> ^on <o> ^on <o1> ^on <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<o> ^p1 p)
+   (<o1> ^p1 q)
+   (<o2> ^p1 r)
+-->
+   (<s> ^terminal <terminal>)
+}
+sp {propose*init-game
+   (state <s> ^superstate nil -^name )
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name init-game)
+}
+sp {apply*init-game
+   (state <s> ^operator <o>)
+   (<o> ^name init-game)
+-->
+   (<s> ^name game ^desired <desired> ^gs <gs> ^facts <facts>)
+   (<gs> ^role robot)
+   (<gs> ^off <off>)
+   (<off> ^p1 p)
+   (<gs> ^off <off1>)
+   (<off1> ^p1 q)
+   (<gs> ^off <off2>)
+   (<off2> ^p1 r)
+   (<gs> ^step <step>)
+   (<step> ^p1 1)
+   (<facts> ^succ <succ>)
+   (<succ> ^p1 1 ^p2 2)
+   (<facts> ^succ <succ1>)
+   (<succ1> ^p1 2 ^p2 3)
+   (<facts> ^succ <succ2>)
+   (<succ2> ^p1 3 ^p2 4)
+   (<facts> ^succ <succ3>)
+   (<succ3> ^p1 4 ^p2 5)
+   (<facts> ^succ <succ4>)
+   (<succ4> ^p1 5 ^p2 6)
+   (<facts> ^succ <succ5>)
+   (<succ5> ^p1 6 ^p2 7)
+}
+sp {apply*remove-next__on_q__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^on <o1> ^on <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 q)
+   (<r> -^a <a>)
+   (<o2> ^p1 q)
+-->
+   (<g> ^on <o2> -)
+}
+sp {apply*remove-next__on_r__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^on <o1> ^on <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r> ^robot <r1>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 r)
+   (<r> -^a <a>)
+   (<r1> -^b <b>)
+   (<o2> ^p1 r)
+-->
+   (<g> ^on <o2> -)
+}
+sp {apply*remove-next__off_q__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^off <o1> ^off <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 q)
+   (<r> -^a <a>)
+   (<o2> ^p1 q)
+-->
+   (<g> ^off <o2> -)
+}
+sp {apply*remove-next__off_r__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^off <o1> ^off <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r> ^robot <r1>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 r)
+   (<r> -^a <a>)
+   (<r1> -^b <b>)
+   (<o2> ^p1 r)
+-->
+   (<g> ^off <o2> -)
+}
+sp {apply*remove-next__on_p__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^on <o1> ^on <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 p)
+   (<r> -^c <c>)
+   (<o2> ^p1 p)
+-->
+   (<g> ^on <o2> -)
+}
+sp {apply*remove-next__off_p__0
+   (state <s> ^name game ^gs <g> ^io <i> ^operator <o>)
+   (<g> ^off <o1> ^off <o2>)
+   (<i> ^input-link <i1>)
+   (<i1> ^last-moves <l>)
+   (<l> ^robot <r>)
+   (<o> ^name progress-state)
+   (<o1> ^p1 p)
+   (<r> -^c <c>)
+   (<o2> ^p1 p)
+-->
+   (<g> ^off <o2> -)
+}
+sp {propose*progress-state
+   (state <s> ^io <i>)
+   (<i> ^output-link <o>)
+   (<o> ^<cmd-name> <cmd>)
+-->
+   (<s> ^operator <o1> + <)
+   (<o1> ^name progress-state)
+}
+sp {apply*progress-state
+   (state <s> ^name game ^operator <o> ^io <i>)
+   (<o> ^name progress-state)
+   (<i> ^output-link <o1>)
+   (<o1> ^<cmd-name> <c>)
+-->
+   (<o1> ^<cmd-name> <c> -)
+}
+sp {game*elaborate*fake-response
+   (state <s> ^io <i>)
+   (<i> ^output-link <o> ^input-link <i1>)
+   (<o> ^<action-name> <a>)
+-->
+   (<i1> ^last-moves <last-moves>)
+   (<last-moves> ^robot <robot>)
+   (<robot> ^<action-name> <a>)
+}
+sp {game*elaborate*problem-space
+   (state <s> ^name game)
+-->
+   (<s> ^problem-space <problem-space>)
+   (<problem-space> ^name game ^default-state-copy yes ^one-level-attributes facts ^two-level-attributes gs)
+}
+sp {game*elaborate*selection-space-fake-io
+   (state <s> ^duplicate-of <d>)
+-->
+   (<s> ^io <io>)
+   (<io> ^input-link <input-link> ^output-link <output-link>)
+}
+sp {elaborate*elab-link
+   (state <s> ^type state)
+-->
+   (<s> ^elaborations <elaborations>)
+}

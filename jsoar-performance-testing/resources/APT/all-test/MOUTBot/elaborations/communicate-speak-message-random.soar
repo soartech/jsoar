@@ -1,0 +1,34 @@
+##################################### 
+# file: speak-message-random.soar 
+# created: 2002-09-27
+## 
+## Define which messages should be spoken only randomly, and then how often if random.
+#  Really, this should be part of the definitions, but that means having a bunch of
+# productions for all the simple messages.
+# Change history: 
+# 
+
+sp {top-ps*elaborate*state*comm*communicate*speak-message-random-parameters
+   (state <s> ^comm <comm>)
+   -->
+   (<comm> ^speak-random-parameters <p>)
+   (<p> ^weapon-dry .1
+        ^under-fire .1
+        ^i-am-hit   .5
+        ^on-watch-station .5
+        ^weapon-jammed .5
+        ^pulling-out .8
+        ^pull-out .75
+                    )
+   }
+                    
+sp {top-ps*elaborate*state*comm*communicate*message*speak-message-randomly
+   (state <s> ^comm <comm>)
+   (<comm> ^communicate <c> 
+           ^speak-random-parameters.<name> <val>)
+   (<c> ^name <name>)
+   -->
+   (<c> ^speak-message-random <val>)
+   }
+   
+

@@ -1,0 +1,21 @@
+sp {propose*define-arg1
+   (state <s> ^name find-term 
+              ^define <arg> 
+              ^relation <r> -^<arg1>)
+   (<r> ^arg1 <arg1>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-term ^arg <arg1>)
+}
+
+sp {propose*define-arg2
+   (state <s> ^name find-term
+              ^define <arg> 
+              ^relation <r> 
+              ^<arg1>
+             -^<arg2>)
+   (<r> ^arg1 <arg1> ^arg2 <arg2>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name find-term ^arg <arg2>)
+}

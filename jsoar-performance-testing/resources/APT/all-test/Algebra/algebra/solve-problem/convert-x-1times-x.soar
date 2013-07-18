@@ -1,0 +1,62 @@
+## + x ==> + [1 * x]
+## hope to undistribute x
+
+sp {algebra*propose*convert-x-1times-x*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << add subtract >>
+         ^right-side.type variable
+        -^left-side.type number)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name convert-x-1times-x
+         ^side right)
+}
+
+sp {algebra*propose*convert-x-1times-x*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^operation << add subtract >>
+         ^left-side.type variable
+        -^right-side.type number)
+-->
+   (<s> ^operator <op> + = 10)
+   (<op> ^name convert-x-1times-x
+         ^side left)
+}
+
+sp {algebra*apply*convert-x-1times-x*right
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>)
+   (<o> ^name convert-x-1times-x
+        ^side right)
+-->
+   (write (crlf) |Multiply by 1: | <rs>)
+   (<cc> ^right-side <nrs>
+                     <rs> -)
+   (<nrs> ^left-side <nls2>
+          ^operation multiply
+          ^dont-multiply true
+          ^right-side <rs>)
+   (<nls2> ^value 1
+           ^type number)
+}
+
+sp {algebra*apply*convert-x-1times-x*left
+   (state <s> ^operator <o>
+              ^current-clause <cc>)
+   (<cc> ^left-side <rs>)
+   (<o> ^name convert-x-1times-x
+        ^side left)
+-->
+   (write (crlf) |Multiply by 1: | <rs>)
+   (<cc> ^left-side <nrs>
+                    <rs> -)
+   (<nrs> ^left-side <nls2>
+          ^operation multiply
+          ^dont-multiply true
+          ^right-side <rs>)
+   (<nls2> ^value 1
+           ^type number)
+}

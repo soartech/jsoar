@@ -1,0 +1,76 @@
+sp {go-to*propose*turn-around-object*1-1
+   (state <s> ^name go-to
+              ^front-clear false
+              ^obstacle true
+              ^clear <c>)
+   (<c> ^id { <id> << 1 -1 >> }
+        ^clear true)
+-->
+   (write (crlf) |Propose turn: | <id>)
+   (<s> ^operator <op> + =, >)
+   (<op> ^name turn-around-object
+         ^short-turn yes
+         ^id <id>)
+}
+
+sp {go-to*propose*turn-around-object*2-2
+   (state <s> ^name go-to
+              ^front-clear false
+              ^obstacle true
+              ^clear <c>)
+   (<c> ^id { <id> << 2 -2 >> }
+        ^clear true)
+-->
+   (write (crlf) |Propose turn: | <id>)
+   (<s> ^operator <op> + =)
+   (<op> ^name turn-around-object
+         ^short-turn no
+         ^id <id>)
+}
+
+sp {go-to*compare*turn-around-object
+   (state <s> ^name go-to
+              ^io.input-link.lidar.range <r1> {<> <r1> <r2> }
+              ^operator <op1> +
+                        { <> <op1> <op2> } +)
+   (<op1> ^name turn-around-object
+          ^short-turn <st>
+          ^id <id1>)
+   (<op2> ^name turn-around-object
+          ^short-turn <st>
+          ^id <id2>)
+   (<r1> ^id <id1>
+         ^distance <d1>)
+   (<r2> ^id <id2>
+         ^distance <d1>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {go-to*elaborate*turn-around-object
+   :i-support
+   (state <s> ^name go-to
+              ^top-state.avoidance-turning.item <at>
+              ^top-state.io.input-link.self.pose.yaw <yaw>
+              ^operator <op1> )
+#              ^waypoint-data.yaw <yaw>)
+   (<op1> ^name turn-around-object
+          ^short-turn <st>
+          ^id <id1>)
+   (<at> ^id <id1>
+         ^turn <rb>)
+-->
+   (write (crlf) |ID | <id1> )
+   (write (crlf) | Yaw: | <yaw> |, Relative-Bearing | <rb> |, Sum: | (mod (+ <yaw> <rb>) 360))
+   (<op1> ^actions.set-heading.yaw (mod (+ <yaw> <rb>) 360))}
+
+
+sp {go-to*apply*turn-around-object
+   (state <s> ^name go-to
+              ^operator <op1> )
+   (<op1> ^name turn-around-object
+          ^id <id1>)
+-->
+   (write (crlf) |Selected ID | <id1> )}
+
+

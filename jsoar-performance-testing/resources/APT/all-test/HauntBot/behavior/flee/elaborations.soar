@@ -1,0 +1,28 @@
+
+# compute angle to ghost/player
+sp {flee*elaborate*threat-angle
+   (state <s> ^name flee
+              ^operator <o> +
+              ^io.input-link.agent.position <apos>
+              ^entity-list.entity <entity>)
+   (<entity> ^name |Bob|
+             ^position <epos>)
+   (<epos> ^x <ex>
+           ^y <ey>)
+   (<apos> ^x <ax>
+           ^y <ay>)
+-->
+   (<o> ^threat-angle (compute-heading <ax> <ay> <ex> <ey>))
+}
+
+
+# compute angle between line to node and line to ghost/player
+sp {flee*elaborate*away-angle
+   (state <s> ^name flee
+              ^operator <o> +)
+   (<o> ^node-angle <n-angle>
+        ^threat-angle <t-angle>)
+-->
+   (<o> ^away-angle (abs (round-off-heading (- <n-angle> <t-angle>) 1)))
+}
+

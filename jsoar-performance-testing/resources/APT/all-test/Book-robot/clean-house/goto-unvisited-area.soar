@@ -1,0 +1,27 @@
+sp {clean-house*propose*goto-unvisited-area
+   (state <s> ^name robot
+              ^current-area.cleaned yes
+              ^areas.area <area>)
+   (<area> -^visited yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name goto-unvisited-area
+         ^type goto-area
+         ^area <area>)
+}
+
+sp {clean-house*compare*goto-area*connected
+   (state <s> ^current-area <ca>
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^type goto-area
+          ^area <area1>)
+   (<ca> ^gateway.to <to-id1>)
+   (<area1> ^id <to-id1>)
+   (<op2> ^type goto-area
+          ^area <area2>)
+   (<area2> ^id <to-id2>)
+  -(<ca> ^gateway.to <to-id2>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

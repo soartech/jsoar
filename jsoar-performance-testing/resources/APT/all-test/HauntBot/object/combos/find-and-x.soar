@@ -1,0 +1,14 @@
+echo "\nLoading find-and-x"
+
+#
+# compound command that finds an object of a specified
+# class, and then carries out a secondary action
+# (For example, moving to the object, or acquiring it)
+#
+#
+# required attributes
+#            ^target-class (criteria for search, 1 or more entries)
+#            ^next-action
+#                    ^name
+#                    ^type
+#

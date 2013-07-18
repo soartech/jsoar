@@ -1,0 +1,46 @@
+#echo "\nLoading record-area"
+#
+##Record the area I start in initially
+#sp {all*propose*record-starting-area
+#   (state <s> ^name unreal
+#              ^io.input-link.agent.area <area-name>
+#             -^top-state.map.area.name <area-name>)
+#-->
+#   (<s> ^operator <o> + >, =)
+#   (<o> ^name record-area
+#        ^area-name <area-name>)
+#}
+#
+## add any area we see to the map
+#sp {all*propose*record-area
+#   (state <s> ^name << record-entryway explore hunt move-to-xyz move-to-node >>
+#              ^io.input-link.objects.node.area <area-name>
+#             -^top-state.map.area.name <area-name>)
+#-->
+#   (<s> ^operator <o> + >, =)
+#   (<o> ^name record-area
+#        ^area-name <area-name>)
+#}
+#
+#
+###Record area trumps other records
+#sp {all*compare*record-area-beats-other-records
+#   (state <s> ^operator <o1> +
+#                        <o2> +)
+#   (<o1> ^name record-area)
+#   (<o2> ^name << record-node record-entryway >>)
+#   -->
+#   (<s> ^operator <o1> > <o2>)
+#}
+#
+### Record the area
+#sp {all*apply*record-area
+#   (state <s> ^operator <o>
+#              ^top-state.map <map>)
+#   (<o> ^name record-area
+#        ^area-name <area-name>)
+#-->
+#   (write (crlf) |Record area | <area-name>)
+#   (<map> ^area <recarea>)
+#   (<recarea> ^name <area-name>)
+#}

@@ -1,0 +1,26 @@
+echo "\nobject/move-to-area-safely/Move"
+     
+
+# if path is OK, move!
+sp {move-to-area-safely*propose*move
+   (state <s> ^type move-to-area-safely
+              ^area <area>
+              ^safe-path yes)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^type move-to-area
+        ^area <area>)
+}
+
+
+# if path contains a haunted area, explore for an area with an alternative path
+# (Note that 'explore' will avoid haunted areas)
+# MJP: This solution will eventually find an alternative path if it exists, 
+#      but the agent does not 'remember' such alternative paths.
+sp {move-to-area-safely*propose*explore
+   (state <s> ^type move-to-area-safely
+             -^safe-path)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^type explore)
+}

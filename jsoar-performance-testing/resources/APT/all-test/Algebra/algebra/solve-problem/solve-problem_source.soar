@@ -1,0 +1,26 @@
+source elaborations.soar
+source across-level-swap.soar
+source add.soar
+source add-both-sides.soar
+source add-local.soar
+source add-variable.soar
+source associate.soar
+source convert-subtract-to-add.soar
+source convert-x-1times-x.soar
+source distribute.soar
+source fail.soar
+source Impasse__State_No-Change.soar
+pushd Impasse__State_No-Change
+source Impasse__State_No-Change_source.soar
+popd
+source finish.soar
+source multiply-both-sides.soar
+source process-clause.soar
+pushd process-clause
+source process-clause_source.soar
+popd
+source retry.soar
+source subtract-variable.soar
+source swap-sides.soar
+source swap-variable-constant.soar
+source undistribute.soar

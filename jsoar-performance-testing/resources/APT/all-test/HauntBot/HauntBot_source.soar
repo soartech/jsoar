@@ -1,0 +1,40 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source _notes.soar
+source behavior.soar
+pushd behavior
+source behavior_source.soar
+popd
+source common.soar
+pushd common
+source common_source.soar
+popd
+source communication.soar
+pushd communication
+source communication_source.soar
+popd
+source execute-script.soar
+pushd execute-script
+source execute-script_source.soar
+popd
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source initialize.soar
+pushd initialize
+source initialize_source.soar
+popd
+source object.soar
+pushd object
+source object_source.soar
+popd
+source record-actor.soar
+source record-controlled-area.soar
+source speak.soar
+source zzz-load-complete-message.soar

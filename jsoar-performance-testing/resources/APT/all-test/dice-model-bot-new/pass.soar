@@ -1,0 +1,21 @@
+sp {dice*propose*pass
+   (state <s> ^name dice
+              ^my-turn true
+              ^last-bid <last-bid>
+              ^io.input-link.affordances.action <a>)
+   (<a> ^name pass
+        ^available true)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name pass)
+}
+
+sp {apply*pass
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name pass)
+-->
+   #interrupt#
+   (write (crlf) |Pass.|)
+   (<ol> ^pass <pass>)
+}

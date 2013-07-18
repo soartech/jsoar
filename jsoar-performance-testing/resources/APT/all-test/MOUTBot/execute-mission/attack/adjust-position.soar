@@ -1,0 +1,36 @@
+#####################################
+# file: adjust-position
+# created: REW
+##
+#
+# side-step to a new position for better firing location.
+#
+# Change history:
+# [1] REW: 2003-06-15
+#     This operator is useful in any state that uses defensive-position
+#     so make the proposal dependent on this elaboration.
+
+# REW: 2003-06-15
+# Only move if not changing position -does this work with non-standing positions?
+sp {attack*propose*adjust-position*side-step
+   (state <s> ^name attack
+              ^friend-in-los <dir>
+              ^top-state <ts>)
+   (<ts> ^parameters.opposite.<dir> <move-dir>
+        -^self.changing-body-position
+        -^io.input-link.feedback.side-step <move-dir>)
+--> 
+(write (crlf) | Side stepping to | <move-dir>)`
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name adjust-position
+        ^actions.side-step <move-dir>)
+}
+
+#sp {attack*propose*adjust-position*break
+#   (state <s> ^name attack
+#              ^io.input-link.feedback.side-step << left right >>)
+#   -->
+#  (write (crlf) |STOP SIDE STEP in adjust position|)
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name adjust-position
+#        ^actions.break true)}

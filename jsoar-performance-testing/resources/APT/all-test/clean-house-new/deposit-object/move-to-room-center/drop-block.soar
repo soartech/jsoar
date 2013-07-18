@@ -1,0 +1,14 @@
+sp {move-to-room-center*propose*drop-block
+   (state <s> ^name move-to-room-center
+              ^collision true
+              ^io.input-link.self  <self>)
+   (<self> ^carry <id>
+           ^stopped yes)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name drop-block
+         ^actions <a>)
+   (<a> ^drop-object.id <id>)
+}
+
+

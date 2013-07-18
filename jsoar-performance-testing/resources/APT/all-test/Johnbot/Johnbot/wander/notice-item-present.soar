@@ -1,0 +1,42 @@
+#echo "\nLoading wander/notice-item-present"
+
+################################
+### Propose notice-item-present operator
+################################
+
+sp {wander*propose*notice-item-present
+   (state <s> ^name  << wander retreat attack chase >>
+              ^top-state.map.current-room.item <item>
+              ^io.input-link <il>)
+   (<il> ^entity.item.classname <cname>
+         ^agent.cycle <ct>)
+   (<item> ^classname <cname>
+           ^regeneration-time { <rt> > <ct> }) 
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name notice-item-present
+        ^item <item>)}
+
+sp {wander*propose*notice-item-present*search
+   (state <s> ^name  << wander retreat attack chase >>
+              ^top-state.map.current-room.search.recorded <item>
+              ^io.input-link <il>)
+   (<il> ^entity.item.classname <cname>
+         ^agent.cycle <ct>)
+   (<item> ^classname <cname>
+           ^regeneration-time { <rt> > <ct> }) 
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name notice-item-present
+        ^item <item>)}
+
+sp {wander*apply*notice-item-present
+   (state <s> ^operator <o>)
+   (<o> ^name notice-item-present
+        ^item <item>)
+   (<item> ^regeneration-time <rt>)
+   -->
+   (<item> ^regeneration-time <rt> -
+           ^regeneration-time 0)
+}
+

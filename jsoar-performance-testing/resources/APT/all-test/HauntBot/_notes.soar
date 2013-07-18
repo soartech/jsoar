@@ -1,0 +1,47 @@
+#+===================+
+#| Things to discuss |
+#+===================+
+#1. Format for productions including comments, tabs, variable names, and production names
+#2. Adjusting agent's speed as he approaches doorway nodes.  I think this will both add
+#   realism AND prevent the agent from getting stuck much of the time. :AMN:
+
+
+#+============================+
+#| Useful UT Console Commands |
+#+============================+
+##1. summon Hauntgame.soarHauntbot - summons a soar agent into Infiltration
+##2. invisible 1 - makes you invisible
+##3. invisible 0 - makes you visible again
+##4. god - makes you invincible
+##5. ghost - makes your ethereal (can walk through walls and fly)
+##6. walk - turns off ghost
+##7. F1 - F5: summon TCL Hauntbots 1-5
+
+#+============+
+#| Soar To Do |
+#+============+
+#1. Change map window offset so scrolling is unnecessary
+#2. Have map display bots current destination area on the map
+#3. Remove requirement that offensive bot have ^map
+
+
+#+====================+
+#| UnrealScript To Do |
+#+====================+
+#hauntScript Side
+#1. Make sure enemies are are actor team
+#2. Make sure friendlies are on same team
+#3. Should rename .enemy to .entity
+#4. The nodes at the end of hall7 leading to Outside should be door nodes not pathnodes
+
+#+============+
+#| Changes    |
+#+============+
+
+## JEL: 2002-09-27
+## Changes to convert from MOUT bot from 9/26/2002 to HAUNT
+## 1. Rename unreal to haunt
+## 2. Rename MOUT to haunt
+## 3. Rename threat(s) to actor(s), record-threat record-actor
+## 4. Rename mission(s) to script(s), execute-mission, execute-script
+

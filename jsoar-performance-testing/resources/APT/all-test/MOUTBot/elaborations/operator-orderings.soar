@@ -1,0 +1,50 @@
+##################################### 
+# file: opera tor-orderings.soar 
+# created: REW: 2003-05-01
+## 
+# Encode partial orderings that must be enforced in execution
+#
+# Change history: 
+# 
+#
+#sp {eelaborate*top-state*operator-orderings
+#   (state <s> ^superstate nil)
+#   -->
+#   (<s> ^operator-orderings <x>)
+#}
+
+# REW: 2003-05-01
+# Encode orderings for alert (orderings copied from alert doc in MOUTInterface.uc)
+
+# REW: 2003-06-01
+# Too many partial matches.  Alert issues should be fixed in the sim now (no need to issue alret command?)
+#sp {operator-orderings*alert*before
+#   (state <s> ^operator-orderings <oo>)
+#-->
+#   (<oo> ^alert <x>)
+#   (<x> ^before stand
+#        ^before lie-prone
+#        ^before crouch
+#        ^before choose-weapon
+#        ^before attack
+#        ^before reload
+#        ^before duck
+#        ^before unjam
+#                )
+#}
+#
+#
+## IF an operator is defined to come before another and they are both proposed simultaneously,
+## make the one before better than the other
+#sp {operator*before*another*operator*is-better
+#   (state <s> ^operator <o1> +
+#              ^operator <o2> +
+#              ^top-state.operator-orderings <oo>)
+#   (<o1> ^name <name1>)
+#   (<o2> ^name <name2>)
+#   (<oo> ^<name1> <x>)
+#   (<x> ^before <name2>)
+#-->
+#   (write (crlf) |operator | <name1> | is better than | <name2> | by way of partial orderings |)
+#   (<s> ^operator <o1> > <o2>)
+#}

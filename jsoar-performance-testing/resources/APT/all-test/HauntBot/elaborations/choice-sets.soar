@@ -1,0 +1,84 @@
+echo "\nLoading elaborations/choice-sets"
+                
+### This defines the choice sets.
+
+## Each choice set should be a set of mutually exclusive operators where 
+##   The bot usually chooses between them at random (or using other heuristics)
+##   Below is an example of a single choice set for selecting between
+##     attack, surrender, and runaway.  
+##   The choice number is used to determine how likely it is for that operator
+##     to be selected.  The likelihood will be the range from the next lower choice
+##     number to that number.  If a given operator is never to be selected (for testing)
+##     it should be 0. If an operator is to be always selected, it should be 1 and all others
+##     0. If two are to be selected from randomly, then one should be .5 and the other 1.0
+##   The choice of what the selection will be at run time is made during initialization.
+##     Thus, after something is added to the selection set, it will be made best whenever it 
+##     is proposed (independent of even other choices not listed). This won't always work
+##     if there are betters being used so we need to check on that.
+
+
+### Example choice set. There would be a choice set for every set of choices.
+sp {haunt*state*state*choice-sets
+   (state <s> ^name haunt)
+   -->
+   (<s> ^choice-set <cs1>)
+   (<cs1> ^choice <ch1> <ch2> <ch3>
+          ^state-name execute-script
+          ^random-index 10)  # will pull out the second digit .#x###
+   (<ch1> ^operator-name surrender
+          ^choice-number .33)
+   (<ch2> ^operator-name attack
+          ^choice-number .66)
+   (<ch3> ^operator-name runaway 
+          ^choice-number 1.0)
+}
+
+
+# RUN TIME SELECTION
+## Reject not-selected choices if selected choice is proposed.
+## By doing it this way, we allow the preferences for operators that aren't include
+##  to work as they would anyway - we don't prefer the selected-choice to 
+##  other operators that aren't mentioned.
+
+# [1] REW: 2002-07-25
+#     JEL sez: I found a bug in my code for the choice stuff.  Please replace these rules
+#     in elaborations/choice-sets.soar - they appear near the end of the file.
+
+sp {haunt*select*choice-operator*no-type
+   (state <s> ^operator <o1> +
+              ^operator <o2> +
+              ^name <sname>
+              ^top-state.selection-set <ss>)
+   (<o1> ^name <name1>)
+   (<o2> ^name <name2>)
+   (<ss> ^state-name <sname>
+         ^selected-choice <sc>
+         ^not-selected-choice <nsc>)
+   (<sc> ^operator-name <name1>
+        -^operator-type)
+   (<nsc> ^operator-name <name2>)
+   -->
+   (<s> ^operator <o2> -)}
+
+## This is so can choose between different versions (types?) of the same operator
+
+sp {haunt*select*choice-operator*type
+   (state <s> ^operator <o1> +
+              ^operator <o2> +
+              ^name <sname>
+              ^top-state.selection-set <ss>)
+   (<o1> ^name <name1>
+         ^type <type1>)
+   (<o2> ^name <name2>
+         ^type <type2>)
+   (<ss> ^state-name <sname>
+         ^selected-choice <sc>
+         ^not-selected-choice <nsc>)
+   (<sc> ^operator-name <name1>
+         ^operator-type <type1>)
+   (<nsc> ^operator-name <name2>
+         ^operator-type <type2>)
+   -->
+   (<s> ^operator <o2> -)}
+
+

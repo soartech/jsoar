@@ -1,0 +1,21 @@
+
+# elaborate the area that we're currently in
+## Added multi-attributes to improve matching.
+
+multi-attributes areas 10
+sp {elaborate*map*current-area
+   (state <s> ^io.input-link.area.id <id>
+              ^map <map>)
+   (<map> ^areas.area <area>)
+   (<area> ^id <id>)
+-->
+   (<map> ^current-area <area>)
+}
+multi-attributes area 1
+
+sp {monitor*map*current-area
+   (state <s> ^map.current-area.id <id>
+              ^parameters.monitor-level all)
+-->
+   (write (crlf) |Now in area | <id>)
+}

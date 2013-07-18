@@ -1,0 +1,3 @@
+pushd count-blocks
+source count-blocks_source.soar
+popd

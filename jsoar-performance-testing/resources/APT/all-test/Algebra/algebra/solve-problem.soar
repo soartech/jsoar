@@ -1,0 +1,10 @@
+sp {algebra*propose*solve-problem
+   (state <s> ^name algebra
+             -^current-clause.failed yes
+              ^problem <p>)
+   (<p> ^status printed 
+       -^status failed)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name solve-problem)
+}

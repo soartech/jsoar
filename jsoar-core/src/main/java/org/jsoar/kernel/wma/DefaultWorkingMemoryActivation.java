@@ -141,6 +141,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_d_cycle_count++;
     }
     
+    public void d_cycle_count_decrement()
+    {
+        wma_d_cycle_count--;
+    }
+    
     public void resetTimers()
     {
         timers.reset();
@@ -723,7 +728,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                                 + "remove " + w.getTimetag() + "\n");
             }
 
-            wmaDecayElements.remove(temp_el);
+            wmaDecayElements.remove(w);
         }
     }
     

@@ -1,0 +1,141 @@
+sp {move-directly-to-gateway*elaborate*current-gateway
+   (state <s> ^name move-directly-to-gateway
+              ^superstate.operator <so>)
+   (<so> ^gateway <gw>)
+-->
+   (<s> ^current-gateway <gw>)
+}
+
+
+########## Lined up with gateway so can move forward
+
+sp {move-directly-to-gateway*elaborate*state
+   (state <s> ^name move-directly-to-gateway
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+         ^center.angle-off.yaw { < 0.05 > -0.05 })
+-->
+   (<s> ^lined-up yes)
+}
+
+sp {move-directly-to-gateway*elaborate*state*no
+   (state <s> ^name move-directly-to-gateway
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+        -^center.angle-off.yaw <= 0.05)
+-->
+   (<s> ^lined-up no)
+}
+
+sp {move-directly-to-gateway*elaborate*state*no-neg
+   (state <s> ^name move-directly-to-gateway
+              ^current-gateway.id <gid>
+              ^io.input-link.area-description.gateway <gw>)
+   (<gw> ^id <gid>
+        -^center.angle-off.yaw >= -0.05)
+-->
+   (<s> ^lined-up no)
+}
+
+######################################### Object in the way must move around
+
+sp {move-directly-to-gateway*elaborate*compute*object-vs-gateway-angle-off*obj-greater
+   (state <s> ^name move-directly-to-gateway
+              ^current-gateway.id  <gid>
+              ^io.input-link <input>)
+   (<input> ^area-description.gateway <gw>
+            ^object <o>)
+   (<o> ^visible yes
+        ^range < 40
+        ^id <oid>
+        ^angle-off.yaw { > <gwao> <oao> })
+   (<gw> ^center.angle-off.yaw <gwao>
+         ^id <gid>)
+-->
+   (<s> ^object-gateway-diff <ogd>)
+   (<ogd> ^difference (- <oao> <gwao>)
+          ^id <oid>)}
+
+sp {move-directly-to-gateway*elaborate*compute*object-vs-gateway-angle-off*obj-less
+   (state <s> ^name move-directly-to-gateway
+              ^current-gateway.id  <gid>
+              ^io.input-link <input>)
+   (<input> ^area-description.gateway <gw>
+            ^object <o>)
+   (<o> ^visible yes
+        ^range < 40
+        ^id <oid>
+        ^angle-off.yaw { <= <gwao> <oao> })
+   (<gw> ^center.angle-off <gwao>
+         ^id <gid>)
+-->
+   (<s> ^object-gateway-diff <ogd>)
+   (<ogd> ^difference (- <gwao> <oao>)
+          ^id <oid>)}
+
+sp {move-directly-to-gateway*elaborate*state*obstacle*no-neg
+   (state <s> ^name move-directly-to-gateway
+              ^object-gateway-diff <ogd>)
+   (<ogd> ^difference < 1.0)
+-->
+   (<ogd> ^obstacle yes)
+}
+
+######################################### Object and wall
+
+sp {move-directly-to-gateway*elaborate*object-wall*greater-than
+   (state <s> ^name move-directly-to-gateway
+              ^top-state <ts>
+              ^io.input-link <input>
+              ^object-gateway-diff <ogd>)
+   (<ts> ^direction <east>
+         ^wall-obstacle.info <woi>
+         ^numbers <nums>)
+   (<nums> ^number <num>)
+   (<num> ^value <row-value>
+          ^one-more <row1-value>)
+   (<woi> ^direction <east>
+          ^one-greater-than <row>
+          ^against-wall <south>)
+   (<input> ^object <obj>
+            ^area-description.wall <wall>)
+   (<wall> ^direction <south>
+           ^right.<row> <row1-value>)
+   (<obj> ^id <oid>
+          ^position <pos>)
+   (<pos> ^<row> <row-value>)
+   (<ogd> ^obstacle yes
+          ^id <oid>)
+-->
+   (<ogd> ^against-wall <south>)}
+
+sp {move-directly-to-gateway*elaborate*object-wall*less-than
+   (state <s> ^name move-directly-to-gateway
+              ^top-state <ts>
+              ^io.input-link <input>
+              ^object-gateway-diff <ogd>)
+   (<ts> ^direction <east>
+         ^wall-obstacle.info <woi>
+         ^numbers <nums>)
+   (<nums> ^number <num>)
+   (<num> ^value <row-value>
+          ^one-more <row1-value>)
+   (<woi> ^direction <east>
+          ^one-less-than <row>
+          ^against-wall <south>)
+   (<input> ^object <obj>
+            ^area-description.wall <wall>)
+   (<wall> ^direction <south>
+           ^right.<row> <row1-value>)
+   (<obj> ^id <oid>
+          ^position <pos>)
+   (<pos> ^<row> <row-value>)
+   (<ogd> ^obstacle yes
+          ^id <oid>)
+-->
+   (<ogd> ^against-wall <south>)}
+
+            
+            

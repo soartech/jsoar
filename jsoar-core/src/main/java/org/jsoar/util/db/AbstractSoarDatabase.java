@@ -214,8 +214,9 @@ public abstract class AbstractSoarDatabase
         try
         {
             final String trimmed = sql.trim();
-            return trimmed.startsWith("INSERT") ? db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS) :
-                                                  db.prepareStatement(trimmed);
+            return trimmed.startsWith("INSERT") ? 
+                    new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed):                              
+                    new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
         }
         catch (SQLException e)
         {

@@ -1,0 +1,18 @@
+
+sp {guess-x*elaborate*state*current-problem
+   (state <s> ^name guess-x
+              ^superstate.current-problem <cp>)
+-->
+   (<s> ^current-problem <cp>)
+}
+
+sp {guess-x*elaborate*state*current-problem*result
+   (state <s> ^name guess-x
+              ^superstate.current-problem.prior-problem.result <r>)
+   (<r> ^base <base>
+        ^height <height>
+        ^answer <a>)
+-->
+   (write |Prior Result: | <base> | $ | <height> | = | <a> )
+   (<s> ^prior-result <r>)
+}

@@ -1,0 +1,34 @@
+echo "\nLoading update-lastnode"
+
+#update the last node as soon as we are "at" a new one
+#if we are at a node, the last node is that node
+
+sp {all*propose*update-lastnode
+   (state <s> ^name move-to-xyz
+              ^top-state.map <map>)
+  (<map> ^near-node <nn>
+         ^last-node.name {<last-name> <> <name>})
+   (<nn> ^name <name>
+         ^visited <num>)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-lastnode)
+}
+
+sp {all*apply*update-lastnode
+   (state <s> ^operator.name update-lastnode
+              ^top-state.map <map>)
+   (<map> ^last-node <onode>
+          ^near-node { <nnode> <> <onode> })
+   (<nnode> ^visited <num>)
+-->
+   (<map> ^last-node <onode> -
+          ^last-node <nnode>)
+   (<nnode> ^visited <num> -
+            ^visited ( + <num> 1) )
+   (write (crlf) |Updated lastnode: | <nnode> | new count: | (+ 1 <num>))
+}
+
+
+
+

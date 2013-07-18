@@ -95,7 +95,6 @@ public class WaterfallTests
         agent = new Agent();
         agent.getTrace().enableAll();
         ifc = agent.getInterpreter();
-        agent.initialize();
     }
 
     /**

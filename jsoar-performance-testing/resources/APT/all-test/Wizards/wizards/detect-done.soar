@@ -1,0 +1,27 @@
+### If the top-wizard knows its own mark, then done.
+
+
+sp {wizards*propose*detect-done
+   (state <s> ^name wizards
+              ^top-knows <k1>)
+   (<k1> ^name <name>
+         ^wizard <w>)
+   (<w> ^guessed { << white black >>  <g> }
+        ^name <name>)
+-->
+   (<s> ^operator <op> !)
+   (<op> ^name detect-done
+         ^wizard <w>)
+}
+
+
+sp {apply*detect-done
+   (state <s> ^operator <op>)
+   (<op> ^name detect-done
+         ^wizard <w>)
+   (<w> ^guessed  { << white black >> <g> }
+        ^name <name>)
+-->
+   (write (crlf) |Wizard | <name> | guesses it has | <g>)
+   (halt)
+}

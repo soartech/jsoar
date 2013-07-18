@@ -41,7 +41,6 @@ public abstract class TclTestBase
     {
         this.agent = new Agent();
         this.ifc = SoarTclInterface.findOrCreate(agent);
-        this.agent.initialize();
     }
 
     /**

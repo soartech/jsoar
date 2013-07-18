@@ -1,0 +1,131 @@
+##################################### 
+# file: text-applications.soar 
+# created: 2001-08-22
+## 
+# Change history: 
+# 
+# [1] Created REW
+
+# This file processes individual messages and prints them to the agent
+# window
+
+##################################### 
+
+echo "\nLoading ./elaborations/communicate-text-applications.soar "
+
+sp {apply*communicate*text*simple-utterance
+   (state <s> ^operator <o>)
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <message-type>
+              ^definition <dfn>
+              ^device <d>)
+   (<dfn> ^type << simple-utterance complex-utterance >>
+         -^text-format-available *yes*)
+   (<d> ^type text 
+        ^name agent-window)
+-->
+   (<d> ^transmitted *yes*)
+   (write (crlf) |======= AGENT MESSAGE ========|)
+   (write (crlf)  <message-type>  )
+   (write (crlf) |=============================|)
+}
+
+
+sp {apply*communicate*text*one-value-utterance
+   (state <s> ^operator <o> )
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <name>
+              ^definition <dfn>
+              ^device <d>
+              ^content <con>)
+   (<con> ^<attr1> <val1>)
+   (<d> ^type text 
+        ^name agent-window)
+   (<dfn> ^type one-value-utterance
+          ^attributes <a1>
+         -^attributes.second)
+   (<a1> ^first <attr1>)
+-->
+#   (write (crlf) |one-value-utterance|)
+   (<d> ^transmitted *yes*)
+   (write (crlf) |======= AGENT MESSAGE ========|)
+   (write (crlf)  <name> | | <val1> )
+   (write (crlf) |=============================|)
+}
+
+sp {apply*communicate*text*one-attribute-value-utterance
+   (state <s> ^operator <o> )
+   (<o> ^name communicate
+  ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>)
+   (<d> ^type text 
+        ^name agent-window)
+   (<dfn> ^type one-attribute-value-utterance
+    ^attributes <a1>
+         -^attributes.second)
+   (<a1> ^first <attr1>)
+-->
+#   (write (crlf) |one-attribute-value-utterance|)
+   (<d> ^transmitted *yes*)
+   (write (crlf) |======= AGENT MESSAGE ========|)
+   (write (crlf)  <name> | | <attr1> | | <val1> )
+   (write (crlf) |=============================|)
+}
+
+sp {apply*communicate*text*two-attribute-value-utterance
+   (state <s> ^operator <o> )
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>
+          ^<attr2> <val2>)
+   (<d> ^type text 
+        ^name agent-window)
+   (<dfn> ^type two-attribute-value-utterance
+          ^attributes <a1> <a2>
+         -^attributes.third)
+   (<a1> ^first <attr1>)
+   (<a2> ^second <attr2>)
+-->
+#   (write (crlf) |two-attribute-value-utterance|)
+   (<d> ^transmitted *yes*)
+   (write (crlf) |======= AGENT MESSAGE ========|)
+   (write (crlf)  <name> | | <attr1> | | <val1> | | <attr2> | | <val2> )
+   (write (crlf) |=============================|)
+}
+
+sp {apply*communicate*text*three-value-utterance
+   (state <s> ^operator <o> )
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>
+          ^<attr2> <val2>
+          ^<attr3> <val3>)
+   (<d> ^type text 
+        ^name agent-window)
+   (<dfn> ^type three-value-utterance
+          ^attributes <a1> <a2> <a3>
+         -^attributes.fourth)
+   (<a1> ^first <attr1>)
+   (<a2> ^second <attr2>)
+   (<a3> ^third <attr3>)
+-->
+#   (write (crlf) |two-attribute-value-utterance|)
+   (<d> ^transmitted *yes*)
+   (write (crlf) |======= AGENT MESSAGE ========|)
+   (write (crlf)  <name> | | <val1> | | <val2> | | <val3>)
+   (write (crlf) |=============================|)
+}

@@ -1,0 +1,349 @@
+echo "\nLoading explore/record-entryway/record"
+
+#IF:
+#  1. I see an entry node directly in front of me that's in another area
+#     Add test that it is pointing opposite to me (0 - 180, 90 - 270, ...) JEL 10/19/2002
+#THEN:
+#  Record an entryway between the two nodes
+#
+sp {record-entryway*propose*record
+   (state <s> ^name record-entryway
+              ^top-state.map.in-front-node { <yonder-node> <> <via-node> }
+              ^top-state.parameters.connect-heading-opposite.<v-c-h> <y-c-h>
+              ^via-node <via-node>)
+   (<via-node> ^area <my-area>
+               ^type << door connector >>
+               ^connect-heading <v-c-h>)
+   (<yonder-node> ^area <> <my-area>
+                  ^type << door connector >>
+                  ^entryway-recorded *no*
+                  ^connect-heading <y-c-h>)
+-->
+   (write (crlf) |Record options: via-node: | <via-node> | dest-node: | <yonder-node>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <yonder-node>)
+}
+
+#Elaborate record proposals with the distance to the target node
+sp {record-entryway*elaborate*record-with-range
+   (state <s> ^name record-entryway
+              ^operator <o> +
+              ^io.input-link <il>)
+   (<o> ^name record
+        ^dest-node.name <dest-node-name>)
+   (<il> ^objects.node <visnode>)
+   (<visnode> ^name <dest-node-name>
+              ^range <range>)
+-->
+   (<o> ^range <range>)
+}
+
+#Select the nearest node for the new entryway
+sp {record-entryway*compare*record*select-nearest
+   (state <s> ^name record-entryway
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name record
+         ^range <range>)
+   (<o2> ^name record
+         ^range > <range>)
+-->
+   (<s> ^operator <o2> -)
+}
+
+sp {record-entryway*compare*record*select-nearest*max
+   (state <s> ^name record-entryway
+              ^operator <o> +)
+   (<o> ^name record
+        ^range > 85)
+-->
+   (<s> ^operator <o> -)
+}
+
+
+#Record a new entryway
+sp {record-entryway*apply*record
+   (state <s> ^name record-entryway
+              ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^name <via-node-name> # { <> |EntryNode77| }
+               ^area <src-area>
+               ^entryway-recorded *no*)
+   (<dest-node> ^name <dest-node-name>
+                ^area <dest-area>
+                ^entryway-recorded *no*)
+   (<src-area> ^name <src-area-name>)
+   (<dest-area> ^name <dest-area-name>)
+-->
+   (<via-node> ^connected-node <dest-node>)
+   (<dest-node> ^connected-node <via-node>)
+   (<src-area> ^path <newpath1>)
+   (<newpath1> ^destination-area <dest-area>
+               ^via-node <via-node>
+               ^distance 1
+               ^distance-minus-one 0)
+   #Record the same path in the opposite direction
+   (<dest-area> ^path <newpath2>)
+   (<newpath2> ^destination-area <src-area>
+               ^via-node <dest-node>
+               ^distance 1
+               ^distance-minus-one 0)
+   (write (crlf) <o> |: Record entryway between | <src-area-name> | and | <dest-area-name> | via | <via-node-name> | and | <dest-node-name>)
+   (<via-node> ^entryway-recorded *no* -)
+   (<via-node> ^entryway-recorded *yes*)
+   (<dest-node> ^entryway-recorded *no* -)
+   (<dest-node> ^entryway-recorded *yes*)
+}
+
+################################################
+
+################################################
+sp {all*apply*record*update*max-min-y90
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 90)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-y <max-y>
+                  -^mod-max-y true)
+   (<dest-area> ^min-y <min-y>
+               -^mod-min-y true)
+-->
+   (write (crlf) |Move max-y | <max-y> | Min-y | <min-y>)
+   (<current-area> ^max-y <max-y> -
+                          (- (/ (+ <max-y> <min-y>) 2) 1)
+                   ^mod-max-y true)
+   (<dest-area> ^min-y <min-y> -
+                       (/ (+ <max-y> <min-y>) 2)
+                ^mod-min-y true)
+}
+
+sp {all*apply*record*update*max-min-y90-2
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 90)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-y <max-y>
+                   ^mod-max-y true)
+   (<dest-area> ^min-y <min-y>
+               -^mod-min-y true)
+-->
+   (write (crlf) |Move max-y | <max-y> | to Min-y | <min-y>)
+   (<dest-area> ^min-y <min-y> -
+                       (+ <max-y> 1)
+                ^mod-min-y true)
+}
+
+sp {all*apply*record*update*max-min-y90-3
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 90)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-y <max-y>
+                  -^mod-max-y true)
+   (<dest-area> ^min-y <min-y>
+                ^mod-min-y true)
+-->
+   (write (crlf) |Move max-y | <max-y> | from Min-y | <min-y>)
+   (<current-area> ^max-y <max-y> -
+                          (- <min-y> 1)
+                   ^mod-max-y true)
+}
+
+##################
+
+sp {all*apply*record*update*max-min-y270
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<dest-node> ^area <dest-area>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 270)
+   (<dest-area> ^max-y <max-y>
+               -^mod-max-y true)
+   (<current-area> ^min-y <min-y>
+                  -^mod-min-y true)
+-->
+   (write (crlf) |Move max-y | <max-y> |-|  (- (/ (+ <max-y> <min-y>) 2) 1) | Min-y | <min-y>)
+   (<dest-area> ^max-y <max-y> -
+                       (- (/ (+ <max-y> <min-y>) 2) 1)
+                ^mod-max-y true)
+   (<current-area> ^min-y <min-y> -
+                          (/ (+ <max-y> <min-y>) 2)
+                   ^mod-min-y true)
+}
+
+sp {all*apply*record*update*max-min-y270-2
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<dest-node> ^area <dest-area>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 270)
+   (<dest-area> ^max-y <max-y>
+                ^mod-max-y true)
+   (<current-area> ^min-y <min-y>
+                  -^mod-min-y true)
+-->
+   (write (crlf) |Move max-y |)
+   (<current-area> ^min-y <min-y> -
+                          (+ <max-y> 1)
+                   ^mod-min-y true)
+}
+
+sp {all*apply*record*update*max-min-y270-3
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<dest-node> ^area <dest-area>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 270)
+   (<dest-area> ^max-y <max-y>
+               -^mod-max-y true)
+   (<current-area> ^min-y <min-y>
+                   ^mod-min-y true)
+-->
+   (write (crlf) |Move max-y |)
+   (<dest-area> ^max-y <max-y> -
+                       (- <min-y> 1)
+                ^mod-max-y true)
+}
+
+##################
+sp {all*applx*record*update*max-min-x0
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 0)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-x <max-x>
+                  -^mod-max-x true)
+   (<dest-area> ^min-x <min-x>
+               -^mod-min-x true)
+-->
+   (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<current-area> ^max-x <max-x> -
+                          (- (/ (+ <max-x> <min-x>) 2) 1)
+                   ^mod-max-x true)
+   (<dest-area> ^min-x <min-x> -
+                       (/ (+ <max-x> <min-x>) 2)
+                ^mod-min-x true)
+}
+sp {all*applx*record*update*max-min-x0-2
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 0)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-x <max-x>
+                   ^mod-max-x true)
+   (<dest-area> ^min-x <min-x>
+               -^mod-min-x true)
+-->
+ #  (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<dest-area> ^min-x <min-x> -
+                       (+ 1 <max-x>)
+                ^mod-min-x true)
+}
+sp {all*applx*record*update*max-min-x0-3
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 0)
+   (<dest-node> ^area <dest-area>)
+   (<current-area> ^max-x <max-x>
+                  -^mod-max-x true)
+   (<dest-area> ^min-x <min-x>
+                ^mod-min-x true)
+-->
+ #  (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<current-area> ^max-x <max-x> -
+                          (- <min-x> 1)
+                   ^mod-max-x true)
+}
+
+
+
+##################
+
+sp {all*applx*record*update*max-min-x180
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 180)
+   (<dest-node> ^area <dest-area>)
+   (<dest-area> ^max-x <max-x>
+               -^mod-max-x true)
+   (<current-area> ^min-x <min-x>
+                  -^mod-min-x true)
+-->
+   (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<dest-area> ^max-x <max-x> -
+                       (- (/ (+ <max-x> <min-x>) 2) 1)
+                ^mod-max-x true)
+   (<current-area> ^min-x <min-x> -
+                          (/ (+ <max-x> <min-x>) 2)
+                   ^mod-min-x true)
+}
+
+sp {all*applx*record*update*max-min-x180-2
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 180)
+   (<dest-node> ^area <dest-area>)
+   (<dest-area> ^max-x <max-x>
+                ^mod-max-x true)
+   (<current-area> ^min-x <min-x>
+                  -^mod-min-x true)
+-->
+  # (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<current-area> ^min-x <min-x> -
+                          (+ 1 <max-x>)
+                   ^mod-min-x true)
+}
+
+sp {all*applx*record*update*max-min-x180-3
+   (state <s> ^operator <o>)
+   (<o> ^name record
+        ^via-node <via-node>
+        ^dest-node <dest-node>)
+   (<via-node> ^area <current-area>
+               ^connect-heading 180)
+   (<dest-node> ^area <dest-area>)
+   (<dest-area> ^max-x <max-x>
+               -^mod-max-x true)
+   (<current-area> ^min-x <min-x>
+                   ^mod-min-x true)
+-->
+   (write (crlf) |Move max-x | <max-x> | Min-x | <min-x>)
+   (<dest-area> ^max-x <max-x> -
+                       (- <min-x> 1)
+                ^mod-max-x true)
+}
+

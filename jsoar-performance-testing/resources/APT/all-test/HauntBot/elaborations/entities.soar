@@ -1,0 +1,17 @@
+echo "\nLoading elaborations/entities"
+
+# set up the basic entity list
+
+sp {navigation*elaborate*entity-list
+   (state <s> ^superstate nil)
+   -->
+   (<s> ^entity-list <entities>)
+}
+
+# copy item-list down to sub-states
+sp {copy*sub-state*entity-list
+   (state <s> ^superstate.entity-list <list>)
+-->
+   (<s> ^entity-list <list>)
+}
+

@@ -1,0 +1,86 @@
+sp {write-answer*propose*write-unknown
+   (state <s> ^name write-answer
+              ^current-problem-ptr.type unknown)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-unknown)
+}
+
+sp {apply*write-unknown
+   (state <s> ^operator.name write-unknown
+              ^superstate <ss>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<ss>  ^instructions.definitions <d>
+          ^current-problem <cp>)
+   (<cp> ^<role> <result-value>)
+   (<d> ^term <value> ^function <role>)
+   (<cpp> ^type unknown ^next <ncpp>)
+   (<cpsp> ^name <value> ^next <ncpsp>)
+-->
+   (write | | <result-value>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}
+
+
+sp {apply*write-unknown*now-known
+   (state <s> ^operator.name write-unknown
+              ^superstate <ss>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<ss> ^current-problem <cp>)
+   (<cp> ^<variable> <result-value>
+         ^result <r>)
+   (<cpp> ^type unknown ^next <ncpp>)
+   (<cpsp> ^name <variable> ^next <ncpsp>)
+-->
+   (write | | <result-value>)
+   (<r> ^<variable> <result-value>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}
+sp {apply*write-unknown*result
+   (state <s> ^operator.name write-unknown
+              ^superstate <ss>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<ss>  ^instructions.goal-tests.goal-test <gt>
+          ^current-problem <cp>)
+   (<cp> ^<variable> <result-value>
+        -^goal-test-success <gt>
+         ^result <r>)
+   (<gt> ^variable <variable>
+         ^value <value>
+         ^relation equal)
+   (<cpp> ^type unknown)
+   (<cpsp> ^name <value>)
+-->
+   (<r> ^<variable> <result-value>)
+}
+
+sp {apply*write-unknown*result-known
+   (state <s> ^operator.name write-unknown
+              ^superstate <ss>
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<ss>  ^instructions.goal-tests.goal-test <gt>
+          ^current-problem <cp>)
+   (<cp> -^goal-test-success <gt>
+          ^result.<variable> <result-value>)
+   (<gt> ^variable <variable>
+         ^value <value>
+         ^relation equal)
+   (<cpp> ^type unknown ^next <ncpp>)
+   (<cpsp> ^name <value> ^next <ncpsp>)
+-->
+   (write | | <result-value>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}

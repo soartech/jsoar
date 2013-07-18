@@ -1,0 +1,5 @@
+### This will add two numbers by counting up in one (sum - initialized with digit1) 
+### while counting up on the second (counter) until it reaches addend (digit2
+### These are initialized from digit1 and digit2 of the superoperator
+### Could optimize by picking sum to be larger one.
+

@@ -1,0 +1,37 @@
+sp {clean-house-new*propose*update-object-data
+   (state <s> ^name robot
+             # ^top-state.parameters.objects-held-in wm
+              ^io.input-link.objects.object.id <id>
+              ^current-location <area>
+              ^objects.object <obj2>)
+   (<area> ^storage-area yes)
+   (<obj2> ^in-storage-room no
+           ^id <id>
+           ^area { <old-area> <> <area> })
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name update-object-data
+         ^object <obj2>)
+}
+sp {apply*update-object-data
+   (state <s> ^operator <op>
+              ^current-location <ca>)
+   (<op> ^name update-object-data
+         ^object <obj>)
+   (<obj> ^area <area>)
+-->
+   (<obj> ^in-storage-room no - 
+                           yes
+          ^area <area> - 
+                <ca>)
+}
+
+sp {clean-house-new*compare*update-object-data
+   (state <s> ^name robot
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name update-object-data)
+   (<op2> ^name << get-object >>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}

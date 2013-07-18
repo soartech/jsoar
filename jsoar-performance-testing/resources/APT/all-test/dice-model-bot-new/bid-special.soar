@@ -1,0 +1,85 @@
+# No previous bid - bid at random.
+
+sp {propose*bid-special*no-prior-bid
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.total-dice-count <tdc>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true)
+   (<nb> ^current-face <face>)
+   (<il> ^affordances.action <a>
+         ^state.last-bid nil
+         ^state.special true)
+   (<a> ^name bid
+        ^available true)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <face>
+        ^multiplier (div <tdc> 7))}
+
+## prior bid - not one die - no push - must add one.
+sp {propose*bid-special*have-1-die
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^affordances.action <a>
+         ^state.special true)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <face>
+        ^multiplier (+ 1 <multiplier>))}
+
+## prior bid - have one die - no push - can change bid
+sp {propose*bid-special*have-1-die*change-bid
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^dice-data.next-bid <nb>
+              ^last-bid <last-bid>)
+   (<il> ^affordances.action <a>
+         ^state.special true
+         ^players.me <me>)
+   (<nb> ^current-face <face>
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<me> ^cup.count 1
+         ^pushed.count 0)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <new-face>
+        ^multiplier (+ <inc> <multiplier>))}
+
+## prior bid - not one die - push - must add one.
+sp {propose*bid-special*have-1-die*push
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^affordances.action <a>
+         ^state.special true
+         ^players.me <me>)
+   (<me> ^cup.count > 1
+         ^cup.die.face <face>)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <face>
+        ^push-face-count 1
+        ^push-face <face>
+        ^multiplier (+ 1 <multiplier>))
+}
+
+
+

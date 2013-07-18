@@ -1,0 +1,31 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source describe.soar
+pushd describe
+source describe_source.soar
+popd
+source encode.soar
+pushd encode
+source encode_source.soar
+popd
+source execute-solve-procedure.soar
+pushd execute-solve-procedure
+source execute-solve-procedure_source.soar
+popd
+source initialize-instruct.soar
+source initialize-problem.soar
+source next-problem.soar
+source reflect.soar
+pushd reflect
+source reflect_source.soar
+popd
+source terminate-run.soar
+source write-answer.soar
+pushd write-answer
+source write-answer_source.soar
+popd

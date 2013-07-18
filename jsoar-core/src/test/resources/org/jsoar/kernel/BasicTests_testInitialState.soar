@@ -8,18 +8,21 @@ sp {report*intial-state
    (state <s> ^type state
               ^reward-link {<rl> <=> <s>}
               ^smem {<sm> <=> <s>}
+              ^epmem {<em> <=> <s>}
               ^io {<io> <=> <s>}
               ^superstate nil)
 #make sure there are no wmes with unexpected attributes
    -(<s> ^{<> type
            <> reward-link
            <> smem
+           <> epmem
            <> superstate
            <> io})
 #make sure there are no wmes with unexpected values
     (<s> -^type <> state
          -^reward-link <> <rl>
          -^smem <> <sm>
+         -^epmem <> <em>
          -^io <> <io>
          -^superstate <> nil)
 -->

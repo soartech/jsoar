@@ -1,0 +1,53 @@
+# Idea:
+#  Moving to a specified xy location is a relatively simple operation.
+#  The necessary heading is elaborated, and then the agent turns in the
+#  appropriate direction and heads forward when within a paramaterized
+#  amount of the target-heading.
+
+# Elaborates the heading from the agent's position to the target location.
+#sp {common*elaborate*target-heading
+#   (state <s> ^name move-to-xy
+#              ^io.input-link.location <loc>
+#              ^superstate.operator <op>)
+#   (<op> ^name move-to-xy
+#         ^x <tx> ^y <ty>)
+#   (<loc> ^x <x> ^y <y>)
+#-->
+#   (<s> ^headings.target-heading (compute-heading <x> <y> <tx> <ty>))
+#}
+#
+# The difference between the current and target-headings determines which
+# direction the agent should turn.
+#sp {common*elaborate*normalized-heading-difference
+#   (state <s> ^name move-to-xy
+#              ^io.input-link.angles.yaw <yaw>
+#              ^headings <headings>)
+#   (<headings> ^target-heading <t-head>)
+#-->
+#   (<headings> ^normalized-head (normalize-heading (- <t-head> <yaw>)))
+#}
+
+sp {common*elaborate*should-turn*right
+   (state <s> ^name move-to-xy
+              ^headings <headings>
+              ^top-state.parameters.heading-right-threshold <thresh>)
+   (<headings> -^normalized-head <norm> > <thresh>)
+-->
+   (<headings> ^should-turn right)
+}
+
+sp {common*elaborate*should-turn*left
+   (state <s> ^name move-to-xy
+              ^headings <headings>
+              ^top-state.parameters.heading-left-threshold <thresh>)
+   (<headings> -^normalized-head <norm> < <thresh>)
+-->
+   (<headings> ^should-turn left)
+}
+
+sp {move-to-xy*elaborate*speed
+   (state <s> ^name move-to-xy
+              ^superstate.operator.speed <speed>)
+-->
+   (<s> ^speed <speed>)
+}

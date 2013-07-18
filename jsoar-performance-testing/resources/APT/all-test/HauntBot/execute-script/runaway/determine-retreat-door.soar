@@ -1,0 +1,185 @@
+sp {runaway*propose*determine-runaway-door
+   (state <s> ^name runaway
+              ^current-area <ca>)
+   (<ca> ^node <door>
+        -^runaway-door)
+   (<door> ^type << door connector >>)
+   -->
+   #(write (crlf) |Propose runaway-door: | <door>)
+   (<s> ^operator <o> + =)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+}
+
+### Base Decision on the following:
+
+###   runaway-objective - if runaway-objective is defined, prefer door that leads to runaway-objective.
+###   Angle-off - reject runaway toward the actor (within 40 degrees on each side of forward)
+###   Range - if no runaway-objective, prefer doors that are further from the actor
+###   Will surender (or stand and fight) if there are no acceptable runaway doors
+
+### runaway OBJECTIVE
+sp {runaway*select*determine-runaway-door*runaway-objective
+   (state <s> ^operator <o> +
+              ^script.runaway-objective.area <r-area>
+              ^current-area.path <path>)
+   (<path> ^destination-area <r-area>
+           ^via-node <door>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   -->
+   #(write (crlf) |runaway-objective door: | <door> )
+   (<s> ^operator <o> >)}
+
+
+############## angle-off
+sp {runaway*elaborate*determine-runaway-door*a-o*door
+   (state <s> ^operator <o> +
+              ^top-state.io.input-link <il>)
+   (<il> ^agent.position <ap>
+         ^objects.node <node>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<node> ^name <node-name>
+           ^position <p2>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   (<door> ^name <node-name>)
+   -->
+   #(write (crlf) |runaway-door: | <door> |, door a-o: | (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))
+   (<o> ^door-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {runaway*elaborate*determine-runaway-door*a-o*actor-door
+   (state <s> ^operator <o> +
+              ^current-area.actor-door.node.position <p2>
+              ^top-state.io.input-link <il>)
+   (<il> ^agent.position <ap>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+-->
+   #(write (crlf) |runaway-door: | <door> |, actor-door a-o:| (- 180 (compute-heading <x1> <y1> <x2> <y2>)))
+   (<o> ^actor-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {runaway*elaborate*determine-runaway-door*a-o*enemy
+   (state <s> ^operator <o> +            
+             -^current-area.actor-door <td>
+              ^top-state <ts>)
+   (<ts> ^actors.selected-actor.node.position <p2>
+         ^io.input-link.agent.position <ap>)
+   (<ap> ^x <x1> ^y <y1>)
+   (<p2> ^x <x2> ^y <y2>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+-->
+   #(write (crlf) |runaway-door: | <door> |, selected-actor a-o:| (- 180 (compute-heading <x1> <y1> <x2> <y2>)))
+   (<o> ^actor-a-o (round-off-heading (- 180 (compute-heading <x1> <y1> <x2> <y2>)) 1))}
+
+sp {runaway*elaborate*determine-runaway-door*a-o*diff
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-runaway-door
+        ^door <door>
+        ^actor-a-o <tao>
+        ^door-a-o <dao>)
+-->
+   #(write (crlf) |runaway-door: | <door> |, a-o diff:| (round-off-heading (- <dao> <tao>) 1))
+   (<o> ^a-o-diff  (round-off-heading (- <dao> <tao>) 1))}
+
+sp {runaway*elaborate*determine-runaway-door*min-ao-diff
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-runaway-door
+        ^a-o-diff { > -40 < 40 <aodiff> }
+       -^a-o-diff { > -40 < <aodiff> })
+   -->
+   (<o> ^min-a-o-diff <aodiff>)}
+
+sp {runaway*elaborate*determine-runaway-door*a-o*reject
+   (state <s> ^operator <o> +)
+   (<o> ^name determine-runaway-door
+        ^door <door>
+       -^door-range { <drange> <= 60 }
+        ^min-a-o-diff { > -40 < 40 <a-o-diff>})
+-->
+   #(write (crlf) |REJECT runaway-door: | <door> |, a-o diff:| <a-o-diff>)
+   (<s> ^operator <o> -)}
+### DOOR RANGE
+
+sp {runaway*elaborate*determine-runaway-door*door-range
+   (state <s> ^operator <o> +
+              ^io.input-link.agent.position <tp>)
+   (<tp> ^x <tx>
+         ^y <ty>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+   #(write (crlf) |runaway-door: | <door> |,  door range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^door-range (compute-range <x> <y> <tx> <ty>))}
+
+############## Ranges
+
+sp {runaway*elaborate*determine-runaway-door*range*no-actor-door
+   (state <s> ^operator <o> +
+             -^current-area.actor-door
+              ^top-state.actors.selected-actor.node.position <tp>)  # Not clear what the right thing is here
+   (<tp> ^x <tx> 
+         ^y <ty>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+   #(write (crlf) |runaway-door: | <door> |,  actor range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^range (compute-range <x> <y> <tx> <ty>))}
+
+sp {runaway*elaborate*determine-runaway-door*actor-door
+   (state <s> ^operator <o> +
+              ^current-area.actor-door.node.position <tp>)  # Not clear what the right thing is here
+   (<tp> ^x <tx> 
+         ^y <ty>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   (<door> ^position <p>)
+   (<p> ^x <x> 
+        ^y <y>)
+   -->
+   #(write (crlf) |runaway-door: | <door> |,  actor-door range: | (compute-range <x> <y> <tx> <ty>))
+   (<o> ^range (compute-range <x> <y> <tx> <ty>))}
+
+sp {runaway*elaborate*determine-runaway-door*closest-range
+   (state <s> ^operator <o1> +)
+   (<o1> ^name determine-runaway-door
+         ^range <range>
+        -^range { < <range> })
+   -->
+   (<o1> ^closest-range <range>)}          
+
+sp {runaway*compare*determine-runaway-door*range
+   (state <s> ^name runaway
+             -^script.runaway-objective  # ignore range if there is a runaway-objective
+              ^operator <o1> +
+                        { <> <o1> <o2> } +)
+   (<o1> ^name determine-runaway-door
+         ^closest-range <range>)
+   (<o2> ^name determine-runaway-door 
+        -^closest-range >= <range>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {apply*determine-runaway-door
+   (state <s> ^current-area <ca>
+              ^operator <o>)
+   (<o> ^name determine-runaway-door
+        ^door <door>)
+   -->
+   #(write <door>)
+   (<ca> ^runaway-door <door>)
+}
+
+
+

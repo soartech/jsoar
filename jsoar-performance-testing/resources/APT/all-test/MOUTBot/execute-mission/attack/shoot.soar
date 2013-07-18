@@ -1,0 +1,39 @@
+echo "\nLoading attack/shoot"
+
+##REW: 2003-06-11
+# Changes to sim for grenades now require "strength" on all attacks.
+# Just elaborate the proposal of shoot in the short -term
+# REW: 2003-06-13
+# Bot is continuing to shoot s it moves. I think it's due to executing shoot during body change (but not certain)
+sp {attack*elaborate*shoot*attack*strength
+   (state <s> ^name attack
+              ^operator <o1> +
+             -^top-state.self.changing-body-position )
+   (<o1> ^name shoot
+         ^actions.attack <at>)
+   -->
+   (<at> ^strength 1)
+}
+
+
+
+# REW: 2002-09-25
+# Want to try to shoot even if ammo amount is zero (agent doesn't know this yet)
+
+# REW: 2002-11-05 (from JEL)
+# This rule seems to fix the shooting problem.  The issue with adding the
+# negated condition didn't arise (the output-link stuff is o-supported). Just
+# replace the first rule in attack/shoot.soar
+
+sp {attack*propose*shoot
+   (state <s> ^name attack
+              ^top-state.self.weapons.selected-weapon <sw>
+              ^enemy-angle-off-achieved true)
+  -(<s> ^io.output-link.attack.value normal)
+                                     # wait until attack.value is cleared off
+   (<sw> ^type { <> knife <> grenade })
+-->
+#    (write (crlf) |Shoot with ammo: | <aa>)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name shoot
+        ^actions.attack.value normal)}

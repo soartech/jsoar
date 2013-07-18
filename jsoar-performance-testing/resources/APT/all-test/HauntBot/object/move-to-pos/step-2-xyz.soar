@@ -1,0 +1,14 @@
+#
+# else, since we're in the target area, move to x-y-z position
+#
+sp {move-to-pos*propose*step-2-xyz
+   (state <s> ^type move-to-pos
+              ^map.current-area <area>
+              ^area <area>
+              ^position <pos>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name step-2-xyz
+        ^type move-to-xyz
+        ^position <pos>)
+}

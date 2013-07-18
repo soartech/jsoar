@@ -1,0 +1,44 @@
+source elaborations.soar
+source alert.soar
+source attack.soar
+pushd attack
+source attack_source.soar
+popd
+source attack-grenade.soar
+pushd attack-grenade
+source attack-grenade_source.soar
+popd
+source change-active-objective.soar
+source change-member-position.soar
+source choose-weapon.soar
+source defend.soar
+pushd defend
+source defend_source.soar
+popd
+source determine-objective.soar
+source hide.soar
+pushd hide
+source hide_source.soar
+popd
+source hiding.soar
+pushd hiding
+source hiding_source.soar
+popd
+source hunt.soar
+pushd hunt
+source hunt_source.soar
+popd
+source reload.soar
+source retreat.soar
+pushd retreat
+source retreat_source.soar
+popd
+source roam.soar
+pushd roam
+source roam_source.soar
+popd
+source sentry-watch.soar
+pushd sentry-watch
+source sentry-watch_source.soar
+popd
+source surrender.soar

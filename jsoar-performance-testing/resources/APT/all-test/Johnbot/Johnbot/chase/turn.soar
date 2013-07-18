@@ -1,0 +1,19 @@
+sp {chase*propose*turn
+   (state <s> ^name chase
+             -^top-state.sound.faced-in-room <room>
+              ^current-room <room>
+              ^sound-yaw <face>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name turn
+        ^actions.faceabs <face>)}
+
+sp {chase*apply*turn*record-room
+   (state <s> ^operator.name turn
+              ^sound-yaw <face>
+              ^io.output-link.faceabs <face>      ;# Wait until after turned
+              ^top-state.sound <sound>
+              ^current-room <room>)
+   -->
+   (<sound> ^faced-in-room <room>)}
+

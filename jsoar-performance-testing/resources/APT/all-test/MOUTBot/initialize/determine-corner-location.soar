@@ -1,0 +1,73 @@
+# DOES NOT WORK. DEPRECATED BY CHANGES TO INITIALIZE
+
+sp {initialize*propose*determine-corner-location
+   (state <s> ^name initialize
+              ^top-state <ts>)
+   (<ts> ^self.name <name>
+         ^scenario.initial-position <ip>
+         ^mission.objective.defensive-position <dp>
+         ^map.area <area>)
+   (<area> ^name <area-name>
+           ^min-z
+           ^max-z)
+   (<ip> ^agent <name>
+         ^type corner
+         ^direction { << east west >> <dir1> }
+         ^direction { << north south >> <dir2> } )
+   (<dp> ^area-name <area-name>
+        -^position)
+-->
+   (<s> ^operator <o> + = 50)
+   (<o> ^name determine-corner-location
+        ^area <area>
+        ^x-direction <dir1>
+        ^y-direction <dir2>)
+}
+
+# REW: 2003-05-30
+# Position is the x,y position of the corner + min offset + (rand* (maxoffset - minoffset))
+# This is imperfect b/c x,y always offset my the same amount, but it'll do.
+
+sp {apply*determine-corner-location
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<o1> ^name determine-corner-location
+         ^area <area>
+         ^x-direction <xdir>
+         ^y-direction <ydir>)
+   (<area> ^<xdim> <xcor>
+           ^<ydim> <ycor>
+           ^max-z <mxz>
+           ^min-z <mnz>)
+   (<ts> ^mission.objective.defensive-position <dp>
+         ^parameters.room-translations <rt>
+         ^io.input-link.agent.rand <rand>)
+   (<rt> ^offset <off>
+         ^corner <cor>
+         ^<xsign-name> <xsign>
+         ^<ysign-name> <ysign>)
+   (<cor> ^transform <t1>
+          ^transform {<> <t1> <t2>}    )
+   (<t1> ^dimension <xdim>
+         ^direction <xdir>
+         ^sign <xsign-name>)
+   (<t2> ^dimension <ydim>
+         ^direction <ydir>
+         ^sign <ysign-name>)
+   (<off> ^type corner
+          ^min <offmin>
+          ^max <offmax>)
+-->
+   (<dp>  ^position <p>)
+#   (write (crlf) |Computing position in corner|)
+#   (write (crlf) |    ycor | <ycor>)
+#   (write (crlf) |    xsign | <xsign>)
+#   (write (crlf) |    offmin | <offmin>)
+#   (write (crlf) |    offmax | <offmax>)
+#   (write (crlf) |    x-dimension | <xdim>)
+#   (write (crlf) |    x-direction | <xdir>)
+#      (write (crlf) |    new x | (+ <xcor> (* <xsign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))  )
+   (<p> ^x (+ <xcor> (* <xsign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))
+        ^y (+ <ycor> (* <ysign> (+ <offmin> (* <rand> (- <offmax> <offmin>)))))
+        ^z (/ (+ <mnz> <mxz>) 2 ) )
+}

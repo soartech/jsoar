@@ -1,0 +1,3 @@
+pushd Johnbot
+source Johnbot_source.soar
+popd

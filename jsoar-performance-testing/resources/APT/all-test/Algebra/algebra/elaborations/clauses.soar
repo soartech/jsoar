@@ -1,0 +1,31 @@
+
+sp {elaborations*propogate-top-clause-top-clause
+   (state <s> ^superstate nil
+              ^problem <p>)
+   (<p> ^top-clause <tc>
+        ^clauses <c>)
+-->
+   (<c> ^clause <tc>)
+   (<tc> ^parent-clause nil)
+}
+
+
+sp {elaborations*propogate-top-clause-rhs
+   (state <s> ^superstate nil
+              ^problem.clauses <c>)
+   (<c> ^clause <cl>)
+   (<cl> ^right-side <rs>)
+-->
+   (<c> ^clause <rs>)
+   (<rs> ^parent-clause <cl>)
+}
+
+sp {elaborations*propogate-top-clause-lhs
+   (state <s> ^superstate nil
+              ^problem.clauses <c>)
+   (<c> ^clause <cl>)
+   (<cl> ^left-side <ls>)
+-->
+   (<c> ^clause <ls>)
+   (<ls> ^parent-clause <cl>)
+}

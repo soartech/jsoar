@@ -1,0 +1,11 @@
+sp {retreat*propose*move-to-new-area
+   (state <s> ^name retreat
+              ^top-state.map.current-area <> <area>
+              ^objective.threat.retreat-door.connected-node.area <area>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-new-area
+        ^type move-to-area
+        ^area <area>) 
+}
+

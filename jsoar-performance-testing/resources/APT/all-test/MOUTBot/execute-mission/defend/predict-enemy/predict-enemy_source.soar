@@ -1,0 +1,6 @@
+source elaborations.soar
+source create-enemy-state.soar
+source goto-next-room.soar
+source simulate-move-to-area.soar
+source simulate-move-to-node.soar
+source update-prediction-structure.soar

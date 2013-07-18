@@ -1,0 +1,33 @@
+
+
+#
+# augment state w/ user's (ie the player) entity
+#
+sp {greet*elaborate*user-entity
+   (state <s> ^name greet
+              ^map.area <area>
+              ^io.input-link.objects.entity <entity>)
+   (<area> ^name <area-name>)
+   (<entity> ^name User
+             ^position <pos>
+             ^area <area-name>)
+-->
+   (<s> ^user-entity <entity>
+        ^user-area <area>
+        ^user-position <pos>)
+}
+
+#
+# compute range to user-entity
+#
+sp {greet*elaborate*range
+   (state <s> ^name greet
+              ^user-position <upos>
+              ^io.input-link.agent.position <apos>)
+   (<apos> ^x <ax>
+           ^y <ay>)
+   (<upos> ^x <ux>
+           ^y <uy>)
+-->
+   (<s> ^user-range (compute-range <ax> <ay> <ux> <uy>))
+}

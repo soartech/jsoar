@@ -1,0 +1,37 @@
+sp {goto-unvisited-area*elaborate*destination-area
+   (state <s> ^superstate <ss>
+              ^quiescence t)
+   (<ss> ^operator <so>)
+   (<so> ^type goto-area
+         ^area <area>)
+-->
+   (<s> ^destination-area <area>)
+   
+}
+
+sp {goto-unvisited-area*elaborate*connected-gateway
+   (state <s> ^type goto-area
+              ^destination-area.id <daid>
+              ^current-area.gateway <gw>)
+   (<gw> ^to <daid>)
+-->
+   (<s> ^connected-gateway <gw>)
+}
+
+
+#
+#sp {goto-unvisited-area*elaborate*substate
+#   (state <s> ^name goto-unvisited-area
+#              ^io.input-link.self.position <pos>
+#              ^current-area.gateway <gw>)
+#   (<gw> ^center <cen>)
+#   (<pos> ^x <xpos>
+#          ^y <ypos>)
+#   (<cen> ^x <xg>
+#          ^y <yg>)
+#-->
+#   (<s> ^gateway-distance <gd>)
+#   (<gd> ^gateway <gw>
+#         ^distance (compute-range <xpos> <ypos> <xg> <yg>))
+#}
+#

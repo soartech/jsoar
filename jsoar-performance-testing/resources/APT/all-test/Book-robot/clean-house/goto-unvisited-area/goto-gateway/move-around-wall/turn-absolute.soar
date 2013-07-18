@@ -1,0 +1,13 @@
+sp {move-around-wall*propose*turn-absolute
+   (state <s> ^name move-around-wall
+              ^quiescence t
+              ^top-state.directions <dirs> 
+             -^top-state.direction <dir>
+              ^superstate.operator.direction <dir>)
+   (<dirs> ^opposite <dir>
+           ^heading <heading>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn-absolute
+         ^actions.rotate-absolute.yaw <heading>)
+}

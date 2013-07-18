@@ -1,0 +1,83 @@
+echo "\nLoading elaborations/communications"
+# REW: 2002-07-08
+# This is where all communication-specific elaborations should be located.  The 
+# ^comm structure should *not* (generally) be copied to local states.
+
+#Create the comm structure.  Must be initialized for comms to be enabled.
+sp {elaborate*state*comm
+   (state <s> ^superstate nil 
+              ^initialized true)
+   -->
+   (<s> ^comm <c>)
+   # Any scenario-static additional comm information can be initialized here
+}
+
+
+
+# These are simple test productions, not intended to be included in the final agent.
+
+#sp {test*say
+#   (state <s> ^comm 
+#              ^io.output-link <ol>)
+#   -->
+#   (write (crlf) |Firing the say test production....|)
+#   (<ol> ^say <say>)
+#   (<say> ^phrase |This_is_a_test_of_say|
+#          ^target |Marine|)
+#}
+#
+#
+#sp {test*broadcast
+#   (state <s> ^comm 
+#              ^io.output-link <ol>)
+#   -->
+#   (write (crlf) |Firing the broadcast test production....|)
+#   (<ol> ^broadcast <say>)
+#   (<say> ^phrase |This_is_a_test_of_broadcast|)
+#}
+
+#sp {monitor*output-link*broadcast
+#   (state <s> ^comm 
+#              ^top-state.io <io> 
+#              ^impossible)
+#   (<io> ^input-link.agent.cycle <cyc> 
+#         ^output-link <ol>)
+#   (<ol> ^broadcast <b>)
+#-->
+#   (write (crlf) |Generating message for cycle | <cyc>)
+#   (tcl |print -depth 10 | <b>)
+#   #(interrupt)
+#}
+#
+#sp {monitor*output-link*say
+#   (state <s> ^comm 
+#              ^top-state.io.output-link <ol>
+#              ^impossible)
+#   (<ol> ^say <b>)
+#-->
+#   (tcl |print -depth 10 | <b>)
+#}
+#
+sp {monitor*output-link*say-or-broadcast*error
+   (state <s> ^comm ^top-state.io.output-link <ol>)
+   (<ol> ^<< say broadcast >> <b>)
+   (<b> ^status error)
+-->
+   (write (crlf) |********************************************|)
+   (write (crlf) |broadcast error: |  )
+  
+   (write (crlf) |********************************************|)
+}
+
+# REW: Necessary for now because the justification for the
+# output-link broadcast strucutures is retracting before 
+# an output phase....  fixed (see communicate [2]
+#sp {the-infamous-o-support-production
+#   (state <s> ^superstate nil ^io.output-link <ol>)
+#   (<ol> ^broadcast <b>)
+#   (<b> ^phrase <phrase>)
+#   -->
+#   (write (crlf) |firing o-support prod|)
+#   (<ol> ^broadcast <b> +)
+#   (<b> ^phrase <phrase> + )
+#   }

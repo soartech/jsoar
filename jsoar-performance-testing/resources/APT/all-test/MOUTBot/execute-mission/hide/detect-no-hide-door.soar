@@ -1,0 +1,16 @@
+sp {retreat*propose*detect-no-hide-door
+   (state <s> ^name hide 
+              ^current-area <ca>)
+  -(<ca> ^hide-door)
+   -->
+   (<s> ^operator <o> +, <, = 50)
+   (<o> ^name detect-no-hide-door)
+}
+
+sp {apply*detect-no-hide-door
+   (state <s> ^current-area <ca>
+              ^operator <o>)
+   (<o> ^name detect-no-hide-door)
+   -->
+   (<ca> ^hide-door none)
+}

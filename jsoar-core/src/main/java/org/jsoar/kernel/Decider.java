@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -161,6 +162,7 @@ public class Decider
     private SoarReteListener soarReteListener;
     private ReinforcementLearning rl;
     private SemanticMemory smem;
+    private EpisodicMemory epmem;
     private WorkingMemoryActivation wma;
     
     /**
@@ -269,6 +271,7 @@ public class Decider
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         this.smem = Adaptables.require(getClass(), context, SemanticMemory.class);
+        this.epmem = Adaptables.require(getClass(), context, EpisodicMemory.class);
         this.wma = Adaptables.require(getClass(), context, WorkingMemoryActivation.class);
     }
     
@@ -493,7 +496,7 @@ public class Decider
             if (from != null)
                 context.getPrinter().print("\nAdding link from %s to %s", from, to);
             else
-                context.getPrinter().print("\nAdding special link to %s (count=%lu)", to, to.link_count);
+                context.getPrinter().print("\nAdding special link to %s (count=%d)", to, to.link_count);
         }
         
         if (from == null)
@@ -615,7 +618,7 @@ public class Decider
             {
                 context.getPrinter().print("\nRemoving special link to %s  (%d)", to, to.level);
             }
-            context.getPrinter().print(" (count=%lu)", to.link_count);
+            context.getPrinter().print(" (count=%d)", to.link_count);
         }
 
         // if a gc is in progress, handle differently
@@ -986,7 +989,7 @@ public class Decider
         //#endif
         //#endif
     }
-    
+
     /**
      *  Perform reinforcement learning update for one valid candidate.
      */
@@ -1220,7 +1223,7 @@ public class Decider
             result_candidates.value = candidates;
             return ImpasseType.NONE;
         }
-        
+
         /* If there are reject or prohibit preferences, then
         * add all reject and prohibit preferences to CDPS */
 
@@ -1461,7 +1464,7 @@ public class Decider
             if (prev_cand != null)
                 prev_cand.next_candidate = null;
         }
-        
+
         /* Exit point 3: Check if we're done, i.e. 0 or 1 candidates left */
 
         if ((candidates == null) || (candidates.next_candidate == null))
@@ -1579,7 +1582,7 @@ public class Decider
 
         for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
-        
+
         /*
          * Go through candidate list and check for a tie impasse. All candidates
          * must either be unary indifferent or binary indifferent to every item
@@ -1611,7 +1614,7 @@ public class Decider
              * its operator and every other preference's operator in the
              * candidate list
              */
-            
+
             for (Preference p = candidates; p != null; p = p.next_candidate)
             {
                 if (p == cand)
@@ -1806,6 +1809,9 @@ public class Decider
         // Create RL link
         id.goalInfo.reward_header = predefined.getSyms().make_new_identifier('R', level);
         SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.goalInfo.reward_header);
+        
+        //Create EPMEM stuff
+        epmem.initializeNewContext(workingMemory, id);
         
         // Create SMEM stuff
         smem.initializeNewContext(workingMemory, id);
@@ -2377,7 +2383,7 @@ public class Decider
         remove_wmes_for_context_slot(goal.goalInfo.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
-        // TODO epmem epmem_reset(thisAgent, goal);
+        epmem.epmem_reset(goal);
         smem.smem_reset(goal);
         
         this.workingMemory.remove_wme_list_from_wm(goal.goalInfo.getImpasseWmes(), false);

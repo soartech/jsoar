@@ -1,0 +1,7 @@
+#
+#  compound operator responsible for obtaining an object.
+#  This operator will make sure that 
+#       1. agent is high enough to grab object 
+#          (otherwise will attempt to stand on box/ladder)
+#       2. 
+#

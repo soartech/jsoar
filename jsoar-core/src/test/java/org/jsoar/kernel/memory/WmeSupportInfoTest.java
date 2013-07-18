@@ -29,7 +29,6 @@ public class WmeSupportInfoTest
     public void setUp()
     {
         agent = new Agent();
-        agent.initialize();
     }
     
     @After

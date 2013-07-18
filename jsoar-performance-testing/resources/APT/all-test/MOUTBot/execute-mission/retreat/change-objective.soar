@@ -1,0 +1,46 @@
+sp {retreat*propose*change-objective
+   (state <s> ^name retreat
+              ^mission.active-objective.threat.retreat-door.node <node>
+              ^top-state.map.near-node <node>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name change-objective)
+}
+
+sp {apply*change-objective*remove-old
+   (state <s> ^operator.name change-objective
+              ^top-state.io.input-link.agent.time <t>
+              ^mission.objective <obj>)
+   (<obj> ^defensive-position.area-achieved true)
+   -->
+   (<obj> ^status abandoned
+                  active -
+         ^time-abandoned <t>)
+}
+
+sp {apply*change-objective
+   (state <s> ^operator.name change-objective
+              ^top-state.selected-enemy.position <p>
+              ^mission <m>)
+   (<m> ^active-objective <ob>)
+   (<ob> ^defensive-position.area-achieved true
+         ^threat <th>)
+   (<th> ^team <team>
+         ^type <type>
+         ^threat-door.node <tnode>
+         ^retreat-door.node.connected-node.area.name <narea-name>)
+   (<tnode> ^area.name <tarea-name>
+            ^name <node-name>)
+-->
+   (<m> ^objective <new>)
+   (<new> ^defensive-position <ndp>
+          ^status active
+          ^type defend-room
+          ^threat <threat>)
+   (<ndp> ^area-name <narea-name>
+          ^type room)
+   (<threat> ^area-name <tarea-name>
+             ^node-name <node-name>
+             ^team <team>
+             ^type <type>)
+}

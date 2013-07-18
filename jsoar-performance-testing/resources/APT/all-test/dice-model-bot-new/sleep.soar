@@ -1,0 +1,21 @@
+sp {dice*propose*sleep
+   (state <s> ^name dice
+             -^push-bid
+             -^true-dice-counts.dice-counted true
+              ^my-turn false
+              ^io.input-link.affordances.action <a>)
+  -(<a> ^name accept
+        ^available true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name sleep)
+}
+
+sp {apply*sleep
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name sleep)
+-->
+   (<ol> ^sleep <n>)
+}
+

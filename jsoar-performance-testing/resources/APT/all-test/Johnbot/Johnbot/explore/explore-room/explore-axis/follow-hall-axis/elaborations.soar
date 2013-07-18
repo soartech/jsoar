@@ -1,0 +1,69 @@
+#echo "\nLoading follow-hall-axis/elaborations"
+
+## Copy direction (north/south/east/west)
+
+sp {follow-hall-axis*elaborate*direction
+   (state <s> ^name follow-hall-axis
+              ^superstate.operator.direction <dir>)
+   -->
+   (<s> ^direction <dir>)}
+
+## Copy current axis
+
+sp {follow-hall-axis*elaborate*axis
+   (state <s> ^name follow-hall-axis
+              ^superstate.axis <ax>)
+   -->
+   (<s> ^axis <ax>)}
+
+#### Looking for marked doors
+
+sp {follow-hall-axis*elaborate*door-forward*classname
+   (state <s> ^name follow-hall-axis
+              ^io.input-link.map.forward.classname door)
+   -->
+   (<s> ^door forward)}
+
+sp {follow-hall-axis*elaborate*door-left*classname
+   (state <s> ^name follow-hall-axis
+              ^io.input-link.map.left.classname door)
+   -->
+   (write (crlf) |ILLEGAL Door on the Left in a HALL.|)
+   (<s> ^door left)}
+
+sp {follow-hall-axis*elaborate*door-right*classname
+   (state <s> ^name follow-hall-axis
+              ^io.input-link.map.right.classname door)
+   -->
+   (write (crlf) |ILLEGAL Door on the Right in a HALL|)
+   (<s> ^door right)}
+
+##### HALLS - Detect end of hall
+
+sp {follow-hall-axis*elaborate*door-left*distance-max
+   (state <s> ^name follow-hall-axis
+              ^axis.left.max-distance <cr-left-max>
+              ^io.input-link.map.left.distance > <cr-left-max>)
+   -->
+   (<s> ^end-wall left)}
+
+sp {follow-hall-axis*elaborate*door-right*distance-max
+   (state <s> ^name follow-hall-axis
+              ^axis.right.max-distance <cr-right-max>
+              ^io.input-link.map.right.distance > <cr-right-max>)
+   -->
+   (<s> ^end-wall right)}
+
+## Dead End
+
+sp {follow-hall-axis*elaborate*end-wall
+   (state <s> ^name follow-hall-axis
+              ^top-state.parameters.wall-close <wclose>
+              ^io.input-link.map.forward.distance < <wclose>)
+   -->
+# #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (write (crlf) |Discovered a Dead End.|)
+   (<s> ^end-wall forward)}
+
+
+

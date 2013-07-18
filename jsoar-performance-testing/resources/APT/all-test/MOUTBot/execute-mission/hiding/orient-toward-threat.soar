@@ -1,0 +1,19 @@
+##################################### 
+# file: orient-toward-threat 
+# created: JEL
+## 
+# 
+
+sp {hiding*propose*orient-toward-threat*away-from-agent
+   (state <s> ^name hiding
+              ^top-state.self.stopped true
+              ^top-state.map.current-area.threat-door.node <tn>)
+    (<tn> ^name <threat-name>
+          ^position <pos>)
+-->
+#   (write (crlf) |Propose orient to face threat: | <threat-name>)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name orient-toward-threat
+        ^actions.face <pos>
+        ^type wait)
+}

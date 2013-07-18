@@ -1,0 +1,33 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/move-to-cor"
+
+#AMN: 2002-07-31
+#IF:
+#    1.  I have cleared the fatal funnel
+#    2.  I have not moved to the corner of responsibility
+#    3.  I know where my corner of responsibility is
+#THEN:
+#    Proposing moving to the corner of responsibility
+sp {reconnoiter*propose*move-to-corner-of-responsibility
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>)
+   (<eorders> ^cleared-fatal-funnel yes
+             -^moved-to-cor yes
+              ^corner-of-responsibility <node>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-corner-of-responsibility
+        ^type move-to-node
+        ^node <node>)
+}
+
+#AMN: 2002-07-31
+#Once I reach the corner of responsibility, record that fact
+sp {apply*move-to-corner-of-responsibility
+   (state <s> ^operator <o>
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map.near-node <cnode>)
+   (<o> ^name move-to-corner-of-responsibility)
+   (<eorders> ^corner-of-responsibility <cnode>)
+-->
+   (<eorders> ^moved-to-cor yes)
+}

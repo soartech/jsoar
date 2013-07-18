@@ -1,0 +1,57 @@
+#echo "\nLoading elaborations/armor"
+
+sp {elaborate*type*armor
+   (state <s>  ^name quake
+               ^io.input-link.entity.item <item>)
+   (<item> ^classname << item_armor_body item_armor_shard 
+           item_armor_combat item_armor_jacket >>)
+   -->
+   (<item> ^type armor)}
+
+
+sp {elaborate*parameters*armor*shard
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^armor <armor>)
+   (<armor> ^name item_armor_shard
+            ^classname item_armor_shard
+            ^increase 2
+            ^max 999
+            ^better item_armor_body
+        )
+   }
+
+sp {elaborate*parameters*armor*jacket
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^armor <armor>)
+   (<armor> ^name item_armor_jacket
+            ^classname item_armor_jacket
+            ^increase 25
+            ^max 50
+            ^better item_armor_combat
+        )
+   }
+
+sp {elaborate*parameters*armor*combat
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^armor <armor>)
+   (<armor> ^name item_armor_combat
+            ^classname item_armor_combat
+            ^increase 50
+            ^max 100
+            ^better item_armor_body)
+   }
+
+sp {elaborate*parameters*armor*body
+   (state <s> ^parameters <parameters>)
+   -->
+   (<parameters> ^armor <armor>)
+   (<armor> ^name item_armor_body
+            ^classname item_armor_body
+            ^increase 100
+            ^max 200)
+   }
+
+

@@ -1,0 +1,15 @@
+
+sp {goto-room*propose*go-through-door
+   (state <s> ^name goto-room
+              ^superstate.operator.room <room>
+              ^top-state.map.current-room.path <path>)
+   (<path> ^destination-room <room>
+           ^distance <distance>
+           ^in-room-door <idoor>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name go-through-door
+        ^actions.centerview on
+        ^actions.speed off          # walk so can hear opponents
+        ^mode wander
+        ^door <idoor>)}

@@ -1,0 +1,194 @@
+#echo "\nLoading follow-room-axis/back-out-next-room"
+
+## If go past the end of the room (into a hall) back out.
+
+sp {follow-room-axis*propose*back-out-next-room
+   (state <s> ^name follow-room-axis
+              ^end-wall << right left >> )
+   -->
+ #  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =, <)
+   (<o> ^name back-out-next-room
+        ^actions.thrust backward)}
+
+sp {follow-room-axis*select*back-out-next-room
+   (state <s> ^name follow-room-axis
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name back-out-next-room)
+   (<o2> ^name process-door)
+    -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {follow-room-axis*apply*back-out-next-room
+   (state <s> ^operator.name back-out-next-room
+              ^axis <a>)
+   -->
+   (<a> ^backing-out true)}
+
+
+##### Create end wall and add a door to it (if wall doesn't exist)
+
+sp {follow-room-axis*apply*back-out-next-room*new-wall*east
+   (state <s> ^operator.name back-out-next-room
+              ^direction east
+              ^explore-room <cr>
+              ^io.input-link <il>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>) 
+   (<il> ^agent.origin <or>
+         ^map.left.distance <y2>
+         ^map.right.distance <y1>)
+   (<or> ^x <x>
+         ^y <y>)
+  -(<cr> ^wall.side east)
+   -->
+   (write (crlf) |Create new wall and door on the east side of the room. |)
+   (<cr> ^wall <w>
+         ^door <cd>
+         ^current-door <cd>)
+   (<cd> ^direction east
+         ^room <cr>
+         ^wall <w>
+         ^y (+ <y> (/ (- <y2> <y1>)) 2)
+         ^min-y (- <y> <y1>)
+         ^max-y (+ <y> <y2>)
+         ^mmin-y (- (- <y> <y1>) <bbb>)
+         ^mmax-y (+ (+ <y> <y2>) <bbb>)
+         ^x (- <x> <drift>)
+         ^min-x (- (- <x> <drift>) <bb>)
+         ^max-x (+ (- <x> <drift>) <bb>)
+         ^mmin-x (- (- <x> <drift>) <bbb>)
+         ^mmax-x (+ (- <x> <drift>) <bbb>))
+   (<w> ^side east
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^x (- <x> <drift>)                  # Guess
+        ^x-min (- (- <x> <drift>) <wclose>))}
+
+sp {follow-room-axis*apply*back-out-next-room*new-wall*west
+   (state <s> ^operator.name back-out-next-room
+              ^direction west
+              ^explore-room <cr>
+              ^io.input-link <il>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>) 
+    (<il> ^agent.origin <or>
+         ^map.left.distance <y1>
+         ^map.right.distance <y2>)
+  -(<cr> ^wall.side west)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (write (crlf) |Create new wall and door on the west side of the room. |)
+   (<cr> ^wall <w>
+         ^door <cd>
+         ^current-door <cd>)
+   (<cd> ^direction west
+         ^room <cr>
+         ^wall <w>
+         ^y (+ <y> (/ (- <y2> <y1>) 2))
+         ^min-y (- <y> <y2>)
+         ^max-y (+ <y> <y1>)
+         ^mmin-y (- (- <y> <y2>) <bbb>)
+         ^mmax-y (+ (+ <y> <y1>) <bbb>)
+         ^x (+ <x> <drift>)
+         ^min-x (- (+ <x> <drift>) <bb>)
+         ^max-x (+ (+ <x> <drift>) <bb>)
+         ^mmin-x (- (+ <x> <drift>) <bbb>)
+         ^mmax-x (+ (+ <x> <drift>) <bbb>))
+   (<w> ^side west
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^x (+ <x> <drift>)                # Guess
+        ^x-max (+ (+ <x> <drift>) <wclose>))}
+
+sp {follow-room-axis*apply*back-out-next-room*new-wall*south
+   (state <s> ^operator.name back-out-next-room
+              ^direction south
+              ^explore-room <cr>
+              ^io.input-link <il>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>) 
+   (<il> ^agent.origin <or>
+         ^map.left.distance <x2>
+         ^map.right.distance <x1>)
+  -(<cr> ^wall.side south)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (write (crlf) |Create new wall and door on the south side of the room. |)
+   (<cr> ^wall <w>
+         ^door <cd>
+         ^current-door <cd>)
+   (<cd> ^direction south
+         ^room <cr>
+         ^wall <w>
+         ^x (+ <x> (/ (- <x2> <x1>) 2))
+         ^max-x (+ <x> <x2>)
+         ^min-x (- <x> <x1>)
+         ^mmin-x (- (- <x> <x1>) <bbb>)
+         ^mmax-x (+ (+ <x> <x2>) <bbb>)
+         ^y (+ <y> <drift>)
+         ^min-y (- (+ <y> <drift>) <bb>)
+         ^max-y (+ (+ <y> <drift>) <bb>)
+         ^mmin-y (- (+ <y> <drift>) <bbb>)
+         ^mmax-y (+ (+ <y> <drift>) <bbb>))
+   (<w> ^side south
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^y (+ <y> <drift>)                  # Guess
+        ^y-max (+ (+ <y> <drift>) <wclose>))}
+
+sp {follow-room-axis*apply*back-out-next-room*new-wall*north
+   (state <s> ^operator.name back-out-next-room
+              ^direction north
+              ^explore-room <cr>
+              ^io.input-link <il>
+              ^top-state.parameters <par>)
+   (<par> ^room-min <bbb>
+          ^wall-close <wclose>
+          ^door-bounding-box <bb>
+          ^drift <drift>) 
+   (<il> ^agent.origin <or>
+         ^map.left.distance <x1>
+         ^map.right.distance <x2>)
+  -(<cr> ^wall.side north)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (write (crlf) |Create new wall and door on the north side of the room. |)
+   (<cr> ^wall <w>
+         ^door <cd>
+         ^current-door <cd>)
+   (<cd> ^direction north
+         ^room <cr>
+         ^wall <w>
+         ^x (+ <x> (/ (- <x2> <x1>) 2))
+         ^min-x (- <x> <x1>)
+         ^max-x (+ <x> <x2>)
+         ^mmin-x (- (- <x> <x1>) <bbb>)
+         ^mmax-x (+ (+ <x> <x2>) <bbb>)
+         ^y (- <y> <drift>)
+         ^min-y (- (- <y> <drift>) <bb>)
+         ^max-y (+ (- <y> <drift>) <bb>)
+         ^mmin-y (- (- <y> <drift>) <bbb>)
+         ^mmax-y (+ (- <y> <drift>) <bbb>))
+   (<w> ^side north
+        ^tentative true
+        ^door <cd>
+        ^marked true
+        ^y (- <y> <drift>)                 # Guess
+        ^y-min (- (- <y> <drift>) <wclose>))}

@@ -1,0 +1,92 @@
+#####################################
+# file: scan-for-contacts.soar
+# created: REW: 2001-08-20
+##
+# Slowly scan for contacts and determine the time for the
+# next scan.
+#
+# This behavior looks reasonably good but the actual cone of view for the agents is very narrow and (evidently)
+# not as deep as the environment...?
+#
+# Change history:
+#
+#  [1] REW:
+
+echo "\nLoading execute-mission/sentry-watch/scan-for-contacts.soar"
+
+# Propose to scan when the next-scan-time is reached.
+# The negated condition is critical here to keep the operator instantiated until next-scan-time changes.
+sp {sentry-watch*propose*scan-for-contacts
+   (state <s> ^name sentry-watch
+              ^objective <obj>
+              ^top-state.parameters <param>
+             -^top-state.io.input-link.agent.time < <t> )
+   (<obj> ^sentry-watch.next-scan-time <t>)
+   (<param> ^scan-rate <sr>
+            ^scan-period <sp>
+            ^scan-step <sstp>
+            ^scan-angle <sa>)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name scan-for-contacts
+        ^rate <sr>
+        ^period <sp>
+        ^step <sstp>
+        ^angle <sa>
+        ^objective <obj>)
+}
+
+# REW: For a scan to the right, add the angles to get the end angle
+sp {apply*scan-for-contacts*start-angle*end-angle*right
+   (state <s> ^operator <o1>
+              ^objective <obj>)
+   (<obj> ^threat.direction <dir>
+          ^sentry-watch <sw>)
+   (<o1> ^name scan-for-contacts
+         ^angle <a>)
+-->
+   (write (crlf) |Creating new scan....|)
+   (<o1> ^scan <scan>)
+   (<sw> ^scan <scan>)
+   (<scan> ^start-angle <dir>
+           ^end-angle (+ <dir> <a> )
+           ^scan-direction right)
+}
+
+# REW: Need to determine rotation direction....
+
+
+# When the number of steps is less than zero, the scan is complete.  Update next0scan-time (which will retract the op).
+sp {apply*scan-for-contacts*create-next-scan*right
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>
+              ^top-state.io.input-link.agent.time { > <ot> <t> } )
+   (<sw> ^next-scan-time <ot>
+         ^scan <sc>)
+   # This is the key condition....
+   (<sc> ^number-of-steps < 0)
+   (<o1> ^name scan-for-contacts
+         ^rate <sr>)
+-->
+   (<sw> ^next-scan-time <ot> - (+ <t> <sr>) +
+         ^scan <sc> -)
+}
+
+
+# REW: 2003-01-24
+# Remove any scans that aren't ass'd with this instance of scan-for-contacts
+sp {apply*scan-for-contacts*remove-old-scans
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>
+                                      )
+   (<sw>
+              ^scan <sc>)
+   # This is the key condition....
+   (<o1> ^name scan-for-contacts
+         ^scan <> <sc>)
+-->
+   (write (crlf) |Removing old  scan|)
+   (<sw> ^scan <sc> -)
+}
+
+

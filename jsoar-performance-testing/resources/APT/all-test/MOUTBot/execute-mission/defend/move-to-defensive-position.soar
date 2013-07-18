@@ -1,0 +1,52 @@
+#####################################
+# file: move-to-defensive-position
+# created: JEL
+##
+#
+# Move to the (x,y,z) indicated in mission.defensive-position
+#
+# Change history:
+# [1] REW: 2002-08-22
+#     This operator is useful in any state that uses defensive-position
+#     so make the proposal dependent on this elaboration.
+
+# REW: 2003-06-15
+# Only move if standing and not changing position
+sp {defend*propose*move-to-defensive-position
+   (state <s> ^uses-defensive-position true
+              ^top-state.map.current-area <area>
+              ^objective.defensive-position <dp>
+             -^top-state.self.stuck-bad true
+              ^top-state.parameters.default-walk-speed <spd>
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position)
+   (<dp> ^position <pos>
+         ^area-achieved true
+        -^position-achieved true)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-defensive-position
+        ^type move-to-xyz
+        ^area <area>
+        ^position <pos>
+        ^speed <spd>)
+}
+sp {defend*propose*move-to-defensive-position*stuck
+   (state <s> ^uses-defensive-position true
+              ^top-state.map.current-area <area>
+              ^objective.defensive-position <dp>
+             ^top-state.self.stuck-bad true
+              ^top-state.self.body-position stand
+             -^top-state.self.changing-body-position
+             ^top-state.parameters.default-walk-speed <spd>)
+   (<dp> ^position <pos>
+         ^area-achieved true
+        -^position-achieved true)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-defensive-position
+        ^type move-to-xyz
+        ^area <area>
+        ^position <pos>
+        ^speed <spd>)
+}

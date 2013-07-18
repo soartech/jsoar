@@ -1,0 +1,5 @@
+source elaborations.soar
+source look-behind.soar
+source look-left.soar
+source look-right.soar
+source look-up.soar

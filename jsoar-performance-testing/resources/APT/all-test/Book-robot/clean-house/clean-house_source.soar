@@ -1,0 +1,33 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source common.soar
+source chase.soar
+pushd chase
+source chase_source.soar
+popd
+source deposit-block.soar
+pushd deposit-block
+source deposit-block_source.soar
+popd
+source finished-cleaning.soar
+source get-block.soar
+pushd get-block
+source get-block_source.soar
+popd
+source goto-unvisited-area.soar
+pushd goto-unvisited-area
+source goto-unvisited-area_source.soar
+popd
+source Impasse__Operator_Tie.soar
+pushd Impasse__Operator_Tie
+source Impasse__Operator_Tie_source.soar
+popd
+source init-robot.soar
+source record-area.soar
+source record-block.soar
+source record-unconnected-area.soar

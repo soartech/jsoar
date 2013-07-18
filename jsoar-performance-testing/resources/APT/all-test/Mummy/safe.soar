@@ -1,0 +1,37 @@
+sp {elaborate*safe*x
+   (state <s> ^gs <g> ^facts <f> ^elaborations <e>)
+   (<g> ^location <l> ^location <l1>)
+   (<l> ^p1 explorer ^p2 <x1>)
+   (<l1> ^p1 <mummy> ^p2 <x2> <> <x1>)
+   (<f> ^mummy-type <m>)
+   (<m> ^p1 <mummy> ^p2 <type>)
+-->
+   (<e> ^safe <safe>)
+ }
+sp {elaborate*safe*y
+   (state <s> ^gs <g> ^facts <f> ^elaborations <e>)
+   (<g> ^location <l> ^location <l1>)
+   (<l> ^p1 explorer ^p3 <y1>)
+   (<l1> ^p1 <mummy> ^p3 <y2> <> <y1>)
+   (<f> ^mummy-type <m>)
+   (<m> ^p1 <mummy> ^p2 <type>)
+-->
+   (<e> ^safe <safe>)
+
+}
+sp {elaborate*goal_explorer_100_1
+   (state <s> ^name game ^terminal <t> ^desired <d> ^elaborations <e>)
+   #(<e> ^atexit <a> -^eaten <e1>)
+   (<e> ^atexit <a> ^safe <s1>)
+-->
+   (<s> ^success <d>)
+   (write |!!!FOUND EXIT!!!|)
+}
+sp {elaborate*goal_explorer_50_1
+   (state <s> ^name game ^terminal <t> ^desired <d> ^elaborations <e>)
+   #(<e> -^atexit <a> -^eaten <e1>)
+   (<e> -^atexit <a> ^safe <s1>)
+-->
+   (<s> ^failure <d>)
+}
+

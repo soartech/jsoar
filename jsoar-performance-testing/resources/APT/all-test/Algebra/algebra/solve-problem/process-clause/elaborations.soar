@@ -1,0 +1,20 @@
+sp {process-clause*elaborate*substate
+   (state <s> ^name process-clause
+              ^superstate.operator <so>)
+   (<so> ^name process-clause
+         ^clause <rs>)
+-->
+   (<s> ^name solve-problem
+        ^current-clause <rs>)
+}
+#
+#sp {process-clause*monitor*state*values
+#   (state <s> ^name process-clause
+#              ^current-clause <rs>
+#              ^top-state.operations.<op> <opx>)
+#   (<rs> ^operation <op>
+#         ^right-side.value <rv>
+#         ^left-side.value <lv>)
+#-->
+#   (write (crlf) <lv> | | <opx> | | <rv>)
+#}

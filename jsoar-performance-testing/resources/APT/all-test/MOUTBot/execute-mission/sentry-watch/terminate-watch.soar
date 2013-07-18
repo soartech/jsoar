@@ -1,0 +1,131 @@
+##################################### 
+# file: terminate-watch.soar 
+# created: REW: 2001-08-20
+## 
+# Terminate the watch.  Specifies the conditions under which the 
+# watch should be terminated.  A terminated watch is not "re-started" --
+# if another watch is required, create a new objective and begin it.
+#
+# Change history: 
+# 
+#  [1] 
+
+echo "\nLoading execute-mission/defend/sentry-watch/terminate-watch.soar"
+
+# REW: 2002-08-21
+# Need more proposals here for change in assignment, 
+# recognition of incoming fire (concealment lost), etc.
+
+
+# Terminate the watch when the max-watch-period is exceeded.
+sp {sentry-watch*propose*terminate-watch*terminate-time
+   (state <s> ^name sentry-watch
+              ^top-state.io.input-link.agent.time <ct>
+              ^objective <obj>)
+   (<obj> ^status active 
+          ^type sentry-watch
+          ^sentry-watch <sw>)
+   (<sw> ^terminate-time < <ct>
+         ^status << executing interrupted terminated >>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name terminate-watch)
+}
+
+
+# Terminate the watch when the agent comes underfire
+sp {sentry-watch*propose*terminate-watch*underfire
+   (state <s> ^name sentry-watch
+              ^top-state.self.underfire.value <> none
+              ^objective <obj>)
+   (<obj> ^status active 
+          ^type sentry-watch
+          ^sentry-watch <sw>)
+   (<sw> 
+         ^status << executing interrupted terminated >>)
+   -->
+   (write (crlf) |Terminating watch -- underfire!|)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name terminate-watch)
+}
+
+# BUGBUG
+# REW: 2003-01-27
+# "Outside" no longer appears to be the name of the area outside.  
+# For now, just add as well "None"
+# This doesn't work either -- need to compute the area of the contact.
+# For now, just terminate on contact :(
+# Terminate the watch if a contact is in the building 
+sp {sentry-watch*propose*terminate-watch*contact-in-building
+   (state <s> ^name sentry-watch
+              ^objective <obj>)
+   (<obj> ^status active 
+          ^type sentry-watch
+          ^sentry-watch <sw>)
+   (<sw> ^contacts.new-contact <nc>
+         ^status << executing interrupted terminated >>)
+   (<nc> ^area-id )
+   -->
+   (write (crlf) |Terminating the watch - contact in building!|)
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name terminate-watch)
+}
+
+
+
+
+# This will mark the sentry-watch assignment as terminated.  A change-objective
+# operator will be necessary to actually cause another objective to be chosen 
+# (This should happen now by default via execute-mission/determine-objective)
+
+sp {apply*terminate-watch*achieved*sentry-watch-objective
+   (state <s> ^operator <o1>
+              ^objective <obj> )
+   (<o1> ^name terminate-watch)
+   (<obj> ^status <active>   )
+   -->
+#   (write (crlf) |************************************|)
+#   (write (crlf) |Terminating the watch|)
+   (<obj> ^status <active> - achieved +)
+}
+
+
+sp {apply*terminate-watch*terminated*sentry-watch
+   (state <s> ^operator <o1>
+              ^objective <obj> )
+   (<o1> ^name terminate-watch)
+   (<obj> ^sentry-watch <sw>
+             )
+   (<sw> ^status { <> terminated <stat> } )
+   -->
+   (<sw> ^status <stat> - terminated +)
+}
+
+### SEARCH CONTROL
+
+# REW: 2002-08-27
+# Choose terminate-watch whenever it's proposed, as it's an indcation
+# that the goal should be terminated immediately.  There may be exceptions to this
+# So it's here rather than in the proposal.
+
+sp {sentry-watch*compare*terminate-watch
+   (state <s> ^name sentry-watch
+              ^operator <o1> +)                    
+   (<o1> ^name terminate-watch)
+   -->
+   (<s> ^operator <o1> > )
+}
+
+# REW: 2002-10-10
+# Agents still failing to break from scan when enemy appears.  Make 
+# terminate better than scan-for-contacts (ie, add it to this prod).
+sp {sentry-watch*compare*terminate-watch2
+   (state <s> ^name sentry-watch
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name terminate-watch)
+   (<o2> ^name << scan-for-contacts count-contacts >>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+

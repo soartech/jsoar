@@ -1,0 +1,9 @@
+source elaborations.soar
+source align-with-room.soar
+source classify-room.soar
+source explore-axis.soar
+pushd explore-axis
+source explore-axis_source.soar
+popd
+source finish-room.soar
+source stop-sidestep.soar

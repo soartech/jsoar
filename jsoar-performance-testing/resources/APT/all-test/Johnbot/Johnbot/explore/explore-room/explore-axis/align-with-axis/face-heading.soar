@@ -1,0 +1,15 @@
+#echo "\nLoading align-with-axis/face-heading"
+
+## Face the new heading
+
+sp {align-with-axis*propose*face-heading
+   (state <s> ^name align-with-axis
+              ^new-heading <nh>
+             -^achieved heading)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name face-heading
+        ^actions.faceabs <nh>)}
+
+
+              

@@ -1,0 +1,8 @@
+source all.soar
+source communicate.soar
+source record-area.soar
+source record-item.soar
+source record-node.soar
+source record-stuck.soar
+source remove-stuck.soar
+source update-item.soar

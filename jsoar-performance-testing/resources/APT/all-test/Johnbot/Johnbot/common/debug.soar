@@ -1,0 +1,196 @@
+echo "\nLoading common/debug"
+
+sp {elaborate*quake*debug
+   (state <s> ^name quake)
+   -->
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^debug false)}
+
+
+#### Sounds
+
+sp {quake*debug*sound
+   (state <s> ^name quake
+             ^top-state.debug true
+             ^io.input-link.sound.sound <x>)
+   (<x> ^range { <range> > 0 < 1000 }
+        ^type <val>
+        ^h <h>)
+   -->
+   (write (crlf) |Sound type | <val> | range | <range> | angle | <h>)}
+
+
+## Current Position
+
+#sp {quake*debug*position
+#   (state <s> ^name quake
+#             ^top-state.debug true
+#             ^io.input-link.agent.origin <or>)
+#  (<or> ^x <x>
+#        ^y <y>)
+#   -->
+#   (write (crlf) |X: | <x> |, Y: | <y>)}
+#
+#sp {quake*debug*cycle
+#   (state <s> ^name quake
+#             ^top-state.debug true
+#             ^io.input-link.agent.cycle <c>)
+#   -->
+#   (write (crlf) |Cycle: | <c>)}
+
+
+#sp {quake*debug*distance
+#   (state <s> ^name quake
+#             ^top-state.debug true
+#             ^io.input-link.map <map>)
+#  (<map> ^right.distance <rd>
+#         ^left.distance <ld>
+#         ^forward.distance <fd>
+#         ^backward.distance <bd>)
+#   -->
+#   (write (crlf) |Left: | <ld> | Forward: | <fd> | Right: | <rd> | Backward: | <bd>)}
+
+## Output
+sp {quake*debug*output
+   (state <s> ^name quake
+              ^debug true
+              ^io.output-link <ol>)
+   (<ol> ^<att> <value>)
+-->
+   (write (crlf) |--> | <att> |: | <value>)}
+
+## Feedback
+
+sp {quake*debug*feedback
+   (state <s> ^name quake
+              ^debug true
+           ^io.input-link.feedback.<y> <x>)
+   -->
+   (write (crlf) |>Feedback.| <y> |: | <x>)}
+
+####################################################
+###
+###  Enemy
+
+#sp {quake*debug*enemy
+#   (state <s> ^name quake 
+#              ^debug true
+#              ^io.input-link.entity.enemy <e>)
+#   (<e> ^name <name>
+#        ^range <range>
+#        ^deadflag alive
+#        ^angle-off.h <angle-off>
+#        ^sensor <sensor>)
+#   (<sensor> ^visible <vis>
+#             ^infront <inf>) 
+#   -->
+#   (write (crlf) |>Enemy: | <name> |, visible | <vis> |, infront | <inf>)
+#   (write (crlf) |        Range: | <range> |, angle-off | <angle-off>)}
+
+sp {quake*debug*enemy*disappear
+   (state <s> ^name quake 
+              ^debug true
+              ^io.input-link.entity.enemy <e>)
+   (<e> ^name <name>
+        ^sensor <sensor>)
+  -(<sensor> ^visible true
+             ^infront true) 
+   -->
+   (write (crlf) |>Enemy: | <name> | no longer visible.|)}
+
+sp {quake*debug*enemy*dead
+   (state <s> ^name quake 
+              ^debug true
+              ^io.input-link.entity.enemy <e>)
+   (<e> ^name <name>
+        ^deadflag { <dead> << dying dead >> })
+   -->
+   (write (crlf) |>Enemy: | <name> |: | <dead>)}
+
+sp {quake*debug*yaw
+   (state <s> ^name quake 
+              ^debug true
+              ^io.input-link.agent.angle.yaw <y>)
+   -->
+   (write (crlf) |>Yaw: | <y> )}
+
+######################################################
+## ITEM Sensed
+
+#sp {quake*debug*item
+#   (state <s> ^name quake 
+#              ^debug true
+#              ^io.input-link.entity.item <e>)
+#   (<e> ^classname <name>
+#        ^sensor <sensor>)
+#   (<sensor> ^visible true
+#             ^infront true)
+#   -->
+#   (write (crlf) |>Sensed Item: | <name> )}
+
+######################################################
+## projectile Sensed
+
+#sp {quake*debug*projectile
+#   (state <s> ^name quake 
+#              ^debug true
+#              ^io.input-link.entity.projectile <e>)
+#   (<e> ^classname <name>
+#        ^sensor <sensor>)
+#   (<sensor> ^visible true
+#             ^infront true)
+#   -->
+#   (write (crlf) |>Sensed projectile: | <name> )}
+
+######################################################
+## agent sensing
+
+##########################
+### Internal Data Structures
+
+sp {quake*debug*heading
+   (state <s> ^name quake 
+              ^debug true
+              ^heading.within-45 <heading>)
+   -->
+   (write (crlf) |>Heading: | <heading> )}
+
+sp {quake*debug*strafe-direction
+   (state <s> ^name quake 
+              ^debug true
+              ^strafe-direction <strafe-direction>)
+   -->
+   (write (crlf) |>strafe-direction: | <strafe-direction> )}
+
+sp {quake*debug*explore-room
+   (state <s> ^name quake 
+              ^debug true
+              ^map.explore-room.room-number <current-room>)
+   -->
+   (write (crlf) |>Explore-room: | <current-room> )}
+
+sp {quake*debug*current-room
+   (state <s> ^name quake 
+              ^debug true
+              ^map.current-room.room-number <current-room>)
+   -->
+   (write (crlf) |>Current-room: | <current-room> )}
+
+
+sp {quake*debug*item2
+   (state <s> ^name quake 
+              ^debug true
+             -^map.explored true
+              ^map.item.classname <item>)
+   -->
+   (write (crlf) |>Map item: | <item> )}
+###############
+
+#sp {quake*debug*speed
+#   (state <s> ^name quake 
+#              ^debug true
+#              ^io.input-link.agent.velocity <v>)
+#   (<v> ^x <x> ^y <y>)
+#   -->
+#   (write (crlf) |>Velocity: X | <x> | Y: | <y>)}
+

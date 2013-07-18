@@ -1,0 +1,33 @@
+#
+# If agent sees a ghost, it will remember the associated area as being
+# "Haunted", which will allow him to avoid moving to this area for a specified amount of time
+# (set in 'elaborations/parameters.soar')
+#
+
+sp {all*propose*record-haunted-area
+   (state <s> ^name haunt
+              ^entity-list.entity <entity>
+              ^top-state.map.area <area>)
+   (<entity> ^name |Bob|    # quick hack to identify ghost
+             ^area-name <area-name>)
+   (<area> ^name <area-name>
+          -^haunted)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name record-haunted-area
+        ^area <area>)
+}
+
+sp {all*apply*record-haunted-area
+   (state <s> ^name haunt
+              ^operator <o>
+              ^io.input-link.agent.time <time>
+              ^parameters.haunted-area-duration <duration>)
+   (<o> ^name record-haunted-area
+        ^area <area>)
+-->
+ #  (write (crlf) |Marking area | <area> | as haunted!|)
+   (<area> ^haunted <haunted>)
+   (<haunted> ^record-time <time>
+              ^expire-time (+ <time> <duration>))
+}

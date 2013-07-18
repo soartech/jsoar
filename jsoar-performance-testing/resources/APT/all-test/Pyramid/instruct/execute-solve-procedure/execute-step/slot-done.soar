@@ -1,0 +1,27 @@
+
+sp {execute-step*propose*slot-done
+   (state <s> ^name execute-step
+             -^alternate-action
+              ^current-problem <cp>)
+   (<cp> ^current-step.action <a>
+         ^<slot>
+        -^completed-action <a>)
+   (<a> ^command set
+        ^variable <slot>)
+-->
+   (<s> ^operator <op> + = >)
+   (<op> ^name slot-done
+         ^action <a>)
+}
+
+sp {execute-step*apply*slot-done
+   (state <s>  ^operator <op>
+               ^current-problem <cp>)
+   (<op> ^name slot-done
+         ^action <a>)
+   (<a> ^command set
+        ^variable <slot>)
+-->
+   (<cp> ^<var> <constant>
+         ^completed-action <a>)
+}

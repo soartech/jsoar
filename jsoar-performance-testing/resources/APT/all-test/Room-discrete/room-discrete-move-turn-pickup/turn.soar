@@ -1,0 +1,22 @@
+sp {robot*propose*turn*object-direction
+   (state <s> ^name robot
+              ^object-direction { << left right >> <dir> }
+              ^io.input-link.self.angle.direction <east>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name turn
+         ^actions.rotate.direction <dir>)
+}
+
+sp {robot*RL*turn*right
+   :template
+   (state <s> ^name robot
+              ^operator <op> +
+              ^object-direction <dir>
+              ^io.input-link.self.position <pos>)
+   (<op> ^name turn
+        ^actions.rotate.direction <dir>)
+   (<pos> ^row <row>
+          ^col <col>)
+-->
+   (<s> ^operator <op> = 0)}

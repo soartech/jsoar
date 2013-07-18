@@ -1,0 +1,98 @@
+
+# periodically update record-time and expire-time
+# If the entity is visible and isn't moving, its record & expire times will only be updated every
+# few seconds to help performance.
+#
+sp {all*propose*update-entity*update-time
+   (state <s> #^name haunt
+              ^io.input-link <il>)
+   (<s> ^top-state.entity-list.entity <old>)
+   (<il> ^objects.entity <new>
+         ^agent.time <time>)
+   (<old> ^name <name>
+          ^record-time < <time>)
+   (<new> ^name <name>
+          ^visible true)
+   -->
+ #  (write (crlf) |Updating Entity: | <name> |(time refresh)|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-entity
+        ^entity <new>)
+}
+
+sp {all*propose*update-entity*position-changed
+   (state <s> #^name haunt
+              ^io.input-link <il>)
+   (<s> ^top-state.entity-list.entity <old>)
+   (<il> ^objects.entity <new>)
+   (<old> ^name <name>
+          ^position <oldpos>)
+   (<oldpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+   (<new> ^name <name>
+          ^visible true
+          ^position <newpos>)
+  -(<newpos> ^x <x>
+             ^y <y>
+             ^z <z>)
+   -->
+ #  (write (crlf) |Updating Entity: | <name> |(Position change)|)
+   (<s> ^operator <o> + >, =)
+   (<o> ^name update-entity
+        ^entity <new>)
+}
+
+
+
+sp {all*apply*update-entity*time
+   (state <s> ^operator <o>
+              ^io.input-link.agent.time <newtime>
+              ^parameters.record-entity-duration <duration>
+              ^top-state.entity-list.entity <old>)
+   (<o> ^name update-entity
+        ^entity.name <name>)
+   (<old> ^name <name>
+          ^record-time <oldtime>
+          ^expire-time <oldexpire>)
+-->
+ #  (write | (TIME) |)
+   (<old> ^record-time <oldtime> -
+          ^record-time  (+ 5 <newtime>)
+          ^expire-time <oldexpire> -
+          ^expire-time (+ <newtime> <duration>))
+}
+
+
+sp {all*apply*update-entity*area
+   (state <s> ^operator <o>
+              ^top-state.entity-list.entity <old>)
+   (<o> ^name update-entity
+        ^entity <new>)
+   (<new> ^name <name>
+          ^area-name <new-area>)
+   (<old> ^name <name>
+          ^area-name { <> <new-area> <old-area> })
+   -->
+#   (write (crlf) | (AREA) |)
+   (<old>  ^area-name <old-area> -
+           ^area-name <new-area>)
+}
+
+
+# used to update x,y and z coordinates
+sp {all*apply*update-entity*position*x
+   (state <s> ^operator <o>
+              ^top-state.entity-list.entity <old>)
+   (<o> ^name update-entity
+        ^entity <new>)
+   (<new> ^name <name>
+          ^position. { << x y z >> <x> } <x-new>)
+   (<old> ^name <name>
+          ^position <p>)
+   (<p> ^<x> { <> <x-new> <x-old> })
+   -->
+#   (write (crlf) | (POSITION) |)
+   (<p> ^<x> <x-new>
+             <x-old> -)
+}

@@ -1,0 +1,55 @@
+echo "\nLoading behavior/investigate"
+                
+
+#
+# This behavior is used when the agent notices something strange and should
+# move closer to examine the object and surrounding area. The agent will move near the object 
+# and then proceed to look at the object and then all around.
+# 
+
+
+# debug rule for demo only
+sp {debug*elaborate*should-investigate-box
+   (state <s> ^name haunt
+              ^impossible true  #this production is disabled for the demo
+              ^object-list.decoration <obj>)
+   (<obj> ^name |SmallSteelBox0|)
+-->
+   (<obj> ^should-investigate <si>)
+   (<si> ^direction left
+         ^direction right
+         ^direction behind)
+   #         ^direction up) #looking 'up' doesn't seem to work (unrealside)
+}
+
+
+sp {behavior*propose*investigate*object
+   (state <s> ^name haunt
+              ^impossible true # this behavior is disabled for the demo
+              ^object-list.<< decoration item >> <obj>)
+   (<obj> ^should-investigate
+          ^area-id <area>
+          ^position <pos>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name investigate-object
+        ^type move-and-x
+        ^area <area>
+        ^position <pos>
+        ^next-action <na>)
+   (<na> ^name look-around
+         ^type look-around
+         ^target <obj>)
+}
+
+#   FUTURE RULE (incomplete)
+#
+#
+#sp {behavior*propose*investigate*sound
+#   (state <s> ^name haunt
+#              ^io.input-link.sounds.sound <s>)
+#-->
+#   (<s> ^operator <o> +)
+#   (<o> ^name investigate-object
+#        ^target <obj>)
+#}

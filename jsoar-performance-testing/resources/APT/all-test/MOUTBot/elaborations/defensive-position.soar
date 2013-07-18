@@ -1,0 +1,18 @@
+##################################### 
+# file: elaborations/defensive-position.soar 
+# created: REW
+## 
+# 
+# Elaborations associated with the defensive-position data structure
+#
+# Change history: 
+# 
+
+echo "\nLoading elaborations/defensive-position.soar"
+                
+sp {defend*elaborate*state*uses-defensive-position
+   (state <s> ^name << defend 
+                       sentry-watch >> )
+   -->
+   (<s> ^uses-defensive-position true)
+}

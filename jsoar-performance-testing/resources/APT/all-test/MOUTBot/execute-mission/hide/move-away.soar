@@ -1,0 +1,8 @@
+sp {retreat*propose*move-away
+   (state <s> ^name hide
+              ^current-area.hide-door none)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-away) 
+}
+

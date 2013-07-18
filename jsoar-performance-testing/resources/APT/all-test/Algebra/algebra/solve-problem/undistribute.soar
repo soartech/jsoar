@@ -1,0 +1,113 @@
+
+## Opposite of distribute
+
+## [A * B] + [A * C] ==> A * [B + C]
+sp {algebra*propose*undistribute*left
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation << add subtract >>)
+   (<rs> ^left-side <ls1>
+         ^operation { << multiply divide >> <oper> })
+   (<ls> ^left-side <ls2>
+         ^operation <oper>)
+   (<ls1> ^type <t>
+          ^value <v>)
+   (<ls2> ^type <t>
+          ^value <v>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name undistribute
+         ^side left
+         ^type <t>)
+}
+## [B * A] + [C * A] ==> [B + C] * A
+sp {algebra*propose*undistribute*right
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation << add subtract >>)
+   (<rs> ^right-side <ls1>
+         ^operation { << multiply divide >> <oper> })
+   (<ls> ^right-side <ls2>
+         ^operation <oper>)
+   (<ls1> ^type <t>
+          ^value <v>)
+   (<ls2> ^type <t>
+          ^value <v>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name undistribute
+         ^side right
+         ^type <t>)
+}
+
+## if have [3 * x] + [3 * x] want x * [3 + 3]
+sp {algebra*compare*undistribute
+   (state <s> ^name solve-problem
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name undistribute
+          ^type variable)
+   (<op2> ^name undistribute
+          ^type number)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+
+###******* Apply *****************
+## [A * B] + [A * C] ==> A * [B + C]
+sp {algebra*apply*undistribute*left
+   (state <s> ^current-clause <cc>
+              ^operator <op>)
+   (<op> ^name undistribute
+         ^side left)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation <oper1>)
+   (<rs> ^operation <oper2>
+         ^left-side <ls1>)
+   (<ls> ^left-side <ls2>
+         ^right-side <rs2>)
+-->
+   (write (crlf) |[A * B] + [A * C] ==> A * [B + C]|)
+   (<cc> ^left-side <ls> -
+                    <ls2>
+         ^operation <oper1> -
+                    <oper2>)
+   (<rs> ^failed yes -
+         ^left-side <ls1> -
+                    <rs2>
+         ^operation <oper2> -
+                    <oper1>)
+}
+
+
+### [B * A] + [C * A] ==> [B + C] * A
+sp {algebra*apply*undistribute*right
+   (state <s> ^current-clause <cc>
+              ^operator <op>)
+   (<op> ^name undistribute
+         ^side right)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation <oper1>)
+   (<ls> ^operation <oper2>
+         ^right-side <rs1>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>)
+-->
+   (write (crlf) |[B * A] + [C * A] ==> [B + C] * A|)
+   (<cc> ^right-side <rs> -
+                     <rs2>
+         ^operation <oper1> -
+                    <oper2>)
+   (<ls> ^failed yes -
+         ^right-side <rs1> -
+                     <ls2>
+         ^operation <oper2> -
+                    <oper1>)
+}

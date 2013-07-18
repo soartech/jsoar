@@ -1,0 +1,121 @@
+#echo "\nLoading goto-next-room/exit-explore-room"
+
+sp {goto-next-room*propose*exit-explore-room
+   (state <s> ^name goto-next-room
+              ^door <door>
+              ^explore-room.at-door <door>)
+-->
+#  #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name exit-explore-room
+        ^door <door>
+        ^actions.sidestep off)}
+
+sp {goto-next-room*propose*exit-explore-room*change-rooms
+   (state <s> ^name goto-next-room
+              ^door <door>
+             -^current-room <cr>
+              ^explore-room <cr>)
+   -->
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o> + =)
+   (<o> ^name exit-explore-room
+        ^door <door>
+        ^actions <a>)
+   (<a> ^thrust off
+        ^sidestep off)}
+
+# Update current-room
+# Remove at-door
+# Update last-room
+# Update goto-next-rooms
+# Mark room explored
+ 
+sp {apply*exit-explore-room
+   (state <s> ^operator.name exit-explore-room
+              ^top-state.map <map>)
+   (<map> ^last-room <lr>
+          ^explore-room { <> <ir> <cr> }
+          ^current-room <ir>)
+   (<cr> ^at-door <idoor>)
+   -->
+   (write (crlf) |Last room | <lr> | --> | <cr>)
+   (<map> ^explore-room <cr> -
+          ^explore-room <ir>
+          ^last-room <lr> -
+          ^last-room <cr>)
+   (<cr> ^explored true
+         ^at-door <idoor> -)}
+ 
+sp {apply*exit-explore-room*not-at-door
+   (state <s> ^operator.name exit-explore-room
+              ^top-state.map <map>)
+   (<map> ^last-room <lr>
+          ^explore-room { <> <ir> <cr> }
+          ^current-room <ir>)
+  - (<cr> ^at-door <idoor>)
+   -->
+   (write (crlf) |Last room | <lr> | --> | <cr>)
+   (<map> ^explore-room <cr> -
+          ^explore-room <ir>
+          ^last-room <lr> -
+          ^last-room <cr>)
+   (<cr> ^explored true)}
+
+sp {apply*exit-explore-room*new-room
+   (state <s> ^operator <o>
+             -^current-room
+              ^top-state.map <map>)
+   (<map> ^last-room <lr>
+          ^explore-room { <> <ir> <cr> }
+          ^room <ir>)
+   (<cr> ^path <p>)
+   (<p> ^destination-room <ir>
+        ^distance 1
+        ^in-room-door <door>)
+   (<o> ^name exit-explore-room
+        ^door <door>)
+   (<door> ^new-room <ir>)
+  -(<ir> ^explored)
+   -->
+   (write (crlf) |Last room | <lr> | --> | <cr>)
+   (<map> ^explore-room <cr> -
+          ^explore-room <ir>
+          ^last-room <lr> -
+          ^last-room <cr>)
+   (<cr> ^explored true
+         ^at-door <door> -)}
+
+sp {goto-next-room*apply*exit-explore-room*go
+   :i-support
+   (state <s> ^top-state.self.stopped true
+              ^current-room <cr>
+              ^explore-room <cr>
+              ^operator <o>)
+   (<o> ^name exit-explore-room)
+   -->
+   (<o> ^actions.thrust forward)}
+
+sp {goto-next-room*apply*exit-explore-room*go2
+   :i-support
+   (state <s> ^top-state.self.stopped true
+              ^explore-room <cr>
+              ^operator <o>)
+   (<o> ^name exit-explore-room)
+   (<cr> ^detected-type <room>
+         ^type <room>)
+   -->
+   (<o> ^actions.thrust forward)}
+
+
+sp {goto-next-room*apply*exit-explore-room*stuck
+   (state <s> ^top-state.self <self>
+             -^io.input-link.agent.cycle < <st>
+              ^explore-room <cr>
+              ^operator <o>)
+   (<self> ^stuck-time <st>)
+   (<o> ^name exit-explore-room)
+   (<cr> ^at-door <d>)
+   -->
+   (<cr> ^at-door <d> -)}
+

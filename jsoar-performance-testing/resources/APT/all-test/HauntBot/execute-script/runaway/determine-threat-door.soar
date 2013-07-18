@@ -1,0 +1,63 @@
+#This operator was altered and moved up to the
+#execute mission subgoal.  Pending approval.
+# -:AMN:
+
+
+
+#echo "\nLoading execute-mission/retreat/determine-threat-door"
+#
+#sp {retreat*propose*determine-threat-door
+#   (state <s> ^name retreat
+#             -^threat-door
+#              ^superstate.operator.objective <ob>)
+#   (<ob> ^defensive-position <dp>
+#         ^status active)
+#   (<dp> ^area.node <door>
+#         ^area-achieved true
+#         ^type << hall room >>)
+#   (<door> ^type entryway)
+#   -->
+#   (<s> ^operator <o> + =)
+#   (<o> ^name determine-threat-door
+#        ^door <door>)
+#}
+#
+#sp {retreat*elaborate*determine-threat-door*range
+#   (state <s> ^operator <o>
+#              ^top-state.selected-enemy.position <tp>)  # Not clear what the right thing is here
+#   (<tp> ^x <tx> 
+#         ^y <ty>)
+#   (<o> ^name determine-threat-door
+#        ^door <door>)
+#   (<door> ^position <p>)
+#   (<p> ^x <x> 
+#        ^y <y>)
+#   -->
+#   (<o> ^range (compute-range <x> <y> <tx> <ty>))}
+#
+#sp {retreat*compare*determine-threat-door*range
+#   (state <s> ^name retreat
+#              ^operator <o1> +
+#                        <o2> +)
+#   (<o1> ^name determine-threat-door
+#         ^range <range>)
+#   (<o2> ^name determine-threat-door 
+#        -^range >= <range>)
+#   -->
+#   (<s> ^operator <o1> < <o2>)
+#}
+#
+##Temporarily removed by :AMN:
+##sp {apply*determine-threat-door
+##   (state <s> ^superstate.operator.objective <ob>
+##              ^operator <o>)
+##   (<o> ^name determine-threat-door
+##        ^door <door>)
+##   (<ob> ^defensive-position <dp>)
+##   (<dp> ^area <area>
+##         ^type << hall room >>)
+##   -->
+##   (<s> ^threat-door <door>)
+##}
+#
+#

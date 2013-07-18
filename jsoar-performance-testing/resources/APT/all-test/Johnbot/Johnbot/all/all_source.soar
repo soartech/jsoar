@@ -1,0 +1,16 @@
+source enter-room.soar
+source notice-item.soar
+source notice-item-missing.soar
+source notice-item-present.soar
+source record-explore-item.soar
+source record-stuck.soar
+source record-temp-item.soar
+source remove-stuck.soar
+source search-room.soar
+pushd search-room
+source search-room_source.soar
+popd
+source select-weapon.soar
+source sidestep.soar
+source start-moving.soar
+source update-health-armor.soar

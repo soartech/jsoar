@@ -1,0 +1,6 @@
+source condition.soar
+source feelers.soar
+source general.soar
+source output.soar
+source pickup.soar
+source behavior.soar

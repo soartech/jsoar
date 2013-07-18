@@ -1,0 +1,67 @@
+echo "\nLoading retreat"
+
+## If enemy not visible and reason to retreat.
+
+sp {propose*retreat*cant-see-enemy
+   (state <s> ^name quake
+              ^map.explored true
+             -^enemy-detected 
+              ^self.retreat)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name retreat
+        ^actions <a>)
+   (<a> ^facetarget off
+        ^leadtarget off
+        ^centerview on
+        ^speed on)}
+
+sp {propose*retreat*enemy-far-away
+   (state <s> ^name quake
+              ^map.explored true
+              ^enemy-detected <se>
+              ^parameters.retreat-range <rr>
+              ^self.retreat)
+   (<se> -^range < <rr>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name retreat
+        ^actions <a>)
+   (<a> ^facetarget off
+        ^leadtarget off
+        ^centerview on
+        ^speed on)}
+
+excise propose*retreat*cant-see-enemy
+excise propose*retreat*enemy-far-away
+######## Shoot if can see enemy
+
+sp {retreat*elaborate*shoot
+   (state <s> ^operator <o>
+             -^io.input-link.feedback.attack on
+              ^top-state.enemy-detected)
+   (<o> ^name retreat)
+   -->
+   (<o> ^actions.attack on)}
+
+sp {retreat*elaborate*shoot-off
+   (state <s> ^operator <o>
+              ^io.input-link.feedback.attack on
+             -^top-state.enemy-detected)
+   (<o> ^name retreat)
+   -->
+   (<o> ^actions.attack off)}
+
+### Selection
+
+sp {quake*select*retreat
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name retreat)
+   (<o2> ^name << attack wander collect-powerups hunt chase explore >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+
+

@@ -1,0 +1,25 @@
+echo "Loading defend/stand"
+
+# Conditions under which it makes sense to stand when defend
+
+# REW: 2003-06-09
+# For now, just stand whenever defensive position is achieved
+# and desired body position is stand
+
+sp {defend*propose*stand
+   (state <s> ^name defend
+              ^objective.defensive-position <dp>
+              ^desired-body-position stand
+              ^top-state <ts>)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true)
+   (<ts> 
+         ^self.body-position <> stand
+        -^self.changing-body-position)
+   -->
+   (write (crlf) |stand on defend|)
+   (<s> ^operator <o> + = )
+   (<o> ^name stand
+        ^actions.stand true)
+}
+

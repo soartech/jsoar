@@ -1,0 +1,30 @@
+echo "\nLoading init-lastarea"
+      
+#seed the current and last area
+#should fire once on game entry
+
+sp {all*propose*init-lastarea
+   (state <s> ^name unreal
+              ^top-state.map <map>
+              ^io.input-link.agent.area <currentarea>)
+   (<map> -^current-area <x>)
+-->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name init-lastarea
+        ^newname <currentarea>)
+}
+
+sp {all*apply*init-lastarea
+   (state <s> ^operator <o>
+              ^top-state.map <map>)
+   (<o> ^name init-lastarea
+        ^newname <n-name>)
+   (<map> ^area <area>)
+   (<area> ^name <n-name>
+           ^visited <num>)
+-->
+   (<map> ^last-area |none|)
+   (<map> ^current-area <n-name>)
+   (<area> ^visited (+ <num> 1))
+   (<area> ^visited <num> -)
+}

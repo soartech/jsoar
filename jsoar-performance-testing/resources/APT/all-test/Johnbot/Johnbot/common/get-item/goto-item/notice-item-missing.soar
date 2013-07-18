@@ -1,0 +1,38 @@
+echo "\nLoading goto-item/item-missing"
+
+################################
+### Propose notice-item-missing operator
+################################
+
+# Remove search item if angle-off-check is right but can't see the item yet.
+
+sp {goto-item*propose*notice-item-missing
+   (state <s> ^name goto-item
+              ^item <item>
+              ^item-angle-off-check true
+              ^top-state.map.current-room.search.recorded.classname <cname>
+              ^io.input-link <il>)
+   (<item> ^classname <cname>)
+   (<il> -^entity.item.classname <cname>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name notice-item-missing
+        ^item <item>)}
+
+# Remove item if not found
+
+sp {goto-item*propose*notice-item-missing*recorded
+   (state <s> ^name goto-item
+              ^item <item>
+              ^item-angle-off-check true
+              ^top-state.map.current-room.item.classname <cname>
+              ^io.input-link <il>)
+   (<item> ^classname <cname>)
+   (<il> -^entity.item.classname <cname>)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name notice-item-missing
+        ^item <item>)}
+
+## Implementation in wander/notice-item-missing.soar
+

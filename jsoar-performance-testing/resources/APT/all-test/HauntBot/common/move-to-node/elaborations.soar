@@ -1,0 +1,81 @@
+#Updateable Nodes
+#The concept of whether you have arrived at a node or not is
+#tricky, particularly on staircases.  The follwoing rules 
+#attempt to identify when the agent has reached a node.
+
+#IF:
+#1.  If there is a node that is near
+#2.  This node is not the node I just came from
+#THEN:
+#    That node is updateable
+sp {move-to-node*elaborate*updateable-node*nearest
+   (state <s> ^type move-to-node
+              ^top-state.map <map>)
+   (<map> ^near-node <nn>
+          ^current-area <ca>
+          ^last-node.name {<last-name> <> <name>})
+   (<nn> ^name <name>
+         ^area <ca>)
+-->
+   (<s> ^updateable-node <nn>)
+#   (write (crlf) <name> | is updateable because it nearby.|)
+}
+
+
+
+#This rule augments the move-to-node state with the x-y range to the destination node
+#This information is used to see if I'm at a node that is too high or low to be near.
+sp {move-to-node*elaborate*state*range-to-node
+   (state <s> ^type move-to-node
+              ^io.input-link.agent.position <ap>
+              ^superstate.operator.node.position <np>)
+   (<ap> ^x <ax>
+         ^y <ay>)
+   (<np> ^x <nx>
+        ^y <ny>)
+   -->
+   (<s> ^range-to-node (compute-range <ax> <ay> <nx> <ny>))
+}
+
+
+#FIXME:  Consider changing the following two productions so 
+#        that they only fire when the bot is stuck.
+
+#IF:
+#  1.  If the nearest near node is not the node I just came from
+#  2.  I would be near the node if not for the distance in the z axis
+#THEN:
+#   The node is updatable
+sp {move-to-node*elaborate*updateable-node*nearest-is-near-xy
+   (state <s> ^type move-to-node
+              ^top-state.parameters.near-node-range <nnr>
+             -^range-to-node > <nnr>
+              ^top-state.map <map>
+              ^superstate.operator.node <nn>)
+   (<map> ^last-node.name {<last-name> <> <name>}
+          ^nearest-node <nn>)
+   (<nn> ^name <name>)
+   -->
+   (<s> ^updateable-node <nn>)
+#   (write (crlf) <name> | is updateable because it is nearest node and near xy.|)
+}
+
+#IF:
+#  1.  There is a node in my area
+#  2.  I would be near the node if not for the distance in the z axis
+#THEN:
+#   The node is updatable
+sp {move-to-node*elaborate*updateable-node*same-area-near-xy
+   (state <s> ^type move-to-node
+              ^top-state.parameters.near-node-range <nnr>
+             -^range-to-node > <nnr>
+              ^top-state.map <map>
+              ^superstate.operator.node <nn>)
+   (<map> ^last-node.name {<last-name> <> <name>}
+          ^current-area.node <nn>)
+   (<nn> ^name <name>)
+   -->
+   (<s> ^updateable-node <nn>)
+#   (write (crlf) <name> | is updateable because it is same area and near xy.|)
+}
+

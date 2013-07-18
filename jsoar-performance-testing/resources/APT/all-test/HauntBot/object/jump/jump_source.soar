@@ -1,0 +1,3 @@
+source elaborations.soar
+source jump-on-things-example.soar
+source move-near.soar

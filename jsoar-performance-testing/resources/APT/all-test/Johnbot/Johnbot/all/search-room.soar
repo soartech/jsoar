@@ -1,0 +1,81 @@
+#echo "\nLoading all/search-room"
+
+# Used in  wander - need to move this
+
+## Search if in a room that wide from the perspective of the 
+## Door we just came through
+sp {all*propose*search-room*east-west
+   (state <s> ^name wander 
+              ^top-state <ts>)
+   (<ts> ^map <m>
+        -^predicting true)
+   (<m> ^last-room <lr>
+        ^current-room <cr>
+        ^saved-room <cr>) ;# select only after enterroom
+   (<cr> ^east-west-search true ;# Room wide enough so should search
+         ^path <p>
+         ^search <ss>)
+  -(<ss> ^searched turn-left
+         ^searched turn-right)
+   (<p> ^destination-room <lr>
+        ^in-room-door.direction { <dir> << north south >> })  
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name search-room
+        ^direction <dir>)}
+
+sp {all*propose*search-room*north-south
+   (state <s> ^name wander
+              ^top-state <ts>)
+   (<ts> ^map <m>
+        -^predicting true)
+   (<m> ^last-room <lr>
+        ^current-room <cr>
+        ^saved-room <cr>) # select only after enterroom
+   (<cr> ^north-south-search true
+         ^path <p>
+         ^search <ss>)
+  -(<ss> ^searched turn-left
+         ^searched turn-right)
+   (<p> ^destination-room <lr>
+        ^in-room-door.direction { <dir> << east west >> })  
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name search-room
+        ^direction <dir>)}
+
+sp {all*select*search-room*get-item-not-in-room
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name search-room)
+   (<o2> ^name get-item
+         ^place <> in-room)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+sp {all*select*search-room*get-item-in-room-far
+   (state <s> ^top-state.parameters.get-item-close-range <gicr>
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name search-room)
+   (<o2> ^name get-item
+         ^place in-room
+        -^range < <gicr>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+   }
+
+sp {all*select*search-room*get-item-in-room-close
+   (state <s> ^top-state.parameters.get-item-close-range <gicr>
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name search-room)
+   (<o2> ^name get-item
+         ^place in-room
+        -^range >= <gicr>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+   }
+
+

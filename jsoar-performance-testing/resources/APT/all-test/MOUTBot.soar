@@ -1,0 +1,3 @@
+pushd MOUTBot
+source MOUTBot_source.soar
+popd

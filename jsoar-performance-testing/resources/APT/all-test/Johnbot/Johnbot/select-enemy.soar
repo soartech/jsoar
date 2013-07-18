@@ -1,0 +1,160 @@
+#echo "\nLoading select-enemy"
+
+## Select an emeny that is alive and visibile.
+
+sp {quake*propose*select-enemy*visible
+   (state <s> ^name quake
+              ^map.explored true
+              ^enemy-detected <enemy>)
+   (<enemy> -^deadflag  << dead dying >>
+             ^soar-id <sid>)
+  -(<s> ^enemy.sensed-enemy <ex>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name select-enemy
+        ^actions <a>
+        ^enemy <enemy>)
+   (<a> ^selecttarget <sid>
+        ^centerview on)}
+
+#excise quake*propose*select-enemy*visible
+## Prefer select-enemy to explore or wander
+
+sp {quake*select*select-enemy
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name << explore wander attack ambush collect-powerups predict-enemy hunt deny-powerups retreat  >>)
+   (<o2> ^name select-enemy)
+   -->
+   (<s> ^operator <o1> < <o2>)}
+
+## Select closest enemies
+
+sp {quake*select*select-enemy*near
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name select-enemy
+         ^enemy.range <range>)
+   (<o2> ^name select-enemy
+         ^enemy.range < <range>)
+   -->
+   (<s> ^operator <o1> < <o2>)}
+
+sp {quake*apply*select-enemy
+   (state <s> ^operator <o>)
+   (<o> ^name select-enemy
+        ^enemy <e>)
+   -->
+   (<s> ^enemy <ex>)
+   (<ex> ^sensed-enemy <e>)}
+
+sp {quake*apply*select-enemy*first-time
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+             -^enemy-data.name <name>)
+   (<o> ^name select-enemy
+        ^enemy <se>)
+   (<se> ^name <name>
+         ^weapon <weap>)
+   -->
+   (write (crlf) |Record Enemy | <name>)
+   (<s> ^enemy-data <ed>)
+   (<ed> ^deaths 0
+         ^parameters <param>
+         ^last-dead-time 0
+         ^last-see-time <ct>
+         ^last-weapon <weap>
+         ^name <name>)}
+
+sp {quake*apply*increment*enemy-visit-count*first-time
+  (state <s> ^operator.name select-enemy
+             ^map.enemy-room <er>)
+  (<er> -^enemy-visit-count <evc>
+        ^room-number <rn>)
+  -->
+  (write (crlf) |Have now seen enemy in room | <rn> |, 1 time.|)
+  (<er> ^enemy-visit-count 1)}
+
+sp {quake*apply*increment*enemy-visit-count
+  (state <s> ^operator.name select-enemy
+             ^map.enemy-room <er>)
+  (<er> ^enemy-visit-count <evc>
+        ^room-number <rn>)
+  -->
+  (write (crlf) |Have now seen enemy in room | <rn> |, | (+ 1 <evc>) | times.|)
+  (<er> ^enemy-visit-count <evc> -
+        ^enemy-visit-count (+ 1 <evc>))}
+
+sp {quake*apply*select-enemy*remove*old-enemy
+   (state <s> ^operator <o>
+              ^enemy <ex>)
+   (<ex> -^sensed-enemy <e>)
+   (<o> ^name select-enemy
+        ^enemy <e>)
+   -->
+   (<s> ^enemy <ex> -)}
+
+#######
+## If enemy has a big gun and is not facing us (so might not see us)
+##  DONOT attack, but retreat to get a better gun. 
+##  unless we are being aggressive!
+
+sp {quake*apply*select-enemy*avoid
+   (state <s> ^operator <o> +
+             -^self.aggressiveness aggressive
+              ^io.input-link <il>)
+   (<il> ^agent.weapon-selected weapon_blaster
+         ^entity.enemy <e>)
+   (<e> ^weapon <> weapon_blaster
+        ^aspect.h { < 290 > 70 })
+   (<o> ^name select-enemy)
+   -->
+   (<s> ^operator <o> -)
+   (write (crlf) |AVOID ENEMY - all I got is a blaster and he can't see me.|)}
+
+###### For fast reaction time...
+
+sp {quake*elaborate*select-enemy*fast-reaction-time*aiming-good
+:i-support
+   (state <s> ^operator <o>
+              ^self <self>)
+   (<self> ^reaction-time fast
+           ^aiming-skill medium)
+   (<o> ^name select-enemy)
+   -->
+   (<o> ^actions.facetarget on)}
+
+sp {quake*elaborate*select-enemy*fast-reaction-time*aiming-good
+:i-support
+   (state <s> ^operator <o>
+              ^self <self>)
+   (<self> ^reaction-time fast
+           ^aiming-skill good)
+   (<o> ^name select-enemy)
+   -->
+   (<o> ^actions.leadtarget on)}
+
+## Start shooting if pointed at enemy already and fast reaction time
+sp {quake*elaborate*select-enemy*shoot
+:i-support
+   (state <s> ^operator <o>
+              ^self.reaction-time fast
+              ^io.input-link.entity.enemy.angle-off.h { < 10 > -10 })
+   (<o> ^name select-enemy)
+   -->
+   (<o> ^actions.attack on)}
+
+sp {quake*elaborate*select-enemy*shoot2
+:i-support
+   (state <s> ^operator <o>
+              ^self.reaction-time fast
+              ^io.input-link.entity.enemy.angle-off.h { < 370 > 350}
+             -^io.input-link.agent.weapon-selected << weapon_railgun weapon_rocketlauncher >>)
+   (<o> ^name select-enemy)
+   -->
+   (<o> ^actions.attack on)}
+
+#excise quake*elaborate*select-enemy*shoot
+#excise quake*elaborate*select-enemy*shoot2
+
+

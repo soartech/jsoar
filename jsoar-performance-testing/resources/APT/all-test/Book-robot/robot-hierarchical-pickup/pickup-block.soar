@@ -1,0 +1,31 @@
+sp {robot*propose*pickup-block
+   (state <s> ^name robot
+              ^io.input-link <input>)
+   (<input> ^self <self>
+            ^object <obj1>)
+  -(<self> ^carry)
+   (<obj1> ^type block
+           ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name pickup-block
+         ^id <id>)
+}
+
+sp {robot-hierarchical-pickup*compare*pickup-block
+   (state <s> ^name robot
+              ^io.input-link.object <obj1> { <> <obj1> <obj2> }
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name pickup-block
+          ^id <id1>)
+   (<op2> ^name pickup-block
+          ^id <id2>)
+   (<obj1> ^id <id1> 
+           ^range <range>)
+   (<obj2> ^id <id2>
+           ^range > <range>)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+

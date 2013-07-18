@@ -1,0 +1,57 @@
+echo "\nobject/move-to-area-safely/elaborations"
+
+sp {move-to-area-safely*elaborate*area
+   (state <s> ^type move-to-area-safely
+              ^superstate.operator.area <area>)
+-->
+   (<s> ^area <area>)}
+
+
+# create initial dest-path list, which will eventually store all areas along path to destination
+sp {move-to-area-safely*elaborate*dest-path
+   (state <s> ^type move-to-area-safely
+              ^top-state.map.current-area <current>)
+-->
+   (<s> ^dest-path.area <current>)
+}
+
+
+# generate list of all areas on path to destination
+sp {move-to-area-safely*elaborate*propose*path-area
+   (state <s> ^type move-to-area-safely
+              ^dest-path <path>
+              ^area <dest>)
+   (<path> -^area <area>
+            ^area.path <current-path>) # next on the list
+   (<current-path> ^destination-area <dest>
+                   ^via-node.connected-node.area <area>)
+-->
+   (<s> ^operator <o> + >,=)
+   (<o> ^name add-area-to-path
+        ^area <area>)
+}
+
+
+sp {move-to-area-safely*elaborate*apply*path-area
+   (state <s> ^type move-to-area-safely
+              ^operator <o>
+              ^dest-path <path>)
+   (<o> ^name add-area-to-path
+        ^area <area>)
+-->
+#   (write (crlf) |Added area | <area>)
+   (<path> ^area <area>)
+}
+
+
+
+
+# determine if current area's path will travel through 
+# a haunted area
+sp {move-to-area-safely*elaborate*safe-path
+   (state <s> ^type move-to-area-safely
+              ^dest-path <path>)
+   (<path> -^area.haunted)
+-->
+   (<s> ^safe-path yes)
+}

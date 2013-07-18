@@ -1,0 +1,64 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd common
+source common_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source ambush.soar
+pushd ambush
+source ambush_source.soar
+popd
+source attack.soar
+pushd attack
+source attack_source.soar
+popd
+source bot-types.soar
+source chase.soar
+pushd chase
+source chase_source.soar
+popd
+source chunks.soar
+source collect-powerups.soar
+pushd collect-powerups
+source collect-powerups_source.soar
+popd
+source deny-powerups.soar
+pushd deny-powerups
+source deny-powerups_source.soar
+popd
+source die.soar
+pushd die
+source die_source.soar
+popd
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source face-attack.soar
+source hunt.soar
+pushd hunt
+source hunt_source.soar
+popd
+source initialize-bot.soar
+source predict-enemy.soar
+pushd predict-enemy
+source predict-enemy_source.soar
+popd
+source record-enemy.soar
+source record-sound.soar
+source remove-enemy.soar
+source remove-sound.soar
+source retreat.soar
+pushd retreat
+source retreat_source.soar
+popd
+source select-enemy.soar
+source spawn.soar
+source wander.soar
+pushd wander
+source wander_source.soar
+popd

@@ -1,0 +1,87 @@
+echo "\nLoading enemy-select"
+
+## Select an emeny that is alive and visibile.
+sp {unreal*propose*select-enemy*visible
+   (state <s> ^name attack
+             -^top-state.self.selected-enemy <e>
+              ^top-state.threats.threat.entity <e>)
+   (<e> ^visible true
+       -^health 0
+       -^name |Player|)  #Until Alex/Devvan fix self as enemy bug
+-->
+   (write (crlf) |Select-enemy - new|)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name select-enemy
+        ^entity <e>)}
+
+sp {unreal*propose*select-enemy*replace*visible-not
+   (state <s> ^name attack
+              ^top-state.self.selected-enemy <se>
+              ^top-state.threats.threat.entity <e>)
+   (<se> -^visible true)
+   (<e> ^visible true
+       -^health 0
+       -^name |Player|)  #Until Alex/Devvan fix self as enemy bug
+-->
+   (write (crlf) |Select-enemy - new visible, current not. |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name select-enemy
+        ^entity <e>)}
+
+## For grenades...
+sp {unreal*propose*select-enemy*visible-not
+   (state <s> ^name attack 
+             ^top-state <ts>)
+   (<ts> -^self.selected-enemy
+          ^threats <th>)
+   (<th> ^threat.entity <e>
+        -^threat.entity.visible true)
+   (<e> -^visible true
+        -^health 0
+        -^name |Player|)  #Until Alex/Devvan fix self as enemy bug
+-->
+   (write (crlf) |Select-enemy - new visible, current not. |)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name select-enemy
+        ^entity <e>)}
+## Select closest enemy
+
+sp {unreal*select*select-enemy*near
+   (state <s> ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<o1> ^name select-enemy
+         ^entity.range <range>)
+   (<o2> ^name select-enemy
+         ^entity.range < <range>)
+-->
+   (<s> ^operator <o1> < <o2>)}
+
+sp {unreal*apply*select-enemy
+   (state <s> ^operator <o>
+              ^top-state.self <self>)
+   (<o> ^name select-enemy
+        ^entity <e>)
+-->
+   (<self> ^selected-enemy <e>)}
+
+sp {unreal*apply*select-enemy*remove-old
+   (state <s> ^operator <o>
+              ^top-state.self <self>)
+   (<o> ^name select-enemy
+        ^entity <> <e>)
+   (<self> ^selected-enemy <e>)
+-->
+   (<self> ^selected-enemy <e> -)}
+
+# REW: 2002-07-09
+sp {unreal*apply*select-enemy*target-selected
+   (state <s> ^operator <o>
+              ^top-state.comm <com> )
+   (<o> ^name select-enemy
+        ^entity.name <agent-name>)
+-->
+   (<com> ^communicate <cc>)
+   (<cc> ^name selected-target
+         ^content <con>)
+   (<con> ^agent-name <agent-name>)
+}

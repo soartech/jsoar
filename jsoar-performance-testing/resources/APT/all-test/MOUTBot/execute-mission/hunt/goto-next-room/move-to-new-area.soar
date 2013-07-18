@@ -1,0 +1,34 @@
+echo "\nLoading execute-mission/hunt/goto-next-room/move-to-new-area"
+                
+#AMN: 2002-07-25
+#IF:
+#1.  I am at the exit node
+#THEN:
+#    Propose moving to the connecting node (new area)
+#FIXME:  If the attacker hasn't explored the map then
+#        the connecting node may be unknown.
+
+
+sp {goto-next-room*propose*move-to-new-area
+   (state <s> ^name goto-next-room
+              ^exit-node <enode>
+              ^top-state.map.near-node <enode>)
+   (<enode> ^connected-node <node>)
+   (<node> ^area <area> 
+           ^position <cpos>)
+  -{(<s> ^operator <o1>    # blink operator proposal if get stuck
+         ^top-state.self <self>)
+    (<o1> ^type move-to-xyz
+           ^actions.move-to <mt1>)
+    (<mt1> ^x <x> ^y <y>)
+    (<self> ^move-to-xyz.actions <act>
+            ^stuck-bad true)
+    (<act> ^move-to <mt2>)
+    (<mt2> ^x <x> ^y <y>)}
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name move-to-new-area
+        ^type move-to-xyz
+        ^area <area>
+        ^position <cpos>)
+}

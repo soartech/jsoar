@@ -1,0 +1,25 @@
+echo "Loading defend/kneel"
+
+# Conditions under which it makes sense to kneel when defend
+
+# REW: 2003-06-09
+# For now, just kneel whenever defensive position is achieved
+# and desired body position is kneel
+
+sp {defend*propose*kneel
+   (state <s> ^name defend
+              ^objective.defensive-position <dp>
+              ^desired-body-position kneel
+              ^top-state <ts>)
+   (<dp> ^position-achieved true
+         ^orientation-achieved true)
+   (<ts> 
+         ^self.body-position <> kneel
+        -^self.changing-body-position)
+   -->
+   (write (crlf) |Kneeling on defend|)
+   (<s> ^operator <o> + = )
+   (<o> ^name kneel
+        ^actions.kneel true)
+}
+

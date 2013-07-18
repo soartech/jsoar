@@ -1,0 +1,24 @@
+
+sp {accept-input*propose*detect-failure
+   (state <s> ^name accept-input
+              ^top-state.problem.failed true)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name detect-failure)
+}
+
+
+sp {accept-input*apply*detect-failure
+   (state <s> ^operator <op>
+              ^top-state <ts>)
+   (<ts> ^problem <p>
+         ^print-id <pi>
+         ^io.input-link.text <text>)
+   (<op> ^name detect-failure)
+-->
+   (<ts> ^problem <np>
+                  <p> -
+         ^print-id <pi> -
+         ^processed <text>)
+}
+

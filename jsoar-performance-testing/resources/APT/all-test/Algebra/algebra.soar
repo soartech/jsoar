@@ -1,0 +1,3 @@
+pushd algebra
+source algebra_source.soar
+popd

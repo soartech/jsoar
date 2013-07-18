@@ -1,0 +1,3 @@
+source elaborations.soar
+source check-equality.soar
+source gather-final-values.soar

@@ -1,0 +1,305 @@
+#########  ADD BOTH SIDES
+
+## Tries to move numbers to right side.
+## n = ... ==>  n - n = ... - n
+## n + ... = ... ==> n + ... - n = ... - n
+## ... + n = ... ==> ... + n - n = ... - n
+
+## Tries to move variable to leftt side.
+
+
+## Tries to move variables to the left side.
+
+sp {algebra*propose*add-both-sides*value*from-left
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^left-side <ls>)
+   (<ls> ^value { <> 0 <value> }
+         ^type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <value>
+         ^type number)
+}
+sp {algebra*propose*add-both-sides*value*from-left-left
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^left-side <ls>)
+   (<ls> ^operation << add subtract >>
+         ^left-side <ls2>)
+   (<ls2> ^value { <> 0 <value> }
+          ^type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <value>
+         ^type number)
+}
+
+sp {algebra*propose*add-both-sides*value*from-left-right*add
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+   (<cc> ^operation equal
+         ^left-side <ls>)
+   (<ls> ^operation add
+         ^right-side <rs2>)
+   (<rs2> ^value { <> 0 <value> }
+          ^type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <value>
+         ^type number)
+}
+
+sp {algebra*propose*add-both-sides*value*from-left-right*sub
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^left-side <ls>)
+   (<ls> ^operation subtract
+         ^right-side <rs2>)
+   (<rs2> ^value  { <> 0 <value> }
+          ^type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation add
+         ^new-item <ni>)
+   (<ni> ^value <value>
+         ^type number)
+}
+
+######### PROPOSE FOR MOVING VARIABLES (without mulitplication)
+
+## Top level variable -
+sp {algebra*propose*add-both-sides*variable*from-right
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^right-side <ls>)
+   (<ls> ^type variable
+         ^value <variable> )
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <variable>
+         ^type variable)
+}
+
+## One level below - part of addition
+sp {algebra*propose*add-both-sides*variable*from-right-left
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <variable>)
+   (<cc> ^operation equal
+         ^right-side <rs>)
+   (<rs> ^operation << add subtract >>
+         ^left-side <ls2>)
+   (<ls2> ^type variable
+          ^value <variable> )
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <variable>
+         ^type variable)
+}
+
+sp {algebra*propose*add-both-sides*variable*from-right-right*add
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <variable>)
+   (<cc> ^operation equal
+         ^right-side <rs>)
+   (<rs> ^operation add
+         ^right-side <rs2>)
+   (<rs2> ^type variable
+          ^value <variable> )
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-item <ni>)
+   (<ni> ^value <variable>
+         ^type variable)
+}
+
+sp {algebra*propose*add-both-sides*variable*from-right-right*sub
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <variable>)
+   (<cc> ^operation equal
+         ^right-side <rs>)
+   (<rs> ^operation subtract
+         ^right-side <rs2>)
+   (<rs2> ^type variable
+          ^value <variable>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation add
+         ^new-item <ni>)
+   (<ni> ^value <variable>
+         ^type variable)
+}
+#### APPLICATION
+sp {algebra*apply*add-both-sides
+   (state <s> ^operator <op>
+              ^top-state <ts>
+              ^current-clause <cc>)
+   (<op> ^name add-both-sides
+         ^operation <oper>
+         ^new-item <item>)
+   (<cc> ^left-side <ls>
+         ^right-side <rs>)
+   (<item> ^value <v>
+           ^type <t>)
+-->
+   (<ts> ^added <v>
+               (* -1 <v>))
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^right-side <rs> -
+                     <nrs>)
+   (<nls> ^left-side <ls>
+          ^operation <oper>
+          ^right-side <r-item1>)
+   (<nrs> ^left-side <rs>
+          ^operation <oper>
+          ^right-side <r-item2>)
+   (<r-item1> ^type <t>
+              ^value <v>)
+   (<r-item2> ^type <t>
+              ^value <v>)
+}
+
+
+## Two levels below - part of addition
+sp {algebra*propose*add-both-sides*variable*multi*from-right-left-left
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^right-side <rs>)
+   (<rs> ^operation << add subtract >>
+         ^left-side <ls2>)
+   (<ls2> ^operation << divide multiply >>
+          ^left-side.type variable
+          ^right-side.type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-structure <ls2>)
+}
+sp {algebra*propose*add-both-sides*variable*multi*from-right-left-right
+   (state <s> ^name solve-problem
+              ^top-state <ts>
+              ^current-clause <cc>)
+  -(<ts> ^added <value>)
+   (<cc> ^operation equal
+         ^right-side <rs>)
+   (<rs> ^operation << add subtract >>
+         ^left-side <ls2>)
+   (<ls2> ^operation multiply
+          ^right-side.type variable
+          ^left-side.type number)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name add-both-sides
+         ^operation subtract
+         ^new-structure <ls2>)
+}
+
+## Must create copies because other operators make destructive changes to clauses which will then modify the shared structures.
+sp {algebra*apply*add-both-sides*structure
+   (state <s> ^operator <op>
+              ^top-state <ts>
+              ^current-clause <cc>)
+   (<op> ^name add-both-sides
+         ^operation <oper>
+         ^new-structure <ns>)
+   (<cc> ^left-side <ls>
+         ^right-side <rs>)
+   (<ns> ^operation <oper2>
+         ^right-side <rs2>
+         ^left-side <ls2>)
+   (<rs2> ^type <rst>
+          ^value <rsv>)
+   (<ls2> ^type <lst>
+          ^value <lsv>)
+-->
+   (<ts> ^added <ns>
+               (* -1 <ns>))
+   (<cc> ^left-side <ls> -
+                    <nls>
+         ^right-side <rs> -
+                     <nrs>)
+   (<nls> ^left-side <ls>
+          ^operation <oper>
+          ^right-side <r-item1>)
+   (<nrs> ^left-side <rs>
+          ^operation <oper>
+          ^right-side <r-item2>)
+   (<r-item1> ^operation <oper2>
+              ^right-side <rrs21>
+              ^left-side <rls21>)
+   (<rrs21> ^type <rst>
+            ^value <rsv>)
+   (<rls21> ^type <lst>
+            ^value <lsv>)
+   (<r-item2> ^operation <oper2>
+              ^right-side <rs22>
+              ^left-side <ls22>)
+   (<rs22> ^type <rst>
+           ^value <rsv>)
+   (<ls22> ^type <lst>
+           ^value <lsv>)
+}
+sp {algebra*compare*add-both-sides
+   (state <s> ^name solve-problem
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name add-both-sides)
+   (<op2> ^name process-clause)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+sp {algebra*apply*add-both-sides*monitor
+   (state <s> ^operator <op>)
+   (<op> ^name add-both-sides
+         ^new-item <item>
+         ^operation <oper>)
+   (<item> ^value <x>)
+-->
+   (write (crlf) |Both sides: | <oper> | | <x>)
+}
+
+

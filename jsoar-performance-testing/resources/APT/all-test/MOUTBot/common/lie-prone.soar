@@ -1,0 +1,39 @@
+#####################################
+# file: lie-prone.soar
+# created: REW: 2003-05-01
+##
+# Encode all the situations in which an agent should go to a prone position
+#
+# Change history:
+#
+#  [1] REW: 2003-05-01
+#      General strategy is to only terminate these operators when
+#      the position has changed.  Position needs to be input, but for
+#      now we track it via ^self
+#  [2] REW: 2003-05-01
+#      Notional proposals for now (just testing)
+
+
+# We can always assume that the agent starts in a body position
+# other than prone
+#sp {common*propose*lie-prone*test
+#   (state <s> ^name execute-mission ^impossible
+#              ^top-state.self <self>)
+#   (<self> ^body-position <> lie-prone)
+#   -->
+#   (<s> ^operator <o> +, >, = 90)
+#   (<o> ^name lie-prone
+#        ^actions.lie-prone true)
+#}
+
+sp {apply*lie-prone
+   (state <s> ^operator <o>
+              ^top-state <ts>)
+   (<ts> ^self <self>              )
+   (<self> ^body-position <something>)
+   (<o> ^name lie-prone
+        ^actions <a>)
+-->
+   (write (crlf) |Initiating move to lie-prone |)
+   (<self> ^body-position <something> - <a> +)
+}

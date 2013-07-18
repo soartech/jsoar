@@ -1,0 +1,46 @@
+#echo "\nLoading all/select-weapon"
+
+sp {all*propose*select-weapon*change
+   (state <s> ^name <name>
+              ^top-state <ts>)
+   (<ts> ^io.input-link.agent <a>
+         ^parameters.weapon <w1>
+         ^self.parameters.weapons <w2>
+        -^io.output-link.use-weapon <wname>)
+   (<a> ^weapon <weap>
+        ^weapon-selected <old-name>)
+   (<weap> ^classname <wname> 
+           ^ammo-count <ammocount>)
+   (<w1> ^classname <wname>
+         ^ammo-need { < <ammocount> })
+   (<w2> ^classname <old-name>
+         ^better <wname>)
+  -(<s> ^superstate.operator.name select-weapon)
+  -(<s> ^superstate.superstate.operator.name select-weapon)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name select-weapon
+        ^weapon <weap>
+        ^weapon-parameter <w2>)
+   }
+
+sp {select-weapon*prefer*higher*value
+   (state <s> ^operator <o1> +
+              ^operator { <> <o1> <o2> } +)
+   (<o1> ^name select-weapon
+         ^weapon-parameter.better <other>)
+   (<o2> ^name select-weapon
+         ^weapon-parameter.classname <other>)
+   -->
+   (<s> ^operator <o1> < <o2>)
+   }
+
+sp {select-weapon*apply*change
+   (state <s> ^operator <o>)
+   (<o> ^name select-weapon
+        ^weapon.classname <classname>)
+   -->
+   (<o> ^actions.use-weapon <classname>
+        ^actions.facetarget off)
+   }
+

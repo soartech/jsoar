@@ -1,0 +1,31 @@
+source drink.soar
+pushd drink
+source drink_source.soar
+popd
+source eat.soar
+pushd eat
+source eat_source.soar
+popd
+source flee.soar
+pushd flee
+source flee_source.soar
+popd
+source greet.soar
+pushd greet
+source greet_source.soar
+popd
+source investigate.soar
+pushd investigate
+source investigate_source.soar
+popd
+source read.soar
+source selection.soar
+source sleep.soar
+source unlock.soar
+pushd unlock
+source unlock_source.soar
+popd
+source warm-up.soar
+pushd warm-up
+source warm-up_source.soar
+popd

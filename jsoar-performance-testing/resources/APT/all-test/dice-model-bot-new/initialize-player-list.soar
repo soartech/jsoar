@@ -1,0 +1,28 @@
+## Create the player-list structure on top-state
+## This is used to calculate number of available dice of each face known to dice agent
+
+sp {propose*initialize-player-list
+   (state <s> ^superstate nil
+              ^my-turn true
+              ^dice-data-initialized true
+             -^players-initialized true)
+-->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name initialize-player-list)
+}
+
+sp {apply*initialize-player-list
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-player-list)
+-->
+   (<s> ^player-list <pl>)
+   (<pl> ^complete false)
+}
+
+sp {apply*initialize-player-list2
+   (state <s> ^operator <op>
+              ^player-list.complete true)
+   (<op> ^name initialize-player-list)
+-->
+   (<s> ^players-initialized true)
+}

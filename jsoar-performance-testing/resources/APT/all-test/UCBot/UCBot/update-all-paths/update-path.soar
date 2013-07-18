@@ -1,0 +1,90 @@
+
+sp {update-all-paths*propose*update-path*shorter-path
+   (state <s> ^name update-all-paths
+              ^superstate <ss>)
+   (<ss> ^map.areas.area <from-area>)
+   (<from-area> ^connected-area <connected-area>
+                ^path <path>)
+   (<path> ^to-area <to-area>
+           ^area-count-minus-one <minus-one>)
+   (<connected-area> ^path <con-path>)
+   (<con-path> ^area-count { <new-distance-minus-one> < <minus-one> }
+               ^to-area <to-area>)
+-->
+   (<s> ^operator <op> + = .1)
+   (<op> ^name update-path
+         ^type extended
+         ^old-path <path>
+         ^area-count (+ <new-distance-minus-one> 1)
+         ^area-count-minus-one <new-distance-minus-one>
+         ^source-area <from-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)}
+
+sp {update-all-paths*apply*update-path
+   (state <s> ^operator <op>)
+   (<op> ^name update-path
+         ^type extended
+         ^old-path <old-path>
+         ^area-count <area-count>
+         ^area-count-minus-one <area-count-minus-one>
+         ^source-area <source-area>
+         ^destination-area <to-area>
+         ^connected-area <connected-area>)
+   (<source-area> ^path <short-path>
+                  ^id <sid>)
+   (<short-path> ^to-area <connected-area>
+                 ^area-count 1
+                 ^gateway <gateway>)
+   (<to-area> ^id <tid>)
+   (<old-path> ^area-count <ac2>)
+-->
+#   (write (crlf) |Update path from | <sid> |: | <source-area> | to | <tid> |: | <to-area> | via | <gateway> |/| <old-path> |/| <new-path> | count | <area-count> | was | <ac2>)
+   (<source-area> ^path <new-path>
+                  ^path <old-path> -)
+   (<new-path> ^area-count <area-count>
+               ^area-count-minus-one <area-count-minus-one>
+               ^from-area <source-area>
+               ^to-area <to-area>
+               ^gateway <gateway>)
+}
+
+sp {update-all-paths*propose*update-path*connected-area
+   (state <s> ^name update-all-paths
+              ^superstate <ss>)
+   (<ss> ^map.areas.area <from-area>)
+   (<from-area> ^connected-area <connected-area>
+                ^path <path>)
+   (<path> ^to-area <connected-area>
+           ^area-count > 1)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name update-path
+         ^type connected
+         ^old-path <path>
+         ^source-area <from-area>
+         ^destination-area <connected-area>)}
+
+sp {update-all-paths*apply*update-path*connected-area
+   (state <s> ^operator <op>)
+   (<op> ^name update-path
+         ^type connected
+         ^old-path <old-path>
+         ^source-area <source-area>
+         ^destination-area <to-area>)
+   (<source-area> ^negative-spaces.negative-space <gateway>                  
+                  ^id <sid>)
+   (<gateway> ^id <id>)
+   (<to-area> ^id <id>)
+-->
+#   (write (crlf) |Update connecting path from | <sid> |(| <source-area> |)  to | <id> |(| <to-area> |)  via | <gateway> )
+   (<source-area> ^path <new-path>
+                  ^path <old-path> -)
+   (<new-path> ^area-count 1
+               ^area-count-minus-one 0
+               ^from-area <source-area>
+               ^to-area <to-area>
+               ^gateway <gateway>)
+}
+
+

@@ -1,0 +1,56 @@
+sp {compute-true-dice-counts*propose*modify-true-dice-counts
+   (state <s> ^name compute-alternative-dice-counts
+              ^selected-holds <holds>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name modify-true-dice-counts)
+}
+
+sp {apply*modify-true-dice-counts*unknown
+   (state <s> ^operator <op>
+              ^selected-holds <holds>
+              ^last-bid <lb>
+              ^superstate.alternative-dice-counts <adc>)
+   (<lb> ^face <face>
+         ^player.cup.count <cupcount>)
+   (<adc> ^dice-count <dc>)
+   (<dc> ^face unknown
+         ^count <unknown>)
+   (<op> ^name modify-true-dice-counts)
+-->
+   (<adc> ^dice-count <dc> -
+          ^dice-count <ndc>
+          ^dice-count <nndc>
+          ^dice-count <held>)
+   (<held> ^count <holds>
+           ^hold-face <face>)
+   (<ndc> ^face unknown
+          ^count (- <unknown> <cupcount>)) ## Assume ones that aren't bid face can't contribute to bid face
+   (<nndc> ^face special
+           ^not-face <face>                ## Can't be same as the hold ones
+           ^count (- <cupcount> <holds>))}  ## These are ones under cup that are some other dice face
+
+sp {apply*modify-true-dice-counts*bid-face
+   (state <s> ^operator <op>
+              ^selected-holds <holds>
+              ^last-bid.face <face>
+              ^superstate.alternative-dice-counts <adc>)
+   (<adc> ^dice-count <dc>)
+   (<dc> ^face <face>
+         ^count <count>)
+   (<op> ^name modify-true-dice-counts)
+-->
+   (<adc> ^dice-count <dc> -
+                      <ndc>)
+   (<ndc> ^face <face>
+          ^count (+ <count> <holds>))
+}
+
+sp {apply*modify-true-dice-counts*return-true-dice-counts
+   (state <s> ^operator <op>
+              ^selected-holds <holds>
+              ^superstate.alternative-dice-counts <adc>)
+   (<op> ^name modify-true-dice-counts)
+-->
+   (<adc> ^updated true)
+}

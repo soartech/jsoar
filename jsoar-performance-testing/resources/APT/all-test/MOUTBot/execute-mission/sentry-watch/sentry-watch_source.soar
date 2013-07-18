@@ -1,0 +1,16 @@
+source elaborations.soar
+source begin-watch.soar
+source count-contacts.soar
+source find-concealed-position.soar
+source mark-position-time.soar
+source record-contact.soar
+source remember-non-visible-contacts.soar
+source report-contacts.soar
+source reset-contact-report.soar
+source resume-watch.soar
+source scan-for-contacts.soar
+pushd scan-for-contacts
+source scan-for-contacts_source.soar
+popd
+source suspend-watch.soar
+source terminate-watch.soar

@@ -1,0 +1,43 @@
+sp {evaluate-operator*propose*evaluate-exact-likelihood
+   (state <s> ^name evaluate-operator
+              ^superstate.operator.superoperator.name exact
+              ^bid-difference <bd>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name evaluate-exact-likelihood)
+}
+
+# 0 and above mean that there are more dice than the bid
+
+sp {apply*evaluate-exact-likelihood*risky
+   (state <s> ^operator <op>
+              ^bid-difference { < .4 > -0.4 }
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-exact-likelihood)
+-->
+   (write (crlf) |  Exact success likelihood is risky - should be high or low.|)
+   (<e> ^symbolic-value risky
+        ^bid-difference -0.7) # for me to exact
+}
+
+sp {apply*evaluate-exact-likelihood*very-risky
+   (state <s> ^operator <op>
+              ^bid-difference >= .4
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-exact-likelihood)
+-->
+   (write (crlf) |  Exact success likelihood is very risky > .4|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference -1.6) # for me to exact
+}
+
+sp {apply*evaluate-exact-likelihood*very-risky2
+   (state <s> ^operator <op>
+              ^bid-difference <= -0.4
+              ^superstate.operator.evaluation <e>)
+   (<op> ^name evaluate-exact-likelihood)
+-->
+   (write (crlf) |  Exact success likelihood is very risky <= -.4|)
+   (<e> ^symbolic-value very-risky
+        ^bid-difference -1.6) # for me to exact
+}

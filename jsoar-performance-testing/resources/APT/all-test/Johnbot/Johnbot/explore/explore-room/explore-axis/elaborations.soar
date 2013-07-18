@@ -1,0 +1,75 @@
+#echo "\nLoading explore-axis/elaborations"
+
+## Create pointer to current axis being explored.
+
+sp {explore-axis*elaborate*axis
+   (state <s> ^name explore-axis
+              ^superstate.operator.axis <a>)
+   -->
+   (<s> ^axis <a>)}
+
+## Detect that the end of wall is right in front of the bot.
+
+sp {explore-axis*elaborate*blocked-forward*sensor
+   (state <s> ^name explore-axis
+              ^io.input-link.map.forward.distance <= <wclose>
+              ^top-state.parameters.wall-end <wclose>
+              ^axis <a>)
+   (<a> ^backed-up true
+        ^aligned)    
+   -->
+ #  (write (crlf) |EOW Blocked front explore-axis/elaborations.|)
+   (<a> ^end-of-wall true)}
+
+###########################
+## Compute Wall locations
+
+sp {explore-axis*record-current-north-walls
+   (state <s> ^name explore-axis
+              ^top-state.heading.within-5 north 
+              ^io.input-link <il>)
+   (<il> ^map <m>
+         ^agent.origin.x <x>)
+   (<m> ^left.distance <ld>
+        ^right.distance <rd>)
+   -->
+   (<s> ^west (- <x> <ld>)
+        ^east (+ <x> <rd>))}
+
+sp {explore-axis*record-current-north-south-walls
+   (state <s> ^name explore-axis
+              ^top-state.heading.within-5 south 
+              ^io.input-link <il>)
+   (<il> ^map <m>
+         ^agent.origin.x <x>)
+   (<m> ^left.distance <ld>
+        ^right.distance <rd>)
+   -->
+   (<s> ^west (- <x> <rd>)
+        ^east (+ <x> <ld>))}
+
+sp {explore-axis*record-current-west-walls
+   (state <s> ^name explore-axis
+              ^top-state.heading.within-5 west 
+              ^io.input-link <il>)
+   (<il> ^map <m>
+         ^agent.origin.y <y>)
+   (<m> ^left.distance <ld>
+        ^right.distance <rd>)
+   -->
+   (<s> ^north (+ <y> <rd>)
+        ^south (- <y> <ld>))}
+
+sp {explore-axis*record-current-east-walls
+   (state <s> ^name explore-axis
+              ^top-state.heading.within-5 east 
+              ^io.input-link <il>)
+   (<il> ^map <m>
+         ^agent.origin.y <y>)
+   (<m> ^left.distance <ld>
+        ^right.distance <rd>)
+   -->
+   (<s> ^north (+ <y> <ld>)
+        ^south (- <y> <rd>))}
+
+

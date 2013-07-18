@@ -1,0 +1,16 @@
+
+sp {update-path-data*propose*update-tested
+   (state <s> ^name update-path-data
+              ^room.update-data.current-distance <cd>)
+   (<cd> ^tested false)
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name update-tested)}
+
+sp {update-path-date*apply*update-tested
+   (state <s> ^operator.name update-tested
+              ^room.update-data.current-distance <cd>)
+   (<cd> ^tested false)
+   -->
+   (<cd> ^tested true
+         ^tested false -)}

@@ -1,0 +1,14 @@
+sp {retrieve-digits*propose*detect-completion
+   (state <s> ^name retrieve-digits
+              ^current.next-generate nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name detect-completion)
+}
+
+sp {apply*detect-completion
+   (state <s> ^operator.name detect-completion
+              ^superstate.digits <d>)
+-->
+   (<d> ^complete true)
+}

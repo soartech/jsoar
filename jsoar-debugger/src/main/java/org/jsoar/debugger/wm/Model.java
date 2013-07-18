@@ -180,12 +180,6 @@ class Model
                 
                 roots.put(id, root);
                 rows.add(0, root);
-                
-                // TODO why was this here? It's dead
-//                if(parent != null)
-//                {
-//                    parent.row.row++;
-//                }
             }
             else
             {

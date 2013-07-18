@@ -1,0 +1,12 @@
+echo "\nLoading explore/elaborations"
+
+#Prefer moves to nodes over moves to areas
+sp {select*nodes-over-areas
+   (state <s> ^type explore
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^type move-to-node)
+   (<o2> ^type move-to-area)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

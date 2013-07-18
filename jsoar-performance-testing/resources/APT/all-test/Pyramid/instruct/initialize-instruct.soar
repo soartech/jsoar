@@ -1,0 +1,370 @@
+sp {propose*initialize-instruct
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-instruct)
+}
+
+#### Structure of initial knowledge
+
+sp {apply*initialize-instruct
+   (state <s> ^operator.name initialize-instruct)
+-->
+   (<s> ^name instruct
+        ^instructions <i>
+        ^current-problem <prob0>) 
+   (<i> ^problem-structure <ps1>
+        ^steps <s1> <s2> <s3> <s4>
+        ^definitions <d1> <d2> <d3> <d4>
+        ^relations <r1> <r2> # <r3>
+        ^goal-tests <terms>
+        ^facts <fact1>
+        ^first-step <s1>)
+   (<terms> ^goal-test <a6> )# <a7>)
+## 3 + 2 = 5   
+   (<fact1> ^name addition-fact ^addend1 3 ^addend2 2 ^sum 5)
+#### Problem Structure defines symbols for constants in a problem: base, height, answer
+   
+## The base is the first term of an equation
+   (<d1> ^term base ^function first-term)
+## The height is the number of adds
+   (<d2> ^term height ^function length-add)
+## The answer is the sum at the end
+   (<d3> ^term answer ^function sum)
+## The term will be the last-term added in - not sure what this means
+   (<d4> ^term term ^function last-term)
+   
+## The last-term = first-term - length-add   
+ #  (<r1> ^term last-term ^arg1 first-term ^relation minus ^arg2 length-add)
+## The length-add = first-term - last-term  
+ #  (<r2> ^term length-add ^arg1 first-term ^relation minus ^arg2 last-term)
+## The 0 = first-term balanced last-term 
+   
+   (<r1> ^answer 0 ^minimum-math-computations double ^arg base)
+   (<r2> ^term 0 ^arg1 first-term ^relation balanced ^arg2 last-term)
+   
+   (<ps1> ^name base ^type variable ^next <ps2>)
+   (<ps2> ^name |$| ^type symbol ^next <ps3>)
+   (<ps3> ^name height ^type variable  ^next <ps4>)
+   (<ps4> ^name |=| ^type symbol ^next <ps5>)
+   (<ps5> ^name answer ^type variable ^next nil)
+## This defines the semantics of the problem and in this case defines a procedure
+#### A procedure has ordered steps structured as a linked list - looping is possible
+####  each step has a set of unordered actions
+####  each action has a single command and a set of arguments
+   (<s1> ^action <a10> <a11> <a12> #<a13>
+         ^next <s2>)
+   (<a10> ^command set ^variable sum ^value 0 ^value-type constant)
+   (<a11> ^command set ^variable term ^value base ^value-type variable)
+   (<a12> ^command set ^variable count ^value 0 ^value-type constant)
+#### Base-list will hold all of the term values computed - can think of it as
+#### writing out intermediate results - can return to in the future
+ #  (<a13> ^command set ^variable base-list ^value-type list)
+   (<s2> ^action <a30> # <a31>
+         ^next <s3>)
+   (<a30> ^command add ^variable sum ^value term ^value-type variable)
+ #  (<a31> ^command write ^variable term ^save-command add ^list base-list)
+   (<s3> ^action <a6> <a7>
+         ^next <s4>)
+   (<a7> ^command goal-test ^relation equal ^variable sum ^value answer ^value-type variable ^type solved)
+   (<a6> ^command goal-test ^relation equal ^variable count ^value height ^value-type variable ^type finished)
+##This action then loops back to s2
+   (<s4> ^action <a4> <a5>
+         ^next <s2>)
+   (<a4> ^command decrement ^variable term)
+   (<a5> ^command increment ^variable count)
+   ######
+   
+   (<prob0> ^problem-name |5 $ 2 = ?|
+            ^problem-number 0
+            ^type solve
+            ^element <p01>
+            ^next-problem <prob1>)
+   (<p01> ^value 5 ^type constant ^next <p02>)
+   (<p02> ^value |$| ^type symbol ^next <p03>)
+   (<p03> ^value 2 ^type constant ^next <p04>)
+   (<p04> ^value |=| ^type symbol ^next <p05>)
+   (<p05> ^value |?| ^type unknown ^next nil)
+   
+   (<prob1> ^problem-name |5 $ 3 = ?|
+            ^problem-number 1
+            ^type solve
+            ^element <p1>
+            ^next-problem <prob2>)
+   (<p1> ^value 5 ^type constant ^next <p2>)
+   (<p2> ^value |$| ^type symbol ^next <p3>)
+   (<p3> ^value 3 ^type constant ^next <p4>)
+   (<p4> ^value |=| ^type symbol ^next <p5>)
+   (<p5> ^value |?| ^type unknown ^next nil)
+   
+   (<prob2> ^problem-name |10 $ 4 = ?|
+            ^problem-number 2
+            ^type solve
+            ^element <p11>
+            ^next-problem <prob3>)
+   (<p11> ^value 10 ^type constant ^next <p12>)
+   (<p12> ^value |$| ^type symbol ^next <p13>)
+   (<p13> ^value 4 ^type constant ^next <p14>)
+   (<p14> ^value |=| ^type symbol ^next <p15>)
+   (<p15> ^value |?| ^type unknown ^next nil)
+   
+   (<prob3> ^problem-name |8 $ 1 = ?|
+            ^problem-number 3
+            ^type solve
+            ^element <p21>
+            ^next-problem <prob4>)
+   (<p21> ^value 8 ^type constant ^next <p22>)
+   (<p22> ^value |$| ^type symbol ^next <p23>)
+   (<p23> ^value 1 ^type constant ^next <p24>)
+   (<p24> ^value |=| ^type symbol ^next <p25>)
+   (<p25> ^value |?| ^type unknown ^next nil)
+
+   (<prob4> ^problem-name |3 $ 4 = ?|
+            ^problem-number 4
+            ^type solve
+            ^element <p31>
+            ^next-problem <prob5>)
+   (<p31> ^value 3 ^type constant ^next <p32>)
+   (<p32> ^value |$| ^type symbol ^next <p33>)
+   (<p33> ^value 4 ^type constant ^next <p34>)
+   (<p34> ^value |=| ^type symbol ^next <p35>)
+   (<p35> ^value |?| ^type unknown ^next nil)
+   
+   (<prob5> ^problem-name |5 $ 7 = ?|
+            ^problem-number 5
+            ^type solve
+            ^element <p41>
+            ^next-problem <prob6>)
+   (<p41> ^value 5 ^type constant ^next <p42>)
+   (<p42> ^value |$| ^type symbol ^next <p43>)
+   (<p43> ^value 7 ^type constant ^next <p44>)
+   (<p44> ^value |=| ^type symbol ^next <p45>)
+   (<p45> ^value |?| ^type unknown ^next nil)
+   
+   (<prob6> ^problem-name |0 $ 4 = ?|
+            ^problem-number 6
+            ^type solve
+            ^element <p51>
+            ^next-problem <prob7>)
+   (<p51> ^value 0 ^type constant ^next <p52>)
+   (<p52> ^value |$| ^type symbol ^next <p53>)
+   (<p53> ^value 4 ^type constant ^next <p54>)
+   (<p54> ^value |=| ^type symbol ^next <p55>)
+   (<p55> ^value |?| ^type unknown ^next nil)
+   
+   (<prob7> ^problem-name |13 $ 0 = ?|
+            ^problem-number 7
+            ^type solve
+            ^element <p61>
+            ^next-problem <prob8>)
+   (<p61> ^value 13 ^type constant ^next <p62>)
+   (<p62> ^value |$| ^type symbol ^next <p63>)
+   (<p63> ^value 0 ^type constant ^next <p64>)
+   (<p64> ^value |=| ^type symbol ^next <p65>)
+   (<p65> ^value |?| ^type unknown ^next nil)
+   
+   (<prob8> ^problem-name |1000 $ 2000 = ?|
+            ^type solve
+            ^problem-number 8
+            ^element <p71>
+            ^next-problem <prob9>)
+   (<p71> ^value 1000 ^type constant ^next <p72>)
+   (<p72> ^value |$| ^type symbol ^next <p73>)
+   (<p73> ^value 2000 ^type constant ^next <p74>)
+   (<p74> ^value |=| ^type symbol ^next <p75>)
+   (<p75> ^value |?| ^type unknown ^next nil)
+
+   (<prob9> ^problem-name |6 + 5 + 4 + 3|
+            ^type describe-plus
+            ^problem-number 9
+            ^element <p76>
+            ^next-problem <prob10>)
+   (<p76> ^value 6 ^type constant ^next <p77>)
+   (<p77> ^value 5 ^type constant ^next <p78>)
+   (<p78> ^value 4 ^type constant ^next <p79>)
+   (<p79> ^value 3 ^type constant ^next nil)
+   
+   (<prob10> ^problem-name |9 + 8 + 7|
+            ^problem-number 10
+             ^type describe-plus
+             ^element <p80>
+             ^next-problem <prob11>)
+   (<p80> ^value 9 ^type constant ^next <p81>)
+   (<p81> ^value 8 ^type constant ^next <p82>)
+   (<p82> ^value 7 ^type constant ^next nil)
+   
+   (<prob11> ^problem-name |1 + 0 + (-1) + (-2)|
+            ^problem-number 11
+             ^type describe-plus
+             ^element <p83>
+             ^next-problem <prob12>)
+   (<p83> ^value 1 ^type constant ^next <p84>)
+   (<p84> ^value 0 ^type constant ^next <p85>)
+   (<p85> ^value -1 ^type constant ^next <p86>)
+   (<p86> ^value -2 ^type constant ^next nil)
+   
+   (<prob12> ^problem-name |x  + (x - 1) + (x - 2) + (x - 3) + (x - 4)|
+            ^problem-number 12
+             ^type describe-plus
+             ^element <p87>
+             ^next-problem <prob13>)
+   (<p87> ^value |x| ^type constant ^next <p88>)
+   (<p88> ^value |x-1| ^type constant ^next <p89>)
+   (<p89> ^value |x-2| ^type constant ^next <p90>)
+   (<p90> ^value |x-3| ^type constant ^next <p91>)
+   (<p91> ^value |x-4| ^type constant ^next nil)
+   
+   (<prob13> ^problem-name |20 + (20 - 1) + ... + (20 - 11)|
+            ^problem-number 13
+             ^type describe-plus
+             ^element <p92>
+             ^next-problem <prob14>)
+   (<p92> ^value 20 ^type constant ^next <p93>)
+   (<p93> ^value |20 - 1| ^type constant ^next <p94>)
+   (<p94> ^value |....| ^type constant ^next <p95>)
+   (<p95> ^value |20-11| ^type constant ^next nil)
+   
+   (<prob14> ^problem-name |15  + (15 - 1) + ... + (15 - x)|
+             ^problem-number 14
+             ^type describe-plus
+             ^element <p96>
+             ^next-problem <prob15>)
+   (<p96> ^value 15 ^type constant ^next <p97>)
+   (<p97> ^value |15 - 1| ^type constant ^next <p98>)
+   (<p98> ^value |....| ^type constant ^next <p99>)
+   (<p99> ^value |15-x| ^type constant ^next nil)
+   
+   (<prob15> ^problem-name |z + (z - 1) + .... + (z - y)|
+            ^problem-number 15
+             ^type describe-plus
+             ^element <p100>
+             ^next-problem <prob16>)
+   (<p100> ^value |z| ^type constant ^next <p101>)
+   (<p101> ^value |z - 1| ^type constant ^next <p102>)
+   (<p102> ^value |....| ^type constant ^next <p103>)
+   (<p103> ^value |z-y| ^type constant ^next nil)
+   
+   (<prob16> ^problem-name |6 $ x = 15|
+            ^problem-number 16
+            ^type solve
+            ^element <p151>
+            ^next-problem <prob17>)
+   (<p151> ^value 6 ^type constant ^next <p152>)
+   (<p152> ^value |$| ^type symbol ^next <p153>)
+   (<p153> ^value |?| ^type unknown ^next <p154>)
+   (<p154> ^value |=| ^type symbol ^next <p155>)
+   (<p155> ^value 15 ^type constant ^next nil)
+      
+   (<prob17> ^problem-name |10 $ x = 55|
+            ^problem-number 17
+            ^type solve
+            ^element <p161>
+            ^next-problem <prob18>)
+   (<p161> ^value 10 ^type constant ^next <p162>)
+   (<p162> ^value |$| ^type symbol ^next <p163>)
+   (<p163> ^value |?| ^type unknown ^next <p164>)
+   (<p164> ^value |=| ^type symbol ^next <p165>)
+   (<p165> ^value 55 ^type constant ^next nil)
+   
+   
+   (<prob18> ^problem-name |912 $ x = 912|
+            ^problem-number 18
+            ^type solve
+            ^element <p171>
+            ^next-problem <prob19>)
+   (<p171> ^value 912 ^type constant ^next <p172>)
+   (<p172> ^value |$| ^type symbol ^next <p173>)
+   (<p173> ^value |?| ^type unknown ^next <p174>)
+   (<p174> ^value |=| ^type symbol ^next <p175>)
+   (<p175> ^value 912 ^type constant ^next nil)
+   
+  (<prob19> ^problem-name |3 $ x = -9|
+            ^problem-number 19
+            ^type solve
+            ^element <p176>
+            ^next-problem <prob20>)
+   (<p176> ^value 3 ^type constant ^next <p177>)
+   (<p177> ^value |$| ^type symbol ^next <p178>)
+   (<p178> ^value |?| ^type unknown ^next <p179>)
+   (<p179> ^value |=| ^type symbol ^next <p180>)
+   (<p180> ^value -9 ^type constant ^next nil)
+    
+   (<prob20> ^problem-name |100 $ x = -101|
+             ^problem-number 20
+             ^type solve
+             ^element <p181>
+             ^next-problem <prob21>)
+   (<p181> ^value 100 ^type constant ^next <p182>)
+   (<p182> ^value |$| ^type symbol ^next <p183>)
+   (<p183> ^value |?| ^type unknown ^next <p184>)
+   (<p184> ^value |=| ^type symbol ^next <p185>)
+   (<p185> ^value -101 ^type constant ^next nil)
+   
+   (<prob21> ^problem-name |x $ 2 = 15|
+             ^problem-number 21
+             ^type solve
+             ^element <p210>
+             ^next-problem <prob22>)
+   (<p210> ^value |?| ^type unknown ^next <p211>)
+   (<p211> ^value |$| ^type symbol ^next <p212>)
+   (<p212> ^value 2 ^type constant ^next <p213>)
+   (<p213> ^value |=| ^type symbol ^next <p214>)
+   (<p214> ^value 15 ^type constant ^next nil)
+   
+   (<prob22> ^problem-name |x $ 1 = 15|
+            ^problem-number 22
+            ^type solve
+            ^element <p220>
+            ^next-problem <prob23>)
+   (<p220> ^value |?| ^type unknown ^next <p221>)
+   (<p221> ^value |$| ^type symbol ^next <p222>)
+   (<p222> ^value 1 ^type constant ^next <p223>)
+   (<p223> ^value |=| ^type symbol ^next <p224>)
+   (<p224> ^value 15 ^type constant ^next nil)
+   
+  (<prob23> ^problem-name |x $ 4 = 35|
+            ^problem-number 23
+            ^type solve
+            ^element <p230>
+            ^next-problem <prob24>)
+   (<p230> ^value |?| ^type unknown ^next <p231>)
+   (<p231> ^value |$| ^type symbol ^next <p232>)
+   (<p232> ^value 4 ^type constant ^next <p233>)
+   (<p233> ^value |=| ^type symbol ^next <p234>)
+   (<p234> ^value 35 ^type constant ^next nil)
+   
+  (<prob24> ^problem-name |x $ 6 = 35|
+            ^problem-number 24
+            ^type solve
+            ^element <p240>
+            ^next-problem <prob25>)
+   (<p240> ^value |?| ^type unknown ^next <p241>)
+   (<p241> ^value |$| ^type symbol ^next <p242>)
+   (<p242> ^value 6 ^type constant ^next <p243>)
+   (<p243> ^value |=| ^type symbol ^next <p244>)
+   (<p244> ^value 35 ^type constant ^next nil)
+   
+  (<prob25> ^problem-name |x $ 6 = 0|
+            ^problem-number 25
+            ^type solve
+            ^element <p250>
+            ^next-problem <prob26>)
+  (<p250> ^value |?| ^type unknown ^next <p251>)
+  (<p251> ^value |$| ^type symbol ^next <p252>)
+  (<p252> ^value 6 ^type constant ^next <p253>)
+  (<p253> ^value |=| ^type symbol ^next <p254>)
+  (<p254> ^value 0 ^type constant ^next nil)
+   
+  (<prob26> ^problem-name |x $ 6 = -7|
+            ^problem-number 26
+            ^type solve
+            ^element <p260>
+            ^next-problem nil)
+  (<p260> ^value |?| ^type unknown ^next <p261>)
+  (<p261> ^value |$| ^type symbol ^next <p262>)
+  (<p262> ^value 6 ^type constant ^next <p263>)
+  (<p263> ^value |=| ^type symbol ^next <p264>)
+  (<p264> ^value -7 ^type constant ^next nil)
+   
+}

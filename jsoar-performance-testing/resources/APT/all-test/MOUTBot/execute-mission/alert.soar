@@ -1,0 +1,88 @@
+## Created by JEL, 10-06-2002 so bots become alert when they see you or 
+##   when they come under fire
+
+
+# REW: 2003-04-30
+#  Alert is causing bugs when enemy spotted and not already alert so just make them alert
+#  (I think the  bug is that a shoot action is chosen before alert, which leads to a failure)
+sp {execute-mission*propose*alert*immediate
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease)
+-->
+   (write (crlf) |Becoming alert on initialization|)
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+sp {execute-mission*propose*alert*enemy-attackable
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease
+         ^threats.attackable yes
+        -^map.current-area.retreat-door none)   # surrender
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+sp {execute-mission*propose*alert*underfire
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease
+         ^self.underfire.value <> none
+        -^map.current-area.retreat-door none)   # surrender
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+# REW: 2002-10-07
+# Choose alert over sentry-watch (must be alert if on watch)
+sp {execute-mission*propose*alert*sentry-watch
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease
+         ^mission.active-objective.type sentry-watch)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+# Propose alert before choose-weapon
+sp {execute-mission*propose*alert*choose-weapon*enemy
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease
+         ^threats.threat.entity.visible << true false >>)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+# Propose alert before choose-weapon
+sp {execute-mission*propose*alert*choose-weapon*empty
+   (state <s> ^name execute-mission
+              ^top-state <ts>)
+   (<ts> ^self.posture at-ease
+         ^self.weapons <w>)
+   (<w> -^selected-weapon.rounds-available true)
+-->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name alert
+        ^actions.alert true)
+}
+
+sp {apply*alert
+   (state <s> ^operator.name alert
+              ^top-state.self <self>)
+   (<self> ^posture at-ease)
+   -->
+   (<self> ^posture at-ease - 
+                    alert +)
+ }

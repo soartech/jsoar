@@ -1,0 +1,3 @@
+source elaborations.soar
+source goto-next-room.soar
+source turn.soar

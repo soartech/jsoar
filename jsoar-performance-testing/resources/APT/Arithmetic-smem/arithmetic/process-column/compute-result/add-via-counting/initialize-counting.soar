@@ -1,0 +1,23 @@
+sp {add-via-counting*propose*initialize-counting
+   (state <s> ^name add-via-counting
+             -^counter)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name initialize-counting)
+}
+
+### Accumulator is larger (count up)
+### Add-in is the smaller (count down)
+sp {add-via-counting*apply*initialize-counting
+   (state <s> ^name add-via-counting
+              ^operator.name initialize-counting
+              ^top-state.zero <zero>
+              ^superstate.operator <o>)
+   (<o> ^digit1 <d1>
+        ^digit2 <d2>)
+-->
+   (<s> ^sum <d1>
+        ^addend <d2>
+        ^counter <zero>
+        ^carry false)
+}

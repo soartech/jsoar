@@ -1,0 +1,17 @@
+source elaborations.soar
+source align-with-axis.soar
+pushd align-with-axis
+source align-with-axis_source.soar
+popd
+source finish-axis.soar
+source follow-hall-axis.soar
+pushd follow-hall-axis
+source follow-hall-axis_source.soar
+popd
+source follow-room-axis.soar
+pushd follow-room-axis
+source follow-room-axis_source.soar
+popd
+source init-axis.soar
+source mark-axis.soar
+source retry-axis.soar

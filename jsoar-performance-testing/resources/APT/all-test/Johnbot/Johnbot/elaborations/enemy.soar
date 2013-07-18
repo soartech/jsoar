@@ -1,0 +1,80 @@
+#echo "\nLoading elaborations/enemy"
+
+sp {elaborate*enemy-detected
+   (state <s> ^name quake
+              ^io.input-link.entity.enemy <e>)
+   (<e> ^sensor <se>)
+   (<se> ^visible true
+         ^infront true)
+   -->
+   (<s> ^enemy-detected <e>)}
+  
+sp {elaborate*enemy-room
+   (state <s> ^name quake
+              ^io.input-link.entity.enemy.origin <il>
+              ^map <m>)
+   (<m> ^room <r>)
+   (<il> ^x <x> ^y <y>)
+   (<r> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x < <x>)
+   (<w2> ^side east ^x > <x>)
+   (<w3> ^side south ^y < <y>)
+   (<w4> ^side north ^y > <y>)
+   -->
+   (<m> ^enemy-room <r> )}
+
+sp {elaborate*enemy-room*disappeared
+   (state <s> ^name quake
+              ^enemy <e>
+              ^map <m>)
+   (<m> ^room <r>)
+   (<e> ^x <x> ^y <y>
+        -^sensed-enemy)
+   (<r> ^wall <w1> <w2> <w3> <w4>)
+   (<w1> ^side west ^x < <x>)
+   (<w2> ^side east ^x > <x>)
+   (<w3> ^side south ^y < <y>)
+   (<w4> ^side north ^y > <y>)
+   -->
+   (<e> ^old-room <r> )}
+
+sp {elaborate*enemy*facing1
+   (state <s> ^name quake
+              ^enemy <e>)
+   (<e> ^sensed-enemy <se>)
+   (<se> ^aspect.h { > -100 < 100})
+   -->
+   (<e> ^enemy-facing true)}
+
+sp {elaborate*enemy*facing2
+   (state <s> ^name quake
+              ^enemy <e>)
+   (<e> ^sensed-enemy <se>)
+   (<se> ^aspect.h { > 260 < 460})
+   -->
+   (<e> ^enemy-facing true)}
+
+sp {elaborate*enemy*predict-range
+   (state <s> ^name quake
+              ^io.input-link.agent.weapon-selected <cname>
+              ^parameters <param>
+              ^enemy <e>)
+   (<e> ^sensed-enemy <se>
+       -^enemy-facing true)
+   (<param> ^weapon <w>
+            ^attack-distances.<wrange>.max <range>)
+   (<w> ^classname <cname>
+        ^range <wrange>)
+  -(<se> ^range < <range>)
+   -->
+   (<e> ^predict-range true)}
+
+sp {elaborate*enemy*predict-range*not-visible
+   (state <s> ^name quake
+              ^enemy <e>)
+   (<e> -^prediction-final-room-number
+        -^enemy-facing true
+         ^old-range  > 800)
+   -->
+   (<e> ^predict-range true)}
+

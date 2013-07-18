@@ -1,0 +1,29 @@
+sp {update-all-path*propose*no-paths-to-update
+   (state <s> ^name update-all-paths)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name no-path-to-update)
+}
+
+sp {update-all-paths*apply*no-path-to-update
+   (state <s> ^operator <op>
+              ^superstate.mission <m>)
+   (<op> ^name no-path-to-update)
+-->
+   (<m> ^updated-all-paths true)
+}
+
+sp {update-all-paths*monitor*no-path-to-update
+   (state <s> ^operator.name no-path-to-update
+             -^top-state.parameters.monitor-level none)
+-->
+   (write (crlf) |All paths have been updated.|)
+}
+
+sp {update-all-paths*apply*no-path-to-update*log
+   (state <s> ^operator.name no-path-to-update
+              ^top-state.parameters.internal-simulation false
+              ^io.output-link <ol>)
+-->
+   (<ol> ^mark.value all-paths-updated)
+}

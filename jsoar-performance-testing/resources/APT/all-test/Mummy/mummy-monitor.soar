@@ -1,0 +1,54 @@
+sp {monitor-explore-move
+(state <s> ^operator <o>)
+(<o> ^name move__dir_
+     ^p1 <dir>)
+-->
+(write (crlf) |Explorer move: | <dir>)}
+
+sp {monitor-mummy-move
+(state <s> ^elaborations <e>)
+(<e> ^doesprime.p2 <p2>)
+(<p2> ^name move2 ^p1 <mv1> ^p2 <mv2>)
+-->
+(write (crlf) |Mummy move:    | <mv1> |, | <mv2>)}
+
+sp {monitor-explorer-location
+(state <s> ^gs.location <l1>)
+(<l1> ^p1 explorer ^p2 <x> ^p3 <y>)
+--> 
+(write (crlf) <s> | Explorer: | <x> |, | <y>)}
+
+sp {monitor-mummy-location
+(state <s> ^gs.location <l1>)
+(<l1> ^p1 mummy ^p2 <x> ^p3 <y>)
+--> 
+(write (crlf) <s> | Mummy:    | <x> |, | <y>)}
+
+
+sp {monitor-exit-location
+(state <s> ^gs.location <l1>
+            ^superstate nil)
+(<l1> ^p1 exit ^p2 <x> ^p3 <y>)
+--> 
+(write (crlf) <s> | Exit:    | <x> |, | <y>)}
+
+
+ 
+sp {monitor-eaten
+(state <s> ^elaborations.eaten) 
+--> 
+(write (crlf) <s> | Eaten!|)}
+
+sp {monitor-atexit
+(state <s> ^elaborations.atexit) 
+--> 
+(write (crlf) <s> | At Exit!|)}
+
+sp {monitor-laststep
+(state <s> ^elaborations.laststep)
+--> 
+(write (crlf) <s> | Laststep!|)}
+
+
+
+

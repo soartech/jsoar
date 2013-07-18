@@ -1,0 +1,158 @@
+#echo "\nLoading explore-axis/mark-axis"
+
+## Once aligned on this axis, mark the positions of the wall
+##  These may be changed in follow-room-axis if
+##   it is found that there was a hallway to the left or right when
+##   these were recorded.
+
+sp {explore-axis*propose*mark-axis
+   (state <s> ^name explore-axis
+              ^axis <a>)
+   (<a> -^marked wall
+         ^aligned <dir>
+         ^search-directions <dir>)
+   -->
+#   #tcl |tsiDisplayAndSendCommand stop-soar|)
+   (<s> ^operator <o>)
+   (<o> ^name mark-axis)}
+
+
+## Handle different combinations of facing and wall
+
+sp {explore-axis*apply*mark-axis*record*west
+   (state <s> ^operator.name mark-axis
+              ^axis.wall <w1> 
+              ^top-state.parameters.wall-close <wclose>
+              ^west <west>)
+   (<w1> ^side west
+        -^x)
+   -->
+   (<w1> ^marked true
+         ^x <west>
+         ^x-max (+ <west> <wclose>))}
+
+
+sp {explore-axis*apply*mark-axis*record*east
+   (state <s> ^operator.name mark-axis
+              ^axis.wall <w2>
+              ^top-state.parameters.wall-close <wclose>
+              ^east <east>)
+   (<w2> ^side east
+        -^x)
+   -->
+   (<w2> ^marked true
+         ^x <east>
+         ^x-min (- <east> <wclose>))}
+##
+   
+sp {explore-axis*apply*mark-axis*record*north
+   (state <s> ^operator.name mark-axis
+              ^axis.wall <w1> 
+              ^top-state.parameters.wall-close <wclose>
+              ^north <north>)
+   (<w1> ^side north
+        -^y)
+   -->
+   (<w1> ^marked true
+         ^y <north>
+         ^y-min (- <north> <wclose>))}
+
+sp {explore-axis*apply*mark-axis*record*facing*east*south
+   (state <s> ^operator.name mark-axis
+              ^axis.wall <w2>
+              ^top-state.parameters.wall-close <wclose>
+              ^south <south>)
+   (<w2> ^side south
+        -^y)
+   -->
+   (<w2> ^marked true
+         ^y <south>
+         ^y-max (+ <south> <wclose>))}
+
+## Record the distance to the max and min left and right sides.
+## This is used to decide if an update in the wall is necessary.
+
+sp {explore-axis*apply*mark-axis*record*left-right*distances
+   (state <s> ^operator.name mark-axis
+              ^axis <a>
+              ^io.input-link.map <map>
+              ^top-state.parameters.door-value <door-value>)
+   (<map> ^left.distance <ld>
+          ^right.distance <rd>)
+   -->
+   (write (crlf) |Left Distance: | <ld> |, right distance: | <rd>)
+   (<a> ^left <left>
+        ^right <right>)
+   (<left> ^distance (- <ld> 10)
+           ^max-distance (+ <ld> <door-value>)
+           ^min-distance (- <ld> <door-value>))
+   (<right> ^distance (- <rd> 10)
+            ^max-distance (+ <rd> <door-value>)
+            ^min-distance (- <rd> <door-value>))}
+
+###
+
+sp {explore-axis*apply*mark-axis*mark-axiss
+   (state <s> ^operator.name mark-axis
+              ^axis <a>)
+   (<a> ^wall <w1> { <> <w1> <w2> })
+   (<w1> ^marked true)
+   (<w2> ^marked true)
+   -->
+   (<a> ^marked wall)}
+
+############ DEBUGGING
+
+sp {explore-axis*apply*mark-axis*debug*x*y
+   (state <s> ^operator.name mark-axis
+              ^top-state.debug true
+              ^io.input-link.agent.origin <or>)
+   (<or> ^x <x>
+         ^y <y>)
+   -->
+   (write (crlf) |mark-axis x: | <x> |, y: | <y>)}
+
+sp {explore-axis*apply*mark-axis*debug*north
+   (state <s> ^operator.name mark-axis
+              ^top-state.debug true
+              ^axis.wall <w>)
+   (<w> ^side north
+        ^marked true
+        ^y <x>
+        ^y-min <x-min>)
+   -->
+   (write (crlf) |mark-axis north, y: | <x> |, y-min: | <x-min>)}
+
+sp {explore-axis*apply*mark-axis*debug*south
+   (state <s> ^operator.name mark-axis
+              ^top-state.debug true
+              ^axis.wall <w>)
+   (<w> ^side south
+        ^marked true
+        ^y <x>
+        ^y-max <x-max>)
+   -->
+   (write (crlf) |mark-axis south, y: | <x> |, y-max: | <x-max>)}
+
+sp {explore-axis*apply*mark-axis*debug*east
+   (state <s> ^operator.name mark-axis
+              ^top-state.debug true
+              ^axis.wall <w>)
+   (<w> ^side east
+        ^marked true
+        ^x <y>
+        ^x-min <y-max>)
+   -->
+   (write (crlf) |mark-axis east, x: | <y> |, x-min: | <y-max>)}
+
+sp {explore-axis*apply*mark-axis*debug*west
+   (state <s> ^operator.name mark-axis
+              ^top-state.debug true
+              ^axis.wall <w>)
+   (<w> ^side west
+        ^marked true
+        ^x <y>
+        ^x-max <y-min>)
+   -->
+   (write (crlf) |mark-axis west, x: | <y> |, x-max: | <y-min>)}
+

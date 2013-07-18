@@ -1,0 +1,6 @@
+source elaborations.soar
+source backup.soar
+source face-heading.soar
+source finished-align.soar
+source forward.soar
+source stop.soar

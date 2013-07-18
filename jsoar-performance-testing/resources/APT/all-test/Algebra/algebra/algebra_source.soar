@@ -1,0 +1,25 @@
+source _firstload.soar
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source _chunking-issues.soar
+source _readme.soar
+source accept-input.soar
+pushd accept-input
+source accept-input_source.soar
+popd
+source clean-up-problem.soar
+source initialize-algebra.soar
+source print-list.soar
+source print-out-equation.soar
+pushd print-out-equation
+source print-out-equation_source.soar
+popd
+source solve-problem.soar
+pushd solve-problem
+source solve-problem_source.soar
+popd
+source z-last-load.soar

@@ -1,0 +1,35 @@
+## This is the room world robot developed for the Soar book
+## JEL
+## 10-13-10 Changed block.ied true to block.type ied so in line with other block types
+## 10-17-10 Made changes so areas-held-in sm works
+##          Need to add a way to detect no-storage-area when areas-held-in sm
+## 10-18-10 Renames blocks.block to be objects.object throughout project
+## 10-19-10 Add parameter communication for all send messages
+## 10-19-10 Add remove-objects
+
+## Support for using SMEM for maintaining block information. 
+## Store block information with record-object
+##    First test to see if already exists in smem by doing a query
+##    If it doesn't then store it.
+## Delete objects not in current area in remove-objects 
+## Retrieve using get-object/retrieve-blocks which will retrieve blocks that aren't in storage room
+##    that have the right color
+## Finished-cleaning is disabled - should fail in get-object and then do finish-cleaning
+##   fail to get object in another room - fail to get unvisited room
+##
+
+## Support for using SMEM for maintaining area information. 
+## Store area information with record-smem-current-area record-smem-new-gateway-area
+##  Maintain storage area on top state once found
+##    First test to see if already exists in smem by doing a query
+##    If it doesn't then store it.
+###   Also store gateways and walls.
+##  Retreive when enter area - retrieve-current-area-gateways retrieve-current-area-wall
+##    
+##      Delete areas not current area in delete- 
+##     If goto-not-clean-area selected - then search for not cleaned room.
+##     If fail to find a not-clean area then halt (similar to finished-cleaning)
+##     If goto-storage-are selected then query for it
+##          if retrieve success 
+##                 visited - just go to it
+##                 not visited 

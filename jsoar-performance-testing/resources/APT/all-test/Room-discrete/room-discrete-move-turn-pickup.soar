@@ -1,0 +1,3 @@
+pushd room-discrete-move-turn-pickup
+source room-discrete-move-turn-pickup_source.soar
+popd

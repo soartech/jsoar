@@ -1,0 +1,28 @@
+sp {algebra*propose*accept-input
+   (state <s> ^name algebra
+              ^superstate nil
+              ^problem.status initialized)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name accept-input)
+}
+
+sp {algebra*apply*accept-input
+   (state <s> ^operator.name accept-input
+              ^problem <p>)
+-->
+   (<s> ^print-id <pn>)
+   (<p> ^parse-clause <tp>
+        ^top-clause <tp>
+        ^clauses <c>)
+}
+
+sp {algebra*apply*accept-input*clean-up
+   (state <s> ^operator.name accept-input
+             -^io.input-link.text <text>
+              ^processed <text>)
+-->
+   (<s> ^processed <text> -)
+}
+
+

@@ -1,0 +1,1248 @@
+#Follow these steps to update the map:
+#
+#1.  From the running agent window (with a completely explored map)
+#    run the command:  command-to-file { varprint m1 } /temp/maps.soar
+#2.  Open the existing maps.soar and remove the actions of the
+#    production (keep the conditions)
+#3.  Insert the contents of the existing maps.soar.
+#4.  Remove all attributes that will be added automatically
+#    (especially i-supported rules).  At the time this comment was
+#    created these included:
+#          ^area-names  (and the list it points to)
+#          ^current-area
+#          ^previous-area
+#          ^in-front-node
+#          ^last-node (and the structure it points to if still the init struct)
+#          ^near-node
+#          ^nearest-node
+#          ^completed-search yes/no
+#          ^deadend true/false
+#5.  If necessary, update the above list of transient WMEs
+#6.  Remove any attribute-less identifiers (e.g., "(<N123>)")
+#
+# [1] REW: 2002-07-25
+#          JEL wants elboration of map to be independent of agent name.  Removed this condition (made it unbound var).
+#          was: ....agent.name |MOUTInterface|
+
+sp {unreal*elaborate*old-map
+   (state <s> ^name haunt
+              ^io.input-link.agent.name <something>
+              ^map <M1>)
+-->
+   (<M1> ^area <A16> ^area <A15> ^area <A10> ^area <A5> ^area <A14> ^area <A13> ^area <A12>
+         ^area <A11> ^area <A18> ^area <A9> ^area <A8> ^area <A7> ^area <A6> ^area <A17>
+         ^door <D5> ^door <D1> ^door <D2> ^door <D3>
+         ^door <D4> ^door <D6> ^door <D7> ^door <D8> ^door <D9>
+         ^initialized-nodes true)
+   (<N137> ^area <A13> ^area-name frontofstair ^connect-heading 0
+           ^connected-node <N131> ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode23| ^position <N138> ^range 21 ^type connector
+           ^visited 2)
+   (<N131> ^area <A10> ^area-name rightofstair ^connect-heading 180
+           ^connected-node <N137> ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode22| ^position <N132> ^type connector ^visited 6
+           ^x greater-than ^x less-than ^y less-than ^y greater-than)
+   (<N132> ^speed 0.1 ^speed 0.5 ^x 195.117 ^y 2.49061 ^z 69)
+   (<A10>  ^max-x 311.75 ^max-y 113.665
+           ^max-z 129 ^min-x 152.791 ^min-y -436.694 ^min-z 36.0994
+           ^mod-max-x true ^mod-max-y true ^mod-min-x true ^mod-min-y true
+           ^name rightofstair ^node <N125> ^node <N133> ^node <N13> ^node <N131>
+           ^node <N135> ^node <N127> ^node <N69> ^node <N25> ^node <N67> ^path <N179>
+           ^path <N220> ^path <N159> ^path <N140> ^path <N181> ^path <N338> ^path <N173>
+           ^path <N366> ^path <N175> ^path <N242> ^path <N298> ^path <N280> ^path <N177>
+           ^visible-area <A17> ^visible-area <A12> ^visible-area <A13>
+           ^visible-area <A14> ^visible-area <A16> ^visible-area <A11>
+           ^visible-area <A18> ^visible-area <A15> ^visible-area <A8>
+           ^visible-area <A9>)
+   (<A9>  ^max-x 15.8686 ^max-y 488.37
+          ^max-z 126.1 ^min-x -210.909 ^min-y 384.637 ^min-z 36.0998
+          ^mod-min-y true ^name outsidesouth ^node <N15> ^node <N57>
+          ^node <N247> ^node <N73> ^node <N71> ^path <N305> ^path <N299> ^path <N276>
+          ^path <N254> ^path <N303> ^path <N297> ^path <N307> ^path <N309>
+          ^path <N311> ^path <N334> ^path <N368> ^path <N301> ^path <N295>
+          ^visible-area <A10> ^visible-area <A14> ^visible-area <A13>
+          ^visible-area <A8> ^visible-area <A12>)
+   (<A8>  ^max-x -476.905
+          ^max-y 391.242 ^max-z 126.1 ^min-x -573.816 ^min-y 156.344
+          ^min-z 20.5419 ^mod-max-x true ^name outsidesouthwest
+          ^node <N11> ^node <N45> ^node <N93> ^node <N91> ^node <N257> ^path <N283>
+          ^path <N260> ^path <N285> ^path <N277> ^path <N287> ^path <N279>
+          ^path <N291> ^path <N293> ^path <N328> ^path <N356> ^path <N289>
+          ^path <N281> ^path <N275> ^visible-area <A10> ^visible-area <A13>
+          ^visible-area <A9> ^visible-area <A12>)
+   (<A13>  ^max-x 151.791
+           ^max-y 113.665 ^max-z 126.1 ^min-x -224.333 ^min-y -77.1971
+           ^min-z 36.0999 ^mod-max-x true ^mod-max-y true
+           ^mod-min-x true ^mod-min-y true ^name frontofstair
+           ^node <N111> ^node <N143> ^node <N137> ^node <N113> ^node <N37>
+           ^node <N59> ^node <N141> ^node <N153> ^path <N195> ^path <N185>
+           ^path <N191> ^path <N193> ^path <N176> ^path <N189> ^path <N230>
+           ^path <N286> ^path <N302> ^path <N330> ^path <N350> ^path <N183>
+           ^path <N197> ^visible-area <A10> ^visible-area <A12>
+           ^visible-area <A14> ^visible-area <A9> ^visible-area <A16>
+           ^visible-area <A11> ^visible-area <A8> ^visible-area <A15>)
+   (<N350> ^destination-area <A18> ^distance 4 ^distance-minus-one 3
+           ^via-node <N137>)
+   (<A18>  ^max-x 795.672
+           ^max-y -227.886 ^max-z 129 ^min-x 642 ^min-y -315.418
+           ^min-z 28.0766 ^mod-max-y true ^name pianostairs
+           ^node <N51> ^node <N81> ^node <N79> ^node <N167> ^node <N23>
+           ^path <N367> ^path <N369> ^path <N347> ^path <N324> ^path <N353>
+           ^path <N359> ^path <N361> ^path <N363> ^path <N365> ^path <N349>
+           ^path <N351> ^path <N355> ^path <N357> ^visible-area <A10>
+           ^visible-area <A16> ^visible-area <A17>)
+   (<N369> ^destination-area <A12> ^distance 4
+           ^distance-minus-one 3 ^via-node <N167>)
+   (<A12>  ^max-x 221.9
+           ^max-y 383.637 ^max-z 129 ^min-x -475.905
+           ^min-y 114.665 ^min-z 36.1001 ^mod-max-y true
+           ^mod-min-x true ^mod-min-y true ^name frontdoor
+           ^node <N95> ^node <N155> ^node <N129> ^node <N97> ^node <N33>
+           ^node <N43> ^node <N147> ^node <N161> ^path <N261>
+           ^path <N216> ^path <N259> ^path <N253> ^path <N178>
+           ^path <N234> ^path <N269> ^path <N271> ^path <N273>
+           ^path <N342> ^path <N370> ^path <N184> ^path <N265>
+           ^visible-area <A10> ^visible-area <A13>
+           ^visible-area <A9> ^visible-area <A8> ^visible-area <A16>
+           ^visible-area <A11> ^visible-area <A15>
+           ^visible-area <A14>)
+   (<N370> ^destination-area <A18> ^distance 4
+           ^distance-minus-one 3 ^via-node <N129>)
+   (<N129> ^area <A12> ^area-name frontdoor
+           ^connect-heading 270 ^connected-node <N133>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode24| ^position <N130>
+           ^type connector ^visited 3)
+   (<N133> ^area <A10> ^area-name rightofstair
+           ^connect-heading 90 ^connected-node <N129>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode25| ^position <N134>
+           ^type connector ^visited 2 ^x less-than
+           ^x greater-than ^y less-than ^y greater-than)
+   (<N134> ^speed 0.1 ^x 196.973 ^y 68.5743 ^z 69)
+   (<N130> ^speed 0.1 ^speed 0.5 ^x 198.526 ^y 159.176
+           ^z 69)
+   (<N342> ^destination-area <A17> ^distance 3
+           ^distance-minus-one 2 ^via-node <N129>)
+   (<A17>
+           ^max-x 797.955 ^max-y -102.92 ^max-z 129
+           ^min-x 615.034 ^min-y -226.886 ^min-z 39
+           ^mod-min-x true ^mod-min-y true
+           ^name pianofront ^node <N77> ^node <N75> ^node <N49>
+           ^node <N171> ^node <N39> ^node <N165> ^path <N345>
+           ^path <N331> ^path <N329> ^path <N325> ^path <N327>
+           ^path <N339> ^path <N341> ^path <N343> ^path <N314>
+           ^path <N323> ^path <N333> ^path <N335> ^path <N337>
+           ^visible-area <A10> ^visible-area <A16>
+           ^visible-area <A18>)
+   (<N345> ^destination-area <A14> ^distance 4
+           ^distance-minus-one 3 ^via-node <N171>)
+   (<A14>
+           ^max-x -61.392 ^max-y -78.1971 ^max-z 129
+           ^min-x -161.9 ^min-y -436.694
+           ^min-z 36.0999 ^mod-max-y true
+           ^mod-min-y true ^name leftofstair ^node <N65>
+           ^node <N149> ^node <N63> ^node <N31> ^node <N19>
+           ^node <N145> ^path <N270> ^path <N377> ^path <N186>
+           ^path <N152> ^path <N244> ^path <N182> ^path <N214>
+           ^path <N304> ^path <N320> ^path <N346> ^path <N348>
+           ^path <N373> ^path <N288> ^visible-area <A10>
+           ^visible-area <A13> ^visible-area <A16>
+           ^visible-area <A15> ^visible-area <A11>
+           ^visible-area <A12> ^visible-area <A9>)
+   (<N377> ^destination-area <A6> ^distance 2
+           ^distance-minus-one 1 ^via-node <N145>)
+   (<A6>
+           ^max-x 265.739 ^max-y -862.38
+           ^max-z 78.1003 ^min-x -4.14284
+           ^min-y -1089.23 ^min-z -11.8997
+           ^mod-max-y true ^name outsidenorth
+           ^node <N21> ^node <N101> ^node <N99>
+           ^node <N27> ^node <N121> ^path <N300>
+           ^path <N192> ^path <N274> ^path <N364>
+           ^path <N378> ^path <N381> ^path <N278>
+           ^path <N232> ^path <N322> ^path <N222>
+           ^path <N332> ^path <N180> ^path <N124>
+           ^visible-area <A11>)
+   (<A11>
+           ^max-x 224.866 ^max-y -437.694
+           ^max-z 129 ^min-x -184 ^min-y -861.38
+           ^min-z 39 ^mod-max-y true
+           ^mod-min-y true ^name fireplaceroom
+           ^node <N35> ^node <N55> ^node <N117>
+           ^node <N103> ^node <N105> ^node <N115>
+           ^node <N119> ^path <N123> ^path <N266>
+           ^path <N290> ^path <N198> ^path <N151>
+           ^path <N316> ^path <N326> ^path <N352>
+           ^path <N371> ^path <N296> ^path <N238>
+           ^path <N212> ^path <N139>
+           ^visible-area <A10> ^visible-area <A13>
+           ^visible-area <A12> ^visible-area <A14>
+           ^visible-area <A6>)
+   (<N371> ^destination-area <A5> ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N117>)
+   (<A5> ^name |Outside|
+         ^node <N157> ^path <N340> ^path <N318>
+         ^path <N310> ^path <N360> ^path <N374>
+         ^path <N372> ^path <N240> ^path <N210>
+         ^path <N196> ^path <N160> ^path <N382>
+         ^path <N294> ^path <N272>)
+   (<N382> ^destination-area <A6> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N157> ^area <A5> ^area-name |Outside|
+           ^connect-heading 180
+           ^connected-node <N125>
+           ^entryway-recorded *yes*
+           ^name |EntryNode9|
+           ^position <N158> ^type door
+           ^visited 1)
+   (<N125> ^area <A10>
+           ^area-name rightofstair
+           ^connect-heading 0
+           ^connected-node <N157>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode8|
+           ^position <N126> ^type door
+           ^visited 1 ^x greater-than
+           ^y greater-than)
+   (<N126> ^speed 0.1 ^x 278.248
+           ^y -284.848 ^z 74.1001)
+   (<N158> ^x 339.109 ^y -285.336
+           ^z 78.1001)
+   (<N374> ^destination-area <A14>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N372> ^destination-area <A11>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N157>)
+   (<N360> ^destination-area <A18>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N157>)
+   (<N340> ^destination-area <A17>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N318> ^destination-area <A16>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N157>)
+   (<A16>
+           ^max-x 614.034 ^max-y 92
+           ^max-z 129 ^min-x 312.75
+           ^min-y -207.458 ^min-z 39
+           ^mod-max-x true
+           ^mod-min-x true
+           ^name pianoroom ^node <N41>
+           ^node <N83> ^node <N169>
+           ^node <N85> ^node <N47>
+           ^node <N163> ^path <N313>
+           ^path <N262> ^path <N194>
+           ^path <N174> ^path <N282>
+           ^path <N236> ^path <N315>
+           ^path <N317> ^path <N319>
+           ^path <N321> ^path <N354>
+           ^path <N312> ^path <N218>
+           ^visible-area <A12>
+           ^visible-area <A13>
+           ^visible-area <A17>
+           ^visible-area <A14>
+           ^visible-area <A18>
+           ^visible-area <A10>)
+   (<N354> ^destination-area <A18>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N169>)
+   (<N169> ^area <A16>
+           ^area-name pianoroom
+           ^connect-heading 0
+           ^connected-node <N171>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode27|
+           ^position <N170>
+           ^type connector
+           ^visited 1 ^x less-than
+           ^x greater-than
+           ^y greater-than
+           ^y less-than)
+   (<N171> ^area <A17>
+           ^area-name pianofront
+           ^connect-heading 180
+           ^connected-node <N169>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode26|
+           ^position <N172>
+           ^type connector
+           ^visited 2)
+   (<N172> ^speed 0.1 ^x 637.978
+           ^y -146.286 ^z 69)
+   (<N170> ^speed 0.5 ^speed 0.1
+           ^x 576 ^y -144 ^z 69)
+   (<N321> ^destination-area <A6>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N163>)
+   (<N163> ^area <A16>
+           ^area-name pianoroom
+           ^connect-heading 180
+           ^connected-node <N127>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode21|
+           ^position <N164> ^type door
+           ^visited 2)
+   (<N127> ^area <A10>
+           ^area-name rightofstair
+           ^connect-heading 0
+           ^connected-node <N163>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode20|
+           ^position <N128>
+           ^type door ^visited 2
+           ^x less-than
+           ^x greater-than
+           ^y less-than
+           ^y greater-than)
+   (<N128> ^speed 0.5 ^speed 0.1
+           ^x 277.804 ^y -16
+           ^z 69)
+   (<N164> ^speed 0.1 ^speed 0.5
+           ^x 346.312 ^y -15.8276
+           ^z 69)
+   (<N319> ^destination-area <A14>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N163>)
+   (<N317> ^destination-area <A5>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N163>)
+   (<N315> ^destination-area <A11>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N163>)
+   (<N313> ^destination-area <A17>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N169>)
+   (<N312> ^destination-area <A9>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N163>)
+   (<N282> ^destination-area <A8>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N163>)
+   (<N262> ^destination-area <A12>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N163>)
+   (<N236> ^destination-area <A7>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N163>)
+   (<A7>
+           ^max-x -302.45
+           ^max-y -354.35
+           ^max-z 78.1003
+           ^min-x -526.756
+           ^min-y -626.732
+           ^min-z -11.8997
+           ^mod-max-y true
+           ^name outsidenorthwest
+           ^node <N17> ^node <N89>
+           ^node <N87> ^node <N61>
+           ^node <N205> ^path <N241>
+           ^path <N231> ^path <N237>
+           ^path <N306> ^path <N344>
+           ^path <N358> ^path <N239>
+           ^path <N235> ^path <N243>
+           ^path <N233> ^path <N284>
+           ^path <N229> ^path <N208>
+           ^visible-area <A15>)
+   (<A15>
+           ^max-x -225.333
+           ^max-y 63.2 ^max-z 170  #changed by MJP to allow objects to be near ceiling
+           ^min-x -513.2
+           ^min-y -353.35
+           ^min-z 39
+           ^mod-max-x true
+           ^mod-min-y true
+           ^name library
+           ^node <N109> ^node <N53>
+           ^node <N187> ^node <N29>
+           ^node <N107> ^node <N199>
+           ^path <N207> ^path <N190>
+           ^path <N217> ^path <N213>
+           ^path <N219> ^path <N211>
+           ^path <N292> ^path <N308>
+           ^path <N336> ^path <N362>
+           ^path <N221> ^path <N215>
+           ^path <N209>
+           ^visible-area <A10>
+           ^visible-area <A12>
+           ^visible-area <A7>
+           ^visible-area <A14>
+           ^visible-area <A13>)
+   (<N362> ^destination-area <A18>
+           ^distance 5
+           ^distance-minus-one 4
+           ^via-node <N187>)
+   (<N187> ^area <A15>
+           ^area-name library
+           ^connect-heading 0
+           ^connected-node <N141>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode13|
+           ^position <N188>
+           ^type door
+           ^visited 3)
+   (<N141> ^area <A13>
+           ^area-name frontofstair
+           ^connect-heading 180
+           ^connected-node <N187>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode12|
+           ^position <N142>
+           ^range 264
+           ^type door
+           ^visited 3
+           ^x less-than
+           ^y greater-than)
+   (<N142> ^speed 0.1
+           ^speed 0.5
+           ^x -167.338
+           ^y 32 ^z 69)
+   (<N188> ^speed 0.1
+           ^speed 0.5
+           ^x -293.041
+           ^y 33.009 ^z 69)
+   (<N336> ^destination-area <A17>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N187>)
+   (<N308> ^destination-area <A9>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N187>)
+   (<N292> ^destination-area <A8>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N187>)
+   (<N221> ^destination-area <A6>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N187>)
+   (<N219> ^destination-area <A10>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N187>)
+   (<N217> ^destination-area <A16>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N187>)
+   (<N215> ^destination-area <A12>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N187>)
+   (<N213> ^destination-area <A14>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N187>)
+   (<N211> ^destination-area <A11>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N187>)
+   (<N209> ^destination-area <A5>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N187>)
+   (<N207> ^destination-area <A7>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N199>)
+   (<N199> ^area <A15>
+           ^area-name library
+           ^connect-heading 270
+           ^connected-node <N205>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode18|
+           ^position <N200>
+           ^type door
+           ^visited 2
+           ^x greater-than
+           ^x less-than
+           ^y greater-than
+           ^y less-than)
+   (<N205> ^area <A7>
+           ^area-name outsidenorthwest
+           ^connect-heading 90
+           ^connected-node <N199>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode31|
+           ^position <N206>
+           ^type door
+           ^visited 2)
+   (<N206> ^speed 0.1
+           ^x -351.958
+           ^y -411.569
+           ^z 69.5671)
+   (<N200> ^speed 0.5
+           ^speed 0.1
+           ^x -352 ^y -304
+           ^z 69)
+   (<N190> ^destination-area <A13>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N187>)
+   (<N107> ^area <A15> ^derived yes
+           ^name <N108>
+           ^position <P25>
+           ^type none ^visited 1)
+   (<P25> ^x -513.2 ^y -318.753
+          ^z 39)
+   (<N109> ^area <A15> ^derived yes
+           ^name <N110>
+           ^position <P26>
+           ^type none ^visited 1)
+   (<P26> ^x -263.936 ^y 63.2
+          ^z 39)
+   (<N53> ^area <A15>
+          ^area-name library
+          ^name |PathNode11|
+          ^position <N54>
+          ^type none ^visited 1)
+   (<N54> ^x -513.2 ^y 63.2
+          ^z 69)
+   (<N29> ^area <A15>
+          ^area-name library
+          ^name |PathNode10|
+          ^position <N30>
+          ^type none ^visited 1)
+   (<N30> ^x -263.936
+          ^y -318.753 ^z 69)
+   (<N358> ^destination-area <A18>
+           ^distance 6
+           ^distance-minus-one 5
+           ^via-node <N205>)
+   (<N344> ^destination-area <A17>
+           ^distance 5
+           ^distance-minus-one 4
+           ^via-node <N205>)
+   (<N306> ^destination-area <A9>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N205>)
+   (<N284> ^destination-area <A8>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N205>)
+   (<N243> ^destination-area <A14>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N205>)
+   (<N241> ^destination-area <A10>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N205>)
+   (<N239> ^destination-area <A5>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N205>)
+   (<N237> ^destination-area <A11>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N205>)
+   (<N235> ^destination-area <A16>
+           ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N205>)
+   (<N233> ^destination-area <A12>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N205>)
+   (<N231> ^destination-area <A6>
+           ^distance 5
+           ^distance-minus-one 4
+           ^via-node <N205>)
+   (<N229> ^destination-area <A13>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N205>)
+   (<N208> ^destination-area <A15>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N205>)
+   (<N87> ^area <A7> ^derived yes
+          ^name <N88> ^position <P15>
+          ^type none ^visited 1)
+   (<P15> ^x -526.756 ^y -626.732
+          ^z -11.8997)
+   (<N89> ^area <A7> ^derived yes
+          ^name <N90> ^position <P16>
+          ^type none ^visited 1)
+   (<P16> ^x -302.45 ^y -387.948
+          ^z -11.8997)
+   (<N61> ^area <A7>
+          ^area-name outsidenorthwest
+          ^name |PathNode640|
+          ^position <N62>
+          ^type none ^visited 1)
+   (<N62> ^x -526.756 ^y -387.948
+          ^z 18.1003)
+   (<N17> ^area <A7>
+          ^area-name outsidenorthwest
+          ^name |PathNode638|
+          ^position <N18>
+          ^type none ^visited 1)
+   (<N18> ^x -302.45 ^y -626.732
+          ^z 18.1003)
+   (<N218> ^destination-area <A15>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N163>)
+   (<N194> ^destination-area <A13>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N163>)
+   (<N174> ^destination-area <A10>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N163>)
+   (<N83> ^area <A16> ^derived yes
+          ^name <N84> ^position <P13>
+          ^type none ^visited 1)
+   (<P13> ^x 338.8 ^y -207.458 ^z 39)
+   (<N85> ^area <A16> ^derived yes
+          ^name <N86> ^position <P14>
+          ^type none ^visited 1)
+   (<P14> ^x 601.961 ^y 92 ^z 39)
+   (<N47> ^area <A16>
+          ^area-name pianoroom
+          ^name |PathNode12|
+          ^position <N48> ^type none
+          ^visited 1)
+   (<N48> ^x 601.961 ^y -207.458
+          ^z 69)
+   (<N41> ^area <A16>
+          ^area-name pianoroom
+          ^name |PathNode13|
+          ^position <N42> ^type none
+          ^visited 1)
+   (<N42> ^x 338.8 ^y 92 ^z 69)
+   (<N310> ^destination-area <A9> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N294> ^destination-area <A8> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N272> ^destination-area <A12>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N157>)
+   (<N240> ^destination-area <A7> ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N157>)
+   (<N210> ^destination-area <A15>
+           ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N157>)
+   (<N196> ^destination-area <A13>
+           ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N157>)
+   (<N160> ^destination-area <A10>
+           ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N157>)
+   (<N117> ^area <A11> ^area-name fireplaceroom
+           ^connect-heading 90
+           ^connected-node <N135> ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode7| ^position <N118>
+           ^type door ^visited 4
+           ^x less-than ^x greater-than
+           ^y less-than ^y greater-than)
+   (<N135> ^area <A10>
+           ^area-name rightofstair
+           ^connect-heading 270
+           ^connected-node <N117>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode6|
+           ^position <N136> ^type door
+           ^visited 2)
+   (<N136> ^speed 0.5 ^speed 0.1 ^x 176
+           ^y -336 ^z 69)
+   (<N118> ^speed 0.5 ^speed 0.1 ^x 173.731
+           ^y -504.022 ^z 69)
+   (<N352> ^destination-area <A18> ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N117>)
+   (<N326> ^destination-area <A17> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N117>)
+   (<N316> ^destination-area <A16> ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N117>)
+   (<N296> ^destination-area <A9> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N117>)
+   (<N290> ^destination-area <A8> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N117>)
+   (<N266> ^destination-area <A12> ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N117>)
+   (<N238> ^destination-area <A7> ^distance 4
+           ^distance-minus-one 3
+           ^via-node <N117>)
+   (<N212> ^destination-area <A15> ^distance 3
+           ^distance-minus-one 2
+           ^via-node <N117>)
+   (<N198> ^destination-area <A13> ^distance 2
+           ^distance-minus-one 1
+           ^via-node <N117>)
+   (<N151> ^destination-area <A14> ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N119>)
+   (<N119> ^area <A11> ^area-name fireplaceroom
+           ^connect-heading 90
+           ^connected-node <N145> ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode4| ^position <N120>
+           ^type door ^visited 2
+           ^x greater-than ^x less-than
+           ^y greater-than ^y less-than)
+   (<N145> ^area <A14> ^area-name leftofstair
+           ^connect-heading 270
+           ^connected-node <N119>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode5|
+           ^position <N146> ^type door
+           ^visited 4)
+   (<N146> ^speed 0.1 ^speed 0.5 ^x -112
+           ^y -359.336 ^z 69)
+   (<N120> ^speed 0.5 ^speed 0.1
+           ^x -113.529 ^y -504.054 ^z 69)
+   (<N139> ^destination-area <A10> ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N117>)
+   (<N123> ^destination-area <A6> ^distance 1
+           ^distance-minus-one 0
+           ^via-node <N115>)
+   (<N115> ^area <A11> ^area-name fireplaceroom
+           ^connect-heading 270
+           ^connected-node <N121> ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode1| ^position <N116>
+           ^type door ^visited 2
+           ^x greater-than ^x less-than
+           ^y greater-than ^y less-than)
+   (<N121> ^area <A6> ^area-name outsidenorth
+           ^connect-heading 90
+           ^connected-node <N115>
+           ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode30|
+           ^position <N122> ^type door
+           ^visited 1)
+   (<N122> ^speed 0.1 ^speed 0.5
+           ^x 132.786 ^y -935.666
+           ^z 63.5673)
+   (<N116> ^speed 0.1 ^speed 0.5 ^x 131.048
+           ^y -794.328 ^z 69)
+   (<N103> ^area <A11> ^derived yes ^name <N104>
+           ^position <P23> ^type none ^visited 1)
+   (<P23> ^x -184 ^y -811.067 ^z 39)
+   (<N105> ^area <A11> ^derived yes ^name <N106>
+           ^position <P24> ^type none ^visited 1)
+   (<P24> ^x 224.866 ^y -490 ^z 39)
+   (<N55> ^area <A11> ^area-name fireplaceroom
+          ^name |PathNode1| ^position <N56>
+          ^type none ^visited 1)
+   (<N56> ^x 224.866 ^y -811.067 ^z 69)
+   (<N35> ^area <A11> ^area-name fireplaceroom
+          ^name |PathNode9| ^position <N36>
+          ^type none ^visited 1)
+   (<N36> ^x -184 ^y -490 ^z 69)
+   (<N381> ^destination-area <A5> ^distance 3
+           ^distance-minus-one 2 ^via-node <N121>)
+   (<N378> ^destination-area <A14> ^distance 2
+           ^distance-minus-one 1 ^via-node <N121>)
+   (<N364> ^destination-area <A18> ^distance 5
+           ^distance-minus-one 4 ^via-node <N121>)
+   (<N332> ^destination-area <A17> ^distance 4
+           ^distance-minus-one 3 ^via-node <N121>)
+   (<N322> ^destination-area <A16> ^distance 3
+           ^distance-minus-one 2 ^via-node <N121>)
+   (<N300> ^destination-area <A9> ^distance 4
+           ^distance-minus-one 3 ^via-node <N121>)
+   (<N278> ^destination-area <A8> ^distance 4
+           ^distance-minus-one 3 ^via-node <N121>)
+   (<N274> ^destination-area <A12> ^distance 3
+           ^distance-minus-one 2 ^via-node <N121>)
+   (<N232> ^destination-area <A7> ^distance 5
+           ^distance-minus-one 4 ^via-node <N121>)
+   (<N222> ^destination-area <A15> ^distance 4
+           ^distance-minus-one 3 ^via-node <N121>)
+   (<N192> ^destination-area <A13> ^distance 3
+           ^distance-minus-one 2 ^via-node <N121>)
+   (<N180> ^destination-area <A10> ^distance 2
+           ^distance-minus-one 1 ^via-node <N121>)
+   (<N124> ^destination-area <A11> ^distance 1
+           ^distance-minus-one 0 ^via-node <N121>)
+   (<N99> ^area <A6> ^derived yes ^name <N100>
+          ^position <P21> ^type none ^visited 1)
+   (<P21> ^x -4.14284 ^y -1089.23 ^z -11.8997)
+   (<N101> ^area <A6> ^derived yes ^name <N102>
+           ^position <P22> ^type none ^visited 1)
+   (<P22> ^x 265.739 ^y -911.694 ^z -11.8997)
+   (<N27> ^area <A6> ^area-name outsidenorth
+          ^name |PathNode637| ^position <N28>
+          ^type none ^visited 1)
+   (<N28> ^x -4.14284 ^y -911.694 ^z 18.1003)
+   (<N21> ^area <A6> ^area-name outsidenorth
+          ^name |PathNode636| ^position <N22>
+          ^type none ^visited 1)
+   (<N22> ^x 265.739 ^y -1089.23 ^z 18.1003)
+   (<N373> ^destination-area <A5> ^distance 3
+           ^distance-minus-one 2 ^via-node <N149>)
+   (<N149> ^area <A14> ^area-name leftofstair
+           ^connect-heading 90
+           ^connected-node <N143> ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode14| ^position <N150>
+           ^type connector ^visited 2)
+   (<N143> ^area <A13> ^area-name frontofstair
+           ^connect-heading 270
+           ^connected-node <N149> ^derived yes
+           ^entryway-recorded *yes*
+           ^name |EntryNode15| ^position <N144>
+           ^range 221 ^type connector ^visited 3
+           ^x less-than ^x greater-than
+           ^y less-than ^y greater-than)
+   (<N144> ^speed 0.5 ^speed 0.1 ^x -117.968
+           ^y -50.381 ^z 66.1)
+   (<N150> ^speed 0.5 ^speed 0.1 ^x -117.882
+           ^y -116.817 ^z 66.1)
+   (<N348> ^destination-area <A18> ^distance 5
+           ^distance-minus-one 4 ^via-node <N145>)
+   (<N346> ^destination-area <A17> ^distance 4
+           ^distance-minus-one 3 ^via-node <N145>)
+   (<N320> ^destination-area <A16> ^distance 3
+           ^distance-minus-one 2 ^via-node <N145>)
+   (<N304> ^destination-area <A9> ^distance 3
+           ^distance-minus-one 2 ^via-node <N149>)
+   (<N288> ^destination-area <A8> ^distance 3
+           ^distance-minus-one 2 ^via-node <N149>)
+   (<N270> ^destination-area <A12> ^distance 2
+           ^distance-minus-one 1 ^via-node <N149>)
+   (<N244> ^destination-area <A7> ^distance 3
+           ^distance-minus-one 2 ^via-node <N149>)
+   (<N214> ^destination-area <A15> ^distance 2
+           ^distance-minus-one 1 ^via-node <N149>)
+   (<N186> ^destination-area <A13> ^distance 1
+           ^distance-minus-one 0 ^via-node <N149>)
+   (<N182> ^destination-area <A10> ^distance 2
+           ^distance-minus-one 1 ^via-node <N145>)
+   (<N152> ^destination-area <A11> ^distance 1
+           ^distance-minus-one 0 ^via-node <N145>)
+   (<N63> ^area <A14> ^derived yes ^name <N64>
+          ^position <P3> ^type none ^visited 1)
+   (<P3> ^x -161.9 ^y -385.875 ^z 36.0999)
+   (<N65> ^area <A14> ^derived yes ^name <N66>
+          ^position <P4> ^type none ^visited 1)
+   (<P4> ^x -61.392 ^y -92.4927 ^z 36.0999)
+   (<N31> ^area <A14> ^area-name leftofstair
+          ^name |PathNode6| ^position <N32>
+          ^type none ^visited 1)
+   (<N32> ^x -161.9 ^y -92.4927 ^z 69)
+   (<N19> ^area <A14> ^area-name leftofstair
+          ^name |PathNode7| ^position <N20>
+          ^type none ^visited 1)
+   (<N20> ^x -61.392 ^y -385.875 ^z 66.0999)
+   (<N343> ^destination-area <A7> ^distance 5
+           ^distance-minus-one 4 ^via-node <N171>)
+   (<N341> ^destination-area <A12> ^distance 3
+           ^distance-minus-one 2 ^via-node <N171>)
+   (<N339> ^destination-area <A5> ^distance 3
+           ^distance-minus-one 2 ^via-node <N171>)
+   (<N337> ^destination-area <A10> ^distance 2
+           ^distance-minus-one 1 ^via-node <N171>)
+   (<N335> ^destination-area <A15> ^distance 4
+           ^distance-minus-one 3 ^via-node <N171>)
+   (<N333> ^destination-area <A9> ^distance 4
+           ^distance-minus-one 3 ^via-node <N171>)
+   (<N331> ^destination-area <A6> ^distance 4
+           ^distance-minus-one 3 ^via-node <N171>)
+   (<N329> ^destination-area <A13> ^distance 3
+           ^distance-minus-one 2 ^via-node <N171>)
+   (<N327> ^destination-area <A8> ^distance 4
+           ^distance-minus-one 3 ^via-node <N171>)
+   (<N325> ^destination-area <A11> ^distance 3
+           ^distance-minus-one 2 ^via-node <N171>)
+   (<N323> ^destination-area <A18> ^distance 1
+           ^distance-minus-one 0 ^via-node <N165>)
+   (<N165> ^area <A17> ^area-name pianofront
+           ^connect-heading 270 ^connected-node <N167>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode29| ^position <N166>
+           ^type connector ^visited 1 ^x less-than
+           ^x greater-than ^y greater-than
+           ^y less-than)
+   (<N167> ^area <A18> ^area-name pianostairs
+           ^connect-heading 90 ^connected-node <N165>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode28| ^position <N168>
+           ^type connector ^visited 1)
+   (<N168> ^speed 0.1 ^x 706.407 ^y -266.752 ^z 69)
+   (<N166> ^speed 0.1 ^x 705.243 ^y -189.363 ^z 69)
+   (<N314> ^destination-area <A16> ^distance 1
+           ^distance-minus-one 0 ^via-node <N171>)
+   (<N75> ^area <A17> ^derived yes ^name <N76> ^position <P9>
+          ^type none ^visited 1)
+   (<P9> ^x 628.106 ^y -215.772 ^z 39)
+   (<N77> ^area <A17> ^derived yes ^name <N78> ^position <P10>
+          ^type none ^visited 1)
+   (<P10> ^x 797.955 ^y -102.92 ^z 39)
+   (<N49> ^area <A17> ^area-name pianofront
+          ^name |PathNode19| ^position <N50> ^type none
+          ^visited 1)
+   (<N50> ^x 628.106 ^y -102.92 ^z 69)
+   (<N39> ^area <A17> ^area-name pianofront
+          ^name |PathNode18| ^position <N40> ^type none
+          ^visited 1)
+   (<N40> ^x 797.955 ^y -215.772 ^z 69)
+   (<N273> ^destination-area <A6> ^distance 3
+           ^distance-minus-one 2 ^via-node <N129>)
+   (<N271> ^destination-area <A5> ^distance 2
+           ^distance-minus-one 1 ^via-node <N129>)
+   (<N269> ^destination-area <A14> ^distance 2
+           ^distance-minus-one 1 ^via-node <N155>)
+   (<N155> ^area <A12> ^area-name frontdoor
+           ^connect-heading 270 ^connected-node <N153>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode16| ^position <N156>
+           ^type connector ^visited 2)
+   (<N153> ^area <A13> ^area-name frontofstair
+           ^connect-heading 90 ^connected-node <N155>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode17| ^position <N154> ^range 94
+           ^type connector ^visited 3 ^x less-than
+           ^x greater-than ^y greater-than ^y less-than)
+   (<N154> ^speed 0.1 ^speed 0.5 ^x 49.3808 ^y 89.7669
+           ^z 66.0992)
+   (<N156> ^speed 0.1 ^speed 0.5 ^x 49.9621 ^y 151.626
+           ^z 66.1003)
+   (<N265> ^destination-area <A11> ^distance 2
+           ^distance-minus-one 1 ^via-node <N129>)
+   (<N261> ^destination-area <A16> ^distance 2
+           ^distance-minus-one 1 ^via-node <N129>)
+   (<N259> ^destination-area <A8> ^distance 1
+           ^distance-minus-one 0 ^via-node <N161>)
+   (<N161> ^area <A12> ^area-name frontdoor
+           ^connect-heading 180 ^connected-node <N257>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode10| ^position <N162> ^type door
+           ^visited 1 ^x greater-than ^x less-than
+           ^y greater-than ^y less-than)
+   (<N257> ^area <A8> ^area-name outsidesouthwest
+           ^connect-heading 0 ^connected-node <N161>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode11| ^position <N258> ^type door
+           ^visited 1)
+   (<N258> ^speed 0.1 ^x -519.697 ^y 208.726 ^z 66.0996)
+   (<N162> ^speed 0.5 ^speed 0.1 ^x -439.514 ^y 208.55
+           ^z 66.0994)
+   (<N253> ^destination-area <A9> ^distance 1
+           ^distance-minus-one 0 ^via-node <N147>)
+   (<N147> ^area <A12> ^area-name frontdoor
+           ^connect-heading 90 ^connected-node <N247>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode2| ^position <N148> ^type door
+           ^visited 2 ^x greater-than ^x less-than
+           ^y less-than ^y greater-than)
+   (<N247> ^area <A9> ^area-name outsidesouth
+           ^connect-heading 270 ^connected-node <N147>
+           ^derived yes ^entryway-recorded *yes*
+           ^name |EntryNode3| ^position <N248> ^type door
+           ^visited 1)
+   (<N248> ^speed 0.1 ^x -107.479 ^y 427.785 ^z 69)
+   (<N148> ^speed 0.5 ^speed 0.1 ^x -107.253 ^y 336.859
+           ^z 69)
+   (<N234> ^destination-area <A7> ^distance 3
+           ^distance-minus-one 2 ^via-node <N155>)
+   (<N216> ^destination-area <A15> ^distance 2
+           ^distance-minus-one 1 ^via-node <N155>)
+   (<N184> ^destination-area <A13> ^distance 1
+           ^distance-minus-one 0 ^via-node <N155>)
+   (<N178> ^destination-area <A10> ^distance 1
+           ^distance-minus-one 0 ^via-node <N129>)
+   (<N95> ^area <A12> ^derived yes ^name <N96> ^position <P19>
+          ^type none ^visited 1)
+   (<P19> ^x -446.972 ^y 141.654 ^z 36.1001)
+   (<N97> ^area <A12> ^derived yes ^name <N98> ^position <P20>
+          ^type none ^visited 1)
+   (<P20> ^x 221.9 ^y 354.464 ^z 36.1001)
+   (<N43> ^area <A12> ^area-name frontdoor ^name |PathNode3|
+          ^position <N44> ^type none ^visited 1)
+   (<N44> ^x 221.9 ^y 141.654 ^z 69)
+   (<N33> ^area <A12> ^area-name frontdoor ^name |PathNode4|
+          ^position <N34> ^type none ^visited 1)
+   (<N34> ^x -446.972 ^y 354.464 ^z 66.1001)
+   (<N367> ^destination-area <A9> ^distance 5 ^distance-minus-one 4
+           ^via-node <N167>)
+   (<N365> ^destination-area <A10> ^distance 3
+           ^distance-minus-one 2 ^via-node <N167>)
+   (<N363> ^destination-area <A6> ^distance 5 ^distance-minus-one 4
+           ^via-node <N167>)
+   (<N361> ^destination-area <A15> ^distance 5
+           ^distance-minus-one 4 ^via-node <N167>)
+   (<N359> ^destination-area <A5> ^distance 4 ^distance-minus-one 3
+           ^via-node <N167>)
+   (<N357> ^destination-area <A7> ^distance 6 ^distance-minus-one 5
+           ^via-node <N167>)
+   (<N355> ^destination-area <A8> ^distance 5 ^distance-minus-one 4
+           ^via-node <N167>)
+   (<N353> ^destination-area <A16> ^distance 2
+           ^distance-minus-one 1 ^via-node <N167>)
+   (<N351> ^destination-area <A11> ^distance 4
+           ^distance-minus-one 3 ^via-node <N167>)
+   (<N349> ^destination-area <A13> ^distance 4
+           ^distance-minus-one 3 ^via-node <N167>)
+   (<N347> ^destination-area <A14> ^distance 5
+           ^distance-minus-one 4 ^via-node <N167>)
+   (<N324> ^destination-area <A17> ^distance 1
+           ^distance-minus-one 0 ^via-node <N167>)
+   (<N79> ^area <A18> ^derived yes ^name <N80> ^position <P11>
+          ^type none ^visited 1)
+   (<P11> ^x 642 ^y -315.418 ^z 28.0766)
+   (<N81> ^area <A18> ^derived yes ^name <N82> ^position <P12>
+          ^type none ^visited 1)
+   (<P12> ^x 795.672 ^y -238 ^z 28.0766)
+   (<N51> ^area <A18> ^area-name pianostairs ^name |PathNode21|
+          ^position <N52> ^type none ^visited 1)
+   (<N52> ^x 642 ^y -238 ^z 58.0766)
+   (<N23> ^area <A18> ^area-name pianostairs ^name |PathNode20|
+          ^position <N24> ^type none ^visited 1)
+   (<N24> ^x 795.672 ^y -315.418 ^z 69)
+   (<N330> ^destination-area <A17> ^distance 3 ^distance-minus-one 2
+           ^via-node <N137>)
+   (<N302> ^destination-area <A9> ^distance 2 ^distance-minus-one 1
+           ^via-node <N153>)
+   (<N286> ^destination-area <A8> ^distance 2 ^distance-minus-one 1
+           ^via-node <N153>)
+   (<N230> ^destination-area <A7> ^distance 2 ^distance-minus-one 1
+           ^via-node <N141>)
+   (<N197> ^destination-area <A11> ^distance 2 ^distance-minus-one 1
+           ^via-node <N137>)
+   (<N195> ^destination-area <A5> ^distance 2 ^distance-minus-one 1
+           ^via-node <N137>)
+   (<N193> ^destination-area <A16> ^distance 2 ^distance-minus-one 1
+           ^via-node <N137>)
+   (<N191> ^destination-area <A6> ^distance 3 ^distance-minus-one 2
+           ^via-node <N137>)
+   (<N189> ^destination-area <A15> ^distance 1 ^distance-minus-one 0
+           ^via-node <N141>)
+   (<N185> ^destination-area <A14> ^distance 1 ^distance-minus-one 0
+           ^via-node <N143>)
+   (<N183> ^destination-area <A12> ^distance 1 ^distance-minus-one 0
+           ^via-node <N153>)
+   (<N176> ^destination-area <A10> ^distance 1 ^distance-minus-one 0
+           ^via-node <N137>)
+   (<N111> ^area <A13> ^derived yes ^name <N112> ^position <P27> ^range 288
+           ^type none ^visited 1)
+   (<P27> ^x -184.729 ^y -61.9014 ^z 36.0999)
+   (<N113> ^area <A13> ^derived yes ^name <N114> ^position <P28> ^range 114
+           ^type none ^visited 1)
+   (<P28> ^x 131.891 ^y 115.068 ^z 36.0999)
+   (<N59> ^area <A13> ^area-name frontofstair ^name |PathNode5|
+          ^position <N60> ^type none ^visited 1)
+   (<N60> ^x -184.729 ^y 115.068 ^z 66.1002)
+   (<N37> ^area <A13> ^area-name frontofstair ^name |PathNode8|
+          ^position <N38> ^type none ^visited 1)
+   (<N38> ^x 131.891 ^y -61.9014 ^z 66.0999)
+   (<N356> ^destination-area <A18> ^distance 5 ^distance-minus-one 4
+           ^via-node <N257>)
+   (<N328> ^destination-area <A17> ^distance 4 ^distance-minus-one 3
+           ^via-node <N257>)
+   (<N293> ^destination-area <A5> ^distance 3 ^distance-minus-one 2
+           ^via-node <N257>)
+   (<N291> ^destination-area <A15> ^distance 3 ^distance-minus-one 2
+           ^via-node <N257>)
+   (<N289> ^destination-area <A11> ^distance 3 ^distance-minus-one 2
+           ^via-node <N257>)
+   (<N287> ^destination-area <A14> ^distance 3 ^distance-minus-one 2
+           ^via-node <N257>)
+   (<N285> ^destination-area <A13> ^distance 2 ^distance-minus-one 1
+           ^via-node <N257>)
+   (<N283> ^destination-area <A7> ^distance 4 ^distance-minus-one 3
+           ^via-node <N257>)
+   (<N281> ^destination-area <A16> ^distance 3 ^distance-minus-one 2
+           ^via-node <N257>)
+   (<N279> ^destination-area <A10> ^distance 2 ^distance-minus-one 1
+           ^via-node <N257>)
+   (<N277> ^destination-area <A6> ^distance 4 ^distance-minus-one 3
+           ^via-node <N257>)
+   (<N275> ^destination-area <A9> ^distance 2 ^distance-minus-one 1
+           ^via-node <N257>)
+   (<N260> ^destination-area <A12> ^distance 1 ^distance-minus-one 0
+           ^via-node <N257>)
+   (<N91> ^area <A8> ^derived yes ^name <N92> ^position <P17> ^type none
+          ^visited 1)
+   (<P17> ^x -573.816 ^y 156.344 ^z 20.5419)
+   (<N93> ^area <A8> ^derived yes ^name <N94> ^position <P18> ^type none
+          ^visited 1)
+   (<P18> ^x -504.839 ^y 391.242 ^z 20.5419)
+   (<N45> ^area <A8> ^area-name outsidesouthwest ^name |PathNode688|
+          ^position <N46> ^type none ^visited 1)
+   (<N46> ^x -573.816 ^y 391.242 ^z 66.1002)
+   (<N11> ^area <A8> ^area-name outsidesouthwest ^name |PathNode679|
+          ^position <N12> ^type none ^visited 1)
+   (<N12> ^x -504.839 ^y 156.344 ^z 50.5419)
+   (<N368> ^destination-area <A18> ^distance 5 ^distance-minus-one 4
+           ^via-node <N247>)
+   (<N334> ^destination-area <A17> ^distance 4 ^distance-minus-one 3
+           ^via-node <N247>)
+   (<N311> ^destination-area <A16> ^distance 3 ^distance-minus-one 2
+           ^via-node <N247>)
+   (<N309> ^destination-area <A5> ^distance 3 ^distance-minus-one 2
+           ^via-node <N247>)
+   (<N307> ^destination-area <A15> ^distance 3 ^distance-minus-one 2
+           ^via-node <N247>)
+   (<N305> ^destination-area <A7> ^distance 4 ^distance-minus-one 3
+           ^via-node <N247>)
+   (<N303> ^destination-area <A14> ^distance 3 ^distance-minus-one 2
+           ^via-node <N247>)
+   (<N301> ^destination-area <A13> ^distance 2 ^distance-minus-one 1
+           ^via-node <N247>)
+   (<N299> ^destination-area <A6> ^distance 4 ^distance-minus-one 3
+           ^via-node <N247>)
+   (<N297> ^destination-area <A10> ^distance 2 ^distance-minus-one 1
+           ^via-node <N247>)
+   (<N295> ^destination-area <A11> ^distance 3 ^distance-minus-one 2
+           ^via-node <N247>)
+   (<N276> ^destination-area <A8> ^distance 2 ^distance-minus-one 1
+           ^via-node <N247>)
+   (<N254> ^destination-area <A12> ^distance 1 ^distance-minus-one 0
+           ^via-node <N247>)
+   (<N71> ^area <A9> ^derived yes ^name <N72> ^position <P7> ^type none
+          ^visited 1)
+   (<P7> ^x -210.909 ^y 414.81 ^z 36.0998)
+   (<N73> ^area <A9> ^derived yes ^name <N74> ^position <P8> ^type none
+          ^visited 1)
+   (<P8> ^x 15.8686 ^y 488.37 ^z 36.0998)
+   (<N57> ^area <A9> ^area-name outsidesouth ^name |PathNode683|
+          ^position <N58> ^type none ^visited 1)
+   (<N58> ^x 15.8686 ^y 414.81 ^z 66.0998)
+   (<N15> ^area <A9> ^area-name outsidesouth ^name |PathNode685|
+          ^position <N16> ^type none ^visited 1)
+   (<N16> ^x -210.909 ^y 488.37 ^z 66.0998)
+   (<N366> ^destination-area <A18> ^distance 3 ^distance-minus-one 2
+           ^via-node <N127>)
+   (<N338> ^destination-area <A17> ^distance 2 ^distance-minus-one 1
+           ^via-node <N127>)
+   (<N298> ^destination-area <A9> ^distance 2 ^distance-minus-one 1
+           ^via-node <N133>)
+   (<N280> ^destination-area <A8> ^distance 2 ^distance-minus-one 1
+           ^via-node <N133>)
+   (<N242> ^destination-area <A7> ^distance 3 ^distance-minus-one 2
+           ^via-node <N131>)
+   (<N220> ^destination-area <A15> ^distance 2 ^distance-minus-one 1
+           ^via-node <N131>)
+   (<N181> ^destination-area <A14> ^distance 2 ^distance-minus-one 1
+           ^via-node <N135>)
+   (<N179> ^destination-area <A6> ^distance 2 ^distance-minus-one 1
+           ^via-node <N135>)
+   (<N177> ^destination-area <A12> ^distance 1 ^distance-minus-one 0
+           ^via-node <N133>)
+   (<N175> ^destination-area <A13> ^distance 1 ^distance-minus-one 0
+           ^via-node <N131>)
+   (<N173> ^destination-area <A16> ^distance 1 ^distance-minus-one 0
+           ^via-node <N127>)
+   (<N159> ^destination-area <A5> ^distance 1 ^distance-minus-one 0
+           ^via-node <N125>)
+   (<N140> ^destination-area <A11> ^distance 1 ^distance-minus-one 0
+           ^via-node <N135>)
+   (<N67> ^area <A10> ^derived yes ^name <N68> ^position <P5> ^type none
+          ^visited 1)
+   (<P5> ^x 173.691 ^y -383.388 ^z 36.0994)
+   (<N69> ^area <A10> ^derived yes ^name <N70> ^position <P6> ^type none
+          ^visited 1)
+   (<P6> ^x 286.701 ^y 87.6763 ^z 36.0994)
+   (<N25> ^area <A10> ^area-name rightofstair ^name |PathNode0| ^position <N26>
+          ^type none ^visited 1)
+   (<N26> ^x 286.701 ^y -383.388 ^z 69)
+   (<N13> ^area <A10> ^area-name rightofstair ^name |PathNode2| ^position <N14>
+          ^type none ^visited 1)
+   (<N14> ^x 173.691 ^y 87.6763 ^z 66.0994)
+   (<N138> ^speed 0.1 ^speed 0.5 ^x 117.327 ^y 4.45756 ^z 69)
+   (<D9> ^location frontdoor ^location outsidesouthwest ^position <P37>)
+   (<P37> ^x -479.606 ^y 208.638 ^z 66.0995)
+   (<D8> ^location frontdoor ^location outsidesouth ^position <P36>)
+   (<P36> ^x -107.366 ^y 382.322 ^z 69.)
+   (<D7> ^location outsidenorthwest ^location library ^position <P35>)
+   (<P35> ^x -351.979 ^y -357.784 ^z 69.2836)
+   (<D6> ^location frontofstair ^location library ^position <P34>)
+   (<P34> ^x -230.189 ^y 32.5045 ^z 69.)
+   (<D5> ^location pianoroom ^location rightofstair ^position <P33>)
+   (<P33> ^x 312.058 ^y -15.9138 ^z 69.)
+   (<D4> ^location |Outside| ^location rightofstair ^position <P32>)
+   (<P32> ^x 308.678 ^y -285.092 ^z 76.1001)
+   (<D3> ^location leftofstair ^location fireplaceroom ^position <P31>)
+   (<P31> ^x -112.764 ^y -431.695 ^z 69.)
+   (<D2> ^location rightofstair ^location fireplaceroom ^position <P30>)
+   (<P30> ^x 174.866 ^y -420.011 ^z 69.)
+   (<D1> ^location outsidenorth ^location fireplaceroom ^position <P29>)
+   (<P29> ^x 131.917 ^y -864.997 ^z 66.2836)
+}
+
+
+# REW: 2002-09-10
+# Compute door positions as the average of the two connecting node
+# positions. Just arbitrarily choose one node over another by choosing
+# with smallest x.  Will miss a door if x's are exactly equal for
+# connecting nodes, but this seems unlikely (3 dec places in
+# the x values).
+sp {elaborate*map*doors
+   (state <s> ^map <m>)
+   (<m> ^area <a> {<> <a> <b> } )
+   (<a> ^node <na>)
+   (<b> ^node <nb>)
+   (<na> ^area <a> ^area-name <aname> ^connected-node <nb> ^type door
+         ^position <ap>)
+   (<nb> ^area <b> ^area-name <bname> ^connected-node <na> ^type door
+         ^position <bp>)
+   (<ap> ^x <ax> ^y <ay> ^z <az> )
+   (<bp> ^x { < <ax> <bx> } ^y <by> ^z <bz>)
+-->
+   (<m> ^door <door>)
+   (<door> ^position <pos> ^location <aname> ^location <bname>)
+   (<pos> ^x (/ (+ <ax> <bx>) 2)  ^y (/ (+ <ay> <by>) 2) ^z (/ (+ <az>
+             <bz>) 2) )
+}
+
+
+# MJP: 2002-05-14 
+# Copy map structure down to each sub-state 
+# This may (slightly) hurt peformance, but it is also convenient
+sp {elaborate*map*copy-to-substate
+   (state <s> ^superstate.map <map>)
+-->
+   (<s> ^map <map>)
+}
+

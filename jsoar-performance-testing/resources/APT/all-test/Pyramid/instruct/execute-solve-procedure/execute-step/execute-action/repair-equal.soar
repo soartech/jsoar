@@ -1,0 +1,36 @@
+sp {execute-step*propose*repair-equal
+   (state <s> ^name execute-action
+              ^superstate <ss>)
+   (<ss> ^operator.action <a1>
+         ^current-problem <p>)
+   (<a1> ^command goal-test ^relation equal ^value <label>
+         ^value-type variable)
+  - (<p> ^<label>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name repair-equal)
+}
+sp {apply*repair-equal
+   (state <s> ^operator <op>
+              ^superstate <ss>
+              ^top-state.instructions.definitions <d>)
+   (<d> ^term <label1>
+        ^function <label2>)
+   (<ss> ^operator <op1>
+         ^current-problem <p>)
+   (<op1> ^action <a1>)
+   (<op> ^name repair-equal)
+   (<a1> ^command goal-test 
+         ^relation equal
+         ^value <label>
+         ^value-type variable)
+   (<p> -^<label> ^<label1> ^<label2>)
+-->
+   (<ss> ^alternate-action <a2>)
+   (<a2> ^command goal-test
+         ^relation equal 
+         ^value <label1> 
+         ^value-type variable
+         ^variable <label2> 
+         ^substitute <a1>)
+}

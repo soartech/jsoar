@@ -1,0 +1,10 @@
+sp {pickup-block*propose*move-forward
+   (state <s> ^name pickup-block
+              ^quiescence t
+              ^object-lined-up yes)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-forward
+         ^actions.move.direction forward
+         ^actions.rotate.direction stop)
+}

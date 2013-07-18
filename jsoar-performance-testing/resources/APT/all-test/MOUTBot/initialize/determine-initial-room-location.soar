@@ -1,0 +1,46 @@
+# DOES NOT WORK. DEPRECATED BY CHANGES TO INITIALIZE
+#  (will never be selected b/c initialize was changed to not haved a subgoal)
+
+sp {initialize*propose*determine-initial-room-location
+   (state <s> ^name initialize
+              ^top-state <ts>)
+   (<ts> ^self.name <name>
+         ^scenario.initial-position <ip>
+         ^mission.objective.defensive-position <dp>
+         ^map.area <area>)
+   (<area> ^name <area-name>)
+   (<ip> ^agent <name>
+         ^type room)
+   (<dp> ^area-name <area-name>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name determine-initial-room-location
+        ^area <area>)
+}
+
+# 2003-05-28
+# For now, just move to the middle of the room
+
+sp {apply*determine-initial-room-location
+   (state <s> ^operator <o1>
+              ^top-state <ts>)
+   (<o1> ^name determine-initial-room-location
+         ^area <area>)
+   (<area> ^max-x <mxx>
+           ^max-y <mxy>
+           ^min-x <mnx>
+           ^min-y <mny>
+           ^max-z <mxz>
+           ^min-z <mnz>)
+   (<ts> ^mission.objective.defensive-position <dp>
+         ^parameters.room-translations.offset <off>
+         ^io.input-link.agent.rand <rand>)
+   (<off> ^type room
+          ^min <offset>)
+   -->
+   (<dp>  ^position <p>)
+   (<p> ^x (+ <mnx> (+ (* <rand> (- (- <mxx> <mnx>) (* 2 <offset>))) <offset>))
+        ^y (+ <mny> (+ (* <rand> (- (- <mxy> <mny>) (* 2 <offset>))) <offset>)) 
+        ^z (/ (+ <mnz> <mxz>) 2 ) )
+}
+

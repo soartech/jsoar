@@ -1,0 +1,23 @@
+
+# prefer dropping a currently held object over picking up a new object (can only hold one object @ a time)
+sp {grab-object*select*prefer-release-over-grab
+   (state <s> ^type grab-object
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name << drop-current-object throw-current-object >>)
+   (<o2> ^name pickup)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+# prefer dropping a currently held object over picking up a new object (can only hold one object @ a time)
+sp {grab-object*select*prefer-uncover
+   (state <s> ^type grab-object
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name uncover)
+   (<o2> ^name << drop-current-object throw-current-object pickup >>)
+   -->
+   (<s> ^operator <o1> > <o2>)
+}

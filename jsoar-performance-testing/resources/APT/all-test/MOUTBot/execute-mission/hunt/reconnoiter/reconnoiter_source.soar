@@ -1,0 +1,9 @@
+source elaborations.soar
+source clear-fatal-funnel.soar
+source dominate-the-room.soar
+source mark-clear.soar
+source move-to-corner-of-responsibility.soar
+source move-to-point-of-domination.soar
+source record-corner-of-responsibility.soar
+source record-entrance-node.soar
+source record-point-of-domination.soar

@@ -1,0 +1,344 @@
+
+sp {propose*bid*last-bid-not-one-next-bid-not-one
+   (state <s> ^io.input-link <il>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<nb> ^current-face <face>
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^affordances.action <a>
+         ^state.special false)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <new-face>
+        ^multiplier (+ <inc> <multiplier>))}
+
+sp {propose*bid*last-bid-not-one-next-bid-not-one*push*face*not-one
+   (state <s> ^io.input-link <il>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<nb> ^current-face <face>
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^affordances.action <a>
+        -^state.last-bid nil
+         ^state.special false
+         ^players.me.cup <cup>)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+   (<cup> ^count > 1
+          ^<new-face> > 0
+         -^1 > 0)
+-->
+   #Also propose bid that pushes 1's and face being bid
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^face <new-face>
+         ^push-face-count 1
+         ^push-face <new-face>
+         ^multiplier (+ <inc> <multiplier>))
+#   (write (crlf) |-Propose bid with push. Bid: | (+ <inc> <multiplier>) | | <new-face> |'s. Push: | <new-face>)
+#   (write (crlf) |-Last bid: | <multiplier> | | <face> |'s|)
+}
+
+sp {propose*bid*last-bid-not-one-next-bid-not-one*push*face*one
+   (state <s> ^io.input-link <il>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<nb> ^current-face <face>
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^affordances.action <a>
+        -^state.last-bid nil
+         ^state.special false
+         ^players.me.cup <cup>)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+   (<cup> ^count > 2
+          ^<new-face> > 0
+          ^1 > 0)
+-->
+   #Also propose bid that pushes 1's and face being bid
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^face <new-face>
+         ^push-face-count 2
+         ^push-face <new-face>
+         ^push-face 1
+         ^multiplier (+ <inc> <multiplier>))
+#   (write (crlf) |-Propose bid with push. Bid: | (+ <inc> <multiplier>) | | <new-face> |'s. Push: | <new-face> | & 1|)
+#   (write (crlf) |-Last bid: | <multiplier> | | <face> |'s|)
+}
+ 
+
+sp {propose*bid*last-bid-not-one-next-bid-not-one*push*one
+   (state <s> ^io.input-link <il>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<nb> ^current-face <face>
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^affordances.action <a>
+        -^state.last-bid nil
+         ^state.special false
+         ^players.me.cup <cup>)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <face>
+               ^count <multiplier>)
+   (<cup> ^count > 1
+         -^<new-face> > 0
+          ^1 > 0)
+-->
+   #Also propose bid that pushes 1's and face being bid
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^face <new-face>
+         ^push-face-count 1
+         ^push-face 1
+         ^multiplier (+ <inc> <multiplier>))
+#   (write (crlf) |-Propose bid with push. Bid: | (+ <inc> <multiplier>) | | <new-face> |'s. Push: | <new-face> | & 1|)
+#   (write (crlf) |-Last bid: | <multiplier> | | <face> |'s|)
+}
+ 
+## Increment 1 bid to new 1 bid
+sp {propose*bid*last-bid-one-next-bid-one
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^affordances.action <a>
+         ^state.special false)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face 1
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face 1
+        ^multiplier (+ 1 <multiplier>))
+}
+
+
+## Increment 1 bid to new 1 bid * and push
+sp {propose*bid*last-bid-one-next-bid-one*push*1
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^affordances.action <a>
+        -^state.last-bid nil
+         ^state.special false
+         ^players.me.cup <cup>)
+   (<cup> ^1 > 0
+          ^count > 1)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face 1
+               ^count <multiplier>)
+-->
+   #Also propose bid that pushes 1's
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^face 1
+         ^push-face-count 1
+         ^push-face 1
+         ^multiplier (+ 1 <multiplier>))
+}
+
+# Make 1 bid after non-one bid
+sp {propose*bid*last-bid-not-one-next-bid-one
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^state.special false
+         ^affordances.action <a>)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <> 1
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face 1
+        ^multiplier (div (+ 1 <multiplier>) 2))
+}
+
+
+sp {propose*bid*last-bid-not-one-next-bid-one*push*1
+   (state <s> ^io.input-link <il>
+              ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<il> ^state.special false
+        -^state.last-bid nil
+         ^affordances.action <a>
+         ^players.me.cup <cup>)
+   (<cup> ^count > 1
+          ^1 > 0)
+   (<a> ^name bid
+        ^available true)
+   (<last-bid> ^face <> 1
+               ^count <multiplier>)
+-->
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^face 1
+         ^push-face-count 1
+         ^push-face 1
+         ^multiplier (div (+ 1 <multiplier>) 2))
+}
+
+## Last bid was a 1 bid
+
+sp {elaborate*last-one-bid*lower*multiplier
+   (state <s> ^true-dice-counts.dice-counted true
+              ^last-bid <last-bid>)
+   (<last-bid> ^face 1
+               ^count <multiplier>)
+-->
+   (<s> ^last-bid-1-lower-multiplier (* 2 <multiplier>))
+}
+sp {propose*bid*last-bid-one-next-bid-not-one
+   (state <s> ^io.input-link <il>
+              ^last-bid-1-lower-multiplier <multiplier>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid.face 1)
+   (<nb> ^current-face 6
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^state.special false
+         ^affordances.action <a>)
+   (<a> ^name bid
+        ^available true)
+-->
+   (<s> ^operator <o>)
+   (<o> ^name bid
+        ^face <new-face>
+        ^multiplier (+ <inc> <multiplier>))
+}
+
+sp {propose*bid*last-bid-one-next-bid-not-one*push2
+   (state <s> ^io.input-link <il>
+              ^last-bid-1-lower-multiplier <multiplier>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid.face 1)
+   (<nb> ^current-face 6
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^state.special false
+        -^state.last-bid nil
+         ^affordances.action <a>
+         ^players.me.cup <cup>)
+   (<cup> ^count > 2
+          ^<new-face> > 0
+          ^1 > 0)
+   (<a> ^name bid
+        ^available true)
+-->
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^push-face-count 2
+         ^push-face <new-face>
+         ^push-face 1
+         ^face <new-face>
+         ^multiplier (+ <inc> <multiplier>))
+}
+
+sp {propose*bid*last-bid-one-next-bid-not-one*push*face
+   (state <s> ^io.input-link <il>
+              ^last-bid-1-lower-multiplier <multiplier>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid.face 1)
+   (<nb> ^current-face 6
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^state.special false
+        -^state.last-bid nil
+         ^affordances.action <a>
+         ^players.me.cup <cup>)
+   (<cup> ^count > 1
+          ^<new-face> > 0
+         -^1 > 0)
+   (<a> ^name bid
+        ^available true)
+-->
+#   (<s> ^operator <o>)
+#   (<o> ^name bid
+#        ^face <new-face>
+#        ^multiplier (+ <inc> <multiplier>))
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^push-face-count 1
+         ^push-face <new-face>
+         ^face <new-face>
+         ^multiplier (+ <inc> <multiplier>))
+}
+
+sp {propose*bid*last-bid-one-next-bid-not-one*push1
+   (state <s> ^io.input-link <il>
+              ^last-bid-1-lower-multiplier <multiplier>
+              ^dice-data.next-bid <nb>
+              ^true-dice-counts.dice-counted true
+              ^last-bid.face 1)
+   (<nb> ^current-face 6
+         ^new-face <new-face>
+         ^increment-multiplier <inc>)
+   (<il> ^state.special false
+        -^state.last-bid nil
+         ^affordances.action <a>
+         ^players.me.cup <cup>)
+   (<cup> ^count > 1
+         -^<new-face> > 0
+          ^1 > 0)
+   (<a> ^name bid
+        ^available true)
+-->
+   (<s> ^operator <o2>)
+   (<o2> ^name bid
+         ^push-face-count 1
+         ^push-face 1
+         ^face <new-face>
+         ^multiplier (+ <inc> <multiplier>))
+}
+
+##################################
+sp {apply*bid
+   (state <s> ^operator <op>
+              ^io.output-link <ol>)
+   (<op> ^name bid
+         ^face <face>
+         ^multiplier <mult>)
+-->
+ #  (interrupt)
+   (write (crlf) |Bid: | <mult> |'s | <face>)
+   (<ol> ^bid <bid>)
+   (<bid> ^face <face>
+          ^multiplier <mult>)
+}
+
+sp {apply*bid*push
+   (state <s> ^operator <op>)
+   (<s> ^io.input-link.players.me.cup.die <die>)
+   (<die> ^face <face>)
+   (<op> ^name bid
+         ^push-face <face>)
+-->
+   (write (crlf) |Push: | <face>)
+   (<s> ^push-bid.die <die>)
+}
+

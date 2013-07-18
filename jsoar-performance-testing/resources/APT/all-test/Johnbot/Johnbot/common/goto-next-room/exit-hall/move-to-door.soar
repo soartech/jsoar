@@ -1,0 +1,15 @@
+#echo "\nLoading exit-hall/move-to-door"
+
+sp {exit-hall*propose*move-to-door
+   (state <s> ^name exit-hall
+              ^door-angle-off-check true)
+  -{(<s> ^io.input-link.feedback <fd>)
+    (<fd> ^thrust forward
+          ^sidestep off)}
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-door
+        ^actions.sidestep off
+        ^actions.thrust forward)}
+
+

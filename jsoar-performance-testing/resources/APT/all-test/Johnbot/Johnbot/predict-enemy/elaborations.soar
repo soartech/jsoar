@@ -1,0 +1,95 @@
+sp {predict-enemy*elaborate*name*quake
+   (state <s> ^name predict-enemy)
+   -->
+   (<s> ^name quake
+        ^predicting true
+        ^fake-top-state <s>)
+   (force-learn <s>)}
+
+sp {predict-enemy*elaborate*orginal-top-state
+   (state <s> ^name predict-enemy
+              ^superstate <ss>)
+   -->
+   (<s> ^real-top-state <ss>)}
+
+sp {predict-enemy*elaborate*real-top-state
+   (state <s> ^superstate.real-top-state <ss>)
+   -->
+   (<s> ^real-top-state <ss>)}
+
+sp {predict-enemy*elaborate*predicting
+   (state <s> ^superstate.predicting true)
+   -->
+   (<s> ^predicting true)}
+
+sp {predict-enemy*elaborate*top-state
+   (state <s> ^name predict-enemy)
+   -->
+   (<s> ^top-state <s>)}
+
+sp {predict-enemy*elaborate*fake*top-state
+   (state <s> ^predicting true
+              ^superstate.fake-top-state <fts>)
+   -->
+   (<s> ^top-state <fs>
+        ^fake-top-state <fts>)}
+
+sp {predict-enemy*elaborate*io
+   (state <s> ^name predict-enemy)
+   -->
+   (<s> ^io <io>
+        ^map <m>)
+   (<io> ^input-link <il>
+         ^output-link <ol>)
+   (<il> ^agent <ag>
+         ^entity <en>
+         ^game <game>
+         ^feedback <fb>)}
+
+###############
+#Compute the angle off to doors of enemy's heading - see where he is going.
+
+sp {predict-enemy*elaborate*first-room
+   (state <s> ^name predict-enemy
+              ^map.current-room.room-number <rn>
+              ^superstate.operator.enemy.old-room.room-number <rn>)
+   -->
+   (<s> ^first-room true)}
+
+sp {predict-enemy*elaborate*door-heading
+   (state <s> ^name predict-enemy
+              ^first-room true
+              ^io.input-link.agent.origin <or>
+              ^map.current-room.door <door>)
+   (<or> ^x <x>
+         ^y <y>)
+   (<door> ^x <dx>
+           ^y <dy>)
+   -->
+   (<door> ^door-heading (compute-heading <y> <x> <dy> <dx>))}
+
+sp {predict-enemy*elaborate*door-heading-difference
+   (state <s> ^name predict-enemy
+              ^first-room true
+              ^io.input-link.agent.angle.yaw <yaw>
+              ^map.current-room.door <door>)
+   (<door> ^door-heading <dh>)
+   -->
+   (<door> ^door-angle-off (round-off-heading (- <yaw> <dh>) 1))}
+
+sp {predict-enemy*elaborate*next-room-number
+   (state <s> ^name predict-enemy
+              ^first-room true
+              ^map.current-room <cr>
+              ^real-top-state.enemy <e>)
+   (<cr> ^door <door>
+         ^path <p>)
+   (<p> ^destination-room.room-number <rn>
+        ^distance 1
+        ^in-room-door <door>)
+   (<door> ^door-angle-off { > -30 < 30 })
+   -->
+   (<e> ^next-room-number <rn>)}
+
+#####
+

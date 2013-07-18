@@ -37,7 +37,6 @@ public class DefaultWmeToXmlTest
     public void testToXml() throws Exception
     {
         final Agent agent = new Agent();
-        agent.initialize();
         agent.getProductions().loadProduction(
         "testToXmlInit (state <s> ^superstate nil ^io.input-link <il>) -->" +
         "(<il> ^location <loc> ^person <person>)" +

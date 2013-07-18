@@ -1,0 +1,32 @@
+#echo "\nLoading remove-sound"
+
+########################################################
+## If sound time runs out, remove sound - time in milliseconds
+########################################################
+
+sp {quake*propose*remove-sound*out-of-date
+   (state <s> ^name quake
+             -^io.input-link.agent.cycle < <ct>
+              ^sound.forget-time <ct>)
+   -->
+   (write (crlf) |Sound out of date.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name remove-sound)}
+
+sp {quake*select*remove-sound
+   (state <s> ^name quake
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name remove-sound)
+   (<o2> ^name << chase wander explore >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+
+sp {quake*apply*remove-sound
+   (state <s> ^operator <o>
+              ^sound <sound>)
+   (<o> ^name remove-sound)
+   -->
+   (write (crlf) |Remove sound | <sound>)
+   (<s> ^sound <sound> -)}
+

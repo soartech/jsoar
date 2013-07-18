@@ -1,0 +1,8 @@
+sp {haunt*propose*execute-script
+   (state <s> ^name haunt
+              ^impossible true   # MJP 5-15-03 for debugging purposes
+              ^script <m>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name execute-script)
+}

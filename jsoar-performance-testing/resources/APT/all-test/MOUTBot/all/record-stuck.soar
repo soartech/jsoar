@@ -1,0 +1,26 @@
+sp {all*propose*record-stuck
+   (state <s> ^superstate.name
+              ^attribute state
+              ^impasse no-change
+              ^io.input-link <il> 
+              ^top-state.self <ss>)
+   (<il> ^agent.time <ct>
+         ^feedback.thrust << front back >>)
+   (<ss> ^stopped true
+        -^stuck-time)
+   -->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name record-stuck
+        ^time <ct>)}
+
+sp {all*apply*record-stuck
+   (state <s> ^operator <o>
+              ^top-state.parameters <p> 
+              ^top-state.self <ss>)
+   (<p> ^detect-stuck-time <dst>
+        ^detect-stuck-bad-time <dsbt>)
+   (<o> ^name record-stuck
+        ^time <ct>)
+   -->
+   (<ss> ^stuck-time (+ <dst> <ct>)
+         ^stuck-bad-time (+ <dsbt> <ct>))}

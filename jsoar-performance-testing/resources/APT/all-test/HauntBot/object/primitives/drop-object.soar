@@ -1,0 +1,15 @@
+# ACTION: drop-object
+#
+# REQUIRED ATTRIBUTES:
+#             ^type drop-object
+#
+#
+
+# drop the currently held object
+sp {drop-object*apply
+   (state <s> ^operator <o>)
+   (<o> ^type drop-object)
+-->
+#   (write (crlf) |Applying drop-object!!|)
+   (<o> ^actions.drop foo)  # any value is usable, so long as the 'drop' attribute is created
+}

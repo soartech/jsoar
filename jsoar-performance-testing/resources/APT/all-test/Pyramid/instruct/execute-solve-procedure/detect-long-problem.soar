@@ -1,0 +1,15 @@
+sp {execute-solve-procedure*propose*avoid-long-problem
+   (state <s> ^name execute-solve-procedure
+              ^current-problem.minimum-math-computations > 20
+             -^execute-step)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name detect-long-problem)
+}
+
+sp {apply*detect-long-problem
+   (state <s> ^operator <op>)
+   (<op> ^name detect-long-problem)
+-->
+   (<s> ^execute-step fail)
+}

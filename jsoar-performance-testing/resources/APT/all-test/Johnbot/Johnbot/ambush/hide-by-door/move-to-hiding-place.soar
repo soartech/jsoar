@@ -1,0 +1,15 @@
+#echo "\nLoading hide-by-door/move-to-hiding-place"
+
+sp {hide-in-corner*propose*move-to-hiding-place
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>)
+   (<hp> ^heading <h>
+        -^range-close true)
+   -->
+   (write (crlf) |Move to hiding place.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name move-to-hiding-place
+        ^actions <a>)
+   (<a> ^faceabs <h>
+        ^thrust forward)}
+

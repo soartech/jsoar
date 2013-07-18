@@ -1,0 +1,7 @@
+sp {ambush*propose*hide-in-corner
+   (state <s> ^name ambush
+              ^ambush-type hide)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name hide-in-corner)}
+

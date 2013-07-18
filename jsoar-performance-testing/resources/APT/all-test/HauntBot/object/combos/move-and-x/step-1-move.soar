@@ -1,0 +1,13 @@
+# move to target location
+sp {move-and-x*propose*step-1-move
+   (state <s> ^type move-and-x
+              ^position <pos>
+              ^area <area>
+             -^at-target yes)
+ -->
+   (<s> ^operator <o> +)
+   (<o> ^name step-1-move
+        ^type move-to-pos
+        ^position <pos>
+        ^area <area>)
+}

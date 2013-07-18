@@ -1,0 +1,11 @@
+sp {execute-action*propose*test-x
+   (state <s> ^name execute-action
+              ^x-guess <x>)
+   (<x> -^failed
+        -^success )
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name test-x
+         ^x-guess <x>)
+}
+

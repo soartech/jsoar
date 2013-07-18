@@ -1,0 +1,3 @@
+source record-entity.soar
+source remove-entity.soar
+source update-entity.soar

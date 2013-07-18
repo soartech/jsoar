@@ -1,0 +1,3 @@
+source record-haunted-area.soar
+source remove-haunted-area.soar
+source update-haunted-area.soar

@@ -1,0 +1,42 @@
+sp {dice*propose*compute-very-safe-bid
+   (state <s> ^name dice
+              ^true-dice-counts.dice-counted true
+             -^very-safe-bid-computed)
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name compute-very-safe-bid)
+}
+
+## Start with 1 1 for special rules
+
+sp {apply*compute-very-safe-bid*special-rules*bigger-than
+   (state <s> ^operator <op>
+              ^io.input-link.state.special true)
+   (<op> ^name compute-very-safe-bid)
+-->
+   (<s> ^very-safe-bid-computed <vs>)
+   (<vs> ^face 1
+         ^count 1)
+}
+
+sp {apply*compute-very-safe-bid*no-special-rules*bigger-than6
+   (state <s> ^operator <op>
+              ^true-dice-counts.total-dice-count { > 6 <tdc> }
+              ^io.input-link.state.special false)
+   (<op> ^name compute-very-safe-bid)
+-->
+   (<s> ^very-safe-bid-computed <vs>)
+   (<vs> ^face 2
+         ^count (div (- <tdc> 1) 3))
+}
+
+sp {apply*compute-very-safe-bid*no-special-rules
+   (state <s> ^operator <op>
+              ^true-dice-counts.total-dice-count <= 6
+              ^io.input-link.state.special false)
+   (<op> ^name compute-very-safe-bid)
+-->
+   (<s> ^very-safe-bid-computed <vs>)
+   (<vs> ^face 2
+         ^count 1)
+}

@@ -1,0 +1,10 @@
+#echo "\nLoading common/drop-item"
+
+sp {common*apply*drop-item
+   (state <s> ^operator <o>)
+   (<o> ^name drop-item
+        ^classname <iname>)
+   -->
+   (<o> ^actions.invdrop <iname>)
+   }
+

@@ -1,0 +1,21 @@
+sp {write-answer*propose*write-constant
+   (state <s> ^name write-answer
+              ^current-problem-ptr.type constant)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name write-constant)
+}
+
+sp {apply*write-constant
+   (state <s> ^operator.name write-constant
+              ^current-problem-ptr <cpp>
+              ^current-problem-structure-ptr <cpsp>)
+   (<cpp> ^value <value> ^type constant ^next <ncpp>)
+   (<cpsp> ^name <constant> ^next <ncpsp>)
+-->
+   (write | | <value>)
+   (<s> ^current-problem-ptr <cpp> -
+                             <ncpp>
+        ^current-problem-structure-ptr <cpsp> -
+                                       <ncpsp>)
+}

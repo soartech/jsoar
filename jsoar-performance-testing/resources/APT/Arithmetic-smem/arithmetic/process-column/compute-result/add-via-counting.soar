@@ -1,0 +1,13 @@
+sp {compute-result*propose*add-via-counting
+   (state <s> ^name compute-result
+              ^superstate <ss>)
+   (<ss> ^arithmetic-problem.operation addition
+        # ^smem.result.status failure
+         ^digit1 <a>
+         ^digit2 <b>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name add-via-counting
+         ^digit1 <a>
+         ^digit2 <b>)
+}

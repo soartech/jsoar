@@ -1,0 +1,140 @@
+##################################### 
+# file: communicate-voice-broadcast-applications 
+# created: 2001-08-22
+## 
+# Change history: 
+# 
+# [1] Created REW
+# [2] Added tcl join calls to generate multiword strings.  Defined joinstring as underscore.
+#     This is only necessary because of the bug in braodcast/SGIO (no spaces in strings)
+#     For input parsing, do we want lists anyway?
+# [3] join with joinstring does not work (not even if I substitute an _ directly in the production.
+#     So, for now, underscrore separators are just added by handed
+# [4] Grrrrr.  Broadcast does not work all the time, dependent on the machine load.
+#     For now, I just duplicate each broadcast message with say until the interface gets fixed.
+#     This makes things pretty ugly for the moment.... likely for a while.
+# [5] REW: 2002-07-10
+#     Actually, the quirkiness was not due solely to broadcast's unpredictability.  For now,
+#     I'm going to comment the "say" so that only a single broadcast message gets generated
+# [6] REW: 2002-007-10
+#     Randy suggested replacing RHS F(x) make-constant-symbol instead of tcl join. 
+#     Previously, the RHS conditions for the string concatenation looked like this:
+#           (<b> ^phrase (tcl | join [list | <name> |_|  <val1> |] $joinstring |) )
+#     This works okay, but causes an integer to be concatentated at the end of the message
+#     so I added a trailing underscore so it'll be easy to strip this out.  But we'll 
+#     probably just go back to the tcl join solution.
+
+# This file processes individual messages and sends them to the output link for broadcast
+
+##################################### 
+
+echo "\nLoading ./elaborations/communicate-voice-broadcast-applications.soar "
+                                                                       
+# For now, just assume that we can deal with the underscores sometime in the future and concatentate
+# any strings with underscores so that broadcast actually works.
+
+#set console_player "Marine"
+#set joinstring "_"
+
+# Send simple utterances out directly
+sp {apply*communicate*voice*simple-utterance
+   (state <s> ^operator <o> ^top-state.io.output-link <ol>)
+   (<o> ^name communicate
+        ^message <message>)
+   (<message> ^name <name>
+              ^definition <dfn>
+        ^device <d>)
+   (<dfn> ^type << simple-utterance complex-utterance >>)
+   (<d> ^type voice 
+        ^name unreal-interface)
+-->
+   (write (crlf) |Broadcasting simple-utterance: | <name>)
+   (<d> ^transmitted *yes*)
+   (<ol> ^broadcast <b>)
+   (<b> ^phrase (make-constant-symbol <name> |_| ) )
+     # [5] 
+#      (<ol> ^say <b1>)
+#      (<b1> ^phrase <name>
+#            ^target $console_player)
+}
+
+# Send any message defined as a one-value-utterance
+sp {apply*communicate*voice*one-value-utterance
+   (state <s> ^operator <o> ^top-state.io.output-link <ol>)
+   (<o> ^name communicate
+  ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>)
+   (<d> ^type voice 
+        ^name unreal-interface)
+   (<dfn> ^type one-value-utterance
+    ^attributes <a1>
+         -^attributes.second)
+   (<a1> ^first <attr1>)
+-->
+   (write (crlf) |Broadcasting one-value-utterance: | <name>)
+   (<d> ^transmitted *yes*)
+   (<ol> ^broadcast <b>  )
+      (<b> ^phrase (make-constant-symbol <name> |_|  <val1> |_| ) )
+      # [5]
+      #      (<ol> ^say <b1>)
+      #(<b1> ^phrase (tcl | join [list | <name> |_|  <val1> |] $joinstring |) 
+#            ^target $console_player)
+}
+
+sp {apply*communicate*voice*one-attribute-value-utterance
+   (state <s> ^operator <o> ^top-state.io.output-link <ol>)
+   (<o> ^name communicate
+  ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>)
+   (<d> ^type voice
+        ^name unreal-interface)
+   (<dfn> ^type one-attribute-value-utterance
+    ^attributes <a1>
+         -^attributes.second)
+   (<a1> ^first <attr1>)
+-->
+   (write (crlf) |broadcasting one-attribute-value-utterance:  | <name>)
+   (<d> ^transmitted *yes*)
+      (<ol> ^broadcast <b> )
+      (<b> ^phrase (make-constant-symbol <name> |_| <attr1> |_| <val1> |_| )  )
+      # [5]
+#     (<ol> ^say <b1> )
+#      (<b1> ^phrase (tcl | join [list | <name> |_| <attr1> |_| <val1>  |] $joinstring |) 
+#            ^target $console_player)
+}
+
+sp {apply*communicate*voice*two-attribute-value-utterance
+   (state <s> ^operator <o> ^top-state.io.output-link <ol>)
+   (<o> ^name communicate
+  ^message <message>)
+   (<message> ^name <name>
+        ^definition <dfn>
+        ^device <d>
+        ^content <con>)
+   (<con> ^<attr1> <val1>
+          ^<attr2> <val2>)
+   (<d> ^type voice
+        ^name unreal-interface)
+   (<dfn> ^type two-attribute-value-utterance
+    ^attributes <a1> <a2>
+         -^attributes.third)
+   (<a1> ^first <attr1>)
+   (<a2> ^second <attr2>)
+-->
+   (write (crlf) |broadcasting two-attribute-value-utterance: | <name>)
+   (<d> ^transmitted *yes*)
+      (<ol> ^broadcast <b>)
+      (<b> ^phrase (make-constant-symbol <name> |_| <attr1> |_| <val1> |_| <attr2> |_|  <val2> |_| ) )
+      # [5]
+#            (<ol> ^say <b1>)
+#      (<b> ^phrase (tcl | join [list | <name> |_| <attr1> |_| <val1> |_| <attr2> |_|  <val2> |] $joinstring |) 
+#           ^target $console_player)
+}

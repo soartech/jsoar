@@ -1,0 +1,23 @@
+#echo "\nLoading all/record-temp-item"
+
+sp {search-room*apply*record-item
+   (state <s> ^operator.name << wander collect-powerups deny-powerups retreat attack chase >>
+              ^top-state.map.current-room <cr>
+              ^io.input-link.entity.item <item-x>)
+   (<cr> ^search <ss>)
+   (<item-x> ^classname <cname>
+             ^in-current-room true
+             ^origin <or>)
+   (<or> ^x <x>
+         ^y <y>)
+  -{(<cr> ^item <it>)
+    (<it> ^x <x> ^y <y> ^classname <cname>)}
+  -(<ss> ^recorded.classname <cname>)   # Only record once
+   -->
+   (write (crlf) |****Record unexpected item.|)
+   (<ss> ^recorded <item>)
+   (<item> ^classname <cname>
+           ^regeneration-time 0
+           ^x <x>
+           ^y <y>)
+   }

@@ -1,0 +1,61 @@
+##################################### 
+# file: report-threats.soar 
+# created: REW: 2001-08-26
+## 
+# Report any threats (or changes in number of threats)
+#
+# Note: For now, we assume that all threats can be reported together.  
+# In reality, we likely need to be able to sort, at least by quadrant
+# and range (ie, 3 targets bearing 230, range 60m; 2 targets bearing 290,
+# range 80m, rather than just "5 targets" as reported now)
+#
+# Change history: 
+# 
+#  [1]
+
+sp {sentry-watch*propose*report-threats*new-count
+   (state <s> ^name sentry-watch
+              ^objective.sentry-watch.threats <th>)
+   (<th> ^last-report <lr> ^total-threats { > 0 <count> }
+         # Ensures that all counting is complete at this time
+        -^new-threat)
+   (<lr> ^time <time> ^count { < <count> <oldcount> })
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name report-threats)
+}
+
+# REW: this is a hack of a sort.  I assume that the threat reported
+# is in the direction of the expected threat location.
+sp {apply*report-threats*report
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>
+              ^objective <obj>)
+   (<obj> ^threat.direction <dir>
+          ^sentry-watch.threats.total-threats <num>)
+   (<o1> ^name report-threats)
+   -->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name enemy-approaching 
+         ^content <con>)
+   (<con> ^number <num>
+          ^from <dir>)
+}
+
+
+sp {apply*report-threats*update-last-report
+   (state <s> ^operator <o1>
+              ^top-state.comm <comm>
+              ^objective <obj>
+              ^top-state.io.input-link.agent.time <time>)
+   (<obj> 
+          ^sentry-watch.threats <th>)
+   (<th> ^last-report <lr> 
+         ^total-threats <num>)
+   (<o1> ^name report-threats)
+   (<lr> ^time <otime> ^count <onum>)
+   -->
+   (<lr> ^time <otime> - <time> +
+         ^count <onum> - <num> +)
+}
+

@@ -1,0 +1,32 @@
+sp {count-dice-faces*propose*terminate-count-dice-faces
+   (state <s> ^name count-dice-faces
+              ^current-player nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name terminate-count-dice-faces)
+}
+sp {apply*terminate-count-dice-faces
+   (state <s> ^operator <op>
+              ^superstate.true-dice-counts <tdc>)
+   (<tdc> ^dice-count <dc1> <dc2> <dc3> <dc4> <dc5> <dc6> <dc7>)
+   (<op> ^name terminate-count-dice-faces)
+   (<dc7> ^face unknown
+          ^count <mu>)
+   (<dc1> ^face 1
+          ^count <m1>)
+   (<dc2> ^face 2
+          ^count <m2>)
+   (<dc3> ^face 3
+          ^count <m3>)
+   (<dc4> ^face 4
+          ^count <m4>)
+   (<dc5> ^face 5
+          ^count <m5>)
+   (<dc6> ^face 6
+          ^count <m6>)
+-->
+   (write (crlf) | 1: | <m1> |, 2: | <m2> |, 3: | <m3> |, 4: | <m4> |, 5: | <m5> |, 6: | <m6> )
+   (write (crlf) |   Unknown: | <mu> |, Total: | (+ <mu> <m1> <m2> <m3> <m4> <m5> <m6>))
+   (<tdc> ^dice-counted true
+         ^total-dice-count (+ <mu> <m1> <m2> <m3> <m4> <m5> <m6>))
+}

@@ -1,0 +1,32 @@
+sp {robot*propose*spin
+   (state <s> ^name robot
+              ^io.input-link <i>)
+   (<i> ^self <self>
+       -^object.visible yes)
+   (<self> -^carry
+            ^angle.direction)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name spin
+         ^actions.rotate.direction left)
+}
+
+sp {robot*propose*spin2
+   (state <s> ^name robot
+              ^io.input-link.self <self>)
+   (<self> ^blocked.forward true
+            ^angle.direction)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name spin
+         ^actions.rotate.direction left)
+}
+
+sp {robot*RL*spin
+   :template
+   (state <s> ^name robot
+              ^io.input-link.self.blocked.forward <d>
+              ^operator <o> +)
+   (<o> ^name spin)
+-->
+   (<s> ^operator <o> = 0)}

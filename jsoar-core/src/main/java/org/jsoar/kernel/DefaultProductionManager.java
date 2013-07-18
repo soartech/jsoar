@@ -217,7 +217,15 @@ public class DefaultProductionManager implements ProductionManager
         this.currentSourceLocation = location;
         final StringReader reader = new StringReader(productionBody);
         final Production p = parser.parseProduction(parserContext, reader);
-        addProduction(p, true);
+        
+        if(p.getType() == ProductionType.CHUNK || p.getType() == ProductionType.JUSTIFICATION)
+        {
+            addChunk(p);
+        }
+        else
+        {
+            addProduction(p, true);
+        }
         return p;
     }
 

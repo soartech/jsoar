@@ -1,0 +1,13 @@
+sp {compute-result*propose*subtract-via-counting
+   (state <s> ^name compute-result
+              ^superstate <ss>)
+   (<ss> ^arithmetic-problem.operation subtraction
+        # ^smem.result.status failure
+         ^digit1 <a>
+         ^digit2 <b>)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name subtract-via-counting
+         ^digit1 <a>
+         ^digit2 <b>)
+}

@@ -1,0 +1,53 @@
+sp {compute-bid-probability-with-assumed-dice*propose*compute-dice-counts
+   (state <s> ^name compute-bid-probability-with-assumed-dice
+             -^dice-counts.dice-count.face unknown)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name compute-dice-counts)
+}
+
+sp {apply*compute-dice-counts*unchanged
+   (state <s> ^operator <op>
+              ^dice-counts <dcs>
+              ^top-state.alternative-dice-counts.dice-count <adc>
+              ^superstate <ss>)
+   (<ss> ^last-bid.face <face>)
+   (<adc> ^face { <> unknown <> <face> <new-face>})
+   (<op> ^name compute-dice-counts)
+-->
+   (<dcs> ^dice-count <adc>)
+}
+
+sp {apply*compute-dice-counts*unknown
+   (state <s> ^operator <op>
+              ^dice-counts <dcs>
+              ^top-state.alternative-dice-counts.dice-count <adc>
+              ^superstate <ss>)
+   (<ss> ^operator.holds <holds>
+         ^last-bid <lb>)
+   (<lb> ^face <face>
+         ^player.cup.count <count>)
+   (<adc> ^face unknown
+          ^count <unknown>)
+   (<op> ^name compute-dice-counts)
+-->
+   (<dcs> ^dice-count <unk>)
+   (<unk> ^face unknown
+          ^count (- <unknown> <count>))  ## Assume ones that aren't bid face can't contribute to bid face
+}
+
+sp {apply*compute-dice-counts*bid-face
+   (state <s> ^operator <op>
+              ^dice-counts <dcs>
+              ^top-state.alternative-dice-counts.dice-count <adc>
+              ^superstate <ss>)
+   (<ss> ^operator.holds <holds>
+         ^last-bid.face <face>)
+   (<adc> ^face <face>
+          ^count <fcount>)
+   (<op> ^name compute-dice-counts)
+-->
+   (<dcs> ^dice-count <unk>)
+   (<unk> ^face <face>
+          ^count (+ <fcount> <holds>))
+}

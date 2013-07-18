@@ -1,0 +1,32 @@
+sp {robot*propose*remove-recorded-object
+   (state <s> ^name robot
+              ^recorded-object <ro>
+              ^io.input-link <i>)
+   (<ro> ^position <ropos>
+         ^id <id>)
+   (<ropos> ^row <row>
+            ^col <col>)
+   (<i> ^self.position <spos>)
+   (<spos> ^row <row>
+           ^col <col>)
+  -{(<i> ^object <obj>)
+    (<obj> ^position <pos>
+           ^id <id>
+           ^visible yes)
+    (<pos> ^row <row>
+           ^col <col>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name remove-recorded-object
+         ^block-id <id>)
+}
+
+sp {apply*remove-recorded-object
+   (state <s> ^operator <op>
+              ^recorded-object <ro>)
+   (<ro> ^id <id>)
+   (<op> ^name remove-recorded-object
+         ^block-id <id>)
+-->
+   (<s> ^recorded-object <ro> -)
+}

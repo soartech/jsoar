@@ -1,0 +1,39 @@
+echo "\nLoading move-to-node/move-to-xyz"
+
+#if the node is visible or we are in the same area 
+#as the node, move directly to the xyz coordinate
+#for the node
+
+#NOTE: Once cone of vision is added, we may need to turn
+#and find the node or do additional exploration
+
+#node visible
+sp {move-to-node*propose*move-to-visible-xyz
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^io.input-link.objects.node.name <name>)
+   (<node> ^name <name>
+           ^position <pos>)
+-->
+#   (write (crlf) |Propose move to visible xyz of node: | <name>)  
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-visible-node-xyz
+        ^type move-to-xyz
+        ^position <pos>)
+}
+
+#node in same area as we are
+sp {move-to-node*propose*move-to-xyz
+   (state <s> ^type move-to-node
+              ^superstate.operator.node <node>
+              ^top-state.map.current-area <area>)
+   (<node> ^name <name>
+           ^area <area>
+           ^position <pos>)
+-->
+#   (write (crlf) |Propose move to same area xyz of node: | <name>)  
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-node-in-areas-xyz
+        ^type move-to-xyz
+        ^position <pos>)
+}

@@ -1,0 +1,14 @@
+sp {pickup-block*propose*spin
+   (state <s> ^name pickup-block
+              ^quiescence t
+              ^block-id <id>
+              ^io.input-link <input>)
+   (<input> ^self.velocity.speed 0.0
+            ^object <obj>)
+   (<obj> ^visible no
+          ^id <id>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name spin
+         ^actions.rotate.direction left)
+}

@@ -1,0 +1,51 @@
+
+sp {selection*compare*move-to-area*area-counts
+   (state <s> ^name selection
+              ^operator <o1> +
+                        { <> <o1> <o2> } +)
+   (<o1> ^name evaluate-operator
+         ^superoperator <so1>)
+   (<o2> ^name evaluate-operator
+         ^superoperator <so2>)
+   (<so1> ^name move-to-area
+          ^path.to-area.id <tid1>
+          ^distance-to-flag <dtf1>)
+   (<so2> ^name move-to-area
+          ^path.to-area.id <tid2>
+          ^distance-to-flag { <dtf2> > <dtf1> })
+-->
+   (<s> ^operator <o1> > <o2>)
+#   (write (crlf) |Prefer | <o1> |-| <tid1> |@| <dtf1> | to | <o2> |-| <tid2> |@| <dtf2>  )
+}
+
+## Evaluation explore - it has reached an area that has not been explored
+
+sp {selection*compare*numeric*better-than-failure-partial-failure
+   :default
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>  { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^numeric-value
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value << partial-failure failure >>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> > <y>)}
+
+sp {selection*compare*numeric*worse-than*success
+   :default
+   (state <s> ^name selection
+              ^superstate <ss>
+              ^evaluation <e1>  { <> <e1> <e2> })
+   (<ss> ^desired <d>)
+   (<e1> ^superoperator <x>
+         ^numeric-value
+         ^desired <d>)
+   (<e2> ^superoperator { <> <x> <y> }
+         ^symbolic-value << partial-success success >>
+         ^desired <d>)
+-->
+   (<ss> ^operator <x> > <y>)}

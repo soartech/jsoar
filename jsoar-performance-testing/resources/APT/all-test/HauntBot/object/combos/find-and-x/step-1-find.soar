@@ -1,0 +1,13 @@
+
+#
+# If desired object has not been found,
+# look for (explore) one/it.
+#
+sp {find-and-x*propose*step-1-find
+   (state <s> ^type find-and-x
+              ^target-class <class>
+            - ^available-object)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^type explore)
+}

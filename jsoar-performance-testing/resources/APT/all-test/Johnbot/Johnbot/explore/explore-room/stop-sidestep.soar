@@ -1,0 +1,14 @@
+#echo "\nLoading explore-room/stop-sidestep"
+
+## If moving sideways, turn it off because it will disrupt the bot.
+## Might move sideways in visit-unexplored-room
+
+sp {explore-room*propose*stop-sidestep
+   (state <s> ^io.input-link.feedback.sidestep <> off
+              ^name explore-room)
+   -->
+   (<s> ^operator <o>)
+   (<o> ^name stop-sidestep
+        ^actions.sidestep off)
+   }
+

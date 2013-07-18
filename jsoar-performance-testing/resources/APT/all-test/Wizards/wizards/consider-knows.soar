@@ -1,0 +1,62 @@
+
+## Create a new knows structure within a current knows structure
+
+sp {wizards*propose*consider-knows
+   (state <s> ^name wizards
+              ^knows <k>)
+   (<k> ^name <name>
+        ^wizard <w>)
+   (<w> ^name { <wname> <> <name> })
+  -(<k> ^knows.name <wname>)
+-->
+   (<s> ^operator <op> + =, <)
+   (<op> ^name consider-knows
+         ^wizard <w>
+         ^knows <k>)
+}
+sp {apply*consider-knows
+   (state <s> ^operator <op>
+              ^knows <k>)
+   (<op> ^name consider-knows
+         ^wizard <w>
+         ^knows <k>)
+   (<k> ^wizard <w>
+        ^name <kname>)
+   (<w> ^name <name>)
+-->
+   (write (crlf) |In wizard | <kname> |'s view, create a model of wizard | <name>)
+   (<s> ^knows <k1>)
+   (<k> ^knows <k1>)
+   (<k1> ^name <name>
+         ^wizard <w1> <w2> <w3>)
+   (<w1> ^name A)
+   (<w2> ^name B)
+   (<w3> ^name C)
+}
+
+sp {wizards*compare*consider-knows*prefer-new-names
+   (state <s> ^name wizards
+             -^knows.name <name1>
+              ^knows.name <name2>
+              ^operator <op1> +
+                        { <> <op1> <op2> } +)
+   (<op1> ^name consider-knows
+          ^wizard.name <name1>)
+   (<op2> ^name consider-knows
+          ^wizard.name <name2>)
+-->
+   (<s> ^operator <op2> -)
+}
+
+sp {wizards*compare*consider-knows*prefer-deeper
+   (state <s> ^name wizards
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name consider-knows
+          ^knows <k1>)
+   (<op2> ^name consider-knows
+          ^knows <k2>)
+   (<k2> ^knows <k1>)
+-->
+   (<s> ^operator <op2> -)
+}

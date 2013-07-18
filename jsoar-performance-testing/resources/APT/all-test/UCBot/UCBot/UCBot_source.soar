@@ -1,0 +1,37 @@
+pushd all
+source all_source.soar
+popd
+pushd elaborations
+source elaborations_source.soar
+popd
+source _firstload.soar
+source common.soar
+pushd common
+source common_source.soar
+popd
+source DEBUG.soar
+source detect-flag.soar
+source detect-record-area-complete.soar
+source explore.soar
+pushd explore
+source explore_source.soar
+popd
+source finish-trial.soar
+source go-to-flag.soar
+pushd go-to-flag
+source go-to-flag_source.soar
+popd
+source initialize-UCBot.soar
+source record-area.soar
+source record-path.soar
+source search-for-flag.soar
+pushd search-for-flag
+source search-for-flag_source.soar
+popd
+source swap-flags.soar
+source update-all-paths.soar
+pushd update-all-paths
+source update-all-paths_source.soar
+popd
+source update-gateway.soar
+source update-paths-recorded.soar

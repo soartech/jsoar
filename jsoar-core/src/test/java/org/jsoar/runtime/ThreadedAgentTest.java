@@ -6,8 +6,18 @@
 package org.jsoar.runtime;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,8 +31,6 @@ import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author ray
@@ -179,5 +187,91 @@ public class ThreadedAgentTest
                 signal.wait();
             }
         }
+    }
+    
+    /*
+     * This test makes sure that we can create, start, and stop multiple
+     * threaded agents at a time. It is also fishing for exception causing
+     * concurrency problems.
+     */
+    @Test(timeout = 15000)
+    public void testMultipleAgents() throws Exception
+    {
+        final int numAgents = 100;
+        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        Random rand = new Random(8389);
+
+        // Load the rules
+        String sourceName = getClass().getSimpleName() + "_testMultipleAgents.soar";
+        URL sourceUrl = getClass().getResource(sourceName);
+        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+
+        // Create the agents and source their rules
+        for (int i = 0; i < numAgents; i++)
+        {
+            ThreadedAgent ta = ThreadedAgent.create();
+            ta.getInterpreter().source(sourceUrl);
+            agents.add(ta);
+        }
+
+        // Start the threads in a random order
+        Collections.shuffle(agents, rand);
+        for (ThreadedAgent ta : agents)
+        {
+            ta.runForever();
+        }
+
+        // Give the agents a chance to start
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch (InterruptedException e){}
+
+        // Make sure the agents are running
+        for (ThreadedAgent ta : agents)
+        {
+            assertTrue("A ThreadedAgent failed to start.", ta.isRunning());
+        }
+
+        // Let the threads run for a bit longer
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch (InterruptedException e){}
+
+        // Stop the threads in a random order
+        Collections.shuffle(agents, rand);
+        // Stop the threads
+        for (ThreadedAgent ta : agents)
+        {
+            ta.stop();
+        }
+
+        // Give the threads a chance to stop
+        try
+        {
+            Thread.sleep(500);
+        }
+        catch (InterruptedException e){}
+
+        // If the agents are unhappy or unresponsive, we will timeout in this
+        // loop
+        while (!agents.isEmpty())
+        {
+            Iterator<ThreadedAgent> iter = agents.iterator();
+            while (iter.hasNext())
+            {
+                ThreadedAgent ta = iter.next();
+                // If the agent successfully stopped, remove it from the list
+                if (!ta.isRunning())
+                {
+                    ta.dispose();
+                    iter.remove();
+                }
+            }
+        }
+        // If we got here, there were not any critical issues
     }
 }

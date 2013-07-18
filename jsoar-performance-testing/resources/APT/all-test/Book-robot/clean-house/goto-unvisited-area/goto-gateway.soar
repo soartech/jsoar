@@ -1,0 +1,35 @@
+sp {goto-area*propose*goto-gateway
+   (state <s> ^type goto-area
+              ^current-area.gateway <gw>)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name goto-gateway
+         ^gateway <gw>)
+}
+
+sp {goto-area*propose*goto-gateway*prefer
+   (state <s> ^operator <o> +
+              ^connected-gateway <gw>)
+   (<o> ^name goto-gateway
+        ^gateway <gw>)
+-->
+   (<s> ^operator <o> >)
+}
+
+#sp {goto-unvisited-area*compare*goto-gateway
+#   (state <s> ^name goto-unvisited-area
+#              ^operator <op1> +
+#                        <op2> +
+#              ^gateway-distance <gd1> <gd2>)
+#   (<gd1> ^gateway <g1>
+#          ^distance <d1>)
+#   (<gd2> ^gateway <g2>
+#          ^distance > <d1>)
+#   (<op1> ^name goto-gateway
+#          ^gateway <g1>)
+#   (<op2> ^name goto-gateway
+#          ^gateway <g2>)
+#-->
+#   (<s> ^operator <op1> > <op2>)
+#}
+#

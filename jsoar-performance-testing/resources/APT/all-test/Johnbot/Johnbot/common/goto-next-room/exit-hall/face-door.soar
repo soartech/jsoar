@@ -1,0 +1,27 @@
+#echo "\nLoading exit-hall/face-door"
+
+## door-facing and door-facing-check computed in elaborations.soar
+
+sp {exit-hall*propose*face-door*hall
+   (state <s> ^name exit-hall
+              ^door-heading <dd>
+             -^door-angle-off-check true)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name face-door
+        ^actions <a>)
+   (<a> ^faceabs <dd>
+        ^facetarget off
+        ^sidestep off)}
+
+sp {exit-hall*apply*face-door*trapped
+   :i-support
+   (state <s> ^operator <o>
+              ^io.input-link.map <m>)
+   (<m> ^left.blocked true
+        ^right.blocked true)
+   (<o> ^name face-door)
+   -->
+   (<o> ^actions <a>)
+   (<a> ^thrust forward)}
+

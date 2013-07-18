@@ -1,0 +1,21 @@
+
+sp {update-path-data*propose*increment-distance
+   (state <s> ^name update-path-data
+              ^room.update-data.current-distance.extended true)
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name increment-distance)}
+
+sp {update-path-data*apply*increment-distance
+   (state <s> ^operator.name increment-distance
+              ^room.update-data.current-distance <cd>)
+   (<cd> ^extended true
+         ^number <d>)
+   -->
+   (write (crlf) |Increment to: | (+ <d> 1))
+   (<cd> ^extended false
+         ^extended true -
+         ^number (+ <d> 1)
+         ^number <d> -
+         ^tested false 
+         ^tested true -)}

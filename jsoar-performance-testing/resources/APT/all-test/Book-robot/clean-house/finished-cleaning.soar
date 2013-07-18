@@ -1,0 +1,20 @@
+sp {clean-house*propose*finished-cleaning
+   (state <s> ^name robot
+              ^areas <areas>
+              ^desired.storage-area-id <id>
+             -^io.input-link.self.carry)
+  -{(<areas> ^area <area>)
+    (<area> -^cleaned yes
+            -^id <id>)}
+-->
+   (<s> ^operator <op> + =, >)
+   (<op> ^name finished-cleaning)
+}
+
+sp {apply*finished-cleaning
+   (state <s> ^operator <op>)
+   (<op> ^name finished-cleaning)
+-->
+   (write (crlf) |All rooms are cleaned.|)
+   (halt)
+}

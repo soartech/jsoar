@@ -1,0 +1,20 @@
+#echo "\nLoading align-with-axis/finish-align"
+
+sp {align-with-axis*propose*finished-align
+   (state <s> ^name align-with-axis
+              ^achieved heading
+              ^top-state.self.stopped true
+             -^io.input-link.feedback.thrust forward
+              ^backed-up true)
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name finished-align)}
+
+sp {align-with-axis*apply*finished-align
+   (state <s> ^operator.name finished-align
+              ^direction <dir>
+              ^axis <a>)
+   -->
+   (<a> ^aligned <dir>
+        ^backed-up true)}
+

@@ -1,0 +1,64 @@
+
+sp {wander*propose*get-item*in-room*weapon
+   (state <s> ^name wander
+              ^top-state.parameters <par>
+              ^io.input-link.entity.item <item-x>)
+   (<par> ^weapon <weap>
+          ^close-weapon-range-wander <cwr>)
+   (<item-x> ^classname <cname>
+             ^type weapon
+             ^in-current-room true
+            -^range > <cwr>)
+   (<weap> ^classname <cname>
+           ^quality > 4)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item-x>
+        ^place in-room
+        ^classname <cname>)
+   }
+
+sp {wander*propose*get-item*in-room*weapon*not-have
+   (state <s> ^name wander
+              ^top-state.parameters <par>
+              ^io.input-link.entity.item <item-x>
+             -^io.input-link.agent.weapon.classname <cname>)
+   (<par> ^weapon <weap>)
+   (<item-x> ^classname <cname>
+             ^type weapon
+             ^in-current-room true)
+   (<weap> ^classname <cname>
+           ^quality > 4)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item-x>
+        ^place in-room
+        ^classname <cname>)
+   }
+
+#excise wander*propose*get-item*in-room*weapon*not-have # Don't need?
+
+sp {wander*propose*get-item*in-room*weapon*not-visible
+   (state <s> ^name wander
+              ^top-state.parameters.weapon <weap>
+              ^current-room.item <item>
+              ^io.input-link <il>)
+   (<il> -^agent.weapon.classname <cname>
+         -^entity.item.classname <cname>)
+   (<item> ^type weapon
+	   ^available true
+           ^classname <cname>)
+   (<weap> ^classname <cname>
+           ^quality > 4)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name get-item
+        ^type weapon
+        ^item <item>
+        ^place recorded-in-room
+        ^classname <cname>)
+   }

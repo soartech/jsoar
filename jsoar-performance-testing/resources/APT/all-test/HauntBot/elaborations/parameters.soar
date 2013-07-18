@@ -1,0 +1,133 @@
+echo "\nLoading elaborations/parameters"
+
+#FIXME:  We should remove the parameters that are not being (and will not be) used. -:AMN:
+
+
+
+
+sp {elaborate*parameters
+   (state <s> ^name haunt)
+-->
+   (<s> ^parameters <p>)
+   (<p> ^drift 40                       # amount traveled after thurst off
+                                        # used to predict where walls and doors are
+        ^actor-remember-time 300        # Remember emeny for 5 minutes when disappears
+        ^sound-remember-time 8000       # time to remember sound after disappears
+        ^detect-stuck-time 20            # if don't move in this time, assume stuck
+        ^max-sound-range 1000
+        ^min-sound-range 200
+        ^near-node-range 30             #near-thresh = how close I have to be to a node for it to be "nearby"
+        ^near-xy-range 50               #when to stop
+        ^entryway-max-range 500         #maximum distance between two nodes that are an entryway between two areas
+        ^right-angle-threshold 30       #maximum degrees off to the right before something is no longer "in front" of me
+        ^left-angle-threshold 330       #maximum degrees off to the left before something is no longer "in front" of m
+        ^floor-height -810
+        ^floor-displacement <fd>
+        ^position-achieved-pos 20
+        ^position-achieved-neg -20
+        ^entry-node-displacement 0  # have used 30 but causes a problem in stairways
+        ^hurt-level 80
+          #REW: 2002-08-21    # HACK: See find-concealed-position
+        ^window-half-width 35
+        ^opposite <op>
+                   # REW: 2002-09-25
+        ^error-codes <ec>
+        ^connect-heading-opposite <cho>
+                   # MJP: 2003-05-12
+        ^max-grab-distance 72  # max/min distance from an object from which it can be picked up
+        ^min-grab-distance 40  # (error was 39/71)
+        ^grab-distance 56      # ~ average of max and min distances, this is where bot will ATTEMPT to move to
+        ^at-target-range 15  # move-to-x uses this to determine when it is "at its target"
+        ^status <status>
+        ^condition-colors <cond-colors> # used for drawing health/hunger/etc bars
+        ^behavior-priority <behavior-priority> #used to assign priorities to actions like "eat", "drink"
+        ^record-entity-duration 10    #time to "remember" a detected entity
+        ^haunted-area-duration 25     #time to "remember" that an area is 'haunted'
+        ^floors <fone> <ftwo> <fthree>) # floor-specific info                                                
+   (<op> ^front back
+         ^back front
+         ^left right
+         ^right left)
+   (<fd> ^one -600
+         ^two 600 )
+   # REW: 2002--09-25
+   # These are the error codes from the simulator.  Use these
+   # rather than hard-coding error codes into productions.
+   (<ec> ^jump-not-on-solid-ground-or-crouching  1
+         ^turn-to-needs-direction                2
+         ^must-be-on-off-value                   3
+         ^unknown-command                        4
+         ^invalid-direction-attribute            5
+         ^no-object-with-that-name               6
+         ^missing-or-invalid-attribute           7
+         ^value-out-of-range                     8
+         ^invalid-value                          9
+         ^grab-failed-already-holding-something 10
+         ^too-far-to-grab                       11
+         ^not-facing-object-to-grab             12
+         ^object-cannot-be-picked-up            13
+         ^no-room-to-lift-object                14
+         ^not-holding-object-for-action         15
+         ^cannot-use-held-object                16
+         ^reload-failed-out-of-ammo             17
+         ^reload-failed-clip-already-full       18
+         ^weapon-jam                            19
+         ^unjam-failed                          20
+         ^alert-action-while-at-ease            21
+                                                )
+   (<cho> ^0 180
+          ^180 0
+          ^90 270
+          ^270 90)
+   #MJP 5/12/03 -- status is classified as high/medium/low for priority purposes
+        (<status> ^hunger <hunger>
+                  ^thirst <thirst>
+                  ^health <health>
+                  ^temperature <temperature>)
+        (<hunger> ^high 400
+                  ^medium 200
+                  ^low  0)
+        (<thirst> ^high 400
+                  ^medium 200
+                  ^low  0)
+        (<health> ^high 80
+                  ^medium 40
+                  ^low 0)
+        (<temperature> ^high 90
+                       ^medium 80
+                       ^low 0)
+        (<cond-colors> ^high blue
+                       ^medium purple
+                       ^low red)
+   #MJP 5/23/03  
+   # lower priorities are preferred... don't have any ties... ( ties will result in random decisions every cycle )
+#        (<behavior-priority> ^read 2                             
+#                             ^flee 11
+#                             ^eat-and-drink 0
+#                             ^warm-up 3 
+#                             ^gather  5     # debugging behavior                        
+#                             ^move-to 10)
+        (<behavior-priority> ^low 1
+                             ^medium 2
+                             ^high 3)
+   (<fone> ^name one
+           ^height-low -1600
+           ^height-high -861
+           ^displacement -600)
+   (<ftwo> ^name two
+           ^height-low -20
+           ^height-high 170
+           ^displacement 600)
+   (<fthree> ^name three
+             ^height-low -700
+             ^height-high -500
+             ^displacement 1800)
+}
+
+
+#copy parameters down to each new state
+sp {elaborate*sub-goal*parameters
+   (state <s> ^superstate.parameters <p>)
+-->
+   (<s> ^parameters <p>)
+}

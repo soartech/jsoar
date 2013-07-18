@@ -1,0 +1,5 @@
+source elaborations.soar
+source drop-item.soar
+source grab-item.soar
+source move-to-item.soar
+source use-item.soar

@@ -1,0 +1,7 @@
+source elaborations.soar
+source back-out-next-room.soar
+source backed-out.soar
+source finished-follow.soar
+source forward-past-door.soar
+source forward-to-door.soar
+source process-door.soar

@@ -1,0 +1,39 @@
+## If collision sensor is on, mark that there is a collision
+
+
+## If there is an object that is within 2 and I'm headed for it, mark that there is a collision
+
+sp {move-to-room-center*elaborate*collision-object
+   (state <s> ^name move-to-room-center
+              ^io.input-link.objects.object <obj>)
+   (<obj> -^distance > 2
+          -^type player
+           ^abs-relative-bearing < 10)
+-->
+   (<s> ^collision true)
+}
+
+## If there none of the things above is true, mark that there is a not a collision
+##  Useful in other rules to compute both true and false for collision
+
+#sp {move-to-room-center*elaborate*collision-false
+#   (state <s> ^name move-to-room-center
+#             -^io.input-link.objects.object.distance < 3
+#             -^collision-distance < 3)
+##              ^io.input-link.self.collision <col>)
+##   (<col> ^x false
+##          ^y false)
+#-->
+#   (<s> ^collision false)
+#}
+#
+sp {move-to-room-center*elaborate*achieved-center
+  # :interrupt
+   (state <s>  ^name move-to-room-center
+               ^top-state.io.input-link.waypoints.waypoint <wp>)
+   (<wp> ^id 1001001
+        -^distance > 1.2)
+-->
+   (<s> ^collision true)
+}
+

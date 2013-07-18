@@ -1,0 +1,17 @@
+#####################################
+# file: roam/elaborations.soar
+# created: JEL 11-05-02
+##
+#
+# Elaborations for the roam problem space
+
+
+sp {roam*elaborate*substate*objective
+   (state <s> ^name roam
+              ^superstate.operator <so>)
+   (<so> ^name roam
+         ^objective <obj>)
+-->
+   (<s> ^objective <obj>)
+}
+

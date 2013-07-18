@@ -31,7 +31,6 @@ public class DeepCopyTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
-        this.agent.initialize();
     }
 
     @Test

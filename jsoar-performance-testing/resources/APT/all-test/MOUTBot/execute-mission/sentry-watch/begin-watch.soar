@@ -1,0 +1,98 @@
+##################################### 
+# file: begin-watch.soar 
+# created: REW: 2001-08-20
+## 
+# Begin the watch.  Note watch position and time.  Begin watch is only used to 
+# begin the watch, not resume a watch.
+#
+# Change history: 
+# 
+#  [1] REW: 2002-08-26
+#      Added sentry-watch.threats to the data recorded under
+#      sentry-watch
+
+# Is there is no sentry-watch.status, then this is a new watch
+# Terminates when status active is asserted
+sp {sentry-watch*propose*begin-watch
+   (state <s> ^name sentry-watch
+              ^objective <obj>
+              ^top-state.io.input-link.agent.time <time>)
+   (<obj> ^defensive-position <dp> 
+          ^type sentry-watch
+          ^sentry-watch <sw>)
+   ( <dp> ^position-achieved true
+          ^orientation-achieved true)
+   (<sw> -^status)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name begin-watch
+        ^start-time <time>)
+}
+
+# Record the start and end time for this watch.
+
+sp {apply*begin-watch*objective*sentry-watch*active
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>
+              ^name sentry-watch
+              ^top-state.parameters.max-watch-length <mwl>)
+   (<o1> ^name begin-watch
+         ^start-time <time>)
+   -->
+   (<sw> ^start-time <time>
+          ^terminate-time ( + <time> <mwl>))
+}
+
+# Inform others that the wacth has begun ("on watch station").
+
+sp {apply*begin-watch*communicate*on-watch-station
+   (state <s> ^operator <o1> 
+              ^top-state.comm <comm>)
+   (<o1> ^name begin-watch)
+   -->
+   (<comm> ^communicate <cc>)  
+   (<cc> ^name on-watch-station)
+}
+
+# Compute the time for the next scan (sweeping the horizon to look for enemies). 
+
+sp {apply*begin-watch*next-scan-time
+   (state <s> ^operator <o1> 
+              ^objective.sentry-watch <sw>
+              ^top-state.parameters.scan-period <sp>
+              ^top-state.io.input-link.agent.time <t>)
+   (<o1> ^name begin-watch)
+   -->
+   (<sw> ^next-scan-time (+ <t> <sp>))
+}
+
+
+
+# Check any computations of begin-watch before asserting status active
+
+sp {apply*begin-watch*status*active
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>)
+   (<o1> ^name begin-watch)
+   (<sw> ^start-time 
+          ^terminate-time )
+   -->
+   (<sw> ^status executing)
+}
+
+# REW: 2002-08-26
+# Create threats structure to report observed threats
+sp {apply*begin-watch*sentry-watch*threats
+   (state <s> ^operator <o1>
+              ^objective.sentry-watch <sw>)
+   (<o1> ^name begin-watch)
+   -->
+   (<sw> ^contacts <th>)
+   (<th> ^last-report <lr>)
+   (<lr> ^time 0 ^count 0)
+}
+
+
+
+
+

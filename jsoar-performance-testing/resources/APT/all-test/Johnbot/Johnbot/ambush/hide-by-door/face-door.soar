@@ -1,0 +1,16 @@
+#echo "\nLoading hide-by-door/face-out"
+
+sp {hide-by-door*propose*face-out
+   (state <s> ^name hide-by-door
+              ^hiding-place <hp>)
+   (<hp> ^final-facing <ff>
+        -^final-facing-achieved true
+         ^range-close true)
+   -->
+   (write (crlf) |Turn toward door.|)
+   (<s> ^operator <o> + =, >)
+   (<o> ^name face-door
+        ^actions <a>)
+   (<a> ^faceabs <ff>
+        ^thrust off)}
+

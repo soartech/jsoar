@@ -1,0 +1,62 @@
+echo "\nLoading enemy-record"
+
+## When enemy is no longer visible (or in front)
+##  record range and angle-off, and time to forget.
+##   
+sp {unreal*propose*enemy-record
+   (state <s> ^name unreal
+              ^io.input-link.entities.enemy <enemy>
+             -^enemy.name <enemy-name>)
+   (<enemy>  -^health 0
+              ^name <enemy-name>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name enemy-record
+        ^enemy <enemy>)}
+
+sp {unreal*apply*enemy-record
+   (state <s> ^operator <o>
+              ^io.input-link.agent.cycle <ct>
+              ^top-state.parameters.enemy-remember-time <ert>)
+   (<o> ^name enemy-record
+        ^enemy <enemy>)
+   (<enemy> ^range <r>
+            ^area <area>
+            ^aspect <a>
+            ^angle-off <ay>
+            ^health <health>
+            ^weapon <wcname>
+            ^position <p>
+            ^team <team>
+            ^name <name>)
+   (<ay> ^v <av>
+         ^h <ah>)
+   (<p> ^x <x>
+        ^y <y>
+        ^z <z>)
+   -->
+   (<s> ^enemy <new-enemy>)
+   (<new-enemy> ^name <name>
+                ^area <area>
+                ^team <team>
+                ^position <p1>
+                ^health <health>
+                ^weapon <wcname>
+                ^aspect <asp>
+                ^angle-off <an-off>
+                ^forget-time (+ <ct> <ert>))
+   (<an-off> ^h <ah>
+             ^v <av>)
+   (<p1>    ^x <x>
+            ^y <y>
+            ^z <z>)}
+
+sp {unreal*select*enemy-record
+   (state <s> ^name unreal
+              ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name enemy-record)
+   (<o2> ^name << execute-mission explore >>)
+   -->
+   (<s> ^operator <o1> > <o2>)}
+

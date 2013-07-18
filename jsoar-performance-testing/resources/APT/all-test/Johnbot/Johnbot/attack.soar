@@ -1,0 +1,37 @@
+echo "\nLoading attack"
+
+################################
+## Propose attack operator if enemy-sensed on radar 
+##   Always run during attack
+##   Retreat will be selected via preferences if
+##       if health is low or
+##       if firepower is low
+##
+##   If enemy is not facing me, will try to 
+##       predict enemy behavior first before
+##       attack or doing something else
+################################
+
+sp {propose*attack
+   (state <s> ^name quake
+              ^map.explored true
+              ^enemy <e>)
+   (<e> -^predict-range true
+         ^sensed-enemy)
+   -->
+   (<s> ^operator <o> + =, >)
+   (<o> ^name attack
+        ^actions <a>)
+   (<a> ^centerview on
+        ^speed on)}
+
+#excise propose*attack
+
+sp {quake*select*attack*hunt
+   (state <s> ^name quake
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^name attack)
+   (<o2> ^name hunt)
+   -->
+   (<s> ^operator <o1> > <o2>)}

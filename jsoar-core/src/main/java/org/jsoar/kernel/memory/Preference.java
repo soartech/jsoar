@@ -60,7 +60,7 @@ public class Preference implements Formattable
       
     public Instantiation inst;
     public Preference inst_next;
-    Preference inst_prev;
+    public Preference inst_prev;
     
     public Preference next_candidate;
     public Preference next_result;
@@ -71,7 +71,7 @@ public class Preference implements Formattable
     boolean deallocated = false;
     
     public boolean rl_contribution = false; // RL-9.3.0 (false in make_preference)
-    
+
     public Set<Wme> wma_o_set; // initialized by WorkingMemoryActivation
 
     /**
@@ -288,7 +288,7 @@ public class Preference implements Formattable
         pref.inst.removeGeneratedPreferece(pref);
 
         recMemory.possibly_deallocate_instantiation(pref.inst);
-        
+
         pref.deallocated = true;
     } 
     

@@ -1,0 +1,50 @@
+#echo "\nLoading follow-room-axis/forward-past-door"
+# Move forward past the current door
+
+sp {follow-room-axis*propose*forward-past-door
+   (state <s> ^name follow-room-axis
+              ^door <dir>
+             -^io.input-link.feedback.thrust forward
+             -^end-wall
+             -^axis.backing-out true
+             -^axis.end-of-wall true
+              ^explore-room.current-door <cd>)
+   (<cd> ^side <dir>
+         ^processed true)
+   -->
+ ##tcl |tsiDisplayAndSendCommand stop-soar|)
+  (<s> ^operator <o> + =)
+   (<o> ^name forward-past-door
+        ^actions.thrust forward)}
+
+sp {follow-room-axis*propose*forward-past-door2
+   (state <s> ^name follow-room-axis
+              ^expect-door <dir>
+             -^io.input-link.feedback.thrust forward
+             -^axis.backing-out true
+             -^axis.end-of-wall true
+             -^end-wall)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name forward-past-door
+        ^actions.thrust forward)}
+
+sp {follow-room-axis*apply*forward-past-door
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^operator.name << forward-to-door forward-past-door  >>
+              ^explore-room <cr>)
+   (<cr> ^current-door <cd>)
+   (<cd> ^side <side>)
+   -->
+   (<cr> ^current-door <cd> -)
+   (<cd> ^side <side> -)}
+
+sp {follow-room-axis*apply*forward-past-door*no-side
+   (state <s> ^name << follow-room-axis follow-hall-axis >>
+              ^operator.name << forward-to-door forward-past-door >>
+              ^explore-room <cr>)
+   (<cr> ^current-door <cd>)
+  -(<cd> ^side <side>)
+   -->
+   (<cr> ^current-door <cd> -)}
+

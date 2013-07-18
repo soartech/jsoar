@@ -1,0 +1,55 @@
+#echo "\nLoading wander/goto-next-room"
+
+## These will be selected only if there are no objects to be picked up in this room
+## or if no needed objects to pick up in other rooms.
+
+sp {wander*propose*goto-next-room*new-door
+   (state <s> ^name wander
+              ^top-state.map.last-room <lr>
+              ^current-room <cr>)
+   (<cr> ^door <idoor>)
+  -{(<cr> ^path <p>)                    
+    (<p> ^destination-room <lr>
+         ^distance 1
+         ^in-room-door <idoor>)}
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name goto-next-room
+        ^exit-dead-end false
+        ^actions.centerview on
+        ^actions.speed off          # walk so can hear opponents
+        ^door <idoor>)}
+
+sp {wander*propose*goto-next-room*one-door
+   (state <s> ^name wander
+              ^current-room <cr>)
+   (<cr> ^door <idoor>
+        -^door { <> <idoor> })
+   -->
+   (<s> ^operator <o> + =, <)
+   (<o> ^name goto-next-room
+        ^exit-dead-end true
+        ^actions.centerview on
+        ^actions.speed off
+        ^door <idoor>)}
+
+# Prefer going to room where enemy has been seen often
+sp {wander*select*goto-next-room*enemy-room
+   (state <s> ^name wander
+              ^current-room <cr>
+              ^operator <o> +
+              ^top-state <ts>)
+   (<ts> ^parameters.enemy-visit-cutoff <ecc>
+         ^map <map>)
+   (<map> -^room.enemy-visit-count > <evc>
+           ^room { <> <cr> <rm> })
+   (<rm> ^enemy-visit-count { > <ecc> <evc> })
+   (<cr> ^path <p>)
+   (<p> ^destination-room <rm>
+        ^in-room-door <idoor>)
+   (<o> ^name goto-next-room
+        ^exit-dead-end false
+        ^door <idoor>)
+   -->
+   (<s> ^operator <o> >)}
+

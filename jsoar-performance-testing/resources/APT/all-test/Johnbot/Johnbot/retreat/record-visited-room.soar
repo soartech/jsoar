@@ -1,0 +1,15 @@
+sp {retreat*propose*record-visited-room
+   (state <s> ^name retreat
+              ^current-room <cr>
+              ^top-state.self.retreat <rt>)
+  -(<rt> ^visited-room <cr>)
+   -->
+   (<s> ^operator <o> + >, =)
+   (<o> ^name record-visited-room)}
+
+sp {retreat*apply*record-visited-room
+   (state <s> ^operator <o>
+              ^top-state.self.retreat <rt>
+              ^current-room <cr>)
+   -->
+   (<rt> ^visited-room <cr>)}

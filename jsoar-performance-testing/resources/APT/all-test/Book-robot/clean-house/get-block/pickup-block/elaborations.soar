@@ -1,0 +1,44 @@
+sp {pickup-block*elaborate*state*block-id
+   (state <s> ^name pickup-block
+              ^superstate.operator.id <id>)
+-->
+   (<s> ^block-id <id>)
+}
+sp {pickup-block*elaborate*state*lined-up
+   (state <s> ^name pickup-block
+              ^top-state.parameters <param>
+              ^io.input-link.object <o>)
+   (<param> ^pickup-range <pr>
+            ^pickup-angle-off-pos <aop>
+            ^pickup-angle-off-neg <aon>)
+   (<o> ^type block
+        ^id <id>
+       -^angle-off.yaw >= <aop>
+       -^angle-off.yaw <= <aon>
+        ^visible yes
+       -^range < <pr>)
+-->
+   (<s> ^object-lined-up yes)
+}
+sp {pickup-block*elaborate*state*object-left
+   (state <s> ^name pickup-block
+              ^block-id <id>
+              ^top-state.parameters.pickup-angle-off-neg <aon>
+              ^io.input-link.object <o>)
+   (<o> ^id <id>
+        ^visible yes
+      - ^angle-off.yaw  >= <aon>)
+-->
+   (<s> ^object-lined-up no)
+}
+sp {pickup-block*elaborate*state*object-right
+   (state <s> ^name pickup-block
+              ^block-id <id>
+              ^top-state.parameters.pickup-angle-off-pos <aon>
+              ^io.input-link.object <o>)
+   (<o> ^id <id>
+        ^visible yes
+                - ^angle-off.yaw  <= <aon>)
+-->
+   (<s> ^object-lined-up no)
+}

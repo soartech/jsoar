@@ -1,0 +1,18 @@
+
+# Increment the current search radius when all areas within the current radius
+# have been explored.
+sp {search-for-flag*propose*increment-radius
+   (state <s> ^name search-for-flag
+              ^search-radius <r>)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name increment-radius)
+}
+
+sp {search-for-flag*apply*increment-radius
+   (state <s> ^operator.name increment-radius
+              ^search-radius <r>)
+-->
+   (<s> ^search-radius <r> -
+                       (+ <r> 1))
+}

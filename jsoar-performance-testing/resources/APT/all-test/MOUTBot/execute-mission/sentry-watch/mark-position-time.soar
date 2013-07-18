@@ -1,0 +1,56 @@
+##################################### 
+# file: mark-position-time
+# created: REW 2002-08-23
+##
+# 
+# Mark the time when a defensive-position (x,y,z) is reached.
+#
+# For a sentry-watch, the agent may decide to move to another sentry position, or move
+# to several different positions.  this operator records the time that the agent achieves
+# any particular position (which can then be used for time-based decisions of when to move to another 
+# position).
+#
+# Change history: 
+
+echo "\nLoading execute-mission/sentry-watch/mark-position-time.soar"
+
+# Should cover both the case that the position is new and that the 
+sp {sentry-watch*propose*mark-position-time
+   (state <s> ^name sentry-watch
+              ^objective <obj>)
+   (<obj> ^defensive-position <dp> 
+          ^sentry-watch.status executing)
+   (<dp> ^position <pos> 
+         ^position-achieved true
+        -^time-at-position.position <pos>)
+   -->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name mark-position-time
+        ^position <pos>)
+}
+
+sp {apply*mark-position-time*initialize
+   (state <s> ^operator <o1>
+              ^objective.defensive-position <dp>
+              ^top-state.io.input-link.agent.time <time>)
+   (<o1> ^name mark-position-time
+         ^position <pos>)
+   (<dp> -^time-at-position)
+   -->
+   (<dp> ^time-at-position <tap>)
+   (<tap> ^time <time> ^position <pos>)
+}
+
+
+sp {apply*mark-position-time*replace-old-time
+   (state <s> ^operator <o1>
+              ^objective.defensive-position <dp>
+              ^top-state.io.input-link.agent.time <time>)
+   (<o1> ^name mark-position-time
+         ^position <pos>)
+   (<dp> ^time-at-position <otap>)
+   (<otap> ^time {<> <time> <ot>}  ^position { <> <pos> <opos>} )
+   -->
+   (<dp> ^time-at-position <otap> - <tap>)
+   (<tap> ^time <time> ^position <pos>)
+}

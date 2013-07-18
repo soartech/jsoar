@@ -1,0 +1,42 @@
+sp {behavior*propose*drink*if-available
+   (state <s> ^name haunt
+              ^status.thirst << medium high >>
+              ^available.drink-source <drink>)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name drink
+        ^type acquire-and-x
+        ^target <drink>
+        ^next-action <na>)
+   (<na> ^name use-object
+         ^type use-object)
+}
+
+
+#
+# If agent is really thirsty, but doesn't see any drinks
+# it will drop all activity and search for drinks
+#
+sp {behavior*propose*drink*at-all-costs
+   (state <s> ^name haunt              
+              ^status.thirst high
+             -^available.drink-source)
+-->
+   (write (crlf) |Proposed looking for drinks because I'm VERY thirsty!!|)
+   (<s> ^operator <o> + )
+   (<o> ^name find-drink
+        ^type explore)
+}
+
+# reject drink proposal if agent will be unable to reach it
+# (ie drink is high up and no crates have been found to stand
+# on.)
+sp {behavior*reject*unreachable-target
+   (state <s> ^name haunt
+              ^operator <o> +
+             -^available.height-source.height >= <h>)
+   (<o> ^name << drink eat >>
+        ^target.height-required <h> > 0)
+-->
+   (<s> ^operator <o> -)
+}

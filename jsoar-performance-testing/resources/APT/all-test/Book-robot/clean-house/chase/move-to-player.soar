@@ -1,0 +1,12 @@
+sp {chase*propose*move-to-player
+   (state <s> ^name chase
+              ^io.input-link.player <p>
+              ^superstate.operator.player <p>)
+   (<p> ^name <n>
+        ^angle-off <ao>)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name move-to-player
+         ^actions.rotate-relative <ao>
+         ^actions.move.direction forward)
+}

@@ -1,0 +1,181 @@
+#echo "\nLoading explore-axis/follow-room-axis"
+
+# Within a room, follow one of the two axes looking for doors.
+
+sp {explore-axis*propose*follow-room-axis
+   (state <s> ^name explore-axis
+              ^explore-room.type room
+              ^axis <a>)
+   (<a> ^marked wall
+       -^followed-to-end true
+        ^aligned <dir>)
+   -->
+   (<s> ^operator <o> + =)
+   (<o> ^name follow-room-axis
+        ^direction <dir>)}
+
+######## UPDATE wall
+
+sp {follow-room-axis*update*north
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^north <north>
+              ^top-state <ts>)
+   (<ts> ^map.explore-room <cr>
+         ^parameters <p>)
+   (<p> ^wall-close <wclose>
+        ^room-min <room-min>)
+   (<a> ^wall <w1>)
+   (<cr> ^type room
+         ^left-right-sum > <room-min>)
+   (<w1> ^side north
+         ^y <old-north>
+         ^y-min { > <north> <y-min> }
+        -^mapped true)
+  (<a> -^backed-out
+       -^backing-out
+       -^mapped true)
+   -->
+   (write (crlf) |UPDATE north WALL: | <north>)
+   (<a> ^updated north)
+   (<w1> ^y <old-north> -
+         ^y <north>
+         ^y-min <y-min> -
+         ^y-min (- <north> <wclose>))}
+
+sp {follow-room-axis*update*south
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^south <south>
+              ^top-state <ts>)
+   (<ts> ^map.explore-room <cr>
+         ^parameters <p>)
+   (<p> ^wall-close <wclose>
+        ^room-min <room-min>)
+   (<a> ^wall <w1>)
+   (<cr> ^type room
+         ^left-right-sum > <room-min>)
+   (<w1> ^side south
+         ^y <old-south>
+         ^y-max { < <south> <y-max> }
+        -^mapped true)
+  (<a>  -^backed-out 
+        -^backing-out 
+        -^mapped true)
+   -->
+   (write (crlf) |UPDATE south WALL: | <south>)
+   (<a> ^updated south)
+   (<w1> ^y <old-south> -
+         ^y <south>
+         ^y-max <y-max> -
+         ^y-max (+ <south> <wclose>))}
+
+
+sp {follow-room-axis*update*east
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^east <east>
+             ^top-state <ts>)
+   (<ts> ^map.explore-room <cr>
+         ^parameters <p>)
+   (<p> ^wall-close <wclose>
+        ^room-min <room-min>) 
+   (<a> ^wall <w1>)
+   (<cr> ^type room
+         ^left-right-sum > <room-min>) 
+   (<w1> ^side east
+         ^x  <old-east> 
+         ^x-min { > <east> <x-min> }
+        -^mapped true)
+  (<a>  -^backed-out 
+        -^backing-out 
+        -^mapped true)
+   -->
+   (write (crlf) |UPDATE east WALL: | <east>)
+   (<a> ^updated east)
+   (<w1> ^x <old-east> -
+         ^x <east>
+         ^x-min <x-min> -
+         ^x-min (- <east> <wclose>))}
+
+sp {follow-room-axis*update*west
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^west <west>
+             ^top-state <ts>)
+   (<ts> ^map.explore-room <cr>
+         ^parameters <p>)
+   (<p> ^wall-close <wclose>
+        ^room-min <room-min>)
+   (<a> ^wall <w1>)
+   (<cr> ^type room
+         ^left-right-sum > <room-min>) 
+   (<w1> ^side west
+         ^x  <old-west> 
+         ^x-max { < <west> <x-max> }
+        -^mapped true)
+  (<a>  -^backed-out 
+        -^backing-out 
+        -^mapped true)
+   -->
+   (write (crlf) |UPDATE west WALL: | <west>)
+   (<a> ^updated west)
+   (<w1> ^x <old-west> -
+         ^x <west>
+         ^x-max <x-max> -
+         ^x-max (+ <west> <wclose>))}
+
+
+######## UPDATE LEFT/RIGHT
+
+sp {follow-room-axis*update*left
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^io.input-link.map <map>
+              ^top-state <ts>)
+   (<ts> ^map.explore-room <r>
+         ^parameters <par>)
+   (<par> ^door-value <door-value>
+          ^room-min <room-min>)
+   (<r> ^type room
+        ^left-right-sum > <room-min>)
+   (<map> ^left.distance <ld>)
+   (<a> -^mapped true
+        -^backed-out
+        -^backing-out
+         ^left <old-left>)
+   (<old-left> ^distance { > <ld> <old-ld> })
+   -->
+   (write (crlf) |Update Left Distance: | <ld>)
+   (<a> ^left <old-left> -
+        ^left <left>)
+   (<left> ^distance (- <ld> 10)
+           ^max-distance (+ <ld> <door-value>)
+           ^min-distance (- <ld> <door-value>))}
+
+sp {follow-room-axis*update*right
+   (state <s> ^operator.name follow-room-axis
+              ^axis <a>
+              ^io.input-link.map <map>
+              ^top-state <ts>)
+   (<ts> ^map.explore-room <r>
+         ^parameters <par>)
+   (<par> ^door-value <door-value>
+          ^room-min <room-min>)
+   (<r> ^type room
+        ^left-right-sum > <room-min>)
+   (<map> ^right.distance <rd>)
+   (<a> -^mapped true
+        -^backed-out
+        -^backing-out
+         ^right <old-right>)
+   (<old-right> ^distance { > <rd> <old-rd> })
+   -->
+   (write (crlf) |Update right distance: | <rd>)
+   (<a> ^right <old-right> -
+        ^right <right>)
+   (<right> ^distance (- <rd> 10)
+            ^max-distance (+ <rd> <door-value>)
+            ^min-distance (- <rd> <door-value>))}
+
+

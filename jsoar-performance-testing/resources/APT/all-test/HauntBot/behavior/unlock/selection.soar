@@ -1,0 +1,24 @@
+
+#prefer the unlock operator that requires the least movement
+sp {unlock*prefer*shorter-path
+   (state <s> ^operator <o1> +
+              ^operator { <> <o1> <o2>} +)
+   (<o1> ^type { << use-tool >> <name> }
+         ^path-distance <dist>)
+   (<o2> ^type <name>
+         ^path-distance > <dist>)
+   -->
+   (<s> ^operator <o1> > <o2>) 
+}
+
+
+# reject any attempt to use a key that has already 
+# failed on a given object
+sp {unlock*reject*bad-key
+   (state <s> ^operator <o> +)
+   (<o> ^type use-tool 
+        ^tool <key>
+        ^target.bad-key <key>)
+-->
+   (<s> ^operator <o> -) 
+}

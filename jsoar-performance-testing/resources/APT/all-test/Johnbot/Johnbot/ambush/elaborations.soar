@@ -1,0 +1,5 @@
+sp {elaborate*ambush*type
+   (state <s> ^name ambush
+              ^superstate.operator.type <type>)
+   -->
+   (<s> ^ambush-type <type>)}

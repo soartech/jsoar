@@ -1,0 +1,123 @@
+echo "\nLoading move-to-area/move-to-node"
+
+## MJP 6-19-03
+## allows agent to open door before moving to connected node
+#sp {move-to-area*propose*open-door
+#   (state <s> ^type move-to-area
+#              ^io.input-link.objects.node.name <name> # must be visible because move-to-node assumes connected-nodes are visisble JEL 6/27/02
+#              ^top-state.map <map>
+#              ^area <dest-area>)
+#   (<map> ^last-node <ln> 
+#          ^current-area { <current-area> <> <dest-area> } )
+#   (<current-area> ^path <path>)
+#   (<path> ^destination-area <dest-area>     
+#           ^via-node <ln>)
+#   (<ln>  ^name <name>
+#          ^type << door >>)
+#-->
+#   (write (crlf) |Propose opening door | <ln>)   
+#   (<s> ^operator <o> + >, =)
+#   (<o> ^name open-door
+#        ^type use-world
+#        ^target <ln>)
+#}
+#
+
+
+
+
+
+
+sp {move-to-area*propose*move-to-connected-node
+   (state <s> ^type move-to-area
+              ^io.input-link.objects.node.name <name> # must be visible because move-to-node assumes connected-nodes are visisble JEL 6/27/02
+              ^top-state.map <map>
+              ^area <dest-area>)
+   (<map> ^last-node <ln> 
+          ^current-area { <current-area> <> <dest-area> } )
+   (<current-area> ^path <path>)
+   (<path> ^destination-area <dest-area>            
+           ^distance <dist>
+           ^via-node <ln>)
+   (<ln> ^connected-node <dest-node>)
+#        -^type << door >>) 
+   (<dest-node> ^name <name>)
+-->
+#   (write (crlf) |Propose move to connected node: | <dest-node> |, last/via-node: | <ln> |, dist: | <dist>)   
+   (<s> ^operator <o> + >, =)
+   (<o> ^name move-to-connected-node
+        ^type move-to-node
+        ^node <dest-node>
+        ^path-length 0)
+}
+
+#propose moving to the via node for a path
+sp {move-to-area*propose*move-to-via-node
+   (state <s> ^type move-to-area
+              ^top-state.map <map>
+              ^area { <newarea> <> <current-area> })
+   (<map> ^current-area <current-area>
+         -^last-node <nextnode>)
+   (<current-area> ^path <path>)
+   (<path> ^destination-area <newarea>
+           ^via-node <nextnode>
+           ^distance <dist>)
+-->
+#   (write (crlf) |Propose move to via node: | <nextnode> | Distance: | <dist>)  
+   (<s> ^operator <o> + =)
+   (<o> ^name move-to-via-node
+        ^type move-to-node
+        ^node <nextnode>
+        ^path-length <dist>)
+}
+
+## If the connected node is not visible, then move back to the via node
+sp {move-to-area*propose*move-to-connected-node*not-visible
+   (state <s> ^type move-to-area
+             -^io.input-link.objects.node.name <name> # must be visible because move-to-node assumes connected-nodes are visisble JEL 6/27/02
+              ^top-state.map <map>
+              ^area <dest-area>)
+   (<map> ^last-node <ln> 
+          ^current-area { <current-area> <> <dest-area> } )
+   (<current-area> ^path <path>)
+   (<path> ^destination-area <dest-area>            
+           ^distance <dist>
+           ^via-node <ln>)
+   (<ln> ^connected-node <dest-node>)
+#        -^type << door >>)
+   (<dest-node> ^name <name>)
+-->
+#   (write (crlf) |Propose move to connected node: | <dest-node> |, last/via-node: | <ln> |, dist: | <dist>)   
+   (<s> ^operator <o> + >, =)
+   (<o> ^name move-to-via-node
+        ^type move-to-node
+        ^node <ln>
+        ^path-length 0)
+}
+
+
+sp {move-to-area*elaborate*state
+   (state <s> ^operator <o>)
+   (<o> ^type move-to-node
+        ^node <node>)
+   (<node> ^name <node-name>)
+   -->
+#   (write (crlf) |Moving to node: | <node-name> |: id | <node>)
+}
+
+#prefer shorter paths
+sp {move-to-area*compare*move-to-node
+   (state <s> ^type move-to-area             
+              ^operator <o1> +
+                        <o2> +)
+   (<o1> ^type move-to-node
+         ^path-length <dist>)
+   (<o2> ^type move-to-node
+         ^path-length > <dist>)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+
+
+

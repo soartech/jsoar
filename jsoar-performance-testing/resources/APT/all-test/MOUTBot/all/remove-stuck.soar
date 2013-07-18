@@ -1,0 +1,17 @@
+sp {all*propose*remove-stuck
+   (state <s> ^name <c>
+              ^attribute state
+              ^impasse no-change
+              ^top-state.self <ss>)
+   (<ss> -^stopped true
+          ^stuck-time <st>)
+   -->
+   (<s> ^operator <o> +, >, = 90)
+   (<o> ^name remove-stuck)}
+
+sp {all*apply*remove-stuck*remove
+   (state <s> ^operator.name remove-stuck
+              ^top-state.self <ss>)
+   (<ss> ^stuck-time <st>)
+   -->
+   (<ss> ^stuck-time <st> -)}

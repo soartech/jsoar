@@ -1,0 +1,12 @@
+sp {elaborations*elaborate*state
+   (state <s> ^name robot)
+-->
+   (<s> ^diffusing <d>)
+}
+
+sp {elaborations*elaborate*state*unique-wires
+   (state <s> ^diffusing <dh>)
+   (<dh> ^heuristic.wire <wire>)
+-->
+   (<dh> ^unique <wire>)
+}

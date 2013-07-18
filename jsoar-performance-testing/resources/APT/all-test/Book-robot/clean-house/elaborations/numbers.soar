@@ -1,0 +1,10 @@
+sp {elaborations*elaborate*numbers
+   (state <s> ^superstate nil
+              ^numbers <nums>)
+   (<nums> ^number <num>)
+   (<num> ^value { < 26 <v> })
+-->
+   (<num> ^one-more (+ <v> 1)
+          ^one-less (- <v> 1))
+   (<nums> ^number.value (+ <v> 1))
+}

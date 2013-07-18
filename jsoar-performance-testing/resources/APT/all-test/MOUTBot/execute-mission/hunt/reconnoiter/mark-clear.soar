@@ -1,0 +1,89 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/mark-clear"
+
+#AMN: 2002-07-31
+#IF:
+#1.  I have dominated the room
+#2.  The room is not currently marked as clear
+#THEN:
+#    Propose marking the area clear
+sp {reconnoiter*propose*mark-clear
+   (state <s> ^name reconnoiter
+              ^top-state.mission.active-objective.offensive-position <eorders>
+              ^top-state.map <map>)
+   (<eorders> ^moved-to-pod yes
+              ^entrance-node <enode>)
+   (<map> ^current-area <ca>
+          ^in-front-node <enode>)
+   (<ca> -^cleared no)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name mark-clear)
+}
+
+#AMN: 2002-07-31
+#IF:
+#   1.  There are currently no entrance orders
+#THEN:
+#   Propose marking the area as clear
+#NOTE:  This is for the agent's first area (usually "Outside")
+sp {reconnoiter*propose*mark-clear*first-room
+   (state <s> ^name reconnoiter
+             -^top-state.mission.active-objective.offensive-position)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name mark-clear)
+   (write (crlf) | Starting room assumed clear if no enemies are visible.|)
+}
+
+#AMN: 2002-08-02
+#IF:
+#   1.  If I have cleared the fatal funnel on a narrow area
+#THEN:
+#   Propose marking the area as clear as the area is too
+#   narrow to do otherwise
+#FIXME:  This is poor tactics if the door opens on the long
+#        side of the room.
+sp {reconnoiter*propose*mark-clear*narrow-area
+   (state <s> ^name reconnoiter
+              ^top-state <top>)
+   (<top> ^mission.active-objective.offensive-position.cleared-fatal-funnel yes
+          ^map.current-area.narrow-area yes)
+-->
+   (<s> ^operator <o> +, = 50)
+   (<o> ^name mark-clear)
+   (write (crlf) | Starting room assumed clear if no enemies are visible.|)
+}
+
+
+
+sp {apply*mark-clear
+   (state <s> ^operator <o>
+              ^top-state.map.current-area <ca>)
+   (<o> ^name mark-clear)
+-->
+   (<ca> ^cleared yes)
+}
+
+sp {apply*mark-clear*update-mission-status
+   (state <s> ^operator <o>
+              ^top-state <top>)
+   (<top> ^map.current-area <ca>
+          ^mission.active-objective <obj>)
+   (<o> ^name mark-clear)
+   (<obj> ^status active
+          ^offensive-position.area <ca>)
+-->
+   (<obj> ^status active -
+          ^status achieved)
+}
+
+
+
+sp {reconnoiter*apply*communicate*clear
+   (state <s> ^operator <o>
+              ^top-state.comm <comm>)
+   (<o> ^name mark-clear)
+-->
+   (<comm> ^communicate <cc>)
+   (<cc> ^name clear)
+}

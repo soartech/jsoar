@@ -16,12 +16,12 @@ public class BasicTests extends FunctionalTestHarness
     @Test
     public void testBasicElaborationAndMatch() throws Exception
     {
-        runTest("testBasicElaborationAndMatch", 1);
+        runTest("testBasicElaborationAndMatch", 0);
     }
     
     @Test
     public void testInitialState() throws Exception
     {
-        runTest("testInitialState", 1);
+        runTest("testInitialState", 0);
     }
 }

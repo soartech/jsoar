@@ -1,0 +1,6 @@
+source elaborations.soar
+source count-pluses.soar
+source describe-term.soar
+source init-count-pluses.soar
+source use-definition.soar
+source use-relation.soar

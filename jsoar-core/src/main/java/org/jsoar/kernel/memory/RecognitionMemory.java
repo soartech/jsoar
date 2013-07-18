@@ -202,7 +202,7 @@ public class RecognitionMemory
      * additional overhead.  Once the CDPS is on by default, we can eliminate the
      * second half of the big else (and not call this function at all if the
      * sysparam is not set.
-     *
+     * 
      * @param inst
      * 
      * recmem.cpp:95:build_CDPS
@@ -930,7 +930,7 @@ public class RecognitionMemory
                 {
                     final BackTraceInfo bt = pc.bt();
                     bt.clearContextDependentPreferenceSet(context);
-                    
+
                     /*      voigtjr, nlderbin:
                             We flattened out the following recursive loop in order to prevent a stack
                             overflow that happens when the chain of backtrace instantiations is very long:
@@ -1292,7 +1292,7 @@ public class RecognitionMemory
                         pref.preference_remove_ref(recMemory);
                     }
 
-                    
+
                 }
                 else
                 {
@@ -1681,7 +1681,7 @@ public class RecognitionMemory
             {
                 // PROPOSE
                 decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal, true);
-            }
+            } 
             
             if(decider.active_goal != null)
             {

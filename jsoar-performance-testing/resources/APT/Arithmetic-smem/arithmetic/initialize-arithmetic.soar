@@ -1,0 +1,21 @@
+sp {arithmetic*propose*initialize-arithmetic
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-arithmetic)
+}
+
+sp {arithmetic*apply*initialize-arithmetic
+   (state <s> ^operator.name initialize-arithmetic)
+-->
+   (<s> ^name arithmetic
+        ^parameters <p>
+        ^count 2000
+        ^digits <d>)
+   (<p> ^fact-source smem
+        ^output yes
+        ^store yes
+        ^retrieve yes
+        ^problems-source wm)}
+

@@ -1,0 +1,24 @@
+echo "\nLoading execute-mission/hunt/reconnoiter/elaborations"
+
+#IF:
+#1.  There is a visible node in my current area
+#2.  This node has not been recorded on my map
+#THEN:
+#    This room has not been cleared
+#
+#NOTE:  The fact that there are no enemies present is implicit
+#       in the fact we have reached the reconnoiter state.
+sp {reconnoiter*elaborate*state
+   (state <s> ^name reconnoiter
+              ^io.input-link.objects.node <visnode>
+              ^top-state.map.current-area <ca>)
+   (<visnode> ^area <area-name>
+              ^name <node-name>)
+   (<ca> ^name <area-name>
+        -^node.name <node-name>)
+-->
+   (<ca> ^cleared no)
+}
+
+
+

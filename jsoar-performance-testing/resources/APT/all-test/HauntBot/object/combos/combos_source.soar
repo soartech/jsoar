@@ -1,0 +1,21 @@
+source elaborations.soar
+source acquire-and-x.soar
+pushd acquire-and-x
+source acquire-and-x_source.soar
+popd
+source climb-and-x.soar
+pushd climb-and-x
+source climb-and-x_source.soar
+popd
+source find-and-x.soar
+pushd find-and-x
+source find-and-x_source.soar
+popd
+source move-and-x.soar
+pushd move-and-x
+source move-and-x_source.soar
+popd
+source move-near-and-x.soar
+pushd move-near-and-x
+source move-near-and-x_source.soar
+popd

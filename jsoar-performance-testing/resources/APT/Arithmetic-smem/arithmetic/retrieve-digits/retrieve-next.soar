@@ -1,0 +1,31 @@
+sp {retrieve-digits*propose*retrieve-next
+   (state <s> ^name retrieve-digits
+              ^current <r>)
+   (<r> -^next-generate nil)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name retrieve-next)
+}
+
+sp {apply*retrieve-next*query
+   (state <s> ^operator.name retrieve-next
+              ^current.next-generate <n>
+              ^smem.command <cmd>)
+-->
+   (<cmd> ^retrieve <n>)
+}
+
+sp {apply*retrieve-next*store
+   (state <s> ^operator.name retrieve-next
+              ^current <c>
+              ^superstate.digits <digs>
+              ^smem <smem>)
+   (<smem> ^result.retrieved <r>
+           ^command <cmd>)
+   (<cmd> ^retrieve <q>)
+-->
+   (<s> ^current <c> -
+                 <r>)
+   (<cmd> ^retrieve <q> -)
+   (<digs> ^digit <r>)
+}

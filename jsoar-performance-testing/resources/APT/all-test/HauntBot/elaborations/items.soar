@@ -1,0 +1,19 @@
+#echo "\nLoading elaborations/items"
+#
+## set up the basic item list and item properties list
+#
+#sp {navigation*elaborate*item-list
+#   (state <s> ^superstate nil)
+#   -->
+#   (<s> ^item-list <items>)
+#}
+#
+## copy item-list down to sub-states
+#sp {copy*sub-state*item-list
+#   (state <s> ^superstate.item-list <list>)
+#-->
+#   (<s> ^item-list <list>)
+#}
+#
+#
+#

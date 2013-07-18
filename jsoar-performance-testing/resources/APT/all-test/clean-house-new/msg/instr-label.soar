@@ -1,0 +1,23 @@
+# syntax: label attribute value label
+sp {msg*propose*instr-label
+   (state <s> ^name msg
+              ^message.first <first>)
+   (<first> ^word label
+            ^next <second>)
+   (<second> ^word <label>
+             ^next {<> nil <conds>})
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name instr-label
+         ^label <label>
+         ^conds <conds>)
+}
+
+sp {apply*instr-label
+   (state <s> ^operator <op>
+              ^superstate.operator <ss-op>)
+   (<op> ^name instr-label
+         ^done true)
+-->
+   (<ss-op> ^processed true)
+}

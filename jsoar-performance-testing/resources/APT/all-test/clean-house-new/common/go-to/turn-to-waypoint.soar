@@ -1,0 +1,16 @@
+## Rotate toward waypoint if not aligned
+
+sp {go-to*propose*turn-to-waypoint
+   (state <s> ^name go-to
+             -^cross-doorway yes
+             -^obstacle true
+              ^waypoint-data.yaw <yaw>
+              ^yaw-aligned false)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name turn-to-waypoint
+         ^actions.set-heading.yaw <yaw>)
+  (write (crlf) |Rotating to waypoint at heading | <yaw>)
+  # (exec player-print |Rotating to | <yaw>)
+}
+

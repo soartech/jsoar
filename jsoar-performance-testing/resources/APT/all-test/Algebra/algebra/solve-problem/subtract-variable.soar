@@ -1,0 +1,135 @@
+## subtract two variables - four cases
+## 1. x - x
+## 2. n * x - x
+## 3. x - n * x
+## 4. n * x + m * x - handled by undistribute
+
+
+sp {algebra*propose*subtract-varialbe*x*x
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name subtract-variable-simple)
+}
+
+sp {algebra*apply*subtract-variable-simple
+   (state <s> ^operator.name subtract-variable-simple
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^type variable
+         ^value <rv>)
+-->
+   (write (crlf) |subtract | <rv> |-| <rv> | = 0|)
+   (<cc> ^right-side <rs> -
+         ^left-side <ls> -
+         ^type number
+         ^value 0)
+}
+
+sp {algebra*propose*subtract-varialbe*nx*x
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name subtract-variable-nx-x)
+}
+
+sp {algebra*apply*subtract-variable-nx
+   (state <s> ^operator.name subtract-variable-nx-x
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<rs> ^type variable
+         ^value <rv>)
+   (<ls> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^value <lv>
+          ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (write (crlf) |subtract | <lv> | * | <rv> | - | <rv> | = | (- <lv> 1 ) | * | <rv> )
+   (<cc> ^operation subtract -
+                    multiply)
+   (<ls> ^left-side <ls2> -
+         ^right-side <rs2> -
+         ^operation multiply -
+         ^type number
+         ^value (- <lv> 1))
+}
+
+
+
+sp {algebra*propose*subtract-varialbe*x-nx
+   (state <s> ^name solve-problem
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<ls> ^type variable
+         ^value <rv>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (<s> ^operator <op> + = 90)
+   (<op> ^name subtract-variable-x-nx)
+}
+
+sp {algebra*apply*subtract-variable-x-nx
+   (state <s> ^operator.name subtract-variable-x-nx
+              ^current-clause <cc>)
+   (<cc> ^right-side <rs>
+         ^left-side <ls>
+         ^operation subtract)
+   (<ls> ^type variable
+         ^value <rv>)
+   (<rs> ^left-side <ls2>
+         ^right-side <rs2>
+         ^operation multiply)
+   (<ls2> ^value <lv>
+          ^type number)
+   (<rs> ^value <rv>
+         ^type variable)
+-->
+   (write (crlf) |subtract | <lv> | * | <rv> | - | <rv> | = | (- <lv> 1) | * | <rv> )
+   (<cc> ^operation subtract -
+                    multiply)
+   (<rs> ^left-side <ls2> -
+         ^right-side <rs2> -
+         ^operation multiply -
+         ^type variable
+         ^value <rv>)
+   (<ls> ^type variable -
+               number
+         ^value  <rv> -
+                 (- <lv> 1))
+}

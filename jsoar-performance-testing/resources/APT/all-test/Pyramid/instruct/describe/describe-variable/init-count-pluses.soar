@@ -1,0 +1,18 @@
+
+sp {propose*init-count-pluses
+   (state <s> ^name describe-variable 
+             -^define failure
+              ^role length-add 
+             -^count)
+-->
+   (<s>
+        ^operator <op> + = )
+   (<op> ^name init-count-pluses)
+}
+sp {apply*init-count-pluses
+   (state <s> ^operator.name init-count-pluses
+         ^superstate.current-problem-ptr.element <p>)
+-->
+   (<s> ^count 0 
+        ^pointer <p>)
+}

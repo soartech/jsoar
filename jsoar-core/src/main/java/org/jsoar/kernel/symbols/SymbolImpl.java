@@ -35,6 +35,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     public /*smem_hash_id*/ long smem_hash;
     public /*uintptr_t*/ long common_smem_valid;
     
+    public /*epmem_hash_id*/ long epmem_hash_id;
+    public /*uint64_t*/ long epmem_valid;
+    
     /*package*/ SymbolImpl(SymbolFactory factory, int hash_id)
     {
         this.factory = factory;
@@ -72,6 +75,17 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     public StringSymbolImpl asString()
     {
         return null;
+    }
+    
+    /*
+     * symtab.h: 423: inline bool symbol_is_constant( Symbol *sym )
+     */
+    public boolean symbol_is_constant(){
+        return (
+                this.asInteger() != null ||
+                    this.asDouble() != null ||
+                    this.asString() != null
+               );
     }
     
     /* (non-Javadoc)

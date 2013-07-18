@@ -1,0 +1,28 @@
+
+# This is a debugging rule.  When exploring the map the XML file specifying the connectivity
+# of the SSPS regions can contain bad information such as regions being completely unconnected
+# from any other region.  It is sometimes possible to enter a region from a connected region
+# only to find that the agent has no way out.  Therefore, this rule tests to see if the current
+# region has no paths recorded and then simply moves in reverse (hopefully, leaving the current
+# region; it doesn't attempt to do anything more intelligent than reverse thrusting).
+sp {explore*propose*back-out
+   (state <s> ^name explore
+              ^top-state.map <map>)
+   (<map> -^areas.area.recorded true)
+  -{(<map> ^current-area <cur>)
+    (<cur> ^path <path>)}
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name back-out
+         ^current-area <cur>)
+}
+
+sp {explore*apply*back-out
+   (state <s> ^operator <op>
+              ^io.output-link <o-link>)
+   (<op> ^name back-out
+         ^current-area.id <id>)
+-->
+   (write (crlf) |Found malformed area | <id> |, backing out...|)
+   (<o-link> ^walk.direction backward)
+}
