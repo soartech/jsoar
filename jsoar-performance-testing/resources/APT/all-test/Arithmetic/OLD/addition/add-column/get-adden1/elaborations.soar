@@ -1,9 +1,0 @@
-sp {get-adden1*elaborate*state
-   (state <s> ^name get-adden1
-              ^superstate.current-column.adden1 <a>)
--->
-   (<s> ^adden1 <a>
-        ^adden2 1)
-}
-
-

@@ -1,3 +1,0 @@
-pushd arithmetic-save
-source arithmetic-save_source.soar
-popd

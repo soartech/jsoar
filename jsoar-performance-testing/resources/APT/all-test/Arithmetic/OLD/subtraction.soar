@@ -1,3 +1,0 @@
-pushd subtraction
-source subtraction_source.soar
-popd
