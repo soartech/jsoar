@@ -66,7 +66,7 @@ class DefaultSemanticMemoryParams
         return PropertyKey.builder(PREFIX + name, type);
     }
     
-    public static class SetWrapper <T>
+    public static abstract class SetWrapper <T>
     {
         protected Set<T> set;
     }
