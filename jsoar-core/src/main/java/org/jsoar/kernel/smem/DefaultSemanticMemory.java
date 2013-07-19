@@ -2248,6 +2248,11 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
     
     
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
+    {
+        return smem_process_query(state, query, negquery, prohibit, cue_wmes, meta_wmes, retrieval_wmes, smem_query_levels.qry_full);
+    }
+    
     /**
      * <p>semantic_memory.cpp:2246:smem_process_query
      * 
@@ -3292,7 +3297,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @throws IOException
      * @throws SQLException
      */
-    private boolean smem_parse_chunks_safe( String chunkString ) throws SoarException, IOException, SQLException
+    private boolean smem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
     {
         boolean return_val = false;
         long clause_count = 0;
@@ -3306,110 +3311,113 @@ public class DefaultSemanticMemory implements SemanticMemory
         lexer.setAllowIds(true);
         lexer.getNextLexeme();
 
-        if ( lexer.getCurrentLexeme().type == LexemeType.L_BRACE )
+        boolean good_chunk = true;
+
+        final Map<String, smem_chunk_lti> chunks = new HashMap<String, smem_chunk_lti>();
+        // smem_str_to_chunk_map::iterator c_old;
+
+        final Set<smem_chunk_lti> newbies = new HashSet<smem_chunk_lti>();
+        // smem_chunk_set::iterator c_new;
+
+        // consume next token
+        lexer.getNextLexeme();
+
+        if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
         {
-            boolean good_chunk = true;
-            
-            final Map<String, smem_chunk_lti> chunks = new HashMap<String, smem_chunk_lti>();
-            //smem_str_to_chunk_map::iterator c_old;
-            
-            final Set<smem_chunk_lti> newbies = new HashSet<smem_chunk_lti>();
-            //smem_chunk_set::iterator c_new;     
+            good_chunk = false;
+        }
 
-            // consume next token
-            lexer.getNextLexeme();
+        // while there are chunks to consume
+        while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
+        {
+            good_chunk = smem_parse_chunk(symbols, lexer, chunks, newbies);
 
-            // while there are chunks to consume
-            while ( ( lexer.getCurrentLexeme().type == LexemeType.L_PAREN ) && ( good_chunk ) )
+            if (good_chunk)
             {
-                good_chunk = smem_parse_chunk( symbols, lexer, chunks, newbies);
-
-                if ( good_chunk )
+                // add all newbie lti's as appropriate
+                for (smem_chunk_lti c_new : newbies)
                 {
-                    // add all newbie lti's as appropriate
-                    for(smem_chunk_lti c_new : newbies)
+                    if (c_new.lti_id == 0)
                     {
-                        if ( c_new.lti_id == 0 )
-                        {                   
-                            // deal differently with variable vs. lti
-                            if ( c_new.lti_number == 0 )
+                        // deal differently with variable vs. lti
+                        if (c_new.lti_number == 0)
+                        {
+                            // add a new lti id (we have a guarantee this won't
+                            // be in Soar's WM)
+                            c_new.lti_number = symbols.incrementIdNumber(c_new.lti_letter);
+                            c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
+                        }
+                        else
+                        {
+                            // should ALWAYS be the case (it's a newbie and
+                            // we've initialized lti_id to NIL)
+                            if (c_new.lti_id == 0)
                             {
-                                // add a new lti id (we have a guarantee this won't be in Soar's WM)
-                                c_new.lti_number = symbols.incrementIdNumber(c_new.lti_letter);
-                                c_new.lti_id = smem_lti_add_id( c_new.lti_letter, c_new.lti_number );
-                            }
-                            else
-                            {
-                                // should ALWAYS be the case (it's a newbie and we've initialized lti_id to NIL)
-                                if ( c_new.lti_id == 0 )
+                                // get existing
+                                c_new.lti_id = smem_lti_get_id(c_new.lti_letter, c_new.lti_number);
+
+                                // if doesn't exist, add it
+                                if (c_new.lti_id == 0)
                                 {
-                                    // get existing
-                                    c_new.lti_id = smem_lti_get_id(c_new.lti_letter, c_new.lti_number );
+                                    c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
 
-                                    // if doesn't exist, add it
-                                    if ( c_new.lti_id == 0 )
+                                    // this could affect an existing identifier
+                                    // in Soar's WM
+                                    final IdentifierImpl id_parent = symbols.findIdentifier(c_new.lti_letter, c_new.lti_number);
+                                    if (id_parent != null)
                                     {
-                                        c_new.lti_id = smem_lti_add_id( c_new.lti_letter, c_new.lti_number );
+                                        // if so we make it an lti manually
+                                        id_parent.smem_lti = c_new.lti_id;
 
-                                        // this could affect an existing identifier in Soar's WM
-                                        final IdentifierImpl id_parent = symbols.findIdentifier( c_new.lti_letter, c_new.lti_number );
-                                        if ( id_parent != null )
-                                        {
-                                            // if so we make it an lti manually
-                                            id_parent.smem_lti = c_new.lti_id;
-
-                                            // TODO SMEM Uncomment and port when epmem is ported
-                                            // id_parent.smem_time_id = my_agent->epmem_stats->time->get_value();
-                                            // id_parent.smem_valid = my_agent->epmem_validation;
-                                        }
+                                        // TODO SMEM Uncomment and port when
+                                        // epmem is ported
+                                        // id_parent.smem_time_id =
+                                        // my_agent->epmem_stats->time->get_value();
+                                        // id_parent.smem_valid =
+                                        // my_agent->epmem_validation;
                                     }
                                 }
                             }
                         }
                     }
-
-                    // add all newbie contents (append, as opposed to replace, children)
-                    for ( smem_chunk_lti c_new : newbies )
-                    {
-                        if ( c_new.slots != null )
-                        {
-                            smem_store_chunk( c_new.lti_id, c_new.slots, false );
-                        }
-                    }
-
-                    // deallocate *contents* of all newbies (need to keep around name->id association for future chunks)
-                    for ( smem_chunk_lti c_new : newbies )
-                    {
-                        smem_deallocate_chunk( c_new, false );
-                    }
-                    // clear newbie list
-                    newbies.clear();
-
-                    // increment clause counter
-                    clause_count++;
-
                 }
-            }
 
-            if ( good_chunk && ( lexer.getCurrentLexeme().type == LexemeType.R_BRACE ) )
-            {
-                // consume right brace
-                lexer.getNextLexeme();
+                // add all newbie contents (append, as opposed to replace,
+                // children)
+                for (smem_chunk_lti c_new : newbies)
+                {
+                    if (c_new.slots != null)
+                    {
+                        smem_store_chunk(c_new.lti_id, c_new.slots, false);
+                    }
+                }
 
-                // confirm (but don't consume) suffix
-                return_val = ( lexer.getCurrentLexeme().type == LexemeType.EOF );       
-            }
+                // deallocate *contents* of all newbies (need to keep around
+                // name->id association for future chunks)
+                for (smem_chunk_lti c_new : newbies)
+                {
+                    smem_deallocate_chunk(c_new, false);
+                }
+                // clear newbie list
+                newbies.clear();
 
-            // deallocate all chunks
-            for (smem_chunk_lti c_old : chunks.values())
-            {
-               smem_deallocate_chunk( c_old, true );
+                // increment clause counter
+                clause_count++;
+
             }
-            chunks.clear();
         }
 
+        return_val = good_chunk;
+
+        // deallocate all chunks
+        for (smem_chunk_lti c_old : chunks.values())
+        {
+            smem_deallocate_chunk(c_old, true);
+        }
+        chunks.clear();
+
         // produce error message on failure
-        if ( !return_val )
+        if (!return_val)
         {
             throw new SoarException("Error parsing clause #" + clause_count);
         }
@@ -3417,6 +3425,13 @@ public class DefaultSemanticMemory implements SemanticMemory
         return return_val;
     }
 
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // API Implementation (smem::api)
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+ 
+    
     private static enum path_type { blank_slate, cmd_bad, cmd_retrieve, cmd_query, cmd_store }
     
     /**
@@ -3428,16 +3443,23 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     void smem_respond_to_cmd( boolean store_only ) throws SQLException, SoarException
     {
+        // start at the bottom and work our way up
+        // (could go in the opposite direction as well)
+        IdentifierImpl state = decider.bottom_goal;
+        
+        List<SymbolTriple> meta_wmes;
+        List<SymbolTriple> retrieval_wmes;
+        Set<WmeImpl> cue_wmes;
+        
         final List<IdentifierImpl> prohibit = new LinkedList<IdentifierImpl>();
         final List<IdentifierImpl> store = new LinkedList<IdentifierImpl>();
 
         final int time_slot = store_only ? 1 : 0;
         final Queue<IdentifierImpl> syms = new ArrayDeque<IdentifierImpl>(); 
         final Queue<Integer> levels = new ArrayDeque<Integer>();
-
-        // start at the bottom and work our way up
-        // (could go in the opposite direction as well)
-        IdentifierImpl state = decider.bottom_goal;
+        
+        boolean do_wm_phase = false;
+        boolean mirroring_on = params.mirroring.get() == true;
 
         while ( state != null )
         {
@@ -3470,7 +3492,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         final List<WmeImpl> wmes = smem_get_direct_augs_of_id( parent_sym, tc );
                         for (WmeImpl w_p : wmes)
                         {
-                            if ( ( ( store_only ) && ( ( parent_level != 0 ) || ( ( w_p.attr != predefinedSyms.smem_sym_query ) && ( w_p.attr != predefinedSyms.smem_sym_retrieve ) ) ) ) || 
+                            if ( ( ( store_only ) && ( ( parent_level != 0 ) || ( w_p.attr == predefinedSyms.smem_sym_store ) ) ) || 
                                  ( ( !store_only ) && ( ( parent_level != 0 ) || ( w_p.attr != predefinedSyms.smem_sym_store ) ) ) )
                             {                       
                                 wme_count++;
@@ -3513,14 +3535,10 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 if ( new_cue )
                 {
-                    // clear old cue
-                    smem_info.cue_wmes.clear();
-
                     // clear old results
                     smem_clear_result( state );
 
-                    // change is afoot!
-                    smem_made_changes = true;
+                    do_wm_phase = true;
                 }
             }       
 
@@ -3528,9 +3546,14 @@ public class DefaultSemanticMemory implements SemanticMemory
             // and there is something on the cue
             if ( new_cue && wme_count != 0)
             {
+                cue_wmes.clear();
+                meta_wmes.clear();
+                retrieval_wmes.clear();
+                
                 // initialize command vars
                 IdentifierImpl retrieve = null;
                 IdentifierImpl query = null;
+                IdentifierImpl negquery = null;
                 store.clear();
                 prohibit.clear();
                 path_type path = path_type.blank_slate;
@@ -3538,7 +3561,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // process top-level symbols
                 for (WmeImpl w_p : cmds )
                 {
-                    smem_info.cue_wmes.add( w_p );
+                    cue_wmes.add( w_p );
 
                     if ( path != path_type.cmd_bad )
                     {
@@ -3564,6 +3587,20 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                             {
                                 query = w_p.value.asIdentifier();
+                                path = path_type.cmd_query;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else if ( w_p.attr == predefinedSyms.smem_sym_negquery )
+                        {
+                            if ( ( w_p.value.asIdentifier() != null ) &&
+                                 ( ( path == path_type.blank_slate ) || ( path == path_type.cmd_query ) ) &&
+                                 ( negquery == null ) )
+                            {
+                                negquery = w_p.value.asIdentifier();
                                 path = path_type.cmd_query;
                             }
                             else
@@ -3633,15 +3670,15 @@ public class DefaultSemanticMemory implements SemanticMemory
                         if ( retrieve.smem_lti == 0 )
                         {
                             // retrieve is not pointing to an lti!
-                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, retrieve );
+                            smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, retrieve );
                         }
                         else
                         {
                             // status: success
-                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, retrieve );
+                            smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_success, retrieve );
 
                             // install memory directly onto the retrieve identifier
-                            smem_install_memory( state, retrieve.smem_lti, retrieve );
+                            smem_install_memory( state, retrieve.smem_lti, retrieve, true, meta_wmes, retrieval_wmes );
 
                             // add one to the expansions stat
                             stats.retrieves.set(stats.retrieves.get() + 1);
@@ -3657,7 +3694,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             prohibit_lti.add( sym_p.smem_lti );
                         }
 
-                        smem_process_query( state, query, prohibit_lti );
+                        smem_process_query( state, query, negquery, prohibit_lti, cue_wmes, meta_wmes, retrieval_wmes );
 
                         // add one to the cbr stat
                         stats.queries.set(stats.queries.get() + 1);
@@ -3676,10 +3713,10 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                         for (IdentifierImpl sym_p : store )
                         {
-                            smem_soar_store( sym_p );
+                            smem_soar_store( sym_p, ( ( mirroring_on ) ? ( smem_storage_type.store_recursive ) : ( smem_storage_type.store_level ) ) );
 
                             // status: success
-                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, sym_p );
+                            smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_success, sym_p );
 
                             // add one to the store stat
                             stats.stores.set(stats.stores.get() + 1);
@@ -3698,8 +3735,26 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_bad_cmd, smem_info.smem_cmd_header );
+                    smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_bad_cmd, smem_info.smem_cmd_header );
                 }
+                
+                if ( !meta_wmes.isEmpty() || !retrieval_wmes.isEmpty() )
+                {
+                    // process preference assertion en masse
+                    smem_process_buffered_wmes( state, cue_wmes, meta_wmes, retrieval_wmes );
+                    
+                    // clear cache
+                    {
+                        retrieval_wmes.clear();
+                        meta_wmes.clear();
+                    }
+                    
+                    // process wm changes on state
+                    do_wm_phase = true;
+                }
+                
+                // clear cue wmes
+                cue_wmes.clear();
             }
             else
             {
@@ -3710,6 +3765,52 @@ public class DefaultSemanticMemory implements SemanticMemory
 
             state = state.goalInfo.higher_goal;
         }
+        
+        if ( store_only && mirroring_on && ( !smem_changed_ids.isEmpty() ) )
+        {
+            ////////////////////////////////////////////////////////////////////////////
+            // TODO SMEM Timers: my_agent->smem_timers->storage->start();
+            ////////////////////////////////////////////////////////////////////////////
+            
+            // start transaction (if not lazy)
+            if ( params.lazy_commit.get() == false )
+            {
+                db.begin.execute();
+            }
+            
+            for (SymbolImpl it : smem_changed_ids)
+            {
+                // require that the lti has at least one augmentation
+                if (it.asIdentifier().slots != null)
+                {
+                    smem_soar_store( it.asIdentifier(), smem_storage_type.store_recursive);
+                    
+                    //  add one to the mirrors stat
+                    stats.mirrors.set(stats.mirrors.get()+1);
+                }
+            }
+            
+            // commit transaction (if not lazy)
+            if ( params.lazy_commit.get() == false )
+            {
+                db.commit.execute();
+            }
+            
+            smem_changed_ids.clear();
+            
+            ////////////////////////////////////////////////////////////////////////////
+            // TODO SMEM Timers: my_agent->smem_timers->storage->stop();
+            ////////////////////////////////////////////////////////////////////////////
+        }
+        
+        if ( do_wm_phase )
+        {
+            smem_ignore_changes = true;
+            
+            decider.do_working_memory_phase();
+            
+            smem_ignore_changes = false;
+        }
     }
     
     /* (non-Javadoc)
@@ -3718,11 +3819,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public void smem_go( boolean store_only )
     {
-        // semantic_memory.cpp:3011:smem_go
-        
-        // after we are done we will perform a wm phase if there are any adds/removes
-        smem_made_changes = false;
-        
         // TODO SMEM Timers: my_agent->smem_timers->total->start();
 
 //    #ifndef SMEM_EXPERIMENT
@@ -3747,12 +3843,42 @@ public class DefaultSemanticMemory implements SemanticMemory
 //    #endif // SMEM_EXPERIMENT
 
         // TODO SMEM Timers: my_agent->smem_timers->total->stop();
-
-        if ( smem_made_changes )
-        {
-            decider.do_working_memory_phase( );
-        }
     }
+    
+    boolean smem_backup_db( String file_name, ByRef<String> err)
+    {
+        boolean return_val = false;
+        
+        if (db != null)
+        {
+            _smem_close_vars();
+            
+            if ( params.lazy_commit.get() == true )
+            {
+                db.commit.execute();
+            }
+            
+            return_val = db.backup( file_name, err );
+            
+            if ( params.lazy_commit.get() == true )
+            {
+                db.begin.execute();
+            }
+        }
+        else
+        {
+            err.value = "Semantic database is not currently connected.";
+        }
+        
+        return return_val;
+    }
+    
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // Visualization (smem::viz)
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+
     
     /**
      * <p>semantic_memory.cpp:3042:smem_visualize_store
@@ -3795,7 +3921,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         final Map< Long, String > lti_names = new HashMap<Long, String>();
         {
-            // id, letter, number
+            // id, soar_letter, number
             {
                 final ResultSet q = db.vis_lti.executeQuery();
                 try
@@ -3810,7 +3936,18 @@ public class DefaultSemanticMemory implements SemanticMemory
                         lti_names.put(lti_id, lti_name);
         
                         return_val.append( lti_name );
-                        return_val.append( " " );
+                        return_val.append( " [ label=\"");
+                        return_val.append( lti_name );
+                        return_val.append( "\\n[" );
+                        
+                        Double temp_double = q.getDouble(3+1);
+                        if (temp_double >= 0)
+                        {
+                            return_val.append( "+" );
+                        }
+                        return_val.append(temp_double.toString());
+                        
+                        return_val.append( "]\" ];\n");
                     }
                 }
                 finally
@@ -3827,7 +3964,6 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     List<String> my_terminals = null;
 
-                    return_val.append( ";" );
                     return_val.append( "\n" );
 
                     // proceed to terminal nodes
@@ -3835,7 +3971,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     return_val.append( "\n" );
 
                     {
-                        // parent_id, attr_type, attr_hash, val_type, val_hash
+                        // lti_id, attr_type, attr_hash, val_type, val_hash
                         final ResultSet q = db.vis_value_const.executeQuery();
                         try
                         {
@@ -3950,7 +4086,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 // then links to other LTIs
                 {
-                    // parent_id, attr_type, attr_hash, val_lti
+                    // lti_id, attr_type, attr_hash, value_lti_id
                     {
                     final ResultSet q = db.vis_value_lti.executeQuery();
                     try

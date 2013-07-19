@@ -30,6 +30,7 @@ class SemanticMemorySymbols
 
     public final Symbol smem_sym_retrieve;
     public final Symbol smem_sym_query;
+    public final Symbol smem_sym_negquery;
     public final Symbol smem_sym_prohibit;
     public final Symbol smem_sym_store;
     
@@ -48,6 +49,7 @@ class SemanticMemorySymbols
 
         smem_sym_retrieve = syms.createString( "retrieve" );
         smem_sym_query = syms.createString( "query" );
+        smem_sym_negquery = syms.createString( "negquery" );
         smem_sym_prohibit = syms.createString( "prohibit" );
         smem_sym_store = syms.createString( "store" );
     }
