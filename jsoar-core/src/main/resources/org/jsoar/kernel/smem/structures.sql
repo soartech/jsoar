@@ -62,3 +62,7 @@ CREATE INDEX @PREFIX@smem_augmentations_attr_val_lti_cycle ON @PREFIX@smem_augme
 CREATE INDEX @PREFIX@smem_augmentations_attr_cycle ON @PREFIX@smem_augmentations (attribute_s_id, activation_value)
 CREATE UNIQUE INDEX @PREFIX@smem_wmes_constant_frequency_attr_val ON @PREFIX@smem_wmes_constant_frequency (attribute_s_id, value_constant_s_id)
 CREATE UNIQUE INDEX @PREFIX@smem_ct_lti_attr_val ON @PREFIX@smem_wmes_lti_frequency (attribute_s_id, value_lti_id)
+
+# Finally, create the "signature" table that we use to decide whether
+# the db structure is already initialized
+CREATE TABLE @PREFIX@smem_signature (uid INTEGER)

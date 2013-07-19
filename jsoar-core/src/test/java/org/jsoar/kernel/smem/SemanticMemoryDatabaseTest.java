@@ -59,17 +59,18 @@ public class SemanticMemoryDatabaseTest
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
             SemanticMemoryDatabase.SMEM_SIGNATURE,
-            SemanticMemoryDatabase.SMEM_SCHEMA + "vars", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_attr",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii"
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_persistent_variables", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_type",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_integer",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_float",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_string",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_activation_history",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_attribute_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_lti_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_ascii"
         };
         
         for(String expected : expectedTables)
@@ -95,15 +96,16 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_parent_attr_val_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_val_lti_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const_attr_val",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_int_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_float_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_str_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti_letter_num",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti_t",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_parent_attr_val_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_attr_val_lti_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_attr_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_ct_lti_attr_val",
         };
         
         for(String expected : expectedTables)
