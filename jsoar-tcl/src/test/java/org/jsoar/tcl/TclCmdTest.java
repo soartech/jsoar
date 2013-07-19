@@ -36,11 +36,16 @@ public class TclCmdTest
     @Before
     public void setUp() throws Exception
     {
-        this.agent = new Agent();
+        this.agent = new Agent(false);
         ifc = SoarTclInterface.findOrCreate(agent);
         this.agent.getPrinter().addPersistentWriter(
                 outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
+        
+        // Since this compares text and .initialize() writes a \n to the trace
+        // These tests will fail unless the trace is off when .initialize() is
+        // called.
+        this.agent.initialize();
     }
 
     @After
