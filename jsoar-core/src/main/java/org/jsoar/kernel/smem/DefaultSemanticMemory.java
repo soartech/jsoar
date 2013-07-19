@@ -32,6 +32,7 @@ import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemoryDatabase;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -55,6 +56,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -125,7 +127,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private static enum smem_variable_key
     {
-        var_max_cycle, var_num_nodes, var_num_edges, var_act_thresh
+        var_max_cycle, var_num_nodes, var_num_edges, var_act_thresh, var_act_mode
     };
     
     /**
@@ -2099,23 +2101,37 @@ public class DefaultSemanticMemory implements SemanticMemory
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
     
-    /**
-     * <p>semantic_memory.cpp:1582:smem_process_query
-     * 
-     * @param state
-     * @param query
-     * @param prohibit
-     * @return
-     * @throws SQLException
-     */
-    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, 
-            Set<Long> /*smem_lti_set*/ prohibit) throws SQLException
+    PreparedStatement smem_setup_web_crawl(WeightedCueElement el) throws SQLException
     {
-        return smem_process_query(state, query, prohibit, smem_query_levels.qry_full);
+        PreparedStatement q = null;
+        
+        // first, point to correct query and setup
+        // query-specific parameters
+        if (el.element_type == smem_cue_element_type.attr_t)
+        {
+            // attribute_s_id=?
+            q = db.web_attr_all;
+        }
+        else if (el.element_type == smem_cue_element_type.value_const_t)
+        {
+            // attribute_s_id=? AND value_constant_s_id=?
+            q = db.web_const_all;
+            q.setLong(2, el.value_hash);
+        }
+        else if (el.element_type == smem_cue_element_type.value_lti_t)
+        {
+            q = db.web_lti_all;
+            q.setLong(2, el.value_lti);
+        }
+        
+        // all require hash as first parameter
+        q.setLong(1, el.value_hash);
+        
+        return q;
     }
 
     /**
-     * <p>semantic_memory.cpp:1582:smem_process_query
+     * <p>semantic_memory.cpp:2145:_smem_process_cue_wme
      * 
      * @param state
      * @param query
@@ -2124,10 +2140,130 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @return
      * @throws SQLException
      */
-    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, 
-            Set<Long> /*smem_lti_set*/ prohibit, 
-            smem_query_levels query_level /*= qry_full*/ ) throws SQLException
+    boolean _smem_process_cue_wme(WmeImpl w, boolean pos_cue, PriorityQueue<WeightedCueElement> weighted_pq) throws SQLException
     {   
+        boolean good_wme = true;
+        WeightedCueElement new_cue_element;
+        
+        long /*smem_hash_id*/ attr_hash;
+        long /*smem_hash_id*/ value_hash;
+        long /*smem_lti_id*/ value_lti;
+        smem_cue_element_type element_type;
+        
+        PreparedStatement q = null;
+        
+        {
+            // we only have to do the hard work if
+            attr_hash = smem_temporal_hash(w.attr, false);
+            if ( attr_hash != 0 )
+            {
+                if ( w.value.symbol_is_constant() )
+                {
+                    value_lti = 0;
+                    value_hash = smem_temporal_hash(w.value, false);
+                    
+                    if ( value_hash != 0 )
+                    {
+                        q = db.wmes_constant_frequency_get;
+                        q.setLong(1, attr_hash);
+                        q.setLong(2, value_hash);
+                        
+                        element_type = smem_cue_element_type.value_const_t;
+                    }
+                    else
+                    {
+                        if (pos_cue)
+                        {
+                            good_wme = false;
+                        }
+                    }
+                }
+                else
+                {
+                    value_lti = w.value.asIdentifier().smem_lti;
+                    value_hash = 0;
+                    
+                    if ( value_lti == 0 )
+                    {
+                        q = db.attribute_frequency_get;
+                        q.setLong(1, attr_hash);
+                        
+                        element_type = smem_cue_element_type.attr_t;
+                    }
+                    else
+                    {
+                        q = db.wmes_lti_frequency_get;
+                        q.setLong(1, attr_hash);
+                        q.setLong(2, value_lti);
+                        
+                        element_type = smem_cue_element_type.value_lti_t;
+                    }
+                }
+                
+                if (good_wme)
+                {
+                    ResultSet rs = q.executeQuery();
+                    try
+                    {
+                        if (rs.next())
+                        {
+                            new_cue_element = new WeightedCueElement();
+                            
+                            new_cue_element.weight = rs.getLong(0+1);
+                            new_cue_element.attr_hash = attr_hash;
+                            new_cue_element.value_hash = value_hash;
+                            new_cue_element.value_lti = value_lti;
+                            new_cue_element.cue_element = w;
+                            
+                            new_cue_element.element_type = element_type;
+                            new_cue_element.pos_element = pos_cue;
+                            
+                            weighted_pq.add(new_cue_element);
+                            new_cue_element = null;
+                        }
+                        else
+                        {
+                            if (pos_cue)
+                            {
+                                good_wme = false;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        rs.close();
+                    }
+                }
+            }
+            else
+            {
+                if (pos_cue)
+                {
+                    good_wme = false;
+                }
+            }
+        }
+        
+        return good_wme;
+    }
+    
+    
+    /**
+     * <p>semantic_memory.cpp:2246:smem_process_query
+     * 
+     * @param state
+     * @param query
+     * @param negquery
+     * @param prohibit
+     * @param cue_wmes
+     * @param meta_wmes
+     * @param retrieval_wmes
+     * @param query_level
+     * @return
+     * @throws SQL_Exception
+     */
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes, smem_query_levels query_level)
+    {
         final SemanticMemoryStateInfo smem_info = smem_info(state);
         final LinkedList<WeightedCueElement> weighted_cue = new LinkedList<WeightedCueElement>();    
         boolean good_cue = true;
@@ -2142,98 +2278,41 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             final PriorityQueue<WeightedCueElement> weighted_pq = WeightedCueElement.newPriorityQueue();
             
-            final List<WmeImpl> cue = smem_get_direct_augs_of_id( query );
-
-            smem_cue_element_type element_type = smem_cue_element_type.attr_t;
-
-            for (WmeImpl w : cue)
+            // positive que - always
             {
-                smem_info.cue_wmes.add( w );
-
-                if ( good_cue )
+                List<WmeImpl> cue = smem_get_direct_augs_of_id(query);
+                if (cue.isEmpty())
                 {
-                    // we only have to do hard work if
-                    final long attr_hash = smem_temporal_hash( w.attr, false );
-                    if ( attr_hash != 0 )
+                    good_cue = false;
+                }
+                
+                //for ( smem_wme_list::iterator cue_p=cue->begin(); cue_p!=cue->end(); cue_p++ )
+                for (Iterator<WmeImpl> it = cue.iterator();it.hasNext();)
+                {
+                    WmeImpl cue_p = it.next();
+                    cue_wmes.add(cue_p);
+                    
+                    if (good_cue)
                     {
-                        long value_lti = 0;
-                        long value_hash = 0;
-                        PreparedStatement q = null;
-                        if ( smem_symbol_is_constant( w.value ) )
-                        {
-                            value_lti = 0;
-                            value_hash = smem_temporal_hash( w.value, false );
-
-                            if ( value_hash != 0 )
-                            {
-                                q = db.wmes_constant_frequency_get;
-                                q.setLong( 1, attr_hash );
-                                q.setLong( 2, value_hash );
-
-                                element_type = smem_cue_element_type.value_const_t;
-                            }
-                            else
-                            {
-                                good_cue = false;
-                            }
-                        }
-                        else
-                        {
-                            value_lti = w.value.asIdentifier().smem_lti;
-                            value_hash = 0;
-
-                            if ( value_lti == 0 )
-                            {
-                                q = db.attribute_frequency_get;
-                                q.setLong( 1, attr_hash );
-
-                                element_type = smem_cue_element_type.attr_t;
-                            }
-                            else
-                            {
-                                q = db.wmes_lti_frequency_get;
-                                q.setLong( 1, attr_hash );
-                                q.setLong( 2, value_lti );
-
-                                element_type = smem_cue_element_type.value_lti_t;
-                            }
-                        }
-
-                        if ( good_cue )
-                        {
-                            final ResultSet rs = q.executeQuery();
-                            try
-                            {
-                                if ( rs.next() )
-                                {
-                                    final WeightedCueElement new_cue_element = new WeightedCueElement();
-    
-                                    new_cue_element.weight = rs.getLong( 0 + 1);
-                                    new_cue_element.attr_hash = attr_hash;
-                                    new_cue_element.value_hash = value_hash;
-                                    new_cue_element.value_lti = value_lti;
-                                    new_cue_element.cue_element = w;
-    
-                                    new_cue_element.element_type = element_type;
-    
-                                    weighted_pq.add( new_cue_element );
-                                }
-                                else
-                                {
-                                    good_cue = false;
-                                }
-                            }
-                            finally
-                            {
-                                rs.close();
-                            }
-
-                            //q->reinitialize();
-                        }
+                        good_cue = _smem_process_cue_wme(cue_p, true, weighted_pq);
                     }
-                    else
+                }
+            }
+            
+            // negative que - if present
+            if ( negquery != null )
+            {
+                List<WmeImpl> cue = smem_get_direct_augs_of_id(negquery);
+                
+              //for ( smem_wme_list::iterator cue_p=cue->begin(); cue_p!=cue->end(); cue_p++ )
+                for (Iterator<WmeImpl> it = cue.iterator();it.hasNext();)
+                {
+                    WmeImpl cue_p = it.next();
+                    cue_wmes.add(cue_p);
+                    
+                    if (good_cue)
                     {
-                        good_cue = false;
+                        good_cue = _smem_process_cue_wme(cue_p, false, weighted_pq);
                     }
                 }
             }
@@ -2262,7 +2341,19 @@ public class DefaultSemanticMemory implements SemanticMemory
         // only search if the cue was valid
         if ( good_cue && !weighted_cue.isEmpty() )
         {
-            final WeightedCueElement first_element = weighted_cue.iterator().next();
+            // by definition, the first positive-cue element dictates the candidate set
+            final WeightedCueElement cand_set;
+            
+            for (Iterator<WeightedCueElement> it = weighted_cue.iterator();it.hasNext();)
+            {
+                WeightedCueElement next_element = it.next();
+                
+                if (next_element.pos_element)
+                {
+                    cand_set = next_element;
+                    break;
+                }
+            }
 
             PreparedStatement q = null;
             PreparedStatement q2 = null;
@@ -2270,30 +2361,45 @@ public class DefaultSemanticMemory implements SemanticMemory
             long /*smem_lti_id*/ cand;
             boolean good_cand;
             
-            // setup first query, which is sorted on activation already
+            if (params.activation_mode.get() == ActivationChoices.base)
             {
-                if ( first_element.element_type == smem_cue_element_type.attr_t )
+                // naive base-level updates means update activation of
+                // every candidate in the minimal list before the
+                // confirmation walk
+                if (params.base_update.get() == BaseUpdateChoices.naive)
                 {
-                    // attr=?
-                    q = db.web_attr_all;
+                    q = smem_setup_web_crawl(cand_set);
+                    
+                    // queue up distinct lti's to update
+                    // - set because queries could contain wilds
+                    // - not in loop because the effects of activation may actually
+                    //   alter the resultset of the query (isolation???)
+                    Set<Long /*smem_lti_id*/> to_update;
+                    
+                    ResultSet rs = q.executeQuery();
+                    try
+                    {
+                        while (rs.next())
+                        {
+                            to_update.add(rs.getLong(0+1));
+                        }
+                    }
+                    finally
+                    {
+                        rs.close();
+                    }
+                    
+                    for (Long lti : to_update)
+                    {
+                        smem_lti_activate(lti, false);
+                    }
                 }
-                else if ( first_element.element_type == smem_cue_element_type.value_const_t )
-                {
-                    // attr=? AND val_const=?
-                    q = db.web_const_all;
-                    q.setLong( 2, first_element.value_hash );
-                }
-                else if ( first_element.element_type == smem_cue_element_type.value_lti_t )
-                {
-                    // attr=? AND val_lti=?
-                    q = db.web_lti_all;
-                    q.setLong( 2, first_element.value_lti );
-                }
-
-                // all require hash as first parameter
-                q.setLong( 1, first_element.attr_hash );
             }
+            
+            // setup first query, which is sorted on activation already
+            q = smem_setup_web_crawl(cand_set);
 
+            // this becomes the minimal set to walk (till match or fail)
             final ResultSet qrs = q.executeQuery();
             try
             {
@@ -2302,8 +2408,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                     final PriorityQueue<ActivatedLti> plentiful_parents = ActivatedLti.newPriorityQueue();
                     boolean more_rows = true;
                     boolean use_db = false;
+                    boolean has_feature = false;
     
-                    while ( more_rows && ( qrs.getLong( 1 + 1 ) == SMEM_ACT_MAX ) )
+                    while ( more_rows && ( qrs.getDouble( 1 + 1 ) == SMEM_ACT_MAX ) )
                     {
                         db.act_lti_get.setLong( 1, qrs.getLong( 0 + 1 ) );
                         final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
@@ -2339,7 +2446,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             }
                             else
                             {
-                                use_db = ( qrs.getLong( 1 + 1) >  plentiful_parents.peek().first );                       
+                                use_db = ( qrs.getDouble( 1 + 1) >  plentiful_parents.peek().first );                       
                             }
     
                             if ( use_db )
@@ -2359,24 +2466,29 @@ public class DefaultSemanticMemory implements SemanticMemory
                             good_cand = true;
     
                             final Iterator<WeightedCueElement> it = weighted_cue.iterator();
-                            it.next(); // skip first element
                             for ( ; ( ( good_cand ) && ( it.hasNext() ) );  )
                             {
                                 final WeightedCueElement next_element = it.next();
+                                
+                                if ( next_element == cand_set )
+                                {
+                                    continue;
+                                }
+                                
                                 if ( next_element.element_type == smem_cue_element_type.attr_t )
                                 {
-                                    // parent=? AND attr=?
+                                    // parent=? AND attribute_s_id=?
                                     q2 = db.web_attr_child;
                                 }
                                 else if ( next_element.element_type == smem_cue_element_type.value_const_t )
                                 {
-                                    // parent=? AND attr=? AND val_const=?
+                                    // parent=? AND attribute_s_id=? AND value_constant_s_id=?
                                     q2 = db.web_const_child;
                                     q2.setLong( 3, next_element.value_hash );
                                 }
                                 else if ( next_element.element_type == smem_cue_element_type.value_lti_t )
                                 {
-                                    // parent=? AND attr=? AND val_lti=?
+                                    // parent=? AND attribute_s_id=? AND value_lti_id=?
                                     q2 = db.web_lti_child;
                                     q2.setLong( 3, next_element.value_lti );
                                 }
@@ -2388,7 +2500,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 final ResultSet q2rs = q2.executeQuery();
                                 try
                                 {
-                                    good_cand = q2rs.next(); //( q2->execute( soar_module::op_reinit ) == soar_module::row );
+                                    has_feature = q2rs.next();
+                                    good_cand = ( ( next_element.pos_element ) ? ( has_feature ) : ( !has_feature ) );
+                                    if (!good_cand)
+                                    {
+                                        break;
+                                    }
                                 }
                                 finally
                                 {
@@ -2425,18 +2542,23 @@ public class DefaultSemanticMemory implements SemanticMemory
             if ( king_id != 0 )
             {
                 // success!
-                smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, query );
+                smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_success, query );
 
                 ////////////////////////////////////////////////////////////////////////////
                 // TODO SMEM Timers: my_agent->smem_timers->query->stop();
                 ////////////////////////////////////////////////////////////////////////////
 
-                smem_install_memory( state, king_id );
+                smem_install_memory( state, king_id, 0, params.activate_on_query.get() == true, meta_wmes, retrieval_wmes );
             }
             else
             {
-                smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, query );
+                smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, query );
 
+                if ( negquery != null )
+                {
+                    smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, negquery );
+                }
+                
                 ////////////////////////////////////////////////////////////////////////////
                 // TODO SMEM Timers: my_agent->smem_timers->query->stop();
                 ////////////////////////////////////////////////////////////////////////////
@@ -2451,6 +2573,12 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         return king_id;
     }
+    
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // Initialization (smem::init)
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
     
     /**
      * <p>semantic_memory.cpp:1892:smem_clear_result
@@ -2493,13 +2621,21 @@ public class DefaultSemanticMemory implements SemanticMemory
             data.last_cmd_count[0] = 0;
             data.last_cmd_count[1] = 0;
 
-            data.cue_wmes.clear();
             // this will be called after prefs from goal are already removed,
             // so just clear out result stack
             data.smem_wmes.clear();
             
             state = state.goalInfo.lower_goal;
         }
+    }
+    
+    void smem_switch_to_memory_db(String buf) throws SoarException, SQLException, IOException
+    {
+        trace.print(buf);
+        params.path.set(":memory:");
+        db.getConnection().close();
+        db = null;
+        smem_init_db(false);
     }
     
     /**
@@ -2547,8 +2683,19 @@ public class DefaultSemanticMemory implements SemanticMemory
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
+        
+        if (params.path.get().equals(":memory:"))
+        {
+            trace.print(Category.SMEM, "SMem| Initializing semantic memory database in cpu memory.\n");
+        }
+        else
+        {
+            trace.print(Category.SMEM, "SMem| Initializing semantic memory memory database at %s\n", params.path.get());
+        }
+        
+        
         db = new SemanticMemoryDatabase(params.driver.get(), connection);
-
+                
         // temporary queries for one-time init actions
 
         applyDatabasePerformanceOptions();
@@ -2559,6 +2706,44 @@ public class DefaultSemanticMemory implements SemanticMemory
         // setup common structures/queries
         final boolean tabula_rasa = db.structure();
         db.prepare();
+        
+        //Make sure we do not have an incorrect database version
+        if (!":memory:".equals(params.path.get()))
+        {
+            final ResultSet result = db.get_schema_version.executeQuery();
+            try
+            {
+                if (result.next())
+                {
+                    String schemaVersion = result.getString(1);
+                    if (!SemanticMemoryDatabase.SMEM_SCHEMA.equals(schemaVersion))
+                    {
+                        logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
+                        params.path.set(":memory:");
+                        // Switch to memory
+                        // Undo what was done so far
+                        connection.close();
+                        db = null;
+                        // This will only recurse once, because the path is
+                        // guaranteed to be memory for the second call
+                        smem_init_db(readonly);
+                    }
+                }
+                else
+                {
+                    if (params.append_db.get())
+                    {
+                        logger.info("The selected database contained no data to append on.  New tables created.");
+                    }
+                }
+            }
+            finally
+            {
+                result.close();
+            }
+        }
+        db.set_schema_version.setString(1, SemanticMemoryDatabase.SMEM_SCHEMA);
+        db.set_schema_version.execute();
 
         if ( tabula_rasa )
         {
@@ -2574,6 +2759,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 smem_variable_create(smem_variable_key.var_num_edges, stats.edges.get() );
                 
                 smem_variable_create(smem_variable_key.var_act_thresh, params.thresh.get());
+                
+                smem_variable_create(smem_variable_key.var_act_mode, params.activation_mode.get().ordinal());
             }
             db.commit.executeUpdate();
         }
@@ -2596,6 +2783,10 @@ public class DefaultSemanticMemory implements SemanticMemory
             // edges
             smem_variable_get(smem_variable_key.var_num_edges, temp );
             stats.edges.set(temp.value);
+            
+            // activiation mode
+            smem_variable_get(smem_variable_key.var_act_mode, temp );
+            params.activation_mode.set(ActivationChoices.values()[Integer.parseInt(temp.value.toString())]);
         }
 
         // reset identifier counters
@@ -2627,11 +2818,11 @@ public class DefaultSemanticMemory implements SemanticMemory
             SoarException, IOException
     {
         // cache
-        if(params.driver.equals("org.sqlite.JDBC"))
+        if (params.driver.equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
-            
+
             final Statement s = db.getConnection().createStatement();
             try
             {
@@ -2669,7 +2860,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
         }
         
-        // TODO SMEM page_size
+        // TODO SMEM Page Size
     }
     
     /* (non-Javadoc)
@@ -2696,6 +2887,16 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
     
+    void _smem_close_vars()
+    {
+        // store max cycle for future use of the smem database
+        smem_variable_set(smem_variable_key.var_max_cycle, this.smem_max_cycle);
+        
+        // store num nodes/edges for future use of the smem database
+        smem_variable_set(smem_variable_key.var_num_nodes, stats.nodes.get());
+        smem_variable_set(smem_variable_key.var_num_edges, stats.edges.get());
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.SemanticMemory#smem_close()
      */
@@ -2707,12 +2908,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             try
             {
-                // store max cycle for future use of the smem database
-                smem_variable_set( smem_variable_key.var_max_cycle, smem_max_cycle );
-
-                // store num nodes/edges for future use of the smem database
-                smem_variable_set( smem_variable_key.var_num_nodes, stats.nodes.get() );
-                smem_variable_set( smem_variable_key.var_num_edges, stats.edges.get() );
+                _smem_close_vars();
 
                 // if lazy, commit
                 if (params.lazy_commit.get())
@@ -2915,15 +3111,15 @@ public class DefaultSemanticMemory implements SemanticMemory
                             {
                                 chunk_value = null;
                                 // value by type
-                                if ( ( lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT ) )
+                                if ( lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT )
                                 {
                                     chunk_value = symbols.createString(lexer.getCurrentLexeme().string);
                                 }
-                                else if ( ( lexer.getCurrentLexeme().type == LexemeType.INTEGER ) )
+                                else if ( lexer.getCurrentLexeme().type == LexemeType.INTEGER )
                                 {
                                     chunk_value = symbols.createInteger(lexer.getCurrentLexeme().int_val);
                                 }
-                                else if ( ( lexer.getCurrentLexeme().type == LexemeType.FLOAT) )
+                                else if ( lexer.getCurrentLexeme().type == LexemeType.FLOAT)
                                 {
                                     chunk_value = symbols.createDouble(lexer.getCurrentLexeme().float_val);
                                 }
@@ -2961,6 +3157,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                             temp_chunk.lti_number = temp_key2.id_number;
                                             temp_chunk.lti_id = 0;
                                             temp_chunk.slots = null;
+                                            temp_chunk.soar_id = null;
 
                                             // add to chunks
                                             chunks.put(temp_key2.value, temp_chunk);

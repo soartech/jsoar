@@ -18,6 +18,8 @@ import org.jsoar.util.db.AbstractSoarDatabase;
 final class SemanticMemoryDatabase extends AbstractSoarDatabase
 {
     // empty table used to verify proper structure
+    static final String SMEM_SCHEMA = "smem2_";
+    static final String SMEM_SIGNATURE = SMEM_SCHEMA + "smem_signature";
     public static final String SMEM_SCHEMA_VERSION = "2.0";
 
     // These are all the prepared statements for SMEM. They're filled in via reflection
@@ -93,6 +95,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement vis_lti_act;
     PreparedStatement vis_value_const;
     PreparedStatement vis_value_lti;
+    
+    PreparedStatement set_schema_version;
+    PreparedStatement get_schema_version;
     
     public SemanticMemoryDatabase(String driver, Connection db)
     {
