@@ -99,6 +99,19 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement set_schema_version;
     PreparedStatement get_schema_version;
     
+    PreparedStatement drop_smem_persistent_variables;
+    PreparedStatement drop_smem_symbols_type;
+    PreparedStatement drop_smem_symbols_integer;
+    PreparedStatement drop_smem_symbols_float;
+    PreparedStatement drop_smem_symbols_string;
+    PreparedStatement drop_smem_lti;
+    PreparedStatement drop_smem_activation_history;
+    PreparedStatement drop_smem_augmentations;
+    PreparedStatement drop_smem_attribute_frequency;
+    PreparedStatement drop_smem_wmes_constant_frequency;
+    PreparedStatement drop_smem_wmes_lti_frequency;
+    PreparedStatement drop_smem_ascii;
+    
     public SemanticMemoryDatabase(String driver, Connection db)
     {
         super(driver, db, SMEM_SIGNATURE);
