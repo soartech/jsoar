@@ -28,11 +28,10 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
-import org.jsoar.kernel.epmem.EpisodicMemory;
-import org.jsoar.kernel.epmem.EpisodicMemoryDatabase;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -179,6 +178,10 @@ public class DefaultSemanticMemory implements SemanticMemory
     /*private*/ SemanticMemorySymbols predefinedSyms;
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
+
+    private Set<IdentifierImpl> smem_changed_ids;
+
+    private boolean smem_ignore_changes;
     
     public DefaultSemanticMemory(Adaptable context)
     {
@@ -202,6 +205,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         this.epmem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultEpisodicMemory.class);
         
+        Agent agent = Adaptables.adapt(context, Agent.class);
         this.trace = agent.getTrace();
         
         final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
@@ -487,8 +491,9 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             else
             {
-                preference_add_ref( pref );
-                preference_remove_ref( pref );
+                // Don't need since this is JSoar? -ALT
+                //preference_add_ref( pref );
+                //preference_remove_ref( pref );
             }
         }
         
@@ -530,8 +535,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
                         else
                         {
-                            preference_add_ref( just_pref );
-                            preference_remove_ref( just_pref );
+                            // Don't need since this is JSoar? -ALT
+                            //preference_add_ref( just_pref );
+                            //preference_remove_ref( just_pref );
                         }
                     }
                 }
@@ -549,9 +555,10 @@ public class DefaultSemanticMemory implements SemanticMemory
     {
         my_list.add(new SymbolTriple(id, attr, value));
         
-        symbol_add_ref( id );
-        symbol_add_ref( attr );
-        symbol_add_ref( value );
+        //Don't need since this is JSoar? -ALT
+        //symbol_add_ref( id );
+        //symbol_add_ref( attr );
+        //symbol_add_ref( value );
     }
 
     
@@ -1310,7 +1317,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 id.smem_lti = smem_lti_add_id( id.getNameLetter(), id.getNameNumber() );
 
-                id.smem_time_id =  epmem.getStats().getTime().get();
+                id.smem_time_id =  epmem.getStats().getTime();
                 id.id_smem_valid = epmem.epmem_validation();
                 
                 epmem.epmem_schedule_promotion(id);
@@ -1927,7 +1934,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 // create value, per type
                 final Object v;
-                if ( symbol_is_constant( w.value ) )
+                if ( w.value.symbol_is_constant() )
                 {
                     v = w.value;
                 }
@@ -2148,7 +2155,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         long /*smem_hash_id*/ attr_hash;
         long /*smem_hash_id*/ value_hash;
         long /*smem_lti_id*/ value_lti;
-        smem_cue_element_type element_type;
+        smem_cue_element_type element_type = null;
         
         PreparedStatement q = null;
         
@@ -2248,7 +2255,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
     
     
-    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException
     {
         return smem_process_query(state, query, negquery, prohibit, cue_wmes, meta_wmes, retrieval_wmes, smem_query_levels.qry_full);
     }
@@ -2265,9 +2272,9 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param retrieval_wmes
      * @param query_level
      * @return
-     * @throws SQL_Exception
+     * @throws SQLException 
      */
-    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes, smem_query_levels query_level)
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /*smem_lti_set*/ prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes, smem_query_levels query_level) throws SQLException
     {
         final SemanticMemoryStateInfo smem_info = smem_info(state);
         final LinkedList<WeightedCueElement> weighted_cue = new LinkedList<WeightedCueElement>();    
@@ -2347,7 +2354,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         if ( good_cue && !weighted_cue.isEmpty() )
         {
             // by definition, the first positive-cue element dictates the candidate set
-            final WeightedCueElement cand_set;
+            WeightedCueElement cand_set = null;
             
             for (Iterator<WeightedCueElement> it = weighted_cue.iterator();it.hasNext();)
             {
@@ -2379,7 +2386,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // - set because queries could contain wilds
                     // - not in loop because the effects of activation may actually
                     //   alter the resultset of the query (isolation???)
-                    Set<Long /*smem_lti_id*/> to_update;
+                    Set<Long /*smem_lti_id*/> to_update = new HashSet<Long>();
                     
                     ResultSet rs = q.executeQuery();
                     try
@@ -2549,11 +2556,16 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // success!
                 smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_success, query );
 
+                if ( negquery != null )
+                {
+                    smem_buffer_add_wme( meta_wmes, smem_info.smem_result_header, predefinedSyms.smem_sym_success, negquery );
+                }
+                
                 ////////////////////////////////////////////////////////////////////////////
                 // TODO SMEM Timers: my_agent->smem_timers->query->stop();
                 ////////////////////////////////////////////////////////////////////////////
 
-                smem_install_memory( state, king_id, 0, params.activate_on_query.get() == true, meta_wmes, retrieval_wmes );
+                smem_install_memory( state, king_id, null, params.activate_on_query.get() == true, meta_wmes, retrieval_wmes );
             }
             else
             {
@@ -2892,7 +2904,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
     
-    void _smem_close_vars()
+    void _smem_close_vars() throws SQLException
     {
         // store max cycle for future use of the smem database
         smem_variable_set(smem_variable_key.var_max_cycle, this.smem_max_cycle);
@@ -3369,12 +3381,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                         // if so we make it an lti manually
                                         id_parent.smem_lti = c_new.lti_id;
 
-                                        // TODO SMEM Uncomment and port when
-                                        // epmem is ported
-                                        // id_parent.smem_time_id =
-                                        // my_agent->epmem_stats->time->get_value();
-                                        // id_parent.smem_valid =
-                                        // my_agent->epmem_validation;
+                                        id_parent.smem_time_id = epmem.getStats().getTime();
                                     }
                                 }
                             }
@@ -3447,9 +3454,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         // (could go in the opposite direction as well)
         IdentifierImpl state = decider.bottom_goal;
         
-        List<SymbolTriple> meta_wmes;
-        List<SymbolTriple> retrieval_wmes;
-        Set<WmeImpl> cue_wmes;
+        List<SymbolTriple> meta_wmes = new ArrayList<SymbolTriple>();
+        List<SymbolTriple> retrieval_wmes = new ArrayList<SymbolTriple>();
+        Set<WmeImpl> cue_wmes = new HashSet<WmeImpl>();
         
         final List<IdentifierImpl> prohibit = new LinkedList<IdentifierImpl>();
         final List<IdentifierImpl> store = new LinkedList<IdentifierImpl>();
@@ -3845,7 +3852,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // TODO SMEM Timers: my_agent->smem_timers->total->stop();
     }
     
-    boolean smem_backup_db( String file_name, ByRef<String> err)
+    boolean smem_backup_db( String file_name, ByRef<String> err) throws SQLException
     {
         boolean return_val = false;
         
@@ -3858,7 +3865,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                 db.commit.execute();
             }
             
-            return_val = db.backup( file_name, err );
+            // This method is never called and therefore I shouldn't need to implement it
+            // - ALT
+            //return_val = db.backup( file_name, err );
             
             if ( params.lazy_commit.get() == true )
             {
@@ -4176,9 +4185,12 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private void smem_visualize_lti_safe( long /*smem_lti_id*/ lti_id, int depth, PrintWriter return_val ) throws SQLException
     {
+        // buffer
+        StringWriter return_val2 = new StringWriter();
+        
         final Queue<smem_vis_lti> bfs = new ArrayDeque<smem_vis_lti>();
 
-        final Set<Long /*smem_lti_id*/> close_list = new HashSet<Long>();
+        final Map<Long /*smem_lti_id*/, smem_vis_lti> close_list = new HashMap<Long, smem_vis_lti>();
 
         // header
         return_val.append( "digraph smem_lti {" );
@@ -4198,26 +4210,18 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 try
                 {
-                    // letter
+                    // soar_letter
                     new_lti.lti_name = String.format("%c%d", (char) lti_q.getLong(0 + 1), lti_q.getLong(1 + 1));
                 }
                 finally
                 {
                     lti_q.close();
                 }
-
-                // output without linkage
-                return_val.append( "node [ shape = doublecircle ];" );
-                return_val.append( "\n" );
-
-                return_val.append( new_lti.lti_name );
-                return_val.append( ";" );
-                return_val.append( "\n" );
             }
 
             bfs.add( new_lti );
 
-            close_list.add( lti_id );
+            close_list.put( lti_id, new_lti );
         }
 
         // optionally depth-limited breadth-first-search of children
@@ -4236,7 +4240,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     // identifier vs. constant
                     final long check_lti_id = expand_q.getLong(6 + 1);
-                    if ( !expand_q.wasNull() )
+                    if ( check_lti_id != SMEM_AUGMENTATIONS_NULL )
                     {
                         final smem_vis_lti new_lti = new smem_vis_lti();
                         new_lti.lti_id = check_lti_id;
@@ -4244,40 +4248,32 @@ public class DefaultSemanticMemory implements SemanticMemory
     
                         // add node
                         {
-                            // letter
+                            // soar_letter
                             new_lti.lti_name = String.format("%c%d", (char) expand_q.getLong(4 + 1), expand_q.getLong(5 + 1));
-    
-                            // output node
-                            return_val.append( "node [ shape = doublecircle ];" );
-                            return_val.append( "\n" );
-    
-                            return_val.append( new_lti.lti_name );
-                            return_val.append( ";" );
-                            return_val.append( "\n" );
                         }
     
     
                         // add linkage
                         {
                             // output linkage
-                            return_val.append( parent_lti.lti_name );
-                            return_val.append( " -> " );
-                            return_val.append( new_lti.lti_name );
-                            return_val.append( " [ label = \"" );
+                            return_val2.append( parent_lti.lti_name );
+                            return_val2.append( " -> " );
+                            return_val2.append( new_lti.lti_name );
+                            return_val2.append( " [ label = \"" );
                             
                             // get attribute
                             switch ( (int) expand_q.getLong( 0 + 1 ) )
                             {
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                return_val.append( smem_reverse_hash_str(expand_q.getLong(1 + 1)));
+                                return_val2.append( smem_reverse_hash_str(expand_q.getLong(1 + 1)));
                                 break;
 
                             case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                return_val.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(1 + 1))));
+                                return_val2.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(1 + 1))));
                                 break;
 
                             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                return_val.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(1 + 1))));
+                                return_val2.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(1 + 1))));
                                 break;
 
                             default:
@@ -4285,27 +4281,26 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 break;
                             }
                             
-                            return_val.append( "\" ];" );
-                            return_val.append( "\n" );
+                            return_val2.append( "\" ];" );
+                            return_val2.append( "\n" );
                         }
     
-                        // add to bfs (if still in depth limit)
-                        if ( ( depth == 0 ) || ( new_lti.level < depth ) )
+                        // prevent looping
                         {
                             // prevent looping
-                            if ( !close_list.contains(new_lti.lti_id) )
+                            if ( !close_list.containsKey(new_lti.lti_id) )
                             {
-                                close_list.add( new_lti.lti_id );                       
-                                bfs.add( new_lti );
+                                close_list.put( new_lti.lti_id, new_lti );
+                                
+                                if ( ( depth == 0 ) || ( new_lti.level < depth ) )
+                                {
+                                    bfs.add( new_lti );
+                                }
                             }
                             else
                             {
                                 // delete new_lti;
                             }               
-                        }
-                        else
-                        {
-                            // delete new_lti;
                         }
                     }
                     else
@@ -4315,24 +4310,24 @@ public class DefaultSemanticMemory implements SemanticMemory
                         // add value node
                         {
                             // output node
-                            return_val.append( "node [ shape = plaintext ];" );
-                            return_val.append( "\n" );
-                            return_val.append( node_name );
-                            return_val.append( " [ label=\"" );
+                            return_val2.append( "node [ shape = plaintext ];" );
+                            return_val2.append( "\n" );
+                            return_val2.append( node_name );
+                            return_val2.append( " [ label=\"" );
     
                             // get value
                             switch ( (int) expand_q.getLong( 2 + 1 ) )
                             {
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                return_val.append( smem_reverse_hash_str(expand_q.getLong(3 + 1)));
+                                return_val2.append( smem_reverse_hash_str(expand_q.getLong(3 + 1)));
                                 break;
 
                             case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                return_val.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(3 + 1))));
+                                return_val2.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(3 + 1))));
                                 break;
 
                             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                return_val.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(3 + 1))));
+                                return_val2.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(3 + 1))));
                                 break;
 
                             default:
@@ -4340,17 +4335,17 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 break;
                             }
     
-                            return_val.append( "\" ];" );
-                            return_val.append( "\n" );
+                            return_val2.append( "\" ];" );
+                            return_val2.append( "\n" );
                         }
     
                         // add linkage
                         {
                             // output linkage
-                            return_val.append( parent_lti.lti_name );
-                            return_val.append( " -> " );
-                            return_val.append( node_name );
-                            return_val.append( " [ label = \"" );
+                            return_val2.append( parent_lti.lti_name );
+                            return_val2.append( " -> " );
+                            return_val2.append( node_name );
+                            return_val2.append( " [ label = \"" );
                             
                             // get attribute
                             switch ( (int) expand_q.getLong( 0 + 1 ) )
@@ -4372,8 +4367,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 break;
                             }
     
-                            return_val.append( "\" ];" );
-                            return_val.append( "\n" );
+                            return_val2.append( "\" ];" );
+                            return_val2.append( "\n" );
                         }
     
                         child_counter++;
@@ -4387,8 +4382,52 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // footer
-        return_val.append( "}" );
-        return_val.append( "\n" );
+        return_val2.append( "}" );
+        return_val2.append( "\n" );
+        
+        // handle lti nodes at once
+        {
+            PreparedStatement act_q = db.vis_lti_act;
+            
+            return_val.append( "node [ shape = doublecircle ];" );
+            return_val.append( "\n" );
+            
+            for (Map.Entry<Long, smem_vis_lti> e : close_list.entrySet())
+            {
+                return_val.append( e.getValue().lti_name );
+                return_val.append( " [ label=\"" );
+                return_val.append( e.getValue().lti_name );
+                return_val.append( "\\n[" );
+                
+                act_q.setLong(1, e.getKey());
+                ResultSet rs = null;
+                try
+                {
+                    rs = act_q.executeQuery();
+                    
+                    if (rs.next())
+                    {
+                        Double temp_double = rs.getDouble(0+1);
+                        if (temp_double >= 0)
+                        {
+                            return_val.append("+");
+                        }
+                        return_val.append(temp_double.toString());
+                    }
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                return_val.append("]\"");
+                return_val.append(" ];");
+                return_val.append("\n");
+            }
+        }
+        
+        // transfer buffer after nodes
+        return_val.append(return_val2.toString());
     }
 
     /**
@@ -4412,5 +4451,23 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
         }
         
+    }
+
+    @Override
+    public boolean isMirroringEnabled()
+    {
+        return params.mirroring.get();
+    }
+
+    @Override
+    public Set<IdentifierImpl> smem_changed_ids()
+    {
+        return smem_changed_ids;
+    }
+
+    @Override
+    public boolean smem_ignore_changes()
+    {
+        return smem_ignore_changes;
     }
 }

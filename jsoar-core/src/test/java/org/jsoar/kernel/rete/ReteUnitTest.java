@@ -26,6 +26,7 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.original.OriginalParser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -42,6 +43,7 @@ public class ReteUnitTest extends JSoarTest
     private Rete rete;
     private Listener listener;
     private DefaultEpisodicMemory episodicMemory;
+    private DefaultSemanticMemory semanticMemory;
     
     private class Listener implements ReteListener
     {
@@ -105,7 +107,8 @@ public class ReteUnitTest extends JSoarTest
         Agent agent = new Agent();
         this.episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms, agent));
         this.episodicMemory.initialize();
-        this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory);
+        this.semanticMemory = new DefaultSemanticMemory(AdaptableContainer.from(syms, agent));
+        this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory, semanticMemory);
         this.rete.setReteListener(listener);
     }
     

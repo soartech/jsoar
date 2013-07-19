@@ -147,9 +147,7 @@ public class SemanticMemoryDatabaseTest
         assertNotNull(smdb.web_truncate);
         assertNotNull(smdb.web_expand);
 
-        assertNotNull(smdb.web_attr_ct);
-        assertNotNull(smdb.web_const_ct);
-        assertNotNull(smdb.web_lti_ct);
+        assertNotNull(smdb.web_all);
 
         assertNotNull(smdb.web_attr_all);
         assertNotNull(smdb.web_const_all);
@@ -159,17 +157,21 @@ public class SemanticMemoryDatabaseTest
         assertNotNull(smdb.web_const_child);
         assertNotNull(smdb.web_lti_child);
 
-        assertNotNull(smdb.ct_attr_add);
-        assertNotNull(smdb.ct_const_add);
-        assertNotNull(smdb.ct_lti_add);
+        assertNotNull(smdb.attribute_frequency_check);
+        assertNotNull(smdb.wmes_constant_frequency_check);
+        assertNotNull(smdb.wmes_lti_frequency_check);
 
-        assertNotNull(smdb.ct_attr_update);
-        assertNotNull(smdb.ct_const_update);
-        assertNotNull(smdb.ct_lti_update);
+        assertNotNull(smdb.attribute_frequency_add);
+        assertNotNull(smdb.wmes_constant_frequency_add);
+        assertNotNull(smdb.wmes_lti_frequency_add);
 
-        assertNotNull(smdb.ct_attr_get);
-        assertNotNull(smdb.ct_const_get);
-        assertNotNull(smdb.ct_lti_get);
+        assertNotNull(smdb.attribute_frequency_update);
+        assertNotNull(smdb.wmes_constant_frequency_update);
+        assertNotNull(smdb.wmes_lti_frequency_update);
+        
+        assertNotNull(smdb.attribute_frequency_get);
+        assertNotNull(smdb.wmes_constant_frequency_get);
+        assertNotNull(smdb.wmes_lti_frequency_get);
 
         assertNotNull(smdb.act_set);
         assertNotNull(smdb.act_lti_child_ct_set);
