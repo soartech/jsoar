@@ -62,7 +62,7 @@ sp {propose*check-epmem*success
    (<epmem> ^command.query <q>
             ^result.success <q>
             ^result.retrieved <result>)
-   (<result> ^pi 3.14159265358979323846)
+   (<result> ^pi { >= 3.14159265358979 <= 3.14159265358980 } )
 -->
    (<s> ^operator <check-epmem> + >)
    (<check-epmem> ^name check-epmem
