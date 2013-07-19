@@ -203,7 +203,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         this.decider = Adaptables.adapt(context, Decider.class);
         this.recMem = Adaptables.adapt(context, RecognitionMemory.class);
         
-        this.epmem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultEpisodicMemory.class);
+        this.epmem = Adaptables.require(DefaultSemanticMemory.class, context, DefaultEpisodicMemory.class);
         
         Agent agent = Adaptables.adapt(context, Agent.class);
         this.trace = agent.getTrace();
@@ -954,7 +954,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 
                 prev_access_n = rs.getLong(0+1);
                 prev_access_t = rs.getLong(1+1);
-                prev_access_1 = rs.getLong(2+2);
+                prev_access_1 = rs.getLong(2+1);
             }
             finally
             {

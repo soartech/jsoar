@@ -70,7 +70,9 @@ public class SemanticMemoryDatabaseTest
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_attribute_frequency",
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency",
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_lti_frequency",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_ascii"
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii",
+            
+            SemanticMemoryDatabase.SMEM_SCHEMA + "versions"
         };
         
         for(String expected : expectedTables)
@@ -106,6 +108,7 @@ public class SemanticMemoryDatabaseTest
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_attr_cycle",
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency_attr_val",
             SemanticMemoryDatabase.SMEM_SCHEMA + "smem_ct_lti_attr_val",
+            "sqlite_autoindex_" + SemanticMemoryDatabase.SMEM_SCHEMA + "versions_1",
         };
         
         for(String expected : expectedTables)
