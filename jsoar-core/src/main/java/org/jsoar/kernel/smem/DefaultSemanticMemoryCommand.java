@@ -173,7 +173,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         // Braces are stripped by the interpreter, so put them back
         smem.smem_parse_chunks("{" + args[i+1] + "}");
-        return "";
+        return "SMem| Knowledge added to semantic memory.";
     }
     
     private String doGet(int i, String[] args) throws SoarException

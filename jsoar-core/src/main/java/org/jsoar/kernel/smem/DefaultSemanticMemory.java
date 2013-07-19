@@ -2073,7 +2073,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     final long lti_rs = rs.getLong(6 + 1);
                     if(lti_rs != SMEM_AUGMENTATIONS_NULL )
                     {
-                        value_sym = smem_lti_soar_make(lti_id, (char) rs.getLong( 4 + 1 ), rs.getLong( 5 + 1 ), lti.level);
+                        value_sym = smem_lti_soar_make(lti_rs, (char) rs.getLong( 4 + 1 ), rs.getLong( 5 + 1 ), lti.level);
                     }
                     else
                     {
@@ -2132,7 +2132,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         
         // all require hash as first parameter
-        q.setLong(1, el.value_hash);
+        q.setLong(1, el.attr_hash );
         
         return q;
     }
