@@ -55,4 +55,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMergeNone", 4);
     }
+    
+    @Test
+    public void testSimpleStoreMultivaluedAttribute() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testSimpleStoreMultivaluedAttribute", 2);
+    }
 }

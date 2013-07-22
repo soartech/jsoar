@@ -1500,6 +1500,75 @@ public class DefaultSemanticMemory implements SemanticMemory
         smem_store_chunk(lti_id, children, remove_old_children, null);
     }
     
+    private class SmemHashIdLongPair
+    {
+        private final long /*smem_hash_id*/ hash_id;
+        private final long second;
+        
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + (int) (hash_id ^ (hash_id >>> 32));
+            result = prime * result + (int) (second ^ (second >>> 32));
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+            SmemHashIdLongPair other = (SmemHashIdLongPair) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+            {
+                return false;
+            }
+            if (hash_id != other.hash_id)
+            {
+                return false;
+            }
+            if (second != other.second)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        SmemHashIdLongPair(long hash_id, long second)
+        {
+            this.hash_id = hash_id;
+            this.second = second;
+        }
+        
+        public long getHashID()
+        {
+            return hash_id;
+        }
+        
+        public long getSecond()
+        {
+            return second;
+        }
+
+        private DefaultSemanticMemory getOuterType()
+        {
+            return DefaultSemanticMemory.this;
+        }
+    }
+    
     /**
      * <p>semantic_memory.cpp:1187:smem_store_chunk
      * 
@@ -1553,8 +1622,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         // get new edges
         // if didn't disconnect, entails lookups in existing edges
         Set<Long /*smem_hash_id*/> attr_new = new HashSet<Long>();
-        Map<Long /*smem_hash_id*/, Long /*smem_hash_id*/> const_new = new HashMap<Long, Long>();
-        Map<Long /*smem_hash_id*/, Long /*smem_lti_id*/> lti_new = new HashMap<Long, Long>();
+        Set<SmemHashIdLongPair /*smem_hash_id->smem_hash_id*/> const_new = new HashSet<SmemHashIdLongPair>();
+        Set<SmemHashIdLongPair /*smem_hash_id->smem_lti_id*/> lti_new = new HashSet<SmemHashIdLongPair>();
         {
             long /*smem_hash_id*/ attr_hash = 0;
             long /*smem_hash_id*/ value_hash = 0;
@@ -1598,7 +1667,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         
                         if ( remove_old_children )
                         {
-                            const_new.put(attr_hash, value_hash);
+                            const_new.add(new SmemHashIdLongPair(attr_hash, value_hash));
                         }
                         else
                         {
@@ -1614,7 +1683,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 
                                 if (!rs.next())
                                 {
-                                    const_new.put(attr_hash, value_hash);
+                                    const_new.add(new SmemHashIdLongPair(attr_hash, value_hash));
                                 }
                             }
                             finally
@@ -1648,7 +1717,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         
                         if ( remove_old_children )
                         {
-                            lti_new.put(attr_hash, value_lti);
+                            lti_new.add(new SmemHashIdLongPair(attr_hash, value_lti));
                         }
                         else
                         {
@@ -1664,7 +1733,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 
                                 if (!rs.next())
                                 {
-                                    lti_new.put(attr_hash, value_lti);
+                                    lti_new.add(new SmemHashIdLongPair(attr_hash, value_lti));
                                 }
                             }
                             finally
@@ -1730,14 +1799,14 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             // attr/const pairs
             {
-                for (Map.Entry<Long, Long> p : const_new.entrySet())
+                for (SmemHashIdLongPair pair : const_new)
                 {
                     // insert
                     {
                         // lti_id, attribute_s_id, val_const, value_lti_id, activation_value
                         db.web_add.setLong(1, lti_id);
-                        db.web_add.setLong(2, p.getKey());
-                        db.web_add.setLong(3, p.getValue());
+                        db.web_add.setLong(2, pair.getHashID());
+                        db.web_add.setLong(3, pair.getSecond());
                         db.web_add.setLong(4, SMEM_AUGMENTATIONS_NULL );
                         db.web_add.setDouble(5, web_act);
                         
@@ -1747,8 +1816,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // update counter
                     {
                         // check if counter exists (and add if does not): attribute_s_id, val
-                        db.wmes_constant_frequency_check.setLong(1, p.getKey());
-                        db.wmes_constant_frequency_check.setLong(2, p.getValue());
+                        db.wmes_constant_frequency_check.setLong(1, pair.getHashID());
+                        db.wmes_constant_frequency_check.setLong(2, pair.getSecond());
                         
                         ResultSet rs = null;
                         try
@@ -1757,8 +1826,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                             
                             if (!rs.next())
                             {
-                                db.wmes_constant_frequency_add.setLong(1, p.getKey());
-                                db.wmes_constant_frequency_add.setLong(2, p.getValue());
+                                db.wmes_constant_frequency_add.setLong(1, pair.getHashID());
+                                db.wmes_constant_frequency_add.setLong(2, pair.getSecond());
                                 
                                 db.wmes_constant_frequency_add.executeUpdate();
                             }
@@ -1766,8 +1835,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                             {
                                 // adjust count (adjustment, attribute_s_id, val)
                                 db.wmes_constant_frequency_update.setLong(1, 1);
-                                db.wmes_constant_frequency_update.setLong(2, p.getKey());
-                                db.wmes_constant_frequency_update.setLong(3, p.getValue());
+                                db.wmes_constant_frequency_update.setLong(2, pair.getHashID());
+                                db.wmes_constant_frequency_update.setLong(3, pair.getSecond());
                                 
                                 db.wmes_constant_frequency_update.executeUpdate();
                             }
@@ -1782,15 +1851,15 @@ public class DefaultSemanticMemory implements SemanticMemory
             
             // attr/lti pairs
             {
-                for (Map.Entry<Long, Long> p : lti_new.entrySet())
+                for (SmemHashIdLongPair pair : lti_new)
                 {
                     // insert
                     {
                         // lti_id, attribute_s_id, val_const, value_lti_id, activation_value
                         db.web_add.setLong(1, lti_id);
-                        db.web_add.setLong(2, p.getKey());
+                        db.web_add.setLong(2, pair.getHashID());
                         db.web_add.setLong(3, SMEM_AUGMENTATIONS_NULL );
-                        db.web_add.setLong(4, p.getValue());
+                        db.web_add.setLong(4, pair.getSecond());
                         db.web_add.setDouble(5, web_act);
                         
                         db.web_add.executeUpdate();
@@ -1799,8 +1868,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // update counter
                     {
                         // check if counter exists (and add if does not): attribute_s_id, val
-                        db.wmes_lti_frequency_check.setLong(1, p.getKey());
-                        db.wmes_lti_frequency_check.setLong(2, p.getValue());
+                        db.wmes_lti_frequency_check.setLong(1, pair.getHashID());
+                        db.wmes_lti_frequency_check.setLong(2, pair.getSecond());
                         
                         ResultSet rs = null;
                         try
@@ -1809,8 +1878,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                             
                             if (!rs.next())
                             {
-                                db.wmes_lti_frequency_add.setLong(1, p.getKey());
-                                db.wmes_lti_frequency_add.setLong(2, p.getValue());
+                                db.wmes_lti_frequency_add.setLong(1, pair.getHashID());
+                                db.wmes_lti_frequency_add.setLong(2, pair.getSecond());
                                 
                                 db.wmes_lti_frequency_add.executeUpdate();
                             }
@@ -1818,8 +1887,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                             {
                                 // adjust count (adjustment, attribute_s_id, lti)
                                 db.wmes_lti_frequency_update.setLong(1, 1);
-                                db.wmes_lti_frequency_update.setLong(2, p.getKey());
-                                db.wmes_lti_frequency_update.setLong(3, p.getValue());
+                                db.wmes_lti_frequency_update.setLong(2, pair.getHashID());
+                                db.wmes_lti_frequency_update.setLong(3, pair.getSecond());
                                 
                                 db.wmes_lti_frequency_update.executeUpdate();
                             }
@@ -4581,6 +4650,36 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     private class SmemLTIidDepthPair
     {
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + depth;
+            result = prime * result + (int) (lti_id ^ (lti_id >>> 32));
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            SmemLTIidDepthPair other = (SmemLTIidDepthPair) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+                return false;
+            if (depth != other.depth)
+                return false;
+            if (lti_id != other.lti_id)
+                return false;
+            return true;
+        }
+
         private final long /*smem_lti_id*/ lti_id;
         private final int depth;
         
@@ -4598,6 +4697,11 @@ public class DefaultSemanticMemory implements SemanticMemory
         public int getDepth()
         {
             return depth;
+        }
+
+        private DefaultSemanticMemory getOuterType()
+        {
+            return DefaultSemanticMemory.this;
         }
     }
     
