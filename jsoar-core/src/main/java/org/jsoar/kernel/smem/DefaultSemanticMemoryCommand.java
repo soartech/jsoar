@@ -329,16 +329,31 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
         
+        smem.smem_attach();
+        
         final DefaultSemanticMemoryStats p = smem.getStats();
         if(args.length == i + 1)
         {
-            pw.printf("Memory Usage: %d%n", p.mem_usage.get());
-            pw.printf("Memory Highwater: %d%n", p.mem_high.get());
-            pw.printf("Retrieves: %d%n", p.retrieves.get());
-            pw.printf("Queries: %d%n", p.queries.get());
-            pw.printf("Stores: %d%n", p.stores.get());
-            pw.printf("Nodes: %d%n", p.nodes.get());
-            pw.printf("Edges: %d%n", p.edges.get());
+            pw.printf(generateHeader("Semantic Memory", 40));
+            try
+            {
+                String database = smem.getDatabase().getConnection().getMetaData().getDatabaseProductName();
+                String version = smem.getDatabase().getConnection().getMetaData().getDatabaseProductVersion();
+                pw.printf(generateItem(database + " Version:", version, 40));
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e);
+            }
+            pw.printf(generateItem("Memory Usage:", p.mem_usage.get(), 40));
+            pw.printf(generateItem("Memory Highwater:", p.mem_high.get(), 40));
+            pw.printf(generateItem("Retrieves:", p.retrieves.get(), 40));
+            pw.printf(generateItem("Queries:", p.queries.get(), 40));
+            pw.printf(generateItem("Stores:", p.stores.get(), 40));
+            pw.printf(generateItem("Activation Updates:", p.act_updates.get(), 40));
+            pw.printf(generateItem("Mirrors:", p.mirrors.get(), 40));
+            pw.printf(generateItem("Nodes:", p.nodes.get(), 40));
+            pw.printf(generateItem("Edges:", p.edges.get(), 40));
         }
         else
         {
@@ -348,7 +363,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 throw new SoarException("Unknown stat '" + name + "'");
             }
-            pw.printf("%s%n", smem.getParams().getProperties().get(key).toString());
+            pw.printf(generateItem(key + ":", smem.getParams().getProperties().get(key).toString(), 40));
         }
         
         pw.flush();
