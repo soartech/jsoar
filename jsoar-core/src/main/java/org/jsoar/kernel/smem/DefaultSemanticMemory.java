@@ -179,7 +179,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
 
-    private Set<IdentifierImpl> smem_changed_ids;
+    private Set<IdentifierImpl> smem_changed_ids = new HashSet<IdentifierImpl>();
 
     private boolean smem_ignore_changes;
     
@@ -1430,18 +1430,18 @@ public class DefaultSemanticMemory implements SemanticMemory
                     if (webAllCounts.getLong(0+1) != SMEM_AUGMENTATIONS_NULL )
                     {
                         // adjust in opposite direction ( adjust, attribute, const )
-                        db.wmes_constant_frequency_update.setInt(1+1, -1);
-                        db.wmes_constant_frequency_update.setLong(2+1, child_attr);
-                        db.wmes_constant_frequency_update.setInt(3+1, webAllCounts.getInt(1+1));
+                        db.wmes_constant_frequency_update.setInt(1, -1);
+                        db.wmes_constant_frequency_update.setLong(2, child_attr);
+                        db.wmes_constant_frequency_update.setInt(3, webAllCounts.getInt(1+1));
                         
                         db.wmes_constant_frequency_update.executeUpdate();
                     }
                     else
                     {
                         // adjust in opposite direction ( adjust, attribute, lti )
-                        db.wmes_constant_frequency_update.setInt(1+1, -1);
-                        db.wmes_constant_frequency_update.setLong(2+1, child_attr);
-                        db.wmes_constant_frequency_update.setInt(3+1, webAllCounts.getInt(2+1));
+                        db.wmes_constant_frequency_update.setInt(1, -1);
+                        db.wmes_constant_frequency_update.setLong(2, child_attr);
+                        db.wmes_constant_frequency_update.setInt(3, webAllCounts.getInt(2+1));
                         
                         db.wmes_constant_frequency_update.executeUpdate();
                     }

@@ -31,8 +31,14 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testSimpleStore() throws Exception
     {
-        
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleStore", 2);
+    }
+    
+    @Test
+    public void testMirroring() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMirroring", 4);
     }
 }
