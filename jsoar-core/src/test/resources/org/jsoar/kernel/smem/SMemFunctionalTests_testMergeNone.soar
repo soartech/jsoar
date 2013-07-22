@@ -1,5 +1,5 @@
 smem --set learning on
-smem --set mirroring on
+smem --set merge none
 
 # First store something in SMEM
 
@@ -16,11 +16,11 @@ sp {apply*init
 -->
    (<s> ^person <p>
         ^name mirroring)
-   (<p> ^name Bill
+   (<p> ^name Steve
         ^email |jobs@apple.com|)
 }
 
-sp {propose*store
+sp {propose*store	
   (state <s> ^superstate nil 
             -^stored
              ^name
@@ -44,7 +44,7 @@ sp {apply*store
 sp {propose*correction
    (state <s> ^stored
               ^person <p>)
-   (<p> ^name Bill)
+   (<p> ^name Steve)
 -->
    (<s> ^operator.name correction)
 }
@@ -58,7 +58,7 @@ sp {apply*correction
 -->
    (<sc> ^store <store> -)
    (<p> ^name <Bill> -
-        ^name Steve)
+        ^name Bill)
 }
 
 # Now query for it to see if it got into SMEM.
@@ -66,7 +66,7 @@ sp {apply*correction
 sp {propose*query
   (state <s> ^superstate nil 
              ^stored true
-             ^person.name Steve
+             ^person.name Bill
              ^smem <smem>)
   (<smem> -^result.retrieved)
 --> 
@@ -78,22 +78,21 @@ sp {apply*query
               ^smem.command <sc>
               ^person <p>)
 -->
-   (<s> ^person <p> -)
    (<sc> ^query.email |jobs@apple.com|)
 }
 
 sp {success
   (state <s> ^smem.result.retrieved <lti>)
-  (<lti> ^name Steve
+  (<lti> ^name Bill
          ^email |jobs@apple.com|)
 -->
   (write |Success!|)
   (halt)
 }
-	
+
 sp {failed-to-mirror
    (state <s> ^smem.result.retrieved <lti>)
-   (<lti> ^name Bill)
+   (<lti> ^name Steve)
 -->
    (write |Failed to mirror!|)
    (halt)

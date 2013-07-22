@@ -2054,7 +2054,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // if no children, then retrieve children
         // merge may override this behavior
         if ( ( this.params.merge.get() == MergeChoices.add ) ||
-             ( ( lti.goalInfo.getImpasseWmes() == null ) &&
+             ( ( lti.goalInfo == null || lti.goalInfo.getImpasseWmes() == null ) &&
              ( lti.getInputWmes() == null ) &&
              ( lti.slots == null ) ) )
         {
@@ -4428,6 +4428,250 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         // transfer buffer after nodes
         return_val.append(return_val2.toString());
+    }
+    
+    Set<Long /*smem_lti_id*/> _smem_print_lti(long /*smem_lti_id*/ lti_id, char lti_letter, long lti_number, double lti_act, ByRef<String> return_val) throws SQLException
+    {        
+        Set<Long /*smem_lti_id*/> next = new HashSet<Long>();
+        
+        String temp_str, temp_str2 = null;
+        
+        Map<String, List<String>> augmentations = new HashMap<String, List<String>>();
+        
+        PreparedStatement expand_q = db.web_expand;
+        
+        return_val.value += "(@";
+        return_val.value += lti_letter;
+        return_val.value += lti_number;
+        
+        expand_q.setLong(1, lti_id);
+        
+        ResultSet rs = null;
+        try
+        {
+            rs = expand_q.executeQuery();
+            
+            while (rs.next())
+            {
+                switch ( rs.getInt(0+1) )
+                {
+                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                    temp_str = smem_reverse_hash_str(rs.getLong(1+1));
+                    break;
+                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                    temp_str = (new Integer(smem_reverse_hash_int(rs.getLong(1+1)))).toString();
+                    break;
+                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                    temp_str = (new Double(smem_reverse_hash_float(rs.getLong(1+1)))).toString();
+                    
+                default:
+                    temp_str = null;
+                    break;
+                }
+                
+                // identifier vs. constant
+                if ( rs.getLong(6+1) != SMEM_AUGMENTATIONS_NULL )
+                {
+                    temp_str2 = "@";
+                    
+                    // soar letter
+                    temp_str2 += (char) rs.getInt(4+1);
+                    
+                    // number
+                    temp_str2 += rs.getLong(5+1);
+                    
+                    // add to next
+                    next.add(rs.getLong(6+1));
+                }
+                else
+                {
+                    switch ( rs.getInt(2+1) )
+                    {
+                    case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                        temp_str2 = smem_reverse_hash_str(rs.getLong(3+1));
+                        break;
+                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                        temp_str2 = (new Integer(smem_reverse_hash_int(rs.getLong(3+1)))).toString();
+                        break;
+                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                        temp_str2 = (new Double(smem_reverse_hash_float(rs.getLong(3+1)))).toString();
+                        break;
+                        
+                    default:
+                        temp_str2 = null;
+                        break;
+                    }
+                }
+                
+                if (!augmentations.containsKey(temp_str))
+                {
+                    augmentations.put(temp_str, new ArrayList<String>());
+                }
+                
+                augmentations.get(temp_str).add(temp_str2);
+            }
+        }
+        finally
+        {
+            rs.close();
+        }
+        
+        // output augmentations nicely
+        {
+            for (Map.Entry<String, List<String>> lti_slot : augmentations.entrySet())
+            {
+                return_val.value += " ^";
+                return_val.value += lti_slot.getKey();
+                
+                for (String slot_val : lti_slot.getValue())
+                {
+                    return_val.value += " ";
+                    return_val.value += slot_val;
+                }
+            }
+        }
+        augmentations.clear();
+        
+        return_val.value += " [";
+        if ( lti_act >= 0 )
+        {
+            return_val.value += "+";
+        }
+        return_val.value += lti_act;
+        return_val.value += "]";
+        return_val.value += ")\n";
+        
+        return next;
+    }
+    
+    void smem_print_store(ByRef<String> return_val) throws SoarException
+    {
+        // vizualizing the store requires an open semantic database
+        smem_attach();
+        
+        // id, soar_letter, number
+        PreparedStatement q = db.vis_lti;
+        ResultSet rs = null;
+        try
+        {
+            rs = q.executeQuery();
+            
+            while(rs.next())
+            {
+                _smem_print_lti(rs.getLong(0+1), (char)rs.getInt(1+1), rs.getLong(2+1), rs.getDouble(3+1), return_val);
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+        finally
+        {
+            try
+            {
+                rs.close();
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e);
+            }
+        }
+    }
+    
+    private class SmemLTIidDepthPair
+    {
+        private final long /*smem_lti_id*/ lti_id;
+        private final int depth;
+        
+        public SmemLTIidDepthPair(long /*smem_lti_id*/ lti_id, int depth)
+        {
+            this.lti_id = lti_id;
+            this.depth = depth;
+        }
+        
+        public long /*smem_lti_id*/ getLTIid()
+        {
+            return lti_id;
+        }
+        
+        public int getDepth()
+        {
+            return depth;
+        }
+    }
+    
+    void smem_print_lti(long /*smem_lti_id*/ lti_id, int depth, ByRef<String> return_val) throws SoarException
+    {
+        Set<Long /*smem_lti_id*/> visited = new HashSet<Long>();
+        
+        Queue<SmemLTIidDepthPair> to_visit = new LinkedList<SmemLTIidDepthPair>();
+        SmemLTIidDepthPair c = null;
+        
+        Set<Long /*smem_lti_id*/> next = new HashSet<Long>();
+        
+        PreparedStatement lti_q = db.lti_letter_num;
+        PreparedStatement act_q = db.vis_lti_act;
+        
+        int i;
+        
+        // vizualizing the store requires an open semantic database
+        smem_attach();
+        
+        // initialize queue/set
+        to_visit.add( new SmemLTIidDepthPair( lti_id, 1 ) );
+        visited.add( lti_id );
+        
+        while ( !to_visit.isEmpty() )
+        {
+            c = to_visit.remove();
+            
+            // output leading spaces ala depth
+            for ( i=1; i<c.getDepth(); i++ )
+            {
+                return_val.value += " ";
+            }
+            
+            // get lti info
+            try
+            {
+                lti_q.setLong(1, c.getLTIid());
+                act_q.setLong(1, c.getLTIid());
+                
+                ResultSet ltiRS = null;
+                ResultSet actRS = null;
+                try
+                {
+                    ltiRS = lti_q.executeQuery();
+                    actRS = act_q.executeQuery();
+                    
+                    next = _smem_print_lti(c.getLTIid(), (char) ltiRS.getLong(0+1), ltiRS.getLong(1+1), actRS.getDouble(0+1), return_val);
+                    
+                    // done with lookup
+                    
+                    // consider further depth
+                    if (c.getDepth() < depth)
+                    {
+                        for (Long next_it : next)
+                        {
+                            boolean successfullyInserted = visited.add(next_it);
+                            if ( successfullyInserted )
+                            {
+                                to_visit.add( new SmemLTIidDepthPair( next_it, c.getDepth()+1 ) );
+                            }
+                        }   
+                    }
+                }
+                finally
+                {
+                    ltiRS.close();
+                    actRS.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e);
+            }
+        }
     }
 
     /**

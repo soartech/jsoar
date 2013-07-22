@@ -41,4 +41,18 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMirroring", 4);
     }
+    
+    @Test
+    public void testMergeAdd() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMergeAdd", 4);
+    }
+    
+    @Test
+    public void testMergeNone() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMergeNone", 4);
+    }
 }
