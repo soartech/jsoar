@@ -20,6 +20,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
@@ -248,7 +249,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
         }
-        else if(name.equals("append-db"))
+        else if(name.equals("append-database"))
         {
             props.set(DefaultSemanticMemoryParams.APPEND_DB, "on".equals(value));
         }
@@ -272,6 +273,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             props.set(DefaultSemanticMemoryParams.MERGE, MergeChoices.valueOf(value));
         }
+        else if(name.equals("activation-mode"))
+        {
+            props.set(DefaultSemanticMemoryParams.ACTIVATION_MODE, ActivationChoices.valueOf(value));
+        }
         else if(name.equals("activate-on-query"))
         {
             props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, "on".equals(value));
@@ -280,7 +285,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             props.set(DefaultSemanticMemoryParams.BASE_DECAY, Double.valueOf(value));
         }
-        else if(name.equals("base-update"))
+        else if(name.equals("base-update-policy"))
         {
             props.set(DefaultSemanticMemoryParams.BASE_UPDATE, BaseUpdateChoices.valueOf(value));
         }
@@ -402,7 +407,8 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         
         pw.printf(generateSection("Storage", 40));
         
-        pw.printf(generateItem("driver:", p.driver, 40));
+        pw.printf(generateItem("driver:", p.driver.get(), 40));
+        pw.printf(generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(generateItem("append-database:", p.append_db.get() ? "on" : "off", 40));
         pw.printf(generateItem("path:", p.path.get(), 40));
         pw.printf(generateItem("lazy-commit:", p.lazy_commit.get() ? "on" : "off", 40));
@@ -421,7 +427,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.printf(generateItem("page-size:", p.page_size.get(), 40));
         pw.printf(generateItem("cache-size:", p.cache_size.get(), 40));
         pw.printf(generateItem("optimization:", p.optimization.get(), 40));
-        pw.printf(generateItem("timers:", "off", 40));
+        pw.printf(generateItem("timers:", "off - Not Implemented", 40));
         
         pw.printf(generateSection("Experimental", 40));
         
