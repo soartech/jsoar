@@ -277,6 +277,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             new LinkedHashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
     
     private final SoarModule soarModule = new SoarModule();
+    
+    private WorkingMemoryActivation wma;
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -309,6 +311,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
+        wma = Adaptables.require(DefaultEpisodicMemory.class, context, WorkingMemoryActivation.class);
         
         random = agent.getRandom();
         trace = agent.getTrace();
@@ -3416,7 +3419,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         if ( recognitionMemory.add_preference_to_tm( just_pref ) )
                         {
-                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
                             if ( wma.wma_enabled() )
                             {
                                 wma.wma_activate_wmes_in_pref( just_pref );
