@@ -58,7 +58,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testAllNegQueriesEpMem() throws Exception
     {
-    	runTest("testAllNegQueriesEpmem", 12);
+    	runTest("testAllNegQueriesEpMem", 12);
     }
     
     @Test

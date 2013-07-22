@@ -67,7 +67,7 @@ sp {propose*check-epmem*success
    (<epmem> ^command.query <q>
             ^result.success <q>
             ^result.retrieved <result>)
-   (<result> ^integer 0.66666666666666666666666666666666)
+   (<result> ^integer { >= 0.666666666666666 <= 0.666666666666667 })
 -->
    (<s> ^operator <check-epmem> + >)
    (<check-epmem> ^name check-epmem
@@ -112,5 +112,5 @@ sp {apply*check-epmem*failure
                   ^condition <condition>)
 -->
    (write |Failed because '| <condition> |'!| (crlf))
-   (failure)
+   (failed)
 }

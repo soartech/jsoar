@@ -745,15 +745,15 @@ public class SoarPreparedStatement implements PreparedStatement
         bindVariables.put(parameterIndex, x);
         ps.setUnicodeStream(parameterIndex, x, length);
     }
-
-	@Override
+    
 	public void closeOnCompletion() throws SQLException {
-		ps.closeOnCompletion();
+		//ps.closeOnCompletion();
+	    throw new UnsupportedOperationException();
 	}
-
-	@Override
+	
 	public boolean isCloseOnCompletion() throws SQLException {
-		return ps.isCloseOnCompletion();
+		//return ps.isCloseOnCompletion();
+	    throw new UnsupportedOperationException();
 	}
 
 }
