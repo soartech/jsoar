@@ -161,6 +161,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private Decider decider;
     
     private DefaultEpisodicMemory epmem;
+    private WorkingMemoryActivation wma;
     
     private Trace trace;
     
@@ -204,6 +205,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         this.recMem = Adaptables.adapt(context, RecognitionMemory.class);
         
         this.epmem = Adaptables.require(DefaultSemanticMemory.class, context, DefaultEpisodicMemory.class);
+        this.wma = Adaptables.require(DefaultSemanticMemory.class, context, WorkingMemoryActivation.class);
         
         Agent agent = Adaptables.adapt(context, Agent.class);
         this.trace = agent.getTrace();
@@ -527,7 +529,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                     {
                         if ( recMem.add_preference_to_tm( just_pref ) )
                         {
-                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
                             if ( wma.wma_enabled() )
                             {
                                 wma.wma_activate_wmes_in_pref( just_pref );
