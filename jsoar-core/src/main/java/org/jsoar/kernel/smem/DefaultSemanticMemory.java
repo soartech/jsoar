@@ -1744,7 +1744,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         
                         // provide trace output
                         //snprintf_with_symbols( my_agent, buf, 256, "=>SMEM: (%y ^%y %y)\n", print_id, s->first, (*v)->val_lti.val_value->soar_id );
-                        trace.startNewLine().print("=>SMEM: (%s ^%s %s)", print_id, s.getKey(), vAsLti.soar_id);
+                        trace.startNewLine().print(Category.SMEM, "=>SMEM: (%s ^%s %s)", print_id, s.getKey(), vAsLti.soar_id);
                     }
                 }
             }
