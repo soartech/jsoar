@@ -140,7 +140,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
     private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
     
-    private final Rete rete = new Rete(trace, syms, epmem);
+    private final Rete rete = new Rete(trace, syms, epmem, smem);
     private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);

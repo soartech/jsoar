@@ -286,7 +286,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public String toString()
     {
-        return name_letter + Long.toString(name_number);
+        return (smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number);
     }
 
     /* (non-Javadoc)

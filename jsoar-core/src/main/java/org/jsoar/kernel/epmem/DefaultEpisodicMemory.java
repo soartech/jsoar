@@ -289,8 +289,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         this.db = db;
     }
     
-    public DefaultEpisodicMemoryStats getStats(){
-    	return stats;
+    /**
+     * @return the interface not the implementation
+     */
+    public EpisodicMemoryStatistics getStats()
+    {
+        return stats;
     }
     
     /**
@@ -2370,6 +2374,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    /**
+     * <p>episodic_memory.cpp:2373:void epmem_schedule_promotion( agent* my_agent, Symbol* id )
+     * 
+     * 
+     */
+    public void epmem_schedule_promotion( IdentifierImpl id )
+    {
+        if (epmem_enabled())
+        {
+            if ((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation))
+            {
+                epmem_promotions.add(id);
             }
         }
     }

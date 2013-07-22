@@ -902,4 +902,43 @@ public class Lexer
         return p;
     }
 
+    
+    /**
+     * utilities.cpp:get_lexeme_from_string
+     */
+    public void get_lexeme_from_string(String the_lexeme)
+    {
+        boolean sym_constant_start_found = false;
+        boolean sym_constant_end_found = false;
+        
+        lexeme.string = new String();
+        
+        for (int c = 0;c < the_lexeme.length();c++)
+        {
+            if (the_lexeme.charAt(c) == '|')
+            {
+                if (!sym_constant_start_found)
+                {
+                    sym_constant_start_found = true;
+                }
+                else
+                {
+                    sym_constant_end_found = true;
+                }
+            }
+            else
+            {
+                lexeme.string += the_lexeme.charAt(c);
+            }
+        }
+        
+        if (sym_constant_end_found)
+        {
+            lexeme.type = LexemeType.SYM_CONSTANT;
+        }
+        else
+        {
+            determine_type_of_constituent_string();
+        }
+    }
 }
