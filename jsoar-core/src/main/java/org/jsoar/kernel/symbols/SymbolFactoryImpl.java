@@ -293,7 +293,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @param level the goal stack level of the id
      * @return the new identifier
      */
-    private IdentifierImpl make_new_identifier_exact(char name_letter, long name_number, int /*goal_stack_level*/ level)
+    public IdentifierImpl make_new_identifier(char name_letter, long name_number, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         if(name_number >= id_counter[name_letter - 'A'])
@@ -343,7 +343,7 @@ public class SymbolFactoryImpl implements SymbolFactory
 
         if (id == null)
         {
-            id = make_new_identifier_exact(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
+            id = make_new_identifier(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
         }
 
         return id;
