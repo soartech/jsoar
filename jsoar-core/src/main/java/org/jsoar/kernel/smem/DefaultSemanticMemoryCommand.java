@@ -320,13 +320,17 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         
         // Excise all just removes all rules and does init-soar
         final Agent agent = Adaptables.require(getClass(), context, Agent.class);
+        int count = 0;
         for(Production p : new ArrayList<Production>(agent.getProductions().getProductions(null)))
         {
             agent.getProductions().exciseProduction(p, false);
+            count++;
         }
         agent.initialize();
-        
-        return "";
+                
+        return "Agent reinitialized.\n" +
+               count + " productions excised.\n" +
+               "SMem| Semantic memory system re-initialized.\n";
     }
 
     private String doStats(int i, String[] args) throws SoarException
@@ -339,7 +343,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final DefaultSemanticMemoryStats p = smem.getStats();
         if(args.length == i + 1)
         {
-            pw.printf(generateHeader("Semantic Memory", 40));
+            pw.printf(generateHeader("Semantic Memory Statistics", 40));
             try
             {
                 String database = smem.getDatabase().getConnection().getMetaData().getDatabaseProductName();
