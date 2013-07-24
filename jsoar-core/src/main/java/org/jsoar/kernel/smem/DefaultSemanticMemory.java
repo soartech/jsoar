@@ -189,12 +189,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /** agent.h:smem_validation */
     private/* uintptr_t */long smem_validation;
 
-    /** agent.h:smem_first_switch */
-    private boolean smem_first_switch = true;
-
-    /** agent.h:smem_made_changes */
-    private boolean smem_made_changes = false;
-
     /** agent.h:smem_max_cycle */
     private/* intptr_t */long smem_max_cycle;
 
@@ -531,9 +525,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             else
             {
-                // Don't need since this is JSoar? -ALT
-                // preference_add_ref( pref );
-                // preference_remove_ref( pref );
+                pref.preference_add_ref();
+                pref.preference_remove_ref(this.recMem);
             }
         }
 
@@ -544,7 +537,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // it to future adventures (potentially on new states)
 
             final ByRef<Instantiation> my_justification_list = ByRef.create(null);
-            chunker.chunk_instantiation(inst, true, my_justification_list);
+            chunker.chunk_instantiation(inst, false, my_justification_list);
 
             // if any justifications are created, assert their preferences
             // manually
@@ -574,9 +567,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
                         else
                         {
-                            // Don't need since this is JSoar? -ALT
-                            // preference_add_ref( just_pref );
-                            // preference_remove_ref( just_pref );
+                            just_pref.preference_add_ref();
+                            just_pref.preference_remove_ref(recMem);
                         }
                     }
                 }

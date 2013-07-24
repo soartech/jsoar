@@ -264,6 +264,30 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
+     * Tries to find an identifier and if it finds it in the map of identifiers,
+     * sets the value of the key to be null.
+     * 
+     * @param identifier
+     * @return Whether or not the identifier was found.  Will also return false if identifier is null.
+     */
+    public boolean findAndNullIdentifier(IdentifierImpl identifier)
+    {
+        if (identifier == null)
+        {
+            return false;
+        }
+        
+        boolean found = identifiers.containsValue(identifier);
+        
+        if (found)
+        {            
+            identifiers.remove(new IdKey(identifier.getNameLetter(), identifier.getNameNumber()));
+        }
+        
+        return found;
+    }
+    
+    /**
      * <p>symtab.cpp:280:make_new_identifier
      * 
      * @param name_letter the name letter
