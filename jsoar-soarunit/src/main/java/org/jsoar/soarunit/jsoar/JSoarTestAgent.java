@@ -252,7 +252,7 @@ public class JSoarTestAgent implements TestAgent
     {
         if(cycleCountWme == null)
         {
-            soarUnitWme = InputWmes.add(io, "soar-unit", io.getSymbols().createIdentifier('C'));
+            soarUnitWme = InputWmes.add(io, "soar-unit", io.getSymbols().createIdentifier('S'));
             cycleCountWme = InputWmes.add(soarUnitWme, "cycle-count", getCycleCount());
         }
         else
