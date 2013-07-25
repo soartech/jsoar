@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
-import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
@@ -217,89 +215,97 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 
     private String doSet(int i, String[] args) throws SoarException
     {
-        if(i + 2 >= args.length)
+        try
         {
-            throw new SoarException("Invalid arguments for " + args[i] + " option");
+            if(i + 2 >= args.length)
+            {
+                throw new SoarException("Invalid arguments for " + args[i] + " option");
+            }
+            final String name = args[i+1];
+            final String value = args[i+2];
+            final PropertyManager props = smem.getParams().getProperties();
+            if(name.equals("learning"))
+            {
+                props.set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+            }
+            else if(smem.getDatabase() != null)
+            {
+                // TODO: This check should be done in the property system
+                throw new SoarException("This parameter is protected while the semantic memory database is open");
+            }
+            else if(name.equals("driver"))
+            {
+                props.set(DefaultSemanticMemoryParams.DRIVER, value);
+            }
+            else if(name.equals("protocol"))
+            {
+                props.set(DefaultSemanticMemoryParams.PROTOCOL, value);
+            }
+            else if(name.equals("path"))
+            {
+                props.set(DefaultSemanticMemoryParams.PATH, value);
+            }
+            else if(name.equals("lazy-commit"))
+            {
+                props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
+            }
+            else if(name.equals("append-database"))
+            {
+                props.set(DefaultSemanticMemoryParams.APPEND_DB, "on".equals(value));
+            }
+            else if(name.equals("page-size"))
+            {
+                props.set(DefaultSemanticMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            }
+            else if(name.equals("cache-size"))
+            {
+                props.set(DefaultSemanticMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            }
+            else if(name.equals("optimization"))
+            {
+                props.set(DefaultSemanticMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+            }
+            else if(name.equals("thresh"))
+            {
+                props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
+            }
+            else if(name.equals("merge"))
+            {
+                props.set(DefaultSemanticMemoryParams.MERGE, MergeChoices.valueOf(value));
+            }
+            else if(name.equals("activation-mode"))
+            {
+                // note this uses our custom getEnum method instead of valueOf to support the dash in "base-level" 
+                props.set(DefaultSemanticMemoryParams.ACTIVATION_MODE, ActivationChoices.getEnum(value));
+            }
+            else if(name.equals("activate-on-query"))
+            {
+                props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, "on".equals(value));
+            }
+            else if(name.equals("base-decay"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_DECAY, Double.valueOf(value));
+            }
+            else if(name.equals("base-update-policy"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_UPDATE, BaseUpdateChoices.valueOf(value));
+            }
+            else if(name.equals("base-incremental-threshes"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, SetWrapperLong.toSetWrapper(value));
+            }
+            else if(name.equals("mirroring"))
+            {
+                props.set(DefaultSemanticMemoryParams.MIRRORING, "on".equals(value));
+            }
+            else
+            {
+                throw new SoarException("Unknown smem parameter '" + name + "'");
+            }
         }
-        final String name = args[i+1];
-        final String value = args[i+2];
-        final PropertyManager props = smem.getParams().getProperties();
-        if(name.equals("learning"))
+        catch(IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
         {
-            props.set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
-        }
-        else if(smem.getDatabase() != null)
-        {
-            // TODO: This check should be done in the property system
-            throw new SoarException("This parameter is protected while the semantic memory database is open");
-        }
-        else if(name.equals("driver"))
-        {
-            props.set(DefaultSemanticMemoryParams.DRIVER, value);
-        }
-        else if(name.equals("protocol"))
-        {
-            props.set(DefaultSemanticMemoryParams.PROTOCOL, value);
-        }
-        else if(name.equals("path"))
-        {
-            props.set(DefaultSemanticMemoryParams.PATH, value);
-        }
-        else if(name.equals("lazy-commit"))
-        {
-            props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
-        }
-        else if(name.equals("append-database"))
-        {
-            props.set(DefaultSemanticMemoryParams.APPEND_DB, "on".equals(value));
-        }
-        else if(name.equals("page-size"))
-        {
-            props.set(DefaultSemanticMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
-        }
-        else if(name.equals("cache-size"))
-        {
-            props.set(DefaultSemanticMemoryParams.CACHE_SIZE, Long.valueOf(value));
-        }
-        else if(name.equals("optimization"))
-        {
-            props.set(DefaultSemanticMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
-        }
-        else if(name.equals("thresh"))
-        {
-            props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
-        }
-        else if(name.equals("merge"))
-        {
-            props.set(DefaultSemanticMemoryParams.MERGE, MergeChoices.valueOf(value));
-        }
-        else if(name.equals("activation-mode"))
-        {
-            props.set(DefaultSemanticMemoryParams.ACTIVATION_MODE, ActivationChoices.valueOf(value));
-        }
-        else if(name.equals("activate-on-query"))
-        {
-            props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, "on".equals(value));
-        }
-        else if(name.equals("base-decay"))
-        {
-            props.set(DefaultSemanticMemoryParams.BASE_DECAY, Double.valueOf(value));
-        }
-        else if(name.equals("base-update-policy"))
-        {
-            props.set(DefaultSemanticMemoryParams.BASE_UPDATE, BaseUpdateChoices.valueOf(value));
-        }
-        else if(name.equals("base-incremental-threshes"))
-        {
-            props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, SetWrapperLong.toSetWrapper(value));
-        }
-        else if(name.equals("mirroring"))
-        {
-            props.set(DefaultSemanticMemoryParams.MIRRORING, "on".equals(value));
-        }
-        else
-        {
-            throw new SoarException("Unknown smem parameter '" + name + "'");
+            throw new SoarException("Invalid value.");
         }
         
         return "";

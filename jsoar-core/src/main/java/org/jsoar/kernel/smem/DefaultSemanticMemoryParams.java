@@ -39,7 +39,37 @@ class DefaultSemanticMemoryParams
     }
     static enum ActivationChoices
     {
-        recency, frequency, base;
+        recency, frequency, base_level("base-level");
+        
+        // some options have dashes in them, but we can't put those in the enum name, so we need a mapping
+        private final String realName;
+        
+        private ActivationChoices()
+        {
+            this.realName = this.name();
+        }
+        
+        private ActivationChoices(String realName)
+        {
+            this.realName = realName;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return realName;
+        }
+        
+        public static ActivationChoices getEnum(String value)
+        {
+            if(value == null)
+                throw new IllegalArgumentException();
+            for(ActivationChoices ac : ActivationChoices.values())
+            {
+                if(value.equals(ac.toString())) return ac;
+            }
+            throw new IllegalArgumentException();
+        }
     }
     static enum BaseUpdateChoices
     {

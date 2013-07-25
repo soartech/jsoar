@@ -919,7 +919,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             time_now = this.smem_max_cycle++;
 
-            if ((this.params.activation_mode.get() == DefaultSemanticMemoryParams.ActivationChoices.base) && (this.params.base_update.get() == DefaultSemanticMemoryParams.BaseUpdateChoices.incremental))
+            if ((this.params.activation_mode.get() == DefaultSemanticMemoryParams.ActivationChoices.base_level) && (this.params.base_update.get() == DefaultSemanticMemoryParams.BaseUpdateChoices.incremental))
             {
                 long time_diff;
 
@@ -1021,7 +1021,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             new_activation = prev_access_n + ((add_access) ? (1) : (0));
         }
-        else if (act_mode == ActivationChoices.base)
+        else if (act_mode == ActivationChoices.base_level)
         {
             if (prev_access_n == 0)
             {
@@ -2535,7 +2535,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             long /* smem_lti_id */cand;
             boolean good_cand;
 
-            if (params.activation_mode.get() == ActivationChoices.base)
+            if (params.activation_mode.get() == ActivationChoices.base_level)
             {
                 // naive base-level updates means update activation of
                 // every candidate in the minimal list before the
