@@ -39,8 +39,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
@@ -659,7 +661,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else
                 {
-                    if (params.append_database.get())
+                    if (params.append_database.get() == AppendDatabaseChoices.on)
                     {
                         logger.info("The selected database contained no data to append on.  New tables created.");
                     }
@@ -679,7 +681,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
          * TODO: Maybe we should bypass the reflected query structure so this can be done in
          * one statement, instead of building the tables and immediately dropping them. -ACN
          */
-        if(!params.append_database.get()){
+        if(params.append_database.get() == AppendDatabaseChoices.off){
             db.dropEpmemTables();
             db.structure();
             db.prepare();
@@ -950,7 +952,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
-        if (params.lazy_commit.get())
+        if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
             db.begin.executeUpdate( /* soar_module::op_reinit */);
         }
@@ -1181,7 +1183,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // TODO this is copy-paste from smem right now, there are other
                 // things to do here
                 
-                if (params.lazy_commit.get())
+                if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
                     db.commit.execute();
                 }
@@ -6961,7 +6963,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get()){
+            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
                 logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
         }

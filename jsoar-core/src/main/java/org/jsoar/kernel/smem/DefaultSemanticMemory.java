@@ -53,9 +53,14 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivateOnQueryChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LazyCommitChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -289,7 +294,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public boolean smem_enabled()
     {
-        return params.learning.get();
+        return params.learning.get() == LearningChoices.on;
     }
 
     private List<WmeImpl> smem_get_direct_augs_of_id(SymbolImpl sym)
@@ -2733,7 +2738,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // TODO SMEM Timers: my_agent->smem_timers->query->stop();
                 // //////////////////////////////////////////////////////////////////////////
 
-                smem_install_memory(state, king_id, null, params.activate_on_query.get() == true, meta_wmes, retrieval_wmes);
+                smem_install_memory(state, king_id, null, params.activate_on_query.get() == ActivateOnQueryChoices.on, meta_wmes, retrieval_wmes);
             }
             else
             {
@@ -2926,7 +2931,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    if (params.append_db.get())
+                    if (params.append_db.get() == AppendDatabaseChoices.on)
                     {
                         logger.info("The selected database contained no data to append on.  New tables created.");
                     }
@@ -2989,7 +2994,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
-        if (params.lazy_commit.get())
+        if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
             db.begin.executeUpdate( /* soar_module::op_reinit */);
         }
@@ -3114,7 +3119,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 _smem_close_vars();
 
                 // if lazy, commit
-                if (params.lazy_commit.get())
+                if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
                     db.commit.executeUpdate( /* soar_module::op_reinit */);
                 }
@@ -3662,7 +3667,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final Queue<Integer> levels = new ArrayDeque<Integer>();
 
         boolean do_wm_phase = false;
-        boolean mirroring_on = params.mirroring.get() == true;
+        boolean mirroring_on = params.mirroring.get() == MirroringChoices.on;
 
         while (state != null)
         {
@@ -3900,7 +3905,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         // //////////////////////////////////////////////////////////////////////////
 
                         // start transaction (if not lazy)
-                        if (!params.lazy_commit.get())
+                        if (params.lazy_commit.get() == LazyCommitChoices.off)
                         {
                             db.begin.executeUpdate( /* soar_module::op_reinit */);
                         }
@@ -3917,7 +3922,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
 
                         // commit transaction (if not lazy)
-                        if (!params.lazy_commit.get())
+                        if (params.lazy_commit.get() == LazyCommitChoices.off)
                         {
                             db.commit.executeUpdate( /* soar_module::op_reinit */);
                         }
@@ -3968,7 +3973,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // //////////////////////////////////////////////////////////////////////////
 
             // start transaction (if not lazy)
-            if (params.lazy_commit.get() == false)
+            if (params.lazy_commit.get() == LazyCommitChoices.off)
             {
                 db.begin.execute();
             }
@@ -3986,7 +3991,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
 
             // commit transaction (if not lazy)
-            if (params.lazy_commit.get() == false)
+            if (params.lazy_commit.get() == LazyCommitChoices.off)
             {
                 db.commit.execute();
             }
@@ -4050,7 +4055,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             _smem_close_vars();
 
-            if (params.lazy_commit.get() == true)
+            if (params.lazy_commit.get() == LazyCommitChoices.on)
             {
                 db.commit.execute();
             }
@@ -4060,7 +4065,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // - ALT
             // return_val = db.backup( file_name, err );
 
-            if (params.lazy_commit.get() == true)
+            if (params.lazy_commit.get() == LazyCommitChoices.on)
             {
                 db.begin.execute();
             }
@@ -4922,7 +4927,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     void commit() throws SoarException
     {
         // if lazy, commit
-        if (db != null && params.lazy_commit.get())
+        if (db != null && params.lazy_commit.get() == LazyCommitChoices.on)
         {
             // Commit and then start next lazy-commit transaction
             try
@@ -4941,7 +4946,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public boolean isMirroringEnabled()
     {
-        return params.mirroring.get();
+        return params.mirroring.get() == MirroringChoices.on;
     }
 
     @Override

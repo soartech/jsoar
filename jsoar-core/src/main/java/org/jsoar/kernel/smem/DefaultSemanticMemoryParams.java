@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.jsoar.util.properties.BooleanPropertyProvider;
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.DoublePropertyProvider;
 import org.jsoar.util.properties.EnumPropertyProvider;
@@ -74,6 +73,26 @@ class DefaultSemanticMemoryParams
     static enum BaseUpdateChoices
     {
         stable, naive, incremental;
+    }
+    static enum ActivateOnQueryChoices
+    {
+        on, off
+    }
+    static enum MirroringChoices
+    {
+        on, off
+    }
+    static enum LazyCommitChoices
+    {
+        on, off
+    }
+    static enum LearningChoices
+    {
+        on, off
+    }
+    static enum AppendDatabaseChoices
+    {
+        on, off
     }
     
     private static final String PREFIX = "smem.params.";
@@ -156,8 +175,8 @@ class DefaultSemanticMemoryParams
         }
     }
     
-    static final PropertyKey<Boolean> LEARNING = key("learning", Boolean.class).defaultValue(false).build();
-    final BooleanPropertyProvider learning = new BooleanPropertyProvider(LEARNING);
+    static final PropertyKey<LearningChoices> LEARNING = key("learning", LearningChoices.class).defaultValue(LearningChoices.off).build();
+    final EnumPropertyProvider<LearningChoices> learning = new EnumPropertyProvider<LearningChoices>(LEARNING);
     
     static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
@@ -168,11 +187,11 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<String> PATH = key("path", String.class).defaultValue(":memory:").build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
-    static final PropertyKey<Boolean> LAZY_COMMIT = key("lazy-commit", Boolean.class).defaultValue(true).build();
-    final BooleanPropertyProvider lazy_commit = new BooleanPropertyProvider(LAZY_COMMIT);
+    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
+    final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
-    static final PropertyKey<Boolean> APPEND_DB = key("append-db", Boolean.class).defaultValue(true).build();
-    final BooleanPropertyProvider append_db = new BooleanPropertyProvider(APPEND_DB);
+    static final PropertyKey<AppendDatabaseChoices> APPEND_DB = key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.on).build();
+    final EnumPropertyProvider<AppendDatabaseChoices> append_db = new EnumPropertyProvider<AppendDatabaseChoices>(APPEND_DB);
     
     static final PropertyKey<PageChoices> PAGE_SIZE = key("page-size", PageChoices.class).defaultValue(PageChoices.page_8k).build();
     final EnumPropertyProvider<PageChoices> page_size = new EnumPropertyProvider<PageChoices>(PAGE_SIZE);
@@ -189,8 +208,8 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.add).build();
     final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
     
-    static final PropertyKey<Boolean> ACTIVATE_ON_QUERY = key("activate-on-query", Boolean.class).defaultValue(true).build();
-    final BooleanPropertyProvider activate_on_query = new BooleanPropertyProvider(ACTIVATE_ON_QUERY);
+    static final PropertyKey<ActivateOnQueryChoices> ACTIVATE_ON_QUERY = key("activate-on-query", ActivateOnQueryChoices.class).defaultValue(ActivateOnQueryChoices.on).build();
+    final EnumPropertyProvider<ActivateOnQueryChoices> activate_on_query = new EnumPropertyProvider<ActivateOnQueryChoices>(ACTIVATE_ON_QUERY);
     
     static final PropertyKey<ActivationChoices> ACTIVATION_MODE = key("activation-mode", ActivationChoices.class).defaultValue(ActivationChoices.recency).build();
     final EnumPropertyProvider<ActivationChoices> activation_mode = new EnumPropertyProvider<ActivationChoices>(ACTIVATION_MODE);
@@ -204,8 +223,8 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<SetWrapperLong> BASE_INCREMENTAL_THRESHES = key("base-incremental-threshes", SetWrapperLong.class).defaultValue(new SetWrapperLong()).build();
     final DefaultPropertyProvider<SetWrapperLong> base_incremental_threshes = new DefaultPropertyProvider<SetWrapperLong>(BASE_INCREMENTAL_THRESHES);
     
-    static final PropertyKey<Boolean> MIRRORING = key("mirroring", Boolean.class).defaultValue(false).build();
-    final BooleanPropertyProvider mirroring = new BooleanPropertyProvider(MIRRORING);
+    static final PropertyKey<MirroringChoices> MIRRORING = key("mirroring", MirroringChoices.class).defaultValue(MirroringChoices.off).build();
+    final EnumPropertyProvider<MirroringChoices> mirroring = new EnumPropertyProvider<MirroringChoices>(MIRRORING);
     
     private final PropertyManager properties;
     

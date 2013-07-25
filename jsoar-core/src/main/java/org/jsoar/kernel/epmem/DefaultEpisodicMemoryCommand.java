@@ -4,8 +4,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
@@ -104,61 +106,69 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final String name = args[i + 1];
         final String value = args[i + 2];
         final PropertyManager props = epmem.getParams().getProperties();
-        if (name.equals("learning"))
+        
+        try
         {
-            props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
-        }
-        else if (name.equals("trigger"))
-        {
-            props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
-            return "Set trigger to " + Trigger.valueOf(value).toString();
-        }
-        else if (name.equals("phase"))
-        {
-            props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
-            return "Set phase to " + Phase.valueOf(value).toString();
-        }
-        else if (name.equals("graph-match"))
-        {
-            props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
-            return "Set graph-match to " + GraphMatchChoices.valueOf(value);
-        }
-        else if (name.equals("graph-match-ordering"))
-        {
-            props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
-            return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value).toString();
-        }
-        else if (name.equals("balance"))
-        {
-            props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
-            return "Set graph-match-ordering to " + Double.parseDouble(value);
-        }
-        else if (name.equals("optimization"))
-        {
-            props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
-            return "Set optimization to " + Optimization.valueOf(value).toString();
-        }
-        else if (name.equals("path"))
-        {
-            props.set(DefaultEpisodicMemoryParams.PATH, value);
-            return "Set path to " + value;
-        }
-        else if (name.equals("append-database"))
-        {
-            props.set(DefaultEpisodicMemoryParams.APPEND_DATABASE, Boolean.parseBoolean(value));
-            return "Set append to " + Boolean.parseBoolean(value);
-        }
-        else if (name.equals("lazy-commit"))
-        {
-            if(epmem.db != null){
-                return "Lazy commit is protected while the database is open.";
+            if (name.equals("learning"))
+            {
+                props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
             }
-            props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, Boolean.parseBoolean(value));
-            return "Set lazy-commit to " + Boolean.parseBoolean(value);
+            else if (name.equals("trigger"))
+            {
+                props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
+                return "Set trigger to " + Trigger.valueOf(value).toString();
+            }
+            else if (name.equals("phase"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
+                return "Set phase to " + Phase.valueOf(value).toString();
+            }
+            else if (name.equals("graph-match"))
+            {
+                props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
+                return "Set graph-match to " + GraphMatchChoices.valueOf(value);
+            }
+            else if (name.equals("graph-match-ordering"))
+            {
+                props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
+                return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value).toString();
+            }
+            else if (name.equals("balance"))
+            {
+                props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
+                return "Set graph-match-ordering to " + Double.parseDouble(value);
+            }
+            else if (name.equals("optimization"))
+            {
+                props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+                return "Set optimization to " + Optimization.valueOf(value);
+            }
+            else if (name.equals("path"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PATH, value);
+                return "Set path to " + value;
+            }
+            else if (name.equals("append-database"))
+            {
+                props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
+                return "Set append to " + AppendDatabaseChoices.valueOf(value);
+            }
+            else if (name.equals("lazy-commit"))
+            {
+                if(epmem.db != null){
+                    return "Lazy commit is protected while the database is open.";
+                }
+                props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
+                return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
+            }
+            else
+            {
+                throw new SoarException("Unknown epmem parameter '" + name + "'");
+            }
         }
-        else
+        catch(IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
         {
-            throw new SoarException("Unknown epmem parameter '" + name + "'");
+            throw new SoarException("Invalid value.");
         }
 
         return "";
@@ -177,8 +187,8 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf("driver: %s%n", p.driver);
         pw.printf("protocol: %s%n", p.protocol);
         pw.printf("path: %s%n", p.path);
-        pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
-        pw.printf("append-database: %s%n", p.append_database.get() ? "on" : "off");
+        pw.printf("lazy-commit: %s%n", p.lazy_commit);
+        pw.printf("append-database: %s%n", p.append_database);
         pw.println();
         pw.println("Performance");
         pw.println("-----------");

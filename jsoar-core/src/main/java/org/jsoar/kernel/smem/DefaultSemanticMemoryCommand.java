@@ -19,9 +19,14 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivateOnQueryChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.SetWrapperLong;
@@ -179,7 +184,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             throw new SoarException("Semantic memory database is not open.");
         }
-        if(!smem.getParams().lazy_commit.get())
+        if(smem.getParams().lazy_commit.get() == LazyCommitChoices.off)
         {
             return "Semantic memory database is not in lazy-commit mode.";
         }
@@ -215,18 +220,20 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 
     private String doSet(int i, String[] args) throws SoarException
     {
+        
+        if(i + 2 >= args.length)
+        {
+            throw new SoarException("Invalid arguments for " + args[i] + " option");
+        }
+        final String name = args[i+1];
+        final String value = args[i+2];
+        final PropertyManager props = smem.getParams().getProperties();
+
         try
         {
-            if(i + 2 >= args.length)
-            {
-                throw new SoarException("Invalid arguments for " + args[i] + " option");
-            }
-            final String name = args[i+1];
-            final String value = args[i+2];
-            final PropertyManager props = smem.getParams().getProperties();
             if(name.equals("learning"))
             {
-                props.set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+                props.set(DefaultSemanticMemoryParams.LEARNING, LearningChoices.valueOf(value));
             }
             else if(smem.getDatabase() != null)
             {
@@ -247,11 +254,11 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             }
             else if(name.equals("lazy-commit"))
             {
-                props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
+                props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
             }
             else if(name.equals("append-database"))
             {
-                props.set(DefaultSemanticMemoryParams.APPEND_DB, "on".equals(value));
+                props.set(DefaultSemanticMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
             }
             else if(name.equals("page-size"))
             {
@@ -280,7 +287,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             }
             else if(name.equals("activate-on-query"))
             {
-                props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, "on".equals(value));
+                props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, ActivateOnQueryChoices.valueOf(value));
             }
             else if(name.equals("base-decay"))
             {
@@ -296,7 +303,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             }
             else if(name.equals("mirroring"))
             {
-                props.set(DefaultSemanticMemoryParams.MIRRORING, "on".equals(value));
+                props.set(DefaultSemanticMemoryParams.MIRRORING, MirroringChoices.valueOf(value));
             }
             else
             {
@@ -413,20 +420,20 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final DefaultSemanticMemoryParams p = smem.getParams();
         pw.printf(generateHeader("Semantic Memory Settings", 40));
         
-        pw.printf(generateItem("learning:", p.learning.get() ? "on" : "off", 40));
+        pw.printf(generateItem("learning:", p.learning.get(), 40));
         
         pw.printf(generateSection("Storage", 40));
         
         pw.printf(generateItem("driver:", p.driver.get(), 40));
         pw.printf(generateItem("protocol:", p.protocol.get(), 40));
-        pw.printf(generateItem("append-database:", p.append_db.get() ? "on" : "off", 40));
+        pw.printf(generateItem("append-database:", p.append_db.get(), 40));
         pw.printf(generateItem("path:", p.path.get(), 40));
-        pw.printf(generateItem("lazy-commit:", p.lazy_commit.get() ? "on" : "off", 40));
+        pw.printf(generateItem("lazy-commit:", p.lazy_commit.get(), 40));
         
         pw.printf(generateSection("Activation", 40));
         
         pw.printf(generateItem("activation-mode:", p.activation_mode.get(), 40));
-        pw.printf(generateItem("activate-on-query:", p.activate_on_query.get() ? "on" : "off", 40));
+        pw.printf(generateItem("activate-on-query:", p.activate_on_query.get(), 40));
         pw.printf(generateItem("base-decay:", p.base_decay.get(), 40));
         pw.printf(generateItem("base-update-policy", p.base_update.get(), 40));
         pw.printf(generateItem("base-incremental-threshes", p.base_incremental_threshes.get(), 40));
@@ -442,7 +449,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.printf(generateSection("Experimental", 40));
         
         pw.printf(generateItem("merge:", p.merge.get(), 40));
-        pw.printf(generateItem("mirroring:", p.mirroring.get() ? "on" : "off", 40));
+        pw.printf(generateItem("mirroring:", p.mirroring.get(), 40));
         
         pw.flush();
         return sw.toString();
