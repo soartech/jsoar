@@ -11,6 +11,17 @@ import com.google.common.base.Strings;
  */
 public class PrintHelper
 {
+    /**
+     * cli_CommandLineInterface.cpp:569
+     * 
+     * The original name is PrintCLIMessage_Item.  Renamed because this port doesn't
+     * include the print part of the CSoar version.
+     * 
+     * @param prefixString
+     * @param printObject
+     * @param column_width
+     * @return A justified and formated item string.
+     */
     public static String generateItem(String prefixString, Object printObject, int column_width)
     {
         int left_width, right_width, middle_width;
@@ -29,6 +40,16 @@ public class PrintHelper
         return prefixString + sep_string + printString + "\n";
     }
 
+    /**
+     * cli_CommandLineInterface.cpp:578
+     * 
+     * The original name is PrintCLIMessage_Header.  Renamed because this port doesn't
+     * include the print part of the CSoar version.
+     * 
+     * @param headerString
+     * @param column_width
+     * @return A justified and formated header string.
+     */
     public static String generateHeader(String headerString, int column_width)
     {
         int left_width, right_width, header_width;
@@ -48,6 +69,16 @@ public class PrintHelper
         return temp_string;
     }
     
+    /**
+     * cli_CommandLineInterface.cpp:598
+     * 
+     * The original name is PrintCLIMessage_Section.  Renamed because this doesn't
+     * include the print part of the CSoar version.
+     * 
+     * @param headerString
+     * @param column_width
+     * @return A justified and formated section string.
+     */
     public static String generateSection(String headerString, int column_width)
     {
         int left_width, right_width, header_width;
