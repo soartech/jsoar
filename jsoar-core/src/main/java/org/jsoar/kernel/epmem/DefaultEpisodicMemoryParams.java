@@ -50,7 +50,7 @@ class DefaultEpisodicMemoryParams
      */
     static enum Trigger { none, output, dc };
     
-    static enum MergeChoices { merge_none, merge_add };
+    static enum MergeChoices { none, add };
     
     static enum GraphMatchChoices { on, off };
     
@@ -103,7 +103,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.dc).build();
     final EnumPropertyProvider<Trigger> trigger = new EnumPropertyProvider<Trigger>(TRIGGER);
     
-    static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.merge_none).build();
+    static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.none).build();
     final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
     
     static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph_match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();

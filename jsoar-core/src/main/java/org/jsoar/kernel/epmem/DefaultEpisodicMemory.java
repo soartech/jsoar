@@ -5763,7 +5763,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // shared identifier lookup table
             //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
-            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.merge_add);
+            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.add);
             
             // symbols used to create WMEs
             SymbolImpl attr = null;
