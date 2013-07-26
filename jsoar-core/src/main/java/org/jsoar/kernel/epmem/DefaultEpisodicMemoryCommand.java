@@ -77,6 +77,10 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doSet(1, args);
         }
+        else if("-g".equals(arg) || "--get".equals(arg))
+        {
+            return doGet(1, args);
+        }
         else if("--stats".equals(arg))
         {
             return doStats(1, args);
@@ -174,6 +178,21 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         }
 
         return "";
+    }
+    
+    private String doGet(int i, String[] args) throws SoarException
+    {
+        if(i + 1 >= args.length)
+        {
+            throw new SoarException("Invalid arguments for " + args[i] + " option");
+        }
+        final String name = args[i+1];
+        final PropertyKey<?> key = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), name);
+        if(key == null)
+        {
+            throw new SoarException("Unknown parameter '" + name + "'");
+        }
+        return epmem.getParams().getProperties().get(key).toString();
     }
 
     private String doEpmem()

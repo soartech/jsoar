@@ -148,4 +148,16 @@ class DefaultEpisodicMemoryParams
         return properties;
     }
 
+    /**
+     * Retrieve a property key for an EPMEM property. Appropriately adds necessary
+     * prefixes to the name to find the right key.
+     * 
+     * @param props the property manager
+     * @param name the name of the property.
+     * @return the key, or {@code null} if not found.
+     */
+    public static PropertyKey<?> getProperty(PropertyManager props, String name)
+    {
+        return props.getKey(PREFIX + name);
+    }
 }
