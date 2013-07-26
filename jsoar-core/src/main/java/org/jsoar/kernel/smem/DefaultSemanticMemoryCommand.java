@@ -44,7 +44,6 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 
 /**
  * @author ray

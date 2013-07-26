@@ -32,8 +32,6 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultEpisodicMemoryCommand implements SoarCommand
 {
-    private final Adaptable context;
-
     private final DefaultEpisodicMemory epmem;
 
     public static class Provider implements SoarCommandProvider
@@ -54,7 +52,6 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
 
     public DefaultEpisodicMemoryCommand(Adaptable context)
     {
-        this.context = context;
         this.epmem = Adaptables.require(getClass(), context, DefaultEpisodicMemory.class);
     }
 

@@ -159,11 +159,13 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private static final long SMEM_ACT_MAX = (0 - 1) / 2; // TODO???
 
-    private static final long SMEM_LTI_UNKNOWN_LEVEL = 0L;
+    // Not ever used so commented to prevent warnings.
+    //private static final long SMEM_LTI_UNKNOWN_LEVEL = 0L;
 
     private static final long SMEM_AUGMENTATIONS_NULL = 0L;
 
-    private static final String SMEM_AUGMENTATIONS_NULL_STR = "0";
+    // Not ever used so commented to prevent warnings.
+    //private static final String SMEM_AUGMENTATIONS_NULL_STR = "0";
 
     private static final long SMEM_ACT_HISTORY_ENTRIES = 10L;
 
@@ -984,6 +986,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // access information
         long prev_access_n = 0;
+        @SuppressWarnings("unused")
         long prev_access_t = 0;
         long prev_access_1 = 0;
         {

@@ -2872,6 +2872,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup, int sym_type)
     {
+        @SuppressWarnings("unused")
         Symbol return_val = null;
         String dest = null; 
         
@@ -3771,13 +3772,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             //std::sort(prohibits.begin(), prohibits.end());
             Collections.sort(prohibits);
         }
-        int[] test = { 2, 2 };
+
         // epmem options
         boolean do_graph_match = (params.graph_match.get() == GraphMatchChoices.on);
         GmOrderingChoices gm_order = params.gm_ordering.get();
 
         // variables needed for cleanup
         Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new LinkedHashMap<WmeImpl, EpmemLiteral>();
+        @SuppressWarnings("unchecked")
         Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
         pedge_caches[0] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
         pedge_caches[1] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
@@ -3791,6 +3793,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         #else
         */
         //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
+        @SuppressWarnings("unchecked")
         SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
         uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
@@ -4073,6 +4076,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // create queries for the unique edge children of this partial edge
                     if (pedge.value_is_id != 0) 
                     {
+                        @SuppressWarnings("unused")
                         boolean created = false;
                         //for (epmem_literal_set::iterator literal_iter = pedge->literals.begin(); literal_iter != pedge->literals.end(); literal_iter++) {
                         for(EpmemLiteral literal_iter: pedge.literals)
@@ -4469,6 +4473,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 best_bindings.clear();
                                 //Java array do not get along well with paramatized types.  Maybe 
                                 //we should make this a list. -ACN
+                                @SuppressWarnings("unchecked")
                                 Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
                                 for(int i = 0; i < bound_nodes.length; i++)
                                 {
@@ -4581,6 +4586,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         //This instantiation of level is shadowing the function parameter, which java does not
                         //allow, so were going to have to rename it here.
+                        @SuppressWarnings("unused")
                         int/*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
                         // mapping identifier
                         SymbolImpl mapping = symbols.make_new_identifier('M', level);
@@ -6943,6 +6949,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return t1;
     }
     
+    @SuppressWarnings("unused")
     private String trimTrailingZerosFromDoubleString(String s){
         if(s.contains(".")){
             int firstTrailingZero = s.length() - 1;
