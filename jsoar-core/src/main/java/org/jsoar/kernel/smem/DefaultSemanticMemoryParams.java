@@ -30,6 +30,30 @@ class DefaultSemanticMemoryParams
     static enum PageChoices
     {
         page_1k, page_2k, page_4k, page_8k, page_16k, page_32k, page_64k;
+        
+        @Override
+        public String toString()
+        {
+            switch (this)
+            {
+            case page_1k:
+                return "1k";
+            case page_2k:
+                return "2k";
+            case page_4k:
+                return "4k";
+            case page_8k:
+                return "8k";
+            case page_16k:
+                return "16k";
+            case page_32k:
+                return "32k";
+            case page_64k:
+                return "64k";
+            default:
+                throw new IllegalArgumentException();
+            }
+        }
     }
     static enum Optimization { safety, performance };
     static enum MergeChoices
