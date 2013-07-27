@@ -372,7 +372,9 @@ public class SoarPreparedStatement implements PreparedStatement
     @Override
     public int executeUpdate() throws SQLException
     {
-        logger.trace("Executing: " + getConcreteQuery());
+        if(logger.isTraceEnabled()){
+            logger.trace("Executing: ", getConcreteQuery());
+        }
         return ps.executeUpdate();
     }
 
