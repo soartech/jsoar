@@ -54,6 +54,8 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
@@ -923,7 +925,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         trace.setEnabled(false);
 
         boolean wma_was_enabled = wma.wma_enabled();
-        wma.getParams().activation.set(false);
+        wma.getParams().activation.set(ActivationChoices.off);
         
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
@@ -931,7 +933,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         
         if(wma_was_enabled)
         {
-            wma.getParams().activation.set(true);
+            wma.getParams().activation.set(ActivationChoices.on);
         }
         
         //TODO rl.rl_reset_stats();
