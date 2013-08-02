@@ -39,8 +39,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
@@ -277,6 +279,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             new LinkedHashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
     
     private final SoarModule soarModule = new SoarModule();
+    
+    private WorkingMemoryActivation wma;
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -309,6 +313,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
+        wma = Adaptables.require(DefaultEpisodicMemory.class, context, WorkingMemoryActivation.class);
         
         random = agent.getRandom();
         trace = agent.getTrace();
@@ -656,7 +661,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else
                 {
-                    if (params.append_database.get())
+                    if (params.append_database.get() == AppendDatabaseChoices.on)
                     {
                         logger.info("The selected database contained no data to append on.  New tables created.");
                     }
@@ -676,7 +681,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
          * TODO: Maybe we should bypass the reflected query structure so this can be done in
          * one statement, instead of building the tables and immediately dropping them. -ACN
          */
-        if(!params.append_database.get()){
+        if(params.append_database.get() == AppendDatabaseChoices.off){
             db.dropEpmemTables();
             db.structure();
             db.prepare();
@@ -947,7 +952,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
-        if (params.lazy_commit.get())
+        if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
             db.begin.executeUpdate( /* soar_module::op_reinit */);
         }
@@ -1178,7 +1183,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // TODO this is copy-paste from smem right now, there are other
                 // things to do here
                 
-                if (params.lazy_commit.get())
+                if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
                     db.commit.execute();
                 }
@@ -2867,6 +2872,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup, int sym_type)
     {
+        @SuppressWarnings("unused")
         Symbol return_val = null;
         String dest = null; 
         
@@ -3416,7 +3422,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         if ( recognitionMemory.add_preference_to_tm( just_pref ) )
                         {
-                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
                             if ( wma.wma_enabled() )
                             {
                                 wma.wma_activate_wmes_in_pref( just_pref );
@@ -3767,13 +3772,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             //std::sort(prohibits.begin(), prohibits.end());
             Collections.sort(prohibits);
         }
-        int[] test = { 2, 2 };
+
         // epmem options
         boolean do_graph_match = (params.graph_match.get() == GraphMatchChoices.on);
         GmOrderingChoices gm_order = params.gm_ordering.get();
 
         // variables needed for cleanup
         Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new LinkedHashMap<WmeImpl, EpmemLiteral>();
+        @SuppressWarnings("unchecked")
         Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
         pedge_caches[0] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
         pedge_caches[1] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
@@ -3787,6 +3793,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         #else
         */
         //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
+        @SuppressWarnings("unchecked")
         SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
         uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
@@ -4069,6 +4076,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // create queries for the unique edge children of this partial edge
                     if (pedge.value_is_id != 0) 
                     {
+                        @SuppressWarnings("unused")
                         boolean created = false;
                         //for (epmem_literal_set::iterator literal_iter = pedge->literals.begin(); literal_iter != pedge->literals.end(); literal_iter++) {
                         for(EpmemLiteral literal_iter: pedge.literals)
@@ -4465,6 +4473,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 best_bindings.clear();
                                 //Java array do not get along well with paramatized types.  Maybe 
                                 //we should make this a list. -ACN
+                                @SuppressWarnings("unchecked")
                                 Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
                                 for(int i = 0; i < bound_nodes.length; i++)
                                 {
@@ -4577,6 +4586,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         //This instantiation of level is shadowing the function parameter, which java does not
                         //allow, so were going to have to rename it here.
+                        @SuppressWarnings("unused")
                         int/*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
                         // mapping identifier
                         SymbolImpl mapping = symbols.make_new_identifier('M', level);
@@ -5759,7 +5769,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // shared identifier lookup table
             //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
-            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.merge_add);
+            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.add);
             
             // symbols used to create WMEs
             SymbolImpl attr = null;
@@ -6939,6 +6949,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return t1;
     }
     
+    @SuppressWarnings("unused")
     private String trimTrailingZerosFromDoubleString(String s){
         if(s.contains(".")){
             int firstTrailingZero = s.length() - 1;
@@ -6959,7 +6970,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get()){
+            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
                 logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
         }

@@ -6,7 +6,7 @@
 package org.jsoar.kernel.smem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +49,7 @@ class smem_chunk_lti
         // TODO SMEM is this a good idea?
         // use a smaller default size since there usually aren't that many
         // attributes on an id 
-        return new HashMap<SymbolImpl, List<Object>>(8);
+        return new LinkedHashMap<SymbolImpl, List<Object>>(8);
     }
     
     /**

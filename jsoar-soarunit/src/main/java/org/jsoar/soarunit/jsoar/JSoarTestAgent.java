@@ -9,14 +9,13 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -29,7 +28,6 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.soarunit.FiringCounts;
 import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
-import org.jsoar.soarunit.TestCase;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.events.SoarEvent;
@@ -252,7 +250,7 @@ public class JSoarTestAgent implements TestAgent
     {
         if(cycleCountWme == null)
         {
-            soarUnitWme = InputWmes.add(io, "soar-unit", io.getSymbols().createIdentifier('C'));
+            soarUnitWme = InputWmes.add(io, "soar-unit", io.getSymbols().createIdentifier('S'));
             cycleCountWme = InputWmes.add(soarUnitWme, "cycle-count", getCycleCount());
         }
         else

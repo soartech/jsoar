@@ -97,7 +97,7 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
     @SuppressWarnings("unchecked")
     public void reset()
     {
-        for(PropertyKey key : keys)
+        for(@SuppressWarnings("rawtypes") PropertyKey key : keys)
         {
             properties.set(key, key.getDefaultValue());
         }

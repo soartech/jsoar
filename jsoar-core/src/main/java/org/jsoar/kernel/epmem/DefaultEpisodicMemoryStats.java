@@ -165,7 +165,7 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
     @SuppressWarnings("unchecked")
     public void reset()
     {
-        for(PropertyKey key : keys)
+        for(@SuppressWarnings("rawtypes") PropertyKey key : keys)
         {
             properties.set(key, key.getDefaultValue());
         }

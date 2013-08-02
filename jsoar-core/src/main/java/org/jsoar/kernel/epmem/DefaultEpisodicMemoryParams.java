@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.properties.BooleanPropertyProvider;
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.DoublePropertyProvider;
 import org.jsoar.util.properties.EnumPropertyProvider;
@@ -51,11 +50,15 @@ class DefaultEpisodicMemoryParams
      */
     static enum Trigger { none, output, dc };
     
-    static enum MergeChoices { merge_none, merge_add };
+    static enum MergeChoices { none, add };
     
     static enum GraphMatchChoices { on, off };
     
     static enum GmOrderingChoices { undefined, dfs, mcv };
+    
+    static enum AppendDatabaseChoices { on, off };
+    
+    static enum LazyCommitChoices { on, off };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -70,8 +73,8 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<Boolean> LAZY_COMMIT = key("lazy-commit", Boolean.class).defaultValue(true).build();
-    final BooleanPropertyProvider lazy_commit = new BooleanPropertyProvider(LAZY_COMMIT);
+    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
+    final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
     static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
     final DoublePropertyProvider balance = new DoublePropertyProvider(BALANCE);
@@ -85,8 +88,8 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Optimization> OPTIMIZATION = key("optimization", Optimization.class).defaultValue(Optimization.performance).build();
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
     
-    static final PropertyKey<Boolean> APPEND_DATABASE= key("append-database", Boolean.class).defaultValue(false).build();
-    final BooleanPropertyProvider append_database = new BooleanPropertyProvider(APPEND_DATABASE);
+    static final PropertyKey<AppendDatabaseChoices> APPEND_DB= key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.off).build();
+    final EnumPropertyProvider<AppendDatabaseChoices> append_database = new EnumPropertyProvider<AppendDatabaseChoices>(APPEND_DB);
     
     static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
     final EnumPropertyProvider<Phase> phase = new EnumPropertyProvider<Phase>(PHASE);
@@ -100,7 +103,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.dc).build();
     final EnumPropertyProvider<Trigger> trigger = new EnumPropertyProvider<Trigger>(TRIGGER);
     
-    static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.merge_none).build();
+    static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.none).build();
     final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
     
     static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph_match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
@@ -133,7 +136,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(GM_ORDERING, gm_ordering);
         
         properties.setProvider(BALANCE, balance);
-        properties.setProvider(APPEND_DATABASE, append_database);
+        properties.setProvider(APPEND_DB, append_database);
         
         // exclude ^epmem and ^smem attributes from being added to epmem by default
         exclusions.add((SymbolImpl) sf.createString("epmem"));
@@ -145,4 +148,16 @@ class DefaultEpisodicMemoryParams
         return properties;
     }
 
+    /**
+     * Retrieve a property key for an EPMEM property. Appropriately adds necessary
+     * prefixes to the name to find the right key.
+     * 
+     * @param props the property manager
+     * @param name the name of the property.
+     * @return the key, or {@code null} if not found.
+     */
+    public static PropertyKey<?> getProperty(PropertyManager props, String name)
+    {
+        return props.getKey(PREFIX + name);
+    }
 }

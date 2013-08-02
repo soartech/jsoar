@@ -28,8 +28,11 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.FakeForgettingChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.PetrovApproxChoices;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.PropertyChangeEvent;
@@ -191,14 +194,14 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_touched_sets = new HashSet<Long>();
 
         // call wma_init/wma_deinit when wma is turned on/off
-        properties.addListener(DefaultWorkingMemoryActivationParams.ACTIVATION, new PropertyListener<Boolean>()
+        properties.addListener(DefaultWorkingMemoryActivationParams.ACTIVATION, new PropertyListener<ActivationChoices>()
                 {
                     @Override
-                    public void propertyChanged(PropertyChangeEvent<Boolean> event)
+                    public void propertyChanged(PropertyChangeEvent<ActivationChoices> event)
                     {
                         if ( event.getNewValue() != event.getOldValue() )
                         {
-                            if ( event.getNewValue() )
+                            if ( event.getNewValue() == ActivationChoices.on )
                             {
                                 wma_init();
                             }
@@ -228,7 +231,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     @Override
     public boolean wma_enabled()
     {
-        return params.activation.get();
+        return params.activation.get() == ActivationChoices.on;
     }
 
     //////////////////////////////////////////////////////////
@@ -418,7 +421,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
 
         // see (Petrov, 2006)
-        if ( params.petrov_approx.get() )
+        if ( params.petrov_approx.get() == PetrovApproxChoices.on )
         {
             // if ( n > k )
             if ( history.total_references > history.history_references )
@@ -903,7 +906,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private boolean wma_forgetting_forget_wme( final Wme w )
     {   
         boolean return_val = false;
-        final boolean fake = params.fake_forgetting.get();
+        final boolean fake = (params.fake_forgetting.get() == FakeForgettingChoices.on);
         
         if ( w.getPreferences().hasNext() && w.getPreferences().next().slot != null )
         {

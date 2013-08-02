@@ -1,0 +1,454 @@
+smem --set learning on
+
+watch 0
+
+#Initialization Operator
+sp {propose*init
+   (state <s> -^name
+               ^superstate nil)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name init)
+}
+
+sp {apply*init
+   (state <s> ^operator.name init)
+-->
+   (<s> ^name factorization
+        ^max 1501 #Count up 50 times
+        ^count 1)
+   #(write |Format is as follows| (crlf))
+   #(write |Factored N.  Factors: 1,1 : Z,Y| (crlf))
+   #(write |Where N is the number factored.| (crlf))
+   #(write |And Z is a factor| (crlf))
+   #(write |And Y is the number of times it is a factor| (crlf) (crlf))
+}
+
+#Counting Function
+sp {propose*count
+   (state <s> ^name factorization
+              ^count <c>
+              ^max <> <c>
+             -^needs-factorization)
+-->
+   (<s> ^operator <count> +)
+   (<count> ^name count)
+}
+
+sp {apply*count*increase-count
+   (state <s> ^operator <count>
+              ^count <c>)
+   (<count> ^name count)
+-->
+   (<s> ^count (+ <c> 1)
+   		^factorization <factorization>
+        ^needs-factorization true)
+   (<factorization> ^number (+ <c> 1)
+   					^factor <factor>)
+   (<factor> ^value 1
+             ^multiplicity 1)
+}
+
+sp {apply*count*remove-old-count
+   (state <s> ^operator.name count
+              ^count <c>)
+-->
+   (<s> ^count <c> -)
+}
+
+sp {apply*count*remove-old-factorization
+   (state <s> ^operator.name count
+              ^count <c>
+              ^factorization <f>
+              ^smem.command <sc>)
+   (<f> ^number <c>)
+   (<sc> ^store <store>)
+-->
+   (<s> ^factorization <f> -)
+   (<sc> ^store <store> -)
+}
+
+#Factorization Function
+sp {propose*factor
+   (state <s> ^name factorization
+              ^factorization <f>)
+   (<f> -^printed true)
+-->
+   (<s> ^operator <factorization> +)
+   (<factorization> ^name factor
+                    ^factorization <f>)
+}
+
+#Now this would drop down to a substate to complete the factorization
+
+sp {apply*factor
+   (state <s> ^operator.name factor
+              ^factorization <factorization>
+              ^smem.command <sc>)
+   (<factorization> ^complete true
+                    ^number <c>)
+-->
+   #(write |Factored | <c> |.  Factors: |)
+   (<factorization> ^print-started true)
+   (<sc> ^store <factorization>)
+}
+
+sp {apply*factor*write-factors
+   (state <s> ^operator.name factor
+              ^factorization <factorization>
+              ^smem.command <sc>)
+   (<factorization> ^factor <f>
+                    ^print-started true)
+   (<f> ^value <v>
+        ^multiplicity <m>)
+-->
+   #(write <v> |,| <m> | : | )
+   (<factorization> ^printed true)
+   (<s> ^needs-factorization true -)
+   (<sc> ^store <f>)
+}
+
+### Substate code
+
+# Init Operator
+sp {propose*init-substate
+   (state <s> -^name
+               ^superstate <ss>)
+   (<ss> ^operator.factorization <f>)
+-->
+   (<s> ^operator <init> + >)
+   (<init> ^name init-substate
+           ^factorization <f>)
+}
+
+# This applies in the first substate below the top state
+sp {apply*init-substate*create-factorization
+   (state <s> ^operator <op>)
+   (<op> ^name init-substate
+         ^factorization <f>)
+   (<f> ^number <c>)
+-->
+   (<s> ^name factor-substate
+        ^temp-number (float <c>)
+        ^factorization <f>
+        ^counter 2)
+}
+
+#Factorization Code
+
+# How we factor is as follows, we count up and keep mod'ing a number until we
+# find one which is 0 (we start at 1 but make sure to continue past 1).  Then we poll episodic memory
+# for the factorization of that next number which *has* to exist in episodic
+# memory at this point unless the number is a prime in which case we will never
+# find a number other than itself that mod's it to 0.
+
+# Mod only uses ints not floats.  It will fail silently if you use floats so don't do this....
+sp {elaboration*temp-number-to-int
+   (state <s> ^name factor-substate
+              ^temp-number <c>)
+-->
+   (<s> ^temp-number-int (int <c>))
+}
+
+sp {elaboration*mod-number
+   (state <s> ^name factor-substate
+              ^temp-number-int <c>
+              ^counter <counter>)
+-->
+   (<s> ^mod (mod <c> <counter>))
+}
+
+sp {propose*factor-number
+   (state <s> ^name factor-substate
+              ^counter <counter>
+              ^factorization <f>
+             -^need-to-look-up-factors
+             -^retrieving)
+-->
+   (<s> ^operator <factor-number> +)
+   (<factor-number> ^name factor-number)
+}
+
+sp {apply*factor-number*counter*increase
+   (state <s> ^operator.name factor-number
+              ^counter <counter>)
+-->
+   (<s> ^counter (+ <counter> 1))
+}
+
+sp {apply*factor-number*counter*remove-old
+   (state <s> ^operator.name factor-number
+              ^counter <counter>)
+-->
+   (<s> ^counter <counter> -)
+}
+
+# Propose to divide if the mod is 0
+
+# Make sure to note that this will not divide by
+# the current counter but rather by the previous
+# counter number.  This is because while we're
+# doing the counter, since everything is in parallel,
+# we don't easily have a guarentee that we won't need
+# to count so we'll do it anyways and then when we
+# divide note that it has to be (- <counter> 1)
+sp {preference*divide-better-than-factor-number
+   (state <s> ^operator <divide> +
+              ^operator <factor-number> +)
+   (<divide> ^name divide)
+   (<factor-number> ^name factor-number)
+-->
+   (<s> ^operator <divide> > <factor-number>)
+}                                
+
+sp {propose*divide
+   (state <s> ^name factor-substate
+              ^temp-number <temp>
+              ^counter <c>
+              ^mod 0
+             -^need-to-look-up-factors
+             -^retrieving)
+-->
+   (<s> ^operator <divide> +)
+   (<divide> ^name divide
+             ^divide-by <c>
+             ^temp-number <temp>)
+}
+
+sp {apply*divide*no-existing-factor
+   (state <s> ^operator <divide>
+              ^temp-number <temp>
+              ^factorization <f>)
+   (<divide> ^name divide
+             ^temp-number <c>
+             ^divide-by <divide-by>)
+   (<f> -^factor.value <divide-by>)
+-->
+   (<s> ^temp-number (/ <c> <divide-by>)
+        ^temp-number <temp> -)
+   (<f> ^factor <factor>)
+   (<factor> ^value <divide-by>
+             ^multiplicity 1)
+}
+
+sp {apply*divide*existing-factor
+   (state <s> ^operator <divide>
+              ^temp-number <temp>
+              ^factorization <f>
+              ^factor-count <fc>)
+   (<divide> ^name divide
+             ^temp-number <c>
+             ^divide-by <divide-by>)
+   (<f> ^factor <factor>)
+   (<factor> ^value <divide-by>
+             ^multiplicity <m>)
+-->
+   (<s> ^temp-number (/ <c> <divide-by>)
+        ^temp-number <temp> -)
+   (<factor> ^multiplicity <m> -
+             ^multiplicity (+ <m> 1))
+}
+
+# Now only propose to look up in episodic memory if the temp number is not the same as the previous
+sp {propose*look-up-factorization
+   (state <s> ^name factor-substate
+              ^temp-number-int { <> 1 <c> }
+              ^factorization <f>
+             -^smem.command.query
+             -^smem.command.retrieve
+             -^looked-up-factorization)
+   (<f> ^number <> <c>)
+-->
+   (<s> ^operator <look-up-factorization> + >)
+   (<look-up-factorization> ^name look-up-factorization)
+}
+
+sp {apply*look-up-factorization
+   (state <s> ^operator.name look-up-factorization
+              ^smem.command <cmd>
+              ^temp-number-int <c>)
+-->
+   (<cmd> ^query <q>)
+   (<q> ^number <c>)
+}
+
+sp {propose*check-smem-result*success
+   (state <s> ^name factor-substate
+              ^smem <smem>
+              ^temp-number-int <c>)
+   (<smem> ^command.query <q>
+           ^result.success <q>
+           ^result.retrieved <result>)
+   (<result> ^number <c>)
+-->
+   (<s> ^operator <check-smem> + >)
+   (<check-smem> ^name check-smem
+                  ^status success
+                  ^factorization <result>)
+}
+
+sp {propose*check-smem-result*failure
+   (state <s> ^name factor-substate
+              ^smem.result.failure)
+-->
+   (<s> ^operator <check-smem> + >)
+   (<check-smem> ^name check-smem
+                 ^status failure)
+}
+
+sp {apply*check-smem-result*success*set-completed
+   (state <s> ^operator <check-smem>
+              ^smem.command <cmd>)
+   (<check-smem> ^name check-smem
+                 ^status success
+                 ^factorization <f>)
+   (<cmd> ^query <q>)
+-->
+   (<cmd> ^query <q> -)
+   (<s> ^looked-up-factorization <f>)
+}
+
+sp {apply*check-smem*failure
+   (state <s> ^operator <check-smem>)
+   (<check-smem> ^name check-smem
+                 ^status failure)
+-->
+   (write |Failure in checking smem!|)
+   (halt)
+}
+
+sp {propose*check-smem*retrieve-factor
+   (state <s> ^name factor-substate
+              ^looked-up-factorization <f>
+             -^smem.command.retrieve <factor>
+             -^retrieving)
+   (<f> ^factor <factor>)
+   (<factor> -^value)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name retrieve-factor
+        ^factor <factor>)
+}
+
+sp {apply*check-smem*remove-old-factors
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<sc> ^retrieve { <f2> <> <factor> })
+   (<o> ^name retrieve-factor
+        ^factor <factor>)
+-->
+   (<sc> ^retrieve <f2> -)
+}
+
+sp {apply*check-smem*retrieve-factor
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor>)
+-->
+   (<sc> ^retrieve <factor>)
+   (<s> ^retrieving <factor>)
+}
+
+sp {propose*copy-retrieve-factor
+   (state <s> ^retrieving <factor>
+              ^name factor-substate)
+-->
+   (<s> ^operator.name retrieve-factor-copy)
+}
+
+sp {apply*check-smem*retrieve-factor*non-existing
+   (state <s> ^operator <check-smem>
+              ^factorization <factorization>
+              ^smem.result.retrieved <factor>
+              ^retrieving <r-f>)
+   (<check-smem> ^name retrieve-factor-copy)
+   (<factor> ^value { <> 1 <v> }
+             ^multiplicity <m>)
+   (<factorization> -^factor.value <v>)
+-->
+   (<factorization> ^factor <new-factor>)
+   (<new-factor> ^value <v>
+                 ^multiplicity <m>)
+   (<s> ^retrieving <r-f> -)
+}
+
+sp {apply*check-smem*retrieve-factor*existing
+   (state <s> ^operator <check-smem>
+              ^factorization <factorization>
+              ^smem.result.retrieved <factor>
+              ^retrieving <r-f>)
+   (<check-smem> ^name retrieve-factor-copy)
+   (<factor> ^value { <> 1 <v> }
+             ^multiplicity <m>)
+   (<factorization> ^factor <current>)
+   (<current> ^value { <> 1 <v> }
+              ^multiplicity <m-2>)
+-->
+   (<current> ^multiplicity <m-2> -
+              ^multiplicity (+ <m> <m-2>))
+   (<s> ^retrieving <r-f> -)
+}
+
+sp {apply*check-smem*retrieve-factor*one
+   (state <s> ^operator.name retrieve-factor-copy
+              ^retrieving <r-f>
+              ^smem.result.retrieved.value 1)
+-->
+   (<s> ^retrieving <r-f> -)
+}
+
+sp {elaboration*factors-not-looked-up
+   (state <s> ^looked-up-factorization <luf>)
+   (<luf> ^factor <f>)
+   (<f> -^value)
+-->
+   (<s> ^need-to-look-up-factors true)
+}
+
+sp {propose*completed-looking-up-factors
+   (state <s> ^looked-up-factorization <f>
+             -^need-to-look-up-factors
+             -^retrieving
+             -^factorization.complete true)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name completed-factorization)
+}
+
+sp {apply*completed-looking-up-factors
+   (state <s> ^operator.name completed-factorization
+              ^factorization <factorization>)
+-->
+   (<factorization> ^complete true)
+}
+
+# This is a special-case operator to deal with primes
+sp {propose*is-prime
+   (state <s> ^name factor-substate
+              ^temp-number-int 1
+              ^factorization <f>)
+   (<f> ^number <c>)
+-->
+   (<s> ^operator <is-prime> + >)
+   (<is-prime> ^name is-prime)
+}
+
+sp {apply*is-prime
+   (state <s> ^operator.name is-prime
+              ^factorization <f>)
+-->
+   (<f> ^complete true)
+}
+
+# Now it should continue
+
+# Finishing Operator
+
+sp {done
+   (state <s> ^count <c>
+              ^max <c>)
+-->
+   (write |Done!|)
+   (halt)
+}
