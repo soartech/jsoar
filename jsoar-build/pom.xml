@@ -2,7 +2,7 @@
     <parent>
         <groupId>com.soartech</groupId>
         <artifactId>jsoar</artifactId>
-        <version>0.13.1-SNAPSHOT</version>
+        <version>0.13.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -30,37 +30,37 @@
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-core</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-debugger</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-demos</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-legilimens</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-soar2soar</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-soarunit</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
       <dependency>
           <groupId>com.soartech</groupId>
           <artifactId>jsoar-tcl</artifactId>
-          <version>0.13.1-SNAPSHOT</version>
+          <version>0.13.0</version>
       </dependency>
   </dependencies>
 </project>
