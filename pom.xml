@@ -2,12 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soartech</groupId>
     <artifactId>jsoar</artifactId>
-    <version>0.13.0-smem-SNAPSHOT</version>
+    <version>0.13.0-smem</version>
     <packaging>pom</packaging>
 
     <scm>
         <developerConnection>scm:git:https://git.soartech.com/git/jsoar.git</developerConnection>
-    </scm>
+      <tag>jsoar-0.13.0-smem</tag>
+  </scm>
 
     <build>
         <plugins>
