@@ -90,6 +90,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testSimpleNonCueBasedRetrievalOfNonExistingLTI() throws Exception
+    {
+        runTest("testSimpleNonCueBasedRetrievalOfNonExistingLTI", 1);
+    }
+    
+    @Test
     public void testSimpleStoreGC() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
