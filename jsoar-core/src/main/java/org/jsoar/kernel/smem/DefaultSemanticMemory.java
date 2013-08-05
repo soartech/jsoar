@@ -4062,12 +4062,13 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 db.commit.execute();
             }
-
-            // This method is never called and therefore I shouldn't need to
-            // implement it
-            // - ALT
-            // return_val = db.backup( file_name, err );
-
+            
+            Connection connection = db.getConnection();
+            Statement statement = connection.createStatement();            
+            statement.executeUpdate("backup to " + file_name);
+            
+            return_val = true;
+            
             if (params.lazy_commit.get() == LazyCommitChoices.on)
             {
                 db.begin.execute();

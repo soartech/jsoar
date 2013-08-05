@@ -6987,4 +6987,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             logger.error("Failed to reinitialize epmem:" + e.getMessage());
         }
     }
+    
+    boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
+    {
+        boolean return_val = false;
+
+        if (db != null)
+        {
+            if (params.lazy_commit.get() == LazyCommitChoices.on)
+            {
+                db.commit.execute();
+            }
+
+            Connection connection = db.getConnection();
+            Statement statement = connection.createStatement();            
+            statement.executeUpdate("backup to " + file_name);
+            
+            return_val = true;
+            
+            if (params.lazy_commit.get() == LazyCommitChoices.on)
+            {
+                db.begin.execute();
+            }
+        }
+        else
+        {
+            err.value = "Episodic database is not currently connected.";
+        }
+
+        return return_val;
+    }
 }

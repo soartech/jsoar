@@ -13,6 +13,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -78,17 +79,21 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doGet(1, args);
         }
-        else if("--stats".equals(arg))
+        else if("-s".equals(arg) || "--stats".equals(arg))
         {
             return doStats(1, args);
         }
-        else if("--print".equals(arg))
+        else if("-p".equals(arg) || "--print".equals(arg))
         {
             return doPrintEpisode(1, args);
         }
-        else if("--reinit".equals(arg))
+        else if("-r".equals(arg) || "--reinit".equals(arg))
         {
             return doReinit();
+        }
+        else if("-b".equals(arg) || "--backup".equals(arg))
+        {
+            return doBackup(1, args);
         }
         else if (arg.startsWith("-"))
         {
@@ -302,5 +307,32 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
     private String doReinit(){
         epmem.epmem_reinit();
         return "EpMem| Episodic memory system re-initialized.";
+    }
+    
+    private String doBackup(int i, String[] args) throws SoarException
+    {
+        if(i + 2 == args.length)
+        {
+            ByRef<String> err = new ByRef<String>("");
+            boolean success = false;
+            
+            try
+            {
+                success = epmem.epmem_backup_db(args[i+1], err);
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+            
+            if (!success)
+            {
+                throw new SoarException(err.value);
+            }
+            
+            return "EpMem| Database backed up to " + args[i+1];
+        }
+        
+        throw new SoarException("epmem --backup requires a path for an argument");
     }
 }
