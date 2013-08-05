@@ -72,6 +72,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testSimpleFloat() throws Exception
+    {
+        runTest("testSimpleFloat", 5);
+    }
+    
+    @Test
     public void testSimpleStoreGC() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
