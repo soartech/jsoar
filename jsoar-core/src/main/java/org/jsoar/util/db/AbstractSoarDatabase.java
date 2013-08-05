@@ -213,10 +213,20 @@ public abstract class AbstractSoarDatabase
         }
         try
         {
+            // See sqlite-jdbc notes
             final String trimmed = sql.trim();
-            return trimmed.startsWith("INSERT") ? 
-                    new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed):                              
-                    new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
+            if (trimmed.startsWith("INSERT"))
+            {
+                return new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed);
+            }
+            else if (trimmed.startsWith("backup") || trimmed.startsWith("restore"))
+            {
+                return new SoarPreparedStatement(trimmed);
+            }
+            else
+            {
+                return new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
+            }
         }
         catch (SQLException e)
         {

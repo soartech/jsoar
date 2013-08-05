@@ -418,14 +418,23 @@ class DefaultSemanticMemoryCommand implements SoarCommand
     
     private String doBackup(int i, String[] args) throws SoarException
     {
-        if(i + 2 == args.length)
+        if(args.length >= i + 2)
         {
             ByRef<String> err = new ByRef<String>("");
             boolean success = false;
             
+            String dbFile = "";
+            
+            for (++i;i < args.length;i++)
+            {
+                dbFile += args[i] + " ";
+            }
+            
+            dbFile = dbFile.trim();
+            
             try
             {
-                success = smem.smem_backup_db(args[i+1], err);
+                success = smem.smem_backup_db(dbFile, err);
             }
             catch (SQLException e)
             {
@@ -437,7 +446,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
                 throw new SoarException(err.value);
             }
             
-            return "SMem| Database backed up to " + args[i+1];
+            return "SMem| Database backed up to " + dbFile;
         }
         
         throw new SoarException("smem --backup requires a path for an argument");

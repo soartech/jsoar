@@ -35,6 +35,9 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement commit;
     PreparedStatement rollback;
     
+    SoarPreparedStatement backup;
+    SoarPreparedStatement restore;
+    
     PreparedStatement var_get;
     PreparedStatement var_set;
     
@@ -296,5 +299,30 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         drop_epmem_symbols_float.execute();
         drop_epmem_symbols_string.execute();
         drop_epmem_signature.execute();
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        this.getConnection().createStatement().executeUpdate(query);
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
     }
 }

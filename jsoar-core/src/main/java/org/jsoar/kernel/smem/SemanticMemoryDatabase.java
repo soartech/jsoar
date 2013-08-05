@@ -7,8 +7,11 @@ package org.jsoar.kernel.smem;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LazyCommitChoices;
 import org.jsoar.util.db.AbstractSoarDatabase;
+import org.jsoar.util.db.SoarPreparedStatement;
 
 /**
  * Database helper class for semantic memory.
@@ -28,6 +31,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement commit;
     PreparedStatement rollback;
 
+    SoarPreparedStatement backup;
+    SoarPreparedStatement restore;
+    
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -116,5 +122,30 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     {
         super(driver, db, SMEM_SIGNATURE);
         getFilterMap().put("@PREFIX@", SMEM_SCHEMA);
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        this.getConnection().createStatement().executeUpdate(query);
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
     }
 }

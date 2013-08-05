@@ -6994,21 +6994,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         if (db != null)
         {
-            if (params.lazy_commit.get() == LazyCommitChoices.on)
-            {
-                db.commit.execute();
-            }
-
-            Connection connection = db.getConnection();
-            Statement statement = connection.createStatement();            
-            statement.executeUpdate("backup to " + file_name);
-            
-            return_val = true;
-            
-            if (params.lazy_commit.get() == LazyCommitChoices.on)
-            {
-                db.begin.execute();
-            }
+            return db.backupDb(file_name);
         }
         else
         {
