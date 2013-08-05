@@ -78,6 +78,18 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testMaxDoublePrecision_Irrational() throws Exception
+    {
+        runTest("testMaxDoublePrecision-Irrational", 5);
+    }
+    
+    @Test
+    public void testMaxDoublePrecision() throws Exception
+    {
+        runTest("testMaxDoublePrecision", 5);
+    }
+    
+    @Test
     public void testSimpleStoreGC() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
