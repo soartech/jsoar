@@ -53,7 +53,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
         expectedVals.add(Long.MAX_VALUE);
         expectedVals.add(1L);
         
-        final PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"epmem_persistent_variables WHERE variable_id=?");
+        final PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"persistent_variables WHERE variable_id=?");
         
         ResultSet rs;
         long value;
@@ -86,7 +86,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
         
         
         final PreparedStatement ps = getConnection()
-                .prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"epmem_symbols_string WHERE s_id=?");
+                .prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"symbols_string WHERE s_id=?");
         
         ResultSet rs;
         String sym_const;

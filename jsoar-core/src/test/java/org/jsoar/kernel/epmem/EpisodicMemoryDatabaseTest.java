@@ -40,14 +40,17 @@ public class EpisodicMemoryDatabaseTest
         db.close();
     }
     
-    @Test
-    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
-    {
-        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
-        assertTrue(emdb.structure());
-        
-        assertFalse(emdb.structure());
-    }
+    // With the change to make JSoar behave like CSoar, this test is no longer valid
+    // Because it will recreate the tables (or at least try to).
+    // - ALT
+//    @Test
+//    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
+//    {
+//        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+//        assertTrue(emdb.structure());
+//        
+//        assertFalse(emdb.structure());
+//    }
     
     @Test
     public void testCanCreateInitialTables() throws Exception
@@ -63,35 +66,33 @@ public class EpisodicMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final Set<String> expectedTables = new HashSet<String>(Arrays.asList(
-            EpisodicMemoryDatabase.EPMEM_SIGNATURE,
+        final Set<String> expectedTables = new HashSet<String>(Arrays.asList(            
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "nodes",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_ascii",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_lti",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_nodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables", 
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_left_nodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_right_nodes",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_rit_left_nodes",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_rit_right_nodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_integer",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_string",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_type",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_float",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_integer",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_type",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_point",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_range",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range",
-            
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range",
            
             "sqlite_sequence", // created automatically for AUTOINCREMENT,
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "versions"
+            "versions"
         ));
         
         for(String expected : expectedTables)
@@ -123,27 +124,27 @@ public class EpisodicMemoryDatabaseTest
          * - ALT
          */
         final List<String> expectedTables = new ArrayList<String>(Arrays.asList(new String[] {
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_lti_letter_num",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_parent_attribute_value",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_id_end_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_lower",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_upper",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_parent_attribute_child",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_parent_attribute_last",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_id_end_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_lower",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_upper",
-            "sqlite_autoindex_" + EpisodicMemoryDatabase.EPMEM_SCHEMA + "versions_1",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti_letter_num",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_parent_attribute_value",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_point_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_point_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_range_id_end_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_range_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_range_lower",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_range_upper",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_parent_attribute_child",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_parent_attribute_last",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range_id_end_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range_lower",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range_upper",
+            "sqlite_autoindex_versions_1",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float_const",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_int_const",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const",
@@ -194,7 +195,7 @@ public class EpisodicMemoryDatabaseTest
         assertNotNull(emdb.hash_add_float);
         assertNotNull(emdb.hash_add_str);
         
-        // epmem_graph_statement_container
+        // graph_statement_container
         assertNotNull(emdb.add_node);
         assertNotNull(emdb.add_time);
         
