@@ -25,9 +25,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
     }
     
     private void populateDataBase(Connection db) throws SQLException{
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_ascii");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_ascii " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii " +
                 		"select 65 as ascii_num, 'A' as ascii_chr " +
                 		"union select 66, 'B' " +
                 		"union select 67, 'C' " +
@@ -55,9 +55,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                 		"union select 89, 'Y' " +
                 		"union select 90, 'Z'"
             );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now " +
                 		"select 1 as wi_id, 3 as start_episode_id " +
                         "union select 2,3 " +
                         "union select 3,3 " +
@@ -85,9 +85,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 18,3 " +
                         "union select 35,3"
             );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point " +
                 		"select 1 as wi_id, 1 as episode_id " +
                 		"union select 2,1 " +
                 		"union select 3,1 " +
@@ -167,9 +167,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 18,3 " +
                         "union select 35,3 "
             );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier " +
                 		"select 1 as wi_id, 0 as parent_n_id, 6 as attribute_s_id, 1 as child_n_id, 9223372036854776000 as last_episode_id " +
                         "union select 2,0,9,2,9223372036854776000 " +
                         "union select 3,0,1,3,9223372036854776000 " +
@@ -206,9 +206,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 34,9,15,10,9223372036854776000 " +
                         "union select 35,8,15,7,9223372036854776000"
                 );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now " +
                 		"select 1 as wc_id, 4 as start_episode_id " +
                         "union select 2,4 " +
                         "union select 3,4 " +
@@ -221,9 +221,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 16,4 " +
                         "union select 17,4"
                     );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_point");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_point " +
                 		"select 1 as wc_id, 1 as episode_id " +
                 		"union select 2,1 " +
                 		"union select 3,1 " +
@@ -258,9 +258,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 16,3 " +
                         "union select 17,3"
                 );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant " +
                 		"select 1 as wc_id, 0 as parent_n_id, 2 as attribute_s_id, 3 as value_s_id " +
                         "union select 2,0,4,5 " +
                         "union select 3,0,7,8 " +
@@ -279,9 +279,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 12,13,7,16 " +
                         "union select 11,13,7,22"
                     );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_string");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_string " +
                 		"select 0 as s_id, \"root\" as symbol_value " +
                         "union select 20,\"Albany\" " +
                         "union select 21,\"Atlanta\" " +
@@ -306,17 +306,17 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
                         "union select 15,\"to\" " +
                         "union select 4,\"type\""
                     );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes " +
                 		"select 1 as episode_id " +
                         "union select 2 " +
                         "union select 3 " +
                         "union select 4"
                     );
-        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables");
+        db.prepareStatement("DELETE FROM " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables");
         db.prepareStatement(
-                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables " +
+                "insert into " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables " +
                 		"select 0 as variable_id, -1 as variable_value " +
                         "union select 1,0 " +
                         "union select 2,1 " +

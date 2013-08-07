@@ -646,7 +646,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (result.next())
                 {
                     String schemaVersion = result.getString(1);
-                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA.equals(schemaVersion))
+                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
                         params.path.set(":memory:");
@@ -672,7 +672,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 result.close();
             }
         }
-        db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA);
+        db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION);
         db.set_schema_version.execute();
         /*
          * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
@@ -6820,9 +6820,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         else
                         {
                             temp_s2 = "@";
-                            temp_s2 += result.getLong( 3 + 1 );
+                            temp_s2 += (char)result.getLong( 3 + 1 );
     
-                            temp_i = result.getLong( 4 );
+                            temp_i = result.getLong( 4 + 1 );
                             //to_string( temp_i, temp_s3 );
                             temp_s3 = temp_i.toString();
                             temp_s2 += temp_s3;
@@ -6986,5 +6986,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             logger.error("Failed to reinitialize epmem:" + e.getMessage());
         }
+    }
+    
+    boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
+    {
+        boolean return_val = false;
+
+        if (db != null)
+        {
+            return db.backupDb(file_name);
+        }
+        else
+        {
+            err.value = "Episodic database is not currently connected.";
+        }
+
+        return return_val;
     }
 }

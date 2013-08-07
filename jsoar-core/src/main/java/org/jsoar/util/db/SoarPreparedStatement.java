@@ -42,6 +42,13 @@ public class SoarPreparedStatement implements PreparedStatement
         this.query = query;
     }
     
+    // See sqlite-jdbc notes
+    SoarPreparedStatement(String query)
+    {
+        this.ps = null;
+        this.query = query;
+    }
+    
     //Use this to make more PreparedStatements
     public String getQuery(){
         return query;
@@ -744,6 +751,7 @@ public class SoarPreparedStatement implements PreparedStatement
         ps.setURL(parameterIndex, x);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length)
             throws SQLException

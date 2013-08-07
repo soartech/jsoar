@@ -1,0 +1,14 @@
+NOTICE:
+
+The sqlite-jdbc has a backup and restore command each of which are intercepted by the driver.  This means
+that you cannot prepare the statements like normal sql statements and there is a bit of a hack in
+EpisodicMemoryDatabase.java and SemanticMemoryDatabase.java : backupDb to account for this.  There is also
+some special handling in AbstractSoarDatabase to account for this as well.  Furthermore, the sqlite-jdbc
+jar had to be modified for OS X.  In it there is some native libraries for sqlite with the extension jnilib,
+OS X can either use jnilib or dylib for java native libraries and on some machines this is an issue and so
+we modified it by copying the jnilib and renaming the copy with a dylib extension this means there is two
+dynamic libraries on OS X per architecture.
+
+- ALT
+
+Last Updated 8/5/2013

@@ -7,8 +7,10 @@ package org.jsoar.kernel.smem;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
+import org.jsoar.util.db.SoarPreparedStatement;
 
 /**
  * Database helper class for semantic memory.
@@ -18,9 +20,9 @@ import org.jsoar.util.db.AbstractSoarDatabase;
 final class SemanticMemoryDatabase extends AbstractSoarDatabase
 {
     // empty table used to verify proper structure
-    static final String SMEM_SCHEMA = "smem2_";
-    static final String SMEM_SIGNATURE = SMEM_SCHEMA + "smem_signature";
-    public static final String SMEM_SCHEMA_VERSION = "2.0";
+    static final String SMEM_SCHEMA = "smem_";
+    
+    static final String SMEM_SCHEMA_VERSION = "2.0";
 
     // These are all the prepared statements for SMEM. They're filled in via reflection
     // from statements.properties.
@@ -28,6 +30,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement commit;
     PreparedStatement rollback;
 
+    SoarPreparedStatement backup;
+    SoarPreparedStatement restore;
+    
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -114,7 +119,47 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     
     public SemanticMemoryDatabase(String driver, Connection db)
     {
-        super(driver, db, SMEM_SIGNATURE);
+        super(driver, db);
         getFilterMap().put("@PREFIX@", SMEM_SCHEMA);
+    }
+    
+    public void dropSmemTables() throws SQLException{
+        drop_smem_persistent_variables.execute();
+        drop_smem_symbols_type.execute();
+        drop_smem_symbols_integer.execute();
+        drop_smem_symbols_float.execute();
+        drop_smem_symbols_string.execute();
+        drop_smem_lti.execute();
+        drop_smem_activation_history.execute();
+        drop_smem_augmentations.execute();
+        drop_smem_attribute_frequency.execute();
+        drop_smem_wmes_constant_frequency.execute();
+        drop_smem_wmes_lti_frequency.execute();
+        drop_smem_ascii.execute();
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        this.getConnection().createStatement().executeUpdate(query);
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
     }
 }

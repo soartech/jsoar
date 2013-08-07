@@ -2919,7 +2919,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 if (result.next())
                 {
                     String schemaVersion = result.getString(1);
-                    if (!SemanticMemoryDatabase.SMEM_SCHEMA.equals(schemaVersion))
+                    if (!SemanticMemoryDatabase.SMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
                         params.path.set(":memory:");
@@ -2945,8 +2945,20 @@ public class DefaultSemanticMemory implements SemanticMemory
                 result.close();
             }
         }
-        db.set_schema_version.setString(1, SemanticMemoryDatabase.SMEM_SCHEMA);
+        db.set_schema_version.setString(1, SemanticMemoryDatabase.SMEM_SCHEMA_VERSION);
         db.set_schema_version.execute();
+        /*
+         * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
+         * prepared statements without making sure the tables exist, but we cannot drop the new
+         * tables without first building the prepared statements.
+         * TODO: Maybe we should bypass the reflected query structure so this can be done in
+         * one statement, instead of building the tables and immediately dropping them. -ACN
+         */
+        if(params.append_db.get() == AppendDatabaseChoices.off){
+            db.dropSmemTables();
+            db.structure();
+            db.prepare();
+        }
 
         if (tabula_rasa)
         {
@@ -4058,20 +4070,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             _smem_close_vars();
 
-            if (params.lazy_commit.get() == LazyCommitChoices.on)
-            {
-                db.commit.execute();
-            }
-
-            // This method is never called and therefore I shouldn't need to
-            // implement it
-            // - ALT
-            // return_val = db.backup( file_name, err );
-
-            if (params.lazy_commit.get() == LazyCommitChoices.on)
-            {
-                db.begin.execute();
-            }
+            return db.backupDb(file_name);
         }
         else
         {

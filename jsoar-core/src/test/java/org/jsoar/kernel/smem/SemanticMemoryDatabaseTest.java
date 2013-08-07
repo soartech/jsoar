@@ -34,14 +34,17 @@ public class SemanticMemoryDatabaseTest
         db.close();
     }
     
-    @Test
-    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
-    {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
-        assertTrue(smdb.structure());
-        
-        assertFalse(smdb.structure());
-    }
+    // With the change to make JSoar behave like CSoar, this test is no longer valid
+    // Because it will recreate the tables (or at least try to).
+    // - ALT
+//    @Test
+//    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
+//    {
+//        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+//        assertTrue(smdb.structure());
+//        
+//        assertFalse(smdb.structure());
+//    }
     
     @Test
     public void testCanCreateInitialTables() throws Exception
@@ -58,21 +61,20 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SIGNATURE,
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_persistent_variables", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_type",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_integer",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_float",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_string",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_activation_history",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_attribute_frequency",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_lti_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "persistent_variables", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_integer",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_string",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "activation_history",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "attribute_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_lti_frequency",
             SemanticMemoryDatabase.SMEM_SCHEMA + "ascii",
             
-            SemanticMemoryDatabase.SMEM_SCHEMA + "versions"
+            "versions"
         };
         
         for(String expected : expectedTables)
@@ -98,17 +100,17 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_int_const",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_float_const",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_symbols_str_const",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti_letter_num",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_lti_t",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_parent_attr_val_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_attr_val_lti_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_augmentations_attr_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_wmes_constant_frequency_attr_val",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "smem_ct_lti_attr_val",
-            "sqlite_autoindex_" + SemanticMemoryDatabase.SMEM_SCHEMA + "versions_1",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_t",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_parent_attr_val_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_val_lti_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
+            "sqlite_autoindex_versions_1",
         };
         
         for(String expected : expectedTables)

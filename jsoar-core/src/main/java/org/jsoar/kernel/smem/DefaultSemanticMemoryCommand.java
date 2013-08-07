@@ -134,6 +134,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             return doPrint(1, args);
         }
+        else if("-b".equals(arg) || "--backup".equals(arg))
+        {
+            return doBackup(1, args);
+        }
         else if(arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -410,6 +414,42 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         // TODO SMEM Commands: --viz with args
         throw new SoarException("smem --viz with args not implemented yet");
+    }
+    
+    private String doBackup(int i, String[] args) throws SoarException
+    {
+        if(args.length >= i + 2)
+        {
+            ByRef<String> err = new ByRef<String>("");
+            boolean success = false;
+            
+            String dbFile = "";
+            
+            for (++i;i < args.length;i++)
+            {
+                dbFile += args[i] + " ";
+            }
+            
+            dbFile = dbFile.trim();
+            
+            try
+            {
+                success = smem.smem_backup_db(dbFile, err);
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+            
+            if (!success)
+            {
+                throw new SoarException(err.value);
+            }
+            
+            return "SMem| Database backed up to " + dbFile;
+        }
+        
+        throw new SoarException("smem --backup requires a path for an argument");
     }
 
     private String doSmem()
