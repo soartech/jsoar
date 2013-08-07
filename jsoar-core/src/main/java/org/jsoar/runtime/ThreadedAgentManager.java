@@ -31,6 +31,11 @@ enum ThreadedAgentManager
     private final Map<Agent, ThreadedAgent> agents = new MapMaker().weakKeys().makeMap();
     private final SoarEventManager events = new SoarEventManager();
     
+    /**
+     * Creates a ThreadedAgent. Automatically initializes it. Returns when complete.
+     * @param name
+     * @return
+     */
     public ThreadedAgent create(String name)
     {
         synchronized(agents)

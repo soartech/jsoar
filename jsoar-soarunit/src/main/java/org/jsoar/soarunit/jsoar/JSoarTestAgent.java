@@ -174,7 +174,6 @@ public class JSoarTestAgent implements TestAgent
         agent.getTrace().setWatchLevel(0);
         output = new StringWriter();
         agent.getPrinter().addPersistentWriter(output);
-        agent.initialize();
         loadTestCode(test);
     }
     
