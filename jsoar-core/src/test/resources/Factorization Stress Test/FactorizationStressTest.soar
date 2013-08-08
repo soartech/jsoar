@@ -10,8 +10,7 @@ source CleanUpFactorSubstateResults.soar
 popd
 
 sp {complete
-   (state <s> ^counter 101
-             -^needs-factorization)
+   (state <s> ^counter 101)
 -->
    (write |Finished Factorization Stress Test!|)
    (halt)
