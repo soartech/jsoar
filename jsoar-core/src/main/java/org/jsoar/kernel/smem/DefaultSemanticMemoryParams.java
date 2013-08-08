@@ -186,14 +186,23 @@ class DefaultSemanticMemoryParams
             return set.toString();
         }
         
-        public static Set<Long> valueOf(String value)
+        public Set<Long> valueOf(String value)
         {
-            // TODO: Implement this
-            // - ALT
-            return null;
+            Long longValue = Long.parseLong(value);
+            
+            if (set.contains(longValue))
+            {
+                set.remove(longValue);
+            }
+            else
+            {
+                set.add(longValue);
+            }
+            
+            return new HashSet<Long>(set);
         }
         
-        public static SetWrapperLong toSetWrapper(String value)
+        public SetWrapperLong toSetWrapper(String value)
         {
             return new SetWrapperLong(valueOf(value));
         }

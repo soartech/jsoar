@@ -14,6 +14,12 @@ import java.util.List;
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
+import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 
@@ -93,6 +99,357 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     public void testSimpleNonCueBasedRetrievalOfNonExistingLTI() throws Exception
     {
         runTest("testSimpleNonCueBasedRetrievalOfNonExistingLTI", 1);
+    }
+    
+    private boolean halted = false;
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationRecency() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(3, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency functional test did not halt", halted);
+        
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+6.0])\n" +
+                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name foo ^location @L2 [+5.0])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency: Invalid Activation Values", result.equals(expected));
+    
+        halted = false;
+    }
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(3, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery functional test did not halt", halted);
+        
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+5.0])\n" +
+                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name foo ^location @L2 [+3.0])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery: Invalid Activation Values", result.equals(expected));
+    
+        halted = false;
+    }
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationFrequency() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationFrequency");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(3, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency functional test did not halt", halted);
+        
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [+1.0])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+2.0])\n" +
+                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name foo ^location @L2 [+2.0])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency: Invalid Activation Values", result.equals(expected));
+    
+        halted = false;
+    }
+    
+    private boolean checkActivationValues(String activationString, List<Double> lowEndExpectations, List<Double> highEndExpectations)
+    {
+        List<String> activationLevels = new ArrayList<String>();
+        String activation = "";
+        boolean inActivationParse = false;
+        
+        for (Character c : activationString.toCharArray())
+        {
+            if (c.equals('['))
+            {
+                inActivationParse = true;
+                continue;
+            }
+            else if (c.equals(']') && inActivationParse)
+            {
+                inActivationParse = false;
+                activationLevels.add(activation);
+                
+                activation = "";
+                
+                continue;
+            }
+            
+            if (inActivationParse && (Character.isDigit(c) || c.equals('.') || c.equals('+') || c.equals('-')))
+            {
+                if (activation.length() != 0 &&
+                    (c.equals('+') || c.equals('-')))
+                {
+                    throw new AssertionError("Found a +/- where there shouldn't be in Activation Levels!");
+                }
+                
+                activation += c;
+            }
+            else if (inActivationParse)
+            {
+                throw new AssertionError("Non-Digit Character in Activation Level");
+            }
+        }
+        
+        if (activationLevels.size() != lowEndExpectations.size())
+        {
+            throw new AssertionError("Low End Expectations is not the same size as parsed Activation Levels!");
+        }
+        else if (activationLevels.size() != highEndExpectations.size())
+        {
+            throw new AssertionError("High End Expectations is not the same size as parsed Activation Levels!");
+        }
+        
+        List<Double> activationLevelsAsDoubles = new ArrayList<Double>();
+        
+        for (String a : activationLevels)
+        {
+            activationLevelsAsDoubles.add(Double.parseDouble(a));
+        }
+        
+        for (int i = 0;i < activationLevelsAsDoubles.size();i++)
+        {
+            Double a = activationLevelsAsDoubles.get(i);
+            
+            if (!(a >= lowEndExpectations.get(i) && a <= highEndExpectations.get(i)))
+            {
+                throw new AssertionError("Parsed Activation " + i+1 + " (" + a + ") is not within [" + lowEndExpectations.get(i) + ", " + highEndExpectations.get(i) + "]");
+            }
+        }
+        
+        return true;
+    }
+    
+    private boolean activationCheck(double lowEndActivation, double highEndActivation, double recievedActivation)
+    {
+        if (recievedActivation >= lowEndActivation &&
+            recievedActivation <= highEndActivation)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(3, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable functional test did not halt", halted);
+        
+        List<Double> lowEndExpectations = new ArrayList<Double>();
+        List<Double> highEndExpectations = new ArrayList<Double>();
+        
+        lowEndExpectations.add(0.0);
+        highEndExpectations.add(0.0);
+        
+        lowEndExpectations.add(0.455);
+        highEndExpectations.add(0.456);
+        
+        lowEndExpectations.add(0.0);
+        highEndExpectations.add(0.0);
+        
+        lowEndExpectations.add(0.455);
+        highEndExpectations.add(0.456);
+        
+        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
+                          "(@X1 ^name foo ^location @L1 [+0.0])\n" +
+                          "(@X2 ^name foo ^location @L2 [+0.456])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+    
+        halted = false;
+    }
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(3, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive functional test did not halt", halted);
+        
+        List<Double> lowEndExpectations = new ArrayList<Double>();
+        List<Double> highEndExpectations = new ArrayList<Double>();
+        
+        lowEndExpectations.add(0.0);
+        highEndExpectations.add(0.0);
+        
+        lowEndExpectations.add(0.455);
+        highEndExpectations.add(0.456);
+        
+        lowEndExpectations.add(-0.694);
+        highEndExpectations.add(-0.693);
+        
+        lowEndExpectations.add(0.455);
+        highEndExpectations.add(0.456);
+        
+        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
+                          "(@X1 ^name foo ^location @L1 [-0.693])\n" +
+                          "(@X2 ^name foo ^location @L2 [+0.456])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+    
+        halted = false;
+    }
+    
+    @Test
+    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental() throws Exception
+    {
+        runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(4, RunType.DECISIONS);
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental functional test did not halt", halted);
+        
+        List<Double> lowEndExpectations = new ArrayList<Double>();
+        List<Double> highEndExpectations = new ArrayList<Double>();
+        
+        lowEndExpectations.add(-0.347);
+        highEndExpectations.add(-0.346);
+        
+        lowEndExpectations.add(0.405);
+        highEndExpectations.add(0.406);
+        
+        lowEndExpectations.add(0.109);
+        highEndExpectations.add(0.110);
+        
+        lowEndExpectations.add(0.143);
+        highEndExpectations.add(0.144);
+        
+        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        String expected = "========================================\n" +
+                          "            Semantic Memory             \n" +         
+                          "========================================\n" +
+                          "(@L1 ^x 1 ^y 2 ^z 3 [-0.347])\n" +
+                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.405])\n" +
+                          "(@X1 ^name foo ^location @L1 [+0.109])\n" +
+                          "(@X2 ^name foo ^location @L2 [+0.144])\n";
+        
+        String result = agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+    
+        halted = false;
     }
     
     @Test

@@ -303,7 +303,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             }
             else if(name.equals("base-incremental-threshes"))
             {
-                props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, SetWrapperLong.toSetWrapper(value));
+                props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, smem.getParams().base_incremental_threshes.get().toSetWrapper(value));
             }
             else if(name.equals("mirroring"))
             {
