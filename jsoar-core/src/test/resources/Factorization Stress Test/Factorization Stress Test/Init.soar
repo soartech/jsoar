@@ -1,0 +1,27 @@
+# This file contains the initialization rules for the top state
+
+####################################################
+###                   RULES                      ###
+####################################################
+
+####################################################
+###           INITIALIZE*TOP-STATE               ###
+# Propose to initialize the top state
+sp {propose*initialize*top-state
+   (state <s> -^name
+               ^superstate nil)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name initialize-top-state)
+}
+
+# Apply initializating the stop state
+## Adds a 'name' attribute to the top
+## state with the value 'Factorization'.
+## This also creates the main counter.
+sp {apply*initialize*top-state
+   (state <s> ^operator.name initialize-top-state)
+-->
+   (<s> ^name Factorization
+        ^counter 1)
+}

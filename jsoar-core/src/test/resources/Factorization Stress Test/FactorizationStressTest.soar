@@ -1,0 +1,18 @@
+pushd "Factorization Stress Test"
+
+source Init.soar
+source Counter.soar
+
+source FactorRecursiveSubstate.soar
+
+source CleanUpFactorSubstateResults.soar
+
+popd
+
+sp {complete
+   (state <s> ^counter 101
+             -^needs-factorization)
+-->
+   (write |Finished Factorization Stress Test!|)
+   (halt)
+}

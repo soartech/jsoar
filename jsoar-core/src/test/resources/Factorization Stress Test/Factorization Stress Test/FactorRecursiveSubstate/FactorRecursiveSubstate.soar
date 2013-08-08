@@ -1,0 +1,346 @@
+# This file contains the "meat" of the generic factor rules.
+# It contains rules for counting, for dividing, and for adding factors
+# and setting the complete 'true' flag.
+
+####################################################
+###               ELABORATIONS                   ###
+####################################################
+
+####################################################
+###          NUMBER-TO-FACTOR-TO-INT             ###
+# This makes sure the number we're factoring is a "int"
+# because whenever we divide it we will get a float
+# and mod only works between ints
+sp {elaboration*number-to-factor-to-int
+   (state <s> ^number-to-factor <ntf>)
+-->
+   (<s> ^number-to-factor-int (int <ntf>))
+}
+
+####################################################
+###        NUMBER-TO-FACTOR-MOD-COUNTER          ###
+# This is an elaboration to determine the mod of 
+# the number we're trying to factor mod our current
+# count.
+sp {elaboration*number-to-factor-mod-counter
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-int <ntf>)
+-->
+   (<s> ^number-to-factor-mod-counter (mod <ntf> <c>))
+}
+
+####################################################
+###          NUMBER-TO-FACTOR-IS-PRIME           ###
+# This elaboration is used to determine whether a
+# number we're trying to factor is prime.  The
+# reason it's checking whether number to factor is 1
+# instead of prime is because after we divide the
+# number, if it's prime, we'll get a value of 1
+# because it was divided by itself.  This is then
+# used to propose to set the completed flag to true.
+sp {elaboration*number-to-factor-is-prime
+   (state <s> ^number-to-factor-int 1)
+-->
+   (<s> ^number-to-factor-is-prime true)
+}
+
+####################################################
+###       HAS-FACTORIZATION-OBJECT-COMPLETE      ###
+####################################################
+# This is an elaboration to check whether there is at least
+# one factorization object on the factor-number operator
+# because if we didn't check, we wouldn't drop into a substate
+# since our apply rule would see that the counter has created
+# a needs factorization flag set to true.
+sp {elaboration*has-factorization-object-complete
+   (state <s> ^factorization-object <f-o>)
+   (<f-o> ^complete true)
+-->
+   (<s> ^has-factorization-object-complete true)
+}
+
+####################################################
+### EXISTS-FACTORIZATION-OBJECT-WITHOUT-COMPLETE ###
+####################################################
+# This is an elaboration to check whether there is at least
+# one factorization object on the factor-number operator
+# because if we didn't check, we wouldn't drop into a substate
+# since our apply rule would see that the counter has created
+# a needs factorization flag set to true.
+sp {elaboration*exists-factorization-object-without-complete
+   (state <s> ^factorization-object <f-o>)
+   (<f-o> -^complete)
+-->
+   (<s> ^exists-factorization-object-without-complete true)
+}
+
+####################################################
+###                 PREFERENCES                  ###
+####################################################
+
+####################################################
+###    COPY-ADDITIONAL-FACTORS*BIGGEST-IS-BEST   ###
+# This makes sure that we only copy factors from the
+# biggest, complete, factor.
+sp {preference*copy-additional-factors*biggest-is-best
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name copy-additional-factors
+         ^number <n1>)
+   (<o2> ^name copy-additional-factors
+         ^number {< <n1>})
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+####################################################
+###                   RULES                      ###
+####################################################
+
+####################################################
+###          FIND-FIRST-FACTOR*COUNTER           ###
+# This proposes find the first factor if the mod is
+# not 0.  If the mod is 0, that means the number is
+# a factor and is the first factor.
+sp {propose*find-first-factor*counter
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-mod-counter <> 0
+              ^number-to-factor-int <> 1
+             -^needs-factorization true
+             -^factorization-object <fo>)
+-->
+   (<s> ^operator.name find-first-factor)
+}
+
+# This just increments our counter.
+sp {apply*find-first-factor*counter
+   (state <s> ^operator.name find-first-factor
+              ^counter <c>)
+-->
+   (<s> ^counter <c> -
+        ^counter (+ <c> 1))
+}
+
+####################################################
+###         DIVIDE-TO-FIND-NEXT-FACTOR           ###
+# When there is a mod of the number to factor with
+# the counter of 0 and the number to factor is not 1,
+# we propose to divide the number to factor to find
+# the next number to factor
+sp {propose*divide-to-find-next-factor
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-mod-counter 0
+              ^number-to-factor-int {<> 1 <ntf>}
+             -^factorization-object <fo>
+             -^needs-factorization true)
+-->
+   (<s> ^operator.name divide-to-find-next-factor)
+}
+
+# This removes the existing number to factor and then
+# adds the divided version along with the adding the
+# needs factorization flag set to true to the state.
+sp {apply*divide-to-find-next-factor
+   (state <s> ^operator.name divide-to-find-next-factor
+              ^counter <c>
+              ^number-to-factor <ntf>)
+-->
+   (<s> ^number-to-factor <ntf> -
+        ^number-to-factor (/ <ntf> <c>)
+        ^needs-factorization true)
+}
+
+####################################################
+###     CREATE-INITIAL-FACTORIZATION-OBJECT      ###
+# This creates the initial factorization objecvt
+# with the first factor.
+sp {propose*create-initial-factorization-object
+   (state <s> ^name factor-recursive-substate
+              ^original-number-to-factor <ontf>
+              ^number-to-factor <> <ontf>
+             -^needs-factorization true
+             -^needs-to-copy-to-superstate
+             -^exists-factorization-object-without-complete)
+-->
+   (<s> ^operator.name create-initial-factorization-object)
+}
+
+# This is the proposal to create the object if this is a prime
+# number, because the other proposal expects this to be after
+# a substate.
+sp {propose*create-initial-factorization-object*prime-number
+   (state <s> ^name factor-recursive-substate
+              ^number-to-factor-is-prime true
+             -^factorization-object <fo>)
+-->
+   (<s> ^operator.name create-initial-factorization-object)
+}
+
+# This creates the initial factorization object.
+sp {apply*create-initial-factorization-object
+   (state <s> ^operator.name create-initial-factorization-object
+              ^original-number-to-factor <ontf>
+              ^counter <c>) # Because this is the number we're
+							# dividing by, this is the first
+							# factor.
+-->
+   (<s> ^factorization-object <fo>)
+   (<fo> ^number <ontf>
+         ^factor <first-factor>)
+   (<first-factor> ^value <c>
+                   ^multiplicity 1)
+}
+
+# If we still "need to factor" at this point, because it's a prime number,
+# we remove that "need."
+sp {apply*create-initial-factorization-object*remove-needs-factorization
+   (state <s> ^operator.name create-initial-factorization-object
+              ^needs-factorization <nf>)
+-->
+   (<s> ^needs-factorization <nf> -)
+}
+
+# This makes sure that we copy additional factors to build up the object
+sp {apply*create-initial-factorization-object*needs-copy-additional-factors
+   (state <s> ^operator.name create-initial-factorization-object
+              ^has-factorization-object-complete)
+-->
+   (<s> ^needs-to-copy-additional-factors true)
+}
+
+####################################################
+###           COPY-ADDITIONAL-FACTORS            ### 
+# This copies additional factors from the substate's
+# factorization objects.  This only needs to copy
+# the largest number's factors because the other ones
+# are dervived from the largest number's.
+sp {propose*copy-additional-factors
+   (state <s> ^name factor-recursive-substate
+              ^needs-to-copy-additional-factors true
+              ^factorization-object <fo>)
+   (<fo> ^complete true
+         ^number <n>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name copy-additional-factors
+        ^number <n>)
+}
+
+# This copies all the factors which already exist at this point
+# onto the object, this will only be true in cases like '4' where
+# it gets a value of 2 for the first factor and an additional factor
+# of 2 later on.
+sp {apply*copy-additional-factors*copy-factors-already-existing
+   (state <s> ^operator <o>
+              ^original-number-to-factor <n>
+              ^factorization-object <non-complete-factor-object>
+              ^factorization-object <biggest-complete-factor-object>)
+   (<o> ^name copy-additional-factors
+        ^number <biggest-complete-number>)
+   (<biggest-complete-factor-object> ^number <biggest-complete-number>
+               					     ^factor <factor>)
+   (<factor> ^value <v>
+             ^multiplicity <m>)
+   (<non-complete-factor-object> ^number <n>
+       						    -^complete
+       						     ^factor <non-complete-existing-factor>)
+   (<non-complete-existing-factor> ^value <v>
+                				   ^multiplicity <non-complete-existing-factor-m>)
+-->
+   (<non-complete-existing-factor> ^multiplicity <non-complete-existing-factor-m> -
+                				   ^multiplicity (+ <non-complete-existing-factor-m> <m>))
+}
+
+# This copies all the factors which were derived from the substates
+# which don't yet exist in our factorization object.
+sp {apply*copy-additional-factors*copy-factors-not-already-existing
+   (state <s> ^operator <o>
+              ^original-number-to-factor <n>
+              ^factorization-object <non-complete-factor-object>
+              ^factorization-object <biggest-complete-factor-object>)
+   (<o> ^name copy-additional-factors
+        ^number <biggest-complete-number>)
+   (<biggest-complete-factor-object> ^number <biggest-complete-number>
+                                     ^factor <factor>)
+   (<factor> ^value <v>
+             ^multiplicity <m>)
+   (<non-complete-factor-object> ^number <n>
+                                -^complete)
+ -{(<non-complete-factor-object> ^factor <non-complete-factor>)
+   (<non-complete-factor> ^value <v>)}
+-->
+   (<non-complete-factor-object> ^factor <new-factor>)
+   (<new-factor> ^value <v>
+                 ^multiplicity <m>)
+}
+
+# This removes the need to copy because we only need
+# to copy one object and only the biggest.
+sp {apply*copy-additional-factors*remove-need-to-copy
+   (state <s> ^operator.name copy-additional-factors
+              ^needs-to-copy-additional-factors <ntcaf>)
+-->
+   (<s> ^needs-to-copy-additional-factors <ntcaf> -)
+} 
+
+####################################################
+###           SET-COMPLETE-FLAG-TRUE             ###
+# This rule proposes to set the complete flag to true
+# on the factorization object we just created.  This
+# proposal proposes on prime numbers only!
+sp {propose*set-complete-flag-true
+   (state <s> ^name factor-recursive-substate
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>
+              ^superstate <ss>
+             -^needs-factorization
+             -^needs-to-copy-additional-factors)
+   (<fo> ^number <n>
+        -^complete)
+-->
+   (<s> ^operator.name set-complete-flag-true)
+}
+
+# This applies a set-complete-flag-true operator.  It
+# sets the complete flag to be true on the factorization
+# object we just created.
+sp {apply*set-complete-flag-true
+   (state <s> ^operator.name set-complete-flag-true
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<fo> ^complete true)
+   (<s> ^needs-to-copy-to-superstate true)
+}
+
+####################################################
+###          COPY-FACTORIZATION-OBJECTS          ###
+# This copies all the factors from this substate up
+# to the superstate.
+sp {propose*copy-factorization-objects
+   (state <s> ^name factor-recursive-substate
+              ^has-factorization-object true
+             -^exists-factorization-object-without-complete
+             -^needs-factorization
+             -^needs-to-copy-additional-factors
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<s> ^operator.name copy-factorization-objects)
+}
+
+# This copies all the factorization objects to the superstate
+# since this substate is about to be blown away.
+sp {apply*copy-factorization-objects
+   (state <s> ^operator.name copy-factorization-objects
+			  ^factorization-object <fo>
+     		  ^superstate <ss>)
+   (<fo> ^complete true)
+-->
+   (<ss> ^factorization-object <fo>)
+}

@@ -1,0 +1,36 @@
+# This file handles all the clean up after all the substates are blown away.
+
+####################################################
+###                   RULES                      ###
+####################################################
+
+####################################################
+###              CLEAN-UP-SUBSTATES              ###
+# This proposes to clean up the factorization objects
+# on the top state so long as there is a "need to
+# clean up"
+sp {propose*clean-up-substates
+   (state <s> ^name Factorization
+              ^needs-clean-up true)
+-->
+   (<s> ^operator.name clean-up-substates)
+}
+
+# This removes all the factorization objects from the
+# state
+sp {apply*clean-up-substates*remove-factorization-object
+   (state <s> ^operator.name clean-up-substates
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (write |Factored | <n> |: |)
+   (write (cmd |print --depth 2 | <fo>))
+   (<s> ^factorization-object <fo> -)
+}
+
+sp {apply*clean-up-substates
+   (state <s> ^operator.name clean-up-substates
+              ^needs-clean-up <ncu>)
+-->
+   (<s> ^needs-clean-up <ncu> -)
+}
