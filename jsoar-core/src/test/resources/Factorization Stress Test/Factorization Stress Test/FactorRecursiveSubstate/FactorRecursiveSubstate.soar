@@ -108,7 +108,7 @@ sp {propose*find-first-factor*counter
               ^counter <c>
               ^number-to-factor-mod-counter <> 0
               ^number-to-factor-int <> 1
-             -^needs-factorization true
+             -^needs-factorization
              -^factorization-object <fo>)
 -->
    (<s> ^operator.name find-first-factor)

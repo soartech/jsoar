@@ -1,0 +1,57 @@
+# This file contains all the EpMem specific rules
+# To enable these rules, source in FactorizationStressTest_EpMem
+
+####################################################
+###                 OPERATORS                    ###
+####################################################
+
+####################################################
+###           LOOK-UP-IN-EPMEM-FACTORS           ###
+# This looks up a factor in EpMem.
+sp {propose*look-up-in-epmem-factors
+   (state <s> ^name factor-recursive-substate
+              ^using-epmem true
+             -^needs-factorization
+             -^factorization-object <fo>
+             -^epmem.command.query)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name look-up-in-epmem-factors)
+}
+
+# This actually creates the query
+sp {apply*look-up-in-epmem-factors
+   (state <s> ^operator.name look-up-in-epmem-factors
+              ^original-number-to-factor <n>
+              ^epmem.command <ec>)
+-->
+   (<ec> ^query.factorization-object.number <n>)
+}
+
+####################################################
+###            FOUND-FACTORS-IN-EPMEM            ###
+# If we found some factors, this will be proposed
+# and called to get the factors.
+sp {propose*found-factors-in-epmem
+   (state <s> ^name factor-recursive-substate
+              ^using-epmem true
+              ^epmem.result.retrieved <episode>
+              ^epmem.result.success
+              ^original-number-to-factor <n>
+             -^factorization-object <fo>)
+   (<episode> ^factorization-object.number <n>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name found-factors-in-epmem)
+}
+
+# This copies only the factor we want from an episode
+sp {apply*found-factors-in-epmem
+   (state <s> ^operator.name found-factors-in-epmem
+              ^epmem.result.retrieved <episode>
+              ^original-number-to-factor <n>)
+   (<episode> ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<s> ^factorization-object <fo>)
+}
