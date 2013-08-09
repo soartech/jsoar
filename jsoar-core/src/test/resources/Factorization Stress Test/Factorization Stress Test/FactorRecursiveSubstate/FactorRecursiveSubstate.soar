@@ -339,8 +339,10 @@ sp {propose*copy-factorization-objects
 sp {apply*copy-factorization-objects
    (state <s> ^operator.name copy-factorization-objects
 			  ^factorization-object <fo>
+     		  ^original-number-to-factor <n>
      		  ^superstate <ss>)
-   (<fo> ^complete true)
+   (<fo> ^complete true
+         ^number <n>)
 -->
    (<ss> ^factorization-object <fo>)
 }

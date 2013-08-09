@@ -1,0 +1,194 @@
+# This file contains all the smem specific rules
+# To enable these rules, source in SMem_FactorizationStressTest.soar
+
+####################################################
+###                 PREFERENCES                  ###
+####################################################
+
+# This makes sure that when we're retrieving factors
+# that they all are 'equal' so we retrieve them all
+# instead of operator tie'ing.
+sp {preference*all-retrieve-factors-are-equal
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name retrieve-factor)
+   (<o2> ^name retrieve-factor)
+-->
+   (<s> ^operator <o1> = <o2>)
+}
+
+####################################################
+###                 OPERATORS                    ###
+####################################################
+
+####################################################
+###           LOOK-UP-IN-SMEM-FACTORS           ###
+# This looks up a factor in EpMem.
+sp {propose*look-up-in-smem-factors
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+             -^needs-factorization
+             -^factorization-object <fo>
+             -^smem.command.query)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name look-up-in-smem-factors)
+}
+
+# This actually creates the query
+sp {apply*look-up-in-smem-factors
+   (state <s> ^operator.name look-up-in-smem-factors
+              ^original-number-to-factor <n>
+              ^smem.command <ec>)
+-->
+   (<ec> ^query.number <n>)
+}
+
+####################################################
+###            FOUND-FACTORS-IN-SMEM            ###
+# If we found some factors, this will be proposed
+# and called to get the factors.
+sp {propose*found-factors-in-smem
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+              ^smem.result.retrieved <factor-object>
+              ^smem.result.success
+              ^original-number-to-factor <n>
+             -^factorization-object <fo>)
+   (<factor-object> ^number <n>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name found-factors-in-smem)
+}
+
+# This copies only the factor we want from an factor-object
+sp {apply*found-factors-in-smem*copy-factorization-object
+   (state <s> ^operator.name found-factors-in-smem
+              ^smem.result.retrieved <factor-object>
+              ^original-number-to-factor <n>)
+   (<factor-object> ^number <n>)
+-->
+   (<s> ^factorization-object <factor-object>)
+}
+
+# This removes any query object which is still on the
+# smem command link at this point.
+sp {apply*found-factors-in-smem*remove-query
+   (state <s> ^operator.name found-factors-in-smem
+              ^smem.command <sc>)
+   (<sc> ^query <query>)
+-->
+   (<sc> ^query <query> -)
+}
+
+# This makes it so that we immediately skip to copying
+# the factors back up since we don't have to any brute
+# forcing.
+sp {apply*found-factors-in-smem*looked-up-in-smem-success
+   (state <s> ^operator.name found-factors-in-smem
+             -^looked-up-in-smem-success)
+-->
+   (<s> ^looked-up-in-smem-success true)
+}
+
+####################################################
+###                RETRIEVE-FACTOR               ###
+# This retrieves all the factors of a factorization
+# object after retrieveing that object.
+sp {propose*retrieve-factor
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+              ^factorization-object <factor-object>
+              ^original-number-to-factor <n>)
+   (<factor-object> ^number <n>
+         			^factor <factor-lti>)
+   (<factor-lti> -^value)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+}
+
+# This adds the retrieve command to the smem
+# command link.
+sp {apply*retrieve-factor
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+-->
+   (<sc> ^retrieve <factor-lti>)
+}
+
+# This removes any previous retrieve so we don't
+# get 'bad-cmd' errors from smem since we can't
+# do simultaneous retrieves.
+sp {apply*retrieve-factor*remove-previous-retrieve
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+   (<sc> ^retrieve {<> <factor-lti> <old-factor>})
+-->
+   (<sc> ^retrieve <old-factor> -)
+}
+
+####################################################
+###              ADD-FACTORS-TO-SMEM             ###
+# This adds factors to smem since smem doesn't do
+# automatic adding.
+sp {propose*add-factors-to-smem
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+              ^has-factorization-object true
+             -^exists-factorization-object-without-complete
+             -^needs-factorization
+             -^needs-to-copy-additional-factors
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>
+             -^added-factorization-object-to-smem
+             -^looked-up-in-smem-success)
+   (<fo> ^number <n>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name add-factors-to-smem)
+}
+
+# This removes any retrieve still on the smem
+# command link, if there are any, because otherwise
+# we will get a 'bad-cmd' error from smem.
+sp {apply*add-factors-to-smem*remove-retrieves
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>)
+   (<sc> ^retrieve <retrieve>)
+-->
+   (<sc> ^retrieve <retrieve> -)
+}
+
+# This creates a store command for the factorization
+# object we just created and completed.
+sp {apply*add-factors-to-smem*store-factorization-object
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<sc> ^store <fo>)
+   (<s> ^added-factorization-object-to-smem true)
+}
+
+# Since smem doesn't do recursive stores, we need
+# to store each individual factor.  Since smem
+# also allows us to do as many stores as we want
+# at once, we will add all the stores at once.
+sp {apply*add-factors-to-smem*store-factors
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>
+         ^factor <f>)
+-->
+   (<sc> ^store <f>)
+}
