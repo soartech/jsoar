@@ -1,0 +1,62 @@
+####################################################
+###                RETRIEVE-FACTOR               ###
+# This retrieves all the factors of a factorization
+# object after retrieveing that object.
+sp {propose*retrieve-factor
+   (state <s> ^factorization-object <factor-object>)
+   (<factor-object> ^factor <factor-lti>)
+   (<factor-lti> -^value)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+}
+
+# This adds the retrieve command to the smem
+# command link.
+sp {apply*retrieve-factor
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+-->
+   (<sc> ^retrieve <factor-lti>)
+}
+
+# This removes any previous retrieve so we don't
+# get 'bad-cmd' errors from smem since we can't
+# do simultaneous retrieves.
+sp {apply*retrieve-factor*remove-previous-retrieve
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+   (<sc> ^retrieve {<> <factor-lti> <old-factor>})
+-->
+   (<sc> ^retrieve <old-factor> -)
+}
+
+# This removes any previous query so we don't
+# get 'bad-cmd' errors from smem since we can't
+# do simultaneous queries and retrieves
+sp {apply*retrieve-factor*remove-query
+   (state <s> ^operator <o>
+              ^smem.command <sc>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+   (<sc> ^query <query>)
+-->
+   (<sc> ^query <query> -)
+}
+
+# This removes any previous query so we don't
+# get 'bad-cmd' errors from smem since we can't
+# do simultaneous queries and retrieves
+sp {apply*retrieve-factor*remove-needs-factorization
+   (state <s> ^operator <o>
+              ^needs-factorization <nf>)
+   (<o> ^name retrieve-factor
+        ^factor <factor-lti>)
+-->
+   (<s> ^needs-factorization <nf> -)
+}

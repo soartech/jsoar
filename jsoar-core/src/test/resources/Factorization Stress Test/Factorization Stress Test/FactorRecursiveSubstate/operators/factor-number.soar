@@ -1,0 +1,27 @@
+####################################################
+###               FACTOR-NUMBER                  ###
+# This proposes to factor a number that needs
+# to be factored
+## This will propose and then won't be able
+## to apply, forcing a subgoal creation.
+sp {propose*factor-number
+   (state <s> ^number-to-factor-int <c>
+              ^needs-factorization true
+             -^number-to-factor-is-prime)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name factor-number
+        ^number-to-factor <c>)
+}
+
+# This removes the needs factorization flag from the current
+# state.
+sp {apply*factor-number*remove-needs-factorization-flag
+   (state <s> ^operator <o>
+              ^needs-factorization <n-f>
+              ^has-factorization-object)
+   (<o> ^name factor-number)
+-->
+   (<s> ^needs-factorization <n-f> -
+        ^needs-clean-up true)
+}

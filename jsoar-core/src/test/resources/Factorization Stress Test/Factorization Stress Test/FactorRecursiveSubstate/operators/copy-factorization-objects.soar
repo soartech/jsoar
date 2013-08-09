@@ -1,0 +1,29 @@
+####################################################
+###          COPY-FACTORIZATION-OBJECTS          ###
+# This copies all the factors from this substate up
+# to the superstate.
+sp {propose*copy-factorization-objects
+   (state <s> ^name factor-recursive-substate
+              ^has-factorization-object true
+             -^exists-factorization-object-without-complete
+             -^needs-factorization
+             -^needs-to-copy-additional-factors
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<s> ^operator.name copy-factorization-objects)
+}
+
+# This copies all the factorization objects to the superstate
+# since this substate is about to be blown away.
+sp {apply*copy-factorization-objects
+   (state <s> ^operator.name copy-factorization-objects
+			  ^factorization-object <fo>
+     		  ^original-number-to-factor <n>
+     		  ^superstate <ss>)
+   (<fo> ^complete true
+         ^number <n>)
+-->
+   (<ss> ^factorization-object <fo>)
+}

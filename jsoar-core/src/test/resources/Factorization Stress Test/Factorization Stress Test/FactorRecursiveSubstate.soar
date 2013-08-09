@@ -1,10 +1,9 @@
 pushd FactorRecursiveSubstate
 
-source SubstateCreation.soar
+source elaborations.soar
+source preferences.soar
 
-source Init.soar
-
-source FactorRecursiveSubstate.soar
+source operators.soar
 
 source EpMemSpecificRules.soar
 source SMemSpecificRules.soar

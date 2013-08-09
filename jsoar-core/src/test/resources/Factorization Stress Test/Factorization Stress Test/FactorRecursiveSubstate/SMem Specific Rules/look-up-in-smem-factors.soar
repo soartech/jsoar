@@ -1,0 +1,22 @@
+####################################################
+###           LOOK-UP-IN-SMEM-FACTORS           ###
+# This looks up a factor in EpMem.
+sp {propose*look-up-in-smem-factors
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+             -^needs-factorization
+             -^factorization-object <fo>
+             -^smem.command.query)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name look-up-in-smem-factors)
+}
+
+# This actually creates the query
+sp {apply*look-up-in-smem-factors
+   (state <s> ^operator.name look-up-in-smem-factors
+              ^original-number-to-factor <n>
+              ^smem.command <ec>)
+-->
+   (<ec> ^query.number <n>)
+}

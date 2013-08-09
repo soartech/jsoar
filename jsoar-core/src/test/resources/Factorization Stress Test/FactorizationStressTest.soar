@@ -1,11 +1,10 @@
 pushd "Factorization Stress Test"
 
-source Init.soar
-source Counter.soar
+source init.soar
+source increment-counter.soar
+source clean-up-substates.soar
 
 source FactorRecursiveSubstate.soar
-
-source CleanUpFactorSubstateResults.soar
 
 popd
 
@@ -15,3 +14,5 @@ sp {complete
    (write |Finished Factorization Stress Test!|)
    (halt)
 }
+
+watch 0

@@ -1,0 +1,13 @@
+####################################################
+###        ALL-RETRIEVE-FACTORS-ARE-EQUAL        ###
+# This makes sure that when we're retrieving factors
+# that they all are 'equal' so we retrieve them all
+# instead of operator tie'ing.
+sp {preference*all-retrieve-factors-are-equal
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name retrieve-factor)
+   (<o2> ^name retrieve-factor)
+-->
+   (<s> ^operator <o1> = <o2>)
+}

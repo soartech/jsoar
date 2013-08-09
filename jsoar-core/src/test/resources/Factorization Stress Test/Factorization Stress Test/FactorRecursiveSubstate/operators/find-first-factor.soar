@@ -1,0 +1,24 @@
+####################################################
+###          FIND-FIRST-FACTOR*COUNTER           ###
+# This proposes find the first factor if the mod is
+# not 0.  If the mod is 0, that means the number is
+# a factor and is the first factor.
+sp {propose*find-first-factor*counter
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-mod-counter <> 0
+              ^number-to-factor-int <> 1
+             -^needs-factorization
+             -^factorization-object <fo>)
+-->
+   (<s> ^operator.name find-first-factor)
+}
+
+# This just increments our counter.
+sp {apply*find-first-factor*counter
+   (state <s> ^operator.name find-first-factor
+              ^counter <c>)
+-->
+   (<s> ^counter <c> -
+        ^counter (+ <c> 1))
+}

@@ -1,0 +1,29 @@
+####################################################
+###            FOUND-FACTORS-IN-EPMEM            ###
+# If we found some factors, this will be proposed
+# and called to get the factors.
+sp {propose*found-factors-in-epmem
+   (state <s> ^name factor-recursive-substate
+              ^using-epmem true
+              ^epmem.result.retrieved <episode>
+              ^epmem.result.success
+              ^original-number-to-factor <n>)
+   (<episode> ^factorization-object.number <n>)
+ -{(state <s> ^factorization-object <fo>)
+   (<fo> ^epmem true)}
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name found-factors-in-epmem)
+}
+
+# This copies only the factor we want from an episode
+sp {apply*found-factors-in-epmem
+   (state <s> ^operator.name found-factors-in-epmem
+              ^epmem.result.retrieved <episode>
+              ^original-number-to-factor <n>)
+   (<episode> ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<s> ^factorization-object <fo>)
+   (<fo> ^epmem true)
+}

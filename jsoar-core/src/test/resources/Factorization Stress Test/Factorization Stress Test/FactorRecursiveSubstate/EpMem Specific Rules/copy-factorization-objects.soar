@@ -1,0 +1,15 @@
+####################################################
+###       COPY-FACTORIZATION-OBJECTS*EPMEM       ###
+# This copies all the factorization objects to the superstate
+# since this substate is about to be blown away.
+sp {apply*copy-factorization-objects*epmem
+   (state <s> ^operator.name copy-factorization-objects
+			  ^factorization-object <fo>
+     		  ^original-number-to-factor <n>
+     		  ^superstate <ss>)
+   (<fo> ^complete true
+         ^number <> <n>
+         ^epmem true)
+-->
+   (<ss> ^factorization-object <fo>)
+}

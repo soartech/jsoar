@@ -1,0 +1,96 @@
+# This file has all the elaborations for the factor recursive substate
+
+####################################################
+###    CREATE-NUMBER-TO-FACTOR-FROM-COUNTER      ###
+# This elaboration is for the counter on the top state
+# but never on the recursive substates.  What it does
+# is checks whether we should be factoring a number and
+# if we should, creating the structure to force a
+# subgoal creation.
+sp {elaboration*create-number-to-factor-from-counter
+   (state <s> ^counter <c>
+              ^needs-factorization true
+              ^name Factorization)
+-->
+   (<s> ^number-to-factor <c>)
+}
+
+####################################################
+###    FACTOR-NUMBER*HAS-FACTORIZATION-OBJECT    ###
+# This is an elaboration to check whether there is at least
+# one factorization object on the factor-number operator
+# because if we didn't check, we wouldn't drop into a substate
+# since our apply rule would see that the counter has created
+# a needs factorization flag set to true.
+sp {elaboration*factor-number*has-factorization-object
+   (state <s> ^factorization-object <f-o>)
+-->
+   (<s> ^has-factorization-object true)
+}
+
+####################################################
+###          NUMBER-TO-FACTOR-TO-INT             ###
+# This makes sure the number we're factoring is a "int"
+# because whenever we divide it we will get a float
+# and mod only works between ints
+sp {elaboration*number-to-factor-to-int
+   (state <s> ^number-to-factor <ntf>)
+-->
+   (<s> ^number-to-factor-int (int <ntf>))
+}
+
+####################################################
+###        NUMBER-TO-FACTOR-MOD-COUNTER          ###
+# This is an elaboration to determine the mod of 
+# the number we're trying to factor mod our current
+# count.
+sp {elaboration*number-to-factor-mod-counter
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-int <ntf>)
+-->
+   (<s> ^number-to-factor-mod-counter (mod <ntf> <c>))
+}
+
+####################################################
+###          NUMBER-TO-FACTOR-IS-PRIME           ###
+# This elaboration is used to determine whether a
+# number we're trying to factor is prime.  The
+# reason it's checking whether number to factor is 1
+# instead of prime is because after we divide the
+# number, if it's prime, we'll get a value of 1
+# because it was divided by itself.  This is then
+# used to propose to set the completed flag to true.
+sp {elaboration*number-to-factor-is-prime
+   (state <s> ^number-to-factor-int 1)
+-->
+   (<s> ^number-to-factor-is-prime true)
+}
+
+####################################################
+###       HAS-FACTORIZATION-OBJECT-COMPLETE      ###
+# This is an elaboration to check whether there is at least
+# one factorization object on the factor-number operator
+# because if we didn't check, we wouldn't drop into a substate
+# since our apply rule would see that the counter has created
+# a needs factorization flag set to true.
+sp {elaboration*has-factorization-object-complete
+   (state <s> ^factorization-object <f-o>)
+   (<f-o> ^complete true)
+-->
+   (<s> ^has-factorization-object-complete true)
+}
+
+####################################################
+### EXISTS-FACTORIZATION-OBJECT-WITHOUT-COMPLETE ###
+# This is an elaboration to check whether there is at least
+# one factorization object on the factor-number operator
+# because if we didn't check, we wouldn't drop into a substate
+# since our apply rule would see that the counter has created
+# a needs factorization flag set to true.
+sp {elaboration*exists-factorization-object-without-complete
+   (state <s> ^factorization-object <f-o>)
+   (<f-o> -^complete)
+-->
+   (<s> ^exists-factorization-object-without-complete true)
+}

@@ -1,0 +1,30 @@
+####################################################
+###           SET-COMPLETE-FLAG-TRUE             ###
+# This rule proposes to set the complete flag to true
+# on the factorization object we just created.  This
+# proposal proposes on prime numbers only!
+sp {propose*set-complete-flag-true
+   (state <s> ^name factor-recursive-substate
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>
+              ^superstate <ss>
+             -^needs-factorization
+             -^needs-to-copy-additional-factors)
+   (<fo> ^number <n>
+        -^complete)
+-->
+   (<s> ^operator.name set-complete-flag-true)
+}
+
+# This applies a set-complete-flag-true operator.  It
+# sets the complete flag to be true on the factorization
+# object we just created.
+sp {apply*set-complete-flag-true
+   (state <s> ^operator.name set-complete-flag-true
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<fo> ^complete true)
+   (<s> ^needs-to-copy-to-superstate true)
+}

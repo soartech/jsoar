@@ -1,0 +1,14 @@
+pushd operators
+
+source init.soar
+
+source find-first-factor.soar
+source divide-to-find-next-factor.soar
+source factor-number.soar
+
+source create-initial-factorization-object.soar
+source copy-additional-factors.soar
+source set-complete-flag-true.soar
+source copy-factorization-objects.soar
+
+popd
