@@ -1,0 +1,554 @@
+# This file contains elaborations to check the first 20 factors.
+
+##########################################
+sp {wrong-answer
+   (state <s> ^factorization-object <fo>)
+   (<fo> ^checked
+        -^correct)
+-->
+   (write |Wrong Answer! | <fo>)
+   (halt)
+}
+
+##########################################
+sp {apply*check
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+-->
+   (<fo> ^checked true)
+}
+
+##########################################
+sp {preference*bigger-check-is-always-better
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^factorization-object.number <n1>)
+   (<o2> ^factorization-object.number {< <n1> <n2>})
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {preference*retrieve-factor-is-always-better
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name retrieve-factor)
+   (<o2> ^name check)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+##########################################
+# 2
+sp {propose*check-2
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 2
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-2
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 2
+         ^factor <2>)
+   (<2> ^value 2
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |2 is correct!|)
+}
+
+##########################################
+# 3
+sp {propose*check-3
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 3
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-3
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 3
+         ^factor <2>)
+   (<2> ^value 3
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |3 is correct!|)
+}
+
+##########################################
+# 4
+sp {propose*check-4
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 4
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-4
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 4
+         ^factor <2>)
+   (<2> ^value 2
+        ^multiplicity 2)
+-->
+   (<fo> ^correct true)
+   (write |4 is correct!|)
+}
+
+##########################################
+# 5
+sp {propose*check-5
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 5
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-5
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 5
+         ^factor <2>)
+   (<2> ^value 5
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |5 is correct!|)
+}
+
+##########################################
+# 6
+sp {propose*check-6
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 6
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-6
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 6
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 1)
+   (<3> ^value 3
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |6 is correct!|)
+}
+
+##########################################
+# 7
+sp {propose*check-7
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 7
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-7
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 7
+         ^factor <2>)
+   (<2> ^value 7
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |7 is correct!|)
+}
+
+##########################################
+# 8
+sp {propose*check-8
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 8
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-8
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 8
+         ^factor <2>)
+   (<2> ^value 2
+        ^multiplicity 3)
+-->
+   (<fo> ^correct true)
+   (write |8 is correct!|)
+}
+
+##########################################
+# 9
+sp {propose*check-9
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 9
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-9
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 9
+         ^factor <2>)
+   (<2> ^value 3
+        ^multiplicity 2)
+-->
+   (<fo> ^correct true)
+   (write |9 is correct!|)
+}
+
+##########################################
+# 10
+sp {propose*check-10
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 10
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-10
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 10
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 1)
+   (<3> ^value 5
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |10 is correct!|)
+}
+
+##########################################
+# 11
+sp {propose*check-11
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 11
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-11
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 11
+         ^factor <2>)
+   (<2> ^value 11
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |11 is correct!|)
+}
+
+##########################################
+# 12
+sp {propose*check-12
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 12
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-12
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 12
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 2)
+   (<3> ^value 3
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |12 is correct!|)
+}
+
+##########################################
+# 13
+sp {propose*check-13
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 13
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-13
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 13
+         ^factor <2>)
+   (<2> ^value 13
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |13 is correct!|)
+}
+
+##########################################
+# 14
+sp {propose*check-14
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 14
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-14
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 14
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 7
+        ^multiplicity 1)
+   (<3> ^value 2
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |14 is correct!|)
+}
+
+##########################################
+# 15
+sp {propose*check-15
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 15
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-15
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 15
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 3
+        ^multiplicity 1)
+   (<3> ^value 5
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |15 is correct!|)
+}
+
+##########################################
+# 16
+sp {propose*check-16
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 16
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-16
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 16
+         ^factor <2>)
+   (<2> ^value 2
+        ^multiplicity 4)
+-->
+   (<fo> ^correct true)
+   (write |16 is correct!|)
+}
+
+##########################################
+# 17
+sp {propose*check-17
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 17
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-17
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 17
+         ^factor <2>)
+   (<2> ^value 17
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |17 is correct!|)
+}
+
+##########################################
+# 18
+sp {propose*check-18
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 18
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-18
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 18
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 1)
+   (<3> ^value 3
+        ^multiplicity 2)
+-->
+   (<fo> ^correct true)
+   (write |18 is correct!|)
+}
+
+##########################################
+# 19
+sp {propose*check-19
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 19
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-19
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 19
+         ^factor <2>)
+   (<2> ^value 19
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |19 is correct!|)
+}
+
+##########################################
+# 20
+sp {propose*check-20
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 20
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-20
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 20
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 2)
+   (<3> ^value 5
+        ^multiplicity 1)
+-->
+   (<fo> ^correct true)
+   (write |20 is correct!|)
+}

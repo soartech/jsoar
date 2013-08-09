@@ -6,10 +6,49 @@ source clean-up-substates.soar
 
 source FactorRecursiveSubstate.soar
 
+source check-result.soar
+
 popd
 
+##########################################
+# To end the factorization stress test,
+# choose the number you want to go to,
+# then replace "100" with the correct
+# value and factors and then change
+# the complete rule.
+sp {propose*check-100
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 100
+        -^correct)
+-->
+   (<s> ^operator <check> + >)
+   (<check> ^name check
+            ^factorization-object <fo>)
+}
+
+sp {apply*check-100
+   (state <s> ^operator <o>)
+   (<o> ^name check
+        ^factorization-object <fo>)
+   (<fo> ^number 100
+         ^factor <2>
+         ^factor <3>)
+   (<2> ^value 2
+        ^multiplicity 2)
+   (<3> ^value 5
+        ^multiplicity 2)
+-->
+   (<fo> ^correct true)
+   (write |100 is correct!| (crlf))
+}
+
 sp {complete
-   (state <s> ^counter 101)
+   (state <s> ^name Factorization
+              ^factorization-object <fo>)
+   (<fo> ^number 100
+         ^complete true
+         ^correct)
 -->
    (write |Finished Factorization Stress Test!|)
    (halt)
