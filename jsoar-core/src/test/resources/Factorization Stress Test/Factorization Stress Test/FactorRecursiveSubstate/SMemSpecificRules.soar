@@ -192,3 +192,13 @@ sp {apply*add-factors-to-smem*store-factors
 -->
    (<sc> ^store <f>)
 }
+
+# This removes any query object which is still on the
+# smem command link at this point.
+sp {apply*add-factors-to-smem*remove-query
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>)
+   (<sc> ^query <query>)
+-->
+   (<sc> ^query <query> -)
+}

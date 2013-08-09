@@ -272,9 +272,7 @@ sp {apply*copy-additional-factors*copy-factors-not-already-existing
  -{(<non-complete-factor-object> ^factor <non-complete-factor>)
    (<non-complete-factor> ^value <v>)}
 -->
-   (<non-complete-factor-object> ^factor <new-factor>)
-   (<new-factor> ^value <v>
-                 ^multiplicity <m>)
+   (<non-complete-factor-object> ^factor <factor>)
 }
 
 # This removes the need to copy because we only need
