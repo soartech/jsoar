@@ -34,7 +34,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, directory, recursive, configuration, test
+        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar
     };
 
     private final PrintWriter out;
@@ -49,7 +49,7 @@ public class PerformanceTesting
 
     private Long seed = 123456789L;
     
-    private int runCount = 20;
+    private int runCount = 1;
     private int warmUpCount = 10;
 
     private boolean jsoarEnabled = true;
@@ -59,6 +59,10 @@ public class PerformanceTesting
     private List<String> testsToRun;
     
     private String csvDirectory = "";
+    
+    private String outputFile = "";
+    private boolean noConfiguration = false;
+    private String testCategory = "";
 
     private static final int NON_EXIT = 1024;
     private static final int EXIT_SUCCESS = 0;
@@ -109,9 +113,22 @@ public class PerformanceTesting
      */
     public void usage()
     {
-        out.println("Performance Testing - Performance testing framework for JSoar and CSoar\n" + "performance-testing [options]\n" + "\n" + "Options:\n" + "   -h, --help              This message.\n"
-                + "   -d, --directory         Load all tests (.soar files) from this directory recursively.\n" + "   -c, --configuration     Load a configuration file to use for testing.\n"
-                + "   -t, --test              Manually specify a test to load.\n" + "\n" + "Note: When running with CSoar, CSoar's bin directory must be on the system\n" + "      path or in java.library.path or in ./csoar/.\n" + "");
+        out.println("Performance Testing - Performance testing framework for JSoar and CSoar\n" +
+                    "performance-testing [options]\n" +
+                    "\n" +
+                    "Options:\n" +
+                    "   -h, --help              This message.\n" +
+                    "   -d, --directory         Load all tests (.soar files) from this directory recursively.\n" +
+                    "   -c, --configuration     Load a configuration file to use for testing.\n" +
+                    "   -t, --test              Manually specify a test to load.\n" +
+                    "   -o, --output            The file to output the results to.\n" +
+                    "   -w, --warmup            Specify the number of warm up runs for JSoar.\n" +
+                    "   -k, --kind              Specify the test category.\n" +
+                    "   -j, --jsoar             Run the tests in JSoar.\n" +
+                    "   -s, --soar              Run the tests in CSoar.\n" +
+                    "\n" +
+                    "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
+                    "      path or in java.library.path or specified in a configuration directory.\n");
     }
     
     private int parseConfiguration(OptionProcessor<Options> options)
@@ -245,10 +262,37 @@ public class PerformanceTesting
             usage();
             return EXIT_SUCCESS;
         }
-
-        if (options.has(Options.configuration))
+        
+        if (options.has(Options.output))
         {
-        	parseConfiguration(options);
+            outputFile = options.get(Options.output);
+        }
+        
+        if (options.has(Options.warmup))
+        {
+            warmUpCount = Integer.parseInt(options.get(Options.warmup));
+        }
+        
+        if (options.has(Options.kind))
+        {
+            testCategory = options.get(Options.kind);
+            
+            jsoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
+            csoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
+        }
+        else
+        {
+            testCategory = "Uncategorized Tests";
+        }
+        
+        if (options.has(Options.jsoar))
+        {
+            jsoarEnabled = true;
+        }
+        
+        if (options.has(Options.soar))
+        {
+            csoarEnabled = true;
         }
 
         //This will load all tests from a directory into the uncategorized tests category.
@@ -283,7 +327,7 @@ public class PerformanceTesting
                     Test jsoarTest = jsoarTestFactory.createTest(testName, path.toString(), 0);
                     jsoarTests.add(jsoarTest);
 
-                    TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
+                    TestCategory.getTestCategory(testCategory, jsoarTestCategories).addTest(jsoarTest);
                 }
 
                 if (csoarEnabled)
@@ -291,7 +335,7 @@ public class PerformanceTesting
                     Test csoarTest = csoarTestFactory.createTest(testName, path.toString(), 0);
                     csoarTests.add(csoarTest);
 
-                    TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);
+                    TestCategory.getTestCategory(testCategory, csoarTestCategories).addTest(csoarTest);
                 }
             }
 
@@ -325,7 +369,7 @@ public class PerformanceTesting
                 Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, 0);
                 jsoarTests.add(jsoarTest);
 
-                TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
+                TestCategory.getTestCategory(testCategory, jsoarTestCategories).addTest(jsoarTest);
             }
 
             if (csoarEnabled)
@@ -333,8 +377,13 @@ public class PerformanceTesting
                 Test csoarTest = csoarTestFactory.createTest(testName, testPath, 0);
                 csoarTests.add(csoarTest);
 
-                TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);
+                TestCategory.getTestCategory(testCategory, csoarTestCategories).addTest(csoarTest);
             }
+        }
+        
+        if (options.has(Options.configuration))
+        {
+            parseConfiguration(options);
         }
         
         return NON_EXIT;
