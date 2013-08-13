@@ -37,7 +37,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar, runSeperateJVMs
+        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar, uniqueJVMs
     };
 
     private final PrintWriter out;
@@ -129,7 +129,7 @@ public class PerformanceTesting
                     "   -k, --kind              Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
                     "   -s, --soar              Run the tests in CSoar.\n" +
-                    "   -r, --runSeperateJVMs   Whether to run the tests in seperate jvms or not" +
+                    "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not" +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
@@ -260,7 +260,7 @@ public class PerformanceTesting
                .newOption(Options.output).requiredArg()
                .newOption(Options.soar)
                .newOption(Options.warmup).requiredArg()
-               .newOption(Options.runSeperateJVMs).requiredArg()
+               .newOption(Options.uniqueJVMs).requiredArg()
                .done();
 
         try
@@ -398,9 +398,9 @@ public class PerformanceTesting
             }
         }
         
-        if (options.has(Options.runSeperateJVMs))
+        if (options.has(Options.uniqueJVMs))
         {
-            runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.runSeperateJVMs));
+            runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.uniqueJVMs));
         }
         
         if (options.has(Options.configuration))
