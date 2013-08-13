@@ -6,6 +6,9 @@ package org.jsoar.performancetesting;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -34,7 +37,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar
+        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar, runSeperateJVMs
     };
 
     private final PrintWriter out;
@@ -60,9 +63,9 @@ public class PerformanceTesting
     
     private String csvDirectory = "";
     
-    private String outputFile = "";
-    private boolean noConfiguration = false;
     private String testCategory = "";
+    
+    private boolean runTestsInSeparateJVMs = true;
 
     private static final int NON_EXIT = 1024;
     private static final int EXIT_SUCCESS = 0;
@@ -121,11 +124,12 @@ public class PerformanceTesting
                     "   -d, --directory         Load all tests (.soar files) from this directory recursively.\n" +
                     "   -c, --configuration     Load a configuration file to use for testing.\n" +
                     "   -t, --test              Manually specify a test to load.\n" +
-                    "   -o, --output            The file to output the results to.\n" +
+                    "   -o, --output            The directory for all the CSV test results.\n" +
                     "   -w, --warmup            Specify the number of warm up runs for JSoar.\n" +
                     "   -k, --kind              Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
                     "   -s, --soar              Run the tests in CSoar.\n" +
+                    "   -r, --runSeperateJVMs   Whether to run the tests in seperate jvms or not" +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
@@ -177,6 +181,8 @@ public class PerformanceTesting
 
         jsoarEnabled = config.getJSoarEnabled();
         csoarEnabled = config.getCSoarEnabled();
+        
+        runTestsInSeparateJVMs = config.getRunTestsInSeparateJVMs();
 
         if (!jsoarEnabled && !csoarEnabled)
         {
@@ -244,7 +250,18 @@ public class PerformanceTesting
     {
     	//This is the same options processor for JSoar and so has the same limitations.
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
-        options.newOption(Options.help).newOption(Options.directory).requiredArg().newOption(Options.recursive).newOption(Options.configuration).requiredArg().newOption(Options.test).requiredArg().done();
+        options.newOption(Options.help)
+               .newOption(Options.directory).requiredArg()
+               .newOption(Options.recursive)
+               .newOption(Options.configuration).requiredArg()
+               .newOption(Options.test).requiredArg()
+               .newOption(Options.jsoar)
+               .newOption(Options.kind).requiredArg()
+               .newOption(Options.output).requiredArg()
+               .newOption(Options.soar)
+               .newOption(Options.warmup).requiredArg()
+               .newOption(Options.runSeperateJVMs).requiredArg()
+               .done();
 
         try
         {
@@ -265,7 +282,7 @@ public class PerformanceTesting
         
         if (options.has(Options.output))
         {
-            outputFile = options.get(Options.output);
+            csvDirectory = options.get(Options.output);
         }
         
         if (options.has(Options.warmup))
@@ -320,7 +337,7 @@ public class PerformanceTesting
                 if (!testName.endsWith(".soar"))
                     continue;
 
-                testName = testName.substring(0, testName.length() - 5);
+                testName = new File(testName).getName();
 
                 if (jsoarEnabled)
                 {
@@ -362,7 +379,7 @@ public class PerformanceTesting
                 return EXIT_FAILURE_TEST;
             }
 
-            String testName = testPath.substring(0, testPath.length() - 5);
+            String testName = new File(testPath).getName();;
 
             if (jsoarEnabled)
             {
@@ -381,6 +398,11 @@ public class PerformanceTesting
             }
         }
         
+        if (options.has(Options.runSeperateJVMs))
+        {
+            runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.runSeperateJVMs));
+        }
+        
         if (options.has(Options.configuration))
         {
             parseConfiguration(options);
@@ -389,7 +411,13 @@ public class PerformanceTesting
         return NON_EXIT;
     }
     
-    private int runTests(List<TestRunner> testRunners, List<TestCategory> testCategories, PrintWriter out)
+    /**
+     * 
+     * @param testRunners All the tests
+     * @param testCategories All the test categories
+     * @return Whether running the tests was successful or not
+     */
+    private int runTests(List<TestRunner> testRunners, List<TestCategory> testCategories)
     {
     	for (int i = 0; i < testCategories.size(); i++)
         {
@@ -402,7 +430,7 @@ public class PerformanceTesting
 
             TestCategory category = testCategories.get(i);
             
-            if (categoriesToRun.size() != 0)
+            if (categoriesToRun != null && categoriesToRun.size() != 0)
             {
                 if (categoriesToRun.contains(category.getCategoryName()) == false)
                     continue;
@@ -423,7 +451,7 @@ public class PerformanceTesting
                 // Same thing as the above comment
                 // - ALT
                 
-                if (testsToRun.size() != 0)
+                if (testsToRun != null && testsToRun.size() != 0)
                 {
                     if (testsToRun.contains(tests.get(j).getTestName()) == false)
                         continue;
@@ -575,7 +603,7 @@ public class PerformanceTesting
                     {
                     	outDirectory.mkdirs();
                     }
-                                        
+                    
                     String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
                     
                     table.writeToCSV(csvDirectory + "/" + testNameWithoutSpaces + ".txt");
@@ -589,6 +617,11 @@ public class PerformanceTesting
     	return NON_EXIT;
     }
     
+    /**
+     * 
+     * @param testRunners The runners to output
+     * @return Whether outputing was successful
+     */
     private int outputTestResults(List<TestRunner> testRunners)
     {
     	double totalTimeTaken = 0.0;
@@ -613,6 +646,11 @@ public class PerformanceTesting
             List<Double> kernelTimes = testRunner.getAllKernelTimes();
             List<Integer> decisionCycles = testRunner.getAllDecisionCycles();
             List<Long> memoryLoads = testRunner.getAllMemoryLoads();
+            
+            if (runCount == 1)
+            {
+                continue;
+            }
             
             for (int i = 0;i < runCount;i++)
             {
@@ -685,7 +723,10 @@ public class PerformanceTesting
         	return optionsParseResult;
         }
 
-        // delete summary file so we don't append to old results
+        // Delete summary file so we don't append to old results
+        // but only do this if we're not running in separate JVMs
+        // because otherwise we would overwrite the old results!
+        if (!runTestsInSeparateJVMs)
         {
             File summaryFile = new File(csvDirectory + "/" + SUMMARY_FILE_NAME);
             summaryFile.delete();
@@ -693,21 +734,65 @@ public class PerformanceTesting
         
         out.println("Performance Testing - Starting Tests\n");
         out.flush();
+        
+        List<Test> tests = null;
+        List<TestCategory> testCategories = null;
+        
+        if (jsoarEnabled)
+        {
+            tests = jsoarTests;
+            testCategories = jsoarTestCategories;
+        }
+        else
+        {
+            tests = csoarTests;
+            testCategories = csoarTestCategories;
+        }
+        
+        if (tests.size() > 1 && runTestsInSeparateJVMs)
+        {
+            return runTestsInChildrenJVMs(tests, testCategories);
+        }
+        else
+        {
+            return runTestsWithoutChildJVMs(tests, testCategories);
+        }
+    }
 
+    /**
+     * 
+     * @param test The test to use for checking
+     * @param testCategories The categories to check against
+     * @return The category of the test.  Will return "Uncategorized Tests" if it didn't find any category.
+     */
+    private static String getTestCategoryForTest(Test test, List<TestCategory> testCategories)
+    {
+        for (TestCategory category : testCategories)
+        {
+            if (category.containsTest(test))
+            {
+                return category.getCategoryName();
+            }
+        }
+        
+        return "Uncategorized Tests";
+    }
+    
+    /**
+     * 
+     * @param tests All the tests
+     * @param testCategories All the categories for tests
+     * @return Whether running the tests without child JVMs was successful or not
+     */
+    private int runTestsWithoutChildJVMs(List<Test> tests, List<TestCategory> testCategories)
+    {
         List<TestRunner> testRunners = new ArrayList<TestRunner>();
 
-        List<TestCategory> testCategories = null;
-
-        if (jsoarEnabled)
-            testCategories = jsoarTestCategories;
-        else
-            testCategories = csoarTestCategories;
-
-        int runTestsResult = runTests(testRunners, testCategories, out);
+        int runTestsResult = runTests(testRunners, testCategories);
         
         if (runTestsResult != NON_EXIT)
         {
-        	return runTestsResult;
+            return runTestsResult;
         }
 
         out.println("Performance Testing - Done");
@@ -716,10 +801,224 @@ public class PerformanceTesting
         
         if (outputTestsResult != NON_EXIT)
         {
-        	return outputTestsResult;
+            return outputTestsResult;
         }
         
         return EXIT_SUCCESS;
     }
+    
+    /**
+     * 
+     * @param tests All the tests
+     * @param testCategories The categories of all the tests
+     * @return Whether running the tests in child JVMs was successful
+     */
+    private int runTestsInChildrenJVMs(List<Test> tests, List<TestCategory> testCategories)
+    {
+     // Since we have more than one test to run, spawn a separate JVM for each run.
+        if (categoriesToRun == null)
+        {
+            categoriesToRun = new ArrayList<String>();
+        }
+        
+        if (testsToRun == null)
+        {
+            testsToRun = new ArrayList<String>();
+        }
+        
+        if (categoriesToRun.size() == 0 &&
+            testsToRun.size() == 0)
+        {
+            for (TestCategory category : testCategories)
+            {
+                categoriesToRun.add(category.getCategoryName());
+            }
+        }
+        
+        for (int i = 0; i < testCategories.size(); i++)
+        {
+            // So because these category lists SHOULD be identical (if you're
+            // running
+            // both JSoar and CSoar), I can get away with doing this only for
+            // one of the categories. If there is an issue this will show me
+            // that bug anyways
+            // - ALT
 
+            TestCategory category = testCategories.get(i);
+            
+            if (categoriesToRun != null && categoriesToRun.size() != 0)
+            {
+                if (categoriesToRun.contains(category.getCategoryName()) == false)
+                    continue;
+            }
+
+            for (int j = 0; j < tests.size(); j++)
+            {
+                // Same thing as the above comment
+                // - ALT
+                
+                if (testsToRun != null && testsToRun.size() != 0)
+                {
+                    if (testsToRun.contains(tests.get(j).getTestName()) == false)
+                        continue;
+                }
+                
+                if (category.containsTest(tests.get(j)) == false)
+                        continue;
+                
+                if (jsoarEnabled)
+                {
+                    Test test = jsoarTests.get(j);
+                    
+                    spawnChildJVMForTest(test, true);
+                }
+                
+                if (csoarEnabled)
+                {
+                    Test test = csoarTests.get(j);
+                    
+                    spawnChildJVMForTest(test, false);
+                }
+            }
+        }                    
+        
+        out.println("Performance Testing - Done");
+        
+        return EXIT_SUCCESS;
+    }
+    
+    /**
+     * Spawns a child JVM for the test and waits for it to exit.
+     * 
+     * @param test The test to run
+     * @param jsoar Whether this is a JSoar or CSoar test
+     * @return Whether the run was successful or not
+     */
+    private int spawnChildJVMForTest(Test test, boolean jsoar)
+    {
+        // Arguments to the process builder including the command to run
+        ArrayList<String> arguments = new ArrayList<String>();
+        
+        URL baseURL = PerformanceTesting.class.getProtectionDomain().getCodeSource().getLocation();
+        String jarPath = null;
+        try
+        {
+            // Get the directory for the jar file or class path
+            jarPath = new File(baseURL.toURI().getPath()).getCanonicalPath();
+        }
+        catch (IOException | URISyntaxException e1)
+        {
+            throw new AssertionError(e1);
+        }
+        
+        // Replaces windows style paths with unix.
+        jarPath = jarPath.replace("\\","/");
+                
+        if (jarPath.endsWith(".jar") != true)
+        {
+            // We're not in a jar so most likely eclipse
+            // Set up class path
+            
+            // This is going to make the assumption that we're in eclipse
+            // and so it will assume a repository structure and if this
+            // changes or is wrong, this code will break and this will fail.
+            // - ALT
+            
+            // Add the performance testing framework class path
+            String originalPath = jarPath;
+            
+            jarPath += ";";
+            // Add the jsoar core class path
+            jarPath += originalPath + "/../../jsoar-core/bin/;";
+            
+            // Add all the require libs from jsoar core
+            File directory = new File(originalPath + "/../../jsoar-core/lib/");
+            File[] listOfFiles = directory.listFiles();
+            for (File file : listOfFiles)
+            {
+                if (file.isFile())
+                {
+                    String path = file.getPath();
+                    
+                    if (!path.endsWith(".jar"))
+                    {
+                        continue;
+                    }
+                    
+                    path = path.replace("\\", "/");
+                    
+                    jarPath += path + ";";
+                }
+            }
+            
+            // Add all the required libs from the performance testing framework
+            directory = new File(originalPath + "/../lib/");
+            listOfFiles = directory.listFiles();
+            for (File file : listOfFiles)
+            {
+                if (file.isFile())
+                {
+                    String path = file.getPath();
+                    
+                    if (!path.endsWith(".jar"))
+                    {
+                        continue;
+                    }
+                    
+                    path = path.replace("\\", "/");
+                    
+                    jarPath += path + ";";
+                }
+            }
+        }
+        
+        // Construct the array with the command and arguments
+        // Use javaw for no console window spawning
+        arguments.add("javaw");
+        arguments.add("-classpath"); // Always use class path.  This will even work for jars.
+        arguments.add("\"" + jarPath + "\"");
+        arguments.add(PerformanceTesting.class.getCanonicalName()); // Get the class name to load
+        arguments.add("--test");
+        arguments.add(test.getTestFile());
+        arguments.add("--output");
+        arguments.add(csvDirectory);
+        arguments.add("--kind");
+        arguments.add("\"" + PerformanceTesting.getTestCategoryForTest(test, (jsoar ? jsoarTestCategories : csoarTestCategories)) + "\"");
+        arguments.add("--warmup");
+        arguments.add(new Integer(warmUpCount).toString());
+        arguments.add("--" + (jsoar ? "j" : "") + "soar");
+        
+        // Run the process and get the exit code
+        int exitCode = 0;
+        try
+        {
+            out.print("Running '" + arguments.toString() + "'\n\n");
+            out.flush();
+            ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+            
+            // Redirect the output so we can see what is going on
+            processBuilder.redirectError(Redirect.INHERIT);
+            processBuilder.redirectOutput(Redirect.INHERIT);
+            
+            Process process = processBuilder.start();
+            exitCode = process.waitFor();
+        }
+        catch (IOException e)
+        {
+            throw new AssertionError(e);
+        }
+        catch (InterruptedException e)
+        {
+            throw new AssertionError(e);
+        }
+        
+        if (exitCode != 0)
+        {
+            return EXIT_FAILURE_TEST;
+        }
+        else
+        {
+            return EXIT_SUCCESS;
+        }
+    }
 }
