@@ -8,6 +8,7 @@ package org.jsoar.kernel.smem;
 import static org.junit.Assert.*;
 
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -533,6 +534,36 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String resultOfPD2F197 = outputWriter.toString();
         
         assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
+    }
+    
+    @Test
+    public void readCSoarDB() throws Exception
+    {
+        StringWriter outputWriter = new StringWriter();
+        agent.getPrinter().addPersistentWriter(outputWriter);
+        
+        agent.initialize();
+        
+        URL db = getClass().getResource("smem-csoar-db.sqlite");
+        assertNotNull("No CSoar db!", db);
+        agent.getInterpreter().eval("smem --set path " + db.getPath());
+        agent.getInterpreter().eval("smem --set append-database on");
+        agent.getInterpreter().eval("smem --init");
+        
+        outputWriter.getBuffer().setLength(0);
+        String actualResult = agent.getInterpreter().eval("smem --print");
+        
+        String expectedResult = "========================================\n" +
+                                "            Semantic Memory             \n" +
+                                "========================================\n" +
+                                "(@F1 ^number 2 ^complete true ^factor @F2 [+5.0])\n" +
+                                "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
+                                "(@F3 ^number 3 ^complete true ^factor @F4 [+3.0])\n" +
+                                "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
+                                "(@F5 ^number 4 ^complete true ^factor @F6 [+7.0])\n" +
+                                "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
+                
+        assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
     }
     
     @Test
