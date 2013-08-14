@@ -11,9 +11,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryTest;
-import org.jsoar.kernel.epmem.MockEpmem;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;

@@ -77,8 +77,6 @@ public class PrintCommandTest
     {
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         System.out.println("'" + outputWriter.toString() + "'");
-        String test = outputWriter
-                .toString();
         assertTrue(outputWriter
                 .toString()
                 .startsWith(

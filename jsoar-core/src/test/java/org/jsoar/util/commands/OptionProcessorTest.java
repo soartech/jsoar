@@ -75,7 +75,7 @@ public class OptionProcessorTest
         op.newOption(bravo).shortOption('a').done();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod1()
     {
@@ -84,7 +84,7 @@ public class OptionProcessorTest
         b.shortOption('a');
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod2()
     {
@@ -93,7 +93,7 @@ public class OptionProcessorTest
         b.noArg();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod3()
     {
@@ -102,7 +102,7 @@ public class OptionProcessorTest
         b.optionalArg();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod4()
     {
@@ -111,7 +111,7 @@ public class OptionProcessorTest
         b.requiredArg();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test(expected = IllegalStateException.class)
     public void testRegisterTwice()
     {
