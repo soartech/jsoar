@@ -558,7 +558,16 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             return info.getValue();
         }
-        if(t.length() < 2 || !Character.isLetter(t.charAt(0))) return null;
+        
+        if (t.charAt(0) == '@')
+        {
+            t = t.substring(1);
+        }
+        
+        if (t.length() < 2 || !Character.isLetter(t.charAt(0)))
+        {
+            return null;
+        }
         
         final char letter = Character.toUpperCase(t.charAt(0));
         long number = 1;
