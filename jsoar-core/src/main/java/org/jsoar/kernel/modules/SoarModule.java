@@ -275,20 +275,13 @@ public class SoarModule
                 conditionBacktraceInfo.level = c_it.id.level;
                 conditionBacktraceInfo.trace = c_it.preference;
                 
-                /*
-                if ( cond->bt.trace )
+                if (cond.bt().trace != null)
                 {
-                    #ifndef DO_TOP_LEVEL_REF_CTS
-                    if ( inst->match_goal_level > TOP_GOAL_LEVEL )
-                    #endif
+                    if (!SoarConstants.DO_TOP_LEVEL_REF_CTS || inst.match_goal_level > SoarConstants.TOP_GOAL_LEVEL)
                     {
-                        preference_add_ref( cond->bt.trace );
+                        cond.bt().trace.preference_add_ref();
                     }
-                }               
-                 */
-
-                //TODO: Comment this in after the merge
-                //conditionBacktraceInfo.CDPS = NULL;
+                }
 
                 prev_cond = cond;
             }
