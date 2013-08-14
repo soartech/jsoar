@@ -7,6 +7,7 @@ package org.jsoar.kernel.smem;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -526,6 +527,13 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String resultOfPD2F197 = outputWriter.toString();
         
         assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
+    
+        agent.dispose();
+        
+        String pwd = agent.getInterpreter().eval("pwd");
+        pwd = pwd.replaceAll("\\s+", "/");
+        File backupDB = new File(pwd + "/backup.sqlite");
+        backupDB.delete();
     }
     
     @Test
