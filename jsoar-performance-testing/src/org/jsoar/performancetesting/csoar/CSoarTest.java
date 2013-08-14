@@ -403,4 +403,13 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
     {
         return "CSoar";
     }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.Test#getDecisionCyclesToRun()
+     */
+    @Override
+    public int getDecisionCyclesToRun()
+    {
+        return decisionCyclesToRun;
+    }
 }

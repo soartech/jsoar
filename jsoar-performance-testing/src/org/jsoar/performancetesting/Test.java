@@ -70,7 +70,7 @@ public interface Test
     
     /**
      * 
-     * @return the numebr of decisions the last test ran for.
+     * @return the number of decisions the last test ran for.
      */
     public int getDecisionCyclesRunFor();
     /**
@@ -78,4 +78,10 @@ public interface Test
      * @return the memory used by the last run measured at the end of the test's run.
      */
     public long getMemoryForRun();
+    
+    /**
+     * 
+     * @return the number of decision cycles the test is supposed to run
+     */
+    public int getDecisionCyclesToRun();
 }

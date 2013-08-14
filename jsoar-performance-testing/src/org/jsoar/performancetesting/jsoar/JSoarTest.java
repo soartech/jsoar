@@ -177,4 +177,13 @@ public class JSoarTest implements Test
     {
         return "JSoar";
     }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.Test#getDecisionCyclesToRun()
+     */
+    @Override
+    public int getDecisionCyclesToRun()
+    {
+        return decisionCyclesToRun;
+    }
 }

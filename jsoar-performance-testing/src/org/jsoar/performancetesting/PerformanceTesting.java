@@ -37,7 +37,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, directory, recursive, configuration, test, output, warmup, kind, jsoar, soar, uniqueJVMs
+        help, Directory, Recursive, Configuration, Test, output, warmup, category, jsoar, soar, uniqueJVMs, decisions
     };
 
     private final PrintWriter out;
@@ -54,6 +54,7 @@ public class PerformanceTesting
     
     private int runCount = 1;
     private int warmUpCount = 10;
+    private int defaultDecisionCycles = 0;
 
     private boolean jsoarEnabled = true;
     private boolean csoarEnabled = false;
@@ -121,15 +122,16 @@ public class PerformanceTesting
                     "\n" +
                     "Options:\n" +
                     "   -h, --help              This message.\n" +
-                    "   -d, --directory         Load all tests (.soar files) from this directory recursively.\n" +
-                    "   -c, --configuration     Load a configuration file to use for testing.\n" +
-                    "   -t, --test              Manually specify a test to load.\n" +
+                    "   -D, --directory         Load all tests (.soar files) from this directory recursively.\n" +
+                    "   -C, --configuration     Load a configuration file to use for testing.\n" +
+                    "   -T, --test              Manually specify a test to load.\n" +
                     "   -o, --output            The directory for all the CSV test results.\n" +
                     "   -w, --warmup            Specify the number of warm up runs for JSoar.\n" +
-                    "   -k, --kind              Specify the test category.\n" +
+                    "   -c, --category              Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
                     "   -s, --soar              Run the tests in CSoar.\n" +
-                    "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not" +
+                    "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not." +
+                    "   -d, --decisions         Run the tests specified number of decisions." +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
@@ -137,7 +139,7 @@ public class PerformanceTesting
     
     private int parseConfiguration(OptionProcessor<Options> options)
     {
-    	String configurationPath = options.get(Options.configuration);
+    	String configurationPath = options.get(Options.Configuration);
 
         if (!configurationPath.endsWith(".properties"))
         {
@@ -251,16 +253,17 @@ public class PerformanceTesting
     	//This is the same options processor for JSoar and so has the same limitations.
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
         options.newOption(Options.help)
-               .newOption(Options.directory).requiredArg()
-               .newOption(Options.recursive)
-               .newOption(Options.configuration).requiredArg()
-               .newOption(Options.test).requiredArg()
+               .newOption(Options.Directory).requiredArg()
+               .newOption(Options.Recursive)
+               .newOption(Options.Configuration).requiredArg()
+               .newOption(Options.Test).requiredArg()
                .newOption(Options.jsoar)
-               .newOption(Options.kind).requiredArg()
+               .newOption(Options.category).requiredArg()
                .newOption(Options.output).requiredArg()
                .newOption(Options.soar)
                .newOption(Options.warmup).requiredArg()
                .newOption(Options.uniqueJVMs).requiredArg()
+               .newOption(Options.decisions).requiredArg()
                .done();
 
         try
@@ -290,9 +293,9 @@ public class PerformanceTesting
             warmUpCount = Integer.parseInt(options.get(Options.warmup));
         }
         
-        if (options.has(Options.kind))
+        if (options.has(Options.category))
         {
-            testCategory = options.get(Options.kind);
+            testCategory = options.get(Options.category);
             
             jsoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
             csoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
@@ -311,11 +314,16 @@ public class PerformanceTesting
         {
             csoarEnabled = true;
         }
+        
+        if (options.has(Options.decisions))
+        {
+            defaultDecisionCycles = Integer.parseInt(options.get(Options.decisions));
+        }
 
         //This will load all tests from a directory into the uncategorized tests category.
-        if (options.has(Options.directory))
+        if (options.has(Options.Directory))
         {
-            String directory = options.get(Options.directory);
+            String directory = options.get(Options.Directory);
 
             Path directoryPath = FileSystems.getDefault().getPath(directory);
             DirectoryStream<Path> stream;
@@ -369,9 +377,9 @@ public class PerformanceTesting
 
         // This will load an individual test into the uncategorized tests category, only really useful
         // for single tests that you don't want to create a configuration file for
-        if (options.has(Options.test))
+        if (options.has(Options.Test))
         {
-            String testPath = options.get(Options.test);
+            String testPath = options.get(Options.Test);
 
             if (!testPath.endsWith(".soar"))
             {
@@ -383,7 +391,7 @@ public class PerformanceTesting
 
             if (jsoarEnabled)
             {
-                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, 0);
+                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
                 jsoarTests.add(jsoarTest);
 
                 TestCategory.getTestCategory(testCategory, jsoarTestCategories).addTest(jsoarTest);
@@ -391,7 +399,7 @@ public class PerformanceTesting
 
             if (csoarEnabled)
             {
-                Test csoarTest = csoarTestFactory.createTest(testName, testPath, 0);
+                Test csoarTest = csoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
                 csoarTests.add(csoarTest);
 
                 TestCategory.getTestCategory(testCategory, csoarTestCategories).addTest(csoarTest);
@@ -403,7 +411,7 @@ public class PerformanceTesting
             runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.uniqueJVMs));
         }
         
-        if (options.has(Options.configuration))
+        if (options.has(Options.Configuration))
         {
             parseConfiguration(options);
         }
@@ -982,11 +990,13 @@ public class PerformanceTesting
         arguments.add(test.getTestFile());
         arguments.add("--output");
         arguments.add(csvDirectory);
-        arguments.add("--kind");
+        arguments.add("--category");
         arguments.add("\"" + PerformanceTesting.getTestCategoryForTest(test, (jsoar ? jsoarTestCategories : csoarTestCategories)) + "\"");
         arguments.add("--warmup");
         arguments.add(new Integer(warmUpCount).toString());
         arguments.add("--" + (jsoar ? "j" : "") + "soar");
+        arguments.add("--decisions");
+        arguments.add(new Integer(test.getDecisionCyclesToRun()).toString());
         
         // Run the process and get the exit code
         int exitCode = 0;
