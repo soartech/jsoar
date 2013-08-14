@@ -20,7 +20,6 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 
 /**
@@ -450,6 +449,90 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
         halted = false;
+    }
+    
+    @Test
+    public void dbBackupAndLoadTests() throws Exception
+    {
+        StringWriter outputWriter = new StringWriter();
+        agent.getPrinter().addPersistentWriter(outputWriter);
+        
+        runTestSetup("testFactorization");
+        agent.runFor(1178, RunType.DECISIONS);
+        
+        outputWriter.getBuffer().setLength(0);
+        agent.getInterpreter().eval("p s1");
+        
+        String resultOfPS1 = outputWriter.toString();
+        
+        outputWriter.getBuffer().setLength(0);
+        
+        String expectedResultOfPS1 = "(S1 ^counter 50 ^epmem E1 ^io I1 ^name Factorization ^operator O1385 ^operator O1385 + ^reward-link R1 ^smem S2 ^superstate nil ^type state ^using-smem true)\n";
+        
+        assertTrue("Didn't stop where expected!", resultOfPS1.equals(expectedResultOfPS1));
+        
+        agent.getInterpreter().eval("smem --backup backup.sqlite");
+        agent.getInterpreter().eval("smem --init");
+        outputWriter.getBuffer().setLength(0);
+        try
+        {
+            agent.getInterpreter().eval("smem --print");
+        }
+        catch (SoarException e)
+        {
+            assertTrue("smem --init didn't init smem!", e.getMessage().equals("SMem| Semantic memory is empty."));
+        }
+        
+        agent.getInterpreter().eval("p");
+        
+        String resultOfP = outputWriter.toString();
+        outputWriter.getBuffer().setLength(0);
+                
+        assertTrue("smem --init didn't excise all productions!", resultOfP.length() == 0);
+        
+        agent.getInterpreter().eval("p s1");
+        
+        resultOfPS1 = outputWriter.toString();
+        outputWriter.getBuffer().setLength(0);
+        
+        expectedResultOfPS1 = "(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n";
+        
+        assertTrue("smem --init didn't reinit WM!", resultOfPS1.equals(expectedResultOfPS1));
+        
+        agent.getInterpreter().eval("smem --set path backup.sqlite");
+        agent.getInterpreter().eval("smem --set append-database on");
+        agent.getInterpreter().eval("smem --init");
+        
+        runTestSetup("testFactorization");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(2811 + 1, RunType.DECISIONS);
+        
+        assertTrue("testFactorization: Test did not halt.", halted);
+        
+        outputWriter.getBuffer().setLength(0);
+        
+        agent.getInterpreter().eval("p -d 2 @F197");
+        
+        String expectedResultOfPD2F197 = "\n(@F197 ^checked true ^complete true ^correct true ^factor @F48 ^factor @F198 ^number 100)\n" +
+                                         "  (@F48 ^multiplicity 2 ^value 5)\n" +
+                                         "  (@F198 ^multiplicity 2 ^value 2)\n";
+        
+        String resultOfPD2F197 = outputWriter.toString();
+        
+        assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
     }
     
     @Test
