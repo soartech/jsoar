@@ -240,11 +240,6 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 props.set(DefaultSemanticMemoryParams.LEARNING, LearningChoices.valueOf(value));
             }
-            else if(smem.getDatabase() != null)
-            {
-                // TODO: This check should be done in the property system
-                throw new SoarException("This parameter is protected while the semantic memory database is open");
-            }
             else if(name.equals("driver"))
             {
                 props.set(DefaultSemanticMemoryParams.DRIVER, value);
