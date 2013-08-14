@@ -8,7 +8,6 @@ package org.jsoar.kernel.epmem;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.StringWriter;
 import java.net.URL;
 
 import org.jsoar.kernel.FunctionalTestHarness;
@@ -166,9 +165,6 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void readCSoarDB() throws Exception
     {
-        StringWriter outputWriter = new StringWriter();
-        agent.getPrinter().addPersistentWriter(outputWriter);
-        
         agent.initialize();
         
         URL db = getClass().getResource("epmem-csoar-db.sqlite");
@@ -177,7 +173,6 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("epmem --set append-database on");
         agent.getInterpreter().eval("epmem --reinit");
         
-        outputWriter.getBuffer().setLength(0);
         String actualResult = agent.getInterpreter().eval("epmem --print 4");
         
         String expectedResult = "(<id0> ^counter 2 ^io <id1> ^name Factorization ^needs-factorization true ^number-to-factor 2 ^number-to-factor-int 2 ^operator <id2> ^operator* <id2> ^reward-link <id3> ^superstate nil ^type state ^using-epmem true)\n" +

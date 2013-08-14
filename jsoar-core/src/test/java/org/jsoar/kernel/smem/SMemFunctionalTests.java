@@ -282,17 +282,6 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         return true;
     }
     
-    private boolean activationCheck(double lowEndActivation, double highEndActivation, double recievedActivation)
-    {
-        if (recievedActivation >= lowEndActivation &&
-            recievedActivation <= highEndActivation)
-        {
-            return true;
-        }
-        
-        return false;
-    }
-    
     @Test
     public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable() throws Exception
     {
@@ -331,6 +320,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.456);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -384,6 +374,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.456);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -437,6 +428,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.144);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -539,9 +531,6 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void readCSoarDB() throws Exception
     {
-        StringWriter outputWriter = new StringWriter();
-        agent.getPrinter().addPersistentWriter(outputWriter);
-        
         agent.initialize();
         
         URL db = getClass().getResource("smem-csoar-db.sqlite");
@@ -550,7 +539,6 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("smem --set append-database on");
         agent.getInterpreter().eval("smem --init");
         
-        outputWriter.getBuffer().setLength(0);
         String actualResult = agent.getInterpreter().eval("smem --print");
         
         String expectedResult = "========================================\n" +
