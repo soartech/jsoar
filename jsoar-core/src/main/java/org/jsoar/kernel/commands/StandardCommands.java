@@ -6,6 +6,7 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 
