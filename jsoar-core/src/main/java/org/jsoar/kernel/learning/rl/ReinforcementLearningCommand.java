@@ -3,6 +3,9 @@
  */
 package org.jsoar.kernel.learning.rl;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
@@ -50,9 +53,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
     {
         if(args.length == 1)
         {
-            // TODO print all params
-            
-            return "Not implemented yet. Use 'properties' command.";
+            return doRl();
         }
         
         if(args.length < 3 || args.length > 4)
@@ -75,7 +76,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
         else if(args.length == 4 && op.equals("--set"))
         {
             final String value = args[3];
-            set(key, value);
+            doSet(key, value);
             return value;
         }
         else
@@ -85,7 +86,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
     }
     
     @SuppressWarnings("unchecked")
-    private void set(PropertyKey<?> key, String value) throws SoarException
+    private void doSet(PropertyKey<?> key, String value) throws SoarException
     {
         // TODO generalize this and add parameter checking.
         final PropertyManager  props = agent.getProperties();
@@ -102,4 +103,41 @@ public final class ReinforcementLearningCommand implements SoarCommand
             throw new SoarException("Don't know how to set RL parameter '" + key + "' to value '" + value + "'");
         }
     }
+
+    private String doRl()
+    {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        
+        pw.printf(RLPrintHelper.generateHeader("", 0));
+        pw.printf(RLPrintHelper.generateItem("Soar-RL learning:", "off"/*p.learning.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("temporal-extension:", "on"/*p.temporal_extension.get()*/, 40));
+        pw.printf(RLPrintHelper.generateSection("Discount", 40));
+        pw.printf(RLPrintHelper.generateItem("discount-rate:", "0.9"/*p.discount_rate.get()*/, 40));
+        pw.printf(RLPrintHelper.generateSection("Learning", 40));
+        pw.printf(RLPrintHelper.generateItem("learning-policy:", "sarsa"/*p.learning_policy.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("learning-rate:", "0.3"/*p.learning_rate.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("hrl-discount:", "off"/*p.hrl_discount.get()*/, 40));
+        pw.printf(RLPrintHelper.generateSection("Eligibility Traces", 40));
+        pw.printf(RLPrintHelper.generateItem("eligibility-trace-decay-rate:", "0"/*p.et_decay_rate.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("eligibility-trace-tolerance:", "0.001"/*p.et_tolerance.get()*/, 40));
+        pw.printf(RLPrintHelper.generateSection("Experimental", 40));
+        pw.printf(RLPrintHelper.generateItem("chunk-stop:", "on"/*p.chunk_stop.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("decay-mode:", "normal"/*p.decay_mode.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("meta:", "off"/*p.meta.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("meta-learning-rate:", "0.1"/*p.meta_learning_rate.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("update-log-path:", ""/*p.update_log_path.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("", "0", 0));
+        pw.printf(RLPrintHelper.generateItem("apoptosis:", "none"/*p.apoptosis.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", "0.5"/*p.apoptosis_decay.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("apoptosis-thresh:", "-2"/*p.apoptosis_thresh.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("", "0", 0));
+        pw.printf(RLPrintHelper.generateItem("trace:", "off"/*p.trace.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("", "0", 0));
+
+        
+        pw.flush();
+        return sw.toString();
+    }
+
 }
