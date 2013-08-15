@@ -21,6 +21,8 @@ import org.jsoar.kernel.exploration.Exploration.Policy;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtension;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.GoalIdTest;
 import org.jsoar.kernel.lhs.ImpasseIdTest;
@@ -705,7 +707,7 @@ public class ReinforcementLearning
 	            
 	            // if temporal_discount is off, don't discount for gaps
 	            long /*unsigned int*/ effective_age = data.hrl_age;
-	            if (params.temporal_discount.get() /* my_agent->rl_params->temporal_discount->get_value() == soar_module::on*/) 
+	            if (params.temporal_discount.get() == TemporalDiscount.on /* my_agent->rl_params->temporal_discount->get_value() == soar_module::on*/) 
 	            {
 	                effective_age += data.gap_age;
 	            }
@@ -760,7 +762,8 @@ public class ReinforcementLearning
         final Symbol op = cand.value;
         data.previous_q = cand.numeric_value;
 
-        final boolean using_gaps = params.temporal_extension.get(); // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
+        final boolean using_gaps =
+        		params.temporal_extension.get() == TemporalExtension.on; // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
         
         // Make list of just-fired prods
         int just_fired = 0;
@@ -826,7 +829,8 @@ public class ReinforcementLearning
      */
 public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goal, boolean update_efr )
 {
-    final boolean using_gaps = params.temporal_extension.get(); // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
+    final boolean using_gaps =
+    		params.temporal_extension.get() == TemporalExtension.on; // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
 
     if ( !using_gaps || op_rl )
     {    
@@ -841,7 +845,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
 
             // if temporal_discount is off, don't discount for gaps
             long effective_age = data.hrl_age + 1;
-            if (params.temporal_discount.get() /* my_agent->rl_params->temporal_discount->get_value() == soar_module::on */) 
+            if (params.temporal_discount.get() == TemporalDiscount.on /* my_agent->rl_params->temporal_discount->get_value() == soar_module::on */) 
             {
                 effective_age += data.gap_age;
             }

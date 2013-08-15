@@ -11,6 +11,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -119,6 +120,11 @@ public final class ReinforcementLearningCommand implements SoarCommand
                 props.set(ReinforcementLearningParams.HRL_DISCOUNT, HrlDiscount.valueOf(value));
                 return "Set hrl-discount to " + HrlDiscount.valueOf(value);
             }
+            else if (name.equals("temporal-discount"))
+            {
+                props.set(ReinforcementLearningParams.TEMPORAL_DISCOUNT, TemporalDiscount.valueOf(value));
+                return "Set temporal-discount to " + TemporalDiscount.valueOf(value);
+            }
             else
             {
                 throw new SoarException("Unknown rl parameter '" + name + "'");
@@ -155,16 +161,21 @@ public final class ReinforcementLearningCommand implements SoarCommand
         final ReinforcementLearningParams p = rl.getParams();
         pw.printf(RLPrintHelper.generateHeader("", 0));
         pw.printf(RLPrintHelper.generateItem("Soar-RL learning:", p.learning.get(), 40));
-        pw.printf(RLPrintHelper.generateItem("temporal-extension:", "on"/*p.temporal_extension.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("temporal-extension:", p.temporal_extension.get(), 40));
         pw.printf(RLPrintHelper.generateSection("Discount", 40));
         pw.printf(RLPrintHelper.generateItem("discount-rate:", p.discount_rate.get(), 40));
         pw.printf(RLPrintHelper.generateSection("Learning", 40));
         pw.printf(RLPrintHelper.generateItem("learning-policy:", p.learning_policy.get(), 40));
         pw.printf(RLPrintHelper.generateItem("learning-rate:", p.learning_rate.get(), 40));
         pw.printf(RLPrintHelper.generateItem("hrl-discount:", p.hrl_discount.get(), 40));
+//		This is commented out here since the CSoar report does not show it,
+//      even though it is there in CSoar as well.
+//        pw.printf(RLPrintHelper.generateItem("temporal-discount:", p.temporal_discount.get(), 40));
         pw.printf(RLPrintHelper.generateSection("Eligibility Traces", 40));
-        pw.printf(RLPrintHelper.generateItem("eligibility-trace-decay-rate:", "0"/*p.et_decay_rate.get()*/, 40));
-        pw.printf(RLPrintHelper.generateItem("eligibility-trace-tolerance:", "0.001"/*p.et_tolerance.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("eligibility-trace-decay-rate:", p.et_decay_rate.get(), 40));
+        pw.printf(RLPrintHelper.generateItem("eligibility-trace-tolerance:", p.et_tolerance.get(), 40));
+        
+        //	The following are not implemented yet, except for being faked here
         pw.printf(RLPrintHelper.generateSection("Experimental", 40));
         pw.printf(RLPrintHelper.generateItem("chunk-stop:", "on"/*p.chunk_stop.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("decay-mode:", "normal"/*p.decay_mode.get()*/, 40));
