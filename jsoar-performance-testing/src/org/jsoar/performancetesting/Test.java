@@ -19,7 +19,7 @@ public interface Test
      * @param testFile
      * @param decisionCycles
      */
-    public void initialize(String testName, String testFile, Integer decisionCycles);
+    public void initialize(String testName, String testFile, TestSettings settings);
     
     /**
      * 
@@ -40,7 +40,7 @@ public interface Test
      * @return whether running a test was successful or not.
      * @throws SoarException
      */
-    public boolean run(int runCount, Long seed) throws SoarException;
+    public boolean run(int runCount) throws SoarException;
     /**
      * Resets the test.  Resets epmem, smem, and init's soar
      * @return whether the reset was successful.
@@ -81,7 +81,7 @@ public interface Test
     
     /**
      * 
-     * @return the number of decision cycles the test is supposed to run
+     * @return The settings for the test
      */
-    public int getDecisionCyclesToRun();
+    public TestSettings getTestSettings();
 }

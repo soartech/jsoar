@@ -10,7 +10,9 @@ import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import org.jsoar.kernel.SoarException;
@@ -44,24 +46,10 @@ public class PerformanceTesting
     private JSoarTestFactory jsoarTestFactory;
     private final List<Test> jsoarTests;
 
-    private Long seed = 123456789L;
-    
-    private int runCount = 1;
-    private int warmUpCount = 10;
-    private int defaultDecisionCycles = 0;
-
-    private boolean jsoarEnabled = false;
-    private boolean csoarEnabled = false;
-    
-    private List<String> testsToRun;
-    
-    private String csvDirectory = "";
-    private String csoarDirectory = "";
+    private TestSettings defaultTestSettings = null;
         
     private boolean runTestsInSeparateJVMs = true;
     
-    private int runNumber = 1;
-
     private static final int NON_EXIT = 1024;
     private static final int EXIT_SUCCESS = 0;
     private static final int EXIT_FAILURE = 255;
@@ -100,6 +88,8 @@ public class PerformanceTesting
 
         this.jsoarTestFactory = new JSoarTestFactory();
         this.csoarTestFactory = new CSoarTestFactory();
+        
+        this.defaultTestSettings = new TestSettings(false, false, 2, 2, 0, 1, "", new HashMap<String, String>());
     }
 
     /**
@@ -159,54 +149,58 @@ public class PerformanceTesting
             return EXIT_FAILURE_CONFIGURATION;
         }
         
-        seed = config.getSeed();
+        defaultTestSettings.setSeed(config.getSeed());
 
         if (config.getRunCount() > 0)
-            runCount = config.getRunCount();
+            defaultTestSettings.setRunCount(config.getRunCount());
         else
             out.println("Defaulting to running tests 20 times");
 
         if (config.getWarmUpCount() >= 0)
-            warmUpCount = config.getWarmUpCount();
+            defaultTestSettings.setWarmUpCount(config.getWarmUpCount());
         else
             out.println("Defaulting to warming up tests 10 times");
 
-        jsoarEnabled = config.getJSoarEnabled();
-        csoarEnabled = config.getCSoarEnabled();
+        defaultTestSettings.setJSoarEnabled(config.getJSoarEnabled());
+        defaultTestSettings.setCSoarEnabled(config.getCSoarEnabled());
         
         runTestsInSeparateJVMs = config.getRunTestsInSeparateJVMs();
 
-        if (!jsoarEnabled && !csoarEnabled)
+        if (!defaultTestSettings.isJSoarEnabled() && !defaultTestSettings.isCSoarEnabled())
         {
             out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
-            jsoarEnabled = true;
+            defaultTestSettings.setJSoarEnabled(true);
         }
         
-        testsToRun = config.getTestsToRun();
-
         String csoarDirectory = config.getCSoarDirectory();
         String csoarLabel = config.getCSoarLabel();
         
-        csvDirectory = config.getCSVDirectory().trim();
+        defaultTestSettings.setCSVDirectory(config.getCSVDirectory().trim());
 
         csoarTestFactory.setLabel(csoarLabel);
         csoarTestFactory.setCSoarDirectory(csoarDirectory);
-        this.csoarDirectory = csoarDirectory;
+        Map<String, String> csoarDirectories = new HashMap<String,String>();
+        csoarDirectories.put("CSoar", csoarDirectory);
+        
+        defaultTestSettings.setCSoarVersions(csoarDirectories);
 
         SortedSet<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
 
         //Convert all the ConfigurationTest holders to actual tests.
         for (Configuration.ConfigurationTest test : configurationTests)
         {
-            if (jsoarEnabled)
+            TestSettings newSettings = new TestSettings(defaultTestSettings);
+            newSettings.setDecisionCycles(config.getDecisionCyclesToRunTest(test.getTestName()));
+            
+            if (defaultTestSettings.isJSoarEnabled())
             {
-                Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
+                Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), newSettings);
                 jsoarTests.add(jsoarTest);
             }
 
-            if (csoarEnabled)
+            if (defaultTestSettings.isCSoarEnabled())
             {
-                Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
+                Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), newSettings);
                 csoarTests.add(csoarTest);
             }
         }
@@ -255,30 +249,32 @@ public class PerformanceTesting
         
         if (options.has(Options.output))
         {
-            csvDirectory = options.get(Options.output);
+            defaultTestSettings.setCSVDirectory(options.get(Options.output));
         }
         
         if (options.has(Options.warmup))
         {
-            warmUpCount = Integer.parseInt(options.get(Options.warmup));
+            defaultTestSettings.setWarmUpCount(Integer.parseInt(options.get(Options.warmup)));
         }
         
         if (options.has(Options.jsoar))
         {
-            jsoarEnabled = true;
+            defaultTestSettings.setJSoarEnabled(true);
         }
         
         if (options.has(Options.soar))
         {
-            csoarEnabled = true;
+            defaultTestSettings.setCSoarEnabled(true);
+            Map<String, String> tempMap = new HashMap<String, String>();
+            tempMap.put("CSoar", options.get(Options.soar));
+            defaultTestSettings.setCSoarVersions(tempMap);
             
             csoarTestFactory.setCSoarDirectory(options.get(Options.soar));
-            csoarDirectory = options.get(Options.soar);
         }
         
         if (options.has(Options.decisions))
         {
-            defaultDecisionCycles = Integer.parseInt(options.get(Options.decisions));
+            defaultTestSettings.setDecisionCycles(Integer.parseInt(options.get(Options.decisions)));
         }
 
         // This will load an individual test into the uncategorized tests category, only really useful
@@ -295,15 +291,15 @@ public class PerformanceTesting
 
             String testName = new File(testPath).getName();;
 
-            if (jsoarEnabled)
+            if (defaultTestSettings.isJSoarEnabled())
             {
-                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
+                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, defaultTestSettings);
                 jsoarTests.add(jsoarTest);
             }
 
-            if (csoarEnabled)
+            if (defaultTestSettings.isCSoarEnabled())
             {
-                Test csoarTest = csoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
+                Test csoarTest = csoarTestFactory.createTest(testName, testPath, defaultTestSettings);
                 csoarTests.add(csoarTest);
             }
         }
@@ -326,19 +322,15 @@ public class PerformanceTesting
     {
     	List<Test> tests = null;
 
-            if (jsoarEnabled)
+            if (defaultTestSettings.isJSoarEnabled())
                 tests = jsoarTests;
             else
                 tests = csoarTests;
 
             for (int j = 0; j < tests.size(); j++)
             {
-                if (testsToRun != null && testsToRun.size() != 0)
-                {
-                    if (testsToRun.contains(tests.get(j).getTestName()) == false)
-                        continue;
-                }
-
+                Test test = tests.get(j);
+                
                 out.println("Starting Test: " + tests.get(j).getTestName());
                 out.flush();
                 
@@ -402,7 +394,7 @@ public class PerformanceTesting
                 }
 
                 // Run JSoar First
-                if (jsoarEnabled)
+                if (defaultTestSettings.isJSoarEnabled())
                 {
                     out.println("JSoar: ");
                     out.flush();
@@ -412,7 +404,7 @@ public class PerformanceTesting
                     TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
                     try
                     {
-                        jsoarTestRunner.runTestsForAverage(runCount, warmUpCount, seed);
+                        jsoarTestRunner.runTestsForAverage(jsoarTest.getTestSettings());
                     }
                     catch (SoarException e)
                     {
@@ -438,7 +430,7 @@ public class PerformanceTesting
                 }
 
                 // Run CSoar Second
-                if (csoarEnabled)
+                if (defaultTestSettings.isCSoarEnabled())
                 {
                     Test csoarTest = csoarTests.get(j);
                     out.println("CSoar " + csoarTestFactory.getLabel() + ": ");
@@ -447,7 +439,7 @@ public class PerformanceTesting
                     TestRunner csoarTestRunner = new TestRunner(csoarTest, out);
                     try
                     {
-                        csoarTestRunner.runTestsForAverage(runCount, 0, seed);
+                        csoarTestRunner.runTestsForAverage(csoarTest.getTestSettings());
                     }
                     catch (SoarException e)
                     {
@@ -474,9 +466,9 @@ public class PerformanceTesting
                 
                 table.writeToWriter(out);
                 
-                if (csvDirectory.length() != 0)
+                if (test.getTestSettings().getCSVDirectory().length() != 0)
                 {
-                    File outDirectory = new File(csvDirectory);
+                    File outDirectory = new File(test.getTestSettings().getCSVDirectory());
                     
                     if (!outDirectory.exists())
                     {
@@ -485,8 +477,8 @@ public class PerformanceTesting
                     
                     String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
                     
-                    table.writeToCSV(csvDirectory + "/" + testNameWithoutSpaces + ".txt");
-                    table.writeToCSV(csvDirectory + "/" + SUMMARY_FILE_NAME, true);
+                    table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
+                    table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
                 }
                 
                 out.print("\n");
@@ -525,12 +517,12 @@ public class PerformanceTesting
             List<Integer> decisionCycles = testRunner.getAllDecisionCycles();
             List<Long> memoryLoads = testRunner.getAllMemoryLoads();
             
-            if (runCount == 1)
+            if (testRunner.getTest().getTestSettings().getRunCount() == 1)
             {
                 continue;
             }
             
-            for (int i = 0;i < runCount;i++)
+            for (int i = 0;i < testRunner.getTest().getTestSettings().getRunCount();i++)
             {
                 Table table = new Table();
                 
@@ -566,9 +558,9 @@ public class PerformanceTesting
 
                 table.writeToWriter(out);
                 
-                if (csvDirectory.length() != 0)
+                if (testRunner.getTest().getTestSettings().getCSVDirectory().length() != 0)
                 {
-                    File out = new File(csvDirectory);
+                    File out = new File(testRunner.getTest().getTestSettings().getCSVDirectory());
                     
                     if (!out.exists())
                     {
@@ -577,7 +569,7 @@ public class PerformanceTesting
                                         
                     String testNameWithoutSpaces = testRunner.getTest().getTestName().replaceAll("\\s+", "-") + "-" + testRunner.getTest().getDisplayName() + "-Run" + (i+1);
                     
-                    table.writeToCSV(csvDirectory + "/" + testNameWithoutSpaces + ".txt");
+                    table.writeToCSV(testRunner.getTest().getTestSettings().getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
                 }
             }
         }
@@ -606,7 +598,7 @@ public class PerformanceTesting
         // because otherwise we would overwrite the old results!
         if (!runTestsInSeparateJVMs)
         {
-            File summaryFile = new File(csvDirectory + "/" + SUMMARY_FILE_NAME);
+            File summaryFile = new File(defaultTestSettings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME);
             summaryFile.delete();
         }
         
@@ -615,7 +607,7 @@ public class PerformanceTesting
         
         List<Test> tests = null;
         
-        if (jsoarEnabled)
+        if (defaultTestSettings.isJSoarEnabled())
         {
             tests = jsoarTests;
         }
@@ -672,33 +664,20 @@ public class PerformanceTesting
     private int runTestsInChildrenJVMs(List<Test> tests)
     {
         // Since we have more than one test to run, spawn a separate JVM for each run.
-        if (testsToRun == null)
+        for (int j = 0; j < tests.size(); j++)
         {
-            testsToRun = new ArrayList<String>();
-        }
-        
-         for (int j = 0; j < tests.size(); j++)
-            {
-                if (testsToRun != null && testsToRun.size() != 0)
-                {
-                    if (testsToRun.contains(tests.get(j).getTestName()) == false)
-                        continue;
-                }
+            Test test = tests.get(j);
                 
-                if (jsoarEnabled)
-                {
-                    Test test = jsoarTests.get(j);
-                    
-                    spawnChildJVMForTest(test, true);
-                }
-                
-                if (csoarEnabled)
-                {
-                    Test test = csoarTests.get(j);
-                    
-                    spawnChildJVMForTest(test, false);
-                }
+            if (test.getTestSettings().isJSoarEnabled())
+            {                    
+                spawnChildJVMForTest(jsoarTests.get(j), true);
             }
+                
+            if (test.getTestSettings().isCSoarEnabled())
+            {                    
+                spawnChildJVMForTest(csoarTests.get(j), false);
+            }
+        }
         
         out.println("Performance Testing - Done");
         
@@ -799,16 +778,16 @@ public class PerformanceTesting
         arguments.add("--test");
         arguments.add(test.getTestFile());
         arguments.add("--output");
-        arguments.add(csvDirectory);
+        arguments.add(test.getTestSettings().getCSVDirectory());
         arguments.add("--warmup");
-        arguments.add(new Integer(warmUpCount).toString());
+        arguments.add(new Integer(test.getTestSettings().getWarmUpCount()).toString());
         arguments.add("--" + (jsoar ? "j" : "") + "soar");
         if (!jsoar)
         {
-            arguments.add(csoarDirectory);
+            arguments.add(test.getTestSettings().getCSoarVersions().get("CSoar"));
         }
         arguments.add("--decisions");
-        arguments.add(new Integer(test.getDecisionCyclesToRun()).toString());
+        arguments.add(new Integer(test.getTestSettings().getDecisionCycles()).toString());
         
         // Run the process and get the exit code
         int exitCode = 0;

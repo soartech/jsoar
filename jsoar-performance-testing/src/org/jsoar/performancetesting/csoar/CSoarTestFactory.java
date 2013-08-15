@@ -5,6 +5,7 @@ package org.jsoar.performancetesting.csoar;
 
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
+import org.jsoar.performancetesting.TestSettings;
 
 /**
  * This creates instantiations of CSoar tests.
@@ -55,11 +56,11 @@ public class CSoarTestFactory implements TestFactory
      * @return A new and initialized CSoar Test (but may be only assertion errors if it didn't load properly.)
      */
     @Override
-    public Test createTest(String testName, String testFile, Integer decisionCycles)
+    public Test createTest(String testName, String testFile, TestSettings settings)
     {
         CSoarTest csoarTest = new CSoarTest(label, csoarDirectory);
         
-        csoarTest.initialize(testName, testFile, decisionCycles);
+        csoarTest.initialize(testName, testFile, settings);
         
         return csoarTest;
     }

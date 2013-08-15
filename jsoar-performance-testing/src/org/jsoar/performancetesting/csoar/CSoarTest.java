@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.performancetesting.Test;
+import org.jsoar.performancetesting.TestSettings;
 
 /**
  * A CSoar Test.  This class is used to launch and run all CSoar tests.
@@ -18,8 +19,8 @@ import org.jsoar.performancetesting.Test;
 public class CSoarTest implements Test
 {
     private String testName;
-
     private String testFile;
+    private TestSettings settings = null;
 
     private CSoarAgentWrapper agent;
 
@@ -27,13 +28,8 @@ public class CSoarTest implements Test
     private CSoarKernelWrapper kernel;
 
     private Double cpuTime;
-
     private Double kernelTime;
-
     private int decisionsRunFor;
-    
-    private Integer decisionCyclesToRun;
-
     private long memoryForRun;
 
     public CSoarTest(String label, String csoarDirectory)
@@ -56,11 +52,11 @@ public class CSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile, Integer decisionCycles)
+    public void initialize(String testName, String testFile, TestSettings settings)
     {
         this.testName = testName;
         this.testFile = testFile;
-        this.decisionCyclesToRun = decisionCycles;
+        this.settings = settings;
 
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
     }
@@ -93,7 +89,7 @@ public class CSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run(int runCount, Long seed)
+    public boolean run(int runCount)
     {
         agent = kernel.CreateAgent("CSoar Performance Testing Agent - " + testName + " - " + runCount);
 
@@ -103,13 +99,13 @@ public class CSoarTest implements Test
             return false;
         }
         
-        agent.ExecuteCommandLine("srand " + seed);
+        agent.ExecuteCommandLine("srand " + settings.getSeed());
         agent.ExecuteCommandLine("set-stop-phase -o");
 
-        if (decisionCyclesToRun == 0)
+        if (settings.getDecisionCycles() == 0)
             agent.RunSelfForever();
         else
-            agent.RunSelf(decisionCyclesToRun);
+            agent.RunSelf(settings.getDecisionCycles());
         
         cpuTime = getCPUTime();
         kernelTime = getKernelTime();
@@ -405,11 +401,11 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.performancetesting.Test#getDecisionCyclesToRun()
+     * @see org.jsoar.performancetesting.Test#getTestSettings()
      */
     @Override
-    public int getDecisionCyclesToRun()
+    public TestSettings getTestSettings()
     {
-        return decisionCyclesToRun;
+        return settings;
     }
 }

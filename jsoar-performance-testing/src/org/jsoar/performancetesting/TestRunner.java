@@ -45,11 +45,11 @@ public class TestRunner
      * @return Whether the run was successful
      * @throws SoarException
      */
-    public boolean runSingleIteration(int runCount, Long seed) throws SoarException
+    public boolean runSingleIteration(int runCount) throws SoarException
     {
         test.reset();
         
-        boolean result = test.run(runCount, seed);
+        boolean result = test.run(runCount);
         
         cpuTimes.add(test.getCPURunTime());
         kernelTimes.add(test.getKernelRunTime());
@@ -71,18 +71,18 @@ public class TestRunner
      * @return Whether running all the tests was successful or not.
      * @throws SoarException
      */
-    boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
+    boolean runTestsForAverage(TestSettings settings) throws SoarException
     {
-        if (warmUpCount > 0)
+        if (settings.isJSoarEnabled() && settings.getWarmUpCount() > 0)
         {
             out.print("Warming Up: ");
             out.flush();
 
-            for (int i = 0; i < warmUpCount; i++)
+            for (int i = 0; i < settings.getWarmUpCount(); i++)
             {
                 test.reset();
 
-                boolean result = test.run(i, seed);
+                boolean result = test.run(i);
 
                 if (!result)
                     return false;
@@ -94,14 +94,14 @@ public class TestRunner
             out.print("\n");
         }
         
-        runs = runCount;
+        runs = settings.getRunCount();
         
         out.print("Running Test: ");
         out.flush();
         
-        for (int i = 0;i < runCount;i++)
+        for (int i = 0;i < settings.getRunCount();i++)
         {
-            boolean result = runSingleIteration(i, seed);
+            boolean result = runSingleIteration(i);
             
             if (!result)
                 return false;

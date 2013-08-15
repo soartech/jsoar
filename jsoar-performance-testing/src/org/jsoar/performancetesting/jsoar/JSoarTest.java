@@ -8,6 +8,7 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.performancetesting.Test;
+import org.jsoar.performancetesting.TestSettings;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
@@ -30,7 +31,7 @@ public class JSoarTest implements Test
     private int decisionsRunFor;
     private long memoryForRun;
     
-    private Integer decisionCyclesToRun;
+    private TestSettings settings;
     
     /**
      * Sets all the values used in the test to be impossible
@@ -50,11 +51,11 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#initialize(java.lang.String, java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile, Integer decisionCycles)
+    public void initialize(String testName, String testFile, TestSettings settings)
     {
         this.testName = testName;
         this.testFile = testFile;
-        this.decisionCyclesToRun = decisionCycles;
+        this.settings = settings;
     }
 
     /* (non-Javadoc)
@@ -79,7 +80,7 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run(int runCount, Long seed) throws SoarException
+    public boolean run(int runCount) throws SoarException
     {
         // This is to make it very likely that the garbage collector has cleaned up all references and freed memory
         // http://stackoverflow.com/questions/1481178/forcing-garbage-collection-in-java
@@ -96,13 +97,13 @@ public class JSoarTest implements Test
         
         SoarCommands.source(ifc, testFile);
         
-        ifc.eval("srand " + seed);
+        ifc.eval("srand " + settings.getSeed());
         ifc.eval("set-stop-phase -o");
                 
-        if (decisionCyclesToRun == 0)
+        if (settings.getDecisionCycles() == 0)
             agent.runForever();
         else
-            agent.runFor(decisionCyclesToRun, RunType.DECISIONS);
+            agent.runFor(settings.getDecisionCycles(), RunType.DECISIONS);
         
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();
@@ -179,11 +180,11 @@ public class JSoarTest implements Test
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.performancetesting.Test#getDecisionCyclesToRun()
+     * @see org.jsoar.performancetesting.Test#getTestSettings()
      */
     @Override
-    public int getDecisionCyclesToRun()
+    public TestSettings getTestSettings()
     {
-        return decisionCyclesToRun;
+        return settings;
     }
 }
