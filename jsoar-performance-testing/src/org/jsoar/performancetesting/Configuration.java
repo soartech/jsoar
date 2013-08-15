@@ -30,13 +30,11 @@ public class Configuration
     {
         private String testName;
         private String testFile;
-        private String testCategory;
         
-        public ConfigurationTest(String testName, String testFile, String testCategory)
+        public ConfigurationTest(String testName, String testFile)
         {
             this.testName = testName;
             this.testFile = testFile;
-            this.testCategory = testCategory;
         }
         
         public String getTestName()
@@ -49,60 +47,10 @@ public class Configuration
             return testFile;
         }
         
-        public String getTestCategory()
-        {
-            return testCategory;
-        }
-        
-        public void setTestCategory(String testCategory)
-        {
-            this.testCategory = testCategory;
-        }
-        
         @Override
         public int compareTo(ConfigurationTest o)
         {
             return this.testName.compareTo(o.testName);
-        }
-    }
-    
-    // Package Private
-    class ConfigurationCategory
-    {
-        private final String categoryName;
-        private final List<String> categoryTests;
-        
-        public ConfigurationCategory(String categoryName, List<String> categoryTests)
-        {
-            this.categoryName = categoryName;
-            this.categoryTests = categoryTests;
-        }
-        
-        public String getCategoryName()
-        {
-            return categoryName;
-        }
-        
-        public List<String> getCategoryTests()
-        {
-            return categoryTests;
-        }
-        
-        public boolean containsTest(String test)
-        {
-            return categoryTests.contains(test);
-        }
-        
-        public boolean addTest(String test)
-        {
-            if (containsTest(test))
-            {
-                return false;
-            }
-            
-            categoryTests.add(test);
-            
-            return true;
         }
     }
     
@@ -195,11 +143,9 @@ public class Configuration
     
     private final Properties propertiesFile;
     
-    private List<ConfigurationCategory> configurationCategories;
     private SortedSet<ConfigurationTest> configurationTests;
 
     private List<String> testsToRun;
-    private List<String> categoriesToRun;
     
     private HashMap<String, Integer> testDecisionCycles;
     
@@ -227,11 +173,9 @@ public class Configuration
         
         this.propertiesFile = new Properties();
         
-        this.configurationCategories = new ArrayList<ConfigurationCategory>();
         this.configurationTests = new TreeSet<ConfigurationTest>();
         
         this.testsToRun = new ArrayList<String>();
-        this.categoriesToRun = new ArrayList<String>();
         
         this.csoarDirectory = new String();
         this.csoarLabel = new String();
@@ -304,86 +248,6 @@ public class Configuration
     }
     
     /**
-     * Checks and parses a Category_ property.  If the property isn't actually
-     * a Category_ property it returns a NON_APPLY result.
-     * 
-     * @param key
-     * @param value
-     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
-     * @throws MalformedTestCategory
-     */
-    private int checkAndParseCategory(String key, String value) throws MalformedTestCategory
-    {
-    	if (key.startsWith("Category_")) // CODEREVIEW: all of these special strings should be constants
-        {
-            //Is a category
-            List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
-            List<String> actualCategories = new ArrayList<String>();
-            
-            String temporaryBuffer = "";
-            
-            for (String potential : potentialCategories)
-            {
-                if (potential.startsWith("\"") && potential.endsWith("\""))
-                {
-                    potential = potential.substring(1, potential.length()-1);
-                }
-                
-                if (potential.startsWith("\""))
-                {
-                    if (temporaryBuffer.length() != 0)
-                    {
-                        throw new MalformedTestCategory(key);
-                    }
-                    
-                    //Use the temporary buffer to calculate the name with spaces
-                    temporaryBuffer += potential + " ";
-                    continue;
-                }
-                else if (potential.endsWith("\""))
-                {
-                    if (temporaryBuffer.length() == 0)
-                    {
-                        throw new MalformedTestCategory(key);
-                    }
-                    
-                    temporaryBuffer += potential;
-                    
-                    temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
-                    
-                    actualCategories.add(temporaryBuffer);
-                    
-                    temporaryBuffer = "";
-                    continue;
-                }
-                else if (temporaryBuffer.length() != 0)
-                {
-                    temporaryBuffer += potential + " ";
-                    continue;
-                }
-                
-                potential = potential.trim();
-                
-                actualCategories.add(potential);
-            }
-            
-            if (temporaryBuffer.length() != 0)
-            {
-                throw new MalformedTestCategory(key);
-            }
-            
-            ConfigurationCategory category = new ConfigurationCategory(key.substring(9), actualCategories);
-            configurationCategories.add(category);
-            
-            return OPTION_PARSE_SUCCESS;
-        }
-    	else
-    	{
-    		return OPTION_PARSE_NON_APPLY;
-    	}
-    }
-    
-    /**
      * Checks and parses a Test_ option in the properties file.  If the
      * option is not a Test_ option it returns a NON_APPLY.
      * 
@@ -404,22 +268,11 @@ public class Configuration
                 throw new InvalidTestNameException(test);
             }
             
-            String category = "Uncategorized Tests"; // CODEREVIEW: this should be a constant
-            
-            for (ConfigurationCategory cc : configurationCategories)
-            {
-                if (cc.containsTest(test))
-                {
-                    category = cc.getCategoryName();
-                    break;
-                }
-            }
-            
             String unixPath = value.replace("\\","/"); //Convert Windows style paths to unix
             
             unixPath = unixPath.trim();
             
-            configurationTests.add(new ConfigurationTest(test, unixPath, category));
+            configurationTests.add(new ConfigurationTest(test, unixPath));
             
             return OPTION_PARSE_SUCCESS;
         }
@@ -532,81 +385,6 @@ public class Configuration
     }
     
     /**
-     * Checks and parses a CategoriesToRun option.  If it isn't,
-     * then it returns a NON_APPLY result.
-     * 
-     * @param key
-     * @param value
-     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
-     * @throws MalformedTestCategory
-     */
-    private int checkAndParseCategoriesToRun(String key, String value) throws MalformedTestCategory
-    {
-    	if (key.equals("CategoriesToRun"))
-        {
-            List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
-            
-            String temporaryBuffer = "";
-            
-            for (String potential : potentialCategories)
-            {
-                if (potential.startsWith("\"") && potential.endsWith("\""))
-                {
-                    potential = potential.substring(1, potential.length()-1);
-                }
-                
-                if (potential.startsWith("\""))
-                {
-                    if (temporaryBuffer.length() != 0)
-                    {
-                        throw new MalformedTestCategory(key);
-                    }
-                    
-                    //Use the temporary buffer to calculate the name with spaces
-                    temporaryBuffer += potential + " ";
-                    continue;
-                }
-                else if (potential.endsWith("\""))
-                {
-                    if (temporaryBuffer.length() == 0)
-                    {
-                        throw new MalformedTestCategory(key);
-                    }
-                    
-                    temporaryBuffer += potential;
-                    
-                    temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
-                    
-                    categoriesToRun.add(temporaryBuffer);
-                    
-                    temporaryBuffer = "";
-                    continue;
-                }
-                else if (temporaryBuffer.length() != 0)
-                {
-                    temporaryBuffer += potential + " ";
-                    continue;
-                }
-                
-                potential = potential.trim();
-                
-                categoriesToRun.add(potential);
-            }
-            
-            if (temporaryBuffer.length() != 0)
-            {
-                throw new MalformedTestCategory(key);
-            }
-            
-            return OPTION_PARSE_SUCCESS;
-        }
-    	else
-    	{
-    		return OPTION_PARSE_NON_APPLY;
-    	}
-    }
-    
-    /**
      * Checks and parses a CSoarDirectory_ option.  If it isn't, it returns
      * a NON_APPLY.
      * 
@@ -650,17 +428,12 @@ public class Configuration
         FileInputStream fileStream = new FileInputStream(file);
         propertiesFile.load(fileStream);
         fileStream.close();
-        
-        configurationCategories.add(new ConfigurationCategory("Uncategorized Tests", new ArrayList<String>()));
-        
+                
         for (String key : propertiesFile.stringPropertyNames())
         {
             String value = propertiesFile.getProperty(key);
             key = key.trim();
             value = value.trim();
-            
-            if (checkAndParseCategory(key, value) == OPTION_PARSE_SUCCESS)
-            	continue;
             
             if (checkAndParseTest(key, value) == OPTION_PARSE_SUCCESS)
             	continue;
@@ -681,9 +454,6 @@ public class Configuration
             }
            
             if (checkAndParseTestsToRun(key, value) == OPTION_PARSE_SUCCESS)
-            	continue;
-            
-            if (checkAndParseCategoriesToRun(key, value) == OPTION_PARSE_SUCCESS)
             	continue;
             
             if (key.equals("JSoarEnabled"))
@@ -734,44 +504,7 @@ public class Configuration
      */
     public SortedSet<ConfigurationTest> getConfigurationTests()
     {
-        // Do one final check to make sure everything is right.
-    	// "right" being everything is hooked up correctly.  This check is to
-    	// ensure that the tests are all connected to the right categories
-    	// because previously there was a bug related to this because of the
-    	// potential for different ordering of files.
-        for (ConfigurationCategory category : configurationCategories)
-        {
-            for (ConfigurationTest test : configurationTests)
-            {
-                if (category.containsTest(test.getTestName()))
-                    test.setTestCategory(category.getCategoryName());
-            }
-        }
-        
         return configurationTests;
-    }
-    
-    /**
-     * 
-     * @return All the ConfigurationCategory holders
-     */
-    public List<ConfigurationCategory> getConfigurationCategories()
-    {
-    	// Do one final check to make sure everything is right.
-    	// "right" being everything is hooked up correctly.  This check is to
-    	// ensure that the tests are all connected to the right categories
-    	// because previously there was a bug related to this because of the
-    	// potential for different ordering of files.
-        for (ConfigurationCategory category : configurationCategories)
-        {
-            for (ConfigurationTest test : configurationTests)
-            {
-                if (category.containsTest(test.getTestName()))
-                    test.setTestCategory(category.getCategoryName());
-            }
-        }
-
-        return configurationCategories;
     }
     
     /**
@@ -808,15 +541,6 @@ public class Configuration
     public List<String> getTestsToRun()
     {
         return testsToRun;
-    }
-    
-    /**
-     * 
-     * @return A list of the categories to run.  If the category does not appear in this list, and the list is not empty, then any test not in one of these categories will not be run.
-     */
-    public List<String> getCategoriesToRun()
-    {
-        return categoriesToRun;
     }
     
     /**

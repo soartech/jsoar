@@ -9,10 +9,6 @@ import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -37,17 +33,15 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, Directory, Recursive, Configuration, Test, output, warmup, category, jsoar, soar, uniqueJVMs, decisions
+        help, Configuration, Test, output, warmup, jsoar, soar, uniqueJVMs, decisions, run
     };
 
     private final PrintWriter out;
 
     private CSoarTestFactory csoarTestFactory;
-    private final List<TestCategory> csoarTestCategories;
     private final List<Test> csoarTests;
 
     private JSoarTestFactory jsoarTestFactory;
-    private final List<TestCategory> jsoarTestCategories;
     private final List<Test> jsoarTests;
 
     private Long seed = 123456789L;
@@ -56,17 +50,17 @@ public class PerformanceTesting
     private int warmUpCount = 10;
     private int defaultDecisionCycles = 0;
 
-    private boolean jsoarEnabled = true;
+    private boolean jsoarEnabled = false;
     private boolean csoarEnabled = false;
     
-    private List<String> categoriesToRun;
     private List<String> testsToRun;
     
     private String csvDirectory = "";
-    
-    private String testCategory = "";
-    
+    private String csoarDirectory = "";
+        
     private boolean runTestsInSeparateJVMs = true;
+    
+    private int runNumber = 1;
 
     private static final int NON_EXIT = 1024;
     private static final int EXIT_SUCCESS = 0;
@@ -100,16 +94,12 @@ public class PerformanceTesting
     {
         this.out = out;
 
-        this.jsoarTestCategories = new ArrayList<TestCategory>();
         this.jsoarTests = new ArrayList<Test>();
 
-        this.csoarTestCategories = new ArrayList<TestCategory>();
         this.csoarTests = new ArrayList<Test>();
 
         this.jsoarTestFactory = new JSoarTestFactory();
         this.csoarTestFactory = new CSoarTestFactory();
-
-        this.jsoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
     }
 
     /**
@@ -122,16 +112,16 @@ public class PerformanceTesting
                     "\n" +
                     "Options:\n" +
                     "   -h, --help              This message.\n" +
-                    "   -D, --directory         Load all tests (.soar files) from this directory recursively.\n" +
                     "   -C, --configuration     Load a configuration file to use for testing.\n" +
                     "   -T, --test              Manually specify a test to load.\n" +
                     "   -o, --output            The directory for all the CSV test results.\n" +
                     "   -w, --warmup            Specify the number of warm up runs for JSoar.\n" +
                     "   -c, --category              Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
-                    "   -s, --soar              Run the tests in CSoar.\n" +
+                    "   -s, --soar              Run the tests in CSoar specifying the directory as well.\n" +
                     "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not." +
                     "   -d, --decisions         Run the tests specified number of decisions." +
+                    "   -r, --run               The run number." +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
@@ -192,7 +182,6 @@ public class PerformanceTesting
             jsoarEnabled = true;
         }
         
-        categoriesToRun = config.getCategoriesToRun();
         testsToRun = config.getTestsToRun();
 
         String csoarDirectory = config.getCSoarDirectory();
@@ -202,8 +191,7 @@ public class PerformanceTesting
 
         csoarTestFactory.setLabel(csoarLabel);
         csoarTestFactory.setCSoarDirectory(csoarDirectory);
-
-        this.csoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
+        this.csoarDirectory = csoarDirectory;
 
         SortedSet<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
 
@@ -212,36 +200,14 @@ public class PerformanceTesting
         {
             if (jsoarEnabled)
             {
-                TestCategory jsoarCategory = TestCategory.getTestCategory(test.getTestCategory(), jsoarTestCategories);
-
-                if (jsoarCategory == null)
-                {
-                    jsoarCategory = new TestCategory(test.getTestCategory(), new ArrayList<Test>());
-
-                    jsoarTestCategories.add(jsoarCategory);
-                }
-
                 Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
                 jsoarTests.add(jsoarTest);
-
-                jsoarCategory.addTest(jsoarTest);
             }
 
             if (csoarEnabled)
             {
-                TestCategory csoarCategory = TestCategory.getTestCategory(test.getTestCategory(), csoarTestCategories);
-
-                if (csoarCategory == null)
-                {
-                    csoarCategory = new TestCategory(test.getTestCategory(), new ArrayList<Test>());
-
-                    csoarTestCategories.add(csoarCategory);
-                }
-
                 Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
                 csoarTests.add(csoarTest);
-
-                csoarCategory.addTest(csoarTest);
             }
         }
         
@@ -253,17 +219,15 @@ public class PerformanceTesting
     	//This is the same options processor for JSoar and so has the same limitations.
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
         options.newOption(Options.help)
-               .newOption(Options.Directory).requiredArg()
-               .newOption(Options.Recursive)
                .newOption(Options.Configuration).requiredArg()
                .newOption(Options.Test).requiredArg()
                .newOption(Options.jsoar)
-               .newOption(Options.category).requiredArg()
                .newOption(Options.output).requiredArg()
-               .newOption(Options.soar)
+               .newOption(Options.soar).requiredArg()
                .newOption(Options.warmup).requiredArg()
                .newOption(Options.uniqueJVMs).requiredArg()
                .newOption(Options.decisions).requiredArg()
+               .newOption(Options.run).requiredArg()
                .done();
 
         try
@@ -283,6 +247,12 @@ public class PerformanceTesting
             return EXIT_SUCCESS;
         }
         
+        if (options.has(Options.Configuration))
+        {
+            parseConfiguration(options);
+            return NON_EXIT;
+        }
+        
         if (options.has(Options.output))
         {
             csvDirectory = options.get(Options.output);
@@ -293,18 +263,6 @@ public class PerformanceTesting
             warmUpCount = Integer.parseInt(options.get(Options.warmup));
         }
         
-        if (options.has(Options.category))
-        {
-            testCategory = options.get(Options.category);
-            
-            jsoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
-            csoarTestCategories.add(new TestCategory(testCategory, new ArrayList<Test>()));
-        }
-        else
-        {
-            testCategory = "Uncategorized Tests";
-        }
-        
         if (options.has(Options.jsoar))
         {
             jsoarEnabled = true;
@@ -313,66 +271,14 @@ public class PerformanceTesting
         if (options.has(Options.soar))
         {
             csoarEnabled = true;
+            
+            csoarTestFactory.setCSoarDirectory(options.get(Options.soar));
+            csoarDirectory = options.get(Options.soar);
         }
         
         if (options.has(Options.decisions))
         {
             defaultDecisionCycles = Integer.parseInt(options.get(Options.decisions));
-        }
-
-        //This will load all tests from a directory into the uncategorized tests category.
-        if (options.has(Options.Directory))
-        {
-            String directory = options.get(Options.Directory);
-
-            Path directoryPath = FileSystems.getDefault().getPath(directory);
-            DirectoryStream<Path> stream;
-
-            try
-            {
-                stream = Files.newDirectoryStream(directoryPath);
-            }
-            catch (IOException e)
-            {
-                out.println("Failed to create new directory stream: " + e.getMessage());
-                return EXIT_FAILURE;
-            }
-
-            for (Path path : stream)
-            {
-                String testName = path.getFileName().toString();
-
-                if (!testName.endsWith(".soar"))
-                    continue;
-
-                testName = new File(testName).getName();
-
-                if (jsoarEnabled)
-                {
-                    Test jsoarTest = jsoarTestFactory.createTest(testName, path.toString(), 0);
-                    jsoarTests.add(jsoarTest);
-
-                    TestCategory.getTestCategory(testCategory, jsoarTestCategories).addTest(jsoarTest);
-                }
-
-                if (csoarEnabled)
-                {
-                    Test csoarTest = csoarTestFactory.createTest(testName, path.toString(), 0);
-                    csoarTests.add(csoarTest);
-
-                    TestCategory.getTestCategory(testCategory, csoarTestCategories).addTest(csoarTest);
-                }
-            }
-
-            try
-            {
-                stream.close();
-            }
-            catch (IOException e)
-            {
-                out.println("Failed to close directory stream: " + e.getMessage());
-                return EXIT_FAILURE;
-            }
         }
 
         // This will load an individual test into the uncategorized tests category, only really useful
@@ -393,27 +299,18 @@ public class PerformanceTesting
             {
                 Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
                 jsoarTests.add(jsoarTest);
-
-                TestCategory.getTestCategory(testCategory, jsoarTestCategories).addTest(jsoarTest);
             }
 
             if (csoarEnabled)
             {
                 Test csoarTest = csoarTestFactory.createTest(testName, testPath, defaultDecisionCycles);
                 csoarTests.add(csoarTest);
-
-                TestCategory.getTestCategory(testCategory, csoarTestCategories).addTest(csoarTest);
             }
         }
         
         if (options.has(Options.uniqueJVMs))
         {
             runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.uniqueJVMs));
-        }
-        
-        if (options.has(Options.Configuration))
-        {
-            parseConfiguration(options);
         }
         
         return NON_EXIT;
@@ -425,29 +322,9 @@ public class PerformanceTesting
      * @param testCategories All the test categories
      * @return Whether running the tests was successful or not
      */
-    private int runTests(List<TestRunner> testRunners, List<TestCategory> testCategories)
+    private int runTests(List<TestRunner> testRunners)
     {
-    	for (int i = 0; i < testCategories.size(); i++)
-        {
-            // So because these category lists SHOULD be identical (if you're
-            // running
-            // both JSoar and CSoar), I can get away with doing this only for
-            // one of the categories. If there is an issue this will show me
-            // that bug anyways
-            // - ALT
-
-            TestCategory category = testCategories.get(i);
-            
-            if (categoriesToRun != null && categoriesToRun.size() != 0)
-            {
-                if (categoriesToRun.contains(category.getCategoryName()) == false)
-                    continue;
-            }
-
-            out.println("Starting " + category.getCategoryName() + ": \n");
-            out.flush();
-
-            List<Test> tests = null;
+    	List<Test> tests = null;
 
             if (jsoarEnabled)
                 tests = jsoarTests;
@@ -456,17 +333,11 @@ public class PerformanceTesting
 
             for (int j = 0; j < tests.size(); j++)
             {
-                // Same thing as the above comment
-                // - ALT
-                
                 if (testsToRun != null && testsToRun.size() != 0)
                 {
                     if (testsToRun.contains(tests.get(j).getTestName()) == false)
                         continue;
                 }
-                
-                if (category.containsTest(tests.get(j)) == false)
-                        continue;
 
                 out.println("Starting Test: " + tests.get(j).getTestName());
                 out.flush();
@@ -620,7 +491,6 @@ public class PerformanceTesting
                 
                 out.print("\n");
             }
-        }
     	
     	return NON_EXIT;
     }
@@ -744,46 +614,24 @@ public class PerformanceTesting
         out.flush();
         
         List<Test> tests = null;
-        List<TestCategory> testCategories = null;
         
         if (jsoarEnabled)
         {
             tests = jsoarTests;
-            testCategories = jsoarTestCategories;
         }
         else
         {
             tests = csoarTests;
-            testCategories = csoarTestCategories;
         }
         
         if (tests.size() > 1 && runTestsInSeparateJVMs)
         {
-            return runTestsInChildrenJVMs(tests, testCategories);
+            return runTestsInChildrenJVMs(tests);
         }
         else
         {
-            return runTestsWithoutChildJVMs(tests, testCategories);
+            return runTestsWithoutChildJVMs(tests);
         }
-    }
-
-    /**
-     * 
-     * @param test The test to use for checking
-     * @param testCategories The categories to check against
-     * @return The category of the test.  Will return "Uncategorized Tests" if it didn't find any category.
-     */
-    private static String getTestCategoryForTest(Test test, List<TestCategory> testCategories)
-    {
-        for (TestCategory category : testCategories)
-        {
-            if (category.containsTest(test))
-            {
-                return category.getCategoryName();
-            }
-        }
-        
-        return "Uncategorized Tests";
     }
     
     /**
@@ -792,11 +640,11 @@ public class PerformanceTesting
      * @param testCategories All the categories for tests
      * @return Whether running the tests without child JVMs was successful or not
      */
-    private int runTestsWithoutChildJVMs(List<Test> tests, List<TestCategory> testCategories)
+    private int runTestsWithoutChildJVMs(List<Test> tests)
     {
         List<TestRunner> testRunners = new ArrayList<TestRunner>();
 
-        int runTestsResult = runTests(testRunners, testCategories);
+        int runTestsResult = runTests(testRunners);
         
         if (runTestsResult != NON_EXIT)
         {
@@ -821,58 +669,21 @@ public class PerformanceTesting
      * @param testCategories The categories of all the tests
      * @return Whether running the tests in child JVMs was successful
      */
-    private int runTestsInChildrenJVMs(List<Test> tests, List<TestCategory> testCategories)
+    private int runTestsInChildrenJVMs(List<Test> tests)
     {
-     // Since we have more than one test to run, spawn a separate JVM for each run.
-        if (categoriesToRun == null)
-        {
-            categoriesToRun = new ArrayList<String>();
-        }
-        
+        // Since we have more than one test to run, spawn a separate JVM for each run.
         if (testsToRun == null)
         {
             testsToRun = new ArrayList<String>();
         }
         
-        if (categoriesToRun.size() == 0 &&
-            testsToRun.size() == 0)
-        {
-            for (TestCategory category : testCategories)
+         for (int j = 0; j < tests.size(); j++)
             {
-                categoriesToRun.add(category.getCategoryName());
-            }
-        }
-        
-        for (int i = 0; i < testCategories.size(); i++)
-        {
-            // So because these category lists SHOULD be identical (if you're
-            // running
-            // both JSoar and CSoar), I can get away with doing this only for
-            // one of the categories. If there is an issue this will show me
-            // that bug anyways
-            // - ALT
-
-            TestCategory category = testCategories.get(i);
-            
-            if (categoriesToRun != null && categoriesToRun.size() != 0)
-            {
-                if (categoriesToRun.contains(category.getCategoryName()) == false)
-                    continue;
-            }
-
-            for (int j = 0; j < tests.size(); j++)
-            {
-                // Same thing as the above comment
-                // - ALT
-                
                 if (testsToRun != null && testsToRun.size() != 0)
                 {
                     if (testsToRun.contains(tests.get(j).getTestName()) == false)
                         continue;
                 }
-                
-                if (category.containsTest(tests.get(j)) == false)
-                        continue;
                 
                 if (jsoarEnabled)
                 {
@@ -888,7 +699,6 @@ public class PerformanceTesting
                     spawnChildJVMForTest(test, false);
                 }
             }
-        }                    
         
         out.println("Performance Testing - Done");
         
@@ -990,11 +800,13 @@ public class PerformanceTesting
         arguments.add(test.getTestFile());
         arguments.add("--output");
         arguments.add(csvDirectory);
-        arguments.add("--category");
-        arguments.add("\"" + PerformanceTesting.getTestCategoryForTest(test, (jsoar ? jsoarTestCategories : csoarTestCategories)) + "\"");
         arguments.add("--warmup");
         arguments.add(new Integer(warmUpCount).toString());
         arguments.add("--" + (jsoar ? "j" : "") + "soar");
+        if (!jsoar)
+        {
+            arguments.add(csoarDirectory);
+        }
         arguments.add("--decisions");
         arguments.add(new Integer(test.getDecisionCyclesToRun()).toString());
         
