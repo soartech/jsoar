@@ -6,7 +6,6 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.learning.rl.ReinforcementLearningCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 
@@ -31,7 +30,6 @@ public class StandardCommands
         interp.addCommand("multi-attributes", new MultiAttrCommand(agent));
         interp.addCommand("stats", new StatsCommand(agent));
         interp.addCommand("learn", new LearnCommand(agent));
-        interp.addCommand("rl", new ReinforcementLearningCommand(agent));
         interp.addCommand("srand", new SrandCommand(agent));
         interp.addCommand("max-elaborations", new MaxElaborationsCommand(agent));
         interp.addCommand("matches", new MatchesCommand(agent));

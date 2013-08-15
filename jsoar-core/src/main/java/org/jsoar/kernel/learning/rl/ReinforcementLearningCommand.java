@@ -6,8 +6,12 @@ package org.jsoar.kernel.learning.rl;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.util.adaptables.Adaptable;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
@@ -20,9 +24,25 @@ public final class ReinforcementLearningCommand implements SoarCommand
 {
     private final Agent agent;
 
-    public ReinforcementLearningCommand(Agent agent)
+    public static class Provider implements SoarCommandProvider
     {
-        this.agent = agent;
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.
+         * jsoar.util.commands.SoarCommandInterpreter)
+         */
+        @Override
+        public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
+        {
+            interp.addCommand("rl", new ReinforcementLearningCommand(context));
+        }
+    }
+
+    public ReinforcementLearningCommand(Adaptable context)
+    {
+        this.agent = Adaptables.require(getClass(), context, Agent.class);
     }
 
     @Override
