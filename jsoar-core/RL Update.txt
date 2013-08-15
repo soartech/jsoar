@@ -1,0 +1,946 @@
+These notes cover a number of changed made to update the RL portion of JSoar.
+
+Created by Peter Lindes, 13 August 2013
+
+Issues addressed here: rlcommand, r12380
+
+#####################################################################################
+rlcommand
+
+Reported by project member @marinier, Jun 8, 2010
+
+The rl command current only supports turning rl on or off (it fails silently for everything else). The RL code should be switched over to the soar module implementation, and then the command should be fully implemented. If this is hard, at least enough to adjust the learning and discount rate parameters should be included.
+
+PL 8/13/2013
+
+As of today there is no simple rl command in JSoar.
+Typing this command gives the following message:
+Not implemented yet. Use 'properties' command.
+The command does work for setting parameters.
+
+Using the properties command, which does not exist in CSoar gives a long list of properties.
+Of these, the following are relevant to rl:
+
+              rl.discount-rate = 0.5
+rl.eligibility-trace-decay-rate = 0.0
+rl.eligibility-trace-tolerance = 0.001
+               rl.hrl-discount = true
+                   rl.learning = true
+            rl.learning-policy = SARSA
+              rl.learning-rate = 0.1
+          rl.temporal-discount = true
+         rl.temporal-extension = true
+
+The list given in today's CSoar looks like this:
+NEEDED	to make the format look like CSoar???
+
+rl
+
+Soar-RL learning: on
+temporal-extension: on
+
+Discount
+--------
+discount-rate: 0.5
+
+Learning
+--------
+learning-policy: sarsa
+learning-rate: 0.1
+hrl-discount: off
+
+Eligibility Traces
+------------------
+eligibility-trace-decay-rate: 0
+eligibility-trace-tolerance: 0.001
+
+Experimental
+------------
+chunk-stop: on
+decay-mode: normal
+meta: off
+meta-learning-rate: 0.1
+update-log-path: 
+
+apoptosis: none
+apoptosis-decay: 0.5
+apoptosis-thresh: -2
+
+trace: off
+
+There are several differences, aside from the JSoar names being preceded by "rl.":
+
+hrl-discount is set to true in JSoar, off in CSoar.
+NEEDED
+
+JSoar has one parameter not in CSoar:	rl.temporal-discount = true
+NEEDED	???
+
+CSoar has a few not in JSoar, namely all the "experimental" ones:
+NEEDED
+
+chunk-stop: on
+decay-mode: normal
+meta: off
+meta-learning-rate: 0.1
+update-log-path: 
+
+apoptosis: none
+apoptosis-decay: 0.5
+apoptosis-thresh: -2
+
+trace: off
+
+Thus a proper implementation of the rl command in JSoar would mainly require implementing
+all the parameters marked as "experimental" in the CSoar listing.
+NEEDED
+
+Also, we should make just "rl" work as a command to print just the rl properties.
+NEEDED
+
+Also, we should check out the effect of making hrl-discount the same.
+PL 8/13/2013:
+DONE:	The unit tests were passing with hrl-discount=true.
+		Set hrl-discount=false and they failed.
+		Then changed the expected values in the unit test,
+		now they pass with hrl-discount=true.
+		However, found a new bug:
+		
+BUG:	No matter what I do, in either the debugger or the code, I can NOT
+		make hrl-discount get set back to true after it has been set to false.
+NEEDED
+
+
+#####################################################################################
+r12380
+
+Log Message
+
+experimental rl addition: prevents chunking new rl rules that are duplicates of
+existing rules with the exception of the value of the numeric indifferent
+preference value
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL
+
+... 
+ 89 89
+ 90 90         CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+ 91  91 
+     92 + 
+	 93 + 		CLI_DoRL_print( *this, m_RawOutput, m_Result, "Experimental" ); 
+	 94 +         CLI_DoRL_print( *this, m_RawOutput, m_Result, "------------" ); 
+	 95 + 
+	 96 + 		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+	 97 +             CLI_DoRL_generate_output( "chunk-stop: ", agnt->rl_params->chunk_stop->get_string() ) ); 
+	 98 +
+ 92 99         return true; 
+ 93 100     } 
+ 94 101     else if ( pOp == 'g' ) 
+ ... 
+
+ 
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cp:  in rl_param_container::rl_param_container
+
+... 
+ 80 80 	// temporal-discount 
+ 81 81 	temporal_discount = new soar_module::boolean_param( "temporal-discount", soar_module::on, new soar_module::f_predicate<soar_module::boolean>() ); 
+ 82 82 	add( temporal_discount ); 
+	83 + 
+	84 + 	// chunk-stop 
+	85 + 	chunk_stop = new soar_module::boolean_param( "chunk-stop", soar_module::off, new soar_module::f_predicate<soar_module::boolean>() ); 
+	86 + 	add( chunk_stop ); 
+ 83 87 }; 
+ 84 88 
+ 85 89 // 
+ ... 
+ 
+ 
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h: in  class rl_param_container:
+
+... 
+ 52 52 		soar_module::boolean_param *hrl_discount; 
+ 53 53 		soar_module::boolean_param *temporal_discount; 
+ 54 54 
+	55 + 		soar_module::boolean_param *chunk_stop; 
+	56 + 
+ 55 57  		rl_param_container( agent *new_agent ); 
+ 56 58  }; 
+ 57 59 
+ ... 
+
+ 
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:  in  add_production_to_rete
+
+
+... 
+ 3426 3426    for function calls).  This is used for finding duplicate productions. 
+ 3427 3427 --------------------------------------------------------------------- */ 
+ 3428 3428 
+ 3429	   - Bool same_rhs (action *rhs1, action *rhs2) { 
+	  3429 + Bool same_rhs (action *rhs1, action *rhs2, bool rl_chunk_stop) { 
+ 3430 3430     action *a1, *a2; 
+ 3431 3431 
+ 3432 3432   /* --- Scan through the two RHS's; make sure there's no function calls, 
+ ... 
+ 3446 3446     if (a1->attr != a2->attr) return FALSE; 
+ 3447 3447     if (a1->value != a2->value) return FALSE; 
+ 3448 3448     if (preference_is_binary(a1->preference_type)) 
+ 3449 	   -  	  if (a1->referent != a2->referent) return FALSE; 
+ 	  3449 +      if (a1->referent != a2->referent) 
+ 	  3450 +	 	  { 
+ 	  3451 +	 	    bool stop=true; 
+	  3452 +	 	    if (rl_chunk_stop) 
+	  3453 + 	 	    { 
+	  3454 +	 		  if ( rhs_value_is_symbol(a1->referent) && rhs_value_is_symbol(a2->referent) ) 
+	  3455 +	 		  { 
+	  3456 +	 		    Symbol* a1r = rhs_value_to_symbol(a1->referent); 
+	  3457 +	 			Symbol* a2r = rhs_value_to_symbol(a2->referent); 
+	  3458 +
+	  3459 +	 			if (((a1r->common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a1r->common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE)) && 
+	  3460 +	 				((a2r->common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a2r->common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE))) 
+	  3461 +	 			{ 
+	  3462 +	 				if (((a1==rhs1) && (!a1->next)) && ((a2==rhs2) && (!a2->next))) 
+	  3463 +      			    { 
+	  3464 +		 			    stop=false; 
+	  3465 +	 			    } 
+	  3466 +	 			} 
+	  3467 +	 		  } 
+	  3468 +	 	    } 
+	  3469 +	 	    if (stop) return FALSE; 
+	  3470 + 	 	  } 
+ 3450 3471	      a1 = a1->next; 
+ 3451 3472	      a2 = a2->next; 
+ 3452 3473	   } 
+ ... 
+ 3610 3631	 	for (p_node=bottom_node->first_child; p_node!=NIL; 
+ 3611 3632		 		p_node=p_node->next_sibling) { 
+ 3612 3633 			if (p_node->node_type != P_BNODE) continue; 
+ 3613 	   -		if ( !ignore_rhs && !same_rhs (p_node->b.p.prod->action_list, p->action_list)) continue; 
+	  3634 +		if ( !ignore_rhs && !same_rhs (p_node->b.p.prod->action_list, p->action_list, thisAgent->rl_params->chunk_stop->get_value()==soar_module::on)) continue; 
+ 3614 3635 			/* --- duplicate production found --- */ 
+ 3615 3636 			if (warn_on_duplicates) 
+ 3616 3637 			{ 
+ ... 
+  
+
+
+#####################################################################################
+r12630
+  
+Log message
+reward tabulation should not create reward/value slots if they do not exist
+
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+			in rl_tabulate_reward_value_for_goal
+
+... 
+ 566  566 
+ 567  567      if ( !data->prev_op_rl_rules->empty() ) 
+ 568  568      { 
+ 569       -      slot *s = make_slot( my_agent, goal->id.reward_header, my_agent->rl_sym_reward ); 
+      569  +      slot *s = find_slot( goal->id.reward_header, my_agent->rl_sym_reward ); 
+ 570  570         slot *t; 
+ 571  571         wme *w, *x; 
+ 572  572 
+ ... 
+ 579  579              { 
+ 580  580                  if ( w->value->common.symbol_type == IDENTIFIER_SYMBOL_TYPE ) 
+ 581  581                  { 
+ 582       -                   t = make_slot( my_agent, w->value, my_agent->rl_sym_value ); 
+      582  +                   t = find_slot( w->value, my_agent->rl_sym_value ); 
+ 583  583                      if ( t ) 
+ 584  584                      { 
+ 585  585                          for ( x=t->wmes; x; x=x->next ) 
+ ... 
+  
+
+
+#####################################################################################
+r12639
+
+Log: added automated RL unit test
+http://code.google.com/p/soar/source/detail?r=12639
+
+Comment 3 by project member @marinier, May 31, 2011
+
+High priority because we really should make sure RL is working properly
+Note that there is already an RL unit test in jsoar,
+so maybe it's sufficient to update it.
+But it may not be as extensive as this test.
+
+
+Modify /trunk/SoarSuite/PHP/SConscript 
+
+... 
+ 7  7
+ 8  8     Import('compEnv') 
+ 9  9     compEnv.Install('$PREFIX/bin', 'soar_php_cli.php') 
+	10 +  compEnv.Install('$PREFIX/bin', 'test_rl.php') 
+
+Add /trunk/SoarSuite/PHP/test_rl.php 
+	Go to that file to see it, 206 lines
+	It looks somewhat similar to what we have
+	
+NEEDED	Go over this test and make sure ours is equivalent,
+		or at least adequate.
+		It looks pretty similar, but the numbers are different.
+
+
+
+#####################################################################################
+r12639
+
+Log: Fixes issue 98
+ Still need to fix agents and documentation to handle changes.
+
+
+NEEDED	Make all the changes below to the JSoar code
+		This changes the default values of the hrl-discount
+		and chunk_stop parameters, and removes some related code.
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp:  in create_soar_agent
+
+... 
+ 329  329 
+ 330  330    rl_initialize_template_tracking( newAgent ); 
+ 331  331 
+ 332      -  newAgent->rl_first_switch = true; 
+ 333      - 
+ 334      - 
+ 335  332    // select initialization 
+ 336  333    newAgent->select = new select_info; 
+ 337  334    select_init( newAgent ); 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h 
+
+... 
+ 853  853    rl_production_memory *rl_prods; 
+ 854  854 
+ 855  855    int rl_template_count; 
+ 856      -  bool rl_first_switch; 
+ 857  856 
+ 858  857    // select 
+ 859  858    select_info *select; 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+				in rl_param_container, rl_reset_data
+
+... 
+ 82  82  	add( temporal_extension ); 
+ 83  83 
+ 84  84  	// hrl-discount 
+ 85     -  	hrl_discount = new soar_module::boolean_param( "hrl-discount", soar_module::on, new soar_module::f_predicate<soar_module::boolean>() ); 
+	 85 +  	hrl_discount = new soar_module::boolean_param( "hrl-discount", soar_module::off, new soar_module::f_predicate<soar_module::boolean>() ); 
+ 86  86  	add( hrl_discount ); 
+ 87  87 
+ 88  88  	// temporal-discount 
+ 89  89  	temporal_discount = new soar_module::boolean_param( "temporal-discount", soar_module::on, new soar_module::f_predicate<soar_module::boolean>() ); 
+ 90  90  	add( temporal_discount ); 
+ 91  91 
+ 92  92  	// chunk-stop 
+ 93     -  	chunk_stop = new soar_module::boolean_param( "chunk-stop", soar_module::off, new soar_module::f_predicate<soar_module::boolean>() ); 
+     93 +  	chunk_stop = new soar_module::boolean_param( "chunk-stop", soar_module::on, new soar_module::f_predicate<soar_module::boolean>() ); 
+ 94  94  	add( chunk_stop ); 
+ 95  95 
+ 96  96  	// meta 
+ ... 
+ 123  123  { 
+ 124  124  	if ( new_value != value ) 
+ 125  125  	{ 
+ 126      -  		if ( ( new_value == soar_module::on ) && ( my_agent->rl_first_switch ) ) 
+ 127      -  		{ 
+ 128      -  			my_agent->rl_first_switch = false; 
+ 129      -  			exploration_set_policy( my_agent, USER_SELECT_E_GREEDY ); 
+ 130      - 
+ 131      -  			const char *msg = "Exploration Mode changed to epsilon-greedy"; 
+ 132      -  			print( my_agent, const_cast<char *>( msg ) ); 
+ 133      -   			xml_generate_message( my_agent, const_cast<char *>( msg ) ); 
+ 134      -  		} 
+ 135      -  		else if ( new_value == soar_module::off ) 
+	  126 +  		if ( new_value == soar_module::off ) 
+ 136  127    		{ 
+ 137  128   			rl_reset_data( my_agent );
+ 138  129   		} 
+ ... 
+ 
+
+
+#####################################################################################
+r13404
+
+Log message
+Added delta-bar-delta decay mode to RL; added update-log-path to RL
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp:  in do_print_for_production
+... 
+ 86  86 
+ 87  87          if ( prod->rl_rule ) 
+ 88  88          { 
+     89 +              // Do extra logging if this agent is in delta bar delta mode. 
+     90 +              if (thisAgent->rl_params->decay_mode->get_value() == rl_param_container::delta_bar_delta_decay) { 
+     91 +                  print_with_symbols( thisAgent, " %y", make_float_constant( thisAgent, prod->rl_delta_bar_delta_beta ) ); 
+     92 +                  print_with_symbols( thisAgent, " %y", make_float_constant( thisAgent, prod->rl_delta_bar_delta_h ) ); 
+     93 +              } 
+ 89  94              print_with_symbols( thisAgent, " %y", make_float_constant( thisAgent, prod->rl_update_count ) ); 
+ 90  95              print_with_symbols( thisAgent, " %y", rhs_value_to_symbol( prod->action_list->referent ) ); 
+ 91  96          } 
+ ... 
+
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+... 
+ 104  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+ 105  105              CLI_DoRL_generate_output( "meta: ", agnt->rl_params->meta->get_string() ) ); 
+ 106  106 
+      107 +      CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      108 +            CLI_DoRL_generate_output( "meta-learning-rate: ", agnt->rl_params->meta_learning_rate->get_string() ) ); 
+      109 + 
+      110 +      CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      111 +            CLI_DoRL_generate_output( "update-log-path: ", agnt->rl_params->update_log_path->get_string() ) ); 
+      112 + 
+ 107  113  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+ 108  114 
+ 109  115  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+ ... 
+
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in make_production
+ ... 
+ 1626  1626    p->interrupt = FALSE; 
+ 1627  1627 
+ 1628  1628    // Soar-RL stuff 
+       1629 +  p->rl_update_count = 0.0; 
+       1630 +  p->rl_delta_bar_delta_beta = -3.0; 
+       1631 +  p->rl_delta_bar_delta_h = 0.0; 
+ 1629  1632    p->rl_rule = false; 
+ 1630  1633    p->rl_update_count = 0; 
+ 1631  1634    p->rl_ref_count = 0; 
+ ... 
+
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.h:  in production_struct
+ ... 
+ 117  117    double rl_update_count;		/* number of (potentially fractional) updates to this rule */ 
+ 118  118    unsigned int rl_ref_count;    /* number of states referencing this rule in prev_op_rl_rules list */ 
+ 119  119 
+      120 +  // Per-input memory parameters for delta bar delta algorithm 
+      121 +  double rl_delta_bar_delta_beta; 
+      122 +  double rl_delta_bar_delta_h; 
+      123 + 
+ 120  124    double rl_ecr;				// expected current reward (discounted reward) 
+ 121  125    double rl_efr;				// expected future reward (discounted next state) 
+ 122  126 
+ ... 
+
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		add &rl_param_container::get_documentation_params()
+		in soar_module::param_container, rl_valid_rule, rl_perform_update
+See web page for details, there's a lot here
+
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+		add three classes: param_accessor, rl_updates_accessor, rl_dbd_h_accessor
+		change some fields in rl_param_container
+See web page for details, there's a lot here
+
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:
+		in reteload_node_and_children case P_BNODE
+ ... 
+ 7474  7474      thisAgent->num_productions_of_type[prod->type]++; 
+ 7475  7475 
+ 7476  7476      // Soar-RL stuff 
+       7477 +    prod->rl_update_count = 0.0; 
+       7478 +    prod->rl_delta_bar_delta_beta = -3.0; 
+       7479 +    prod->rl_delta_bar_delta_h = 0.0; 
+ 7477  7480    	 prod->rl_update_count = 0; 
+ 7478  7481      prod->rl_rule = false; 
+ 7479  7482      prod->rl_ecr = 0.0; 
+ ... 
+ 
+
+
+#####################################################################################
+r13014
+
+Log: Commit for Miller: adds an experimental RL parameter that dynamically
+adjusts the learning rate for each RL rule based upon update count
+BobM note: checking with UM on this commit, since it sounds like
+it may only have been used for some experiment.
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+... 
+ 98  98 		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+ 99  99              CLI_DoRL_generate_output( "chunk-stop: ", agnt->rl_params->chunk_stop->get_string() ) ); 
+ 100  100 
+      101 +      CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      102 +          CLI_DoRL_generate_output( "decay-mode: ", agnt->rl_params->decay_mode->get_string() ) ); 
+      103 + 
+ 101  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+ 102  105 
+ 103  106        return true; 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		in rl_param_container, rl_perform_update
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+		add enum decay_choices, decay_mode param
+... 
+ 42  42  	public: 
+ 43  43  		enum learning_choices { sarsa, q }; 
+ 44  44 
+     45 +   // How the learning rate cools over time. 
+     46 +   // normal_decay: default, same learning rate for each rule 
+     47 +   // exponential_decay: rate = rate / # updates for this rule 
+     48 +   // logarithmic_decay: rate = rate / log(# updates for this rule) 
+     49 +   // Miller, 11/14/2011 
+     50 +   enum decay_choices { normal_decay, exponential_decay, logarithmic_decay }; 
+     51 + 
+ 45  52  		rl_learning_param *learning; 
+ 46  53  		soar_module::decimal_param *discount_rate; 
+ 47  54  		soar_module::decimal_param *learning_rate; 
+ 48  55  		soar_module::constant_param<learning_choices> *learning_policy; 
+     56 +  		soar_module::constant_param<decay_choices> *decay_mode; 
+ 49  57  		soar_module::decimal_param *et_decay_rate; 
+ 50  58  		soar_module::decimal_param *et_tolerance; 
+ 51  59  		soar_module::boolean_param *temporal_extension; 
+ ... 
+
+ 
+
+#####################################################################################
+r13015
+
+Log: experimental RL parameter (meta): reads/writes meta-data from/to production
+documentation string (off by default). currently will overwrite any previous
+documentation and the parsing isn't robust at all.
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+... 
+ 101  101           CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+ 102  102              CLI_DoRL_generate_output( "decay-mode: ", agnt->rl_params->decay_mode->get_string() ) ); 
+ 103  103 
+      104 +  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      105 +              CLI_DoRL_generate_output( "meta: ", agnt->rl_params->meta->get_string() ) ); 
+      106 + 
+ 104  107  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+ 105  108 
+ 106  109          return true; 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/parser.cpp: in parse_production
+... 
+ 2042  2042      excise_production (thisAgent, p, FALSE); 
+ 2043  2043      p = NIL; 
+ 2044  2044    } 
+       2045 + 
+       2046 +  if ( p->rl_rule && p->documentation ) 
+       2047 +  { 
+       2048 + 	  rl_rule_meta( thisAgent, p ); 
+       2049 +  } 
+ 2045  2050 
+ 2046  2051    return p; 
+ 2047  2052  } 
+... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		in rl_param_container, rl_valid_rule, rl_perform_update
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+		in class rl_param_container new param, later new extern void rl_rule_meta
+... 
+ 61  61  		soar_module::boolean_param *temporal_discount; 
+ 62  62 
+ 63  63  		soar_module::boolean_param *chunk_stop; 
+     64 +  		soar_module::boolean_param *meta; 
+ 64  65 
+ 65  66  		rl_param_container( agent *new_agent ); 
+ 66  67  }; 
+ ... 
+ 151  152  // validate rl rule 
+ 152  153  extern bool rl_valid_rule( production *prod ); 
+ 153  154 
+      155 +// sets rl meta-data from a production documentation string 
+      156 +extern void rl_rule_meta( agent* my_agent, production* prod ); 
+      157 + 
+ 154  158  // template instantiation 
+ 155  159  extern int rl_get_template_id( const char *prod_name ); 
+ 156  160 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:
+		in reteload_node_and_children case P_BNODE
+ ... 
+ 7484 7484  	  if ( prod->rl_rule ) 
+ 7485  7485  	  { 
+ 7486  7486  	    prod->rl_efr = get_number_from_symbol( rhs_value_to_symbol( prod->action_list->referent ) ); 
+       7487 + 
+       7488 +  		if ( prod->documentation ) 
+       7489 +  		{ 
+       7490 +  		  rl_rule_meta( thisAgent, prod ); 
+       7491 +  		} 
+ 7487  7492  	  } 
+ 7488  7493  	} 
+ 7489  7494  	prod->rl_template_conds = NIL; 
+ ... 
+ 
+  
+
+#################   APOPTOSIS   #####################################################
+
+#####################################################################################
+r13019
+
+Log: first stab at procedural apoptosis - excising chunks that are not "useful"
+(i.e. fire regularly). for RL rules, we not only know the history of rule firings,
+but how many times it was updated, and hence can use this as as additional factor
+in the decision. as currently implemented, if an RL chunk has sufficient updates
+(thresholded by the Nerve Growth Factor [NGF] parameter), it will not be excised,
+nor considered for future apoptosis. 
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+... 
+ 104  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+ 105  105              CLI_DoRL_generate_output( "meta: ", agnt->rl_params->meta->get_string() ) ); 
+ 106  106 
+      107 +  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+      108 + 
+      109 +  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      110 +              CLI_DoRL_generate_output( "apoptosis: ", agnt->rl_params->apoptosis->get_string() ) ); 
+      111 + 
+      112 +  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      113 +              CLI_DoRL_generate_output( "apoptosis-decay: ", agnt->rl_params->apoptosis_decay->get_string() ) ); 
+      114 + 
+      115 +  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      116 +              CLI_DoRL_generate_output( "apoptosis-thresh: ", agnt->rl_params->apoptosis_thresh->get_string() ) ); 
+      117 + 
+      118 +  		  CLI_DoRL_print( *this, m_RawOutput, m_Result, 
+      119 +              CLI_DoRL_generate_output( "ngf-thresh: ", agnt->rl_params->ngf_thresh->get_string() ) ); 
+      120 + 
+ 107  121  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, "" ); 
+ 108  122 
+ 109  123          return true; 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp:
+		in create_soar_agent, destroy_soar_agent  
+... 
+ 325  325    // rl initialization 
+ 326  326    newAgent->rl_params = new rl_param_container( newAgent ); 
+ 327  327    newAgent->rl_stats = new rl_stat_container( newAgent ); 
+      328 +  newAgent->rl_prods = new rl_production_memory(); 
+ 328  329 
+ 329  330    rl_initialize_template_tracking( newAgent ); 
+ 330  331 
+ ... 
+ 439  440   delete delete_agent->exploration_params[ i ]; 
+ 440  441 
+ 441  442   // cleanup Soar-RL 
+      443 + delete_agent->rl_params->apoptosis->set_value( rl_param_container::apoptosis_none ); 
+      444 + delete delete_agent->rl_prods; 
+ 442  445   delete delete_agent->rl_params; 
+ 443  446   delete delete_agent->rl_stats; 
+      447 + delete_agent->rl_params = NULL; // apoptosis needs to know this for excise_all_productions below 
+ 444  448 
+ 445  449   // cleanup select 
+ 446  450   select_init( delete_agent ); 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h:
+		in agent_struct, under // reinforcement learning
+... 
+ 851  851    // reinforcement learning 
+ 852  852    rl_param_container *rl_params; 
+ 853  853    rl_stat_container *rl_stats; 
+      854 +  rl_production_memory *rl_prods; 
+ 854  855 
+ 855  856    int rl_template_count; 
+ 856  857    bool rl_first_switch; 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp:
+		in reinitialize_soar, do_one_top_level_phase case OUTPUT_PHASE under // RL apoptosis
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in deallocate_production 
+... 
+ 1671  1671    if (prod->trace_firings) remove_pwatch (thisAgent, prod); 
+ 1672  1672    remove_from_dll (thisAgent->all_productions_of_type[prod->type], prod, next, prev); 
+ 1673  1673 
+       1674 +  if ( ( prod->type == CHUNK_PRODUCTION_TYPE ) && ( thisAgent->rl_params ) && ( thisAgent->rl_params->apoptosis->get_value() != rl_param_container::apoptosis_none ) ) 
+       1675 +  	  thisAgent->rl_prods->remove_object( prod ); 
+       1676 + 
+ 1674  1677    // Remove RL-related pointers to this production (unnecessary if rule never fired). 
+ 1675  1678    if ( prod->rl_rule && prod->firing_count ) 
+ 1676  1679  	  rl_remove_refs_for_prod( thisAgent, prod ); 
+ ...  
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp:  in create_instantiation
+... 
+ 679  679  		if ( prod->type != TEMPLATE_PRODUCTION_TYPE ) 
+ 680  680  		{ 
+ 681  681  			pref = execute_action (thisAgent, a, tok, w); 
+      682 + 
+      683 + 		if ( prod->type == CHUNK_PRODUCTION_TYPE ) 
+      684 + 		{ 
+      685 + 			rl_param_container::apoptosis_choices apoptosis = thisAgent->rl_params->apoptosis->get_value(); 
+      686 + 			if ( ( apoptosis == rl_param_container::apoptosis_chunks ) || 
+      687 + 				 ( ( apoptosis == rl_param_container::apoptosis_rl ) && ( prod->rl_rule ) ) ) 
+      688 + 			{ 
+      689 + 				if ( !prod->rl_rule || ( static_cast<int64_t>( prod->rl_update_count ) < thisAgent->rl_params->ngf_thresh->get_value() ) ) 
+      690 + 				{ 
+      691 + 					thisAgent->rl_prods->reference_object( prod, 1 ); 
+      692 + 				} 
+      693 + 			} 
+      694 + 		} 
+ 682  695  		} 
+ 683  696  		else 
+ 684  697  		{ 
+ ... 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		in rl_param_container add // apoptosis section, rl_learning_param
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h
+		add classes rl_apoptosis_param, rl_apoptosis_thresh_param, rl_apoptosis_predicate
+			(code for these farther down)
+		add enum apoptosis_choices,
+		add params apoptosis, apoptosis_decay, apoptosis_thresh, ngf_thresh
+		add typedef rl_production_memory under // used to manage apoptosis
+See web page for details, there's a lot here
+
+
+
+#####################################################################################
+r13023
+
+Log: chunked RL rules will not have a firing count initially,
+which can be problematic with apoptosis
+(The code change removes the requirement for that count)
+
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in make_production
+... 
+ 1675  1675  	  thisAgent->rl_prods->remove_object( prod ); 
+ 1676  1676 
+ 1677  1677    // Remove RL-related pointers to this production (unnecessary if rule never fired). 
+       1678 -  if ( prod->rl_rule && prod->firing_count ) 
+       1678 +  if ( prod->rl_rule ) 
+ 1679  1679  	  rl_remove_refs_for_prod( thisAgent, prod ); 
+ 1680  1680 
+ 1681  1681    thisAgent->num_productions_of_type[prod->type]--; 
+ ... 
+
+
+
+#####################################################################################
+r13026
+
+Log: apoptosis iteration:
+•no more lower threshold on RL updates (i.e. >0 is sufficient)
+•activation occurs on rule retraction, as opposed to firing
+ (helps with long match times)
+•rules can not be excised if: they have any active instantiations
+ or they are RL rules and are slated to be updated
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp:  in chunk_instantiation
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp:
+		in remove_existing_context_and_descendents 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp:
+		in do_one_top_level_phase case OUTPUT_PHASE under // RL apoptosis 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:
+		in make_production under // Soar-RL stuff
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.h
+		in typedef struct production_struct add rl_ref_count
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp:
+		in create_instantiation, retract_instantiation
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		in rl_param_container, rl_learning_param::set_value, rl_reset_data,
+			rl_remove_refs_for_prod, rl_store_data, rl_perform_update
+		add rl_add_ref, rl_remove_ref, rl_clear_refs
+See web page for details, there's a lot here
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+		in class rl_param_container remove param ngf_thresh,
+		stuff under Maintenance 
+See web page for details, there's a lot here
+ 
+  
+
+#################   RL TRACE SUPPORT   ##############################################
+
+Change details not yet recorded in these notes for this set of revisions.	pl 8/14/2013
+
+#####################################################################################
+r13815
+
+Log message
+'rl -t clear' implemented;
+rl --trace now stores ^attr value pairs, sorted by attr (except for name, which
+is selected to be first);
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp 
+
+
+#####################################################################################
+r13816
+
+Log message
+rl --trace WME iteration made efficient;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp 
+
+
+
+#####################################################################################
+r13819
+
+Log message
+rl -t now generates output targeting dot;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp  
+
+
+
+#####################################################################################
+r13820
+
+Log message
+Add init_count to agent struct;
+Track init_count for rl --trace;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp 
+
+
+
+#####################################################################################
+r13827
+
+Log message
+Change RL-Trace to include operators with no numeric preferences;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp 
+
+
+#####################################################################################
+r13830
+
+Log message
+Change 'rl -t' from recursive to iterative;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+Modify /trunk/SoarSuite/build_lsb.sh 
+
+
+#####################################################################################
+r13832
+
+Log message
+Add rl_init_count, to track actual and artificial rl-trace inits;
+Fix (init-rl-trace) mapping;
+Finish fixing/modernizing build_lsb.sh;
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/decide.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rhsfun.cpp 
+
+Modify /trunk/SoarSuite/build_lsb.sh 
+
+
+
+#####################################################################################
+r13833
+
+Log message
+List 'trace' as a parameter in the output of 'rl';
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+
+
+#####################################################################################
+r13837
+ 
+NEEDED	Make all the changes below to the JSoar code
+
+Log message
+rl -t expanded to allow 'init' and explicit 'print' commands;
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_Commands.h 
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp 
+
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rhsfun.cpp 
+
+
+
+
+
+

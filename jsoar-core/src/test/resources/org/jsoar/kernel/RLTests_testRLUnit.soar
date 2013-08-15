@@ -5,6 +5,7 @@
 
 # Learning Rate: 0.1
 # Discount Rate: 0.5
+# HRL Discount:  false    PL 8/13/2013
 # Reward: 100/decision on ALL states
 
 ####################################################
@@ -90,6 +91,8 @@ rl --set learning on
 rl --set learning-rate 0.1
 
 rl --set discount-rate 0.5
+
+rl --set hrl-discount false    #    PL 8/13/2013
 
 sp {elaborate*state*name
    (state <s> ^superstate.operator.name <name>)
