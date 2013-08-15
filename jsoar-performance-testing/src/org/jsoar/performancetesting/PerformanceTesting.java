@@ -739,7 +739,7 @@ public class PerformanceTesting
     
     private String doubleToString(Double d)
     {
-        DecimalFormat df = new DecimalFormat("#0.000");
+        DecimalFormat df = new DecimalFormat("#0.000######");
         return df.format(d);
     }
     
