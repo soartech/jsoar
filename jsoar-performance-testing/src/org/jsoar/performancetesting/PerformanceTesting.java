@@ -35,7 +35,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, Configuration, Test, output, warmup, jsoar, soar, uniqueJVMs, decisions, run
+        help, Configuration, Test, output, warmup, jsoar, soar, uniqueJVMs, decisions, run, name, NoSummary
     };
 
     private final PrintWriter out;
@@ -48,7 +48,10 @@ public class PerformanceTesting
 
     private TestSettings defaultTestSettings = null;
         
+    private String name = "";
+    private int runNumber = -1;
     private boolean runTestsInSeparateJVMs = true;
+    private boolean outputToSummaryFile = true;
     
     private static final int NON_EXIT = 1024;
     private static final int EXIT_SUCCESS = 0;
@@ -112,6 +115,8 @@ public class PerformanceTesting
                     "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not." +
                     "   -d, --decisions         Run the tests specified number of decisions." +
                     "   -r, --run               The run number." +
+                    "   -n, --name              Used in conjunction with -T, specifies the test's name." +
+                    "   -N, --nosummary         Don't output results to a summary file." +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
@@ -222,6 +227,8 @@ public class PerformanceTesting
                .newOption(Options.uniqueJVMs).requiredArg()
                .newOption(Options.decisions).requiredArg()
                .newOption(Options.run).requiredArg()
+               .newOption(Options.name).requiredArg()
+               .newOption(Options.NoSummary)
                .done();
 
         try
@@ -276,7 +283,23 @@ public class PerformanceTesting
         {
             defaultTestSettings.setDecisionCycles(Integer.parseInt(options.get(Options.decisions)));
         }
-
+        
+        if (options.has(Options.run))
+        {
+            runNumber = Integer.parseInt(options.get(Options.run));
+            defaultTestSettings.setRunCount(1);
+        }
+        
+        if (options.has(Options.name))
+        {
+            name = options.get(Options.name);
+        }
+        
+        if (options.has(Options.NoSummary))
+        {
+            this.outputToSummaryFile = false;
+        }
+        
         // This will load an individual test into the uncategorized tests category, only really useful
         // for single tests that you don't want to create a configuration file for
         if (options.has(Options.Test))
@@ -289,7 +312,12 @@ public class PerformanceTesting
                 return EXIT_FAILURE_TEST;
             }
 
-            String testName = new File(testPath).getName();;
+            String testName = (new File(testPath)).getName();
+            
+            if (this.name.length() != 0)
+            {
+                testName = this.name;
+            }
 
             if (defaultTestSettings.isJSoarEnabled())
             {
@@ -477,8 +505,26 @@ public class PerformanceTesting
                     
                     String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
                     
+                    if (runNumber != -1)
+                    {
+                        if (defaultTestSettings.isJSoarEnabled())
+                        {
+                            testNameWithoutSpaces += "-JSoar";
+                        }
+                        else
+                        {
+                            testNameWithoutSpaces += "-CSoar";
+                        }
+                        
+                        testNameWithoutSpaces += "-" + (new Integer(runNumber)).toString();
+                    }
+                    
                     table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
-                    table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
+                    
+                    if (outputToSummaryFile)
+                    {
+                        table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
+                    }
                 }
                 
                 out.print("\n");
@@ -694,7 +740,7 @@ public class PerformanceTesting
     private int spawnChildJVMForTest(Test test, boolean jsoar)
     {
         // Arguments to the process builder including the command to run
-        ArrayList<String> arguments = new ArrayList<String>();
+        List<String> arguments = new ArrayList<String>();
         
         URL baseURL = PerformanceTesting.class.getProtectionDomain().getCodeSource().getLocation();
         String jarPath = null;
@@ -788,21 +834,31 @@ public class PerformanceTesting
         }
         arguments.add("--decisions");
         arguments.add(new Integer(test.getTestSettings().getDecisionCycles()).toString());
+        arguments.add("--name");
+        arguments.add(test.getTestName());
+        arguments.add("--nosummary");
         
         // Run the process and get the exit code
         int exitCode = 0;
         try
         {
-            out.print("Running '" + arguments.toString() + "'\n\n");
-            out.flush();
-            ProcessBuilder processBuilder = new ProcessBuilder(arguments);
-            
-            // Redirect the output so we can see what is going on
-            processBuilder.redirectError(Redirect.INHERIT);
-            processBuilder.redirectOutput(Redirect.INHERIT);
-            
-            Process process = processBuilder.start();
-            exitCode = process.waitFor();
+            for (int i = 1; i <= test.getTestSettings().getRunCount();i++)
+            {
+                List<String> argumentsPerRun = new ArrayList<String>(arguments);
+                argumentsPerRun.add("--run");
+                argumentsPerRun.add(new Integer(i).toString());
+                
+                out.print("Running '" + argumentsPerRun.toString() + "'\n\n");
+                out.flush();
+                ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerRun);
+
+                // Redirect the output so we can see what is going on
+                processBuilder.redirectError(Redirect.INHERIT);
+                processBuilder.redirectOutput(Redirect.INHERIT);
+
+                Process process = processBuilder.start();
+                exitCode = process.waitFor();
+            }
         }
         catch (IOException e)
         {
