@@ -41,6 +41,11 @@ public class ReinforcementLearningParams
     static enum TemporalDiscount { on, off };
     
     /**
+     * Options for chunk-stop
+     */
+    static enum ChunkStop { on, off };
+    
+    /**
      * How the learning rate cools over time.
      * normal_decay: default, same learning rate for each rule
      * exponential_decay: rate = rate / # updates for this rule
@@ -88,6 +93,11 @@ public class ReinforcementLearningParams
     public static final PropertyKey<Double> ET_TOLERANCE = key("eligibility-trace-tolerance", Double.class).defaultValue(0.001).build();
     final DefaultPropertyProvider<Double> et_tolerance = new DefaultPropertyProvider<Double>(ET_TOLERANCE);
     
+    //	--------------	EXPERIMENTAL	-------------------
+
+    public static final PropertyKey<ChunkStop> CHUNK_STOP = key("chunk-stop", ChunkStop.class).defaultValue(ChunkStop.off).build();
+    final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
+    
     private final PropertyManager properties;
 
     public ReinforcementLearningParams(PropertyManager properties, SymbolFactory sf)
@@ -105,6 +115,9 @@ public class ReinforcementLearningParams
         properties.setProvider(TEMPORAL_DISCOUNT, temporal_discount);
         properties.setProvider(ET_DECAY_RATE, et_decay_rate);
         properties.setProvider(ET_TOLERANCE, et_tolerance);
+        
+        //	--------------	EXPERIMENTAL	-------------------
+        properties.setProvider(CHUNK_STOP, chunk_stop);
     }
 
     public PropertyManager getProperties()

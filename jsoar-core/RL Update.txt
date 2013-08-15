@@ -138,7 +138,8 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL  
  ... 
 
  
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:  in rl_param_container::rl_param_container
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+		in rl_param_container::rl_param_container	DONE
 
 ... 
  80 80 	// temporal-discount 
@@ -154,7 +155,8 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:  in rl_p
  ... 
  
  
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h: in  class rl_param_container:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+		in  class rl_param_container:	DONE
 
 ... 
  52 52 		soar_module::boolean_param *hrl_discount; 
@@ -168,7 +170,7 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h: in  class 
  ... 
 
  
-Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:  in  add_production_to_rete
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:  in add_production_to_rete
 
 
 ... 
