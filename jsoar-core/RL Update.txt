@@ -32,7 +32,7 @@ rl.eligibility-trace-tolerance = 0.001
          rl.temporal-extension = true
 
 The list given in today's CSoar looks like this:
-NEEDED	to make the format look like CSoar???
+NEEDED	to make the format look like CSoar	DONE
 
 rl
 
@@ -74,10 +74,12 @@ hrl-discount is set to true in JSoar, off in CSoar.
 NEEDED
 
 JSoar has one parameter not in CSoar:	rl.temporal-discount = true
-NEEDED	???
+	Actually this is there in CSoar internally, just not printed.
+	We do the same in JSoar.
+NEEDED	DONE
 
 CSoar has a few not in JSoar, namely all the "experimental" ones:
-NEEDED
+NEEDED	DONE as far as printing format goes.
 
 chunk-stop: on
 decay-mode: normal
@@ -96,19 +98,14 @@ all the parameters marked as "experimental" in the CSoar listing.
 NEEDED
 
 Also, we should make just "rl" work as a command to print just the rl properties.
-NEEDED
+NEEDED	DONE
 
 Also, we should check out the effect of making hrl-discount the same.
 PL 8/13/2013:
 DONE:	The unit tests were passing with hrl-discount=true.
 		Set hrl-discount=false and they failed.
 		Then changed the expected values in the unit test,
-		now they pass with hrl-discount=true.
-		However, found a new bug:
-		
-BUG:	No matter what I do, in either the debugger or the code, I can NOT
-		make hrl-discount get set back to true after it has been set to false.
-NEEDED
+		now they pass with hrl-discount=off.
 
 
 #####################################################################################
@@ -122,7 +119,7 @@ preference value
 
 NEEDED	Make all the changes below to the JSoar code
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL  DONE
 
 ... 
  89 89
@@ -141,7 +138,7 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL
  ... 
 
  
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cp:  in rl_param_container::rl_param_container
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:  in rl_param_container::rl_param_container
 
 ... 
  80 80 	// temporal-discount 
