@@ -3,12 +3,16 @@
  */
 package org.jsoar.performancetesting;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -560,8 +564,8 @@ public class PerformanceTesting
         {
             List<Double> cpuTimes = testRunner.getAllCPUTimes();
             List<Double> kernelTimes = testRunner.getAllKernelTimes();
-            List<Integer> decisionCycles = testRunner.getAllDecisionCycles();
-            List<Long> memoryLoads = testRunner.getAllMemoryLoads();
+            List<Double> decisionCycles = testRunner.getAllDecisionCycles();
+            List<Double> memoryLoads = testRunner.getAllMemoryLoads();
             
             if (testRunner.getTest().getTestSettings().getRunCount() == 1)
             {
@@ -723,11 +727,244 @@ public class PerformanceTesting
             {                    
                 spawnChildJVMForTest(csoarTests.get(j), false);
             }
+            
+            // Generate a summary file
+            appendToSummaryFile(test);
         }
         
         out.println("Performance Testing - Done");
         
         return EXIT_SUCCESS;
+    }
+    
+    private String doubleToString(Double d)
+    {
+        DecimalFormat df = new DecimalFormat("#0.000");
+        return df.format(d);
+    }
+    
+    private void appendToSummaryFile(Test test)
+    {
+        TestSettings settings = test.getTestSettings();
+        Table summaryTable = new Table();
+        
+        for (int k = 0;k < 17;k++)
+        {
+            Row row = new Row();
+            
+            switch (k)
+            {
+            case 0:
+                row.add(new Cell(test.getTestName()));
+                row.add(new Cell("JSoar"));
+                row.add(new Cell("CSoar"));
+                break;
+            case 1:
+                row.add(new Cell("Total CPU Time (s)"));
+                break;
+            case 2:
+                row.add(new Cell("Average CPU Time Per Run (s)"));
+                break;
+            case 3:
+                row.add(new Cell("Median CPU Time Per Run (s)"));
+                break;
+            case 4:
+                row.add(new Cell("CPU Time Deviation from Average (s)"));
+                break;
+            case 5:
+                row.add(new Cell("Total Kernel Time (s)"));
+                break;
+            case 6:
+                row.add(new Cell("Average Kernel Time Per Run (s)"));
+                break;
+            case 7:
+                row.add(new Cell("Median Kernel Time Per Run (s)"));
+                break;
+            case 8:
+                row.add(new Cell("Kernel Time Deviation from Average (s)"));
+                break;
+            case 9:
+                row.add(new Cell("Decision Cycles Run For"));
+                break;
+            case 10:
+                row.add(new Cell("Average Decision Cycles Per Run"));
+                break;
+            case 11:
+                row.add(new Cell("Median Decision Cycles Per Run"));
+                break;
+            case 12:
+                row.add(new Cell("Decision Cycles Deviation from Average"));
+                break;
+            case 13:
+                row.add(new Cell("Memory Used (M)"));
+                break;
+            case 14:
+                row.add(new Cell("Average Memory Used Per Run (M)"));
+                break;
+            case 15:
+                row.add(new Cell("Median Memory Used Per Run (M)"));
+                break;
+            case 16:
+                row.add(new Cell("Memory Deviation from Average (M)"));
+                break;
+            }
+            
+            summaryTable.addRow(row);
+        }
+        
+        if (settings.isJSoarEnabled())
+        {
+            // JSoar
+            List<Double> cpuTimes = new ArrayList<Double>();
+            List<Double> kernelTimes = new ArrayList<Double>();
+            List<Double> decisionCycles = new ArrayList<Double>();
+            List<Double> memoryLoads = new ArrayList<Double>();
+            
+            for (int i = 1;i <= settings.getRunCount();i++)
+            {
+                File testFile = new File(settings.getCSVDirectory() + "/" + test.getTestName() + "-JSoar-" + (new Integer(i)).toString() + ".txt");
+                
+                try
+                {
+                    BufferedReader br = new BufferedReader(new FileReader(testFile));
+                    String line;
+                    // This will skip the first and last fields and only use the total fields
+                    // for getting values since these are individual runs.
+                    
+                    // CPU Time, Kernel Time, Decisions
+                    for (int j = 0;j <= 10;j++)
+                    {
+                        line = br.readLine();
+                        
+                        assert(line != null);
+                        
+                        String[] list = line.split("\t");
+                        
+                        switch (j)
+                        {
+                        case 1:
+                            // CPU Time
+                            cpuTimes.add(Double.parseDouble(list[1]));
+                            break;
+                        case 4:
+                            kernelTimes.add(Double.parseDouble(list[1]));
+                            break;
+                        case 7:
+                            decisionCycles.add(Double.parseDouble(list[1]));
+                            break;
+                        case 10:
+                            memoryLoads.add(Double.parseDouble(list[1]));
+                            break;
+                        }
+                    }
+                    br.close();
+                }
+                catch (IOException e)
+                {
+                    throw new AssertionError(e);
+                }
+            }
+            
+            // Now calculate everything
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(cpuTimes)),            1, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(cpuTimes)),          2, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(cpuTimes)),           3, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(cpuTimes)),        4, 2-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(kernelTimes)),         5, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(kernelTimes)),       6, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(kernelTimes)),        7, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(kernelTimes)),     8, 2-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(decisionCycles)),      9, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(decisionCycles)),    10, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(decisionCycles)),     11, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(decisionCycles)),  12, 2-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(memoryLoads)),         13, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(memoryLoads)),       14, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(memoryLoads)),        15, 2-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(memoryLoads)),     16, 2-1);
+        }
+        
+        if (settings.isCSoarEnabled())
+        {
+            // CSoar
+            List<Double> cpuTimes = new ArrayList<Double>();
+            List<Double> kernelTimes = new ArrayList<Double>();
+            List<Double> decisionCycles = new ArrayList<Double>();
+            List<Double> memoryLoads = new ArrayList<Double>();
+            
+            for (int i = 1;i <= settings.getRunCount();i++)
+            {
+                File testFile = new File(settings.getCSVDirectory() + "/" + test.getTestName() + "-CSoar-" + (new Integer(i)).toString() + ".txt");
+                
+                try
+                {
+                    BufferedReader br = new BufferedReader(new FileReader(testFile));
+                    String line;
+                    // This will skip the first and last fields and only use the total fields
+                    // for getting values since these are individual runs.
+                    
+                    // CPU Time, Kernel Time, Decisions
+                    for (int j = 0;j <= 10;j++)
+                    {
+                        line = br.readLine();
+                                                
+                        assert(line != null);
+                        
+                        String[] list = line.split("\t");
+                        
+                        switch (j)
+                        {
+                        case 1:
+                            // CPU Time
+                            cpuTimes.add(Double.parseDouble(list[2]));
+                            break;
+                        case 4:
+                            kernelTimes.add(Double.parseDouble(list[2]));
+                            break;
+                        case 7:
+                            decisionCycles.add(Double.parseDouble(list[2]));
+                            break;
+                        case 10:
+                            memoryLoads.add(Double.parseDouble(list[2]));
+                            break;
+                        }
+                    }
+                    br.close();
+                }
+                catch (IOException e)
+                {
+                    throw new AssertionError(e);
+                }
+            }
+            
+            // Now calculate everything
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(cpuTimes)),            1, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(cpuTimes)),          2, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(cpuTimes)),           3, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(cpuTimes)),        4, 3-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(kernelTimes)),         5, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(kernelTimes)),       6, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(kernelTimes)),        7, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(kernelTimes)),     8, 3-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(decisionCycles)),      9, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(decisionCycles)),    10, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(decisionCycles)),     11, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(decisionCycles)),  12, 3-1);
+            
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateTotal(memoryLoads)),         13, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateAverage(memoryLoads)),       14, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateMedian(memoryLoads)),        15, 3-1);
+            summaryTable.setOrAddValueAtLocation(doubleToString(Statistics.calculateDeviation(memoryLoads)),     16, 3-1);
+        }
+        
+        String summaryFilePath = settings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME;
+        
+        summaryTable.writeToCSV(summaryFilePath, '\t', true);
     }
     
     /**
