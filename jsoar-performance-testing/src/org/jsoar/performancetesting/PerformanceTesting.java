@@ -817,7 +817,7 @@ public class PerformanceTesting
         
         // Construct the array with the command and arguments
         // Use javaw for no console window spawning
-        arguments.add("javaw");
+        arguments.add("java");
         arguments.add("-classpath"); // Always use class path.  This will even work for jars.
         arguments.add("\"" + jarPath + "\"");
         arguments.add(PerformanceTesting.class.getCanonicalName()); // Get the class name to load
