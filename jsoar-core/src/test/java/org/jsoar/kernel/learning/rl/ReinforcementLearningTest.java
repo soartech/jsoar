@@ -19,6 +19,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.exploration.Exploration.Policy;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommands;
 import org.junit.After;
@@ -53,7 +54,8 @@ public class ReinforcementLearningTest
         
         assertNotSame(Policy.USER_SELECT_E_GREEDY, explore.exploration_get_policy());
         
-        agent.getProperties().set(ReinforcementLearning.LEARNING, true);
+        agent.getProperties().set(ReinforcementLearningParams.LEARNING,
+        							Learning.on);
         assertSame(Policy.USER_SELECT_E_GREEDY, explore.exploration_get_policy());
     }
     

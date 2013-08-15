@@ -92,7 +92,7 @@ rl --set learning-rate 0.1
 
 rl --set discount-rate 0.5
 
-rl --set hrl-discount false    #    PL 8/13/2013
+rl --set hrl-discount off    #    PL 8/13-14/2013
 
 sp {elaborate*state*name
    (state <s> ^superstate.operator.name <name>)

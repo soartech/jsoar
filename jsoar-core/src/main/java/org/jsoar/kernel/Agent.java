@@ -54,7 +54,6 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
-import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.Arguments;
