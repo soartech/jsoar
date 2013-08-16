@@ -159,9 +159,7 @@ public class Configuration
     private String csoarDirectory = "";
     private String csoarLabel = "";
     private String csvDirectory = "";
-    
-    private boolean runTestsInSeparateJVMs = true;
-    
+        
     /**
      * Initializes the Configuration class
      * 
@@ -482,12 +480,6 @@ public class Configuration
                 csvDirectory = value;
                 continue;
             }
-            
-            if (key.equals("RunTestsInSeparateJVMs"))
-            {
-                runTestsInSeparateJVMs = Boolean.parseBoolean(value);
-                continue;
-            }
 
             {
                 //Unknown
@@ -599,14 +591,5 @@ public class Configuration
     public String getCSVDirectory()
     {
         return csvDirectory;
-    }
-    
-    /**
-     * 
-     * @return Whether to run the tests in separate JVMs
-     */
-    public boolean getRunTestsInSeparateJVMs()
-    {
-        return runTestsInSeparateJVMs;
     }
 }

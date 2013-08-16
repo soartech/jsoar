@@ -4,15 +4,20 @@
 package org.jsoar.performancetesting;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +45,7 @@ public class PerformanceTesting
 
     private static enum Options
     {
-        help, Configuration, Test, output, warmup, jsoar, soar, uniqueJVMs, decisions, run, name, NoSummary, Single
+        help, Configuration, Test, output, warmup, jsoar, soar, decisions, run, name, NoSummary, Single
     };
     
     private static final int NON_EXIT = 1024;
@@ -67,7 +72,6 @@ public class PerformanceTesting
     
     private String name = "";
     private int runNumber = -1;
-    private boolean runTestsInSeparateJVMs = true;
     private boolean outputToSummaryFile = true;
     private boolean singleTest = false;
     
@@ -117,20 +121,29 @@ public class PerformanceTesting
         {
         	return optionsParseResult;
         }
-
-        // Delete summary file so we don't append to old results
-        // but only do this if we're not running in separate JVMs
-        // because otherwise we would overwrite the old results!
-        if (!runTestsInSeparateJVMs)
-        {
-            File summaryFile = new File(defaultTestSettings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME);
-            summaryFile.delete();
-        }
         
         if (!singleTest)
         {
             out.println("Performance Testing - Starting Tests\n");
             out.flush();
+            
+            {
+                PrintWriter summaryFileAppender;
+                try
+                {
+                    summaryFileAppender = new PrintWriter(new BufferedWriter(new FileWriter(defaultTestSettings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME, false)));
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+                
+                summaryFileAppender.println("Test Results - " + dateFormat.format(new Date()) + "\n");
+                
+                summaryFileAppender.close();
+            }
         }
         
         List<Test> tests = null;
@@ -144,13 +157,13 @@ public class PerformanceTesting
             tests = csoarTests;
         }
         
-        if (tests.size() > 1 && runTestsInSeparateJVMs)
+        if (tests.size() > 1)
         {
             return runTestsInChildrenJVMs(tests);
         }
         else
         {
-            return runTestsWithoutChildJVMs(tests);
+            return runTest(new TestRunner(tests.get(0), out));
         }
     }
   
@@ -193,7 +206,6 @@ public class PerformanceTesting
                .newOption(Options.output).requiredArg()
                .newOption(Options.soar).requiredArg()
                .newOption(Options.warmup).requiredArg()
-               .newOption(Options.uniqueJVMs).requiredArg()
                .newOption(Options.decisions).requiredArg()
                .newOption(Options.run).requiredArg()
                .newOption(Options.name).requiredArg()
@@ -274,8 +286,6 @@ public class PerformanceTesting
         defaultTestSettings.setJSoarEnabled(config.getJSoarEnabled());
         defaultTestSettings.setCSoarEnabled(config.getCSoarEnabled());
         
-        runTestsInSeparateJVMs = config.getRunTestsInSeparateJVMs();
-
         if (!defaultTestSettings.isJSoarEnabled() && !defaultTestSettings.isCSoarEnabled())
         {
             out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
@@ -401,11 +411,6 @@ public class PerformanceTesting
                 Test csoarTest = csoarTestFactory.createTest(testName, testPath, defaultTestSettings);
                 csoarTests.add(csoarTest);
             }
-        }
-        
-        if (options.has(Options.uniqueJVMs))
-        {
-            runTestsInSeparateJVMs = Boolean.parseBoolean(options.get(Options.uniqueJVMs));
         }
         
         return NON_EXIT;
@@ -825,217 +830,154 @@ public class PerformanceTesting
     
     /**
      * 
-     * @param tests All the tests
-     * @param testCategories All the categories for tests
-     * @return Whether running the tests without child JVMs was successful or not
-     */
-    private int runTestsWithoutChildJVMs(List<Test> tests)
-    {
-        List<TestRunner> testRunners = new ArrayList<TestRunner>();
-
-        int runTestsResult = runTests(testRunners);
-        
-        if (runTestsResult != NON_EXIT)
-        {
-            return runTestsResult;
-        }
-
-        if (!singleTest)
-        {
-            out.println("Performance Testing - Done");
-        }
-        
-        return EXIT_SUCCESS;
-    }
-    
-    /**
-     * 
      * @param testRunners All the tests
      * @param testCategories All the test categories
      * @return Whether running the tests was successful or not
      */
-    private int runTests(List<TestRunner> testRunners)
+    private int runTest(TestRunner testRunner)
     {
-        List<Test> tests = null;
+        Test test = testRunner.getTest();
+        TestSettings settings = test.getTestSettings();
 
-        if (defaultTestSettings.isJSoarEnabled())
-            tests = jsoarTests;
-        else
-            tests = csoarTests;
+        out.println("Starting Test: " + test.getTestName());
+        out.flush();
 
-        for (int j = 0; j < tests.size(); j++)
+        //Construct a table for the data
+
+        Table table = new Table();
+
+        for (int k = 0;k < 14;k++)
         {
-            Test test = tests.get(j);
+            Row row = new Row();
 
-            out.println("Starting Test: " + tests.get(j).getTestName());
-            out.flush();
-
-            //Construct a table for the data
-
-            Table table = new Table();
-
-            for (int k = 0;k < 14;k++)
+            switch (k)
             {
-                Row row = new Row();
-
-                switch (k)
-                {
-                case 0:
-                    row.add(new Cell(tests.get(j).getTestName()));
-                    row.add(new Cell("JSoar"));
-                    row.add(new Cell("CSoar " + csoarTestFactory.getLabel()));
-                    break;
-                case 1:
-                    row.add(new Cell("Total CPU Time (s)"));
-                    break;
-                case 2:
-                    row.add(new Cell("Average CPU Time Per Run (s)"));
-                    break;
-                case 3:
-                    row.add(new Cell("Median CPU Time Per Run (s)"));
-                    break;
-                case 4:
-                    row.add(new Cell("Total Kernel Time (s)"));
-                    break;
-                case 5:
-                    row.add(new Cell("Average Kernel Time Per Run (s)"));
-                    break;
-                case 6:
-                    row.add(new Cell("Median Kernel Time Per Run (s)"));
-                    break;
-                case 7:
-                    row.add(new Cell("Decision Cycles Run For"));
-                    break;
-                case 8:
-                    row.add(new Cell("Average Decision Cycles Per Run"));
-                    break;
-                case 9:
-                    row.add(new Cell("Median Decision Cycles Per Run"));
-                    break;
-                case 10:
-                    row.add(new Cell("Memory Used (M)"));
-                    break;
-                case 11:
-                    row.add(new Cell("Average Memory Used Per Run (M)"));
-                    break;
-                case 12:
-                    row.add(new Cell("Median Memory Used Per Run (M)"));
-                    break;
-                case 13:
-                    row.add(new Cell("Memory Deviation from Average (M)"));
-                    break;
-                }
-
-                table.addRow(row);
+            case 0:
+                row.add(new Cell(test.getTestName()));
+                row.add(new Cell("JSoar"));
+                row.add(new Cell("CSoar " + csoarTestFactory.getLabel()));
+                break;
+            case 1:
+                row.add(new Cell("Total CPU Time (s)"));
+                break;
+            case 2:
+                row.add(new Cell("Average CPU Time Per Run (s)"));
+                break;
+            case 3:
+                row.add(new Cell("Median CPU Time Per Run (s)"));
+                break;
+            case 4:
+                row.add(new Cell("Total Kernel Time (s)"));
+                break;
+            case 5:
+                row.add(new Cell("Average Kernel Time Per Run (s)"));
+                break;
+            case 6:
+                row.add(new Cell("Median Kernel Time Per Run (s)"));
+                break;
+            case 7:
+                row.add(new Cell("Decision Cycles Run For"));
+                break;
+            case 8:
+                row.add(new Cell("Average Decision Cycles Per Run"));
+                break;
+            case 9:
+                row.add(new Cell("Median Decision Cycles Per Run"));
+                break;
+            case 10:
+                row.add(new Cell("Memory Used (M)"));
+                break;
+            case 11:
+                row.add(new Cell("Average Memory Used Per Run (M)"));
+                break;
+            case 12:
+                row.add(new Cell("Median Memory Used Per Run (M)"));
+                break;
+            case 13:
+                row.add(new Cell("Memory Deviation from Average (M)"));
+                break;
             }
 
-            // Run JSoar First
-            if (defaultTestSettings.isJSoarEnabled())
-            {
-                out.println("JSoar: ");
-                out.flush();
-
-                Test jsoarTest = jsoarTests.get(j);
-
-                TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
-                try
-                {
-                    jsoarTestRunner.runTestsForAverage(jsoarTest.getTestSettings());
-                }
-                catch (SoarException e)
-                {
-                    out.println("Failed with a Soar Exception: " + e.getMessage());
-                    return EXIT_FAILURE;
-                }
-
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getTotalCPUTime()).toString(),          2-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getAverageCPUTime()).toString(),        3-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getMedianCPUTime()).toString(),         4-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getTotalKernelTime()).toString(),       5-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getAverageKernelTime()).toString(),     6-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getMedianKernelTime()).toString(),      7-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getTotalDecisionCycles()).toString(),   8-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getAverageDecisionCycles()).toString(), 9-1,   2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getMedianDecisionCycles()).toString(),  10-1,  2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getTotalMemoryLoad()/ 1000.0 / 1000.0).toString(),       11-1,  2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getAverageMemoryLoad()/ 1000.0 / 1000.0).toString(),     12-1,  2-1);
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getMedianMemoryLoad()/ 1000.0 / 1000.0).toString(),      13-1,  2-1);                    
-                table.setOrAddValueAtLocation(new Double(jsoarTestRunner.getMemoryLoadDeviation()/ 1000.0 / 1000.0).toString(),   14-1,  2-1);
-
-                testRunners.add(jsoarTestRunner);
-            }
-
-            // Run CSoar Second
-            if (defaultTestSettings.isCSoarEnabled())
-            {
-                Test csoarTest = csoarTests.get(j);
-                out.println("CSoar " + csoarTestFactory.getLabel() + ": ");
-                out.flush();
-
-                TestRunner csoarTestRunner = new TestRunner(csoarTest, out);
-                try
-                {
-                    csoarTestRunner.runTestsForAverage(csoarTest.getTestSettings());
-                }
-                catch (SoarException e)
-                {
-                    out.println("Failed with a Soar Exception: " + e.getMessage());
-                    return EXIT_FAILURE;
-                }
-
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getTotalCPUTime()).toString(),          2-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getAverageCPUTime()).toString(),        3-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getMedianCPUTime()).toString(),         4-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getTotalKernelTime()).toString(),       5-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getAverageKernelTime()).toString(),     6-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getMedianKernelTime()).toString(),      7-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getTotalDecisionCycles()).toString(),   8-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getAverageDecisionCycles()).toString(), 9-1,   3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getMedianDecisionCycles()).toString(),  10-1,  3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0).toString(),       11-1,  3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0).toString(),     12-1,  3-1);
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getMedianMemoryLoad() / 1000.0 / 1000.0).toString(),      13-1,  3-1);                    
-                table.setOrAddValueAtLocation(new Double(csoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0).toString(),   14-1,  3-1);
-
-                testRunners.add(csoarTestRunner);
-            }
-
-            if (test.getTestSettings().getCSVDirectory().length() != 0)
-            {
-                File outDirectory = new File(test.getTestSettings().getCSVDirectory());
-
-                if (!outDirectory.exists())
-                {
-                    outDirectory.mkdirs();
-                }
-
-                String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
-
-                if (runNumber != -1)
-                {
-                    if (defaultTestSettings.isJSoarEnabled())
-                    {
-                        testNameWithoutSpaces += "-JSoar";
-                    }
-                    else
-                    {
-                        testNameWithoutSpaces += "-CSoar";
-                    }
-
-                    testNameWithoutSpaces += "-" + (new Integer(runNumber)).toString();
-                }
-
-                table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
-
-                if (outputToSummaryFile)
-                {
-                    table.writeToCSV(test.getTestSettings().getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
-                }
-            }
-
-            out.print("\n");
+            table.addRow(row);
         }
         
+        int column = 2-1;
+
+        // Run JSoar
+        if (settings.isJSoarEnabled())
+        {
+            out.println("JSoar: ");
+            out.flush();
+
+            column = 2-1;
+        }
+        else if (settings.isCSoarEnabled()) // Or CSoar
+        {
+            out.println("CSoar " + csoarTestFactory.getLabel() + ": ");
+            out.flush();
+
+            column = 3-1;
+        }
+        
+        try
+        {
+            testRunner.runTestsForAverage(settings);
+        }
+        catch (SoarException e)
+        {
+            out.println("Failed with a Soar Exception: " + e.getMessage());
+            return EXIT_FAILURE;
+        }
+        
+        table.setOrAddValueAtLocation(new Double(testRunner.getTotalCPUTime()).toString(),          2-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getAverageCPUTime()).toString(),        3-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getMedianCPUTime()).toString(),         4-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getTotalKernelTime()).toString(),       5-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getAverageKernelTime()).toString(),     6-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getMedianKernelTime()).toString(),      7-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getTotalDecisionCycles()).toString(),   8-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getAverageDecisionCycles()).toString(), 9-1,   column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getMedianDecisionCycles()).toString(),  10-1,  column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getTotalMemoryLoad()/ 1000.0 / 1000.0).toString(),       11-1,  column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getAverageMemoryLoad()/ 1000.0 / 1000.0).toString(),     12-1,  column);
+        table.setOrAddValueAtLocation(new Double(testRunner.getMedianMemoryLoad()/ 1000.0 / 1000.0).toString(),      13-1,  column);                    
+        table.setOrAddValueAtLocation(new Double(testRunner.getMemoryLoadDeviation()/ 1000.0 / 1000.0).toString(),   14-1,  column);
+
+        if (settings.getCSVDirectory().length() != 0)
+        {
+            File outDirectory = new File(test.getTestSettings().getCSVDirectory());
+
+            if (!outDirectory.exists())
+            {
+                outDirectory.mkdirs();
+            }
+
+            String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
+
+            if (runNumber != -1)
+            {
+                if (settings.isJSoarEnabled())
+                {
+                    testNameWithoutSpaces += "-JSoar";
+                }
+                else
+                {
+                    testNameWithoutSpaces += "-CSoar";
+                }
+
+                testNameWithoutSpaces += "-" + (new Integer(runNumber)).toString();
+            }
+
+            table.writeToCSV(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
+
+            if (outputToSummaryFile)
+            {
+                table.writeToCSV(settings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
+            }
+        }
+
+        out.print("\n");
+
         out.flush();
 
         return NON_EXIT;
