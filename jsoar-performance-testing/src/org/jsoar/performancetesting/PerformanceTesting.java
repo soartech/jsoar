@@ -73,7 +73,6 @@ public class PerformanceTesting
     private boolean outputToSummaryFile = true;
     private boolean singleTest = false;
     private Set<Configuration.ConfigurationTest> configurationTests;
-    private List<String> csoarPaths = new ArrayList<String>();
     
     /**
      * @param args
@@ -250,11 +249,6 @@ public class PerformanceTesting
         {
             out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
             defaultTestSettings.setJSoarEnabled(true);
-        }
-
-        if (defaultTestSettings.isCSoarEnabled())
-        {
-            csoarPaths = defaultTestSettings.getCSoarVersions();
         }
 
         configurationTests = config.getConfigurationTests();
@@ -531,7 +525,7 @@ public class PerformanceTesting
         {
             arguments.add("--soar");
 
-            for (String path : csoarPaths)
+            for (String path : test.getTestSettings().getCSoarVersions())
             {
                 List<String> argumentsPerTest = new ArrayList<String>(arguments);
                 argumentsPerTest.add("\"" + path + "\"");
