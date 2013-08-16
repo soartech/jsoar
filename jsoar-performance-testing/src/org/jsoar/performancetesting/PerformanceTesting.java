@@ -125,6 +125,13 @@ public class PerformanceTesting
             out.println("Performance Testing - Starting Tests\n");
             out.flush();
             
+            File dir = new File(defaultTestSettings.getCSVDirectory());
+            
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+            
             {
                 PrintWriter summaryFileAppender;
                 try
