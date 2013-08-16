@@ -3,7 +3,7 @@
  */
 package org.jsoar.performancetesting;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Alex
@@ -18,10 +18,14 @@ public class TestSettings
     private int warmUpCount;
     
     private int decisionCycles;
+    
+    private boolean useSeed;
     private long seed;
     
     private String csvDirectory;
-    private Map<String, String> csoarDirectories;
+    private List<String> csoarDirectories;
+    
+    private String jvmSettings;
     
     public TestSettings(TestSettings other)
     {
@@ -32,13 +36,17 @@ public class TestSettings
         warmUpCount = other.getWarmUpCount();
         
         decisionCycles = other.getDecisionCycles();
+        
+        useSeed = other.isUsingSeed();
         seed = other.getSeed();
         
         csvDirectory = other.getCSVDirectory();
         csoarDirectories = other.getCSoarVersions();
+        
+        jvmSettings = other.getJVMSettings();
     }
     
-    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, int decisionCycles, long seed, String csvDirectory, Map<String, String> csoarDirectories)
+    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, int decisionCycles, boolean useSeed, long seed, String csvDirectory, List<String> csoarDirectories, String jvmSettings)
     {
         this.jsoarEnabled = jsoarEnabled;
         this.csoarEnabled = csoarEnabled;
@@ -47,10 +55,14 @@ public class TestSettings
         this.warmUpCount = warmUpCount;
         
         this.decisionCycles = decisionCycles;
+        
+        this.useSeed = useSeed;
         this.seed = seed;
         
         this.csvDirectory = csvDirectory;
         this.csoarDirectories = csoarDirectories;
+        
+        this.jvmSettings = jvmSettings;
         
         // Sanity check
         if (this.csoarEnabled && csoarDirectories.size() == 0)
@@ -109,6 +121,16 @@ public class TestSettings
         return decisionCycles;
     }
     
+    public void setUseSeed(boolean useSeed)
+    {
+        this.useSeed = useSeed;
+    }
+    
+    public boolean isUsingSeed()
+    {
+        return this.useSeed;
+    }
+    
     public void setSeed(long seed)
     {
         this.seed = seed;
@@ -129,13 +151,23 @@ public class TestSettings
         return csvDirectory;
     }
     
-    public void setCSoarVersions(Map<String, String> csoarDirectories)
+    public void setCSoarVersions(List<String> csoarDirectories)
     {
         this.csoarDirectories = csoarDirectories;
     }
     
-    public Map<String, String> getCSoarVersions()
+    public List<String> getCSoarVersions()
     {
         return csoarDirectories;
+    }
+    
+    public void setJVMSettings(String jvmSettings)
+    {
+        this.jvmSettings = jvmSettings;
+    }
+    
+    public String getJVMSettings()
+    {
+        return jvmSettings;
     }
 }

@@ -1,0 +1,29 @@
+#
+# default settings used by tests unless test specifies different values #
+
+default:
+    - jsoar enabled: TRUE
+    - csoar enabled: FALSE
+    - csoar directories: [ 'c:\trunk', 'c:\9.3.2' ] # can list multiple versions of csoar to use
+    - warmup count: 2
+    - run count: 2
+    - decision cycles: 0 # run until test halts
+    - use seed: FALSE
+    - seed: 1 # seed is disabled by default, but if a test enables it, it will be this by default
+    - csv directory: resources/Test-Results
+    - jvm settings: -Xmx512M
+
+#
+# tests
+#
+
+test1:
+    - name: wait-snc
+    - path: resources/APT/wait.soar
+    - decision cycles: 100
+
+test2:
+    - name: wait-snc-no-warmup
+    - path: resources/APT/wait.soar
+    - decision cycles: 100
+    - warmup count: 0

@@ -18,10 +18,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
+import java.util.Set;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.Configuration.InvalidTestNameException;
@@ -54,7 +52,7 @@ public class PerformanceTesting
     private static final int EXIT_FAILURE_TEST = 254;
     private static final int EXIT_FAILURE_CONFIGURATION = 253;
     
-    private static final TestSettings defaultTestSettings = new TestSettings(false, false, 2, 2, 0, 1, "", new HashMap<String, String>());
+    private static TestSettings defaultTestSettings = new TestSettings(false, false, 2, 2, 0, false, 1, "", new ArrayList<String>(), "");
     
     // Locals
     
@@ -243,9 +241,9 @@ public class PerformanceTesting
     {
         String configurationPath = options.get(Options.Configuration);
 
-        if (!configurationPath.endsWith(".properties"))
+        if (!configurationPath.endsWith(".yaml"))
         {
-            out.println("Configuration files need to be properties files.");
+            out.println("Configuration files need to yaml files.");
             return EXIT_FAILURE_CONFIGURATION;
         }
 
@@ -254,9 +252,7 @@ public class PerformanceTesting
 
         //Make sure there are no duplicate keys and then parse the properties file
         try
-        {
-            config.checkPropertiesFile(out);
-            
+        {            
             result = config.parse();
         }
         catch (IOException | UnknownPropertyException | InvalidTestNameException | MalformedTestCategory e)
@@ -271,56 +267,34 @@ public class PerformanceTesting
             return EXIT_FAILURE_CONFIGURATION;
         }
         
-        defaultTestSettings.setSeed(config.getSeed());
-
-        if (config.getRunCount() > 0)
-            defaultTestSettings.setRunCount(config.getRunCount());
-        else
-            out.println("Defaulting to running tests 20 times");
-
-        if (config.getWarmUpCount() >= 0)
-            defaultTestSettings.setWarmUpCount(config.getWarmUpCount());
-        else
-            out.println("Defaulting to warming up tests 10 times");
-
-        defaultTestSettings.setJSoarEnabled(config.getJSoarEnabled());
-        defaultTestSettings.setCSoarEnabled(config.getCSoarEnabled());
+        defaultTestSettings = config.getDefaultSettings();
         
         if (!defaultTestSettings.isJSoarEnabled() && !defaultTestSettings.isCSoarEnabled())
         {
             out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
             defaultTestSettings.setJSoarEnabled(true);
         }
-        
-        String csoarDirectory = config.getCSoarDirectory();
-        String csoarLabel = config.getCSoarLabel();
-        
-        defaultTestSettings.setCSVDirectory(config.getCSVDirectory().trim());
 
-        csoarTestFactory.setLabel(csoarLabel);
-        csoarTestFactory.setCSoarDirectory(csoarDirectory);
-        Map<String, String> csoarDirectories = new HashMap<String,String>();
-        csoarDirectories.put("CSoar", csoarDirectory);
-        
-        defaultTestSettings.setCSoarVersions(csoarDirectories);
+        if (defaultTestSettings.isCSoarEnabled())
+        {
+            csoarTestFactory.setLabel("CSoar");
+            csoarTestFactory.setCSoarDirectory(defaultTestSettings.getCSoarVersions().get(0));
+        }
 
-        SortedSet<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
+        Set<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
 
         //Convert all the ConfigurationTest holders to actual tests.
         for (Configuration.ConfigurationTest test : configurationTests)
         {
-            TestSettings newSettings = new TestSettings(defaultTestSettings);
-            newSettings.setDecisionCycles(config.getDecisionCyclesToRunTest(test.getTestName()));
-            
             if (defaultTestSettings.isJSoarEnabled())
             {
-                Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), newSettings);
+                Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), test.getTestSettings());
                 jsoarTests.add(jsoarTest);
             }
 
             if (defaultTestSettings.isCSoarEnabled())
             {
-                Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), newSettings);
+                Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), test.getTestSettings());
                 csoarTests.add(csoarTest);
             }
         }
@@ -348,9 +322,9 @@ public class PerformanceTesting
         if (options.has(Options.soar))
         {
             defaultTestSettings.setCSoarEnabled(true);
-            Map<String, String> tempMap = new HashMap<String, String>();
-            tempMap.put("CSoar", options.get(Options.soar));
-            defaultTestSettings.setCSoarVersions(tempMap);
+            List<String> tempArray = new ArrayList<String>();
+            tempArray.add(options.get(Options.soar));
+            defaultTestSettings.setCSoarVersions(tempArray);
             
             csoarTestFactory.setCSoarDirectory(options.get(Options.soar));
         }
@@ -548,7 +522,7 @@ public class PerformanceTesting
         arguments.add("--" + (jsoar ? "j" : "") + "soar");
         if (!jsoar)
         {
-            arguments.add(test.getTestSettings().getCSoarVersions().get("CSoar"));
+            arguments.add(test.getTestSettings().getCSoarVersions().get(0));
         }
         arguments.add("--decisions");
         arguments.add(new Integer(test.getTestSettings().getDecisionCycles()).toString());
