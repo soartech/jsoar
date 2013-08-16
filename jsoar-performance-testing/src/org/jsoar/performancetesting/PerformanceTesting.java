@@ -1000,8 +1000,6 @@ public class PerformanceTesting
                 testRunners.add(csoarTestRunner);
             }
 
-            table.writeToWriter(out);
-
             if (test.getTestSettings().getCSVDirectory().length() != 0)
             {
                 File outDirectory = new File(test.getTestSettings().getCSVDirectory());
