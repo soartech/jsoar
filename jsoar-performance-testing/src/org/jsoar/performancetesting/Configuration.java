@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -271,9 +272,16 @@ public class Configuration
                     Object arrayObject = keyValuePair.getValue();
 
                     @SuppressWarnings("unchecked")
-                    ArrayList<String> directories = (ArrayList<String>)arrayObject;
+                    List<String> directoriesUnchecked = (ArrayList<String>)arrayObject;
                     
-                    settings.setCSoarVersions(directories);
+                    List<String> directoriesChecked = new ArrayList<String>();
+                    
+                    for (String directory : directoriesUnchecked)
+                    {
+                        directoriesChecked.add(directory.replace("\\", "/"));
+                    }
+                    
+                    settings.setCSoarVersions(directoriesChecked);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("WarmUp Count"))
                 {

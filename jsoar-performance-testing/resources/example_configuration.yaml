@@ -3,8 +3,8 @@
 
 default:
     - jsoar enabled: TRUE
-    - csoar enabled: FALSE
-    - csoar directories: [ 'c:\trunk', 'c:\9.3.2' ] # can list multiple versions of csoar to use
+    - csoar enabled: TRUE
+    - csoar directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
     - warmup count: 2
     - run count: 2
     - decision cycles: 0 # run until test halts
