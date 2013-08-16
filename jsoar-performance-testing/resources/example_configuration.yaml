@@ -1,6 +1,15 @@
-#
-# default settings used by tests unless test specifies different values #
+# This is an example configuration for the performance testing framework.
+# This is a YAML file and supports the YAML 1.1 Spec.
 
+# Each setting name in here is case insensitive.
+
+# This is the default settings block
+# These are the default settings for each test.  If you do not specify a
+# setting in a test, the setting will be grabbed from here.
+# You must always have all these settings except "csoar directories" and "seed"
+# if you are not using csoar and/or are not using seeds.
+# Each of these settings can also be specified on a per test basis including
+# versions of CSoar to use!
 default:
     - jsoar enabled: TRUE
     - csoar enabled: TRUE
@@ -14,10 +23,13 @@ default:
     - jvm settings: -Xmx512M
 
 #
-# tests
+# Here are some example tests.
 #
 
-test1:
+# For each test you have to specify "test<N>" where <N> can be
+# anything so long as the keys are unique!  You will get silent
+# errors if the keys are not unique.
+test:
     - name: wait-snc
     - path: resources/APT/wait.soar
     - decision cycles: 100
@@ -27,3 +39,4 @@ test2:
     - path: resources/APT/wait.soar
     - decision cycles: 100
     - warmup count: 0
+    - csoar enabled: FALSE
