@@ -97,7 +97,11 @@ public class JSoarTest implements Test
         
         SoarCommands.source(ifc, testFile);
         
-        ifc.eval("srand " + settings.getSeed());
+        if (settings.isUsingSeed())
+        {
+            ifc.eval("srand " + settings.getSeed());
+        }
+        
         ifc.eval("set-stop-phase -o");
                 
         if (settings.getDecisionCycles() == 0)

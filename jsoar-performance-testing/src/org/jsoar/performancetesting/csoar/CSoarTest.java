@@ -99,7 +99,11 @@ public class CSoarTest implements Test
             return false;
         }
         
-        agent.ExecuteCommandLine("srand " + settings.getSeed());
+        if (settings.isUsingSeed())
+        {
+            agent.ExecuteCommandLine("srand " + settings.getSeed());
+        }
+        
         agent.ExecuteCommandLine("set-stop-phase -o");
 
         if (settings.getDecisionCycles() == 0)
