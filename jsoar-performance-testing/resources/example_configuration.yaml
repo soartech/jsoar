@@ -21,6 +21,7 @@ default:
     - seed: 1 # seed is disabled by default, but if a test enables it, it will be this by default
     - csv directory: resources/Test-Results
     - jvm settings: -Xmx512M
+    - summary file: test-summaries.txt
 
 #
 # Here are some example tests.
@@ -40,3 +41,4 @@ test2:
     - decision cycles: 100
     - warmup count: 0
     - csoar enabled: FALSE
+    - summary file: no-warmup-summaries.txt

@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,8 +41,6 @@ public class PerformanceTesting
 {
     // Static + Constants
     
-    private static final String SUMMARY_FILE_NAME = "test-summaries.txt";
-
     private static enum Options
     {
         help, Configuration, Test, output, warmup, jsoar, soar, decisions, run, name, NoSummary, Single
@@ -53,7 +52,7 @@ public class PerformanceTesting
     private static final int EXIT_FAILURE_TEST = 254;
     private static final int EXIT_FAILURE_CONFIGURATION = 253;
     
-    private static TestSettings defaultTestSettings = new TestSettings(false, false, 2, 2, 0, false, 1, "", new ArrayList<String>(), "");
+    private static TestSettings defaultTestSettings = new TestSettings(false, false, 0, 0, 0, false, 1, "", "", new ArrayList<String>(), "");
     
     // Locals
     
@@ -124,31 +123,6 @@ public class PerformanceTesting
         {
             out.println("Performance Testing - Starting Tests\n");
             out.flush();
-            
-            File dir = new File(defaultTestSettings.getCSVDirectory());
-            
-            if (!dir.exists())
-            {
-                dir.mkdirs();
-            }
-            
-            {
-                PrintWriter summaryFileAppender;
-                try
-                {
-                    summaryFileAppender = new PrintWriter(new BufferedWriter(new FileWriter(defaultTestSettings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME, false)));
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
-                
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
-                
-                summaryFileAppender.println("Test Results - " + dateFormat.format(new Date()) + "\n");
-                
-                summaryFileAppender.close();
-            }
         }
         
         if (configurationTests != null)
@@ -385,11 +359,43 @@ public class PerformanceTesting
      */
     private int runTestsInChildrenJVMs(Set<Configuration.ConfigurationTest> tests)
     {
+        Set<String> previousSummaryFiles = new HashSet<String>();
+        
         // Since we have more than one test to run, spawn a separate JVM for each run.
         for (Configuration.ConfigurationTest test : tests)
-        {            
+        {
+            File dir = new File(test.getTestSettings().getCSVDirectory());
+            
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+            
+            String summaryFilePath = test.getTestSettings().getCSVDirectory() + "/" + test.getTestSettings().getSummaryFile();
+            
+            if (!previousSummaryFiles.contains(summaryFilePath))
+            {
+                PrintWriter summaryFileAppender;
+                try
+                {
+                    summaryFileAppender = new PrintWriter(new BufferedWriter(new FileWriter(summaryFilePath, false)));
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+                
+                summaryFileAppender.println("Test Results - " + dateFormat.format(new Date()) + "\n");
+                
+                summaryFileAppender.close();
+                
+                previousSummaryFiles.add(summaryFilePath);
+            }
+            
             if (test.getTestSettings().isJSoarEnabled())
-            {     
+            {
                 spawnChildJVMForTest(test, true);
             }
             
@@ -815,7 +821,7 @@ public class PerformanceTesting
             }
         }
         
-        String summaryFilePath = settings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME;
+        String summaryFilePath = settings.getCSVDirectory() + "/" + settings.getSummaryFile();
         
         summaryTable.writeToCSV(summaryFilePath, '\t', true);
     }
@@ -976,7 +982,7 @@ public class PerformanceTesting
 
             if (outputToSummaryFile)
             {
-                table.writeToCSV(settings.getCSVDirectory() + "/" + SUMMARY_FILE_NAME, true);
+                table.writeToCSV(settings.getCSVDirectory() + "/" + settings.getSummaryFile(), true);
             }
         }
 

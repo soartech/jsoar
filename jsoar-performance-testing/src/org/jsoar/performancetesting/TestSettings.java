@@ -23,6 +23,8 @@ public class TestSettings
     private long seed;
     
     private String csvDirectory;
+    private String summaryFile;
+    
     private List<String> csoarDirectories;
     
     private String jvmSettings;
@@ -41,12 +43,14 @@ public class TestSettings
         seed = other.getSeed();
         
         csvDirectory = other.getCSVDirectory();
+        summaryFile = other.getSummaryFile();
+        
         csoarDirectories = other.getCSoarVersions();
         
         jvmSettings = other.getJVMSettings();
     }
     
-    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, int decisionCycles, boolean useSeed, long seed, String csvDirectory, List<String> csoarDirectories, String jvmSettings)
+    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, int decisionCycles, boolean useSeed, long seed, String csvDirectory, String summaryFile, List<String> csoarDirectories, String jvmSettings)
     {
         this.jsoarEnabled = jsoarEnabled;
         this.csoarEnabled = csoarEnabled;
@@ -60,6 +64,8 @@ public class TestSettings
         this.seed = seed;
         
         this.csvDirectory = csvDirectory;
+        this.summaryFile = summaryFile;
+        
         this.csoarDirectories = csoarDirectories;
         
         this.jvmSettings = jvmSettings;
@@ -149,6 +155,16 @@ public class TestSettings
     public String getCSVDirectory()
     {
         return csvDirectory;
+    }
+    
+    public void setSummaryFile(String summaryFile)
+    {
+        this.summaryFile = summaryFile;
+    }
+    
+    public String getSummaryFile()
+    {
+        return summaryFile;
     }
     
     public void setCSoarVersions(List<String> csoarDirectories)

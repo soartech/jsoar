@@ -185,7 +185,7 @@ public class Configuration
                     {
                         hasFoundDefaults = true;
 
-                        defaultTestSettings = new TestSettings(false, false, 0, 0, 0, false, 1, null, null, null);
+                        defaultTestSettings = new TestSettings(false, false, 0, 0, 0, false, 1, null, null, null, null);
 
                         @SuppressWarnings("unchecked")
                         ArrayList<LinkedHashMap<String, Object>> defaultMap = (ArrayList<LinkedHashMap<String, Object>>)root.getValue();
@@ -306,6 +306,10 @@ public class Configuration
                 else if (keyValuePair.getKey().equalsIgnoreCase("CSV Directory"))
                 {
                     settings.setCSVDirectory((String) keyValuePair.getValue());
+                }
+                else if (keyValuePair.getKey().equalsIgnoreCase("Summary File"))
+                {
+                    settings.setSummaryFile((String) keyValuePair.getValue());
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("JVM Settings"))
                 {
