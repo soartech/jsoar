@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Force;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
@@ -13,6 +14,9 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
@@ -34,6 +38,7 @@ import org.jsoar.util.properties.PropertyManager;
 public class DefaultEpisodicMemoryCommand implements SoarCommand
 {
     private final DefaultEpisodicMemory epmem;
+    private final SymbolFactoryImpl symbols;
 
     public static class Provider implements SoarCommandProvider
     {
@@ -54,6 +59,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
     public DefaultEpisodicMemoryCommand(Adaptable context)
     {
         this.epmem = Adaptables.require(getClass(), context, DefaultEpisodicMemory.class);
+        this.symbols = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
     }
 
     /*
@@ -168,6 +174,30 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 }
                 props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
                 return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
+            }
+            else if (name.equals("exclusions"))
+            {
+                if(epmem.db != null){
+                    return "Lazy commit is protected while the database is open.";
+                }
+                
+                DefaultEpisodicMemoryParams params = epmem.getParams();
+                
+                SymbolImpl sym = symbols.createString(value);
+                
+                if (params.exclusions.contains(sym))
+                {
+                    params.exclusions.remove(sym);
+                }
+                else
+                {
+                    params.exclusions.add(sym);
+                }
+            }
+            else if (name.equals("force"))
+            {
+                props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
+                return "EpMem| force = " + value;
             }
             else
             {
