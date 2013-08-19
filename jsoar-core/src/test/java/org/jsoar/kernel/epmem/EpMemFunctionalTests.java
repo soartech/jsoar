@@ -162,6 +162,11 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     	runTest("testEpMemEncodeSelection_WMA", 5);
     }
     
+    public void testEpMemSoarGroupTests() throws Exception
+    {
+        runTest("testEpMemSoarGroupTests", 140);
+    }
+    
     @Test
     public void readCSoarDB() throws Exception
     {

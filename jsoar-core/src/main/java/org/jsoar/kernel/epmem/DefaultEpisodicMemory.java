@@ -4178,9 +4178,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     interval_sql.setLong(bind_pos++, current_episode);
                                 }
                                 interval_sql.setLong(bind_pos++, edge_id);
-                                if (is_lti) 
+                                if (is_lti && interval_type == EPMEM_RANGE_EP) 
                                 {
-                                    // find the promotion time of the LTI, and use that as an after constraint
                                     interval_sql.setLong(bind_pos++, promo_time);
                                 }
                                 interval_sql.setLong(bind_pos++, current_episode);
@@ -4191,7 +4190,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &interval);
                                     interval.is_end_point = point_type;
                                     interval.uedge = uedge;
+                                    // If it's an start point of a range (ie. not a point) and it's before the promo time
+                                    // (this is possible if a the promotion is in the middle of a range)
+                                    // trim it to the promo time.
+                                    // This will only happen if the LTI is promoted in the last interval it appeared in
+                                    // (since otherwise the start point would not be before its promotion).
+                                    // We don't care about the remaining results of the query
+                                    
+                                    // why wouldn't the LTI still be satisfied before its promotion time? what guards against that?
                                     interval.time = results.getLong(0 + 1);
+                                    
+                                    if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time)
+                                    {
+                                        interval.time = promo_time;
+                                    }
+                                    
                                     interval.sql = interval_sql;
                                     //This logic does not allow us to free this result set here.
                                     //This means that we need ot close this by hand later on. -ACN
