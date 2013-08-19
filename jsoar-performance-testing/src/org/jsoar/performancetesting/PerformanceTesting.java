@@ -120,7 +120,7 @@ public class PerformanceTesting
         
         if (!singleTest)
         {
-            out.println("Performance Testing - Starting Tests\n");
+            out.printf("Performance Testing - Starting Tests - %d Tests Loaded\n\n", configurationTests.size());
             out.flush();
         }
         
