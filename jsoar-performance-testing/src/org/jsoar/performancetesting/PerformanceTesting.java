@@ -530,7 +530,7 @@ public class PerformanceTesting
             for (String path : test.getTestSettings().getCSoarVersions())
             {
                 List<String> argumentsPerTest = new ArrayList<String>(arguments);
-                argumentsPerTest.add("\"" + path + "\"");
+                argumentsPerTest.add(path);
 
                 exitCode = runJVM(test, argumentsPerTest);
             }
