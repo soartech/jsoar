@@ -117,9 +117,16 @@ experimental rl addition: prevents chunking new rl rules that are duplicates of
 existing rules with the exception of the value of the numeric indifferent
 preference value
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code	DONE
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: in CommandLineInterface::DoRL  DONE
+NOTE	Look at the rl constructor to see if there is
+		a way to get rid of the (Agent) casts.
+		
+NEEDED	Write a new unit test to make sure chunk-stop
+		really works.
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:
+		in CommandLineInterface::DoRL  DONE
 
 ... 
  89 89
@@ -170,7 +177,8 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
  ... 
 
  
-Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:  in add_production_to_rete
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp: 
+		in add_production_to_rete	DONE
 
 
 ... 
@@ -292,7 +300,7 @@ NEEDED	Go over this test and make sure ours is equivalent,
 
 
 #####################################################################################
-r12639
+r13271
 
 Log: Fixes issue 98
  Still need to fix agents and documentation to handle changes.

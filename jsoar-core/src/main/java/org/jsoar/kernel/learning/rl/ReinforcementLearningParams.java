@@ -33,7 +33,7 @@ public class ReinforcementLearningParams
     /**
      * Options to turn hrl-discount on and off
      */
-    static enum HrlDiscount { on, off };
+    public static enum HrlDiscount { on, off };
     
     /**
      * Options for temporal-discount
@@ -43,7 +43,7 @@ public class ReinforcementLearningParams
     /**
      * Options for chunk-stop
      */
-    static enum ChunkStop { on, off };
+    public static enum ChunkStop { on, off };
     
     /**
      * How the learning rate cools over time.
@@ -96,7 +96,8 @@ public class ReinforcementLearningParams
     //	--------------	EXPERIMENTAL	-------------------
 
     public static final PropertyKey<ChunkStop> CHUNK_STOP = key("chunk-stop", ChunkStop.class).defaultValue(ChunkStop.off).build();
-    final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
+    //	This is public so the rete can get it
+    public final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
     
     private final PropertyManager properties;
 

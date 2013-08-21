@@ -57,7 +57,7 @@ public abstract class Action
      * @param rhs2
      * @return true if the actions are the same
      */
-    public static boolean same_rhs(Action rhs1, Action rhs2)
+    public static boolean same_rhs(Action rhs1, Action rhs2, boolean rl_chunk_stop)
     {
         // Scan through the two RHS's; make sure there's no function calls,
         // and make sure the actions are all the same.
@@ -91,9 +91,36 @@ public abstract class Action
             if (ma1.preference_type.isBinary())
             {
                 if (ma1.referent != ma2.referent)
-                {
-                    return false;
-                }
+//                {
+//                    return false;
+//                }
+          	  {
+            	    boolean stop=true;
+            	    if (rl_chunk_stop)
+            	    {
+//            		  if ( rhs_value_is_symbol(ma1.referent) && rhs_value_is_symbol(ma2.referent) )
+                	  if ( ma1.referent.asSymbolValue() != null
+                			  && ma2.referent.asSymbolValue() != null )
+            		  {
+//            		    Symbol* a1r = rhs_value_to_symbol(a1->referent);
+//            			Symbol* a2r = rhs_value_to_symbol(a2->referent);
+                        final RhsSymbolValue a1r = ma1.referent.asSymbolValue();
+                        final RhsSymbolValue a2r = ma2.referent.asSymbolValue();
+
+//            			if (((a1r.common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a1r.common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE)) &&
+//            				((a2r.common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a2r.common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE)))
+            			if (((a1r.getSym().asInteger() != null) || (a1r.getSym().asDouble() != null)) &&
+                				((a2r.getSym().asInteger() != null) || (a2r.getSym().asDouble() != null)))
+            			{
+            				if (((a1==rhs1) && (a1.next == null)) && ((a2==rhs2) && (a2.next == null)))
+            			  {
+            			    stop=false;
+            			  }
+            			}
+            		  }
+            	    }
+            	    if (stop) return false;
+            	  }
             }
             a1 = a1.next;
             a2 = a2.next;
