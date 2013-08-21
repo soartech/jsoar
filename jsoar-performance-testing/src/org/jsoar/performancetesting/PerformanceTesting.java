@@ -581,22 +581,19 @@ public class PerformanceTesting
             processBuilder.redirectError(Redirect.INHERIT);
             processBuilder.redirectOutput(Redirect.INHERIT);
 
-            Process process;
+            Process process = null;
             try
             {
                 process = processBuilder.start();
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-            try
-            {
                 exitCode = process.waitFor();
             }
-            catch (InterruptedException e)
+            catch (IOException | InterruptedException e)
             {
                 throw new RuntimeException(e);
+            }
+            finally
+            {
+                process.destroy();
             }
 
             out.flush();
