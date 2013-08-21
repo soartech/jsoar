@@ -444,10 +444,12 @@ public class PerformanceTesting
             // changes or is wrong, this code will break and this will fail.
             // - ALT
             
+            Character pathSeperator = File.pathSeparatorChar;
+            
             // Add the performance testing framework class path
             String originalPath = jarPath;
             
-            jarPath += ";";
+            jarPath += pathSeperator;
             // Add the jsoar core class path
             jarPath += originalPath + "/../../jsoar-core/bin/;";
             
@@ -467,7 +469,7 @@ public class PerformanceTesting
                     
                     path = path.replace("\\", "/");
                     
-                    jarPath += path + ";";
+                    jarPath += path + pathSeperator;
                 }
             }
             
@@ -487,7 +489,7 @@ public class PerformanceTesting
                     
                     path = path.replace("\\", "/");
                     
-                    jarPath += path + ";";
+                    jarPath += path + pathSeperator;
                 }
             }
         }
