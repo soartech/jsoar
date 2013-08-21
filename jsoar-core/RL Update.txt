@@ -243,7 +243,7 @@ Log message
 reward tabulation should not create reward/value slots if they do not exist
 
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code	DONE
 
 Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
 			in rl_tabulate_reward_value_for_goal

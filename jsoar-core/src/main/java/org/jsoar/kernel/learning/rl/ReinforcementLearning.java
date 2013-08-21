@@ -668,6 +668,8 @@ public class ReinforcementLearning
      * <p>reinforcement_learning.cpp:562:rl_tabulate_reward_value_for_goal
      * (9.3.0)
      * 
+     * should not create reward/value slots if they do not exist - PL 8/21/2013
+     * 
      * @param goal
      */
     public void rl_tabulate_reward_value_for_goal(IdentifierImpl goal )
@@ -676,7 +678,7 @@ public class ReinforcementLearning
 
 	    if ( !data.prev_op_rl_rules.isEmpty() )
 	    {
-	        final Slot s = Slot.make_slot(goal.goalInfo.reward_header, preSyms.rl_sym_reward, null);
+	        final Slot s = Slot.find_slot(goal.goalInfo.reward_header, preSyms.rl_sym_reward);
 	        
 	        double reward = 0.0;
 	        double discount_rate = params.discount_rate.get(); // rl_params->discount_rate->get_value();
@@ -687,7 +689,7 @@ public class ReinforcementLearning
 	            {
 	                if (w.value.asIdentifier() != null)
 	                {
-	                    final Slot t = Slot.make_slot( w.value.asIdentifier(), preSyms.rl_sym_value, null);
+	                    final Slot t = Slot.find_slot( w.value.asIdentifier(), preSyms.rl_sym_value);
 	                    if (t != null)
 	                    {
 	                        for (WmeImpl x=t.getWmes(); x != null; x=x.next )
