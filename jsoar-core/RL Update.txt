@@ -123,7 +123,7 @@ NOTE	Look at the rl constructor to see if there is
 		a way to get rid of the (Agent) casts.
 		
 NEEDED	Write a new unit test to make sure chunk-stop
-		really works.
+		really works.	DONE - 2 new tests in RLTests
 
 Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:
 		in CommandLineInterface::DoRL  DONE

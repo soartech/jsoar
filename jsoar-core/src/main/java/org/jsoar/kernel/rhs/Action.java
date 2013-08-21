@@ -91,24 +91,18 @@ public abstract class Action
             if (ma1.preference_type.isBinary())
             {
                 if (ma1.referent != ma2.referent)
-//                {
-//                    return false;
-//                }
-          	  {
+                //	Code added to conform to r12380	-	PL 8/21/2013
+                //	to implement the effect of the chunk-stop RL parameter
+          	  	{
             	    boolean stop=true;
             	    if (rl_chunk_stop)
             	    {
-//            		  if ( rhs_value_is_symbol(ma1.referent) && rhs_value_is_symbol(ma2.referent) )
                 	  if ( ma1.referent.asSymbolValue() != null
                 			  && ma2.referent.asSymbolValue() != null )
             		  {
-//            		    Symbol* a1r = rhs_value_to_symbol(a1->referent);
-//            			Symbol* a2r = rhs_value_to_symbol(a2->referent);
                         final RhsSymbolValue a1r = ma1.referent.asSymbolValue();
                         final RhsSymbolValue a2r = ma2.referent.asSymbolValue();
 
-//            			if (((a1r.common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a1r.common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE)) &&
-//            				((a2r.common.symbol_type==INT_CONSTANT_SYMBOL_TYPE) || (a2r.common.symbol_type==FLOAT_CONSTANT_SYMBOL_TYPE)))
             			if (((a1r.getSym().asInteger() != null) || (a1r.getSym().asDouble() != null)) &&
                 				((a2r.getSym().asInteger() != null) || (a2r.getSym().asDouble() != null)))
             			{

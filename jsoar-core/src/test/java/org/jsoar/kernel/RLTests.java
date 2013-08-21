@@ -172,4 +172,51 @@ public class RLTests extends FunctionalTestHarness
         
         return result;
     }
+    
+    
+    //	Test that the chunk-stop parameter actual works	PL 8/21/2013
+    private static final String chunkStopTestSoar1 = 
+    		"elaborate*value*1\n"
+    				+"	(state <s> ^operator <o> +)\n"
+    		+"-->\n"
+    				+"	(<s> ^operator <o> = 1)\n";
+
+    private static final String chunkStopTestSoar2 = 
+			"elaborate*value*2\n"
+					+"	(state <s> ^operator <o> +)\n"
+			+"-->\n"
+					+"	(<s> ^operator <o> = 2)\n";
+    
+    @Test
+    public void testChunkStopOn() throws Exception
+    {
+    	//	Set chunk-stop on
+        agent.getProperties()
+        		.set(ReinforcementLearningParams.CHUNK_STOP,
+        				ReinforcementLearningParams.ChunkStop.on);
+
+        //	Source the soar test code
+        agent.getProductions().loadProduction(chunkStopTestSoar1);
+        agent.getProductions().loadProduction(chunkStopTestSoar2);
+    	
+        //	See that there is only one production
+        assertEquals(1, agent.getProductions().getProductionCount());
+    }
+    
+    @Test
+    public void testChunkStopOff() throws Exception
+    {
+    	//	Set chunk-stop off
+        agent.getProperties()
+        		.set(ReinforcementLearningParams.CHUNK_STOP,
+        				ReinforcementLearningParams.ChunkStop.off);
+
+        //	Source the soar test code
+        agent.getProductions().loadProduction(chunkStopTestSoar1);
+        agent.getProductions().loadProduction(chunkStopTestSoar2);
+    	
+        //	See that there are two productions
+        assertEquals(2, agent.getProductions().getProductionCount());
+    }
+
 }
