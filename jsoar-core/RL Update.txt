@@ -299,6 +299,9 @@ Add /trunk/SoarSuite/PHP/test_rl.php
 NEEDED	Go over this test and make sure ours is equivalent,
 		or at least adequate.
 		It looks pretty similar, but the numbers are different.
+		
+PL 8/21/2013	The SConscript file doesn't have any code that looks like
+		this and there is not SoarSuite/PHP folder or test_rl.php file.
 
 
 
