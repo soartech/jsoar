@@ -666,9 +666,11 @@ public class PerformanceTesting
             List<Double> decisionCycles = new ArrayList<Double>();
             List<Double> memoryLoads = new ArrayList<Double>();
             
+            String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
+            
             for (int i = 1;i <= settings.getRunCount();i++)
             {
-                File testFile = new File(settings.getCSVDirectory() + "/" + test.getTestName() + "-JSoar-" + (new Integer(i)).toString() + ".txt");
+                File testFile = new File(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + "-JSoar-" + (new Integer(i)).toString() + ".txt");
                 
                 try
                 {
@@ -737,6 +739,8 @@ public class PerformanceTesting
         {
             int column = 3-1;
             
+            String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
+            
             for (String csoarPath : test.getTestSettings().getCSoarVersions())
             {
                 String csoarLabel = "-CSoar-" + csoarPath.replaceAll("[^a-zA-Z0-9]+", "") + "-";
@@ -749,7 +753,7 @@ public class PerformanceTesting
 
                 for (int i = 1;i <= settings.getRunCount();i++)
                 {
-                    File testFile = new File(settings.getCSVDirectory() + "/" + test.getTestName() + csoarLabel + (new Integer(i)).toString() + ".txt");
+                    File testFile = new File(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + csoarLabel + (new Integer(i)).toString() + ".txt");
 
                     try
                     {
