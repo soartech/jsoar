@@ -451,7 +451,7 @@ public class PerformanceTesting
             
             jarPath += pathSeperator;
             // Add the jsoar core class path
-            jarPath += originalPath + "/../../jsoar-core/bin/;";
+            jarPath += originalPath + "/../../jsoar-core/bin/" + pathSeperator;
             
             // Add all the require libs from jsoar core
             File directory = new File(originalPath + "/../../jsoar-core/lib/");
