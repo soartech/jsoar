@@ -30,7 +30,6 @@ import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
-import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.SetWrapperLong;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;

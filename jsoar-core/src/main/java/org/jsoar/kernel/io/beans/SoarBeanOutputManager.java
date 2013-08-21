@@ -153,7 +153,7 @@ public class SoarBeanOutputManager
     private static class HandlerInfo
     {
         final Class<?> beanClass;
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings("rawtypes")
         final SoarBeanOutputHandler handler;
         
         public HandlerInfo(SoarBeanOutputHandler<?> handler, Class<?> beanClass)
