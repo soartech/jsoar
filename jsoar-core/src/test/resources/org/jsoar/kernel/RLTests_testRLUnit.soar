@@ -5,7 +5,9 @@
 
 # Learning Rate: 0.1
 # Discount Rate: 0.5
-# HRL Discount:  false    PL 8/13/2013
+# HRL Discount:  off    PL 8/13-21/2013
+#    The unit tests check the above value and
+#    compare numbers accordingly.
 # Reward: 100/decision on ALL states
 
 ####################################################
@@ -92,7 +94,7 @@ rl --set learning-rate 0.1
 
 rl --set discount-rate 0.5
 
-rl --set hrl-discount off    #    PL 8/13-14/2013
+rl --set hrl-discount off    #    PL 8/13-21/2013
 
 sp {elaborate*state*name
    (state <s> ^superstate.operator.name <name>)
