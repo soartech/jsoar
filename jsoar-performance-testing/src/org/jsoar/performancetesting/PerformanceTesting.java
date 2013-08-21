@@ -473,6 +473,25 @@ public class PerformanceTesting
                 }
             }
             
+            directory = new File(originalPath + "/../../jsoar-core/lib/db");
+            listOfFiles = directory.listFiles();
+            for (File file : listOfFiles)
+            {
+                if (file.isFile())
+                {
+                    String path = file.getPath();
+                    
+                    if (!path.endsWith(".jar"))
+                    {
+                        continue;
+                    }
+                    
+                    path = path.replace("\\", "/");
+                    
+                    jarPath += path + pathSeperator;
+                }
+            }
+            
             // Add all the required libs from the performance testing framework
             directory = new File(originalPath + "/../lib/");
             listOfFiles = directory.listFiles();
