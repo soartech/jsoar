@@ -499,7 +499,7 @@ public class PerformanceTesting
         arguments.add("java");
         arguments.addAll(Arrays.asList(test.getTestSettings().getJVMSettings().split("\\s")));
         arguments.add("-classpath"); // Always use class path.  This will even work for jars.
-        arguments.add("\"" + jarPath + "\"");
+        arguments.add(jarPath);
         arguments.add(PerformanceTesting.class.getCanonicalName()); // Get the class name to load
         arguments.add("--test");
         arguments.add(test.getTestFile());
