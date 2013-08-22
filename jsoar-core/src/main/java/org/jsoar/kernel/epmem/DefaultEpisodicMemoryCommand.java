@@ -241,6 +241,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("exclusions:", p.exclusions, 40));
         pw.printf(PrintHelper.generateSection("Storage", 40));
         pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
+        pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
         pw.printf(PrintHelper.generateItem("path:", p.path.get(), 40));
         pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));

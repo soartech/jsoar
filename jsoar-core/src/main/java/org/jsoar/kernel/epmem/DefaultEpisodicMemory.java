@@ -625,6 +625,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
+        
+        params.protocol.set(meta.getDriverName() + ":" + meta.getDriverVersion());
+        
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
 
