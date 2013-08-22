@@ -113,6 +113,13 @@ public class PerformanceTesting
     {
         int optionsParseResult = parseOptions(args);
         
+        if (configurationTests == null)
+        {
+            out.println("Did not load any tests or configuration.");
+            usage();
+            return EXIT_SUCCESS;
+        }
+        
         if (optionsParseResult != NON_EXIT)
         {
         	return optionsParseResult;
@@ -197,7 +204,7 @@ public class PerformanceTesting
             usage();
             return EXIT_SUCCESS;
         }
-
+        
         if (options.has(Options.help) || args.length == 0)
         {
             usage();
@@ -207,6 +214,7 @@ public class PerformanceTesting
         if (options.has(Options.Configuration))
         {
             parseConfiguration(options);
+            
             return NON_EXIT;
         }
         
