@@ -200,6 +200,23 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
                 return "EpMem| force = " + value;
             }
+            else if (name.equals("database"))
+            {
+                if (value.equals("memory"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, EpisodicMemoryDatabase.IN_MEMORY_PATH);
+                    return "EpMem| database = memory";
+                }
+                else if (value.equals("file"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, "");
+                    return "EpMem| database = file";
+                }
+                else
+                {
+                    throw new SoarException("Invalid value for EpMem database parameter");
+                }
+            }
             else
             {
                 throw new SoarException("Unknown epmem parameter '" + name + "'");
@@ -223,7 +240,29 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final PropertyKey<?> key = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), name);
         if(key == null)
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            if (name.equals("database"))
+            {
+                PropertyKey<?> pathProperty = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), "path");
+                if (pathProperty == null)
+                {
+                    throw new SoarException("Path is null.");
+                }
+                
+                String path = epmem.getParams().getProperties().get(pathProperty).toString();
+                
+                if (path.equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+                {
+                    return "memory";
+                }
+                else
+                {
+                    return "file";
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
         }
         return epmem.getParams().getProperties().get(key).toString();
     }
@@ -245,7 +284,17 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
         pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
-        pw.printf(PrintHelper.generateItem("path:", p.path.get(), 40));
+        
+        String database = "memory";
+        String path = "";
+        if (!p.path.get().equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+        {
+            database = "file";
+            path = p.path.get();
+        }
+        
+        pw.printf(PrintHelper.generateItem("database:", database, 40));        
+        pw.printf(PrintHelper.generateItem("path:", path, 40));
         pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));
         pw.printf(PrintHelper.generateSection("Retrieval", 40));
         pw.printf(PrintHelper.generateItem("balance:", p.balance.get(), 40));
