@@ -67,7 +67,7 @@ default:
 test-wait-snc:
     - Name: wait-snc
     - Path: resources/APT/wait.soar
-    - Decision Cycles: [ 10000 ]
+    - Decision Cycles: [ 100, 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory

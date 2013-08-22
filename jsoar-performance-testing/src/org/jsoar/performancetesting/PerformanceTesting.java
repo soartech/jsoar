@@ -576,12 +576,28 @@ public class PerformanceTesting
             List<String> argumentsPerRun = new ArrayList<String>(arguments);
             argumentsPerRun.add("--run");
             argumentsPerRun.add(new Integer(i).toString());
+            
+            out.println("Starting Test - " + test.getTestName() + " - " + i + "/" + test.getTestSettings().getRunCount());
 
             for (Integer j : test.getTestSettings().getDecisionCycles())
             {
                 List<String> argumentsPerCycle = new ArrayList<String>(argumentsPerRun);
                 argumentsPerCycle.add("--decisions");
                 argumentsPerCycle.add(j.toString());
+                
+                String decisionsString;
+                
+                if (j == 0)
+                {
+                    decisionsString = "Forever";
+                }
+                else
+                {
+                    decisionsString = "for " + j + " decisions";
+                }
+                
+                out.println("Running " + decisionsString);
+                out.flush();
                 
                 ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerCycle);
 
@@ -906,8 +922,11 @@ public class PerformanceTesting
         Test test = testRunner.getTest();
         TestSettings settings = test.getTestSettings();
 
-        out.println("Starting Test: " + test.getTestName());
-        out.flush();
+        if (!singleTest)
+        {
+            out.println("Starting Test: " + test.getTestName());
+            out.flush();
+        }
 
         //Construct a table for the data
 
