@@ -16,8 +16,6 @@ import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.exploration.Exploration;
-import org.jsoar.kernel.exploration.Exploration.Policy;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
@@ -78,7 +76,6 @@ public class ReinforcementLearning
     
     // reinforcement learning
     private int rl_template_count;
-    private boolean rl_first_switch;
 
 	private final Agent my_agent;
     private final Adaptable myContext;
@@ -86,7 +83,6 @@ public class ReinforcementLearning
     private Decider decider;
     private Chunker chunker;
     private RecognitionMemory recMemory;
-    private Exploration exploration;
     private Rete rete;
     private PredefinedSymbols preSyms;
     private Trace trace;
@@ -127,7 +123,6 @@ public class ReinforcementLearning
         this.decider   = Adaptables.require(getClass(), myContext, Decider.class);
         this.chunker   = Adaptables.require(getClass(), myContext, Chunker.class);
         this.recMemory = Adaptables.require(getClass(), myContext, RecognitionMemory.class);
-        this.exploration = Adaptables.require(getClass(), myContext, Exploration.class);
         this.rete      = Adaptables.require(getClass(), myContext, Rete.class);
         this.preSyms   = Adaptables.require(getClass(), myContext, PredefinedSymbols.class);
         this.trace = Adaptables.require(getClass(), myContext, Trace.class);
@@ -141,21 +136,22 @@ public class ReinforcementLearning
             @Override
             public void propertyChanged(PropertyChangeEvent<Learning> event)
             {
-            	
-                if(event.getNewValue() == Learning.on && rl_first_switch)
-                {
-                    // The first time we switch on RL, set up sane settings. After
-                    // that, it's the user's problem.
-                    rl_first_switch = false;
-                    exploration.exploration_set_policy(Policy.USER_SELECT_E_GREEDY);
-                    trace.startNewLine().print("Exploration Mode changed to epsilon-greedy").flush();
-                }
+//                if(event.getNewValue() == Learning.on && rl_first_switch)
+//                {
+//                    // The first time we switch on RL, set up sane settings. After
+//                    // that, it's the user's problem.
+//                    rl_first_switch = false;
+//                    exploration.exploration_set_policy(Policy.USER_SELECT_E_GREEDY);
+//                    trace.startNewLine().print("Exploration Mode changed to epsilon-greedy").flush();
+//                }
+            	if (event.getNewValue() == Learning.off)
+            	{
+//        			rl_reset_data( my_agent ); 	?????????????           		
+            	}
             }
         });
         
         rl_initialize_template_tracking();
-        
-        rl_first_switch = true;
 
     }
     

@@ -81,7 +81,7 @@ public class ReinforcementLearningParams
     public static final PropertyKey<Double> LEARNING_RATE = key("learning-rate", Double.class).defaultValue(0.3).build();
     final DefaultPropertyProvider<Double> learning_rate = new DefaultPropertyProvider<Double>(LEARNING_RATE);
 
-    public static final PropertyKey<HrlDiscount> HRL_DISCOUNT = key("hrl-discount", HrlDiscount.class).defaultValue(HrlDiscount.on).build();
+    public static final PropertyKey<HrlDiscount> HRL_DISCOUNT = key("hrl-discount", HrlDiscount.class).defaultValue(HrlDiscount.off).build();
     final EnumPropertyProvider<HrlDiscount> hrl_discount = new EnumPropertyProvider<HrlDiscount>(HRL_DISCOUNT);
 
     public static final PropertyKey<TemporalDiscount> TEMPORAL_DISCOUNT = key("temporal-discount", TemporalDiscount.class).defaultValue(TemporalDiscount.on).build();
@@ -95,7 +95,7 @@ public class ReinforcementLearningParams
     
     //	--------------	EXPERIMENTAL	-------------------
 
-    public static final PropertyKey<ChunkStop> CHUNK_STOP = key("chunk-stop", ChunkStop.class).defaultValue(ChunkStop.off).build();
+    public static final PropertyKey<ChunkStop> CHUNK_STOP = key("chunk-stop", ChunkStop.class).defaultValue(ChunkStop.on).build();
     //	This is public so the rete can get it
     public final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
     

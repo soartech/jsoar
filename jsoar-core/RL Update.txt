@@ -318,7 +318,8 @@ NEEDED	Make all the changes below to the JSoar code
 		This changes the default values of the hrl-discount
 		and chunk_stop parameters, and removes some related code.
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp:  in create_soar_agent
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp: DONE
+		in create_soar_agent
 
 ... 
  329  329 
@@ -332,7 +333,7 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp:  in create_soar_agent
  337  334    select_init( newAgent ); 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h 
+Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h DONE
 
 ... 
  853  853    rl_production_memory *rl_prods; 
@@ -344,8 +345,8 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h
  859  858    select_info *select; 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
-				in rl_param_container, rl_reset_data
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE - ???
+				in rl_param_container, rl_learning_param
 
 ... 
  82  82  	add( temporal_extension ); 
@@ -381,9 +382,14 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
  135      -  		else if ( new_value == soar_module::off ) 
 	  126 +  		if ( new_value == soar_module::off ) 
  136  127    		{ 
- 137  128   			rl_reset_data( my_agent );
+ 137  128   			rl_reset_data( my_agent );	??????	This is not there in JSoar
  138  129   		} 
  ... 
+ 
+ ALSO:  The testSetsExplorationModeToEpsilonGreedyWhenEnabled test tests
+ 		that the code removed above is working.
+ 		Since that code is no longer there the code fails, and so
+ 		we can eliminate that test.										DONE
  
 
 
