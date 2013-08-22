@@ -283,6 +283,8 @@ Note that there is already an RL unit test in jsoar,
 so maybe it's sufficient to update it.
 But it may not be as extensive as this test.
 
+NOT BEING WORKED ON AT THIS TIME - PL 8/22/2013
+
 
 Modify /trunk/SoarSuite/PHP/SConscript 
 
