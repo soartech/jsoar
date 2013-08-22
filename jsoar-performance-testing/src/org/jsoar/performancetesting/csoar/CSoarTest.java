@@ -106,10 +106,10 @@ public class CSoarTest implements Test
         
         agent.ExecuteCommandLine("set-stop-phase -o");
 
-        if (settings.getDecisionCycles() == 0)
+        if (settings.getDecisionCycles().size() == 0 || settings.getDecisionCycles().get(0) == 0)
             agent.RunSelfForever();
         else
-            agent.RunSelf(settings.getDecisionCycles());
+            agent.RunSelf(settings.getDecisionCycles().get(0));
         
         cpuTime = getCPUTime();
         kernelTime = getKernelTime();

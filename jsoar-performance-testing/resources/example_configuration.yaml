@@ -32,15 +32,15 @@
 # instead.
 default:
     - JSoar Enabled: TRUE
-    - CSoar Enabled: FALSE
+    - CSoar Enabled: TRUE
     - CSoar Directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
-    - WarmUp Count: 10
-    - Run Count: 10
-    - Decision Cycles: 0 # Magic Number.  Run a test until it halts
+    - WarmUp Count: 0
+    - Run Count: 5
+    - Decision Cycles: [ 0 ] # Magic Number.  Run a test until it halts
     - Use Seed: FALSE
     - Seed: 1
     - CSV Directory: resources/Test-Results
-    - JVM Settings: -Xmx512M
+    - JVM Settings: -Xmx2G
     - Summary File: test-summaries.txt
 
 #
@@ -67,35 +67,35 @@ default:
 test-wait-snc:
     - Name: wait-snc
     - Path: resources/APT/wait.soar
-    - Decision Cycles: 10000
+    - Decision Cycles: [ 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory
 test-all-test:
     - Name: All Test
     - Path: resources/APT/all-test/all-test.soar
-    - Decision Cycles: 10000
+    - Decision Cycles: [ 10000 ]
 
 # Arithmetic
 # Computes problems it makes up
 test-Arithmetic:
     - Name: Arithmetic
     - Path: resources/APT/Arithmetic/arithmetic.soar
-    - Decision Cycles: 10000
+    - Decision Cycles: [ 10000 ]
 
 # Arithmetic Chunking
 # Computes problems it makes up while also using chunking
 test-Arithmetic-chunking:
     - Name: Arithmetic Chunking
     - Path: resources/APT/Arithmetic/arithmetic-chunking.soar
-    - Decision Cycles: 10000
+    - Decision Cycles: [ 10000 ]
 
 # Arithmetic SMem
 # Computes problems it makes up while also using SMem
 test-Arithmetic-smem:
     - Name: Arithmetic SMem
     - Path: resources/APT/Arithmetic-smem/arithmetic.soar
-    - Decision Cycles: 10000
+    - Decision Cycles: [ 10000 ]
 
 # Count Test
 # A series of 9 tests testing performance.  Ideally this

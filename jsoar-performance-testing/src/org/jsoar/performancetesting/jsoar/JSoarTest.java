@@ -104,10 +104,10 @@ public class JSoarTest implements Test
         
         ifc.eval("set-stop-phase -o");
                 
-        if (settings.getDecisionCycles() == 0)
+        if (settings.getDecisionCycles().size() == 0 || settings.getDecisionCycles().get(0) == 0)
             agent.runForever();
         else
-            agent.runFor(settings.getDecisionCycles(), RunType.DECISIONS);
+            agent.runFor(settings.getDecisionCycles().get(0), RunType.DECISIONS);
         
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();

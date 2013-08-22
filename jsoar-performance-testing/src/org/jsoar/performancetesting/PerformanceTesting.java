@@ -52,7 +52,7 @@ public class PerformanceTesting
     private static final int EXIT_FAILURE_TEST = 254;
     private static final int EXIT_FAILURE_CONFIGURATION = 253;
     
-    private static TestSettings defaultTestSettings = new TestSettings(false, false, 0, 0, 0, false, 1, "", "", new ArrayList<String>(), "");
+    private static TestSettings defaultTestSettings = new TestSettings(false, false, 0, 0, new ArrayList<Integer>(), false, 1, "", "", new ArrayList<String>(), "");
     
     // Locals
     
@@ -288,7 +288,11 @@ public class PerformanceTesting
         
         if (options.has(Options.decisions))
         {
-            defaultTestSettings.setDecisionCycles(Integer.parseInt(options.get(Options.decisions)));
+           List<Integer> decisions = new ArrayList<Integer>();
+           
+           decisions.add(Integer.parseInt(options.get(Options.decisions)));
+           
+            defaultTestSettings.setDecisionCycles(decisions);
         }
         
         if (options.has(Options.run))
@@ -526,8 +530,6 @@ public class PerformanceTesting
         arguments.add(test.getTestSettings().getCSVDirectory());
         arguments.add("--warmup");
         arguments.add(new Integer(test.getTestSettings().getWarmUpCount()).toString());
-        arguments.add("--decisions");
-        arguments.add(new Integer(test.getTestSettings().getDecisionCycles()).toString());
         arguments.add("--name");
         arguments.add(test.getTestName());
         arguments.add("--nosummary");
@@ -575,28 +577,35 @@ public class PerformanceTesting
             argumentsPerRun.add("--run");
             argumentsPerRun.add(new Integer(i).toString());
 
-            ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerRun);
-
-            // Redirect the output so we can see what is going on
-            processBuilder.redirectError(Redirect.INHERIT);
-            processBuilder.redirectOutput(Redirect.INHERIT);
-
-            Process process = null;
-            try
+            for (Integer j : test.getTestSettings().getDecisionCycles())
             {
-                process = processBuilder.start();
-                exitCode = process.waitFor();
-            }
-            catch (IOException | InterruptedException e)
-            {
-                throw new RuntimeException(e);
-            }
-            finally
-            {
-                process.destroy();
-            }
+                List<String> argumentsPerCycle = new ArrayList<String>(argumentsPerRun);
+                argumentsPerCycle.add("--decisions");
+                argumentsPerCycle.add(j.toString());
+                
+                ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerCycle);
 
-            out.flush();
+                // Redirect the output so we can see what is going on
+                processBuilder.redirectError(Redirect.INHERIT);
+                processBuilder.redirectOutput(Redirect.INHERIT);
+
+                Process process = null;
+                try
+                {
+                    process = processBuilder.start();
+                    exitCode = process.waitFor();
+                }
+                catch (IOException | InterruptedException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    process.destroy();
+                }
+                
+                out.flush();
+            }
         }
         
         return exitCode;
@@ -674,6 +683,12 @@ public class PerformanceTesting
             summaryTable.addRow(row);
         }
         
+        String csvDirectoryString = test.getTestSettings().getCSVDirectory();
+        
+        String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
+        
+        String testDirectoryString = csvDirectoryString + "/" + testNameWithoutSpaces;
+        
         if (settings.isJSoarEnabled())
         {
             // JSoar
@@ -682,50 +697,66 @@ public class PerformanceTesting
             List<Double> decisionCycles = new ArrayList<Double>();
             List<Double> memoryLoads = new ArrayList<Double>();
             
-            String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
-            
+            String categoryDirectoryString = testDirectoryString + "/JSoar";
+                                    
             for (int i = 1;i <= settings.getRunCount();i++)
             {
-                File testFile = new File(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + "-JSoar-" + (new Integer(i)).toString() + ".txt");
-                
-                try
+                for (Integer j : settings.getDecisionCycles())
                 {
-                    BufferedReader br = new BufferedReader(new FileReader(testFile));
-                    String line;
-                    // This will skip the first and last fields and only use the total fields
-                    // for getting values since these are individual runs.
+                    String finalTestName = testNameWithoutSpaces;
                     
-                    // CPU Time, Kernel Time, Decisions
-                    for (int j = 0;j <= 10;j++)
+                    if (j != 0)
                     {
-                        line = br.readLine();
-                        
-                        assert(line != null);
-                        
-                        String[] list = line.split("\t");
-                        
-                        switch (j)
-                        {
-                        case 1:
-                            // CPU Time
-                            cpuTimes.add(Double.parseDouble(list[1]));
-                            break;
-                        case 4:
-                            kernelTimes.add(Double.parseDouble(list[1]));
-                            break;
-                        case 7:
-                            decisionCycles.add(Double.parseDouble(list[1]));
-                            break;
-                        case 10:
-                            memoryLoads.add(Double.parseDouble(list[1]));
-                            break;
-                        }
+                        finalTestName += "-" + j;
                     }
-                    br.close();
-                }
-                catch (IOException e)
-                {
-                    throw new AssertionError(e);
+                    else
+                    {
+                        finalTestName += "-Forever";
+                    }
+                    
+                    finalTestName += "-" + i;
+                    
+                    File testFile = new File(categoryDirectoryString + "/" + finalTestName + ".txt");
+
+                    try
+                    {
+                        BufferedReader br = new BufferedReader(new FileReader(testFile));
+                        String line;
+                        // This will skip the first and last fields and only use the total fields
+                        // for getting values since these are individual runs.
+
+                        // CPU Time, Kernel Time, Decisions
+                        for (int k = 0;k <= 10;k++)
+                        {
+                            line = br.readLine();
+
+                            assert(line != null);
+
+                            String[] list = line.split("\t");
+
+                            switch (k)
+                            {
+                            case 1:
+                                // CPU Time
+                                cpuTimes.add(Double.parseDouble(list[1]));
+                                break;
+                            case 4:
+                                kernelTimes.add(Double.parseDouble(list[1]));
+                                break;
+                            case 7:
+                                decisionCycles.add(Double.parseDouble(list[1]));
+                                break;
+                            case 10:
+                                memoryLoads.add(Double.parseDouble(list[1]));
+                                break;
+                            }
+                        }
+                        br.close();
+                    }
+                    catch (IOException e)
+                    {
+                        throw new AssertionError(e);
+                    }
                 }
             }
             
@@ -755,11 +786,11 @@ public class PerformanceTesting
         {
             int column = 3-1;
             
-            String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
-            
             for (String csoarPath : test.getTestSettings().getCSoarVersions())
             {
-                String csoarLabel = "-CSoar-" + csoarPath.replaceAll("[^a-zA-Z0-9]+", "") + "-";
+                String csoarLabel = "CSoar-" + csoarPath.replaceAll("[^a-zA-Z0-9]+", "");
+                
+                String categoryDirectoryString = testDirectoryString + "/" + csoarLabel;
                 
                 // CSoar
                 List<Double> cpuTimes = new ArrayList<Double>();
@@ -769,46 +800,62 @@ public class PerformanceTesting
 
                 for (int i = 1;i <= settings.getRunCount();i++)
                 {
-                    File testFile = new File(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + csoarLabel + (new Integer(i)).toString() + ".txt");
-
-                    try
+                    for (Integer j : settings.getDecisionCycles())
                     {
-                        BufferedReader br = new BufferedReader(new FileReader(testFile));
-                        String line;
-                        // This will skip the first and last fields and only use the total fields
-                        // for getting values since these are individual runs.
-
-                        // CPU Time, Kernel Time, Decisions
-                        for (int j = 0;j <= 10;j++)
+                        String finalTestName = testNameWithoutSpaces;
+                        
+                        if (j != 0)
                         {
-                            line = br.readLine();
-
-                            assert(line != null);
-
-                            String[] list = line.split("\t");
-
-                            switch (j)
-                            {
-                            case 1:
-                                // CPU Time
-                                cpuTimes.add(Double.parseDouble(list[2]));
-                                break;
-                            case 4:
-                                kernelTimes.add(Double.parseDouble(list[2]));
-                                break;
-                            case 7:
-                                decisionCycles.add(Double.parseDouble(list[2]));
-                                break;
-                            case 10:
-                                memoryLoads.add(Double.parseDouble(list[2]));
-                                break;
-                            }
+                            finalTestName += "-" + j;
                         }
-                        br.close();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new AssertionError(e);
+                        else
+                        {
+                            finalTestName += "-Forever";
+                        }
+                        
+                        finalTestName += "-" + i;
+                        
+                        File testFile = new File(categoryDirectoryString + "/" + finalTestName + ".txt");
+
+                        try
+                        {
+                            BufferedReader br = new BufferedReader(new FileReader(testFile));
+                            String line;
+                            // This will skip the first and last fields and only use the total fields
+                            // for getting values since these are individual runs.
+
+                            // CPU Time, Kernel Time, Decisions
+                            for (int k = 0;k <= 10;k++)
+                            {
+                                line = br.readLine();
+
+                                assert(line != null);
+
+                                String[] list = line.split("\t");
+
+                                switch (k)
+                                {
+                                case 1:
+                                    // CPU Time
+                                    cpuTimes.add(Double.parseDouble(list[2]));
+                                    break;
+                                case 4:
+                                    kernelTimes.add(Double.parseDouble(list[2]));
+                                    break;
+                                case 7:
+                                    decisionCycles.add(Double.parseDouble(list[2]));
+                                    break;
+                                case 10:
+                                    memoryLoads.add(Double.parseDouble(list[2]));
+                                    break;
+                                }
+                            }
+                            br.close();
+                        }
+                        catch (IOException e)
+                        {
+                            throw new AssertionError(e);
+                        }
                     }
                 }
 
@@ -965,36 +1012,55 @@ public class PerformanceTesting
 
         if (settings.getCSVDirectory().length() != 0)
         {
-            File outDirectory = new File(test.getTestSettings().getCSVDirectory());
-
-            if (!outDirectory.exists())
-            {
-                outDirectory.mkdirs();
-            }
-
+            String csvDirectoryString = test.getTestSettings().getCSVDirectory();
+            
             String testNameWithoutSpaces = test.getTestName().replaceAll("\\s+", "-");
-
+            
+            String testDirectoryString = csvDirectoryString + "/" + testNameWithoutSpaces;
+            
+            String categoryDirectoryString = null;
+            
+            if (settings.isJSoarEnabled())
+            {
+                categoryDirectoryString = testDirectoryString + "/JSoar";
+            }
+            else
+            {
+                categoryDirectoryString = testDirectoryString + "/CSoar";
+                
+                if (csoarTestFactory.getLabel().length() != 0)
+                {
+                    categoryDirectoryString += "-";
+                    categoryDirectoryString += csoarTestFactory.getLabel().replaceAll("[^a-zA-Z0-9]+", "");
+                }
+            }
+            
+            String finalPathDirectoryString = categoryDirectoryString;
+            
+            File finalPathDirectory = new File(finalPathDirectoryString);
+            
+            if (!finalPathDirectory.exists())
+            {
+                finalPathDirectory.mkdirs();
+            }
+            
+            String finalTestName = testNameWithoutSpaces;
+            
+            if (test.getTestSettings().getDecisionCycles().get(0) != 0)
+            {
+                finalTestName += "-" + test.getTestSettings().getDecisionCycles().get(0);
+            }
+            else
+            {
+                finalTestName += "-Forever";
+            }
+            
             if (runNumber != -1)
             {
-                if (settings.isJSoarEnabled())
-                {
-                    testNameWithoutSpaces += "-JSoar";
-                }
-                else
-                {
-                    testNameWithoutSpaces += "-CSoar";
-                    
-                    if (csoarTestFactory.getLabel().length() != 0)
-                    {
-                        testNameWithoutSpaces += "-";
-                        testNameWithoutSpaces += csoarTestFactory.getLabel().replaceAll("[^a-zA-Z0-9]+", "");
-                    }
-                }
-
-                testNameWithoutSpaces += "-" + (new Integer(runNumber)).toString();
+                finalTestName += "-" + runNumber;
             }
 
-            table.writeToCSV(settings.getCSVDirectory() + "/" + testNameWithoutSpaces + ".txt");
+            table.writeToCSV(finalPathDirectoryString + "/" + finalTestName + ".txt");
 
             if (outputToSummaryFile)
             {

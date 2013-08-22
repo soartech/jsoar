@@ -17,7 +17,7 @@ public class TestSettings
     private int runCount;
     private int warmUpCount;
     
-    private int decisionCycles;
+    private List<Integer> decisionCycles;
     
     private boolean useSeed;
     private long seed;
@@ -50,7 +50,7 @@ public class TestSettings
         jvmSettings = other.getJVMSettings();
     }
     
-    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, int decisionCycles, boolean useSeed, long seed, String csvDirectory, String summaryFile, List<String> csoarDirectories, String jvmSettings)
+    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled, int runCount, int warmUpCount, List<Integer> decisionCycles, boolean useSeed, long seed, String csvDirectory, String summaryFile, List<String> csoarDirectories, String jvmSettings)
     {
         this.jsoarEnabled = jsoarEnabled;
         this.csoarEnabled = csoarEnabled;
@@ -117,12 +117,12 @@ public class TestSettings
         return warmUpCount;
     }
     
-    public void setDecisionCycles(int decisionCycles)
+    public void setDecisionCycles(List<Integer> decisionCycles)
     {
         this.decisionCycles = decisionCycles;
     }
     
-    public int getDecisionCycles()
+    public List<Integer> getDecisionCycles()
     {
         return decisionCycles;
     }

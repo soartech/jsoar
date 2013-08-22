@@ -185,7 +185,7 @@ public class Configuration
                     {
                         hasFoundDefaults = true;
 
-                        defaultTestSettings = new TestSettings(false, false, 0, 0, 0, false, 1, null, null, null, null);
+                        defaultTestSettings = new TestSettings(false, false, 0, 0, new ArrayList<Integer>(), false, 1, null, null, null, null);
 
                         @SuppressWarnings("unchecked")
                         ArrayList<LinkedHashMap<String, Object>> defaultMap = (ArrayList<LinkedHashMap<String, Object>>)root.getValue();
@@ -293,7 +293,12 @@ public class Configuration
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Decision Cycles"))
                 {
-                    settings.setDecisionCycles((Integer)keyValuePair.getValue());
+                    Object arrayObject = keyValuePair.getValue();
+                    
+                    @SuppressWarnings("unchecked")
+                    List<Integer> decisionCycles = (ArrayList<Integer>)arrayObject;
+                    
+                    settings.setDecisionCycles(decisionCycles);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Use Seed"))
                 {
