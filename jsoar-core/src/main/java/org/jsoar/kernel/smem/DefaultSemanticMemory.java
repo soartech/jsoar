@@ -2887,9 +2887,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
-        
-        params.protocol.set(meta.getDriverName() + ":" + meta.getDriverVersion());
-        
+                
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
 
         if (params.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))

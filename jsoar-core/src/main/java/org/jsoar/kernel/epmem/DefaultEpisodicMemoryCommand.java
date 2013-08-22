@@ -291,6 +291,26 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("exclusions:", p.exclusions, 40));
         pw.printf(PrintHelper.generateSection("Storage", 40));
         pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            EpisodicMemoryDatabase db = epmem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
         pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
         

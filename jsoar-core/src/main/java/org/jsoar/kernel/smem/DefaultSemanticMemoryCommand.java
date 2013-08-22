@@ -543,6 +543,26 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateSection("Storage", 40));
         
         pw.printf(PrintHelper.generateItem("driver:", p.driver.get(), 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            SemanticMemoryDatabase db = smem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
         pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_db.get(), 40));
         
