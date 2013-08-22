@@ -4217,6 +4217,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 else 
                                 {
                                     results.close();
+                                    interval_sql.close();
                                 }
                             }
                         }
@@ -4294,6 +4295,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             //pedge->sql->get_pool()->release(pedge->sql);
                             pedge.sqlResults.close();
                             pedge.sqlResults = null;
+                            pedge.sql.close();
                             pedge.sql = null;
                         }
                     }
@@ -4377,6 +4379,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 //interval->sql->get_pool()->release(interval->sql);
                                 interval.sqlResult.close();
                                 interval.sqlResult = null;
+                                interval.sql.close();
                                 interval.sql = null;
                                 uedge.intervals--;
                                 if (uedge.intervals != 0)
@@ -4656,6 +4659,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //interval->sql->get_pool()->release(interval->sql);
                 interval.sqlResult.close();
                 interval.sqlResult = null;
+                interval.sql.close();
+                interval.sql = null;
             }
             //free_with_pool(&(my_agent->epmem_interval_pool), interval);
         }
@@ -4669,6 +4674,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     //pedge->sql->get_pool()->release(pedge->sql);
                     pedge.sqlResults.close();
+                    pedge.sqlResults = null;
+                    pedge.sql.close();
+                    pedge.sql = null;
                 }
                 //In some places, we use clear to "destroy" containers, but this one is about to leave
                 //scope so we dont need to bother. -ACN
@@ -5139,6 +5147,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             else
             {
                 results.close();
+                pedge_sql.close();
                 return false;
             }
         } else {
