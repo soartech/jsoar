@@ -23,10 +23,6 @@ import org.jsoar.util.properties.PropertyManager;
  */
 class DefaultSemanticMemoryParams
 {
-    static enum Cache
-    {
-        small, medium, large;
-    }
     static enum PageChoices
     {
         page_1k, page_2k, page_4k, page_8k, page_16k, page_32k, page_64k;

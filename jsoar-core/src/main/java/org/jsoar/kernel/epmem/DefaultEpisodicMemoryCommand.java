@@ -14,6 +14,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -168,6 +169,14 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
                 return "Set append to " + AppendDatabaseChoices.valueOf(value);
             }
+            else if(name.equals("page-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            }
+            else if(name.equals("cache-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            }
             else if (name.equals("lazy-commit"))
             {
                 if(epmem.db != null){
@@ -301,8 +310,8 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("graph-match:", p.graph_match.get(), 40));
         pw.printf(PrintHelper.generateItem("graph-match-ordering:", p.gm_ordering.get(), 40));
         pw.printf(PrintHelper.generateSection("Performance", 40));
-        pw.printf(PrintHelper.generateItem("page-size:", "N/A - Not Ported", 40));
-        pw.printf(PrintHelper.generateItem("cache-size:", p.cache.get(), 40));
+        pw.printf(PrintHelper.generateItem("page-size:", p.page_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("cache-size:", p.cache_size.get(), 40));
         pw.printf(PrintHelper.generateItem("optimization:", p.optimization.get(), 40));
         pw.printf(PrintHelper.generateItem("timers:", "off", 40));
         pw.printf(PrintHelper.generateSection("Experimental", 40));

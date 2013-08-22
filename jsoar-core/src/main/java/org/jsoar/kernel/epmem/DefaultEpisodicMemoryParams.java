@@ -13,6 +13,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.DoublePropertyProvider;
 import org.jsoar.util.properties.EnumPropertyProvider;
+import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
@@ -30,9 +31,36 @@ class DefaultEpisodicMemoryParams
      */
     static enum Optimization { safety, performance };
     /**
-     * Size of memory pages used in the SQLite cache
+     * Size of pages used for SQLite
      */
-    static enum Cache { small, medium, large; }
+    static enum PageChoices
+    {
+        page_1k, page_2k, page_4k, page_8k, page_16k, page_32k, page_64k;
+        
+        @Override
+        public String toString()
+        {
+            switch (this)
+            {
+            case page_1k:
+                return "1k";
+            case page_2k:
+                return "2k";
+            case page_4k:
+                return "4k";
+            case page_8k:
+                return "8k";
+            case page_16k:
+                return "16k";
+            case page_32k:
+                return "32k";
+            case page_64k:
+                return "64k";
+            default:
+                throw new IllegalArgumentException();
+            }
+        }
+    }
     /**
      * Decision cycle phase to encode new episodes and process epmem link commands
      */
@@ -82,8 +110,11 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<String> PATH = key("path", String.class).defaultValue(EpisodicMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
-    static final PropertyKey<Cache> CACHE = key("cache", Cache.class).defaultValue(Cache.small).build();
-    final EnumPropertyProvider<Cache> cache = new EnumPropertyProvider<Cache>(CACHE);
+    static final PropertyKey<PageChoices> PAGE_SIZE = key("page-size", PageChoices.class).defaultValue(PageChoices.page_8k).build();
+    final EnumPropertyProvider<PageChoices> page_size = new EnumPropertyProvider<PageChoices>(PAGE_SIZE);
+    
+    static final PropertyKey<Long> CACHE_SIZE = key("cache-size", Long.class).defaultValue(10000L).build();
+    final LongPropertyProvider cache_size = new LongPropertyProvider(CACHE_SIZE);
     
     static final PropertyKey<Optimization> OPTIMIZATION = key("optimization", Optimization.class).defaultValue(Optimization.performance).build();
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
@@ -123,7 +154,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(PATH, path);
 
         properties.setProvider(LAZY_COMMIT, lazy_commit);
-        properties.setProvider(CACHE, cache);
+        properties.setProvider(CACHE_SIZE, cache_size);
         properties.setProvider(OPTIMIZATION, optimization);
         
         properties.setProvider(PHASE, phase);
