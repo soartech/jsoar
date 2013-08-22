@@ -641,7 +641,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         db.structure();
         db.prepare();
         //Make sure we do not have an incorrect database version
-        if (!":memory:".equals(params.path.get()))
+        if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
             final ResultSet result = db.get_schema_version.executeQuery();
             try
@@ -652,7 +652,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
-                        params.path.set(":memory:");
+                        params.path.set(EpisodicMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
                         connection.close();
@@ -6995,7 +6995,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
+            if(!EpisodicMemoryDatabase.IN_MEMORY_PATH.equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
                 logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
         }

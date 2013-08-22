@@ -79,7 +79,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
     final DoublePropertyProvider balance = new DoublePropertyProvider(BALANCE);
     
-    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(":memory:").build();
+    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(EpisodicMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<Cache> CACHE = key("cache", Cache.class).defaultValue(Cache.small).build();

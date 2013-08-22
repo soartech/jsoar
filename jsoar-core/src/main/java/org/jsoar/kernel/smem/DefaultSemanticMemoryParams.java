@@ -217,7 +217,7 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(":memory:").build();
+    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(SemanticMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();

@@ -2832,7 +2832,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     void smem_switch_to_memory_db(String buf) throws SoarException, SQLException, IOException
     {
         trace.print(buf);
-        params.path.set(":memory:");
+        params.path.set(SemanticMemoryDatabase.IN_MEMORY_PATH);
         db.getConnection().close();
         db = null;
         smem_init_db(false);
@@ -2892,7 +2892,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
 
-        if (params.path.get().equals(":memory:"))
+        if (params.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
         {
             trace.print(Category.SMEM, "SMem| Initializing semantic memory database in cpu memory.\n");
         }
@@ -2915,7 +2915,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         db.prepare();
 
         // Make sure we do not have an incorrect database version
-        if (!":memory:".equals(params.path.get()))
+        if (!SemanticMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
             final ResultSet result = db.get_schema_version.executeQuery();
             try
@@ -2926,7 +2926,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     if (!SemanticMemoryDatabase.SMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
-                        params.path.set(":memory:");
+                        params.path.set(SemanticMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
                         connection.close();
