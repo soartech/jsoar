@@ -113,7 +113,7 @@ public class PerformanceTesting
     {
         int optionsParseResult = parseOptions(args);
         
-        if (configurationTests == null)
+        if (!singleTest && configurationTests == null)
         {
             out.println("Did not load any tests or configuration.");
             usage();
