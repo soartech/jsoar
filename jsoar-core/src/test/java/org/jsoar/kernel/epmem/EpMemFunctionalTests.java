@@ -26,8 +26,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testCountEpMem() throws Exception
     {
-        //TODO: Uncomment this test when Justin fixes the EpMem Graphic Match bug created in r13908+
-        //runTest("testCountEpMem", 1693);
+        runTest("testCountEpMem", 1693);
     }
     
     @Test

@@ -4235,7 +4235,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     
                                     if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time)
                                     {
-                                        interval.time = promo_time;
+                                        interval.time = promo_time - 1;
                                     }
                                     
                                     interval.sql = interval_sql;
