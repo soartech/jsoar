@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -364,7 +365,53 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 throw new SoarException(e);
             }
-            pw.printf(PrintHelper.generateItem("Memory Usage:", p.mem_usage.get(), 40));
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = smem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            p.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(p.mem_usage.get()) / 1024.0 + " KB", 40));
             pw.printf(PrintHelper.generateItem("Memory Highwater:", p.mem_high.get(), 40));
             pw.printf(PrintHelper.generateItem("Retrieves:", p.retrieves.get(), 40));
             pw.printf(PrintHelper.generateItem("Queries:", p.queries.get(), 40));

@@ -2,7 +2,9 @@ package org.jsoar.kernel.epmem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
@@ -286,7 +288,54 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             {
                 throw new SoarException(e);
             }
-            pw.printf(PrintHelper.generateItem("Memory Usage:", stats.mem_usage.get(), 40));
+            
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = epmem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            stats.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(stats.mem_usage.get()) / 1024.0 + " KB", 40));
             pw.printf(PrintHelper.generateItem("Memory Highwater:", stats.mem_high.get(), 40));
             pw.printf(PrintHelper.generateItem("Retrievals:", stats.ncbr.get(), 40));
             pw.printf(PrintHelper.generateItem("Queries:", stats.cbr.get(), 40));
