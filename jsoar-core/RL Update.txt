@@ -386,6 +386,10 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE - ?
  138  129   		} 
  ... 
  
+ NEEDED	Implement rl_reset_data in JSoar.
+ 		Should go in reinforcement_learning.cpp
+ 		right before rl_remove_refs_for_prod.
+ 
  ALSO:  The testSetsExplorationModeToEpsilonGreedyWhenEnabled test tests
  		that the code removed above is working.
  		Since that code is no longer there the code fails, and so
@@ -401,7 +405,8 @@ Added delta-bar-delta decay mode to RL; added update-log-path to RL
 
 NEEDED	Make all the changes below to the JSoar code
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp:  in do_print_for_production
+Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp: 
+		in do_print_for_production
 ... 
  86  86 
  87  87          if ( prod->rl_rule ) 

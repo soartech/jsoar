@@ -7,12 +7,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.DecayMode;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
-import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
-import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -131,6 +131,11 @@ public final class ReinforcementLearningCommand implements SoarCommand
                 props.set(ReinforcementLearningParams.CHUNK_STOP, ChunkStop.valueOf(value));
                 return "Set chunk-stop to " + ChunkStop.valueOf(value);
             }
+            else if (name.equals("decay-mode"))
+            {
+                props.set(ReinforcementLearningParams.DECAY_MODE, DecayMode.valueOf(value));
+                return "Set decay-mode to " + DecayMode.valueOf(value); 
+            }
             else
             {
                 throw new SoarException("Unknown rl parameter '" + name + "'");
@@ -184,7 +189,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
         //	The following are not implemented yet, except for being faked here
         pw.printf(RLPrintHelper.generateSection("Experimental", 40));
         pw.printf(RLPrintHelper.generateItem("chunk-stop:", p.chunk_stop.get(), 40));
-        pw.printf(RLPrintHelper.generateItem("decay-mode:", "normal"/*p.decay_mode.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("decay-mode:", p.decay_mode.get(), 40));
         pw.printf(RLPrintHelper.generateItem("meta:", "off"/*p.meta.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("meta-learning-rate:", "0.1"/*p.meta_learning_rate.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("update-log-path:", ""/*p.update_log_path.get()*/, 40));

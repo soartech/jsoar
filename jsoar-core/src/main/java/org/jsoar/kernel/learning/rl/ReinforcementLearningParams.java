@@ -52,7 +52,7 @@ public class ReinforcementLearningParams
      * logarithmic_decay: rate = rate / log(# updates for this rule)
      * Miller, 11/14/2011
      */
-    static enum Decay { normal_decay, exponential_decay,
+    public static enum DecayMode { normal_decay, exponential_decay,
     							logarithmic_decay, delta_bar_delta_decay }
     /**
      * Options for apoptosis
@@ -99,6 +99,9 @@ public class ReinforcementLearningParams
     //	This is public so the rete can get it
     public final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
     
+    public static final PropertyKey<DecayMode> DECAY_MODE = key("decay-mode", DecayMode.class).defaultValue(DecayMode.normal_decay).build();
+    final EnumPropertyProvider<DecayMode> decay_mode = new EnumPropertyProvider<DecayMode>(DECAY_MODE);
+    
     private final PropertyManager properties;
 
     public ReinforcementLearningParams(PropertyManager properties, SymbolFactory sf)
@@ -119,6 +122,7 @@ public class ReinforcementLearningParams
         
         //	--------------	EXPERIMENTAL	-------------------
         properties.setProvider(CHUNK_STOP, chunk_stop);
+        properties.setProvider(DECAY_MODE, decay_mode);
     }
 
     public PropertyManager getProperties()
