@@ -17,11 +17,13 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
 
 /**
@@ -617,6 +619,60 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             {
                 String correctLti = lti.substring(0, 3);
                 assertTrue(ltis.contains(correctLti));
+            }
+        }
+    }
+    
+
+    @Test
+    public void testMultiAgent() throws Exception
+    {
+        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        
+        for (int i = 1;i <= 250;i++)
+        {
+            ThreadedAgent t = ThreadedAgent.create("Agent " + i);
+            t.getAgent().getTrace().setEnabled(true);
+            String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
+            URL sourceUrl = getClass().getResource(sourceName);
+            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            t.getAgent().getInterpreter().source(sourceUrl);
+            
+            agents.add(t);
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            a.runFor(4+1, RunType.DECISIONS);
+        }
+        
+        boolean allStopped = false;
+        while (!allStopped)
+        {
+            allStopped = true;
+            
+            for (ThreadedAgent a : agents)
+            {
+                if (a.isRunning())
+                {
+                    allStopped = false;
+                    break;
+                }
+            }
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 4)
+            {
+                throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
+            }
+            
+            String result = a.getAgent().getInterpreter().eval("smem");
+            
+            if (!result.contains("native"))
+            {
+                throw new AssertionError("Non Native Driver!");
             }
         }
     }
