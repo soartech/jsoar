@@ -198,7 +198,7 @@ public class PerformanceTesting
             return EXIT_SUCCESS;
         }
 
-        if (options.has(Options.help))
+        if (options.has(Options.help) || args.length == 0)
         {
             usage();
             return EXIT_SUCCESS;
