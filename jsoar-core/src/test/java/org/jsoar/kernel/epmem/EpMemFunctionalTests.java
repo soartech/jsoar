@@ -9,8 +9,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoar.kernel.FunctionalTestHarness;
+import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
+import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
 
 /**
@@ -186,5 +191,58 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
                 
         assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
+    }
+    
+    @Test
+    public void testMultiAgent() throws Exception
+    {
+        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        
+        for (int i = 1;i <= 250;i++)
+        {
+            ThreadedAgent t = ThreadedAgent.create("Agent " + i);
+            t.getAgent().getTrace().setEnabled(true);
+            String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
+            URL sourceUrl = getClass().getResource(sourceName);
+            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            t.getAgent().getInterpreter().source(sourceUrl);
+            
+            agents.add(t);
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            a.runFor(3+1, RunType.DECISIONS);
+        }
+        
+        boolean allStopped = false;
+        while (!allStopped)
+        {
+            allStopped = true;
+            
+            for (ThreadedAgent a : agents)
+            {
+                if (a.isRunning())
+                {
+                    allStopped = false;
+                    break;
+                }
+            }
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 3)
+            {
+                throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
+            }
+            
+            String result = a.getAgent().getInterpreter().eval("epmem");
+            
+            if (!result.contains("native"))
+            {
+                throw new AssertionError("Non Native Driver!");
+            }
+        }
     }
 }
