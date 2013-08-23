@@ -189,7 +189,7 @@ public class PerformanceTesting
                     "   -T, --test              Manually specify a test to load.\n" +
                     "   -o, --output            The directory for all the CSV test results.\n" +
                     "   -w, --warmup            Specify the number of warm up runs for JSoar.\n" +
-                    "   -c, --category              Specify the test category.\n" +
+                    "   -c, --category          Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
                     "   -s, --soar              Run the tests in CSoar specifying the directory as well.\n" +
                     "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not.\n" +
