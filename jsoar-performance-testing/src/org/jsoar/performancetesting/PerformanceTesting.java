@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.ProcessBuilder.Redirect;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -613,15 +612,18 @@ public class PerformanceTesting
                 out.flush();
                 
                 ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerCycle);
-
-                // Redirect the output so we can see what is going on
-                processBuilder.redirectError(Redirect.INHERIT);
-                processBuilder.redirectOutput(Redirect.INHERIT);
-
+                
                 Process process = null;
                 try
                 {
                     process = processBuilder.start();
+                    
+                    StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
+                    StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), out);
+                    
+                    outputGobbler.start();
+                    errorGobbler.start();
+                    
                     exitCode = process.waitFor();
                 }
                 catch (IOException | InterruptedException e)
