@@ -314,7 +314,7 @@ Log: Fixes issue 98
  Still need to fix agents and documentation to handle changes.
 
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code		DONE
 		This changes the default values of the hrl-discount
 		and chunk_stop parameters, and removes some related code.
 
@@ -345,7 +345,7 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.h DONE
  859  858    select_info *select; 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE - ???
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE
 				in rl_param_container, rl_learning_param
 
 ... 
@@ -386,9 +386,11 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE - ?
  138  129   		} 
  ... 
  
- NEEDED	Implement rl_reset_data in JSoar.
+ NEEDED	Implement rl_reset_data in JSoar.			DONE
  		Should go in reinforcement_learning.cpp
  		right before rl_remove_refs_for_prod.
+ 		
+ NEEDED	A unit test that tests rl_reset_data.
  
  ALSO:  The testSetsExplorationModeToEpsilonGreedyWhenEnabled test tests
  		that the code removed above is working.

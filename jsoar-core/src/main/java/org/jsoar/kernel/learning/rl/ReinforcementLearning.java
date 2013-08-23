@@ -136,17 +136,9 @@ public class ReinforcementLearning
             @Override
             public void propertyChanged(PropertyChangeEvent<Learning> event)
             {
-//                if(event.getNewValue() == Learning.on && rl_first_switch)
-//                {
-//                    // The first time we switch on RL, set up sane settings. After
-//                    // that, it's the user's problem.
-//                    rl_first_switch = false;
-//                    exploration.exploration_set_policy(Policy.USER_SELECT_E_GREEDY);
-//                    trace.startNewLine().print("Exploration Mode changed to epsilon-greedy").flush();
-//                }
             	if (event.getNewValue() == Learning.off)
             	{
-//        			rl_reset_data( my_agent ); 	?????????????           		
+        			rl_reset_data();           		
             	}
             }
         });
@@ -168,6 +160,31 @@ public class ReinforcementLearning
     }
     
     /**
+     * reinforcement_learning.cpp:273:rl_reset_data
+     * (9.3.3+)
+     */
+    // resets rl data structures
+    private void rl_reset_data()
+    {
+    	Symbol goal = decider.top_goal;
+    	while (goal != null)
+    	{
+    		ReinforcementLearningInfo data =
+    				((IdentifierImpl) goal).goalInfo.rl_info;
+    		data.eligibility_traces.clear();
+            data.prev_op_rl_rules.clear();	// rl_clear_refs(goal) in CSoar
+    		
+    		data.previous_q = 0;
+    		data.reward = 0;
+    		
+    		data.gap_age = 0;
+    		data.hrl_age = 0;
+    		
+    		goal = ((IdentifierImpl) goal).goalInfo.lower_goal;
+    	}
+    }
+
+	/**
      * reinforcement_learning.cpp:158:rl_remove_refs_for_prod
      * (9.3.0)
      * @param prod
