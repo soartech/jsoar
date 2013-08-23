@@ -73,6 +73,8 @@ public class PerformanceTesting
     private boolean singleTest = false;
     private Set<Configuration.ConfigurationTest> configurationTests;
     
+    private Process currentChildProcess = null;
+    
     /**
      * @param args
      */
@@ -110,6 +112,18 @@ public class PerformanceTesting
      */
     public int doPerformanceTesting(String[] args)
     {
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+           @Override
+           public void run()
+           {
+               if (currentChildProcess != null)
+               {
+                   currentChildProcess.destroy();
+               }
+           }
+        });
+        
         int optionsParseResult = parseOptions(args);
         
         if (optionsParseResult != NON_EXIT)
@@ -617,6 +631,7 @@ public class PerformanceTesting
                 try
                 {
                     process = processBuilder.start();
+                    currentChildProcess = process;
                     
                     StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
                     StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), out);
@@ -625,6 +640,7 @@ public class PerformanceTesting
                     errorGobbler.start();
                     
                     exitCode = process.waitFor();
+                    currentChildProcess = null;
                 }
                 catch (IOException | InterruptedException e)
                 {
@@ -1108,4 +1124,6 @@ public class PerformanceTesting
 
         return NON_EXIT;
     }
+
+    
 }
