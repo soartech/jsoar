@@ -522,7 +522,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         agent.getInterpreter().eval("p -d 2 @F197");
         
-        String expectedResultOfPD2F197 = "\n(@F197 ^checked true ^complete true ^correct true ^factor @F48 ^factor @F198 ^number 100)\n" +
+        String expectedResultOfPD2F197 = "\n(@F197 ^complete true ^factor @F48 ^factor @F198 ^number 100)\n" +
                                          "  (@F48 ^multiplicity 2 ^value 5)\n" +
                                          "  (@F198 ^multiplicity 2 ^value 2)\n";
         
