@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.performancetesting.Configuration.InvalidTestNameException;
-import org.jsoar.performancetesting.Configuration.MalformedTestCategory;
-import org.jsoar.performancetesting.Configuration.UnknownPropertyException;
 import org.jsoar.performancetesting.csoar.CSoarTestFactory;
 import org.jsoar.performancetesting.jsoar.JSoarTestFactory;
 import org.jsoar.util.commands.OptionProcessor;
@@ -252,7 +249,7 @@ public class PerformanceTesting
         {            
             result = config.parse();
         }
-        catch (IOException | UnknownPropertyException | InvalidTestNameException | MalformedTestCategory e)
+        catch (IOException e)
         {
             out.println(e.getMessage());
             return EXIT_FAILURE;

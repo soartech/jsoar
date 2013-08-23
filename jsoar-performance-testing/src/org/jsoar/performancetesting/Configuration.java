@@ -23,6 +23,13 @@ public class Configuration
 	 */
 	
 	// Package Private
+    /**
+     * A class for handling tests that we aren't running just yet.
+     * This is basically just a container for the test information.
+     * 
+     * @author ALT
+     *
+     */
     class ConfigurationTest implements Comparable<ConfigurationTest>
     {
         private String testName;
@@ -59,76 +66,6 @@ public class Configuration
     }
     
     /**
-     * Package private classes for exceptions of the configuration class.
-     */
-    
-    // Package Private
-    class UnknownPropertyException extends Exception
-    {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 463144412019989054L;
-        private final String property;
-        
-        public UnknownPropertyException(String property)
-        {
-            super("Unknown Property: " + property);
-            
-            this.property = property;
-        }
-        
-        public String getProperty()
-        {
-            return property;
-        }
-    }
-    
-    // Package Private
-    class InvalidTestNameException extends Exception
-    {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -8450373113671237630L;
-        private final String property;
-        
-        public InvalidTestNameException(String property)
-        {
-            super("Test Property is not a Soar File: " + property);
-            
-            this.property = property;
-        }
-        
-        public String getProperty()
-        {
-            return property;
-        }
-    }
-    
-    // Package Private
-    class MalformedTestCategory extends Exception
-    {
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -1914521968698486601L;
-        private final String property;
-        
-        public MalformedTestCategory(String property)
-        {
-            super("Malformed Test Category: " + property);
-            
-            this.property = property;
-        }
-        
-        public String getProperty()
-        {
-            return property;
-        }
-    }
-    
-    /**
      * Class variables
      */
     
@@ -161,11 +98,8 @@ public class Configuration
      * 
      * @return Whether the configuration file was parsed successfully or not
      * @throws IOException
-     * @throws UnknownPropertyException
-     * @throws InvalidTestNameException
-     * @throws MalformedTestCategory
      */
-    public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
+    public int parse() throws IOException
     {   
         FileInputStream fileStream = new FileInputStream(file);
 
