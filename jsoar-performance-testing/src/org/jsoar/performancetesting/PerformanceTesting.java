@@ -113,16 +113,16 @@ public class PerformanceTesting
     {
         int optionsParseResult = parseOptions(args);
         
+        if (optionsParseResult != NON_EXIT)
+        {
+        	return optionsParseResult;
+        }
+        
         if (!singleTest && configurationTests == null)
         {
             out.println("Did not load any tests or configuration.");
             usage();
             return EXIT_SUCCESS;
-        }
-        
-        if (optionsParseResult != NON_EXIT)
-        {
-        	return optionsParseResult;
         }
         
         if (!singleTest)
@@ -165,12 +165,12 @@ public class PerformanceTesting
                     "   -c, --category              Specify the test category.\n" +
                     "   -j, --jsoar             Run the tests in JSoar.\n" +
                     "   -s, --soar              Run the tests in CSoar specifying the directory as well.\n" +
-                    "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not." +
-                    "   -d, --decisions         Run the tests specified number of decisions." +
-                    "   -r, --run               The run number." +
-                    "   -n, --name              Used in conjunction with -T, specifies the test's name." +
-                    "   -N, --nosummary         Don't output results to a summary file." +
-                    "   -S, --single            Don't output any of the start and done, only the results." +
+                    "   -u, --uniqueJVMs        Whether to run the tests in seperate jvms or not.\n" +
+                    "   -d, --decisions         Run the tests specified number of decisions.\n" +
+                    "   -r, --run               The run number.\n" +
+                    "   -n, --name              Used in conjunction with -T, specifies the test's name.\n" +
+                    "   -N, --nosummary         Don't output results to a summary file.\n" +
+                    "   -S, --single            Don't output any of the start and done, only the results.\n" +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
                     "      path or in java.library.path or specified in a configuration directory.\n");
