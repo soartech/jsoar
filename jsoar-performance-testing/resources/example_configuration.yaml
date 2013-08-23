@@ -32,7 +32,7 @@
 # instead.
 default:
     - JSoar Enabled: TRUE
-    - CSoar Enabled: TRUE
+    - CSoar Enabled: FALSE
     - CSoar Directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
     - WarmUp Count: 0
     - Run Count: 5
