@@ -721,6 +721,13 @@ public class PerformanceTesting
                     process.destroy();
                 }
                 
+                try
+                {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e)
+                {} // Do nothing.  We still need to flush the output.
+                
                 // Flush the output to make sure we have everything, probably not needed
                 // but there are cases when it is.
                 out.flush();
