@@ -12,6 +12,8 @@ import java.util.Set;
 import org.yaml.snakeyaml.Yaml;
 
 /**
+ * This is a configuration class for parsing the YAML files used
+ * by the performance testing framework.
  * 
  * @author ALT
  *

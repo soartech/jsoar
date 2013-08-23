@@ -8,7 +8,7 @@ import org.jsoar.performancetesting.TestFactory;
 import org.jsoar.performancetesting.TestSettings;
 
 /**
- * This creates instantiations of JSoar tests.
+ * A class to create instantiations of JSoar tests.
  * 
  * @author ALT
  *

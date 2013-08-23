@@ -6,6 +6,8 @@ package org.jsoar.performancetesting;
 import org.jsoar.kernel.SoarException;
 
 /**
+ * This is an interface for both JSoar and CSoar tests
+ * 
  * @author ALT
  *
  */

@@ -5,6 +5,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Statistics class for some helper functions.
+ * 
+ * This includes functions for calculating averages
+ * as well as means and other stuff.
+ * 
+ * @author ALT
+ *
+ */
 public class Statistics
 {
     public static Double calculateAverage(Collection<Double> c)

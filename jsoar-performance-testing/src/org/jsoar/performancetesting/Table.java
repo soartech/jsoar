@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class for representing a Table and outputing the Table.
+ * A class for representing a Table and outputting the Table.
  * 
  * @author ALT
  *

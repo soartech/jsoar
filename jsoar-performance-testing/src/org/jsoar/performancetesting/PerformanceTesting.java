@@ -70,6 +70,7 @@ public class PerformanceTesting
     private boolean singleTest = false;
     private Set<Configuration.ConfigurationTest> configurationTests;
     
+    // Used for killing the current child process in the shutdown hook
     private Process currentChildProcess = null;
     
     /**
@@ -109,6 +110,12 @@ public class PerformanceTesting
      */
     public int doPerformanceTesting(String[] args)
     {
+        // This adds a shutdown hook to the runtime
+        // to kill any child processes spawned that
+        // are still running.  This handles CTRL-C
+        // as well as normal kills, SIGKILL and
+        // SIGHALT I believe
+        // - ALT
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
            @Override
@@ -121,6 +128,8 @@ public class PerformanceTesting
            }
         });
         
+        // Parse the CLI options and Configuration options
+        // if there are any
         int optionsParseResult = parseOptions(args);
         
         if (optionsParseResult != NON_EXIT)
@@ -128,6 +137,9 @@ public class PerformanceTesting
         	return optionsParseResult;
         }
         
+        // If this is not a single test and configurationTests is null
+        // exit because the configuration file didn't work out
+        // or something else bad happened.
         if (!singleTest && configurationTests == null)
         {
             out.println("Did not load any tests or configuration.");
@@ -135,18 +147,23 @@ public class PerformanceTesting
             return EXIT_SUCCESS;
         }
         
+        // Only output starting information like this if we're not in a child process
         if (!singleTest)
         {
             out.printf("Performance Testing - Starting Tests - %d Tests Loaded\n\n", configurationTests.size());
             out.flush();
         }
         
+        // If we have multiple tests to run, then run
+        // them in children JVMs
         if (configurationTests != null)
         {
             return runTestsInChildrenJVMs(configurationTests);
         }
         else
         {
+            // In this case, we are running just one test which means
+            // the test is either going to be jsoarTest or csoarTest.
             if (jsoarTest != null)
             {
                 return runTest(new TestRunner(jsoarTest, out));
@@ -180,12 +197,17 @@ public class PerformanceTesting
                     "   -r, --run               The run number.\n" +
                     "   -n, --name              Used in conjunction with -T, specifies the test's name.\n" +
                     "   -N, --nosummary         Don't output results to a summary file.\n" +
-                    "   -S, --single            Don't output any of the start and done, only the results.\n" +
                     "\n" +
                     "Note: When running with CSoar, CSoar's bin directory must be on the system\n" +
-                    "      path or in java.library.path or specified in a configuration directory.\n");
+                    "      path or in java.library.path or specified in a configuration file.\n");
     }
     
+    /**
+     * Parses the CLI and Configuration Options
+     * 
+     * @param args
+     * @return whether the parsing was successful or not
+     */
     private int parseOptions(String[] args)
     {
         //This is the same options processor for JSoar and so has the same limitations.
@@ -221,6 +243,8 @@ public class PerformanceTesting
             return EXIT_SUCCESS;
         }
         
+        // If there is a configuration option,
+        // ignore any CLI options beyond that.
         if (options.has(Options.Configuration))
         {
             parseConfiguration(options);
@@ -228,9 +252,19 @@ public class PerformanceTesting
             return NON_EXIT;
         }
         
+        // Since we don't have a configuration
+        // option, parse the CLI arguments.
         return parseCLIOptions(options);
     }
     
+    /**
+     * Parse a configuration file from a given options processor.
+     * This will do any validity checks on the configuration file
+     * as well.
+     * 
+     * @param options
+     * @return whether the parsing was successful or not.
+     */
     private int parseConfiguration(OptionProcessor<Options> options)
     {
         String configurationPath = options.get(Options.Configuration);
@@ -274,6 +308,12 @@ public class PerformanceTesting
         return NON_EXIT;
     }
     
+    /**
+     * Parse the CLI arguments
+     * 
+     * @param options
+     * @return whether the parsing was successful or not
+     */
     private int parseCLIOptions(OptionProcessor<Options> options)
     {
         if (options.has(Options.output))
@@ -469,6 +509,9 @@ public class PerformanceTesting
             // This is going to make the assumption that we're in eclipse
             // and so it will assume a repository structure and if this
             // changes or is wrong, this code will break and this will fail.
+           
+            // If we are in a jar, then the jar file will contain jsoar-core
+            // internally and so we don't need to setup the classpath
             // - ALT
             
             Character pathSeperator = File.pathSeparatorChar;
@@ -500,6 +543,8 @@ public class PerformanceTesting
                 }
             }
             
+            // Add the database driver from jsoar-core to the class path
+            // and any other dependencies in here
             directory = new File(originalPath + "/../../jsoar-core/lib/db");
             listOfFiles = directory.listFiles();
             for (File file : listOfFiles)
@@ -571,6 +616,7 @@ public class PerformanceTesting
         {
             arguments.add("--soar");
 
+            // For each version of CSoar, run a child JVM
             for (String path : test.getTestSettings().getCSoarVersions())
             {
                 List<String> argumentsPerTest = new ArrayList<String>(arguments);
@@ -590,10 +636,18 @@ public class PerformanceTesting
         }
     }
     
+    /**
+     * This runs a test in a child JVM with the given arguments
+     * 
+     * @param test
+     * @param arguments
+     * @return whether running the child JVM was successful or not
+     */
     private int runJVM(Configuration.ConfigurationTest test, List<String> arguments)
     {
         int exitCode = 0;
         
+        // Run the test in a new child JVM for each run
         for (int i = 1; i <= test.getTestSettings().getRunCount();i++)
         {
             List<String> argumentsPerRun = new ArrayList<String>(arguments);
@@ -602,6 +656,7 @@ public class PerformanceTesting
             
             out.println("Starting Test - " + test.getTestName() + " - " + i + "/" + test.getTestSettings().getRunCount());
             
+            // For each decision cycle count in the list, run a new child JVM
             for (Integer j : test.getTestSettings().getDecisionCycles())
             {
                 List<String> argumentsPerCycle = new ArrayList<String>(argumentsPerRun);
@@ -622,21 +677,38 @@ public class PerformanceTesting
                 out.println("Running " + decisionsString);
                 out.flush();
                 
+                // This is Java 1.7 only
+                
+                // Create a new process builder for the child JVM
                 ProcessBuilder processBuilder = new ProcessBuilder(argumentsPerCycle);
                 
                 Process process = null;
                 try
                 {
+                    // Start the process
                     process = processBuilder.start();
+                    // Setup the parameters for the shutdown hook,
+                    // in case we're killed off early.
                     currentChildProcess = process;
                     
+                    // Create some StreamGobblers to handle output to the screen
+                    // We don't redirectIO here because on Windows in CMD, we
+                    // won't redirect to the console output.  Instead we will
+                    // redirect to the original java System.out which isn't the
+                    // screen.  This means that the output both, won't show up
+                    // and we could potentially crash the JVM if we output enough.
+                    // - ALT
                     StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), out);
                     StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), out);
                     
+                    // Start the gobblers
                     outputGobbler.start();
                     errorGobbler.start();
                     
+                    // Wait for the process to exit and then get the exit code
                     exitCode = process.waitFor();
+                    // Make sure we don't try to kill a non-existent process
+                    // if we are shutdown after this.
                     currentChildProcess = null;
                 }
                 catch (IOException | InterruptedException e)
@@ -645,9 +717,12 @@ public class PerformanceTesting
                 }
                 finally
                 {
+                    // Make sure to always destroy the process if exceptions occur
                     process.destroy();
                 }
                 
+                // Flush the output to make sure we have everything, probably not needed
+                // but there are cases when it is.
                 out.flush();
             }
         }
@@ -655,15 +730,26 @@ public class PerformanceTesting
         return exitCode;
     }
     
+    /**
+     * Output the results to a summary file for a given test.  This
+     * reads in the individual run results and then computes the summary
+     * for the test.  This summary does not split among seperate decisions!
+     * So if you need decisions to be seperated, you need to create a
+     * seperate test, or modify the code to append per decisions.
+     * 
+     * @param test
+     */
     private void appendToSummaryFile(Configuration.ConfigurationTest test)
     {
         TestSettings settings = test.getTestSettings();
         Table summaryTable = new Table();
         
+        // Magic numbers for table
         for (int k = 0;k < 17;k++)
         {
             Row row = new Row();
             
+            // Construct the table rows
             switch (k)
             {
             case 0:
@@ -933,13 +1019,29 @@ public class PerformanceTesting
         summaryTable.writeToCSV(summaryFilePath, '\t', true);
     }
     
+    /**
+     * Convert a double to a string but make sure to get good
+     * precision but not over the top precision.
+     * 
+     * @param d
+     * @return The double as a string
+     */
     private String doubleToString(Double d)
     {
+        // This says to optionally have more numbers
+        // to the left of the decimal point, but at
+        // least have a 0.  It also says to alyways
+        // have at least three significant figures
+        // but potentially up to nine sig-figs.
         DecimalFormat df = new DecimalFormat("#0.000######");
+        
+        // Format the decimal
         return df.format(d);
     }
     
     /**
+     * This runs a test.  This assume we're already in the
+     * child JVM or at least are only ever running one test.
      * 
      * @param testRunners All the tests
      * @param testCategories All the test categories

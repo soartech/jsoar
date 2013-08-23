@@ -10,6 +10,9 @@ import java.util.List;
 import org.jsoar.kernel.SoarException;
 
 /**
+ * A class for running tests.  This can run both
+ * CSoar and JSoar tests and doesn't make a difference.
+ * 
  * @author ALT
  *
  */

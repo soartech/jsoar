@@ -4,6 +4,8 @@
 package org.jsoar.performancetesting;
 
 /**
+ * An interface for constructing tests.
+ * 
  * @author ALT
  *
  */

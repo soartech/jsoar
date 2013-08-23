@@ -6,7 +6,15 @@ package org.jsoar.performancetesting;
 import java.util.List;
 
 /**
- * @author Alex
+ * A class for holding test settings.  This is used all over
+ * the place for getting individual test settings.  It is
+ * usually constructed with a default test setting object
+ * (another TestSettings object) and then any additional
+ * assignments overwrite those values.  This means there is
+ * less overhead for trying to determine the settings for a
+ * test.
+ * 
+ * @author ALT
  *
  */
 public class TestSettings
