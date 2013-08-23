@@ -1,8 +1,0 @@
-List of things todo:
-
-- Export results to one or more csv files that can be imported into Excel (Bob to figure out what format should be)
-- Add to jsoar build process so can run outside eclipse (see jsoar-build/build.xml)
-- Get highwater memory mark
-- Consider ability to specify seed per test (in addition to existing global seed -- overrides global if present)
-- Run each test in a fresh JVM? (Determine if this will make any difference)
-- Run multiple JSoar tests in parallel (each agent in a separate thread)? Only do this if it has virtually no impact on the results. 
