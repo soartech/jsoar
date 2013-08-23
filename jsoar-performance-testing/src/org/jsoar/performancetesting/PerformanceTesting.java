@@ -885,7 +885,9 @@ public class PerformanceTesting
                     }
                     catch (IOException e)
                     {
-                        throw new RuntimeException(e);
+                        out.println("Failed to load " + test.getTestName() + " results.  Skipping summary.");
+                        out.flush();
+                        continue;
                     }
                 }
             }
@@ -984,7 +986,9 @@ public class PerformanceTesting
                         }
                         catch (IOException e)
                         {
-                            throw new RuntimeException(e);
+                            out.println("Failed to load " + test.getTestName() + " results.  Skipping summary.");
+                            out.flush();
+                            continue;
                         }
                     }
                 }

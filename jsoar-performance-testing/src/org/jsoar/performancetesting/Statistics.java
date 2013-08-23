@@ -47,7 +47,18 @@ public class Statistics
         }
         else
         {
-            return (list.get(middle-1) + list.get(middle)) / 2.0;
+            if (list.size() == 0)
+            {
+                return 0.0;
+            }
+            else if (middle == 0)
+            {
+                return list.get(0);
+            }
+            else
+            {
+                return (list.get(middle-1) + list.get(middle)) / 2.0;
+            }
         }
     }
     
@@ -65,6 +76,13 @@ public class Statistics
     
     public static Double calculateDeviation(Collection<Double> c)
     {
-        return Collections.max(c) - calculateAverage(c);
+        if (c.size() > 0)
+        {
+            return Collections.max(c) - calculateAverage(c);
+        }
+        else
+        {
+            return 0.0;
+        }
     }
 }
