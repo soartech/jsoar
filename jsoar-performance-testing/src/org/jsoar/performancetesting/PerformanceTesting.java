@@ -368,8 +368,9 @@ public class PerformanceTesting
         Set<String> previousSummaryFiles = new HashSet<String>();
         
         // Since we have more than one test to run, spawn a separate JVM for each run.
+        int i = 0;
         for (Configuration.ConfigurationTest test : tests)
-        {
+        {            
             File dir = new File(test.getTestSettings().getCSVDirectory());
             
             if (!dir.exists())
@@ -399,6 +400,10 @@ public class PerformanceTesting
                 
                 previousSummaryFiles.add(summaryFilePath);
             }
+            
+            out.println("--------------------------------------------------");
+            out.println("Starting " + test.getTestName() + " Test (" + (++i) + "/" + tests.size() + ")");
+            out.println("--------------------------------------------------");
             
             if (test.getTestSettings().isJSoarEnabled())
             {
@@ -586,7 +591,7 @@ public class PerformanceTesting
             argumentsPerRun.add(new Integer(i).toString());
             
             out.println("Starting Test - " + test.getTestName() + " - " + i + "/" + test.getTestSettings().getRunCount());
-
+            
             for (Integer j : test.getTestSettings().getDecisionCycles())
             {
                 List<String> argumentsPerCycle = new ArrayList<String>(argumentsPerRun);
