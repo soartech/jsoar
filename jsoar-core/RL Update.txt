@@ -407,7 +407,7 @@ Added delta-bar-delta decay mode to RL; added update-log-path to RL
 
 NEEDED	Make all the changes below to the JSoar code
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp: 
+Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp: 	DONE
 		in do_print_for_production
 ... 
  86  86 
@@ -424,7 +424,8 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp:
  ... 
 
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: 
+		in CommandLineInterface::DoRL
 ... 
  104  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
  105  105              CLI_DoRL_generate_output( "meta: ", agnt->rl_params->meta->get_string() ) ); 
@@ -441,7 +442,8 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
  ... 
 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in make_production
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:	DONE
+		in make_production	(in RLRuleInfo.java)
  ... 
  1626  1626    p->interrupt = FALSE; 
  1627  1627 
@@ -455,7 +457,8 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in make_production
  ... 
 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/production.h:  in production_struct
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.h:	DONE 
+		in production_struct	(in RLRuleInfo.java)
  ... 
  117  117    double rl_update_count;		/* number of (potentially fractional) updates to this rule */ 
  118  118    unsigned int rl_ref_count;    /* number of states referencing this rule in prev_op_rl_rules list */ 
