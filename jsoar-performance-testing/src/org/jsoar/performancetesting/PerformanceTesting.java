@@ -458,7 +458,7 @@ public class PerformanceTesting
         }
         catch (IOException | URISyntaxException e1)
         {
-            throw new AssertionError(e1);
+            throw new RuntimeException(e1);
         }
         
         // Replaces windows style paths with unix.
@@ -802,7 +802,7 @@ public class PerformanceTesting
                     }
                     catch (IOException e)
                     {
-                        throw new AssertionError(e);
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -901,7 +901,7 @@ public class PerformanceTesting
                         }
                         catch (IOException e)
                         {
-                            throw new AssertionError(e);
+                            throw new RuntimeException(e);
                         }
                     }
                 }

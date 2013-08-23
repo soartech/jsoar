@@ -177,9 +177,7 @@ public class Table
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new AssertionError();
+            throw new RuntimeException(e);
         }
         
         for (int i = 0;i < rows.size();i++)

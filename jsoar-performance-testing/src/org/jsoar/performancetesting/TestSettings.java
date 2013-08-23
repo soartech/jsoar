@@ -73,7 +73,7 @@ public class TestSettings
         // Sanity check
         if (this.csoarEnabled && csoarDirectories.size() == 0)
         {
-            throw new AssertionError("Sanity Check Failed!  CSoar is enabled but there are no directories specified for it!");
+            throw new RuntimeException("Sanity Check Failed!  CSoar is enabled but there are no directories specified for it!");
         }
     }
     

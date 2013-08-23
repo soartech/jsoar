@@ -196,7 +196,7 @@ public class Configuration
                     {
                         if (!hasFoundDefaults)
                         {
-                            throw new AssertionError("You must place the defaults first in the yaml file!");
+                            throw new RuntimeException("You must place the defaults first in the yaml file!");
                         }
 
                         @SuppressWarnings("unchecked")
@@ -236,7 +236,7 @@ public class Configuration
 
                         if (name == null || path == null)
                         {
-                            throw new AssertionError("Malformed test!");
+                            throw new RuntimeException("Malformed test!");
                         }
 
                         ConfigurationTest test = new ConfigurationTest(name, path, testSettings);
