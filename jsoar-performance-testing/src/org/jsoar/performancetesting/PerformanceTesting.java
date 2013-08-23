@@ -885,7 +885,7 @@ public class PerformanceTesting
                     }
                     catch (IOException e)
                     {
-                        out.println("Failed to load " + test.getTestName() + " results.  Skipping summary.");
+                        out.println("Failed to load " + test.getTestName() + " results (" + categoryDirectoryString + "/" + finalTestName + ".txt" + ").  Skipping summary.");
                         out.flush();
                         continue;
                     }
@@ -986,7 +986,7 @@ public class PerformanceTesting
                         }
                         catch (IOException e)
                         {
-                            out.println("Failed to load " + test.getTestName() + " results.  Skipping summary.");
+                            out.println("Failed to load " + test.getTestName() + " results (" + categoryDirectoryString + "/" + finalTestName + ".txt" + ").  Skipping summary.");
                             out.flush();
                             continue;
                         }
