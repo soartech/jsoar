@@ -15,34 +15,34 @@ public class DefaultCSoarAgentWrapper implements CSoarAgentWrapper
     public boolean LoadProductions(String file)
     {
         System.out.println("Cannot call method on an unloaded Agent class.");
-        throw new RuntimeException();
+        throw new RuntimeException("Could not load CSoar");
     }
 
     @Override
     public String RunSelfForever()
     {
         System.out.println("Cannot call method on an unloaded Agent class.");
-        throw new RuntimeException();
+        throw new RuntimeException("Could not load CSoar");
     }
 
     @Override
     public String ExecuteCommandLine(String command)
     {
         System.out.println("Cannot call method on an unloaded Agent class.");
-        throw new RuntimeException();
+        throw new RuntimeException("Could not load CSoar");
     }
 
     @Override
     public String RunSelf(Integer decisionCyclesToRun)
     {
         System.out.println("Cannot call method on an unloaded Agent class.");
-        throw new RuntimeException();
+        throw new RuntimeException("Could not load CSoar");
     }
 
     @Override
     public Object getAgentImpl()
     {
         System.out.println("Cannot call method on an unloaded agent class.");
-        throw new RuntimeException();
+        throw new RuntimeException("Could not load CSoar");
     }
 }

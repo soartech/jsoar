@@ -1144,6 +1144,25 @@ public class PerformanceTesting
             out.println("Failed with a Soar Exception: " + e.getMessage());
             return EXIT_FAILURE;
         }
+        catch (RuntimeException e)
+        {
+            if (e.getMessage() != null)
+            {
+                String message = e.getMessage();
+                
+                if (message.equals("Could not load CSoar") && settings.getCSoarVersions().size() > 0)
+                {
+                    message += " - " + settings.getCSoarVersions().get(0);
+                }
+                
+                out.println("Error: " + message);
+            }
+            else
+            {
+                out.println("Critical Failure.  Bailing out of test.");
+            }
+            return EXIT_FAILURE;
+        }
         
         table.setOrAddValueAtLocation(new Double(testRunner.getTotalCPUTime()).toString(),          2-1,   column);
         table.setOrAddValueAtLocation(new Double(testRunner.getAverageCPUTime()).toString(),        3-1,   column);
