@@ -514,7 +514,8 @@ it may only have been used for some experiment.
 
 NEEDED	Make all the changes below to the JSoar code
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:	DONE
+		in CommandLineInterface::DoRL
 ... 
  98  98 		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
  99  99              CLI_DoRL_generate_output( "chunk-stop: ", agnt->rl_params->chunk_stop->get_string() ) ); 
@@ -527,11 +528,11 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
  103  106        return true; 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE
 		in rl_param_container, rl_perform_update
 See web page for details, there's a lot here
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:	DONE
 		add enum decay_choices, decay_mode param
 ... 
  42  42  	public: 
