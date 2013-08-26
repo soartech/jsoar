@@ -402,6 +402,8 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE
 #####################################################################################
 r13404
 
+NOTE:	THIS COMES AFTER 13014, 13015, 13019, 13023, AND 13023!!!
+
 Log message
 Added delta-bar-delta decay mode to RL; added update-log-path to RL
 
@@ -424,7 +426,7 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp: 	DONE
  ... 
 
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp: 
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:	DONE 
 		in CommandLineInterface::DoRL
 ... 
  104  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
@@ -485,8 +487,9 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
 See web page for details, there's a lot here
 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:	DONE
 		in reteload_node_and_children case P_BNODE
+		This change was covered by the above change to RLRuleInfo.java
  ... 
  7474  7474      thisAgent->num_productions_of_type[prod->type]++; 
  7475  7475 

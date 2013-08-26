@@ -5,6 +5,12 @@
  */
 package org.jsoar.kernel.learning.rl;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +25,7 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Meta;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtension;
 import org.jsoar.kernel.lhs.Condition;
@@ -857,6 +864,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
             final double lambda = params.et_decay_rate.get(); // my_agent->rl_params->et_decay_rate->get_value();
             final double gamma = params.discount_rate.get(); // my_agent->rl_params->discount_rate->get_value();
             final double tolerance = params.et_tolerance.get(); // my_agent->rl_params->et_tolerance->get_value();
+            final double theta = params.meta_learning_rate.get(); // my_agent->rl_params->meta_learning_rate->get_value();
 
             // if temporal_discount is off, don't discount for gaps
             long effective_age = data.hrl_age + 1;
@@ -926,6 +934,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                 double old_ecr, old_efr;
                 double delta_ecr, delta_efr;
                 double new_combined, new_ecr, new_efr;
+                double delta_t = (data.reward + discount * op_value) - (sum_old_ecr + sum_old_efr);
                 
                 for(Map.Entry<Production, Double> iter : data.eligibility_traces.entrySet())
                 {   
@@ -936,13 +945,41 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     // get old vals
                     old_ecr = prod.rlRuleInfo.rl_ecr;
                     old_efr = prod.rlRuleInfo.rl_efr;
+
+                    // Adjust alpha based on decay policy
+                    // Miller 11/14/2011
+                    double adjusted_alpha;
+                    switch (params.decay_mode.get())
+                    {
+                        case exponential_decay:
+                            adjusted_alpha = 1.0 / (prod.rlRuleInfo.rl_update_count + 1.0);
+                            break;
+                        case logarithmic_decay:
+                            adjusted_alpha = 1.0 / (Math.log(prod.rlRuleInfo.rl_update_count + 1.0) + 1.0);
+                            break;
+                        case delta_bar_delta_decay:
+                            {
+                                // Note that in this case, x_i = 1.0 for all productions that are being updated.
+                                // Those values have been included here for consistency with the algorithm as described in the delta bar delta paper.
+                            	prod.rlRuleInfo.rl_delta_bar_delta_beta = prod.rlRuleInfo.rl_delta_bar_delta_beta + theta * delta_t * 1.0 * prod.rlRuleInfo.rl_delta_bar_delta_h;
+                                adjusted_alpha = Math.exp(prod.rlRuleInfo.rl_delta_bar_delta_beta);
+                                double decay_term = 1.0 - adjusted_alpha * 1.0 * 1.0;
+                                if (decay_term < 0.0) decay_term = 0.0;
+                                prod.rlRuleInfo.rl_delta_bar_delta_h = prod.rlRuleInfo.rl_delta_bar_delta_h * decay_term + adjusted_alpha * delta_t * 1.0;
+                                break;
+                            }
+                        case normal_decay:
+                        default:
+                            adjusted_alpha = alpha;
+                            break;
+                    }
                     
                     // calculate updates
-                    delta_ecr = ( alpha * iter.getValue() * ( data.reward - sum_old_ecr ) );
+                    delta_ecr = ( adjusted_alpha * iter.getValue() * ( data.reward - sum_old_ecr ) );
                     
                     if ( update_efr )
                     {
-                        delta_efr = ( alpha * iter.getValue() * ( ( discount * op_value ) - sum_old_efr ) );
+                        delta_efr = ( adjusted_alpha * iter.getValue() * ( ( discount * op_value ) - sum_old_efr ) );
                     }
                     else
                     {
@@ -957,10 +994,57 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     // print as necessary
                     if (trace.isEnabled(Category.RL)) 
                     {
-                    	trace.startNewLine().print("RL update " + prod.getName() + " "
-                           + old_ecr + " " + old_efr + " " + (old_ecr + old_efr) + " -> "
-                           + new_ecr + " " + new_efr + " " + new_combined + "\n");
+                    	String ss = "RL update " + prod.getName() + " "
+                                + old_ecr + " " + old_efr + " " + (old_ecr + old_efr) + " -> "
+                                + new_ecr + " " + new_efr + " " + new_combined + "\n";
+                    	trace.startNewLine().print(ss);
+
+                        // Log update to file if the log file has been set
+                        String log_path = params.update_log_path.get();
+                        if (!log_path.isEmpty()) {
+                        	Path log = Paths.get(log_path);
+                        	BufferedWriter writer = null;
+                        	try {
+                        		//	TODO: Does this actually append to the file?
+                        		//	If not, fix so it does
+                        		writer = Files.newBufferedWriter(log, StandardCharsets.UTF_8);
+                        		writer.write(String.format("%s%n", ss));
+                    		} catch(IOException e) {
+                    			e.printStackTrace();
+                    		} finally {
+                    			try {
+									writer.close();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+                    		}
+                        }
                     }
+
+                    // change documentation
+                    if ( params.meta.get() == Meta.on )
+                    {
+//                        if ( prod.getDocumentation() != null )
+//                        {
+//                            free_memory_block_for_string( my_agent, prod.getDocumentation() );
+//                        }
+//                        std::stringstream doc_ss;
+//                        const std::vector<std::pair<std::string, param_accessor<double> *> > &documentation_params = params.get_documentation_params();
+//                        for (std::vector<std::pair<std::string, param_accessor<double> *> >::const_iterator doc_params_it = documentation_params.begin();
+//                                doc_params_it != documentation_params.end(); ++doc_params_it) {
+//                            doc_ss << doc_params_it->first << "=" << doc_params_it->second->get_param(prod) << ";";
+//                        }
+//                        prod->documentation = make_memory_block_for_string(my_agent, doc_ss.str().c_str());
+//
+//                        /*
+//						std::string rlupdates( "rlupdates=" );
+//						std::string val;
+//						to_string( static_cast< uint64_t >( prod->rl_update_count ), val );
+//						rlupdates.append( val );
+//
+//						prod->documentation = make_memory_block_for_string( my_agent, rlupdates.c_str() );
+//                        */
+					}
 
                     // Change value of rule
                     prod.getFirstAction().asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();

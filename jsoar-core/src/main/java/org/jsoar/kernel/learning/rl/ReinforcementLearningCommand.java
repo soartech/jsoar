@@ -12,6 +12,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.DecayMode;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Meta;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -136,6 +137,21 @@ public final class ReinforcementLearningCommand implements SoarCommand
                 props.set(ReinforcementLearningParams.DECAY_MODE, DecayMode.valueOf(value));
                 return "Set decay-mode to " + DecayMode.valueOf(value); 
             }
+            else if (name.equals("meta"))
+            {
+                props.set(ReinforcementLearningParams.META, Meta.valueOf(value));
+                return "Set meta to " + Meta.valueOf(value);
+            }
+            else if (name.equals("meta-learning-rate"))
+            {
+                props.set(ReinforcementLearningParams.META_LEARNING_RATE, Double.parseDouble(value));
+                return "Set meta-learning-rate to " + Double.parseDouble(value);
+            }
+            else if (name.equals("update-log-path"))
+            {
+                props.set(ReinforcementLearningParams.UPDATE_LOG_PATH, value);
+                return "Set update-log-path to " + value;
+            }
             else
             {
                 throw new SoarException("Unknown rl parameter '" + name + "'");
@@ -190,9 +206,9 @@ public final class ReinforcementLearningCommand implements SoarCommand
         pw.printf(RLPrintHelper.generateSection("Experimental", 40));
         pw.printf(RLPrintHelper.generateItem("chunk-stop:", p.chunk_stop.get(), 40));
         pw.printf(RLPrintHelper.generateItem("decay-mode:", p.decay_mode.get(), 40));
-        pw.printf(RLPrintHelper.generateItem("meta:", "off"/*p.meta.get()*/, 40));
-        pw.printf(RLPrintHelper.generateItem("meta-learning-rate:", "0.1"/*p.meta_learning_rate.get()*/, 40));
-        pw.printf(RLPrintHelper.generateItem("update-log-path:", ""/*p.update_log_path.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("meta:", p.meta.get(), 40));
+        pw.printf(RLPrintHelper.generateItem("meta-learning-rate:", p.meta_learning_rate.get(), 40));
+        pw.printf(RLPrintHelper.generateItem("update-log-path:", p.update_log_path.get(), 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
         pw.printf(RLPrintHelper.generateItem("apoptosis:", "none"/*p.apoptosis.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", "0.5"/*p.apoptosis_decay.get()*/, 40));

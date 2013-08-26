@@ -54,10 +54,42 @@ public class ReinforcementLearningParams
      */
     public static enum DecayMode { normal_decay, exponential_decay,
     							logarithmic_decay, delta_bar_delta_decay }
+    
+    /**
+     * Options for meta
+     */
+    public static enum Meta { on, off };
+
     /**
      * Options for apoptosis
      */
     static enum ApoptosisChoices { apoptosis_none, apoptosis_chunks, apoptosis_rl };
+    
+    
+    /**
+     * A class to held a documentation parameter
+     * and its  value.
+     */
+//    public class DocParam<T> {
+//    	private String name;
+//    	private PropertyKey<T> key;
+//    	private T value;
+//    	
+//    	public DocParam(String name, PropertyKey<T> key, T value) {
+//    		this.name = name;
+//    		this.key = key;
+//    		this.value = value;
+//    	}
+//    	
+//    	public T get() {
+//			return value;
+//    	}
+//    	
+//    	public void set(Production prod, String value_str) {
+//    		T value = (T) value_str;
+//            props.set(key, value);
+//    	}
+//    }
     
     private static final String PREFIX = "rl.";
     
@@ -101,6 +133,17 @@ public class ReinforcementLearningParams
     
     public static final PropertyKey<DecayMode> DECAY_MODE = key("decay-mode", DecayMode.class).defaultValue(DecayMode.normal_decay).build();
     final EnumPropertyProvider<DecayMode> decay_mode = new EnumPropertyProvider<DecayMode>(DECAY_MODE);
+
+    // Whether doc strings are used for storing metadata.
+    public static final PropertyKey<Meta> META = key("meta", Meta.class).defaultValue(Meta.off).build();
+    final EnumPropertyProvider<Meta> meta = new EnumPropertyProvider<Meta>(META);
+    
+    public static final PropertyKey<Double> META_LEARNING_RATE = key("meta-learning-rate", Double.class).defaultValue(0.1).build();
+    final DefaultPropertyProvider<Double> meta_learning_rate = new DefaultPropertyProvider<Double>(META_LEARNING_RATE);
+    
+    // If non-null and size > 0, log all RL updates to this file.
+    public static final PropertyKey<String> UPDATE_LOG_PATH = key("update-log-path", String.class).defaultValue("").build();
+    final DefaultPropertyProvider<String> update_log_path = new DefaultPropertyProvider<String>(UPDATE_LOG_PATH);
     
     private final PropertyManager properties;
 
@@ -123,6 +166,9 @@ public class ReinforcementLearningParams
         //	--------------	EXPERIMENTAL	-------------------
         properties.setProvider(CHUNK_STOP, chunk_stop);
         properties.setProvider(DECAY_MODE, decay_mode);
+        properties.setProvider(META, meta);
+        properties.setProvider(META_LEARNING_RATE, meta_learning_rate);
+        properties.setProvider(UPDATE_LOG_PATH, update_log_path);
     }
 
     public PropertyManager getProperties()
@@ -141,5 +187,18 @@ public class ReinforcementLearningParams
     public static PropertyKey<?> getProperty(PropertyManager props, String name)
     {
         return props.getKey(PREFIX + name);
+    }
+    
+    /**
+     * Get a list of "documentation" parameters and their values
+     * 
+     * reinforcement_learning.cpp:45:get_documentation_params
+     * (9.3.3+)
+     * 
+     * @return a list of pairs
+     */
+    
+    public void get_documentation_params() {
+
     }
 }
