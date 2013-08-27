@@ -407,7 +407,7 @@ NOTE:	THIS COMES AFTER 13014, 13015, 13019, 13023, AND 13023!!!
 Log message
 Added delta-bar-delta decay mode to RL; added update-log-path to RL
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code	DONE
 
 Modify /trunk/SoarSuite/Core/CLI/src/cli_print.cpp: 	DONE
 		in do_print_for_production
@@ -475,16 +475,20 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/production.h:	DONE
  ... 
 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE
 		add &rl_param_container::get_documentation_params()
 		in soar_module::param_container, rl_valid_rule, rl_perform_update
 See web page for details, there's a lot here
+		All the param_accessor stuff was done in a less generic
+		way in Java.
 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:	DONE
 		add three classes: param_accessor, rl_updates_accessor, rl_dbd_h_accessor
 		change some fields in rl_param_container
 See web page for details, there's a lot here
+		All the param_accessor stuff was done in a less generic
+		way in Java.
 
 
 Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:	DONE
