@@ -15,6 +15,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Meta;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Trace;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -158,6 +159,21 @@ public final class ReinforcementLearningCommand implements SoarCommand
                 props.set(ReinforcementLearningParams.APOPTOSIS, ApoptosisChoices.getEnum(value));
                 return "Set apoptosis to " + ApoptosisChoices.getEnum(value); 
             }
+            else if (name.equals("apoptosis-decay"))
+            {
+                props.set(ReinforcementLearningParams.APOPTOSIS_DECAY, Double.parseDouble(value));
+                return "Set apoptosis-decay to " + Double.parseDouble(value);
+            }
+            else if (name.equals("apoptosis-thresh"))
+            {
+                props.set(ReinforcementLearningParams.APOPTOSIS_THRESH, Double.parseDouble(value));
+                return "Set apoptosis-thresh to " + Double.parseDouble(value);
+            }
+            else if (name.equals("trace"))
+            {
+                props.set(ReinforcementLearningParams.TRACE, Trace.valueOf(value));
+                return "Set trace to " + Trace.valueOf(value);
+            }
             else
             {
                 throw new SoarException("Unknown rl parameter '" + name + "'");
@@ -220,7 +236,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
         pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", p.apoptosis_decay.get(), 40));
         pw.printf(RLPrintHelper.generateItem("apoptosis-thresh:", p.apoptosis_thresh.get(), 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
-        pw.printf(RLPrintHelper.generateItem("trace:", "off"/*p.trace.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("trace:", p.trace.get(), 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
 
         

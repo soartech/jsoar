@@ -102,6 +102,11 @@ public class ReinforcementLearningParams
         }
     }
     
+    /**
+     * Options for trace
+     */
+    public static enum Trace { on, off };
+    
     private static final String PREFIX = "rl.";
     
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
@@ -166,6 +171,9 @@ public class ReinforcementLearningParams
     public static final PropertyKey<Double> APOPTOSIS_THRESH = key("apoptosis-thresh", Double.class).defaultValue(-2.0).build();
     final DefaultPropertyProvider<Double> apoptosis_thresh = new DefaultPropertyProvider<Double>(APOPTOSIS_THRESH);
     
+    public static final PropertyKey<Trace> TRACE = key("trace", Trace.class).defaultValue(Trace.off).build();
+    final EnumPropertyProvider<Trace> trace = new EnumPropertyProvider<Trace>(TRACE);
+
     
     private final PropertyManager properties;
 
@@ -195,6 +203,8 @@ public class ReinforcementLearningParams
         properties.setProvider(APOPTOSIS, apoptosis);
         properties.setProvider(APOPTOSIS_DECAY, apoptosis_decay);
         properties.setProvider(APOPTOSIS_THRESH, apoptosis_thresh);
+
+        properties.setProvider(TRACE, trace);
 }
 
     public PropertyManager getProperties()
