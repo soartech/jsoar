@@ -662,7 +662,11 @@ nor considered for future apoptosis.
 
 NEEDED	Make all the changes below to the JSoar code
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+WATCH OUT!	Some of these changes are removed and replaced by 13026
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:
+		in CommandLineInterface::DoRL
+		DON'T add ngf-thresh, this is removed later
 ... 
  104  104  		 CLI_DoRL_print( *this, m_RawOutput, m_Result, 
  105  105              CLI_DoRL_generate_output( "meta: ", agnt->rl_params->meta->get_string() ) ); 
@@ -783,9 +787,10 @@ Log: chunked RL rules will not have a firing count initially,
 which can be problematic with apoptosis
 (The code change removes the requirement for that count)
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code			DONE
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:  in make_production
+Modify /trunk/SoarSuite/Core/SoarKernel/src/production.cpp:		DONE
+		in excise_production (in DefaultProductionManager.java)
 ... 
  1675  1675  	  thisAgent->rl_prods->remove_object( prod ); 
  1676  1676 

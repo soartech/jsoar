@@ -1189,7 +1189,8 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
     public void exciseProduction(Production prod)
     {
         // Remove RL-related pointers to this production (unnecessary if rule never fired).
-        if ( prod.rlRuleInfo != null && prod.getFiringCount() != 0 ) 
+    	//	The test for firing count = 0 removed by 13023
+        if ( prod.rlRuleInfo != null ) 
             rl_remove_refs_for_prod( prod ); 
     }
     
