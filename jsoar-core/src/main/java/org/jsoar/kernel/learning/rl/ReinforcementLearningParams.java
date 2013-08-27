@@ -65,32 +65,6 @@ public class ReinforcementLearningParams
      */
     static enum ApoptosisChoices { apoptosis_none, apoptosis_chunks, apoptosis_rl };
     
-    
-    /**
-     * A class to held a documentation parameter
-     * and its  value.
-     */
-//    public class DocParam<T> {
-//    	private String name;
-//    	private PropertyKey<T> key;
-//    	private T value;
-//    	
-//    	public DocParam(String name, PropertyKey<T> key, T value) {
-//    		this.name = name;
-//    		this.key = key;
-//    		this.value = value;
-//    	}
-//    	
-//    	public T get() {
-//			return value;
-//    	}
-//    	
-//    	public void set(Production prod, String value_str) {
-//    		T value = (T) value_str;
-//            props.set(key, value);
-//    	}
-//    }
-    
     private static final String PREFIX = "rl.";
     
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
@@ -188,17 +162,5 @@ public class ReinforcementLearningParams
     {
         return props.getKey(PREFIX + name);
     }
-    
-    /**
-     * Get a list of "documentation" parameters and their values
-     * 
-     * reinforcement_learning.cpp:45:get_documentation_params
-     * (9.3.3+)
-     * 
-     * @return a list of pairs
-     */
-    
-    public void get_documentation_params() {
 
-    }
 }

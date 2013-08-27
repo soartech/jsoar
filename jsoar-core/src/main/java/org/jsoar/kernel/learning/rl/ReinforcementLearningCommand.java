@@ -201,8 +201,6 @@ public final class ReinforcementLearningCommand implements SoarCommand
         pw.printf(RLPrintHelper.generateSection("Eligibility Traces", 40));
         pw.printf(RLPrintHelper.generateItem("eligibility-trace-decay-rate:", p.et_decay_rate.get(), 40));
         pw.printf(RLPrintHelper.generateItem("eligibility-trace-tolerance:", p.et_tolerance.get(), 40));
-        
-        //	The following are not implemented yet, except for being faked here
         pw.printf(RLPrintHelper.generateSection("Experimental", 40));
         pw.printf(RLPrintHelper.generateItem("chunk-stop:", p.chunk_stop.get(), 40));
         pw.printf(RLPrintHelper.generateItem("decay-mode:", p.decay_mode.get(), 40));
@@ -210,6 +208,8 @@ public final class ReinforcementLearningCommand implements SoarCommand
         pw.printf(RLPrintHelper.generateItem("meta-learning-rate:", p.meta_learning_rate.get(), 40));
         pw.printf(RLPrintHelper.generateItem("update-log-path:", p.update_log_path.get(), 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
+        
+        //	The following are not implemented yet, except for being faked here
         pw.printf(RLPrintHelper.generateItem("apoptosis:", "none"/*p.apoptosis.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", "0.5"/*p.apoptosis_decay.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("apoptosis-thresh:", "-2"/*p.apoptosis_thresh.get()*/, 40));

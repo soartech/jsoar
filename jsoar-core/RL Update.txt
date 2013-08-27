@@ -564,9 +564,10 @@ Log: experimental RL parameter (meta): reads/writes meta-data from/to production
 documentation string (off by default). currently will overwrite any previous
 documentation and the parsing isn't robust at all.
 
-NEEDED	Make all the changes below to the JSoar code
+NEEDED	Make all the changes below to the JSoar code	DONE
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:	DONE
+		in CommandLineInterface::DoRL
 ... 
  101  101           CLI_DoRL_print( *this, m_RawOutput, m_Result, 
  102  102              CLI_DoRL_generate_output( "decay-mode: ", agnt->rl_params->decay_mode->get_string() ) ); 
@@ -579,7 +580,9 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:  in CommandLineInterface::DoRL
  106  109          return true; 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/parser.cpp: in parse_production
+Modify /trunk/SoarSuite/Core/SoarKernel/src/parser.cpp:		DONE
+		in parse_production
+		This was actually added in reinforcement_learning.java, addProduction
 ... 
  2042  2042      excise_production (thisAgent, p, FALSE); 
  2043  2043      p = NIL; 
@@ -594,12 +597,15 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/parser.cpp: in parse_production
  2047  2052  } 
 ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp:	DONE
 		in rl_param_container, rl_valid_rule, rl_perform_update
 See web page for details, there's a lot here
+		Had to change Production.java to make it possible to set
+		the documentation string.
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:	DONE
 		in class rl_param_container new param, later new extern void rl_rule_meta
+		rl_rule_meta is in reinforcement_learning.java.
 ... 
  61  61  		soar_module::boolean_param *temporal_discount; 
  62  62 
@@ -620,7 +626,7 @@ Modify /trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.h:
  156  160 
  ... 
 
-Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:
+Modify /trunk/SoarSuite/Core/SoarKernel/src/rete.cpp:	DONE
 		in reteload_node_and_children case P_BNODE
  ... 
  7484 7484  	  if ( prod->rl_rule ) 
