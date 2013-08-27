@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ApoptosisChoices;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.DecayMode;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.HrlDiscount;
@@ -152,6 +153,11 @@ public final class ReinforcementLearningCommand implements SoarCommand
                 props.set(ReinforcementLearningParams.UPDATE_LOG_PATH, value);
                 return "Set update-log-path to " + value;
             }
+            else if (name.equals("apoptosis"))
+            {
+                props.set(ReinforcementLearningParams.APOPTOSIS, ApoptosisChoices.getEnum(value));
+                return "Set apoptosis to " + ApoptosisChoices.getEnum(value); 
+            }
             else
             {
                 throw new SoarException("Unknown rl parameter '" + name + "'");
@@ -210,9 +216,9 @@ public final class ReinforcementLearningCommand implements SoarCommand
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
         
         //	The following are not implemented yet, except for being faked here
-        pw.printf(RLPrintHelper.generateItem("apoptosis:", "none"/*p.apoptosis.get()*/, 40));
-        pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", "0.5"/*p.apoptosis_decay.get()*/, 40));
-        pw.printf(RLPrintHelper.generateItem("apoptosis-thresh:", "-2"/*p.apoptosis_thresh.get()*/, 40));
+        pw.printf(RLPrintHelper.generateItem("apoptosis:", p.apoptosis.get(), 40));
+        pw.printf(RLPrintHelper.generateItem("apoptosis-decay:", p.apoptosis_decay.get(), 40));
+        pw.printf(RLPrintHelper.generateItem("apoptosis-thresh:", p.apoptosis_thresh.get(), 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));
         pw.printf(RLPrintHelper.generateItem("trace:", "off"/*p.trace.get()*/, 40));
         pw.printf(RLPrintHelper.generateItem("", "0", 0));

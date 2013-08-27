@@ -664,7 +664,10 @@ NEEDED	Make all the changes below to the JSoar code
 
 WATCH OUT!	Some of these changes are removed and replaced by 13026
 
-Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:
+NOTE:	As of 8/28/2013 the parameters have been added, but no code
+		to make them actually do anything yes has been added.
+
+Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:	DONE
 		in CommandLineInterface::DoRL
 		DON'T add ngf-thresh, this is removed later
 ... 
@@ -691,7 +694,8 @@ Modify /trunk/SoarSuite/Core/CLI/src/cli_rl.cpp:
  ... 
 
 Modify /trunk/SoarSuite/Core/SoarKernel/src/agent.cpp:
-		in create_soar_agent, destroy_soar_agent  
+		in create_soar_agent, destroy_soar_agent 
+		NOT implementing rl_apoptosis_predicate, it seems unnecessary
 ... 
  325  325    // rl initialization 
  326  326    newAgent->rl_params = new rl_param_container( newAgent ); 

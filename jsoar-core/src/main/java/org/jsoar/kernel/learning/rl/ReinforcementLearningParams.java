@@ -62,8 +62,45 @@ public class ReinforcementLearningParams
 
     /**
      * Options for apoptosis
+     * 
+     * The complicated implementation here is to show
+     * a name with a dash in it.
      */
-    static enum ApoptosisChoices { apoptosis_none, apoptosis_chunks, apoptosis_rl };
+//    static enum ApoptosisChoices { none, chunks, rl_chunks };
+    static enum ApoptosisChoices
+    {
+    	none, chunks, rl_chunks("rl-chunks");
+        
+        // some options have dashes in them, but we can't put those in the enum name, so we need a mapping
+        private final String realName;
+        
+        private ApoptosisChoices()
+        {
+            this.realName = this.name();
+        }
+        
+        private ApoptosisChoices(String realName)
+        {
+            this.realName = realName;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return realName;
+        }
+        
+        public static ApoptosisChoices getEnum(String value)
+        {
+            if(value == null)
+                throw new IllegalArgumentException();
+            for(ApoptosisChoices ac : ApoptosisChoices.values())
+            {
+                if(value.equals(ac.toString())) return ac;
+            }
+            throw new IllegalArgumentException();
+        }
+    }
     
     private static final String PREFIX = "rl.";
     
@@ -118,6 +155,17 @@ public class ReinforcementLearningParams
     // If non-null and size > 0, log all RL updates to this file.
     public static final PropertyKey<String> UPDATE_LOG_PATH = key("update-log-path", String.class).defaultValue("").build();
     final DefaultPropertyProvider<String> update_log_path = new DefaultPropertyProvider<String>(UPDATE_LOG_PATH);
+
+    //	Parameters for apoptosis
+    public static final PropertyKey<ApoptosisChoices> APOPTOSIS = key("apoptosis", ApoptosisChoices.class).defaultValue(ApoptosisChoices.none).build();
+    final EnumPropertyProvider<ApoptosisChoices> apoptosis = new EnumPropertyProvider<ApoptosisChoices>(APOPTOSIS);
+    
+    public static final PropertyKey<Double> APOPTOSIS_DECAY = key("apoptosis-decay", Double.class).defaultValue(0.5).build();
+    final DefaultPropertyProvider<Double> apoptosis_decay = new DefaultPropertyProvider<Double>(APOPTOSIS_DECAY);
+    
+    public static final PropertyKey<Double> APOPTOSIS_THRESH = key("apoptosis-thresh", Double.class).defaultValue(-2.0).build();
+    final DefaultPropertyProvider<Double> apoptosis_thresh = new DefaultPropertyProvider<Double>(APOPTOSIS_THRESH);
+    
     
     private final PropertyManager properties;
 
@@ -143,7 +191,11 @@ public class ReinforcementLearningParams
         properties.setProvider(META, meta);
         properties.setProvider(META_LEARNING_RATE, meta_learning_rate);
         properties.setProvider(UPDATE_LOG_PATH, update_log_path);
-    }
+
+        properties.setProvider(APOPTOSIS, apoptosis);
+        properties.setProvider(APOPTOSIS_DECAY, apoptosis_decay);
+        properties.setProvider(APOPTOSIS_THRESH, apoptosis_thresh);
+}
 
     public PropertyManager getProperties()
     {
