@@ -15,13 +15,13 @@ public class DefaultCSoarKernelWrapper implements CSoarKernelWrapper
     public CSoarAgentWrapper CreateAgent(String name)
     {
         System.out.println("Cannot call methods on non-loaded sml!");
-        throw new AssertionError();
+        throw new RuntimeException("Could not load CSoar");
     }
     
     @Override
     public void DestroyAgent(CSoarAgentWrapper agent)
     {
         System.out.println("Cannot call methods on a non-loaded sml!");
-        throw new AssertionError();
+        throw new RuntimeException("Could not load CSoar");
     }
 }

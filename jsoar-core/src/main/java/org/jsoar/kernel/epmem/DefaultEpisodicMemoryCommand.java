@@ -2,17 +2,23 @@ package org.jsoar.kernel.epmem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Force;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
@@ -34,6 +40,7 @@ import org.jsoar.util.properties.PropertyManager;
 public class DefaultEpisodicMemoryCommand implements SoarCommand
 {
     private final DefaultEpisodicMemory epmem;
+    private final SymbolFactoryImpl symbols;
 
     public static class Provider implements SoarCommandProvider
     {
@@ -54,6 +61,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
     public DefaultEpisodicMemoryCommand(Adaptable context)
     {
         this.epmem = Adaptables.require(getClass(), context, DefaultEpisodicMemory.class);
+        this.symbols = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
     }
 
     /*
@@ -161,6 +169,14 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
                 return "Set append to " + AppendDatabaseChoices.valueOf(value);
             }
+            else if(name.equals("page-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            }
+            else if(name.equals("cache-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            }
             else if (name.equals("lazy-commit"))
             {
                 if(epmem.db != null){
@@ -168,6 +184,47 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 }
                 props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
                 return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
+            }
+            else if (name.equals("exclusions"))
+            {
+                if(epmem.db != null){
+                    return "Lazy commit is protected while the database is open.";
+                }
+                
+                DefaultEpisodicMemoryParams params = epmem.getParams();
+                
+                SymbolImpl sym = symbols.createString(value);
+                
+                if (params.exclusions.contains(sym))
+                {
+                    params.exclusions.remove(sym);
+                }
+                else
+                {
+                    params.exclusions.add(sym);
+                }
+            }
+            else if (name.equals("force"))
+            {
+                props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
+                return "EpMem| force = " + value;
+            }
+            else if (name.equals("database"))
+            {
+                if (value.equals("memory"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, EpisodicMemoryDatabase.IN_MEMORY_PATH);
+                    return "EpMem| database = memory";
+                }
+                else if (value.equals("file"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, "");
+                    return "EpMem| database = file";
+                }
+                else
+                {
+                    throw new SoarException("Invalid value for EpMem database parameter");
+                }
             }
             else
             {
@@ -192,7 +249,29 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final PropertyKey<?> key = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), name);
         if(key == null)
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            if (name.equals("database"))
+            {
+                PropertyKey<?> pathProperty = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), "path");
+                if (pathProperty == null)
+                {
+                    throw new SoarException("Path is null.");
+                }
+                
+                String path = epmem.getParams().getProperties().get(pathProperty).toString();
+                
+                if (path.equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+                {
+                    return "memory";
+                }
+                else
+                {
+                    return "file";
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
         }
         return epmem.getParams().getProperties().get(key).toString();
     }
@@ -212,16 +291,47 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("exclusions:", p.exclusions, 40));
         pw.printf(PrintHelper.generateSection("Storage", 40));
         pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            EpisodicMemoryDatabase db = epmem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
+        pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
-        pw.printf(PrintHelper.generateItem("path:", p.path.get(), 40));
+        
+        String database = "memory";
+        String path = "";
+        if (!p.path.get().equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+        {
+            database = "file";
+            path = p.path.get();
+        }
+        
+        pw.printf(PrintHelper.generateItem("database:", database, 40));        
+        pw.printf(PrintHelper.generateItem("path:", path, 40));
         pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));
         pw.printf(PrintHelper.generateSection("Retrieval", 40));
         pw.printf(PrintHelper.generateItem("balance:", p.balance.get(), 40));
         pw.printf(PrintHelper.generateItem("graph-match:", p.graph_match.get(), 40));
         pw.printf(PrintHelper.generateItem("graph-match-ordering:", p.gm_ordering.get(), 40));
         pw.printf(PrintHelper.generateSection("Performance", 40));
-        pw.printf(PrintHelper.generateItem("page-size:", "N/A - Not Ported", 40));
-        pw.printf(PrintHelper.generateItem("cache-size:", p.cache.get(), 40));
+        pw.printf(PrintHelper.generateItem("page-size:", p.page_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("cache-size:", p.cache_size.get(), 40));
         pw.printf(PrintHelper.generateItem("optimization:", p.optimization.get(), 40));
         pw.printf(PrintHelper.generateItem("timers:", "off", 40));
         pw.printf(PrintHelper.generateSection("Experimental", 40));
@@ -256,7 +366,54 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             {
                 throw new SoarException(e);
             }
-            pw.printf(PrintHelper.generateItem("Memory Usage:", stats.mem_usage.get(), 40));
+            
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = epmem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            stats.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(stats.mem_usage.get()) / 1024.0 + " KB", 40));
             pw.printf(PrintHelper.generateItem("Memory Highwater:", stats.mem_high.get(), 40));
             pw.printf(PrintHelper.generateItem("Retrievals:", stats.ncbr.get(), 40));
             pw.printf(PrintHelper.generateItem("Queries:", stats.cbr.get(), 40));

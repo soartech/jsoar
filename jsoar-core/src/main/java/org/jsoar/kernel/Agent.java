@@ -557,7 +557,16 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             return info.getValue();
         }
-        if(t.length() < 2 || !Character.isLetter(t.charAt(0))) return null;
+        
+        if (t.charAt(0) == '@')
+        {
+            t = t.substring(1);
+        }
+        
+        if (t.length() < 2 || !Character.isLetter(t.charAt(0)))
+        {
+            return null;
+        }
         
         final char letter = Character.toUpperCase(t.charAt(0));
         long number = 1;
@@ -922,6 +931,23 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         // Temporarily disable tracing
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
+        
+        try
+        {
+            epmem.epmem_close();
+        }
+        catch (SoarException e2)
+        {
+            throw new RuntimeException("EpMem failed to close.", e2);
+        }
+        try
+        {
+            smem.smem_close();
+        }
+        catch (SoarException e1)
+        {
+            throw new RuntimeException("SMem failed to close.", e1);
+        }
 
         boolean wma_was_enabled = wma.wma_enabled();
         wma.getParams().activation.set(ActivationChoices.off);

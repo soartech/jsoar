@@ -1,0 +1,174 @@
+# This is an example configuration for the performance testing framework.
+# This is a YAML file and conforms to the YAML 1.1 Specification.  You can
+# use any YAML you want in this file and it will be parsed correctly.  We
+# are using an actual YAML parser for this so you can even do fancy stuff
+# like references in this file.  The only caveat here is that it is a YAML
+# 1.1 parser and does not support anything from YAML 1.2
+
+# Each setting name in here is case insensitive.
+# You can also use spaces without escaping them.
+# You must also use spaces instead of tabs unfortunately.
+
+# This is the default settings block
+# These are the default settings for each test.  If you do not specify a
+# setting in a test, the setting will be grabbed from here.
+# Each of these settings can also be specified on a per test basis including
+# versions of CSoar to use!  The hard coded internal values for each of these
+# are as follows:
+# JSoar Enabled: False
+# CSoar Enabled: False
+# CSoar Directories: []
+# WarmUp Count: 0
+# Run Count: 0
+# Decision Cycles: 0
+# Use Seed: False
+# Seed: 1
+# CSV Directory: ""
+# JVM Settings: ""
+# Summary File: ""
+#
+# This means that if you do not specify one of these values in the default block
+# below and you do not specify it in every test, it will use the values above
+# instead.
+default:
+    - JSoar Enabled: TRUE
+    - CSoar Enabled: FALSE
+    - CSoar Directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
+    - WarmUp Count: 0
+    - Run Count: 5
+    - Decision Cycles: [ 0 ] # Magic Number.  Run a test until it halts
+    - Use Seed: FALSE
+    - Seed: 1
+    - CSV Directory: resources/Test-Results
+    - JVM Settings: -Xmx2G
+    - Summary File: test-summaries.txt
+
+#
+# Here are some example tests.
+#
+
+# For each test you have to specify "test<N>" where <N> can be
+# anything so long as the keys are unique (<N> can even be an
+# empty string)!  You will get errors if the keys are not
+# unique.  These may be silent!
+
+# The general format is as follows:
+# test<Unique Identifier>:
+#     - Name: <Name>
+#     - Path: <Path>
+#
+# And then any settings specific to this test.  You must have
+# a name and a path and unique keys!  You must also include the
+# space after the '-' (hyphen) and the ':' (colon).  The keys
+# are case insensitive except for the test and unique identifier.
+
+# Wait SNC
+# Tests how fast raw decision cycles are
+test-wait-snc:
+    - Name: wait-snc
+    - Path: resources/APT/wait.soar
+    - Decision Cycles: [ 100, 10000 ]
+
+# All Test
+# Runs blocks world with tons of rules loaded into memory
+test-all-test:
+    - Name: All Test
+    - Path: resources/APT/all-test/all-test.soar
+    - Decision Cycles: [ 10000 ]
+
+# Arithmetic
+# Computes problems it makes up
+test-Arithmetic:
+    - Name: Arithmetic
+    - Path: resources/APT/Arithmetic/arithmetic.soar
+    - Decision Cycles: [ 10000 ]
+
+# Arithmetic Chunking
+# Computes problems it makes up while also using chunking
+test-Arithmetic-chunking:
+    - Name: Arithmetic Chunking
+    - Path: resources/APT/Arithmetic/arithmetic-chunking.soar
+    - Decision Cycles: [ 10000 ]
+
+# Arithmetic SMem
+# Computes problems it makes up while also using SMem
+test-Arithmetic-smem:
+    - Name: Arithmetic SMem
+    - Path: resources/APT/Arithmetic-smem/arithmetic.soar
+    - Decision Cycles: [ 10000 ]
+
+# Count Test
+# A series of 9 tests testing performance.  Ideally this
+# would be split up into 9 separate tests.
+test-count-test:
+    - Name: Count Test
+    - Path: resources/APT/count-test-files/count-test.soar
+
+##
+## Factorization Stress Tests
+##
+## The following are a series of stress tests doing factorizations.
+## Each of these brute forces factorizations up to 1,500.  This
+## stress test can use:
+
+### Pure Soar
+### Chunking
+### SMem
+### EpMem
+### SMem with Chunking
+### EpMem with Chunking
+### SMem and EpMem
+### SMem and EpMem AND Chunking
+
+# This brute forces the factors of every number.
+# It finds a factor, divides the number, goes into
+# a substate, and repeats until it finds all the factors.
+# then it copies up all the factors.
+test-pure-Soar-factorization-stress-test:
+    - Name: Pure Soar Factorization Stress Test
+    - Path: resources/Stress Tests/SingleFileFactorizationStressTest.soar
+
+# This is the pure Soar Factorization Stress Test
+# but with Chunking enabled.
+test-chunking-factorization-stress-test:
+    - Name: Chunking Factorization Stress Test
+    - Path: resources/Stress Tests/Chunking_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# EpMem to retrieve factors
+test-epmem-factorization-stress-test:
+    - Name: EpMem Factorization Stress Test
+    - Path: resources/Stress Tests/EpMem_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# SMem to retrieve factors
+test-smem-factorization-stress-test:
+    - Name: SMem Factorization Stress Test
+    - Path: resources/Stress Tests/SMem_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# EpMem and SMem together.  EpMem for even numbers
+# and SMem for odd numbers.  (Applies even to substates!)
+test-epmem-smem-factorization-stress-test:
+    - Name: EpMem & SMem Factorization Stress Test
+    - Path: resources/Stress Tests/EpMemSMem_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# both EpMem and Chunking.
+test-epmem-chunking-factorization-stress-test:
+    - Name: EpMem & Chunking Factorization Stress Test
+    - Path: resources/Stress Tests/EpMemWithChunking_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# both SMem and Chunking.
+test-smem-chunking-factorization-stress-test:
+    - Name: SMem & Chunking Factorization Stress Test
+    - Path: resources/Stress Tests/SMemWithChunking_FactorizationStressTest.soar
+
+# This is the Factorization Stress Test but using
+# EpMem and SMem AND Chunking together.  EpMem for
+# even numbers and SMem for odd numbers.  (Applies
+# even to substates!)
+test-epmem-smem-chunking-factorization-stress-test:
+    - Name: EpMem & SMem & Chunking Factorization Stress Test
+    - Path: resources/Stress Tests/EpMemSMemChunking_FactorizationStressTest.soar

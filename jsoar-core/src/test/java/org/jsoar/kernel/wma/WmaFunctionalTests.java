@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.wma;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.StringWriter;
 
 import org.jsoar.kernel.FunctionalTestHarness;

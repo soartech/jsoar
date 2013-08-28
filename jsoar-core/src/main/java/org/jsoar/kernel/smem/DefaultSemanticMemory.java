@@ -62,6 +62,7 @@ import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -2831,7 +2832,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     void smem_switch_to_memory_db(String buf) throws SoarException, SQLException, IOException
     {
         trace.print(buf);
-        params.path.set(":memory:");
+        params.path.set(SemanticMemoryDatabase.IN_MEMORY_PATH);
         db.getConnection().close();
         db = null;
         smem_init_db(false);
@@ -2886,9 +2887,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
+                
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
 
-        if (params.path.get().equals(":memory:"))
+        if (params.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
         {
             trace.print(Category.SMEM, "SMem| Initializing semantic memory database in cpu memory.\n");
         }
@@ -2911,7 +2913,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         db.prepare();
 
         // Make sure we do not have an incorrect database version
-        if (!":memory:".equals(params.path.get()))
+        if (!SemanticMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
             final ResultSet result = db.get_schema_version.executeQuery();
             try
@@ -2922,7 +2924,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     if (!SemanticMemoryDatabase.SMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
-                        params.path.set(":memory:");
+                        params.path.set(SemanticMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
                         connection.close();
@@ -3079,7 +3081,50 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
         }
 
-        // TODO SMEM Page Size
+        // page_size
+        if (params.driver.equals("org.sqlite.JDBC"))
+        {
+            final PageChoices pageSize = params.page_size.get();
+            
+            long pageSizeLong = 0;
+            
+            switch (pageSize)
+            {
+            case page_16k:
+                pageSizeLong = 16 * 1024;
+                break;
+            case page_1k:
+                pageSizeLong = 1 * 1024;
+                break;
+            case page_2k:
+                pageSizeLong = 2 * 1024;
+                break;
+            case page_32k:
+                pageSizeLong = 32 * 1024;
+                break;
+            case page_4k:
+                pageSizeLong = 4 * 1024;
+                break;
+            case page_64k:
+                pageSizeLong = 64 * 1024;
+                break;
+            case page_8k:
+                pageSizeLong = 8 * 1024;
+                break;
+            default:
+                break;
+            }
+
+            final Statement s = db.getConnection().createStatement();
+            try
+            {
+                s.execute("PRAGMA page_size = " + pageSizeLong);
+            }
+            finally
+            {
+                s.close();
+            }
+        }
     }
 
     /*

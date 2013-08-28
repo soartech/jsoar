@@ -7,7 +7,9 @@ package org.jsoar.kernel.smem;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +17,13 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
 
 /**
@@ -282,17 +285,6 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         return true;
     }
     
-    private boolean activationCheck(double lowEndActivation, double highEndActivation, double recievedActivation)
-    {
-        if (recievedActivation >= lowEndActivation &&
-            recievedActivation <= highEndActivation)
-        {
-            return true;
-        }
-        
-        return false;
-    }
-    
     @Test
     public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable() throws Exception
     {
@@ -331,6 +323,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.456);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -384,6 +377,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.456);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -437,6 +431,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         highEndExpectations.add(0.144);
         
         // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -450,6 +445,123 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
         halted = false;
+    }
+    
+    @Test
+    public void dbBackupAndLoadTests() throws Exception
+    {
+        StringWriter outputWriter = new StringWriter();
+        agent.getPrinter().addPersistentWriter(outputWriter);
+        
+        runTestSetup("testFactorization");
+        agent.runFor(1178, RunType.DECISIONS);
+        
+        outputWriter.getBuffer().setLength(0);
+        agent.getInterpreter().eval("p s1");
+        
+        String resultOfPS1 = outputWriter.toString();
+        
+        outputWriter.getBuffer().setLength(0);
+        
+        String expectedResultOfPS1 = "(S1 ^counter 50 ^epmem E1 ^io I1 ^name Factorization ^operator O1385 ^operator O1385 + ^reward-link R1 ^smem S2 ^superstate nil ^type state ^using-smem true)\n";
+        
+        assertTrue("Didn't stop where expected!", resultOfPS1.equals(expectedResultOfPS1));
+        
+        agent.getInterpreter().eval("smem --backup backup.sqlite");
+        agent.getInterpreter().eval("smem --init");
+        outputWriter.getBuffer().setLength(0);
+        try
+        {
+            agent.getInterpreter().eval("smem --print");
+        }
+        catch (SoarException e)
+        {
+            assertTrue("smem --init didn't init smem!", e.getMessage().equals("SMem| Semantic memory is empty."));
+        }
+        
+        agent.getInterpreter().eval("p");
+        
+        String resultOfP = outputWriter.toString();
+        outputWriter.getBuffer().setLength(0);
+                
+        assertTrue("smem --init didn't excise all productions!", resultOfP.length() == 0);
+        
+        agent.getInterpreter().eval("p s1");
+        
+        resultOfPS1 = outputWriter.toString();
+        outputWriter.getBuffer().setLength(0);
+        
+        expectedResultOfPS1 = "(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n";
+        
+        assertTrue("smem --init didn't reinit WM!", resultOfPS1.equals(expectedResultOfPS1));
+        
+        agent.getInterpreter().eval("smem --set path backup.sqlite");
+        agent.getInterpreter().eval("smem --set append-database on");
+        agent.getInterpreter().eval("smem --init");
+        
+        runTestSetup("testFactorization");
+        
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted = true;
+                return oldHalt.execute(rhsContext, arguments);
+            }
+        });
+        
+        agent.runFor(2811 + 1, RunType.DECISIONS);
+        
+        assertTrue("testFactorization: Test did not halt.", halted);
+        
+        outputWriter.getBuffer().setLength(0);
+        
+        agent.getInterpreter().eval("p -d 2 @F197");
+        
+        String expectedResultOfPD2F197 = "\n(@F197 ^complete true ^factor @F48 ^factor @F198 ^number 100)\n" +
+                                         "  (@F48 ^multiplicity 2 ^value 5)\n" +
+                                         "  (@F198 ^multiplicity 2 ^value 2)\n";
+        
+        String resultOfPD2F197 = outputWriter.toString();
+        
+        assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
+    
+        agent.dispose();
+        
+        String pwd = agent.getInterpreter().eval("pwd");
+        pwd = pwd.replaceAll("\\s+", "/");
+        File backupDB = new File(pwd + "/backup.sqlite");
+        backupDB.delete();
+    }
+    
+    @Test
+    public void readCSoarDB() throws Exception
+    {
+        agent.initialize();
+        
+        URL db = getClass().getResource("smem-csoar-db.sqlite");
+        assertNotNull("No CSoar db!", db);
+        agent.getInterpreter().eval("smem --set path " + db.getPath());
+        agent.getInterpreter().eval("smem --set append-database on");
+        agent.getInterpreter().eval("smem --init");
+        
+        String actualResult = agent.getInterpreter().eval("smem --print");
+        
+        String expectedResult = "========================================\n" +
+                                "            Semantic Memory             \n" +
+                                "========================================\n" +
+                                "(@F1 ^number 2 ^complete true ^factor @F2 [+5.0])\n" +
+                                "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
+                                "(@F3 ^number 3 ^complete true ^factor @F4 [+3.0])\n" +
+                                "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
+                                "(@F5 ^number 4 ^complete true ^factor @F6 [+7.0])\n" +
+                                "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
+                
+        assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
     }
     
     @Test
@@ -507,6 +619,60 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             {
                 String correctLti = lti.substring(0, 3);
                 assertTrue(ltis.contains(correctLti));
+            }
+        }
+    }
+    
+
+    @Test
+    public void testMultiAgent() throws Exception
+    {
+        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        
+        for (int i = 1;i <= 250;i++)
+        {
+            ThreadedAgent t = ThreadedAgent.create("Agent " + i);
+            t.getAgent().getTrace().setEnabled(true);
+            String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
+            URL sourceUrl = getClass().getResource(sourceName);
+            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            t.getAgent().getInterpreter().source(sourceUrl);
+            
+            agents.add(t);
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            a.runFor(4+1, RunType.DECISIONS);
+        }
+        
+        boolean allStopped = false;
+        while (!allStopped)
+        {
+            allStopped = true;
+            
+            for (ThreadedAgent a : agents)
+            {
+                if (a.isRunning())
+                {
+                    allStopped = false;
+                    break;
+                }
+            }
+        }
+        
+        for (ThreadedAgent a : agents)
+        {
+            if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 4)
+            {
+                throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
+            }
+            
+            String result = a.getAgent().getInterpreter().eval("smem");
+            
+            if (!result.contains("native"))
+            {
+                throw new AssertionError("Non Native Driver!");
             }
         }
     }

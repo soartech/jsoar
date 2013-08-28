@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class for representing a Table and outputing the Table.
+ * A class for representing a Table and outputting the Table.
  * 
  * @author ALT
  *
@@ -177,9 +177,7 @@ public class Table
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new AssertionError();
+            throw new RuntimeException(e);
         }
         
         for (int i = 0;i < rows.size();i++)

@@ -45,6 +45,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.epmem.EpisodicMemoryIdReservation.EpisodicMemoryIdPair;
 import org.jsoar.kernel.learning.Chunker;
@@ -513,19 +514,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if (params.driver.equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
-            final int cacheSize;
-            switch (params.cache.get())
-            {
-            case small:
-                cacheSize = 5000;
-                break; // 5MB cache
-            case medium:
-                cacheSize = 20000;
-                break; // 20MB cache
-            case large:
-            default:
-                cacheSize = 100000; // 100MB cache
-            }
+            final long cacheSize = params.cache_size.get();
 
             final Statement s = db.getConnection().createStatement();
             try
@@ -565,7 +554,50 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
 
-        // TODO EPMEM page_size
+        // page_size
+        if (params.driver.equals("org.sqlite.JDBC"))
+        {
+            final PageChoices pageSize = params.page_size.get();
+            
+            long pageSizeLong = 0;
+            
+            switch (pageSize)
+            {
+            case page_16k:
+                pageSizeLong = 16 * 1024;
+                break;
+            case page_1k:
+                pageSizeLong = 1 * 1024;
+                break;
+            case page_2k:
+                pageSizeLong = 2 * 1024;
+                break;
+            case page_32k:
+                pageSizeLong = 32 * 1024;
+                break;
+            case page_4k:
+                pageSizeLong = 4 * 1024;
+                break;
+            case page_64k:
+                pageSizeLong = 64 * 1024;
+                break;
+            case page_8k:
+                pageSizeLong = 8 * 1024;
+                break;
+            default:
+                break;
+            }
+
+            final Statement s = db.getConnection().createStatement();
+            try
+            {
+                s.execute("PRAGMA page_size = " + pageSizeLong);
+            }
+            finally
+            {
+                s.close();
+            }
+        }
     }
 
     private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max,
@@ -625,6 +657,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
+        
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
 
@@ -638,7 +671,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         db.structure();
         db.prepare();
         //Make sure we do not have an incorrect database version
-        if (!":memory:".equals(params.path.get()))
+        if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
             final ResultSet result = db.get_schema_version.executeQuery();
             try
@@ -649,7 +682,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
-                        params.path.set(":memory:");
+                        params.path.set(EpisodicMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
                         connection.close();
@@ -4178,9 +4211,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     interval_sql.setLong(bind_pos++, current_episode);
                                 }
                                 interval_sql.setLong(bind_pos++, edge_id);
-                                if (is_lti) 
+                                if (is_lti && interval_type == EPMEM_RANGE_EP) 
                                 {
-                                    // find the promotion time of the LTI, and use that as an after constraint
                                     interval_sql.setLong(bind_pos++, promo_time);
                                 }
                                 interval_sql.setLong(bind_pos++, current_episode);
@@ -4191,7 +4223,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &interval);
                                     interval.is_end_point = point_type;
                                     interval.uedge = uedge;
+                                    // If it's an start point of a range (ie. not a point) and it's before the promo time
+                                    // (this is possible if a the promotion is in the middle of a range)
+                                    // trim it to the promo time.
+                                    // This will only happen if the LTI is promoted in the last interval it appeared in
+                                    // (since otherwise the start point would not be before its promotion).
+                                    // We don't care about the remaining results of the query
+                                    
+                                    // why wouldn't the LTI still be satisfied before its promotion time? what guards against that?
                                     interval.time = results.getLong(0 + 1);
+                                    
+                                    if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time)
+                                    {
+                                        interval.time = promo_time - 1;
+                                    }
+                                    
                                     interval.sql = interval_sql;
                                     //This logic does not allow us to free this result set here.
                                     //This means that we need ot close this by hand later on. -ACN
@@ -4204,6 +4250,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 else 
                                 {
                                     results.close();
+                                    interval_sql.close();
                                 }
                             }
                         }
@@ -4281,6 +4328,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             //pedge->sql->get_pool()->release(pedge->sql);
                             pedge.sqlResults.close();
                             pedge.sqlResults = null;
+                            pedge.sql.close();
                             pedge.sql = null;
                         }
                     }
@@ -4364,6 +4412,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 //interval->sql->get_pool()->release(interval->sql);
                                 interval.sqlResult.close();
                                 interval.sqlResult = null;
+                                interval.sql.close();
                                 interval.sql = null;
                                 uedge.intervals--;
                                 if (uedge.intervals != 0)
@@ -4643,6 +4692,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //interval->sql->get_pool()->release(interval->sql);
                 interval.sqlResult.close();
                 interval.sqlResult = null;
+                interval.sql.close();
+                interval.sql = null;
             }
             //free_with_pool(&(my_agent->epmem_interval_pool), interval);
         }
@@ -4656,6 +4707,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     //pedge->sql->get_pool()->release(pedge->sql);
                     pedge.sqlResults.close();
+                    pedge.sqlResults = null;
+                    pedge.sql.close();
+                    pedge.sql = null;
                 }
                 //In some places, we use clear to "destroy" containers, but this one is about to leave
                 //scope so we dont need to bother. -ACN
@@ -5126,6 +5180,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             else
             {
                 results.close();
+                pedge_sql.close();
                 return false;
             }
         } else {
@@ -6970,7 +7025,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
+            if(!EpisodicMemoryDatabase.IN_MEMORY_PATH.equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
                 logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
         }

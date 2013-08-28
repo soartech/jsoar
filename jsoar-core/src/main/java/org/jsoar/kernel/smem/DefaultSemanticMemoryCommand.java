@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
@@ -29,7 +31,6 @@ import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
-import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.SetWrapperLong;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
@@ -217,7 +218,29 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final PropertyKey<?> key = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), name);
         if(key == null)
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            if (name.equals("database"))
+            {
+                PropertyKey<?> pathProperty = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), "path");
+                if (pathProperty == null)
+                {
+                    throw new SoarException("Path is null.");
+                }
+                
+                String path = smem.getParams().getProperties().get(pathProperty).toString();
+                
+                if (path.equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
+                {
+                    return "memory";
+                }
+                else
+                {
+                    return "file";
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
         }
         return smem.getParams().getProperties().get(key).toString();
     }
@@ -238,11 +261,6 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             if(name.equals("learning"))
             {
                 props.set(DefaultSemanticMemoryParams.LEARNING, LearningChoices.valueOf(value));
-            }
-            else if(smem.getDatabase() != null)
-            {
-                // TODO: This check should be done in the property system
-                throw new SoarException("This parameter is protected while the semantic memory database is open");
             }
             else if(name.equals("driver"))
             {
@@ -309,6 +327,23 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 props.set(DefaultSemanticMemoryParams.MIRRORING, MirroringChoices.valueOf(value));
             }
+            else if (name.equals("database"))
+            {
+                if (value.equals("memory"))
+                {
+                    props.set(DefaultSemanticMemoryParams.PATH, SemanticMemoryDatabase.IN_MEMORY_PATH);
+                    return "SMem| database = memory";
+                }
+                else if (value.equals("file"))
+                {
+                    props.set(DefaultSemanticMemoryParams.PATH, "");
+                    return "SMem| database = file";
+                }
+                else
+                {
+                    throw new SoarException("Invalid value for SMem database parameter");
+                }
+            }
             else
             {
                 throw new SoarException("Unknown smem parameter '" + name + "'");
@@ -324,16 +359,14 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 
     private String doInit(int i, String[] args) throws SoarException
     {
-        // Because of LTIs, re-initializing requires all other memories to be reinitialized.        
-        
+        // Because of LTIs, re-initializing requires all other memories to be reinitialized.
         // epmem - close before working/production memories to get re-init benefits
-        // TODO EPMEM this->DoCommandInternal( "epmem --close" );
-        
         // smem - close before working/production memories to prevent id counter mess-ups
-        smem.smem_close();
-
         // production memory (automatic init-soar clears working memory as a result) 
-        //this->DoCommandInternal( "excise --all" );
+        
+        final EpisodicMemory epmem = Adaptables.require(getClass(), context, EpisodicMemory.class);
+        epmem.epmem_close();
+        smem.smem_close();
         
         // Excise all just removes all rules and does init-soar
         final Agent agent = Adaptables.require(getClass(), context, Agent.class);
@@ -344,7 +377,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             count++;
         }
         agent.initialize();
-                
+        
         return "Agent reinitialized.\n" +
                count + " productions excised.\n" +
                "SMem| Semantic memory system re-initialized.\n";
@@ -371,7 +404,53 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 throw new SoarException(e);
             }
-            pw.printf(PrintHelper.generateItem("Memory Usage:", p.mem_usage.get(), 40));
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = smem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            p.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(p.mem_usage.get()) / 1024.0 + " KB", 40));
             pw.printf(PrintHelper.generateItem("Memory Highwater:", p.mem_high.get(), 40));
             pw.printf(PrintHelper.generateItem("Retrieves:", p.retrieves.get(), 40));
             pw.printf(PrintHelper.generateItem("Queries:", p.queries.get(), 40));
@@ -464,9 +543,39 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateSection("Storage", 40));
         
         pw.printf(PrintHelper.generateItem("driver:", p.driver.get(), 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            SemanticMemoryDatabase db = smem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
         pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
         pw.printf(PrintHelper.generateItem("append-database:", p.append_db.get(), 40));
-        pw.printf(PrintHelper.generateItem("path:", p.path.get(), 40));
+        
+        String database = "memory";
+        String path = "";
+        if (!p.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
+        {
+            database = "file";
+            path = p.path.get();
+        }
+        
+        pw.printf(PrintHelper.generateItem("database:", database, 40));
+        pw.printf(PrintHelper.generateItem("path:", path, 40));
         pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));
         
         pw.printf(PrintHelper.generateSection("Activation", 40));

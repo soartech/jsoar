@@ -2,6 +2,7 @@ jsoar-build/dist
 jsoar-*.zip
 jsoar-core/target
 jsoar-core/bin
+jsoar-core/dist
 jsoar-debugger/target
 jsoar-debugger/bin
 jsoar-demos/target
@@ -18,5 +19,6 @@ jsoar-soarunit/target
 jsoar-soarunit/bin
 jsoar-build/lib/db/*.jar
 jsoar-performance-testing/bin
-jsoar-performance-testing/resources/csoar/
-jsoar-performance-testing/resources/Test-Results/
+jsoar-performance-testing/resources/csoar
+jsoar-performance-testing/resources/Test-Results
+jsoar-performance-testing/build

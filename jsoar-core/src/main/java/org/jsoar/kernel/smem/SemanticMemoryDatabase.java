@@ -23,6 +23,8 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     static final String SMEM_SCHEMA = "smem_";
     
     static final String SMEM_SCHEMA_VERSION = "2.0";
+    
+    static final String IN_MEMORY_PATH = ":memory:";
 
     // These are all the prepared statements for SMEM. They're filled in via reflection
     // from statements.properties.

@@ -79,14 +79,13 @@ public class BackTraceInfo implements Iterable<Preference>
         while(it.hasNext())
         {
             Preference p = it.next();
-            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+            if (SoarConstants.DO_TOP_LEVEL_REF_CTS && level > SoarConstants.TOP_GOAL_LEVEL)
             {
                 p.preference_remove_ref(recMemory);
             }
             else
             {
-                if (level > SoarConstants.TOP_GOAL_LEVEL)
-                    p.preference_remove_ref(recMemory);
+                p.preference_remove_ref(recMemory);
             }
             it.remove();
         }

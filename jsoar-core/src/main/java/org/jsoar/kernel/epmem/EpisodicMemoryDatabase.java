@@ -28,6 +28,8 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     static final String EPMEM_SCHEMA_VERSION = "2.0";
     
+    static final String IN_MEMORY_PATH = ":memory:";
+    
     // These are all the prepared statements for EPMEM. They're filled in via reflection
     // from statements.properties.
     

@@ -5,6 +5,7 @@ package org.jsoar.performancetesting;
 
 /**
  * A class for representing a Cell in a Table.
+ * This cell does not include column information.
  * 
  * @author ALT
  *
