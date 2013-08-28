@@ -52,8 +52,43 @@ public class ReinforcementLearningParams
      * logarithmic_decay: rate = rate / log(# updates for this rule)
      * Miller, 11/14/2011
      */
-    public static enum DecayMode { normal_decay, exponential_decay,
-    							logarithmic_decay, delta_bar_delta_decay }
+//    public static enum DecayMode { normal_decay, exponential_decay,
+//    							logarithmic_decay, delta_bar_delta_decay }
+    public static enum DecayMode
+    {
+    	normal_decay("normal"), exponential_decay("exp"),
+		logarithmic_decay("log"), delta_bar_delta_decay("delta-bar-delta");
+        
+        // some options have dashes in them, but we can't put those in the enum name, so we need a mapping
+        private final String realName;
+        
+        private DecayMode()
+        {
+            this.realName = this.name();
+        }
+        
+        private DecayMode(String realName)
+        {
+            this.realName = realName;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return realName;
+        }
+        
+        public static DecayMode getEnum(String value)
+        {
+            if(value == null)
+                throw new IllegalArgumentException();
+            for(DecayMode dm : DecayMode.values())
+            {
+                if(value.equals(dm.toString())) return dm;
+            }
+            throw new IllegalArgumentException();
+        }
+    }
     
     /**
      * Options for meta
@@ -67,7 +102,7 @@ public class ReinforcementLearningParams
      * a name with a dash in it.
      */
 //    static enum ApoptosisChoices { none, chunks, rl_chunks };
-    static enum ApoptosisChoices
+    public static enum ApoptosisChoices
     {
     	none, chunks, rl_chunks("rl-chunks");
         
@@ -106,6 +141,7 @@ public class ReinforcementLearningParams
      * Options for trace
      */
     public static enum Trace { on, off };
+    
     
     private static final String PREFIX = "rl.";
     

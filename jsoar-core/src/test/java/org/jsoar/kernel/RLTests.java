@@ -1,7 +1,22 @@
 /*
  * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
+ *  
  * Created on Sep 19, 2008
+ *  
+ *  Updated by PL, 28 August 2013
+ *
+ *	This test runs some simple Soar code that is found in
+ *	/org/jsoar/kernel/RLTests_testRLUnit.soar and then
+ *	checks the numerical results.
+ *
+ *  Two possible sets of numbers are checked, depending
+ *  on whether the hrl-discount parameter is on or off.
+ *  Two tests here set the parameter first and then run
+ *  and check the resulting numbers.
+ *  
+ *  This test is somewhat complementary to the one in
+ *  org.jsoar.kernel.learning.ReinforcementLearningTest.java,
+ *  which uses the same .soar file.
  */
 package org.jsoar.kernel;
 
