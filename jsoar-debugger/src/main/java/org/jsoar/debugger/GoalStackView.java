@@ -142,7 +142,14 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         
         final Symbol name = g.getOperatorName();
         
-        return new Entry(op, op + " (" + name.toString() + ")");
+        String label = op.toString();
+        
+        if(name != null)
+        {
+            label += " (" + name.toString() + ")";
+        }
+        
+        return new Entry(op, label);
     }
 
     private void updateModel(List<Entry> newStack)
