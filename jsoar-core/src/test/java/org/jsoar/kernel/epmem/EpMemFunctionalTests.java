@@ -167,6 +167,11 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     	runTest("testEpMemEncodeSelection_WMA", 5);
     }
     
+    @Test
+    public void testEpMemYRemoval() throws Exception{
+        runTest("testYRemoval", 9);
+    }
+    
     public void testEpMemSoarGroupTests() throws Exception
     {
         runTest("testEpMemSoarGroupTests", 140);

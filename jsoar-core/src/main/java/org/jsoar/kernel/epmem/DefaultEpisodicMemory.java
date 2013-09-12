@@ -6688,20 +6688,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if(my_refs.contains(w))
                 {
                     my_refs.remove(w);
-
-                    // recurse if no incoming edges from top-state (i.e. not in transitive closure of top-state)
-                    boolean recurse = true;
-                    for(WmeImpl rc_it : my_refs)
-                    {
-                        //if ( ( !(*rc_it) ) || ( (*rc_it)->id->id.level == my_agent->top_state->id.level ) )
-                        if(rc_it == null || rc_it.id.level==decider.top_state.level)
-                        {
-                            recurse = false;
-                            break;
-                        }
-                    }
-
-                    if ( recurse )
+                    
+                    // recurse if no incoming edges from epmem
+                    if(my_refs.isEmpty())
                     {
                         my_refs.clear();
                         epmem_id_removes.push(w.value);
