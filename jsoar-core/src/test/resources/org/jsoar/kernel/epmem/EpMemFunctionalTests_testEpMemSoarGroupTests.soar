@@ -193,7 +193,8 @@ sp {apply*init
     (<c-14> ^query <q-14>
             ^before 22)
     (<q-14> ^parity <parity>)
-    (<r-14> ^failure <q-14>)
+    (<r-14> ^graph-match 0
+            ^match-cardinality 0)
 
     # FIXME activation
 }
@@ -431,7 +432,7 @@ sp {apply*report*halt*success
               ^fail 0)
 -->
     (<s> ^report-status overview -)
-    (write (crlf))
+    (write (crlf) succeeeded)
     (succeeded)
 }
 
@@ -443,6 +444,6 @@ sp {apply*report*halt*failed
               ^fail <> 0)
 -->
     (<s> ^report-status overview -)
-    (write (crlf))
+    (write (crlf) failed)
     (failed)
 }
