@@ -6,11 +6,9 @@
 package org.jsoar.kernel.learning.rl;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1002,12 +1000,12 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                         // Log update to file if the log file has been set
                         String log_path = params.update_log_path.get();
                         if (!log_path.isEmpty()) {
-                        	Path log = Paths.get(log_path);
+                            File log = new File(log_path);
                         	BufferedWriter writer = null;
                         	try {
                         		//	TODO: Does this actually append to the file?
                         		//	If not, fix so it does
-                        		writer = Files.newBufferedWriter(log, StandardCharsets.UTF_8);
+                                writer = new BufferedWriter(new FileWriter(log));
                         		writer.write(String.format("%s%n", ss));
                     		} catch(IOException e) {
                     			e.printStackTrace();
