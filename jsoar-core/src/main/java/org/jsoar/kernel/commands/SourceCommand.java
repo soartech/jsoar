@@ -5,7 +5,6 @@ package org.jsoar.kernel.commands;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -355,7 +354,7 @@ public class SourceCommand implements SoarCommand
     {
         try
         {
-            return (new URI(null, url.toString(), null)).normalize().toURL();
+            return url.toURI().normalize().toURL();
         }
         catch (MalformedURLException e)
         {
