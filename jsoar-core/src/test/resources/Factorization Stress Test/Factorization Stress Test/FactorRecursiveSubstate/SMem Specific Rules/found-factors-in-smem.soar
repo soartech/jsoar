@@ -1,0 +1,46 @@
+####################################################
+###            FOUND-FACTORS-IN-SMEM            ###
+# If we found some factors, this will be proposed
+# and called to get the factors.
+sp {propose*found-factors-in-smem
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+              ^smem.result.retrieved <factor-object>
+              ^smem.result.success
+              ^original-number-to-factor <n>
+             -^factorization-object <fo>)
+   (<factor-object> ^number <n>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name found-factors-in-smem)
+}
+
+# This copies only the factor we want from an factor-object
+sp {apply*found-factors-in-smem*copy-factorization-object
+   (state <s> ^operator.name found-factors-in-smem
+              ^smem.result.retrieved <factor-object>
+              ^original-number-to-factor <n>)
+   (<factor-object> ^number <n>)
+-->
+   (<s> ^factorization-object <factor-object>)
+}
+
+# This removes any query object which is still on the
+# smem command link at this point.
+sp {apply*found-factors-in-smem*remove-query
+   (state <s> ^operator.name found-factors-in-smem
+              ^smem.command <sc>)
+   (<sc> ^query <query>)
+-->
+   (<sc> ^query <query> -)
+}
+
+# This makes it so that we immediately skip to copying
+# the factors back up since we don't have to any brute
+# forcing.
+sp {apply*found-factors-in-smem*looked-up-in-smem-success
+   (state <s> ^operator.name found-factors-in-smem
+             -^looked-up-in-smem-success)
+-->
+   (<s> ^looked-up-in-smem-success true)
+}

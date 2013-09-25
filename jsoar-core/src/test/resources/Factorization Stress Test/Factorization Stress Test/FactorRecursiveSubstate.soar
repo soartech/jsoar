@@ -1,0 +1,11 @@
+pushd FactorRecursiveSubstate
+
+source elaborations.soar
+source preferences.soar
+
+source operators.soar
+
+source EpMemSpecificRules.soar
+source SMemSpecificRules.soar
+
+popd

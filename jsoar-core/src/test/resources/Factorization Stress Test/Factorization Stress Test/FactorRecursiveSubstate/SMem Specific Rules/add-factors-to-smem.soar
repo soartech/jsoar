@@ -1,0 +1,69 @@
+####################################################
+###              ADD-FACTORS-TO-SMEM             ###
+# This adds factors to smem since smem doesn't do
+# automatic adding.
+sp {propose*add-factors-to-smem
+   (state <s> ^name factor-recursive-substate
+              ^using-smem true
+              ^has-factorization-object true
+             -^exists-factorization-object-without-complete
+             -^needs-factorization
+             -^needs-to-copy-additional-factors
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>
+             -^added-factorization-object-to-smem
+             -^looked-up-in-smem-success)
+   (<fo> ^number <n>)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name add-factors-to-smem)
+}
+
+# This removes any retrieve still on the smem
+# command link, if there are any, because otherwise
+# we will get a 'bad-cmd' error from smem.
+sp {apply*add-factors-to-smem*remove-retrieves
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>)
+   (<sc> ^retrieve <retrieve>)
+-->
+   (<sc> ^retrieve <retrieve> -)
+}
+
+# This creates a store command for the factorization
+# object we just created and completed.
+sp {apply*add-factors-to-smem*store-factorization-object
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>)
+-->
+   (<sc> ^store <fo>)
+   (<s> ^added-factorization-object-to-smem true)
+}
+
+# Since smem doesn't do recursive stores, we need
+# to store each individual factor.  Since smem
+# also allows us to do as many stores as we want
+# at once, we will add all the stores at once.
+sp {apply*add-factors-to-smem*store-factors
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>
+              ^original-number-to-factor <n>
+              ^factorization-object <fo>)
+   (<fo> ^number <n>
+         ^factor <f>)
+-->
+   (<sc> ^store <f>)
+}
+
+# This removes any query object which is still on the
+# smem command link at this point.
+sp {apply*add-factors-to-smem*remove-query
+   (state <s> ^operator.name add-factors-to-smem
+              ^smem.command <sc>)
+   (<sc> ^query <query>)
+-->
+   (<sc> ^query <query> -)
+}

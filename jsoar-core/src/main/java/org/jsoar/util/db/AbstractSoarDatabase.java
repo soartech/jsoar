@@ -35,7 +35,6 @@ public abstract class AbstractSoarDatabase
     private final Connection db;
     private final Properties statements = new Properties();
     private final Map<String, String> filterMap = new HashMap<String, String>();
-    private final String signatureTable;
     
     /**
      * Construct a new database instance.
@@ -44,11 +43,10 @@ public abstract class AbstractSoarDatabase
      * @param db the database connection
      * @throws SoarException
      */
-    public AbstractSoarDatabase(String driver, Connection db, String signatureTable)
+    public AbstractSoarDatabase(String driver, Connection db)
     {
         this.driver = driver;
         this.db = db;
-        this.signatureTable = signatureTable;
     }
     
     /**
@@ -96,26 +94,7 @@ public abstract class AbstractSoarDatabase
      * @throws IOException
      */
     public boolean structure() throws SoarException, IOException
-    {
-        // First check if the signature table is already present. If it is, the
-        // db is initialized.
-        if(signatureTable != null)
-        {
-            try
-            {
-                if(JdbcTools.tableExists(getConnection(), signatureTable))
-                {
-                    // If we're here, the table already exists, so don't set up the rest of the 
-                    // db structure.
-                    return false;
-                }
-            }
-            catch (SQLException e)
-            {
-                throw new SoarException("While detecting signature table '" + signatureTable + "': " + e.getMessage(), e);
-            }
-        }
-        
+    {   
         // Load the database structure by executing structures.sql
         final InputStream is = filter(getClass().getResourceAsStream("structures.sql"), getFilterMap());
         if(is == null)
@@ -130,9 +109,7 @@ public abstract class AbstractSoarDatabase
         {
             is.close();
         }
-        
-        // The signature table (tested above) is created at the end of structures.sql
-        
+                
         return true;
     }
     
@@ -213,10 +190,20 @@ public abstract class AbstractSoarDatabase
         }
         try
         {
+            // See sqlite-jdbc notes
             final String trimmed = sql.trim();
-            return trimmed.startsWith("INSERT") ? 
-                    new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed):                              
-                    new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
+            if (trimmed.startsWith("INSERT"))
+            {
+                return new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed);
+            }
+            else if (trimmed.startsWith("backup") || trimmed.startsWith("restore"))
+            {
+                return new SoarPreparedStatement(trimmed);
+            }
+            else
+            {
+                return new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
+            }
         }
         catch (SQLException e)
         {

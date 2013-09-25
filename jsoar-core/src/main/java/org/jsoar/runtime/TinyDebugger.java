@@ -47,10 +47,12 @@ public class TinyDebugger extends JApplet
     
     private final JPanel tracePanel = new JPanel(new BorderLayout());
     private final JTextArea trace = new JTextArea();
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private final DefaultComboBoxModel promptModel = new DefaultComboBoxModel(new Object[] { 
           "source http://darevay.com/jsoar/waterjugs.soar",
           "source http://darevay.com/jsoar/towers.soar",
           "run -d 1", "run", "stats", "p s1", "stop-soar", "init-soar", "waitsnc --on" });
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private final JComboBox prompt = new JComboBox(promptModel);
     
     private final JPanel productionPanel = new JPanel(new BorderLayout());
@@ -246,6 +248,7 @@ public class TinyDebugger extends JApplet
         tabs.setSelectedComponent(tracePanel);
     }
     
+    @SuppressWarnings("unchecked")
     private void executeCommand()
     {
         final String command = prompt.getEditor().getItem().toString().trim();

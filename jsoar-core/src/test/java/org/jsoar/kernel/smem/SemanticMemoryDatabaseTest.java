@@ -34,14 +34,17 @@ public class SemanticMemoryDatabaseTest
         db.close();
     }
     
-    @Test
-    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
-    {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
-        assertTrue(smdb.structure());
-        
-        assertFalse(smdb.structure());
-    }
+    // With the change to make JSoar behave like CSoar, this test is no longer valid
+    // Because it will recreate the tables (or at least try to).
+    // - ALT
+//    @Test
+//    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
+//    {
+//        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+//        assertTrue(smdb.structure());
+//        
+//        assertFalse(smdb.structure());
+//    }
     
     @Test
     public void testCanCreateInitialTables() throws Exception
@@ -58,18 +61,20 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SIGNATURE,
-            SemanticMemoryDatabase.SMEM_SCHEMA + "vars", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "persistent_variables", 
             SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_integer",
             SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_string",
             SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_attr",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii"
+            SemanticMemoryDatabase.SMEM_SCHEMA + "activation_history",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "attribute_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_lti_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii",
+            
+            "versions"
         };
         
         for(String expected : expectedTables)
@@ -95,15 +100,17 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",
             SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_parent_attr_val_lti",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_val_lti_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_cycle",
-            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_t",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_parent_attr_val_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_val_lti_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
             SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
+            "sqlite_autoindex_versions_1",
         };
         
         for(String expected : expectedTables)
@@ -147,9 +154,7 @@ public class SemanticMemoryDatabaseTest
         assertNotNull(smdb.web_truncate);
         assertNotNull(smdb.web_expand);
 
-        assertNotNull(smdb.web_attr_ct);
-        assertNotNull(smdb.web_const_ct);
-        assertNotNull(smdb.web_lti_ct);
+        assertNotNull(smdb.web_all);
 
         assertNotNull(smdb.web_attr_all);
         assertNotNull(smdb.web_const_all);
@@ -159,17 +164,21 @@ public class SemanticMemoryDatabaseTest
         assertNotNull(smdb.web_const_child);
         assertNotNull(smdb.web_lti_child);
 
-        assertNotNull(smdb.ct_attr_add);
-        assertNotNull(smdb.ct_const_add);
-        assertNotNull(smdb.ct_lti_add);
+        assertNotNull(smdb.attribute_frequency_check);
+        assertNotNull(smdb.wmes_constant_frequency_check);
+        assertNotNull(smdb.wmes_lti_frequency_check);
 
-        assertNotNull(smdb.ct_attr_update);
-        assertNotNull(smdb.ct_const_update);
-        assertNotNull(smdb.ct_lti_update);
+        assertNotNull(smdb.attribute_frequency_add);
+        assertNotNull(smdb.wmes_constant_frequency_add);
+        assertNotNull(smdb.wmes_lti_frequency_add);
 
-        assertNotNull(smdb.ct_attr_get);
-        assertNotNull(smdb.ct_const_get);
-        assertNotNull(smdb.ct_lti_get);
+        assertNotNull(smdb.attribute_frequency_update);
+        assertNotNull(smdb.wmes_constant_frequency_update);
+        assertNotNull(smdb.wmes_lti_frequency_update);
+        
+        assertNotNull(smdb.attribute_frequency_get);
+        assertNotNull(smdb.wmes_constant_frequency_get);
+        assertNotNull(smdb.wmes_lti_frequency_get);
 
         assertNotNull(smdb.act_set);
         assertNotNull(smdb.act_lti_child_ct_set);

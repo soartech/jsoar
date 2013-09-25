@@ -116,7 +116,7 @@ public class Production
     private final ProductionType type;
     private final SourceLocation location;
     private final String name;
-    private final String documentation;
+    private String documentation;	//	This can be set by some of the RL stuff
     private final Support declared_support;
     private final boolean interrupt;
     
@@ -219,6 +219,14 @@ public class Production
     public String getDocumentation()
     {
         return documentation != null ? documentation : "";
+    }
+
+    /**
+     * Set the documentation string of this production
+     */
+    public void setDocumentation(String newDoc)
+    {
+        documentation = newDoc;
     }
     
     /**

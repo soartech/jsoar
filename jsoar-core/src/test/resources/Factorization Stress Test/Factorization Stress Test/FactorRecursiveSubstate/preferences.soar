@@ -1,0 +1,16 @@
+# This file contains all the preferences for the factor recursive substate
+
+####################################################
+###    COPY-ADDITIONAL-FACTORS*BIGGEST-IS-BEST   ###
+# This makes sure that we only copy factors from the
+# biggest, complete, factor.
+sp {preference*copy-additional-factors*biggest-is-best
+   (state <s> ^operator <o1> +
+              ^operator <o2> +)
+   (<o1> ^name copy-additional-factors
+         ^number <n1>)
+   (<o2> ^name copy-additional-factors
+         ^number {< <n1>})
+-->
+   (<s> ^operator <o1> > <o2>)
+}

@@ -1,0 +1,29 @@
+####################################################
+###         DIVIDE-TO-FIND-NEXT-FACTOR           ###
+# When there is a mod of the number to factor with
+# the counter of 0 and the number to factor is not 1,
+# we propose to divide the number to factor to find
+# the next number to factor
+sp {propose*divide-to-find-next-factor
+   (state <s> ^name factor-recursive-substate
+              ^counter <c>
+              ^number-to-factor-mod-counter 0
+              ^number-to-factor-int {<> 1 <ntf>}
+             -^factorization-object <fo>
+             -^needs-factorization true)
+-->
+   (<s> ^operator.name divide-to-find-next-factor)
+}
+
+# This removes the existing number to factor and then
+# adds the divided version along with the adding the
+# needs factorization flag set to true to the state.
+sp {apply*divide-to-find-next-factor
+   (state <s> ^operator.name divide-to-find-next-factor
+              ^counter <c>
+              ^number-to-factor <ntf>)
+-->
+   (<s> ^number-to-factor <ntf> -
+        ^number-to-factor (/ <ntf> <c>)
+        ^needs-factorization true)
+}

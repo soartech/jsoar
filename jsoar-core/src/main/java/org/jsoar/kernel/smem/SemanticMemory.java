@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.smem;
 
+import java.util.Set;
+
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -76,6 +78,21 @@ public interface SemanticMemory extends LongTermIdentifierSource
      * Returns an object that exposes statistics about semantic memory
      */
     SemanticMemoryStatistics getStatistics();
+    
+    /**
+     * Returns whether mirroring is enabled in semantic memory
+     */
+    boolean isMirroringEnabled();
+    
+    /**
+     * Returns a link to the smem_changed_ids set
+     */
+    Set<IdentifierImpl> smem_changed_ids();
+    
+    /**
+     * Returns whether ignoring changes is enabled in semantic memory
+     */
+    boolean smem_ignore_changes();
     
     /**
      * Attaches smem_info to the given identifier. This code is factored out of

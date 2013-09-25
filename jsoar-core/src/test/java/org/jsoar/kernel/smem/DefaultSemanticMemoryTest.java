@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import java.io.PrintWriter;
 import java.sql.Connection;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -31,7 +32,7 @@ public class DefaultSemanticMemoryTest
     @Before
     public void setUp() throws Exception
     {
-        context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager());
+        context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), new Agent());
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
         final SemanticMemoryDatabase db = new SemanticMemoryDatabase("org.sqlite.JDBC", conn);
         db.structure();

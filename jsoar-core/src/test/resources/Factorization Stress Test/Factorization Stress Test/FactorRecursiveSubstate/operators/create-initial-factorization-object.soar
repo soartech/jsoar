@@ -1,0 +1,57 @@
+####################################################
+###     CREATE-INITIAL-FACTORIZATION-OBJECT      ###
+# This creates the initial factorization objecvt
+# with the first factor.
+sp {propose*create-initial-factorization-object
+   (state <s> ^name factor-recursive-substate
+              ^original-number-to-factor <ontf>
+              ^number-to-factor <> <ontf>
+             -^needs-factorization true
+             -^needs-to-copy-to-superstate
+             -^exists-factorization-object-without-complete)
+-->
+   (<s> ^operator.name create-initial-factorization-object)
+}
+
+# This is the proposal to create the object if this is a prime
+# number, because the other proposal expects this to be after
+# a substate.
+sp {propose*create-initial-factorization-object*prime-number
+   (state <s> ^name factor-recursive-substate
+              ^number-to-factor-is-prime true
+             -^factorization-object <fo>)
+-->
+   (<s> ^operator.name create-initial-factorization-object)
+}
+
+# This creates the initial factorization object.
+sp {apply*create-initial-factorization-object
+   (state <s> ^operator.name create-initial-factorization-object
+              ^original-number-to-factor <ontf>
+              ^counter <c>) # Because this is the number we're
+							# dividing by, this is the first
+							# factor.
+-->
+   (<s> ^factorization-object <fo>)
+   (<fo> ^number <ontf>
+         ^factor <first-factor>)
+   (<first-factor> ^value <c>
+                   ^multiplicity 1)
+}
+
+# If we still "need to factor" at this point, because it's a prime number,
+# we remove that "need."
+sp {apply*create-initial-factorization-object*remove-needs-factorization
+   (state <s> ^operator.name create-initial-factorization-object
+              ^needs-factorization <nf>)
+-->
+   (<s> ^needs-factorization <nf> -)
+}
+
+# This makes sure that we copy additional factors to build up the object
+sp {apply*create-initial-factorization-object*needs-copy-additional-factors
+   (state <s> ^operator.name create-initial-factorization-object
+              ^has-factorization-object-complete)
+-->
+   (<s> ^needs-to-copy-additional-factors true)
+}

@@ -1,0 +1,74 @@
+<project name="jsoar-performance-testing" default="build" basedir=".">
+	<description>jsoar-performance-testing</description>
+
+	<property name="dist" value="dist" />
+	<property name="dist.lib" value="${dist}/lib" />
+	<property name="dist.bin" value="${dist}/bin" />
+
+	<property name="jsoar" value="../jsoar-core" />
+	<property name="lib.dir" value="lib" />
+	<property name="jsoar.lib.dir" value="${jsoar}/dist/lib/" />
+
+	<tstamp />
+	<property name="version" value="snapshot-${DSTAMP}" />
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar" />
+		<fileset dir="${jsoar.lib.dir}" includes="**/*.jar" />
+	</path>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${jsoar.lib.dir}" />
+
+		<ant dir="${jsoar}" antfile="build.xml" target="dist" />
+
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" classpathref="classpath" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="build/jar" />
+		<jar destfile="build/jar/jsoar-performance-testing.jar" basedir="build/classes">
+			<manifest>
+				<attribute name="Main-Class" value="org.jsoar.performancetesting.PerformanceTesting" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<zipfileset excludes="META-INF/*.SF" src="${jsoar.lib.dir}/jsoar-core-${version}.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${jsoar.lib.dir}/jsoar-core-${version}.src.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="${jsoar.lib.dir}/sqlite-jdbc-3.7.2.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/slf4j-nop-1.7.5.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="lib/snakeyaml-1.6.jar" />
+			<fileset dir="build/classes" />
+			<fileset dir="src" />
+		</jar>
+	</target>
+
+	<target name="resources">
+		<mkdir dir="build/jar/resources" />
+		<copy todir="build/jar/resources/">
+			<fileset dir="resources" />
+		</copy>
+	</target>
+
+	<target name="build" depends="jar,resources" />
+
+	<target name="run" depends="build">
+		<java fork="true" classname="org.jsoar.performancetesting.PerformanceTesting">
+			<classpath>
+				<path refid="classpath" />
+				<path location="build/jar/jsoar-performance-testing.jar" />
+			</classpath>
+			<arg line="-C resources/example_configuration.yaml" />
+		</java>
+	</target>
+
+	<target name="dist" depends="build">
+		<zip destfile="build/jsoar-performance-testing.zip">
+			<fileset dir="build/jar/" />
+		</zip>
+	</target>
+</project>

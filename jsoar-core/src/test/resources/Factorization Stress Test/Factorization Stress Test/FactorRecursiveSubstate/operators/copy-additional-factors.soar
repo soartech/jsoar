@@ -1,0 +1,72 @@
+####################################################
+###           COPY-ADDITIONAL-FACTORS            ### 
+# This copies additional factors from the substate's
+# factorization objects.  This only needs to copy
+# the largest number's factors because the other ones
+# are dervived from the largest number's.
+sp {propose*copy-additional-factors
+   (state <s> ^name factor-recursive-substate
+              ^needs-to-copy-additional-factors true
+              ^factorization-object <fo>)
+   (<fo> ^complete true
+         ^number <n>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name copy-additional-factors
+        ^number <n>)
+}
+
+# This copies all the factors which already exist at this point
+# onto the object, this will only be true in cases like '4' where
+# it gets a value of 2 for the first factor and an additional factor
+# of 2 later on.
+sp {apply*copy-additional-factors*copy-factors-already-existing
+   (state <s> ^operator <o>
+              ^original-number-to-factor <n>
+              ^factorization-object <non-complete-factor-object>
+              ^factorization-object <biggest-complete-factor-object>)
+   (<o> ^name copy-additional-factors
+        ^number <biggest-complete-number>)
+   (<biggest-complete-factor-object> ^number <biggest-complete-number>
+               					     ^factor <factor>)
+   (<factor> ^value <v>
+             ^multiplicity <m>)
+   (<non-complete-factor-object> ^number <n>
+       						    -^complete
+       						     ^factor <non-complete-existing-factor>)
+   (<non-complete-existing-factor> ^value <v>
+                				   ^multiplicity <non-complete-existing-factor-m>)
+-->
+   (<non-complete-existing-factor> ^multiplicity <non-complete-existing-factor-m> -
+                				   ^multiplicity (+ <non-complete-existing-factor-m> <m>))
+}
+
+# This copies all the factors which were derived from the substates
+# which don't yet exist in our factorization object.
+sp {apply*copy-additional-factors*copy-factors-not-already-existing
+   (state <s> ^operator <o>
+              ^original-number-to-factor <n>
+              ^factorization-object <non-complete-factor-object>
+              ^factorization-object <biggest-complete-factor-object>)
+   (<o> ^name copy-additional-factors
+        ^number <biggest-complete-number>)
+   (<biggest-complete-factor-object> ^number <biggest-complete-number>
+                                     ^factor <factor>)
+   (<factor> ^value <v>
+             ^multiplicity <m>)
+   (<non-complete-factor-object> ^number <n>
+                                -^complete)
+ -{(<non-complete-factor-object> ^factor <non-complete-factor>)
+   (<non-complete-factor> ^value <v>)}
+-->
+   (<non-complete-factor-object> ^factor <factor>)
+}
+
+# This removes the need to copy because we only need
+# to copy one object and only the biggest.
+sp {apply*copy-additional-factors*remove-need-to-copy
+   (state <s> ^operator.name copy-additional-factors
+              ^needs-to-copy-additional-factors <ntcaf>)
+-->
+   (<s> ^needs-to-copy-additional-factors <ntcaf> -)
+}

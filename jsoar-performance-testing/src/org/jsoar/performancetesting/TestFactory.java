@@ -4,6 +4,8 @@
 package org.jsoar.performancetesting;
 
 /**
+ * An interface for constructing tests.
+ * 
  * @author ALT
  *
  */
@@ -18,5 +20,5 @@ public interface TestFactory
      * @param decisionCycles
      * @return A new instance of a class which has already been created and initialized.
      */
-    public Test createTest(String testName, String testFile, Integer decisionCycles);
+    public Test createTest(String testName, String testFile, TestSettings settings);
 }

@@ -19,10 +19,10 @@ class ActivatedLti implements Comparable<ActivatedLti>
         return new PriorityQueue<ActivatedLti>();
     }
     
-    final /*intptr_t*/ long first;
+    final /*double*/ double first;
     final /*smem_lti_id*/ long second;
     
-    public ActivatedLti(long first, long second)
+    public ActivatedLti(double first, long second)
     {
         this.first = first;
         this.second = second;

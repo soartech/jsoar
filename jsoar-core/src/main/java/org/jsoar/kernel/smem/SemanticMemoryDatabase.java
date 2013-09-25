@@ -7,8 +7,10 @@ package org.jsoar.kernel.smem;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
+import org.jsoar.util.db.SoarPreparedStatement;
 
 /**
  * Database helper class for semantic memory.
@@ -18,8 +20,11 @@ import org.jsoar.util.db.AbstractSoarDatabase;
 final class SemanticMemoryDatabase extends AbstractSoarDatabase
 {
     // empty table used to verify proper structure
-    static final String SMEM_SCHEMA = "smem3_";
-    static final String SMEM_SIGNATURE = SMEM_SCHEMA + "signature";
+    static final String SMEM_SCHEMA = "smem_";
+    
+    static final String SMEM_SCHEMA_VERSION = "2.0";
+    
+    static final String IN_MEMORY_PATH = ":memory:";
 
     // These are all the prepared statements for SMEM. They're filled in via reflection
     // from statements.properties.
@@ -27,6 +32,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement commit;
     PreparedStatement rollback;
 
+    SoarPreparedStatement backup;
+    SoarPreparedStatement restore;
+    
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -46,14 +54,15 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement lti_get;
     PreparedStatement lti_letter_num;
     PreparedStatement lti_max;
-
+    PreparedStatement lti_access_get;
+    PreparedStatement lti_access_set;
+    PreparedStatement lti_get_t;
+    
     PreparedStatement web_add;
     PreparedStatement web_truncate;
     PreparedStatement web_expand;
 
-    PreparedStatement web_attr_ct;
-    PreparedStatement web_const_ct;
-    PreparedStatement web_lti_ct;
+    PreparedStatement web_all;
 
     PreparedStatement web_attr_all;
     PreparedStatement web_const_all;
@@ -63,21 +72,21 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement web_const_child;
     PreparedStatement web_lti_child;
     
-    PreparedStatement ct_attr_check;
-    PreparedStatement ct_const_check;
-    PreparedStatement ct_lti_check;
+    PreparedStatement attribute_frequency_check;
+    PreparedStatement wmes_constant_frequency_check;
+    PreparedStatement wmes_lti_frequency_check;
 
-    PreparedStatement ct_attr_add;
-    PreparedStatement ct_const_add;
-    PreparedStatement ct_lti_add;
+    PreparedStatement attribute_frequency_add;
+    PreparedStatement wmes_constant_frequency_add;
+    PreparedStatement wmes_lti_frequency_add;
 
-    PreparedStatement ct_attr_update;
-    PreparedStatement ct_const_update;
-    PreparedStatement ct_lti_update;
+    PreparedStatement attribute_frequency_update;
+    PreparedStatement wmes_constant_frequency_update;
+    PreparedStatement wmes_lti_frequency_update;
 
-    PreparedStatement ct_attr_get;
-    PreparedStatement ct_const_get;
-    PreparedStatement ct_lti_get;
+    PreparedStatement attribute_frequency_get;
+    PreparedStatement wmes_constant_frequency_get;
+    PreparedStatement wmes_lti_frequency_get;
 
     PreparedStatement act_set;
     PreparedStatement act_lti_child_ct_set;
@@ -85,13 +94,74 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement act_lti_set;
     PreparedStatement act_lti_get;
 
+    PreparedStatement history_get;
+    PreparedStatement history_push;
+    PreparedStatement history_add;
+    
     PreparedStatement vis_lti;
+    PreparedStatement vis_lti_act;
     PreparedStatement vis_value_const;
     PreparedStatement vis_value_lti;
     
+    PreparedStatement set_schema_version;
+    PreparedStatement get_schema_version;
+    
+    PreparedStatement drop_smem_persistent_variables;
+    PreparedStatement drop_smem_symbols_type;
+    PreparedStatement drop_smem_symbols_integer;
+    PreparedStatement drop_smem_symbols_float;
+    PreparedStatement drop_smem_symbols_string;
+    PreparedStatement drop_smem_lti;
+    PreparedStatement drop_smem_activation_history;
+    PreparedStatement drop_smem_augmentations;
+    PreparedStatement drop_smem_attribute_frequency;
+    PreparedStatement drop_smem_wmes_constant_frequency;
+    PreparedStatement drop_smem_wmes_lti_frequency;
+    PreparedStatement drop_smem_ascii;
+    
     public SemanticMemoryDatabase(String driver, Connection db)
     {
-        super(driver, db, SMEM_SIGNATURE);
+        super(driver, db);
         getFilterMap().put("@PREFIX@", SMEM_SCHEMA);
+    }
+    
+    public void dropSmemTables() throws SQLException{
+        drop_smem_persistent_variables.execute();
+        drop_smem_symbols_type.execute();
+        drop_smem_symbols_integer.execute();
+        drop_smem_symbols_float.execute();
+        drop_smem_symbols_string.execute();
+        drop_smem_lti.execute();
+        drop_smem_activation_history.execute();
+        drop_smem_augmentations.execute();
+        drop_smem_attribute_frequency.execute();
+        drop_smem_wmes_constant_frequency.execute();
+        drop_smem_wmes_lti_frequency.execute();
+        drop_smem_ascii.execute();
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        this.getConnection().createStatement().executeUpdate(query);
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
     }
 }

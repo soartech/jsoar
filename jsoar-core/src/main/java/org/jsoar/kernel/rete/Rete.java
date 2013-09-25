@@ -15,6 +15,8 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.epmem.MockEpmem;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -36,6 +38,8 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.smem.MockSmem;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -50,6 +54,7 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -100,16 +105,24 @@ public class Rete
     private Token dummy_matches_node_tokens;
     
     private final EpisodicMemory episodicMemory;
+    private final SemanticMemory semanticMemory;
+    private final ReinforcementLearningParams reinforcementLearningParams;
     
-    public Rete(Trace trace, SymbolFactoryImpl syms, EpisodicMemory episodicMemory)
+    public Rete(Trace trace, SymbolFactoryImpl syms, EpisodicMemory episodicMemory,
+    			SemanticMemory semanticMemory,
+    			ReinforcementLearningParams reinforcementLearningParams)
     {
         Arguments.checkNotNull(trace, "trace");
         Arguments.checkNotNull(syms, "syms");
         Arguments.checkNotNull(episodicMemory, "episodicMemory");
+        Arguments.checkNotNull(semanticMemory, "semanticMemory");
+        Arguments.checkNotNull(reinforcementLearningParams, "reinforcementLearningParams");
         
         this.trace = trace;
         this.syms = syms;
         this.episodicMemory = episodicMemory;
+        this.semanticMemory = semanticMemory;
+        this.reinforcementLearningParams = reinforcementLearningParams;
         
         // rete.cpp:8864
         alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
@@ -127,7 +140,8 @@ public class Rete
      */
     public Rete(Trace trace, SymbolFactoryImpl syms)
     {
-        this(trace, syms, new MockEpmem());
+        this(trace, syms, new MockEpmem(), new MockSmem(),
+        		new ReinforcementLearningParams(new PropertyManager(), syms));
     }
     
     public void setReteListener(ReteListener listener)
@@ -291,7 +305,8 @@ public class Rete
             {
                 continue;
             }
-            if (!ignore_rhs && !Action.same_rhs(p_node.b_p().prod.getFirstAction(), p.getFirstAction()))
+            if (!ignore_rhs && !Action.same_rhs(p_node.b_p().prod.getFirstAction(), p.getFirstAction(),
+            		reinforcementLearningParams.chunk_stop.get() == ChunkStop.on))
             {
                 continue;
             }
@@ -527,15 +542,10 @@ public class Rete
             }
         }
 
-//      SJK: not necessary in JSoar?
-//        if ( ( w->id->id.smem_lti ) && ( !thisAgent->smem_ignore_changes ) && smem_enabled( thisAgent ) && ( thisAgent->smem_params->mirroring->get_value() == soar_module::on ) )
-//        {
-//            std::pair< smem_pooled_symbol_set::iterator, bool > insert_result = thisAgent->smem_changed_ids->insert( w->id );
-//            if ( insert_result.second )
-//            {
-//              symbol_add_ref( w->id );
-//            }
-//        }
+        if ( ( w.id.smem_lti != 0 ) && ( !semanticMemory.smem_ignore_changes() ) && semanticMemory.smem_enabled() && semanticMemory.isMirroringEnabled() == true )
+        {
+            semanticMemory.smem_changed_ids().add(w.id);
+        }
     }
     
     /**

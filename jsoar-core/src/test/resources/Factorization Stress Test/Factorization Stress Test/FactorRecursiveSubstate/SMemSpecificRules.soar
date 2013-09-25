@@ -1,0 +1,10 @@
+pushd "SMem Specific Rules"
+
+source preferences.soar
+
+source add-factors-to-smem.soar
+source found-factors-in-smem.soar
+source look-up-in-smem-factors.soar
+source retrieve-factor.soar
+
+popd

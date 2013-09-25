@@ -1,0 +1,30 @@
+# This file contains the top state counter
+
+####################################################
+###                 OPERATORS                    ###
+####################################################
+
+####################################################
+###         INCREMENT-TOP-STATE-COUNTER          ###
+# Propose to increment the counter if
+# there is not a factorization object
+# which needs to be factored
+sp {propose*increment-top-state-counter
+   (state <s> ^name Factorization
+             -^needs-factorization
+             -^needs-clean-up
+              ^counter <c>)
+-->
+   (<s> ^operator.name increment-counter)
+}
+
+# This increments the counter and makes sure
+# that the number is factored
+sp {apply*increment-top-state-counter
+   (state <s> ^operator.name increment-counter
+              ^counter <c>)
+-->
+   (<s> ^counter <c> -
+        ^counter (+ <c> 1)
+        ^needs-factorization true)
+}

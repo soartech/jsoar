@@ -1,0 +1,47 @@
+# This file contains the rules to initialize one of
+# the recursive factor substates
+
+####################################################
+###                 OPERATORS                    ###
+####################################################
+
+####################################################
+###     INITIALIZE*FACTOR-RECURSIVE-SUBSTATE     ###
+# This proposes to initialize a factor substate
+# if there is a superstate which is not nil,
+# the state has no name, and in the superstate
+# there is a selected operator with the name
+# 'factor-number' and a number to factor on it
+sp {propose*initialize*factor-recursive-substate
+   (state <s> ^superstate {<> nil <ss>}
+   			 -^name)
+   (<ss> ^operator <o>)
+   (<o> ^name factor-number
+        ^number-to-factor <c>)
+-->
+   (<s> ^operator <init> + >)
+   (<init> ^name initialize-factor-recursive-substate
+           ^number-to-factor <c>)
+}
+
+# This initializes the substate by creating a name
+# for the substate and setting the number to factor
+# in the substate and then initializing the counter
+sp {apply*initialize*factor-recursive-substate
+   (state <s> ^operator <o>)
+   (<o> ^name initialize-factor-recursive-substate
+        ^number-to-factor <c>)
+-->
+   (<s> ^name factor-recursive-substate
+        ^number-to-factor <c>
+        ^original-number-to-factor <c> # This is the original number passed to the substate
+        							   # to factor.  This is used by the set-complete-true
+        							   # operator to make sure it sets complete true on the
+        							   # right factorization-object without resorting to a
+        							   # fancy elaboration for determining which is the only
+        							   # factorization object without a complete true flag.
+        ^counter 2) # We start at two because otherwise we will always
+					# have a mod value of 0 which means we've "factored"
+					# it when we really haven't and because this is
+					# recursive we will blow out the stack.
+}

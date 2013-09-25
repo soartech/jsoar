@@ -2,14 +2,25 @@ package org.jsoar.kernel.epmem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Force;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.util.ByRef;
+import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -28,9 +39,8 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultEpisodicMemoryCommand implements SoarCommand
 {
-    private final Adaptable context;
-
     private final DefaultEpisodicMemory epmem;
+    private final SymbolFactoryImpl symbols;
 
     public static class Provider implements SoarCommandProvider
     {
@@ -50,8 +60,8 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
 
     public DefaultEpisodicMemoryCommand(Adaptable context)
     {
-        this.context = context;
         this.epmem = Adaptables.require(getClass(), context, DefaultEpisodicMemory.class);
+        this.symbols = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
     }
 
     /*
@@ -73,17 +83,25 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doSet(1, args);
         }
-        else if("--stats".equals(arg))
+        else if("-g".equals(arg) || "--get".equals(arg))
+        {
+            return doGet(1, args);
+        }
+        else if("-s".equals(arg) || "--stats".equals(arg))
         {
             return doStats(1, args);
         }
-        else if("--print".equals(arg))
+        else if("-p".equals(arg) || "--print".equals(arg))
         {
             return doPrintEpisode(1, args);
         }
-        else if("--reinit".equals(arg))
+        else if("-r".equals(arg) || "--reinit".equals(arg))
         {
             return doReinit();
+        }
+        else if("-b".equals(arg) || "--backup".equals(arg))
+        {
+            return doBackup(1, args);
         }
         else if (arg.startsWith("-"))
         {
@@ -104,64 +122,158 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final String name = args[i + 1];
         final String value = args[i + 2];
         final PropertyManager props = epmem.getParams().getProperties();
-        if (name.equals("learning"))
+        
+        try
         {
-            props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
-        }
-        else if (name.equals("trigger"))
-        {
-            props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
-            return "Set trigger to " + Trigger.valueOf(value).toString();
-        }
-        else if (name.equals("phase"))
-        {
-            props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
-            return "Set phase to " + Phase.valueOf(value).toString();
-        }
-        else if (name.equals("graph-match"))
-        {
-            props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
-            return "Set graph-match to " + GraphMatchChoices.valueOf(value);
-        }
-        else if (name.equals("graph-match-ordering"))
-        {
-            props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
-            return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value).toString();
-        }
-        else if (name.equals("balance"))
-        {
-            props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
-            return "Set graph-match-ordering to " + Double.parseDouble(value);
-        }
-        else if (name.equals("optimization"))
-        {
-            props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
-            return "Set optimization to " + Optimization.valueOf(value).toString();
-        }
-        else if (name.equals("path"))
-        {
-            props.set(DefaultEpisodicMemoryParams.PATH, value);
-            return "Set path to " + value;
-        }
-        else if (name.equals("append-database"))
-        {
-            props.set(DefaultEpisodicMemoryParams.APPEND_DATABASE, Boolean.parseBoolean(value));
-            return "Set append to " + Boolean.parseBoolean(value);
-        }
-        else if (name.equals("lazy-commit"))
-        {
-            if(epmem.db != null){
-                return "Lazy commit is protected while the database is open.";
+            if (name.equals("learning"))
+            {
+                props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
             }
-            props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, Boolean.parseBoolean(value));
-            return "Set lazy-commit to " + Boolean.parseBoolean(value);
+            else if (name.equals("trigger"))
+            {
+                props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
+                return "Set trigger to " + Trigger.valueOf(value).toString();
+            }
+            else if (name.equals("phase"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
+                return "Set phase to " + Phase.valueOf(value).toString();
+            }
+            else if (name.equals("graph-match"))
+            {
+                props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
+                return "Set graph-match to " + GraphMatchChoices.valueOf(value);
+            }
+            else if (name.equals("graph-match-ordering"))
+            {
+                props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
+                return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value).toString();
+            }
+            else if (name.equals("balance"))
+            {
+                props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
+                return "Set graph-match-ordering to " + Double.parseDouble(value);
+            }
+            else if (name.equals("optimization"))
+            {
+                props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+                return "Set optimization to " + Optimization.valueOf(value);
+            }
+            else if (name.equals("path"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PATH, value);
+                return "Set path to " + value;
+            }
+            else if (name.equals("append-database"))
+            {
+                props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
+                return "Set append to " + AppendDatabaseChoices.valueOf(value);
+            }
+            else if(name.equals("page-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            }
+            else if(name.equals("cache-size"))
+            {
+                props.set(DefaultEpisodicMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            }
+            else if (name.equals("lazy-commit"))
+            {
+                if(epmem.db != null){
+                    return "Lazy commit is protected while the database is open.";
+                }
+                props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
+                return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
+            }
+            else if (name.equals("exclusions"))
+            {
+                if(epmem.db != null){
+                    return "Lazy commit is protected while the database is open.";
+                }
+                
+                DefaultEpisodicMemoryParams params = epmem.getParams();
+                
+                SymbolImpl sym = symbols.createString(value);
+                
+                if (params.exclusions.contains(sym))
+                {
+                    params.exclusions.remove(sym);
+                }
+                else
+                {
+                    params.exclusions.add(sym);
+                }
+            }
+            else if (name.equals("force"))
+            {
+                props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
+                return "EpMem| force = " + value;
+            }
+            else if (name.equals("database"))
+            {
+                if (value.equals("memory"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, EpisodicMemoryDatabase.IN_MEMORY_PATH);
+                    return "EpMem| database = memory";
+                }
+                else if (value.equals("file"))
+                {
+                    props.set(DefaultEpisodicMemoryParams.PATH, "");
+                    return "EpMem| database = file";
+                }
+                else
+                {
+                    throw new SoarException("Invalid value for EpMem database parameter");
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown epmem parameter '" + name + "'");
+            }
         }
-        else
+        catch(IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
         {
-            throw new SoarException("Unknown epmem parameter '" + name + "'");
+            throw new SoarException("Invalid value.");
         }
 
         return "";
+    }
+    
+    private String doGet(int i, String[] args) throws SoarException
+    {
+        if(i + 1 >= args.length)
+        {
+            throw new SoarException("Invalid arguments for " + args[i] + " option");
+        }
+        final String name = args[i+1];
+        final PropertyKey<?> key = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), name);
+        if(key == null)
+        {
+            if (name.equals("database"))
+            {
+                PropertyKey<?> pathProperty = DefaultEpisodicMemoryParams.getProperty(epmem.getParams().getProperties(), "path");
+                if (pathProperty == null)
+                {
+                    throw new SoarException("Path is null.");
+                }
+                
+                String path = epmem.getParams().getProperties().get(pathProperty).toString();
+                
+                if (path.equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+                {
+                    return "memory";
+                }
+                else
+                {
+                    return "file";
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
+        }
+        return epmem.getParams().getProperties().get(key).toString();
     }
 
     private String doEpmem()
@@ -170,22 +282,61 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final PrintWriter pw = new PrintWriter(sw);
 
         final DefaultEpisodicMemoryParams p = epmem.getParams();
-        pw.printf("Epmem learning: %s%n", p.learning);
-        pw.println();
-        pw.println("Storage");
-        pw.println("-------");
-        pw.printf("driver: %s%n", p.driver);
-        pw.printf("protocol: %s%n", p.protocol);
-        pw.printf("path: %s%n", p.path);
-        pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
-        pw.printf("append-database: %s%n", p.append_database.get() ? "on" : "off");
-        pw.println();
-        pw.println("Performance");
-        pw.println("-----------");
-        pw.printf("cache: %s%n", p.cache);
-        pw.printf("optimization: %s%n", p.optimization);
-        // TODO other epmem params
-
+        pw.printf(PrintHelper.generateHeader("Episodic Memory Settings", 40));
+        pw.printf(PrintHelper.generateItem("learning:", p.learning.get(), 40));
+        pw.printf(PrintHelper.generateSection("Encoding", 40));
+        pw.printf(PrintHelper.generateItem("phase:", p.phase.get(), 40));
+        pw.printf(PrintHelper.generateItem("trigger:", p.trigger.get(), 40));
+        pw.printf(PrintHelper.generateItem("force:", p.force.get(), 40));
+        pw.printf(PrintHelper.generateItem("exclusions:", p.exclusions, 40));
+        pw.printf(PrintHelper.generateSection("Storage", 40));
+        pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            EpisodicMemoryDatabase db = epmem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
+        pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
+        pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
+        
+        String database = "memory";
+        String path = "";
+        if (!p.path.get().equals(EpisodicMemoryDatabase.IN_MEMORY_PATH))
+        {
+            database = "file";
+            path = p.path.get();
+        }
+        
+        pw.printf(PrintHelper.generateItem("database:", database, 40));        
+        pw.printf(PrintHelper.generateItem("path:", path, 40));
+        pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));
+        pw.printf(PrintHelper.generateSection("Retrieval", 40));
+        pw.printf(PrintHelper.generateItem("balance:", p.balance.get(), 40));
+        pw.printf(PrintHelper.generateItem("graph-match:", p.graph_match.get(), 40));
+        pw.printf(PrintHelper.generateItem("graph-match-ordering:", p.gm_ordering.get(), 40));
+        pw.printf(PrintHelper.generateSection("Performance", 40));
+        pw.printf(PrintHelper.generateItem("page-size:", p.page_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("cache-size:", p.cache_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("optimization:", p.optimization.get(), 40));
+        pw.printf(PrintHelper.generateItem("timers:", "off", 40));
+        pw.printf(PrintHelper.generateSection("Experimental", 40));
+        pw.printf(PrintHelper.generateItem("merge:", p.merge.get(), 40));
+        
         pw.flush();
         return sw.toString();
     }
@@ -194,28 +345,90 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
     {
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
+        
+        if (epmem.getDatabase() == null)
+        {
+            epmem.epmem_init_db();
+        }
 
-        final DefaultEpisodicMemoryStats stats = epmem.getStats();
+        final DefaultEpisodicMemoryStats stats = epmem.stats;
         if (args.length == i + 1)
         {
-            pw.printf("Time: %d%n", stats.time.get());
-            pw.printf("SQLite Version: %s%n", stats.db_version.get());
-            pw.printf("Memory Usage: %d%n", stats.mem_usage.get());
-            pw.printf("Memory Highwater: %d%n", stats.mem_high.get());
-            pw.printf("Retrievals: %d%n", stats.ncbr.get());
-            pw.printf("Queries: %d%n", stats.cbr.get());
-            pw.printf("Nexts: %d%n", stats.nexts.get());
-            pw.printf("Prevs: %d%n", stats.prevs.get());
-            pw.printf("Last Retrieval WMEs: %d%n", stats.ncb_wmes.get());
-            pw.printf("Last Query Positive: %d%n", stats.qry_pos.get());
-            pw.printf("Last Query Negative: %d%n", stats.qry_neg.get());
-            pw.printf("Last Query Retrieved: %d%n", stats.qry_ret.get());
-            pw.printf("Last Query Cardinality: %d%n", stats.qry_card.get());
-            pw.printf("Last Query Literals: %d%n", stats.qry_lits.get());
-            pw.printf("Graph Match Attempts: %d%n", stats.graph_matches.get());
-            pw.printf("Last Graph Match Attempts: %d%n", stats.last_graph_matches.get());
-            pw.printf("Episodes Considered: %d%n", stats.considered.get());
-            pw.printf("Last Episodes Considered: %d%n", stats.last_considered.get());
+            pw.printf(PrintHelper.generateHeader("Episodic Memory Statistics", 40));
+            pw.printf(PrintHelper.generateItem("Time:", stats.time.get(), 40));
+            try
+            {
+                String database = epmem.getDatabase().getConnection().getMetaData().getDatabaseProductName();
+                String version = epmem.getDatabase().getConnection().getMetaData().getDatabaseProductVersion();
+                pw.printf(PrintHelper.generateItem(database + " Version:", version, 40));
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e);
+            }
+            
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = epmem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            stats.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(stats.mem_usage.get()) / 1024.0 + " KB", 40));
+            pw.printf(PrintHelper.generateItem("Memory Highwater:", stats.mem_high.get(), 40));
+            pw.printf(PrintHelper.generateItem("Retrievals:", stats.ncbr.get(), 40));
+            pw.printf(PrintHelper.generateItem("Queries:", stats.cbr.get(), 40));
+            pw.printf(PrintHelper.generateItem("Nexts:", stats.nexts.get(), 40));
+            pw.printf(PrintHelper.generateItem("Prevs:", stats.prevs.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Retrieval WMEs:", stats.ncb_wmes.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Query Positive:", stats.qry_pos.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Query Negative:", stats.qry_neg.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Query Retrieved:", stats.qry_ret.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Query Cardinality:", stats.qry_card.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Query Literals:", stats.qry_lits.get(), 40));
+            pw.printf(PrintHelper.generateItem("Graph Match Attempts:", stats.graph_matches.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Graph Match Attempts:", stats.last_graph_matches.get(), 40));
+            pw.printf(PrintHelper.generateItem("Episodes Considered:", stats.considered.get(), 40));
+            pw.printf(PrintHelper.generateItem("Last Episodes Considered:", stats.last_considered.get(), 40));
 
         }
         else
@@ -251,5 +464,41 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
     private String doReinit(){
         epmem.epmem_reinit();
         return "EpMem| Episodic memory system re-initialized.";
+    }
+    
+    private String doBackup(int i, String[] args) throws SoarException
+    {
+        if(args.length >= i + 2)
+        {
+            ByRef<String> err = new ByRef<String>("");
+            boolean success = false;
+            
+            String dbFile = "";
+            
+            for (++i;i < args.length;i++)
+            {
+                dbFile += args[i] + " ";
+            }
+            
+            dbFile = dbFile.trim();
+            
+            try
+            {
+                success = epmem.epmem_backup_db(dbFile, err);
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+            
+            if (!success)
+            {
+                throw new SoarException(err.value);
+            }
+            
+            return "EpMem| Database backed up to " + dbFile;
+        }
+        
+        throw new SoarException("epmem --backup requires a path for an argument");
     }
 }

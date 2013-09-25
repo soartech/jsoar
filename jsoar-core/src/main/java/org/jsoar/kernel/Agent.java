@@ -54,6 +54,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
@@ -140,7 +141,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
     private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
     
-    private final Rete rete = new Rete(trace, syms, epmem);
+    private final Rete rete = new Rete(trace, syms, epmem, smem, rl.getParams());
     private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
@@ -556,7 +557,16 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             return info.getValue();
         }
-        if(t.length() < 2 || !Character.isLetter(t.charAt(0))) return null;
+        
+        if (t.charAt(0) == '@')
+        {
+            t = t.substring(1);
+        }
+        
+        if (t.length() < 2 || !Character.isLetter(t.charAt(0)))
+        {
+            return null;
+        }
         
         final char letter = Character.toUpperCase(t.charAt(0));
         long number = 1;
@@ -921,9 +931,26 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         // Temporarily disable tracing
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
+        
+        try
+        {
+            epmem.epmem_close();
+        }
+        catch (SoarException e2)
+        {
+            throw new RuntimeException("EpMem failed to close.", e2);
+        }
+        try
+        {
+            smem.smem_close();
+        }
+        catch (SoarException e1)
+        {
+            throw new RuntimeException("SMem failed to close.", e1);
+        }
 
         boolean wma_was_enabled = wma.wma_enabled();
-        wma.getParams().activation.set(false);
+        wma.getParams().activation.set(ActivationChoices.off);
         
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
@@ -931,7 +958,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         
         if(wma_was_enabled)
         {
-            wma.getParams().activation.set(true);
+            wma.getParams().activation.set(ActivationChoices.on);
         }
         
         //TODO rl.rl_reset_stats();

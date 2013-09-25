@@ -226,6 +226,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     
     /**
      * Initialize this object and the underlying agent.
+     * This returns immediately. If want to wait, use a completion handler like
+     * the one in {@link ThreadedAgentManager#create}
      * 
      * @return this
      */
@@ -236,6 +238,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     
     /**
      * Initialize this object and the underlying agent.
+     * This returns immediately. If want to wait, use a completion handler like
+     * the one in {@link ThreadedAgentManager#create}
      * 
      * @param done if not <code>null</code> this handler is called after the 
      * agent is initialized.

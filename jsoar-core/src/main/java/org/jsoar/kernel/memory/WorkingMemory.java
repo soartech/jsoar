@@ -13,7 +13,10 @@ import org.jsoar.kernel.events.InputWmeGarbageCollectedEvent;
 import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.rete.Rete;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -46,6 +49,8 @@ public class WorkingMemory
     private Decider decider;
     private SoarEventManager eventManager;
     private WorkingMemoryActivation wma;
+    private SemanticMemory smem;
+    private SymbolFactoryImpl symbols;
     
     private int current_wme_timetag = 1;
     
@@ -77,6 +82,8 @@ public class WorkingMemory
         this.decider = Adaptables.adapt(context, Decider.class);
         this.eventManager = context.getEvents();
         this.wma = Adaptables.adapt(context, WorkingMemoryActivation.class);
+        this.smem = Adaptables.adapt(context, SemanticMemory.class);
+        this.symbols = Adaptables.adapt(context, SymbolFactoryImpl.class);
     }
 
     /**
@@ -254,6 +261,20 @@ public class WorkingMemory
             // added check for wma_enabled to minimize impact on non-wma agents
             if(wma.wma_enabled())
                 this.wma.wma_remove_decay_element(w.item);
+            
+            // This is to fix a bug in SMem related to CSoar expecting to recreate WMEs whereas
+            // in JSoar it wouldn't because the garbage collector might not have collected them
+            // yet and so JSoar would get wrong levels which would cause a memory leak and the
+            // WM size would grow and never shrink when you query on LTIs.
+            // - ALT
+            if (smem.smem_enabled())
+            {
+                // Make sure it is an LTI
+                if (w.item.id != null && w.item.id.smem_lti > 0)
+                {
+                    symbols.findAndNullIdentifier(w.item.id);
+                }
+            }
         }
         
         // #ifndef NO_TIMING_STUFF

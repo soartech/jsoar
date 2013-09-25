@@ -28,7 +28,7 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
     /**
      * agent.h:654:mcs_counter
      */
-    private final ByRef<Integer> counter = new ByRef<Integer>(Integer.valueOf(0));
+    private final ByRef<Integer> counter = new ByRef<Integer>(Integer.valueOf(1));
     
     public MakeConstantSymbol()
     {

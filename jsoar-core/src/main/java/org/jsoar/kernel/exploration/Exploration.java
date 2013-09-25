@@ -13,8 +13,9 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
-import org.jsoar.kernel.learning.rl.LearningChoices;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
@@ -413,13 +414,15 @@ public class Exploration
             exploration_compute_value_of_candidate( cand, s, 0.0);
 
         final boolean my_rl_enabled = rl.rl_enabled();
-        final LearningChoices my_learning_policy = my_rl_enabled ? context.getProperties().get(ReinforcementLearning.LEARNING_POLICY) : LearningChoices.Q;
+        final LearningPolicy my_learning_policy =
+        		my_rl_enabled ? context.getProperties().get(ReinforcementLearningParams.LEARNING_POLICY)
+        						: LearningPolicy.q;
         double top_value = candidates.numeric_value;
         boolean top_rl = candidates.rl_contribution;
         
         // should find highest valued candidate in q-learning
         if (my_rl_enabled && 
-            my_learning_policy == LearningChoices.Q)
+            my_learning_policy == ReinforcementLearningParams.LearningPolicy.q)
         {
             for ( Preference cand=candidates; cand!=null; cand=cand.next_candidate )
             {
@@ -465,11 +468,11 @@ public class Exploration
         {
             rl.rl_tabulate_reward_values();
 
-            if (my_learning_policy == LearningChoices.SARSA)
+            if (my_learning_policy == ReinforcementLearningParams.LearningPolicy.sarsa)
             {
                 rl.rl_perform_update(return_val.numeric_value, return_val.rl_contribution, s.id );
             }
-            else if (my_learning_policy == LearningChoices.Q)
+            else if (my_learning_policy == ReinforcementLearningParams.LearningPolicy.q)
             {
                 rl.rl_perform_update(top_value, top_rl, s.id );
 

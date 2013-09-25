@@ -1,0 +1,18 @@
+####################################################
+###     GENERIC-OPERATOR*ADD-IS-EPMEM-OBJECT     ###
+# This piggy backs onto other operators.  All this
+# does is add an o-supported epmem flag to any
+# factorization object created in an epmem substate.
+# This is necessary so epmem objects always propogate
+# to the top state.
+sp {apply*generic-operator*add-is-epmem-object
+   (state <s> ^name factor-recursive-substate
+              ^using-epmem true
+              ^operator <o>
+              ^factorization-object <fo>
+              ^original-number-to-factor <n>)
+   (<fo> ^number <n>
+        -^epmem)
+-->
+   (<fo> ^epmem true)
+}

@@ -24,8 +24,11 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     enum value_type { null_t, int_t, double_t, text_t };
     
     // empty table used to verify proper structure
-    static final String EPMEM_SCHEMA = "epmem2_";
-    static final String EPMEM_SIGNATURE = EPMEM_SCHEMA + "epmem_signature";
+    static final String EPMEM_SCHEMA = "epmem_";
+    
+    static final String EPMEM_SCHEMA_VERSION = "2.0";
+    
+    static final String IN_MEMORY_PATH = ":memory:";
     
     // These are all the prepared statements for EPMEM. They're filled in via reflection
     // from statements.properties.
@@ -34,6 +37,9 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement begin;
     PreparedStatement commit;
     PreparedStatement rollback;
+    
+    SoarPreparedStatement backup;
+    SoarPreparedStatement restore;
     
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -115,7 +121,6 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement drop_epmem_symbols_integer;
     PreparedStatement drop_epmem_symbols_float;
     PreparedStatement drop_epmem_symbols_string;
-    PreparedStatement drop_epmem_signature;
     
     PreparedStatement update_epmem_wmes_identifier_last_episode_id;
 
@@ -235,7 +240,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
      */
     public EpisodicMemoryDatabase(String driver, Connection db)
     {
-        super(driver, db, EPMEM_SIGNATURE);
+        super(driver, db);
         getFilterMap().put("@PREFIX@", EPMEM_SCHEMA);
     }
     
@@ -295,6 +300,30 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         drop_epmem_symbols_integer.execute();
         drop_epmem_symbols_float.execute();
         drop_epmem_symbols_string.execute();
-        drop_epmem_signature.execute();
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        this.getConnection().createStatement().executeUpdate(query);
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
     }
 }

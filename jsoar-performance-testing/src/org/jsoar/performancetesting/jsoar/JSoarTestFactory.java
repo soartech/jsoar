@@ -5,9 +5,10 @@ package org.jsoar.performancetesting.jsoar;
 
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
+import org.jsoar.performancetesting.TestSettings;
 
 /**
- * This creates instantiations of JSoar tests.
+ * A class to create instantiations of JSoar tests.
  * 
  * @author ALT
  *
@@ -25,11 +26,11 @@ public class JSoarTestFactory implements TestFactory
      * @return A new and initialized JSoar test.
      */
     @Override
-    public Test createTest(String testName, String testFile, Integer decisionCycles)
+    public Test createTest(String testName, String testFile, TestSettings settings)
     {
         JSoarTest jsoarTest = new JSoarTest();
         
-        jsoarTest.initialize(testName, testFile, decisionCycles);
+        jsoarTest.initialize(testName, testFile, settings);
         
         return jsoarTest;
     }

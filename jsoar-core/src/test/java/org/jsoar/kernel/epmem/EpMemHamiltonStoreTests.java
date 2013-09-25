@@ -41,7 +41,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         }
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_now");
         
         final ResultSet results = p.executeQuery();
         
@@ -72,7 +72,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         }
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now");
         
         final ResultSet results = p.executeQuery();
         
@@ -183,7 +183,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(new NodeUniqueRow(11,13,7,22));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant");
         
         final ResultSet results = p.executeQuery();
         
@@ -295,7 +295,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(new SymbolsStringRow(4,"type"));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_string");
         
         final ResultSet results = p.executeQuery();
         
@@ -429,7 +429,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(new WMEsIdentifierRow(26,12,15,13,Long.MAX_VALUE));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier");
         
         final ResultSet results = p.executeQuery();
         
@@ -469,7 +469,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(1L);
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes");
         
         final ResultSet results = p.executeQuery();
         
@@ -509,7 +509,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.put(8L,14L);
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables");
         
         final ResultSet results = p.executeQuery();
         

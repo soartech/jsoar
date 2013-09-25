@@ -5,12 +5,14 @@ package org.jsoar.performancetesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
 
 /**
+ * A class for running tests.  This can run both
+ * CSoar and JSoar tests and doesn't make a difference.
+ * 
  * @author ALT
  *
  */
@@ -21,11 +23,9 @@ public class TestRunner
     
     private List<Double> cpuTimes;
     private List<Double> kernelTimes;
-    private List<Integer> decisionCycles;
-    private List<Long> memoryLoads;
-    
-    private int runs;
-    
+    private List<Double> decisionCycles;
+    private List<Double> memoryLoads;
+        
     public TestRunner(Test test, PrintWriter out)
     {
         this.test = test;
@@ -33,8 +33,8 @@ public class TestRunner
         
         cpuTimes = new ArrayList<Double>();
         kernelTimes = new ArrayList<Double>();
-        decisionCycles = new ArrayList<Integer>();
-        memoryLoads = new ArrayList<Long>();
+        decisionCycles = new ArrayList<Double>();
+        memoryLoads = new ArrayList<Double>();
     }
     
     /**
@@ -45,18 +45,18 @@ public class TestRunner
      * @return Whether the run was successful
      * @throws SoarException
      */
-    public boolean runSingleIteration(int runCount, Long seed) throws SoarException
+    public boolean runSingleIteration(int runCount) throws SoarException
     {
         test.reset();
         
-        boolean result = test.run(runCount, seed);
+        boolean result = test.run(runCount);
         
         cpuTimes.add(test.getCPURunTime());
         kernelTimes.add(test.getKernelRunTime());
         
-        decisionCycles.add(test.getDecisionCyclesRunFor());
+        decisionCycles.add(new Double(test.getDecisionCyclesRunFor()));
         
-        memoryLoads.add(test.getMemoryForRun());
+        memoryLoads.add(new Double(test.getMemoryForRun()));
         
         return result;
     }
@@ -71,18 +71,18 @@ public class TestRunner
      * @return Whether running all the tests was successful or not.
      * @throws SoarException
      */
-    boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
+    boolean runTestsForAverage(TestSettings settings) throws SoarException
     {
-        if (warmUpCount > 0)
+        if (settings.isJSoarEnabled() && settings.getWarmUpCount() > 0)
         {
             out.print("Warming Up: ");
             out.flush();
 
-            for (int i = 0; i < warmUpCount; i++)
+            for (int i = 0; i < settings.getWarmUpCount(); i++)
             {
                 test.reset();
 
-                boolean result = test.run(i, seed);
+                boolean result = test.run(i);
 
                 if (!result)
                     return false;
@@ -93,15 +93,13 @@ public class TestRunner
             
             out.print("\n");
         }
-        
-        runs = runCount;
-        
+                
         out.print("Running Test: ");
         out.flush();
         
-        for (int i = 0;i < runCount;i++)
+        for (int i = 0;i < settings.getRunCount();i++)
         {
-            boolean result = runSingleIteration(i, seed);
+            boolean result = runSingleIteration(i);
             
             if (!result)
                 return false;
@@ -122,14 +120,7 @@ public class TestRunner
      */
     public double getTotalCPUTime()
     {
-        double averageCPUTime = 0.0;
-        
-        for (Double d : cpuTimes)
-        {
-            averageCPUTime += d;
-        }
-                
-        return averageCPUTime;
+        return Statistics.calculateTotal(cpuTimes);
     }
     
     /**
@@ -138,14 +129,7 @@ public class TestRunner
      */
     public double getTotalKernelTime()
     {
-        double averageKernelTime = 0.0;
-        
-        for (Double d : kernelTimes)
-        {
-            averageKernelTime += d;
-        }
-                
-        return averageKernelTime;
+        return Statistics.calculateTotal(kernelTimes);
     }
     
     /**
@@ -154,14 +138,7 @@ public class TestRunner
      */
     public double getTotalDecisionCycles()
     {
-        double averageDecisionCycles = 0.0;
-        
-        for (Integer i : decisionCycles)
-        {
-            averageDecisionCycles += i;
-        }
-                
-        return averageDecisionCycles;
+        return Statistics.calculateTotal(decisionCycles);
     }
     
     /**
@@ -170,14 +147,7 @@ public class TestRunner
      */
     public double getTotalMemoryLoad()
     {
-        double averageMemoryLoad = 0.0;
-        
-        for (Long l : memoryLoads)
-        {
-            averageMemoryLoad += l;
-        }
-                
-        return averageMemoryLoad;
+        return Statistics.calculateTotal(memoryLoads);
     }
     
     /**
@@ -186,16 +156,7 @@ public class TestRunner
      */
     public double getAverageCPUTime()
     {
-        double averageCPUTime = 0.0;
-        
-        for (Double d : cpuTimes)
-        {
-            averageCPUTime += d;
-        }
-        
-        averageCPUTime /= runs;
-        
-        return averageCPUTime;
+        return Statistics.calculateAverage(cpuTimes);
     }
     
     /**
@@ -204,29 +165,7 @@ public class TestRunner
      */
     public double getMedianCPUTime()
     {
-        List<Double> cpuTimesSorted = new ArrayList<Double>(cpuTimes);
-        
-        Collections.sort(cpuTimesSorted);
-        
-        int size = cpuTimesSorted.size();
-        
-        if (size % 2 == 0)
-        {
-            //Even
-            return cpuTimesSorted.get(size/2);
-        }
-        else
-        {
-            //Odd
-            int index_top = (int) Math.floor(size/2.0);
-            int index_bottom = (int) Math.nextUp(size/2.0);
-            
-            double median = cpuTimesSorted.get(index_bottom) + cpuTimesSorted.get(index_top);
-            
-            median /= 2.0;
-            
-            return median;
-        }
+        return Statistics.calculateMedian(cpuTimes);
     }
     
     /**
@@ -235,16 +174,7 @@ public class TestRunner
      */
     public double getAverageKernelTime()
     {
-        double averageKernelTime = 0.0;
-        
-        for (Double d : kernelTimes)
-        {
-            averageKernelTime += d;
-        }
-        
-        averageKernelTime /= runs;
-        
-        return averageKernelTime;
+        return Statistics.calculateAverage(kernelTimes);
     }
     
     /**
@@ -253,29 +183,7 @@ public class TestRunner
      */
     public double getMedianKernelTime()
     {
-        List<Double> kernelTimesSorted = new ArrayList<Double>(kernelTimes);
-        
-        Collections.sort(kernelTimesSorted);
-        
-        int size = kernelTimesSorted.size();
-        
-        if (size % 2 == 0)
-        {
-            //Even
-            return kernelTimesSorted.get(size/2);
-        }
-        else
-        {
-            //Odd
-            int index_top = (int) Math.floor(size/2.0);
-            int index_bottom = (int) Math.nextUp(size/2.0);
-            
-            double median = kernelTimesSorted.get(index_bottom) + kernelTimesSorted.get(index_top);
-            
-            median /= 2.0;
-            
-            return median;
-        }
+        return Statistics.calculateMedian(kernelTimes);
     }
     
     /**
@@ -284,16 +192,7 @@ public class TestRunner
      */
     public double getAverageDecisionCycles()
     {
-        double averageDecisionCycles = 0.0;
-        
-        for (Integer i : decisionCycles)
-        {
-            averageDecisionCycles += i;
-        }
-        
-        averageDecisionCycles /= runs;
-        
-        return averageDecisionCycles;
+        return Statistics.calculateAverage(decisionCycles);
     }
     
     /**
@@ -302,29 +201,7 @@ public class TestRunner
      */
     public double getMedianDecisionCycles()
     {
-        List<Integer> decisionCyclesSorted = new ArrayList<Integer>(decisionCycles);
-        
-        Collections.sort(decisionCyclesSorted);
-        
-        int size = decisionCyclesSorted.size();
-        
-        if (size % 2 == 0)
-        {
-            //Even
-            return decisionCyclesSorted.get(size/2);
-        }
-        else
-        {
-            //Odd
-            int index_top = (int) Math.floor(size/2.0);
-            int index_bottom = (int) Math.nextUp(size/2.0);
-            
-            double median = decisionCyclesSorted.get(index_bottom) + decisionCyclesSorted.get(index_top);
-            
-            median /= 2.0;
-            
-            return median;
-        }
+        return Statistics.calculateMedian(decisionCycles);
     }
     
     /**
@@ -333,16 +210,7 @@ public class TestRunner
      */
     public double getAverageMemoryLoad()
     {
-        double averageMemoryLoad = 0.0;
-        
-        for (Long l : memoryLoads)
-        {
-            averageMemoryLoad += l;
-        }
-        
-        averageMemoryLoad /= runs;
-        
-        return averageMemoryLoad;
+        return Statistics.calculateAverage(memoryLoads);
     }
     
     /**
@@ -351,29 +219,7 @@ public class TestRunner
      */
     public double getMedianMemoryLoad()
     {
-        List<Long> memoryLoadsSorted = new ArrayList<Long>(memoryLoads);
-        
-        Collections.sort(memoryLoadsSorted);
-        
-        int size = memoryLoadsSorted.size();
-        
-        if (size % 2 == 0)
-        {
-            //Even
-            return memoryLoadsSorted.get(size/2);
-        }
-        else
-        {
-            //Odd
-            int index_top = (int) Math.floor(size/2.0);
-            int index_bottom = (int) Math.nextUp(size/2.0);
-            
-            double median = memoryLoadsSorted.get(index_bottom) + memoryLoadsSorted.get(index_top);
-            
-            median /= 2.0;
-            
-            return median;
-        }
+        return Statistics.calculateMedian(memoryLoads);
     }
     
     /**
@@ -382,7 +228,7 @@ public class TestRunner
      */
     public double getMemoryLoadDeviation()
     {        
-        return Collections.max(memoryLoads) - getAverageMemoryLoad();
+        return Statistics.calculateDeviation(memoryLoads);
     }
     
     /**
@@ -416,7 +262,7 @@ public class TestRunner
      * 
      * @return all the decision cycle counts for the runs.
      */
-    public List<Integer> getAllDecisionCycles()
+    public List<Double> getAllDecisionCycles()
     {
         return decisionCycles;
     }
@@ -425,7 +271,7 @@ public class TestRunner
      * 
      * @return all the memory loads for the runs.
      */
-    public List<Long> getAllMemoryLoads()
+    public List<Double> getAllMemoryLoads()
     {
         return memoryLoads;
     }

@@ -39,10 +39,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.epmem.EpisodicMemoryIdReservation.EpisodicMemoryIdPair;
 import org.jsoar.kernel.learning.Chunker;
@@ -277,6 +280,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             new LinkedHashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
     
     private final SoarModule soarModule = new SoarModule();
+    
+    private WorkingMemoryActivation wma;
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -289,8 +294,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         this.db = db;
     }
     
-    public DefaultEpisodicMemoryStats getStats(){
-    	return stats;
+    /**
+     * @return the interface not the implementation
+     */
+    public EpisodicMemoryStatistics getStats()
+    {
+        return stats;
     }
     
     /**
@@ -305,6 +314,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
+        wma = Adaptables.require(DefaultEpisodicMemory.class, context, WorkingMemoryActivation.class);
         
         random = agent.getRandom();
         trace = agent.getTrace();
@@ -504,19 +514,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if (params.driver.equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
-            final int cacheSize;
-            switch (params.cache.get())
-            {
-            case small:
-                cacheSize = 5000;
-                break; // 5MB cache
-            case medium:
-                cacheSize = 20000;
-                break; // 20MB cache
-            case large:
-            default:
-                cacheSize = 100000; // 100MB cache
-            }
+            final long cacheSize = params.cache_size.get();
 
             final Statement s = db.getConnection().createStatement();
             try
@@ -556,7 +554,50 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
 
-        // TODO EPMEM page_size
+        // page_size
+        if (params.driver.equals("org.sqlite.JDBC"))
+        {
+            final PageChoices pageSize = params.page_size.get();
+            
+            long pageSizeLong = 0;
+            
+            switch (pageSize)
+            {
+            case page_16k:
+                pageSizeLong = 16 * 1024;
+                break;
+            case page_1k:
+                pageSizeLong = 1 * 1024;
+                break;
+            case page_2k:
+                pageSizeLong = 2 * 1024;
+                break;
+            case page_32k:
+                pageSizeLong = 32 * 1024;
+                break;
+            case page_4k:
+                pageSizeLong = 4 * 1024;
+                break;
+            case page_64k:
+                pageSizeLong = 64 * 1024;
+                break;
+            case page_8k:
+                pageSizeLong = 8 * 1024;
+                break;
+            default:
+                break;
+            }
+
+            final Statement s = db.getConnection().createStatement();
+            try
+            {
+                s.execute("PRAGMA page_size = " + pageSizeLong);
+            }
+            finally
+            {
+                s.close();
+            }
+        }
     }
 
     private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max,
@@ -616,6 +657,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
+        
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
 
@@ -629,7 +671,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         db.structure();
         db.prepare();
         //Make sure we do not have an incorrect database version
-        if (!":memory:".equals(params.path.get()))
+        if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
             final ResultSet result = db.get_schema_version.executeQuery();
             try
@@ -637,10 +679,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (result.next())
                 {
                     String schemaVersion = result.getString(1);
-                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA.equals(schemaVersion))
+                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
                         logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
-                        params.path.set(":memory:");
+                        params.path.set(EpisodicMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
                         connection.close();
@@ -652,7 +694,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else
                 {
-                    if (params.append_database.get())
+                    if (params.append_database.get() == AppendDatabaseChoices.on)
                     {
                         logger.info("The selected database contained no data to append on.  New tables created.");
                     }
@@ -663,7 +705,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 result.close();
             }
         }
-        db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA);
+        db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION);
         db.set_schema_version.execute();
         /*
          * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
@@ -672,7 +714,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
          * TODO: Maybe we should bypass the reflected query structure so this can be done in
          * one statement, instead of building the tables and immediately dropping them. -ACN
          */
-        if(!params.append_database.get()){
+        if(params.append_database.get() == AppendDatabaseChoices.off){
             db.dropEpmemTables();
             db.structure();
             db.prepare();
@@ -943,7 +985,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
-        if (params.lazy_commit.get())
+        if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
             db.begin.executeUpdate( /* soar_module::op_reinit */);
         }
@@ -1174,7 +1216,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // TODO this is copy-paste from smem right now, there are other
                 // things to do here
                 
-                if (params.lazy_commit.get())
+                if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
                     db.commit.execute();
                 }
@@ -2375,6 +2417,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     /**
+     * <p>episodic_memory.cpp:2373:void epmem_schedule_promotion( agent* my_agent, Symbol* id )
+     * 
+     * 
+     */
+    public void epmem_schedule_promotion( IdentifierImpl id )
+    {
+        if (epmem_enabled())
+        {
+            if ((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation))
+            {
+                epmem_promotions.add(id);
+            }
+        }
+    }
+    
+    /**
      * <p>episodic_memory.cpp:2031:inline void _epmem_promote_id( agent* my_agent, Symbol* id, epmem_time_id t )
      * @param id
      * @param t
@@ -2847,6 +2905,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup, int sym_type)
     {
+        @SuppressWarnings("unused")
         Symbol return_val = null;
         String dest = null; 
         
@@ -3396,7 +3455,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         if ( recognitionMemory.add_preference_to_tm( just_pref ) )
                         {
-                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
                             if ( wma.wma_enabled() )
                             {
                                 wma.wma_activate_wmes_in_pref( just_pref );
@@ -3747,13 +3805,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             //std::sort(prohibits.begin(), prohibits.end());
             Collections.sort(prohibits);
         }
-        int[] test = { 2, 2 };
+
         // epmem options
         boolean do_graph_match = (params.graph_match.get() == GraphMatchChoices.on);
         GmOrderingChoices gm_order = params.gm_ordering.get();
 
         // variables needed for cleanup
         Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new LinkedHashMap<WmeImpl, EpmemLiteral>();
+        @SuppressWarnings("unchecked")
         Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
         pedge_caches[0] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
         pedge_caches[1] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
@@ -3767,6 +3826,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         #else
         */
         //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
+        @SuppressWarnings("unchecked")
         SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
         uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
@@ -4049,6 +4109,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // create queries for the unique edge children of this partial edge
                     if (pedge.value_is_id != 0) 
                     {
+                        @SuppressWarnings("unused")
                         boolean created = false;
                         //for (epmem_literal_set::iterator literal_iter = pedge->literals.begin(); literal_iter != pedge->literals.end(); literal_iter++) {
                         for(EpmemLiteral literal_iter: pedge.literals)
@@ -4150,9 +4211,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     interval_sql.setLong(bind_pos++, current_episode);
                                 }
                                 interval_sql.setLong(bind_pos++, edge_id);
-                                if (is_lti) 
+                                if (is_lti && interval_type == EPMEM_RANGE_EP) 
                                 {
-                                    // find the promotion time of the LTI, and use that as an after constraint
                                     interval_sql.setLong(bind_pos++, promo_time);
                                 }
                                 interval_sql.setLong(bind_pos++, current_episode);
@@ -4163,7 +4223,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &interval);
                                     interval.is_end_point = point_type;
                                     interval.uedge = uedge;
+                                    // If it's an start point of a range (ie. not a point) and it's before the promo time
+                                    // (this is possible if a the promotion is in the middle of a range)
+                                    // trim it to the promo time.
+                                    // This will only happen if the LTI is promoted in the last interval it appeared in
+                                    // (since otherwise the start point would not be before its promotion).
+                                    // We don't care about the remaining results of the query
+                                    
+                                    // why wouldn't the LTI still be satisfied before its promotion time? what guards against that?
                                     interval.time = results.getLong(0 + 1);
+                                    
+                                    if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time)
+                                    {
+                                        interval.time = promo_time - 1;
+                                    }
+                                    
                                     interval.sql = interval_sql;
                                     //This logic does not allow us to free this result set here.
                                     //This means that we need ot close this by hand later on. -ACN
@@ -4176,6 +4250,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 else 
                                 {
                                     results.close();
+                                    interval_sql.close();
                                 }
                             }
                         }
@@ -4253,6 +4328,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             //pedge->sql->get_pool()->release(pedge->sql);
                             pedge.sqlResults.close();
                             pedge.sqlResults = null;
+                            pedge.sql.close();
                             pedge.sql = null;
                         }
                     }
@@ -4336,6 +4412,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 //interval->sql->get_pool()->release(interval->sql);
                                 interval.sqlResult.close();
                                 interval.sqlResult = null;
+                                interval.sql.close();
                                 interval.sql = null;
                                 uedge.intervals--;
                                 if (uedge.intervals != 0)
@@ -4445,6 +4522,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 best_bindings.clear();
                                 //Java array do not get along well with paramatized types.  Maybe 
                                 //we should make this a list. -ACN
+                                @SuppressWarnings("unchecked")
                                 Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
                                 for(int i = 0; i < bound_nodes.length; i++)
                                 {
@@ -4557,6 +4635,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         //This instantiation of level is shadowing the function parameter, which java does not
                         //allow, so were going to have to rename it here.
+                        @SuppressWarnings("unused")
                         int/*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
                         // mapping identifier
                         SymbolImpl mapping = symbols.make_new_identifier('M', level);
@@ -4613,6 +4692,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //interval->sql->get_pool()->release(interval->sql);
                 interval.sqlResult.close();
                 interval.sqlResult = null;
+                interval.sql.close();
+                interval.sql = null;
             }
             //free_with_pool(&(my_agent->epmem_interval_pool), interval);
         }
@@ -4626,6 +4707,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     //pedge->sql->get_pool()->release(pedge->sql);
                     pedge.sqlResults.close();
+                    pedge.sqlResults = null;
+                    pedge.sql.close();
+                    pedge.sql = null;
                 }
                 //In some places, we use clear to "destroy" containers, but this one is about to leave
                 //scope so we dont need to bother. -ACN
@@ -5096,6 +5180,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             else
             {
                 results.close();
+                pedge_sql.close();
                 return false;
             }
         } else {
@@ -5739,7 +5824,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // shared identifier lookup table
             //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
-            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.merge_add);
+            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.add);
             
             // symbols used to create WMEs
             SymbolImpl attr = null;
@@ -6603,20 +6688,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if(my_refs.contains(w))
                 {
                     my_refs.remove(w);
-
-                    // recurse if no incoming edges from top-state (i.e. not in transitive closure of top-state)
-                    boolean recurse = true;
-                    for(WmeImpl rc_it : my_refs)
-                    {
-                        //if ( ( !(*rc_it) ) || ( (*rc_it)->id->id.level == my_agent->top_state->id.level ) )
-                        if(rc_it == null || rc_it.id.level==decider.top_state.level)
-                        {
-                            recurse = false;
-                            break;
-                        }
-                    }
-
-                    if ( recurse )
+                    
+                    // recurse if no incoming edges from epmem
+                    if(my_refs.isEmpty())
                     {
                         my_refs.clear();
                         epmem_id_removes.push(w.value);
@@ -6790,9 +6864,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         else
                         {
                             temp_s2 = "@";
-                            temp_s2 += result.getLong( 3 + 1 );
+                            temp_s2 += (char)result.getLong( 3 + 1 );
     
-                            temp_i = result.getLong( 4 );
+                            temp_i = result.getLong( 4 + 1 );
                             //to_string( temp_i, temp_s3 );
                             temp_s3 = temp_i.toString();
                             temp_s2 += temp_s3;
@@ -6919,6 +6993,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return t1;
     }
     
+    @SuppressWarnings("unused")
     private String trimTrailingZerosFromDoubleString(String s){
         if(s.contains(".")){
             int firstTrailingZero = s.length() - 1;
@@ -6939,7 +7014,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get()){
+            if(!EpisodicMemoryDatabase.IN_MEMORY_PATH.equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
                 logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
         }
@@ -6955,5 +7030,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             logger.error("Failed to reinitialize epmem:" + e.getMessage());
         }
+    }
+    
+    boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
+    {
+        boolean return_val = false;
+
+        if (db != null)
+        {
+            return db.backupDb(file_name);
+        }
+        else
+        {
+            err.value = "Episodic database is not currently connected.";
+        }
+
+        return return_val;
     }
 }

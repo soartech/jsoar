@@ -1,0 +1,8 @@
+pushd "EpMem Specific Rules"
+
+source add-is-in-epmem.soar
+source copy-factorization-objects.soar
+source found-factors-in-epmem.soar
+source look-up-in-epmem-factors.soar
+
+popd

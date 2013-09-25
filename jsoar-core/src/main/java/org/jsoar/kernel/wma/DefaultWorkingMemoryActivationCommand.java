@@ -11,8 +11,11 @@ import java.io.StringWriter;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Rete;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.FakeForgettingChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.PetrovApproxChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.TimerLevels;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -116,50 +119,62 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         final String name = args[i+1];
         final String value = args[i+2];
         final PropertyManager props = wma.getParams().getProperties();
-        if(name.equals("activation"))
+        
+        try
         {
-            props.set(DefaultWorkingMemoryActivationParams.ACTIVATION, "on".equals(value));
+            if(name.equals("activation"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.ACTIVATION, ActivationChoices.valueOf(value));
+            }
+            else if(name.equals("timers"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
+            }
+            else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION) == ActivationChoices.on)
+            {
+                // TODO: This check should be done in the property system
+                // For now, protected parameters come after this point in the if-else chain,
+                // and unprotected parameters come earlier
+                // A protected parameter is one that can't be changed while wma is on, e.g. because
+                // it affects how wma is initialized, etc.
+                throw new SoarException("This parameter is protected while WMA is on.");
+            }
+            else if(name.equals("decay-rate"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.DECAY_RATE, Double.valueOf(value));
+            }
+            else if(name.equals("decay-thresh"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.DECAY_THRESH, Double.valueOf(value));
+            }
+            else if(name.equals("forgetting"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.FORGETTING_CHOICES, "on".equals(value) ? ForgettingChoices.approx : ForgettingChoices.valueOf(value));
+            }
+            else if(name.equals("forget-wme"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.FORGET_WME_CHOICES, ForgetWmeChoices.valueOf(value));
+            }
+            else if(name.equals("fake-forgetting"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.FAKE_FORGETTING, FakeForgettingChoices.valueOf(value));
+            }
+            else if(name.equals("max-pow-cache"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.MAX_POW_CACHE, Integer.valueOf(value));
+            }
+            else if(name.equals("petrov-approx"))
+            {
+                props.set(DefaultWorkingMemoryActivationParams.PETROV_APPROX, PetrovApproxChoices.valueOf(value));
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
         }
-        else if(name.equals("timers"))
+        catch(IllegalArgumentException e)
         {
-            props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
-        }
-        else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION))
-        {
-            // TODO: This check should be done in the property system
-            // For now, protected parameters come after this point in the if-else chain,
-            // and unprotected parameters come earlier
-            // A protected parameter is one that can't be changed while wma is on, e.g. because
-            // it affects how wma is initialized, etc.
-            throw new SoarException("This parameter is protected while WMA is on.");
-        }
-        else if(name.equals("decay-rate"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.DECAY_RATE, Double.valueOf(value));
-        }
-        else if(name.equals("decay-thresh"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.DECAY_THRESH, Double.valueOf(value));
-        }
-        else if(name.equals("forgetting"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.FORGETTING_CHOICES, "on".equals(value) ? ForgettingChoices.approx : ForgettingChoices.valueOf(value));
-        }
-        else if(name.equals("forget-wme"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.FORGET_WME_CHOICES, ForgetWmeChoices.valueOf(value));
-        }
-        else if(name.equals("max-pow-cache"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.MAX_POW_CACHE, Integer.valueOf(value));
-        }
-        else if(name.equals("petrov-approx"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.PETROV_APPROX, "on".equals(value));
-        }
-        else
-        {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            throw new SoarException("Invalid value.");
         }
         
         return "";
@@ -256,19 +271,19 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         final PrintWriter pw = new PrintWriter(sw);
         
         final DefaultWorkingMemoryActivationParams p = wma.getParams();
-        pw.printf("WMA activation: %s%n", p.activation.get() ? "on" : "off");
+        pw.printf("WMA activation: %s%n", p.activation.get());
         pw.println();
         pw.println("Activation");
         pw.println("----------");
         pw.printf("decay-rate: %f%n", p.decay_rate.get());
-        pw.printf("petrov-approx: %s%n", p.petrov_approx.get() ? "on" : "off");
+        pw.printf("petrov-approx: %s%n", p.petrov_approx.get());
         pw.println();
         pw.println("Forgetting");
         pw.println("----------");
         pw.printf("decay-thresh: %f%n", p.decay_thresh.get());
         pw.printf("forgetting: %s%n", p.forgetting.get());
         pw.printf("forget-wme: %s%n", p.forget_wme.get());
-        pw.printf("fake-forgetting: %s%n", p.fake_forgetting.get() ? "on" : "off");
+        pw.printf("fake-forgetting: %s%n", p.fake_forgetting.get());
         pw.println();
         pw.println("Performance");
         pw.println("-----------");

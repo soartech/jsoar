@@ -264,6 +264,30 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
+     * Tries to find an identifier and if it finds it in the map of identifiers,
+     * sets the value of the key to be null.
+     * 
+     * @param identifier
+     * @return Whether or not the identifier was found.  Will also return false if identifier is null.
+     */
+    public boolean findAndNullIdentifier(IdentifierImpl identifier)
+    {
+        if (identifier == null)
+        {
+            return false;
+        }
+        
+        boolean found = identifiers.containsValue(identifier);
+        
+        if (found)
+        {            
+            identifiers.remove(new IdKey(identifier.getNameLetter(), identifier.getNameNumber()));
+        }
+        
+        return found;
+    }
+    
+    /**
      * <p>symtab.cpp:280:make_new_identifier
      * 
      * @param name_letter the name letter
@@ -293,7 +317,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @param level the goal stack level of the id
      * @return the new identifier
      */
-    private IdentifierImpl make_new_identifier_exact(char name_letter, long name_number, int /*goal_stack_level*/ level)
+    public IdentifierImpl make_new_identifier(char name_letter, long name_number, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         if(name_number >= id_counter[name_letter - 'A'])
@@ -343,7 +367,7 @@ public class SymbolFactoryImpl implements SymbolFactory
 
         if (id == null)
         {
-            id = make_new_identifier_exact(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
+            id = make_new_identifier(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
         }
 
         return id;

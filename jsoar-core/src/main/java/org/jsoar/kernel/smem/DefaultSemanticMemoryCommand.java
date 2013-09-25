@@ -5,8 +5,11 @@
  */
 package org.jsoar.kernel.smem;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -15,9 +18,23 @@ import java.util.Arrays;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
+import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.parser.original.LexemeType;
+import org.jsoar.kernel.parser.original.Lexer;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivateOnQueryChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.AppendDatabaseChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LazyCommitChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MirroringChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
+import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -36,6 +53,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 {
     private final Adaptable context;
     private final DefaultSemanticMemory smem;
+    private Lexer lexer;
     
     public static class Provider implements SoarCommandProvider
     {
@@ -53,6 +71,16 @@ class DefaultSemanticMemoryCommand implements SoarCommand
     {
         this.context = context;
         this.smem = Adaptables.require(getClass(), context, DefaultSemanticMemory.class);
+        try
+        {
+            this.lexer = new Lexer(new Printer(new PrintWriter(System.out)), new StringReader(""));
+        }
+        catch (IOException e)
+        {
+            System.out.print(e.getMessage());
+            e.printStackTrace();
+            this.lexer = null;
+        }
     }
 
     /* (non-Javadoc)
@@ -102,6 +130,14 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         else if("-q".equals(arg) || "--sql".equals(arg))
         {
             return doSql(1, args);
+        }
+        else if("-p".equals(arg) || "--print".equals(arg))
+        {
+            return doPrint(1, args);
+        }
+        else if("-b".equals(arg) || "--backup".equals(arg))
+        {
+            return doBackup(1, args);
         }
         else if(arg.startsWith("-"))
         {
@@ -153,7 +189,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             throw new SoarException("Semantic memory database is not open.");
         }
-        if(!smem.getParams().lazy_commit.get())
+        if(smem.getParams().lazy_commit.get() == LazyCommitChoices.off)
         {
             return "Semantic memory database is not in lazy-commit mode.";
         }
@@ -169,7 +205,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         // Braces are stripped by the interpreter, so put them back
         smem.smem_parse_chunks("{" + args[i+1] + "}");
-        return "";
+        return "SMem| Knowledge added to semantic memory.";
     }
     
     private String doGet(int i, String[] args) throws SoarException
@@ -182,13 +218,36 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final PropertyKey<?> key = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), name);
         if(key == null)
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            if (name.equals("database"))
+            {
+                PropertyKey<?> pathProperty = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), "path");
+                if (pathProperty == null)
+                {
+                    throw new SoarException("Path is null.");
+                }
+                
+                String path = smem.getParams().getProperties().get(pathProperty).toString();
+                
+                if (path.equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
+                {
+                    return "memory";
+                }
+                else
+                {
+                    return "file";
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown parameter '" + name + "'");
+            }
         }
         return smem.getParams().getProperties().get(key).toString();
     }
 
     private String doSet(int i, String[] args) throws SoarException
     {
+        
         if(i + 2 >= args.length)
         {
             throw new SoarException("Invalid arguments for " + args[i] + " option");
@@ -196,46 +255,103 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final String name = args[i+1];
         final String value = args[i+2];
         final PropertyManager props = smem.getParams().getProperties();
-        if(name.equals("learning"))
+
+        try
         {
-            props.set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+            if(name.equals("learning"))
+            {
+                props.set(DefaultSemanticMemoryParams.LEARNING, LearningChoices.valueOf(value));
+            }
+            else if(name.equals("driver"))
+            {
+                props.set(DefaultSemanticMemoryParams.DRIVER, value);
+            }
+            else if(name.equals("protocol"))
+            {
+                props.set(DefaultSemanticMemoryParams.PROTOCOL, value);
+            }
+            else if(name.equals("path"))
+            {
+                props.set(DefaultSemanticMemoryParams.PATH, value);
+            }
+            else if(name.equals("lazy-commit"))
+            {
+                props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
+            }
+            else if(name.equals("append-database"))
+            {
+                props.set(DefaultSemanticMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
+            }
+            else if(name.equals("page-size"))
+            {
+                props.set(DefaultSemanticMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            }
+            else if(name.equals("cache-size"))
+            {
+                props.set(DefaultSemanticMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            }
+            else if(name.equals("optimization"))
+            {
+                props.set(DefaultSemanticMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+            }
+            else if(name.equals("thresh"))
+            {
+                props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
+            }
+            else if(name.equals("merge"))
+            {
+                props.set(DefaultSemanticMemoryParams.MERGE, MergeChoices.valueOf(value));
+            }
+            else if(name.equals("activation-mode"))
+            {
+                // note this uses our custom getEnum method instead of valueOf to support the dash in "base-level" 
+                props.set(DefaultSemanticMemoryParams.ACTIVATION_MODE, ActivationChoices.getEnum(value));
+            }
+            else if(name.equals("activate-on-query"))
+            {
+                props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, ActivateOnQueryChoices.valueOf(value));
+            }
+            else if(name.equals("base-decay"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_DECAY, Double.valueOf(value));
+            }
+            else if(name.equals("base-update-policy"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_UPDATE, BaseUpdateChoices.valueOf(value));
+            }
+            else if(name.equals("base-incremental-threshes"))
+            {
+                props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, smem.getParams().base_incremental_threshes.get().toSetWrapper(value));
+            }
+            else if(name.equals("mirroring"))
+            {
+                props.set(DefaultSemanticMemoryParams.MIRRORING, MirroringChoices.valueOf(value));
+            }
+            else if (name.equals("database"))
+            {
+                if (value.equals("memory"))
+                {
+                    props.set(DefaultSemanticMemoryParams.PATH, SemanticMemoryDatabase.IN_MEMORY_PATH);
+                    return "SMem| database = memory";
+                }
+                else if (value.equals("file"))
+                {
+                    props.set(DefaultSemanticMemoryParams.PATH, "");
+                    return "SMem| database = file";
+                }
+                else
+                {
+                    throw new SoarException("Invalid value for SMem database parameter");
+                }
+            }
+            else
+            {
+                throw new SoarException("Unknown smem parameter '" + name + "'");
+            }
         }
-        else if(smem.getDatabase() != null)
+        catch(IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
         {
-            // TODO: This check should be done in the property system
-            throw new SoarException("This parameter is protected while the semantic memory database is open");
-        }
-        else if(name.equals("driver"))
-        {
-            props.set(DefaultSemanticMemoryParams.DRIVER, value);
-        }
-        else if(name.equals("protocol"))
-        {
-            props.set(DefaultSemanticMemoryParams.PROTOCOL, value);
-        }
-        else if(name.equals("path"))
-        {
-            props.set(DefaultSemanticMemoryParams.PATH, value);
-        }
-        else if(name.equals("lazy-commit"))
-        {
-            props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
-        }
-        else if(name.equals("cache"))
-        {
-            props.set(DefaultSemanticMemoryParams.CACHE, Cache.valueOf(value));
-        }
-        else if(name.equals("optimization"))
-        {
-            props.set(DefaultSemanticMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
-        }
-        else if(name.equals("thresh"))
-        {
-            props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
-        }
-        else
-        {
-            throw new SoarException("Unknown smem parameter '" + name + "'");
+            throw new SoarException("Invalid value.");
         }
         
         return "";
@@ -243,26 +359,28 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 
     private String doInit(int i, String[] args) throws SoarException
     {
-        // Because of LTIs, re-initializing requires all other memories to be reinitialized.        
-        
+        // Because of LTIs, re-initializing requires all other memories to be reinitialized.
         // epmem - close before working/production memories to get re-init benefits
-        // TODO EPMEM this->DoCommandInternal( "epmem --close" );
-        
         // smem - close before working/production memories to prevent id counter mess-ups
-        smem.smem_close();
-
         // production memory (automatic init-soar clears working memory as a result) 
-        //this->DoCommandInternal( "excise --all" );
+        
+        final EpisodicMemory epmem = Adaptables.require(getClass(), context, EpisodicMemory.class);
+        epmem.epmem_close();
+        smem.smem_close();
         
         // Excise all just removes all rules and does init-soar
         final Agent agent = Adaptables.require(getClass(), context, Agent.class);
+        int count = 0;
         for(Production p : new ArrayList<Production>(agent.getProductions().getProductions(null)))
         {
             agent.getProductions().exciseProduction(p, false);
+            count++;
         }
         agent.initialize();
         
-        return "";
+        return "Agent reinitialized.\n" +
+               count + " productions excised.\n" +
+               "SMem| Semantic memory system re-initialized.\n";
     }
 
     private String doStats(int i, String[] args) throws SoarException
@@ -270,16 +388,77 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
         
+        smem.smem_attach();
+        
         final DefaultSemanticMemoryStats p = smem.getStats();
         if(args.length == i + 1)
         {
-            pw.printf("Memory Usage: %d%n", p.mem_usage.get());
-            pw.printf("Memory Highwater: %d%n", p.mem_high.get());
-            pw.printf("Retrieves: %d%n", p.retrieves.get());
-            pw.printf("Queries: %d%n", p.queries.get());
-            pw.printf("Stores: %d%n", p.stores.get());
-            pw.printf("Nodes: %d%n", p.nodes.get());
-            pw.printf("Edges: %d%n", p.edges.get());
+            pw.printf(PrintHelper.generateHeader("Semantic Memory Statistics", 40));
+            try
+            {
+                String database = smem.getDatabase().getConnection().getMetaData().getDatabaseProductName();
+                String version = smem.getDatabase().getConnection().getMetaData().getDatabaseProductVersion();
+                pw.printf(PrintHelper.generateItem(database + " Version:", version, 40));
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e);
+            }
+            Statement s = null;
+            long pageCount = 0;
+            long pageSize = 0;
+            try
+            {
+                s = smem.getDatabase().getConnection().createStatement();
+                
+                ResultSet rs = null;
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_count");
+                    pageCount = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+                
+                try
+                {
+                    rs = s.executeQuery("PRAGMA page_size");
+                    pageSize = rs.getLong(0 + 1);
+                }
+                finally
+                {
+                    rs.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                throw new RuntimeException(e);
+            }
+            finally
+            {
+                try
+                {
+                    s.close();
+                }
+                catch (SQLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            
+            p.mem_usage.set(pageCount * pageSize);
+                        
+            pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(p.mem_usage.get()) / 1024.0 + " KB", 40));
+            pw.printf(PrintHelper.generateItem("Memory Highwater:", p.mem_high.get(), 40));
+            pw.printf(PrintHelper.generateItem("Retrieves:", p.retrieves.get(), 40));
+            pw.printf(PrintHelper.generateItem("Queries:", p.queries.get(), 40));
+            pw.printf(PrintHelper.generateItem("Stores:", p.stores.get(), 40));
+            pw.printf(PrintHelper.generateItem("Activation Updates:", p.act_updates.get(), 40));
+            pw.printf(PrintHelper.generateItem("Mirrors:", p.mirrors.get(), 40));
+            pw.printf(PrintHelper.generateItem("Nodes:", p.nodes.get(), 40));
+            pw.printf(PrintHelper.generateItem("Edges:", p.edges.get(), 40));
         }
         else
         {
@@ -289,7 +468,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             {
                 throw new SoarException("Unknown stat '" + name + "'");
             }
-            pw.printf("%s%n", smem.getParams().getProperties().get(key).toString());
+            pw.printf(PrintHelper.generateItem(key + ":", smem.getParams().getProperties().get(key).toString(), 40));
         }
         
         pw.flush();
@@ -315,6 +494,42 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         // TODO SMEM Commands: --viz with args
         throw new SoarException("smem --viz with args not implemented yet");
     }
+    
+    private String doBackup(int i, String[] args) throws SoarException
+    {
+        if(args.length >= i + 2)
+        {
+            ByRef<String> err = new ByRef<String>("");
+            boolean success = false;
+            
+            String dbFile = "";
+            
+            for (++i;i < args.length;i++)
+            {
+                dbFile += args[i] + " ";
+            }
+            
+            dbFile = dbFile.trim();
+            
+            try
+            {
+                success = smem.smem_backup_db(dbFile, err);
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+            
+            if (!success)
+            {
+                throw new SoarException(err.value);
+            }
+            
+            return "SMem| Database backed up to " + dbFile;
+        }
+        
+        throw new SoarException("smem --backup requires a path for an argument");
+    }
 
     private String doSmem()
     {
@@ -322,24 +537,127 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         final PrintWriter pw = new PrintWriter(sw);
         
         final DefaultSemanticMemoryParams p = smem.getParams();
-        pw.printf("SMem learning: %s%n", p.learning.get() ? "on" : "off");
-        pw.println();
-        pw.println("Storage");
-        pw.println("-------");
-        pw.printf("driver: %s%n", p.driver);
-        pw.printf("protocol: %s%n", p.protocol);
-        pw.printf("path: %s%n", p.path);
-        pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
-        pw.println();
-        pw.println("Performance");
-        pw.println("-----------");
-        pw.printf("thresh: %d%n", p.thresh.get());
-        pw.printf("cache: %s%n", p.cache);
-        pw.printf("optimization: %s%n", p.optimization);
-        // TODO SMEM timers params
+        pw.printf(PrintHelper.generateHeader("Semantic Memory Settings", 40));
+        
+        pw.printf(PrintHelper.generateItem("learning:", p.learning.get(), 40));        
+        pw.printf(PrintHelper.generateSection("Storage", 40));
+        
+        pw.printf(PrintHelper.generateItem("driver:", p.driver.get(), 40));
+        
+        String nativeOrPure = null;
+        try
+        {
+            SemanticMemoryDatabase db = smem.getDatabase();
+            if (db != null)
+            {
+                nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+            }
+            else
+            {
+                nativeOrPure = "Not connected to database";
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+        
+        pw.printf(PrintHelper.generateItem("driver-type:", nativeOrPure, 40));
+        pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
+        pw.printf(PrintHelper.generateItem("append-database:", p.append_db.get(), 40));
+        
+        String database = "memory";
+        String path = "";
+        if (!p.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
+        {
+            database = "file";
+            path = p.path.get();
+        }
+        
+        pw.printf(PrintHelper.generateItem("database:", database, 40));
+        pw.printf(PrintHelper.generateItem("path:", path, 40));
+        pw.printf(PrintHelper.generateItem("lazy-commit:", p.lazy_commit.get(), 40));
+        
+        pw.printf(PrintHelper.generateSection("Activation", 40));
+        
+        pw.printf(PrintHelper.generateItem("activation-mode:", p.activation_mode.get(), 40));
+        pw.printf(PrintHelper.generateItem("activate-on-query:", p.activate_on_query.get(), 40));
+        pw.printf(PrintHelper.generateItem("base-decay:", p.base_decay.get(), 40));
+        pw.printf(PrintHelper.generateItem("base-update-policy", p.base_update.get(), 40));
+        pw.printf(PrintHelper.generateItem("base-incremental-threshes", p.base_incremental_threshes.get(), 40));
+        pw.printf(PrintHelper.generateItem("thresh", p.thresh.get(), 40));
+        
+        pw.printf(PrintHelper.generateSection("Performance", 40));
+        
+        pw.printf(PrintHelper.generateItem("page-size:", p.page_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("cache-size:", p.cache_size.get(), 40));
+        pw.printf(PrintHelper.generateItem("optimization:", p.optimization.get(), 40));
+        pw.printf(PrintHelper.generateItem("timers:", "off - Not Implemented", 40));
+        
+        pw.printf(PrintHelper.generateSection("Experimental", 40));
+
+        pw.printf(PrintHelper.generateItem("merge:", p.merge.get(), 40));
+        pw.printf(PrintHelper.generateItem("mirroring:", p.mirroring.get(), 40));
         
         pw.flush();
         return sw.toString();
     }
-
+    
+    private String doPrint(int i, String[] args) throws SoarException
+    {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        
+        long /*smem_lti_id*/ lti_id = 0 /*NIL*/;
+        int depth = 1;
+        
+        if (args.length > i && args.length <= i + 3)
+        {
+            char name_letter = 0;
+            long name_number = 0;
+            
+            if (args.length == i + 2)
+            {
+                lexer.get_lexeme_from_string(args[i+1]);
+                if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
+                {
+                    if (smem.getDatabase() != null)
+                    {
+                        lti_id = smem.smem_lti_get_id(name_letter, name_number);
+                        
+                        if ( ( lti_id != 0 /*NIL*/ ) && args.length == i + 3)
+                        {
+                            depth = Integer.parseInt(args[i+2]);
+                        }
+                    }
+                }
+            }
+            
+            ByRef<String> viz = new ByRef<String>(new String());
+            
+            if (lti_id == 0)
+            {
+                smem.smem_print_store(viz);
+            }
+            else
+            {
+                smem.smem_print_lti(lti_id, depth, viz);
+            }
+            
+            if (viz.value.length() == 0)
+            {
+                throw new SoarException("SMem| Semantic memory is empty.");
+            }
+            
+            pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
+            pw.printf(viz.value);
+        }
+        else
+        {
+            throw new SoarException( "Invalid attribute." );
+        }
+        
+        pw.flush();
+        return sw.toString();
+    }
 }
