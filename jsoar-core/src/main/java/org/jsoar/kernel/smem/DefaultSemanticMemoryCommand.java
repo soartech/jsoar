@@ -615,14 +615,17 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         
         if (args.length > i && args.length <= i + 3)
         {
-            char name_letter = 0;
-            long name_number = 0;
-            
             if (args.length == i + 2)
             {
+                
+                boolean allowIdsOld = lexer.isAllowIds(); // not sure if we have to do this, but better safe than sorry -- store old value and restore it after we're done
+                lexer.setAllowIds(true);
                 lexer.get_lexeme_from_string(args[i+1]);
                 if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
                 {
+                    final char name_letter = lexer.getCurrentLexeme().id_letter;
+                    final long name_number = lexer.getCurrentLexeme().id_number;
+                    
                     if (smem.getDatabase() != null)
                     {
                         lti_id = smem.smem_lti_get_id(name_letter, name_number);
@@ -633,6 +636,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
                         }
                     }
                 }
+                lexer.setAllowIds(allowIdsOld); // restore original value
             }
             
             //ByRef<String> viz = new ByRef<String>(new String());
