@@ -611,6 +611,8 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         long /*smem_lti_id*/ lti_id = 0 /*NIL*/;
         int depth = 1;
         
+        smem.smem_attach();
+        
         if (args.length > i && args.length <= i + 3)
         {
             char name_letter = 0;
@@ -633,7 +635,8 @@ class DefaultSemanticMemoryCommand implements SoarCommand
                 }
             }
             
-            ByRef<String> viz = new ByRef<String>(new String());
+            //ByRef<String> viz = new ByRef<String>(new String());
+            StringBuilder viz = new StringBuilder("");
             
             if (lti_id == 0)
             {
@@ -644,13 +647,13 @@ class DefaultSemanticMemoryCommand implements SoarCommand
                 smem.smem_print_lti(lti_id, depth, viz);
             }
             
-            if (viz.value.length() == 0)
+            if (viz.length() == 0)
             {
                 throw new SoarException("SMem| Semantic memory is empty.");
             }
             
             pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
-            pw.printf(viz.value);
+            pw.printf(viz.toString());
         }
         else
         {
