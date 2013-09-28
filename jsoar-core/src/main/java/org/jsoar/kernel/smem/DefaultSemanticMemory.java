@@ -4685,19 +4685,20 @@ public class DefaultSemanticMemory implements SemanticMemory
         return_val.append(return_val2.toString());
     }
 
-    Set<Long /* smem_lti_id */> _smem_print_lti(long /* smem_lti_id */lti_id, char lti_letter, long lti_number, double lti_act, ByRef<String> return_val) throws SQLException
+    Set<Long /* smem_lti_id */> _smem_print_lti(long /* smem_lti_id */lti_id, char lti_letter, long lti_number, double lti_act, StringBuilder return_val) throws SQLException
     {
         Set<Long /* smem_lti_id */> next = new LinkedHashSet<Long>();
 
-        String temp_str, temp_str2 = null;
+        String temp_str;
+        StringBuilder temp_str2 = null;
 
         Map<String, List<String>> augmentations = new LinkedHashMap<String, List<String>>();
 
         PreparedStatement expand_q = db.web_expand;
 
-        return_val.value += "(@";
-        return_val.value += lti_letter;
-        return_val.value += lti_number;
+        return_val.append("(@");
+        return_val.append(lti_letter);
+        return_val.append(lti_number);
 
         expand_q.setLong(1, lti_id);
 
@@ -4727,13 +4728,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // identifier vs. constant
                 if (rs.getLong(6 + 1) != SMEM_AUGMENTATIONS_NULL)
                 {
-                    temp_str2 = "@";
+                    temp_str2 = new StringBuilder("@");
 
                     // soar letter
-                    temp_str2 += (char) rs.getInt(4 + 1);
+                    temp_str2.append((char) rs.getInt(4 + 1));
 
                     // number
-                    temp_str2 += rs.getLong(5 + 1);
+                    temp_str2.append(rs.getLong(5 + 1));
 
                     // add to next
                     next.add(rs.getLong(6 + 1));
@@ -4743,13 +4744,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                     switch (rs.getInt(2 + 1))
                     {
                     case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                        temp_str2 = smem_reverse_hash_str(rs.getLong(3 + 1));
+                        temp_str2 = new StringBuilder(smem_reverse_hash_str(rs.getLong(3 + 1)));
                         break;
                     case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                        temp_str2 = (new Integer(smem_reverse_hash_int(rs.getLong(3 + 1)))).toString();
+                        temp_str2 = new StringBuilder((new Integer(smem_reverse_hash_int(rs.getLong(3 + 1)))).toString());
                         break;
                     case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                        temp_str2 = (new Double(smem_reverse_hash_float(rs.getLong(3 + 1)))).toString();
+                        temp_str2 = new StringBuilder((new Double(smem_reverse_hash_float(rs.getLong(3 + 1)))).toString());
                         break;
 
                     default:
@@ -4762,8 +4763,11 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     augmentations.put(temp_str, new ArrayList<String>());
                 }
-
-                augmentations.get(temp_str).add(temp_str2);
+                if(temp_str2 != null){
+                    augmentations.get(temp_str).add(temp_str2.toString());
+                }else{
+                    augmentations.get(temp_str).add(temp_str);
+                }
             }
         }
         finally
@@ -4775,31 +4779,31 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             for (Map.Entry<String, List<String>> lti_slot : augmentations.entrySet())
             {
-                return_val.value += " ^";
-                return_val.value += lti_slot.getKey();
+                return_val.append(" ^");
+                return_val.append(lti_slot.getKey());
 
                 for (String slot_val : lti_slot.getValue())
                 {
-                    return_val.value += " ";
-                    return_val.value += slot_val;
+                    return_val.append(" ");
+                    return_val.append(slot_val);
                 }
             }
         }
         augmentations.clear();
 
-        return_val.value += " [";
+        return_val.append(" [");
         if (lti_act >= 0)
         {
-            return_val.value += "+";
+            return_val.append("+");
         }
-        return_val.value += lti_act;
-        return_val.value += "]";
-        return_val.value += ")\n";
+        return_val.append(lti_act);
+        return_val.append("]");
+        return_val.append(")\n");
 
         return next;
     }
 
-    void smem_print_store(ByRef<String> return_val) throws SoarException
+    void smem_print_store(StringBuilder return_val) throws SoarException
     {
         // vizualizing the store requires an open semantic database
         smem_attach();
@@ -4893,7 +4897,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
 
-    void smem_print_lti(long /* smem_lti_id */lti_id, int depth, ByRef<String> return_val) throws SoarException
+    void smem_print_lti(long /* smem_lti_id */lti_id, int depth, StringBuilder return_val) throws SoarException
     {
         Set<Long /* smem_lti_id */> visited = new LinkedHashSet<Long>();
 
@@ -4921,7 +4925,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // output leading spaces ala depth
             for (i = 1; i < c.getDepth(); i++)
             {
-                return_val.value += " ";
+                return_val.append(" ");
             }
 
             // get lti info

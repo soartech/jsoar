@@ -611,50 +611,68 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         long /*smem_lti_id*/ lti_id = 0 /*NIL*/;
         int depth = 1;
         
+        smem.smem_attach();
+        
         if (args.length > i && args.length <= i + 3)
         {
-            char name_letter = 0;
-            long name_number = 0;
+            StringBuilder viz = new StringBuilder("");
             
-            if (args.length == i + 2)
+            if (args.length >= i + 2)
             {
+                boolean allowIdsOld = lexer.isAllowIds(); // not sure if we have to do this, but better safe than sorry -- store old value and restore it after we're done
+                lexer.setAllowIds(true);
                 lexer.get_lexeme_from_string(args[i+1]);
                 if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
                 {
+                    final char name_letter = lexer.getCurrentLexeme().id_letter;
+                    final long name_number = lexer.getCurrentLexeme().id_number;
+                    
                     if (smem.getDatabase() != null)
                     {
                         lti_id = smem.smem_lti_get_id(name_letter, name_number);
+                        if(lti_id == 0)
+                        {
+                            throw new SoarException("'" + lexer.getCurrentLexeme() + "' is not an LTI");
+                        }
                         
                         if ( ( lti_id != 0 /*NIL*/ ) && args.length == i + 3)
                         {
-                            depth = Integer.parseInt(args[i+2]);
+                            try
+                            {
+                                depth = Integer.parseInt(args[i+2]);
+                            }
+                            catch(NumberFormatException e)
+                            {
+                                throw new SoarException("Expected integer for depth, got '" + args[i+2] + "'");
+                            }
                         }
                     }
+                    smem.smem_print_lti(lti_id, depth, viz);
                 }
-            }
-            
-            ByRef<String> viz = new ByRef<String>(new String());
-            
-            if (lti_id == 0)
-            {
-                smem.smem_print_store(viz);
+                else
+                {
+                    throw new SoarException("Expected identifier, got '" + lexer.getCurrentLexeme() + "'");
+                }
+                
+                lexer.setAllowIds(allowIdsOld); // restore original value
+                
             }
             else
             {
-                smem.smem_print_lti(lti_id, depth, viz);
+                smem.smem_print_store(viz);
             }
             
-            if (viz.value.length() == 0)
+            if (viz.length() == 0)
             {
                 throw new SoarException("SMem| Semantic memory is empty.");
             }
             
             pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
-            pw.printf(viz.value);
+            pw.printf(viz.toString());
         }
         else
         {
-            throw new SoarException( "Invalid attribute." );
+            throw new SoarException( "Too many arguments." );
         }
         
         pw.flush();
