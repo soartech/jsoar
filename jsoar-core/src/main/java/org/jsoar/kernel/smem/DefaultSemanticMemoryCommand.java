@@ -615,9 +615,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         
         if (args.length > i && args.length <= i + 3)
         {
-            if (args.length == i + 2)
+            StringBuilder viz = new StringBuilder("");
+            
+            if (args.length >= i + 2)
             {
-                
                 boolean allowIdsOld = lexer.isAllowIds(); // not sure if we have to do this, but better safe than sorry -- store old value and restore it after we're done
                 lexer.setAllowIds(true);
                 lexer.get_lexeme_from_string(args[i+1]);
@@ -629,26 +630,36 @@ class DefaultSemanticMemoryCommand implements SoarCommand
                     if (smem.getDatabase() != null)
                     {
                         lti_id = smem.smem_lti_get_id(name_letter, name_number);
+                        if(lti_id == 0)
+                        {
+                            throw new SoarException("'" + lexer.getCurrentLexeme() + "' is not an LTI");
+                        }
                         
                         if ( ( lti_id != 0 /*NIL*/ ) && args.length == i + 3)
                         {
-                            depth = Integer.parseInt(args[i+2]);
+                            try
+                            {
+                                depth = Integer.parseInt(args[i+2]);
+                            }
+                            catch(NumberFormatException e)
+                            {
+                                throw new SoarException("Expected integer for depth, got '" + args[i+2] + "'");
+                            }
                         }
                     }
+                    smem.smem_print_lti(lti_id, depth, viz);
                 }
+                else
+                {
+                    throw new SoarException("Expected identifier, got '" + lexer.getCurrentLexeme() + "'");
+                }
+                
                 lexer.setAllowIds(allowIdsOld); // restore original value
-            }
-            
-            //ByRef<String> viz = new ByRef<String>(new String());
-            StringBuilder viz = new StringBuilder("");
-            
-            if (lti_id == 0)
-            {
-                smem.smem_print_store(viz);
+                
             }
             else
             {
-                smem.smem_print_lti(lti_id, depth, viz);
+                smem.smem_print_store(viz);
             }
             
             if (viz.length() == 0)
@@ -661,7 +672,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         else
         {
-            throw new SoarException( "Invalid attribute." );
+            throw new SoarException( "Too many arguments." );
         }
         
         pw.flush();
