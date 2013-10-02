@@ -31,7 +31,13 @@ public class MatchesCommand implements SoarCommand
     
     private enum Options
     {
-        internal
+        internal,
+        wmes,
+        timetags,
+        assertions,
+        retractions,
+        count,
+        names
     }
     
     public MatchesCommand(Agent agent)
@@ -40,6 +46,12 @@ public class MatchesCommand implements SoarCommand
         
         options
         .newOption(Options.internal)
+        .newOption(Options.wmes)
+        .newOption(Options.timetags)
+        .newOption(Options.assertions)
+        .newOption(Options.retractions)
+        .newOption(Options.count) // count and names do the same thing, which is the default, so we're listing them here so we accept them, but we don't do anything with them
+        .newOption(Options.names)
         .done();
     }
 
@@ -49,15 +61,37 @@ public class MatchesCommand implements SoarCommand
         List<String> nonOpts = options.process(Lists.newArrayList(args));
      
         boolean internal = false;
+        WmeTraceType wmeTraceType = WmeTraceType.NONE;
+        EnumSet<MatchSetTraceType> mstt = EnumSet.allOf(MatchSetTraceType.class);
+        
         if (options.has(Options.internal))
         {
             internal = true;
         }
         
+        if(options.has(Options.wmes))
+        {
+            wmeTraceType = WmeTraceType.FULL;
+        }
+        else if(options.has(Options.timetags))
+        {
+            wmeTraceType = WmeTraceType.TIMETAG;
+        }
+        
+        if(options.has(Options.assertions) && !options.has(Options.retractions))
+        {
+            mstt.clear();
+            mstt.add(MatchSetTraceType.MS_ASSERT);
+        }
+        else if(options.has(Options.retractions) && !options.has(Options.assertions))
+        {
+            mstt.clear();
+            mstt.add(MatchSetTraceType.MS_RETRACT);
+        }
+        
         if(nonOpts.isEmpty())
         {
-            agent.printMatchSet(agent.getPrinter(), WmeTraceType.FULL, 
-                                EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+            agent.printMatchSet(agent.getPrinter(), wmeTraceType, mstt);
             agent.getPrinter().flush();
         }
         else if(nonOpts.size() == 1)
@@ -72,7 +106,7 @@ public class MatchesCommand implements SoarCommand
             {
                 throw new SoarException("Production '" + prodName + "' is not in rete");
             }
-            p.printPartialMatches(agent.getPrinter(), WmeTraceType.FULL, internal);
+            p.printPartialMatches(agent.getPrinter(), wmeTraceType, internal);
         }
         else
         {
