@@ -85,6 +85,7 @@ public class ParseSelectedText
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --depth 2 %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --internal %s", m_Name)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact (* * %s)", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("preferences %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("preferences --object %s", m_Name)));
 		}
@@ -139,8 +140,8 @@ public class ParseSelectedText
             parent.add(new ExecuteCommandAction(debugger, String.format("preferences --names %s %s", m_ID, m_Att)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_ID)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Value)));
-            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s %s}", m_Att, m_Value)));
-            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s *}", m_Att)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact (* %s %s)", m_Att, m_Value)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact (* %s *)", m_Att)));
             final JMenu pfMenu = new JMenu("production-find");
             pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf (<v> %s *)", m_Att)));
             pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf (<v> %s %s)", m_Att, m_Value)));
