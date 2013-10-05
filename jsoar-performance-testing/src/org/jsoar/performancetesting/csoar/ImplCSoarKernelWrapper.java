@@ -22,6 +22,8 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         
     private Method createAgent;
     private Method destroyAgent;
+    private Method stopEventThread;
+    private Method shutdown;
     
     /**
      * Initializes the kernel class and retrieves all the used methods via
@@ -41,6 +43,8 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         {
             createAgent = this.kernel.getDeclaredMethod("CreateAgent", String.class);
             destroyAgent = this.kernel.getDeclaredMethod("DestroyAgent", agent);
+            stopEventThread = this.kernel.getDeclaredMethod("StopEventThread");
+            shutdown = this.kernel.getDeclaredMethod("Shutdown");
         }
         catch (NoSuchMethodException | SecurityException e)
         {
@@ -79,7 +83,33 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            System.out.println("Failed to create agent! Everything will fail horribly!");
+            System.out.println("Failed to destroy agent! Everything will fail horribly!");
+        }
+    }
+    
+    @Override
+    public void StopEventThread()
+    {
+        try
+        {
+            stopEventThread.invoke(kernelImpl);
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            System.out.println("Failed to stop event thread! This may affect some older versions of Soar!");
+        }
+    }
+    
+    @Override
+    public void Shutdown()
+    {
+        try
+        {
+            shutdown.invoke(kernelImpl);
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            System.out.println("Failed to shutdown kernel! This may affect some older versions of Soar!");
         }
     }
 }

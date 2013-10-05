@@ -124,6 +124,8 @@ public class CSoarTest implements Test
         memoryForRun = getMemory();
 
         agent = null;
+        kernel.Shutdown();
+        
         
         System.gc();
         System.gc();

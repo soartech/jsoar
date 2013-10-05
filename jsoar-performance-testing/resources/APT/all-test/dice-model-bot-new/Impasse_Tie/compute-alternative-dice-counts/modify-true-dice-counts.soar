@@ -28,7 +28,8 @@ sp {apply*modify-true-dice-counts*unknown
           ^count (- <unknown> <cupcount>)) ## Assume ones that aren't bid face can't contribute to bid face
    (<nndc> ^face special
            ^not-face <face>                ## Can't be same as the hold ones
-           ^count (- <cupcount> <holds>))}  ## These are ones under cup that are some other dice face
+           ^count (- <cupcount> <holds>))  ## These are ones under cup that are some other dice face
+}  
 
 sp {apply*modify-true-dice-counts*bid-face
    (state <s> ^operator <op>

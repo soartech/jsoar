@@ -40,7 +40,6 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         {
             loadProductions = this.agent.getDeclaredMethod("LoadProductions", String.class);
             runSelfForever = this.agent.getDeclaredMethod("RunSelfForever");
-            runSelf = this.agent.getDeclaredMethod("RunSelf", int.class);
             executeCommandLine = this.agent.getDeclaredMethod("ExecuteCommandLine", String.class);
         }
         catch (NoSuchMethodException | SecurityException e)
@@ -48,7 +47,27 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             System.out.println("Failed to load methods for agent class! Everything will fail horribly!");
             System.out.println(e.getMessage());
         }
+        
+        // 9.3.2 and later
+        try
+        {
+            runSelf = this.agent.getDeclaredMethod("RunSelf", int.class);
+            return;
+        }
+        catch (NoSuchMethodException | SecurityException e) {}
+        
+        // 9.3.1 and earlier
+        try
+        {
+            runSelf = this.agent.getDeclaredMethod("RunSelf", long.class);
+            return;
+        }
+        catch (NoSuchMethodException | SecurityException e) {}
+        
+        System.out.println("Failed to load methods for agent class! Everything will fail horribly!");
     }
+    
+    
     
     /* (non-Javadoc)
      * @see org.jsoar.performancetesting.csoar.CSoarAgentWrapper#LoadProductions(java.lang.String)
