@@ -254,7 +254,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         installDefaultTraceFormats();
         
         if (initializeAgent)
-            this.initialize();
+        {
+        	this.initialize();
+        }
     }
     
     /**
