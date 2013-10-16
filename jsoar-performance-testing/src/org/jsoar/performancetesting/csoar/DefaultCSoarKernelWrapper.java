@@ -24,4 +24,18 @@ public class DefaultCSoarKernelWrapper implements CSoarKernelWrapper
         System.out.println("Cannot call methods on a non-loaded sml!");
         throw new RuntimeException("Could not load CSoar");
     }
+    
+    @Override
+    public void StopEventThread()
+    {
+        System.out.println("Cannot call methods on a non-loaded sml!");
+        throw new RuntimeException("Could not load CSoar");
+    }
+    
+    @Override
+    public void Shutdown()
+    {
+        System.out.println("Cannot call methods on a non-loaded sml!");
+        throw new RuntimeException("Could not load CSoar");
+    }
 }

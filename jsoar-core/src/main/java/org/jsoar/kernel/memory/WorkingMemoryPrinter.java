@@ -49,7 +49,7 @@ public class WorkingMemoryPrinter
 
         this.printer = printer;
 
-        if (exact || idIn == null)
+        if (idIn == null)
         {
             // for wme patterns
             if (pattern.length() > 2 && pattern.charAt(0) == '(' && pattern.charAt(pattern.length() - 1) == ')')
@@ -60,7 +60,12 @@ public class WorkingMemoryPrinter
             if (internal)
             {
                 for (Wme w : wmes)
-                    printer.print("%s", w);
+                {
+                    if(exact)
+                        printer.print("%s", w);
+                    else
+                        do_print_for_identifier((IdentifierImpl)w.getIdentifier());
+                }
             }
             else
             {
@@ -81,27 +86,30 @@ public class WorkingMemoryPrinter
                 // wmes with that id
                 for (Symbol id : objects.keySet())
                 {
-                    printer.print("(%s", id);
-                    for (Wme w : objects.get(id))
+                    if(exact)
                     {
-                        printer.print(" ^%s %s", w.getAttribute(), w.getValue());
-                        if (w.isAcceptable())
-                            printer.print(" +");
+                        printer.print("(%s", id);
+                        for (Wme w : objects.get(id))
+                        {
+                            printer.print(" ^%s %s", w.getAttribute(), w.getValue());
+                            if (w.isAcceptable())
+                                printer.print(" +");
+                        }
+                        printer.print(")\n");
                     }
-                    printer.print(")\n");
+                    else
+                    {
+                        for(Wme w : objects.get(id))
+                        {
+                            do_print_for_identifier((IdentifierImpl)id.asIdentifier());
+                        }
+                    }
                 }
             }
         }
         else
         {
-            IdentifierImpl id = (IdentifierImpl) idIn;
-
-            // RPM 4/07: first mark the nodes with their shallowest depth
-            // then print them at their shallowest depth
-            Marker tc = DefaultMarker.create();
-            mark_depths_augs_of_id(id, depth, tc);
-            tc = DefaultMarker.create();
-            print_augs_of_id(id, depth, depth, internal, tree, tc);
+            do_print_for_identifier((IdentifierImpl) idIn);
         }
         this.printer = null;
     }
@@ -209,6 +217,16 @@ public class WorkingMemoryPrinter
         printer.print(buf);
     }
 
+    private void do_print_for_identifier(IdentifierImpl id)
+    {
+        // RPM 4/07: first mark the nodes with their shallowest depth
+        // then print them at their shallowest depth
+        Marker tc = DefaultMarker.create();
+        mark_depths_augs_of_id(id, depth, tc);
+        tc = DefaultMarker.create();
+        print_augs_of_id(id, depth, depth, internal, tree, tc);
+    }
+    
 /**
  * RPM 4/07 bug 988
  * This function traverses the ids we are going to print and marks each with its

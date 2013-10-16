@@ -1,18 +1,17 @@
 package org.jsoar.performancetesting.csoar;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -39,46 +38,8 @@ public class CSoarKernelFactory
         
         label = newLabel;
         
-        // Create a new path to the CSoar root + /java/
-        // This will be used to find the CSoar sml.jar file (and set java.library.path)
-        Path directoryPath = FileSystems.getDefault().getPath(csoarDirectory + "/java/");
-        DirectoryStream<Path> stream;
-        
-        try
-        {
-            stream = Files.newDirectoryStream(directoryPath);
-        }
-        catch (IOException e)
-        {
-            System.out.println("Failed to create new directory stream: " + e.getMessage());
-            return;
-        }
-        
-        Path smlPath = null;
-        
-        //Search for sml.jar in the directory
-        for (Path path : stream)
-        {
-            String testName = path.getFileName().toString();
-                        
-            if (!testName.equals("sml.jar"))
-                continue;
-            
-            smlPath = path;
-            break;
-        }
-        
-        try
-        {
-            stream.close();
-        }
-        catch (IOException e)
-        {
-            System.out.println("Failed to close directory stream: " + e.getMessage());
-            return;
-        }
-        
-        if (smlPath == null)
+        List<Path> smlPath = getPathToSml(csoarDirectory);
+        if (smlPath.size() == 0)
         {
             System.out.println("Failed to find SML.jar.  Using assert version of it!");
             return;
@@ -87,16 +48,23 @@ public class CSoarKernelFactory
         //Load sml.jar into memory and then resolve all it's classes that we use.
         URLClassLoader child;
         
-        try
+        List<URL> urls = new ArrayList<URL>();
+        for(Path p : smlPath)
         {
-            URL[] url = { smlPath.toFile().toURI().toURL() };
-            child = new URLClassLoader(url, this.getClass().getClassLoader());
+            try
+            {
+                urls.add(p.toFile().toURI().toURL());
+            }
+            catch (MalformedURLException e)
+            {
+                System.out.println("Malformed URL! " + e.getMessage());
+                return;
+            }
         }
-        catch (MalformedURLException e)
-        {
-            System.out.println("Malformed URL! " + e.getMessage());
-            return;
-        }
+       
+        //URL[] url = { smlPath.toFile().toURI().toURL() };
+        URL[] dummy = {};
+        child = new URLClassLoader(urls.toArray(dummy), this.getClass().getClassLoader());
         
         //Resolve the sml.Kernel class
         try
@@ -199,7 +167,7 @@ public class CSoarKernelFactory
         }
         
         //Now load the library including all the correct paths to the native libraries.
-        System.loadLibrary("Soar");
+        loadSoarLibrary();
         
         initialized = true;
     }
@@ -260,17 +228,26 @@ public class CSoarKernelFactory
     {
         if (initialized)
         {
+            // 9.3.2 and later
             try
             {
                 Method method = kernel.getDeclaredMethod("CreateKernelInCurrentThread", boolean.class);
                 Object kernelImpl = method.invoke(null, optimized);
                 return new ImplCSoarKernelWrapper(kernelImpl, kernel, agent);
             }
-            catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+            catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+            
+            // 9.3.1 and earlier
+            try
             {
-                System.out.println("Unable to load kernel!");
-                return new DefaultCSoarKernelWrapper();
+                Method method = kernel.getDeclaredMethod("CreateKernelInCurrentThread", String.class, boolean.class);
+                Object kernelImpl = method.invoke(null, "SoarKernelSML", optimized);
+                return new ImplCSoarKernelWrapper(kernelImpl, kernel, agent);
             }
+            catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+            
+            System.out.println("Unable to load kernel!");
+            return new DefaultCSoarKernelWrapper();
         }
         else
             return new DefaultCSoarKernelWrapper();
@@ -284,5 +261,49 @@ public class CSoarKernelFactory
     String getLabel()
     {
         return label;
+    }
+    
+    private List<Path> getPathToSml(String csoarDirectory)
+    {
+        // depending on the version of csoar, sml.jar may be in different places
+        String[] paths = { "/java/", "/../share/java/", "/../lib/" };
+        String[] files = { "sml.jar", "soar-smljava-9.3.1.jar" };
+        
+        List<Path> smlPaths = new LinkedList<Path>();
+        
+        for(String path : paths)
+        {
+            for(String file : files)
+            {
+                Path smlpath = Paths.get(csoarDirectory, path, file);
+                if(Files.exists(smlpath))
+                {
+                    smlPaths.add(smlpath);
+                }
+            }
+        }
+        
+        return smlPaths;
+    }
+    
+    private void loadSoarLibrary()
+    {
+        // depending on the version of csoar, the name of the Soar library is different, so try them all
+        
+        boolean foundSoar = false;
+        String[] libNames = { "Soar", "ElementXML", "SoarKernelSML" };
+        
+        for(String libName : libNames)
+        {
+            try
+            {
+                System.loadLibrary(libName);
+                foundSoar = true;
+            }
+            catch(UnsatisfiedLinkError e) {}
+        }
+        if(!foundSoar){
+            throw new UnsatisfiedLinkError("Failed to find Soar library");
+        }
     }
 }

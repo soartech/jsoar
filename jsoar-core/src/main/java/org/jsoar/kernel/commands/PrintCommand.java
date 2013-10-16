@@ -42,7 +42,7 @@ public class PrintCommand implements SoarCommand
 
     private enum Options
     {
-        all, chunks, Defaults, depth, Filename, full, internal, justifications, 
+        all, chunks, Defaults, depth, exact, Filename, full, internal, justifications, 
         name, operators, rl, stack, States, Template, tree, user, varprint,
     }
 
@@ -55,6 +55,7 @@ public class PrintCommand implements SoarCommand
         .newOption(Options.chunks)
         .newOption(Options.Defaults)
         .newOption(Options.depth).requiredArg()
+        .newOption(Options.exact)
         .newOption(Options.Filename)
         .newOption(Options.full)
         .newOption(Options.internal)
@@ -146,6 +147,7 @@ public class PrintCommand implements SoarCommand
             {
                 agent.getPrinter().startNewLine();
                 wmp.setInternal(options.has(Options.internal));
+                wmp.setExact(options.has(Options.exact));
 
                 // these are ignored if pattern
                 wmp.setDepth(depth);
