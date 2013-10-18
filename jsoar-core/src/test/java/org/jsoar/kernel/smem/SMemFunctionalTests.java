@@ -104,6 +104,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTest("testSimpleNonCueBasedRetrievalOfNonExistingLTI", 1);
     }
     
+    @Test
+    public void testNegQuery() throws Exception
+    {
+        runTest("testNegQuery", 248);
+    }
+    
     private boolean halted = false;
     
     @Test
