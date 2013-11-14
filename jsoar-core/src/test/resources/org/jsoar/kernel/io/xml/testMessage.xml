@@ -14,7 +14,7 @@
 	<MultiEmpty><TestEmpty></TestEmpty></MultiEmpty>
 	<TestFloat>0.0</TestFloat>
 	<TestInt>0</TestInt>
-	<Attribute myString="test" myFloat="1.0" myInt="1" />
+	<Attribute myString="test" myFloat="1.0" myInt="1" myEmptyString="" />
 	<Multi>one</Multi>
 	<Multi>two</Multi>
 </Message>
