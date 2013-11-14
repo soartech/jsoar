@@ -49,7 +49,7 @@ class SemanticMemorySymbols
 
         smem_sym_retrieve = syms.createString( "retrieve" );
         smem_sym_query = syms.createString( "query" );
-        smem_sym_negquery = syms.createString( "negquery" );
+        smem_sym_negquery = syms.createString( "neg-query" );
         smem_sym_prohibit = syms.createString( "prohibit" );
         smem_sym_store = syms.createString( "store" );
     }

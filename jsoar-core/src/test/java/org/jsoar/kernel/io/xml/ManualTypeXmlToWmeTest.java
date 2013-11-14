@@ -130,6 +130,8 @@ public class ManualTypeXmlToWmeTest
                 .asIdentifier();
         assertEquals("test", m.attr("myString").find(att).getValue().asString()
                 .getValue());
+        assertEquals("", m.attr("myEmptyString").find(att).getValue().asString()
+                .getValue());
         assertEquals(1L, m.attr("myInt").find(att).getValue().asInteger()
                 .getValue());
         assertEquals(1d, m.attr("myFloat").find(att).getValue().asDouble()

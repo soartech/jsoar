@@ -184,13 +184,10 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme
         for (int i = 0; i < nnm.getLength(); i++)
         {
             Node n = nnm.item(i);
-            String val = n.getNodeValue().trim();
-            if (val.length() > 0)
-            {
-                xmlPath.pushTag(n.getNodeName());
-                addWme(builder, n.getNodeName(), n.getNodeValue());
-                xmlPath.popTag();
-            }
+
+            xmlPath.pushTag(n.getNodeName());
+            addWme(builder, n.getNodeName(), n.getNodeValue());
+            xmlPath.popTag();
         }
     }
 
