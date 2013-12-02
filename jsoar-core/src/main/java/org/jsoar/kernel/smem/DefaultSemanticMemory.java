@@ -42,6 +42,7 @@ import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.memory.WorkingMemory;
@@ -2420,10 +2421,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         return good_wme;
     }
 
-    long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
+    long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, IdentifierImpl math, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
             throws SQLException
     {
-        return smem_process_query(state, query, negquery, prohibit, cue_wmes, meta_wmes, retrieval_wmes, smem_query_levels.qry_full);
+        return smem_process_query(state, query, negquery, math, prohibit, cue_wmes, meta_wmes, retrieval_wmes, smem_query_levels.qry_full);
     }
 
     /**
@@ -2441,7 +2442,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @return
      * @throws SQLException
      */
-    long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes,
+    long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, IdentifierImpl mathQuery, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes,
             smem_query_levels query_level) throws SQLException
     {
         final SemanticMemoryStateInfo smem_info = smem_info(state);
@@ -2479,7 +2480,27 @@ public class DefaultSemanticMemory implements SemanticMemory
                     }
                 }
             }
-
+            
+            //Look through while were here, so that we can make sure the attributes we need are in the results
+            if(mathQuery != null){
+                List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
+                for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
+                {
+                    WmeImpl cue_p = it.next();
+                    
+                    //
+                    if(cue_p.attr == predefinedSyms.smem_sym_max){
+                        List<WmeImpl> maxes = smem_get_direct_augs_of_id(cue_p.value);
+                        //Can only be one max constraint
+                        if(maxes.size() == 1){
+                            good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq);
+                        }else{
+                            good_cue = false;
+                        }
+                    }
+                }
+            }
+            
             // negative que - if present
             if (negquery != null)
             {
@@ -3819,6 +3840,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 IdentifierImpl retrieve = null;
                 IdentifierImpl query = null;
                 IdentifierImpl negquery = null;
+                IdentifierImpl math = null;
                 store.clear();
                 prohibit.clear();
                 path_type path = path_type.blank_slate;
@@ -3873,6 +3895,18 @@ public class DefaultSemanticMemory implements SemanticMemory
                             if ((w_p.value.asIdentifier() != null) && ((path == path_type.blank_slate) || (path == path_type.cmd_query)) && (w_p.value.asIdentifier().smem_lti != 0))
                             {
                                 prohibit.add(w_p.value.asIdentifier()); // push_back
+                                path = path_type.cmd_query;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else if (w_p.attr == predefinedSyms.smem_sym_math_query)
+                        {
+                            if ((w_p.value.asIdentifier() != null) && ((path == path_type.blank_slate) || (path == path_type.cmd_query)) && (math == null))
+                            {
+                                math = w_p.value.asIdentifier();
                                 path = path_type.cmd_query;
                             }
                             else
@@ -3952,7 +3986,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             prohibit_lti.add(sym_p.smem_lti);
                         }
 
-                        smem_process_query(state, query, negquery, prohibit_lti, cue_wmes, meta_wmes, retrieval_wmes);
+                        smem_process_query(state, query, negquery, math, prohibit_lti, cue_wmes, meta_wmes, retrieval_wmes);
 
                         // add one to the cbr stat
                         stats.queries.set(stats.queries.get() + 1);
