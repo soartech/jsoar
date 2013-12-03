@@ -771,7 +771,9 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 throw new IllegalStateException("Expected non-empty result");
             }
-            return rs.getInt(0 + 1);
+            int toReturn = rs.getInt(0 + 1);
+            rs.close();
+            return toReturn;
         }
         finally
         {
@@ -786,7 +788,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         try
         {
             rs.next();
-            return rs.getDouble(0 + 1);
+            double toReturn = rs.getDouble(0 + 1);
+            rs.close();
+            return toReturn;
         }
         finally
         {
@@ -801,7 +805,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         try
         {
             rs.next();
-            return rs.getString(0 + 1);
+            String toReturn = rs.getString(0 + 1); 
+            rs.close();
+            return toReturn;
         }
         finally
         {
