@@ -81,6 +81,13 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testMaxMultivalued() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMaxMultivalued", 1);
+    }
+    
+    @Test
     public void testMaxNegQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
