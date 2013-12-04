@@ -29,6 +29,7 @@ public class WeightedCueElement implements Comparable<WeightedCueElement>
 
     smem_cue_element_type element_type;
     boolean pos_element;
+    public MathQuery mathElement = null;
 
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)

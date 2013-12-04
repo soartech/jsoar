@@ -73,6 +73,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
+import org.jsoar.kernel.smem.MathQuery.MathQueryMax;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -2320,7 +2321,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @return
      * @throws SQLException
      */
-    boolean _smem_process_cue_wme(WmeImpl w, boolean pos_cue, PriorityQueue<WeightedCueElement> weighted_pq) throws SQLException
+    boolean _smem_process_cue_wme(WmeImpl w, boolean pos_cue, PriorityQueue<WeightedCueElement> weighted_pq, MathQuery mathQuery) throws SQLException
     {
         boolean good_wme = true;
         WeightedCueElement new_cue_element;
@@ -2397,6 +2398,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                             new_cue_element.element_type = element_type;
                             new_cue_element.pos_element = pos_cue;
+                            new_cue_element.mathElement = mathQuery;
 
                             weighted_pq.add(new_cue_element);
                             new_cue_element = null;
@@ -2454,6 +2456,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         final SemanticMemoryStateInfo smem_info = smem_info(state);
         final List<WeightedCueElement> weighted_cue = new ArrayList<WeightedCueElement>();
         boolean good_cue = true;
+        
+        //This is used when doing math queries that need to look at more that just the first valid element
+        boolean needFullSearch = false;
 
         long /* smem_lti_id */king_id = 0;
 
@@ -2482,7 +2487,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     if (good_cue)
                     {
-                        good_cue = _smem_process_cue_wme(cue_p, true, weighted_pq);
+                        good_cue = _smem_process_cue_wme(cue_p, true, weighted_pq, null);
                     }
                 }
             }
@@ -2494,12 +2499,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     WmeImpl cue_p = it.next();
                     
-                    //
+                    //Handle the max case
                     if(cue_p.attr == predefinedSyms.smem_sym_max){
                         List<WmeImpl> maxes = smem_get_direct_augs_of_id(cue_p.value);
+                        needFullSearch = true;
                         //Can only be one max constraint
                         if(maxes.size() == 1){
-                            good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq);
+                            good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq, new MathQueryMax());
                         }else{
                             good_cue = false;
                         }
@@ -2521,7 +2527,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     if (good_cue)
                     {
-                        good_cue = _smem_process_cue_wme(cue_p, false, weighted_pq);
+                        good_cue = _smem_process_cue_wme(cue_p, false, weighted_pq, null);
                     }
                 }
             }
@@ -2641,7 +2647,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                                 // soar_module::row );
                     }
 
-                    while ((king_id == 0) && ((more_rows) || (!plentiful_parents.isEmpty())))
+                    while (((king_id == 0) || (needFullSearch)) && ((more_rows) || (!plentiful_parents.isEmpty())))
                     {
                         // choose next candidate (db vs. priority queue)
                         {
@@ -2711,12 +2717,46 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 // all require own id, attribute
                                 q2.setLong(1, cand);
                                 q2.setLong(2, next_element.attr_hash);
-
+                                
                                 final ResultSet q2rs = q2.executeQuery();
                                 try
                                 {
                                     has_feature = q2rs.next();
-                                    good_cand = ((next_element.pos_element) ? (has_feature) : (!has_feature));
+                                    boolean mathQueryMet = false;
+                                    if(next_element.mathElement != null && has_feature)
+                                    {
+                                        do{
+                                            long valueHash = q2rs.getLong(2);
+                                            db.hash_rev_type.setLong(1, valueHash);
+                                            ResultSet rs = db.hash_rev_type.executeQuery(); 
+                                            //If this hash wasn't in the table, there isn't a value to work with
+                                            if(!rs.next())
+                                            {
+                                                good_cand = false;
+                                            }
+                                            else
+                                            {
+                                                int valueType = rs.getInt(1);
+                                                //Not using the built in hash reverse because I want the raw type, not the symbol
+                                                switch(valueType)
+                                                {
+                                                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                                        mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_float(valueHash));
+                                                        break;
+                                                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                                        mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_int(valueHash));
+                                                        break;
+                                                }
+                                            }
+                                            rs.close();
+                                        //Go through the all the attribute records, to find the best match for a math query 
+                                        }while(qrs.next());
+                                        good_cand = mathQueryMet;
+                                    }
+                                    else
+                                    {
+                                        good_cand = ((next_element.pos_element) ? (has_feature) : (!has_feature));
+                                    }
                                     if (!good_cand)
                                     {
                                         break;
@@ -2731,6 +2771,11 @@ public class DefaultSemanticMemory implements SemanticMemory
                             if (good_cand)
                             {
                                 king_id = cand;
+                                for(WeightedCueElement wce: weighted_cue){
+                                    if(wce.mathElement != null){
+                                        wce.mathElement.commit();
+                                    }
+                                }
                             }
                         }
                     }
