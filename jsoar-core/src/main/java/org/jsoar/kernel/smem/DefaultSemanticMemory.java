@@ -76,6 +76,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.kernel.smem.math.MathQuery;
 import org.jsoar.kernel.smem.math.MathQueryMax;
+import org.jsoar.kernel.smem.math.MathQueryMin;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -2515,9 +2516,34 @@ public class DefaultSemanticMemory implements SemanticMemory
                         List<WmeImpl> maxes = smem_get_direct_augs_of_id(cue_p.value);
                         needFullSearch = true;
                         //Can only be one max constraint
-                        if(maxes.size() == 1 && good_cue){
+                        if(maxes.size() == 1 && good_cue)
+                        {
                             good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq, new MathQueryMax());
-                        }else{
+                        }
+                        else
+                        {
+                            good_cue = false;
+                        }
+                      //Handle the min case
+                    }
+                    else if(cue_p.attr == predefinedSyms.smem_sym_min)
+                    {
+                        if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_min)){
+                            good_cue = false;
+                        }
+                        else
+                        {
+                            uniqueMathQueryElements.add(predefinedSyms.smem_sym_min);
+                        }
+                        List<WmeImpl> mins = smem_get_direct_augs_of_id(cue_p.value);
+                        needFullSearch = true;
+                        //Can only be one min constraint
+                        if(mins.size() == 1 && good_cue)
+                        {
+                            good_cue = _smem_process_cue_wme(mins.get(0), true, weighted_pq, new MathQueryMin());
+                        }
+                        else
+                        {
                             good_cue = false;
                         }
                     }

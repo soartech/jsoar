@@ -36,6 +36,7 @@ class SemanticMemorySymbols
     public final Symbol smem_sym_math_query;
     
     public final Symbol smem_sym_max;
+    public final Symbol smem_sym_min;
     
     public SemanticMemorySymbols(SymbolFactoryImpl syms)
     {
@@ -58,5 +59,6 @@ class SemanticMemorySymbols
         smem_sym_math_query = syms.createString( "math-query" );
         
         smem_sym_max = syms.createString( "max" );
+        smem_sym_min = syms.createString( "min" );
     }
 }
