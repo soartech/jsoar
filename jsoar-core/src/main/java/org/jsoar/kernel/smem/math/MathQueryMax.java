@@ -3,9 +3,9 @@ package org.jsoar.kernel.smem.math;
 public class MathQueryMax extends MathQuery
 {
     private double doubleValue = Double.NEGATIVE_INFINITY;
-    private double stagedDoubleValue;
+    private double stagedDoubleValue = Double.NEGATIVE_INFINITY;
     private long longValue = Long.MIN_VALUE;
-    private long stagedLongValue;
+    private long stagedLongValue = Long.MIN_VALUE;
     
     private void stageDouble(double d){
         if(d > stagedDoubleValue){
