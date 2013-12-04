@@ -7,6 +7,7 @@ public abstract class MathQuery
     public abstract boolean valueIsAcceptable(long value);
     //Use this to record things like the new max values
     public abstract void commit();
+    public abstract void rollback();
     
     public static class MathQueryMax extends MathQuery
     {
@@ -51,6 +52,12 @@ public abstract class MathQuery
         {
             doubleValue = stagedDoubleValue;
             longValue = stagedLongValue;
+        }
+        @Override
+        public void rollback()
+        {
+            stagedDoubleValue = doubleValue;
+            stagedLongValue = longValue;
         }
         
     }

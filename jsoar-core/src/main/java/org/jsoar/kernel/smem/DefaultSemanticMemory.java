@@ -2688,8 +2688,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                             for (; ((good_cand) && (it.hasNext()));)
                             {
                                 final WeightedCueElement next_element = it.next();
-
-                                if (next_element == cand_set)
+                                
+                                //If the cand_set is a math query, we care about more than its existence 
+                                if (next_element == cand_set && next_element.mathElement == null)
                                 {
                                     continue;
                                 }
@@ -2750,7 +2751,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                             }
                                             rs.close();
                                         //Go through the all the attribute records, to find the best match for a math query 
-                                        }while(qrs.next());
+                                        }while(q2rs.next());
                                         good_cand = mathQueryMet;
                                     }
                                     else
@@ -2774,6 +2775,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 for(WeightedCueElement wce: weighted_cue){
                                     if(wce.mathElement != null){
                                         wce.mathElement.commit();
+                                    }
+                                }
+                            }else{
+                                for(WeightedCueElement wce: weighted_cue){
+                                    if(wce.mathElement != null){
+                                        wce.mathElement.rollback();
                                     }
                                 }
                             }
