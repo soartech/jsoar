@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -2494,6 +2495,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             
             //Look through while were here, so that we can make sure the attributes we need are in the results
             if(mathQuery != null){
+                //Use this set to track when certain elements have been added, so wew don't add them twice
+                Set<Symbol> uniqueMathQueryElements = new HashSet<Symbol>();
                 List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
                 for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
                 {
@@ -2501,10 +2504,17 @@ public class DefaultSemanticMemory implements SemanticMemory
                     
                     //Handle the max case
                     if(cue_p.attr == predefinedSyms.smem_sym_max){
+                        if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_max)){
+                            good_cue = false;
+                        }
+                        else
+                        {
+                            uniqueMathQueryElements.add(predefinedSyms.smem_sym_max);
+                        }
                         List<WmeImpl> maxes = smem_get_direct_augs_of_id(cue_p.value);
                         needFullSearch = true;
                         //Can only be one max constraint
-                        if(maxes.size() == 1){
+                        if(maxes.size() == 1 && good_cue){
                             good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq, new MathQueryMax());
                         }else{
                             good_cue = false;

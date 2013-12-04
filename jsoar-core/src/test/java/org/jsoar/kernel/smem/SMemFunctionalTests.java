@@ -60,6 +60,13 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testBadMathQuery() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testBadMathQuery", 2);
+    }
+    
+    @Test
     public void testMaxQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
