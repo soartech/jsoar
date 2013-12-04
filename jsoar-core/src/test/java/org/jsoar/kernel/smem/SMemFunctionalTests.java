@@ -74,6 +74,13 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testMaxMixedTypes() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMaxMixedTypes", 1);
+    }
+    
+    @Test
     public void testMaxNegQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
