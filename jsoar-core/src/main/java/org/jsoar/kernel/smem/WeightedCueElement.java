@@ -8,6 +8,7 @@ package org.jsoar.kernel.smem;
 import java.util.PriorityQueue;
 
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.smem.math.MathQuery;
 
 /**
  * <p>semantic_memory.h:279:smem_weighted_cue_element
