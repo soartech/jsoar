@@ -75,6 +75,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.kernel.smem.math.MathQuery;
+import org.jsoar.kernel.smem.math.MathQueryLess;
 import org.jsoar.kernel.smem.math.MathQueryMax;
 import org.jsoar.kernel.smem.math.MathQueryMin;
 import org.jsoar.util.ByRef;
@@ -2341,7 +2342,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             attr_hash = smem_temporal_hash(w.attr, false);
             if (attr_hash != 0)
             {
-                if (w.value.symbol_is_constant())
+                //If there is a math query, we don't want to treat this as a direct match search
+                if (w.value.symbol_is_constant() && mathQuery == null)
                 {
                     value_lti = 0;
                     value_hash = smem_temporal_hash(w.value, false);
@@ -2364,7 +2366,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    value_lti = w.value.asIdentifier().smem_lti;
+                    //If we get here on a math query, the value may not be an identifier
+                    if(w.value.asIdentifier() != null){
+                        value_lti = w.value.asIdentifier().smem_lti;
+                    }else{
+                        value_lti = 0;
+                    }
                     value_hash = 0;
 
                     if (value_lti == 0)
@@ -2545,6 +2552,30 @@ public class DefaultSemanticMemory implements SemanticMemory
                         else
                         {
                             good_cue = false;
+                        }
+                    }else if(cue_p.attr == predefinedSyms.smem_sym_less){
+                        //We don't really care how many less than constraints are added
+                        List<WmeImpl> lesses = smem_get_direct_augs_of_id(cue_p.value);
+                        for(WmeImpl wme: lesses){
+                            Symbol value = wme.getValue();
+                            if(value.asDouble() != null)
+                            {
+                                MathQueryLess mq = new MathQueryLess(value.asDouble().getValue()); 
+                                good_cue = _smem_process_cue_wme(wme, true, weighted_pq, mq);
+                            }
+                            else if(value.asInteger() != null)
+                            {
+                                MathQueryLess mq = new MathQueryLess(value.asInteger().getValue());
+                                good_cue = _smem_process_cue_wme(wme, true, weighted_pq, mq);
+                            }
+                            else
+                            {
+                                good_cue = false;
+                            }
+                            //One bad cue and were done
+                            if(!good_cue){
+                                break;
+                            }
                         }
                     }
                 }
