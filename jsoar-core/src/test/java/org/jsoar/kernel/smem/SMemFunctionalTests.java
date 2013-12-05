@@ -116,6 +116,13 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testLessNoSolution() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testLessNoSolution", 1);
+    }
+    
+    @Test
     public void testMirroring() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
