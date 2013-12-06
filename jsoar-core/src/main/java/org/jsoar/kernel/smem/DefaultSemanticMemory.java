@@ -2438,7 +2438,84 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         return good_wme;
     }
-
+    
+    private static class MathQueryProcessResults{
+        public boolean needFullSearch;
+        public boolean goodCue;
+        public MathQueryProcessResults(boolean needFullSearch, boolean goodCue){            
+            this.needFullSearch = needFullSearch;
+            this.goodCue = goodCue;
+        }
+    }
+    
+    private MathQueryProcessResults processMathQuery(IdentifierImpl mathQuery, PriorityQueue<WeightedCueElement> weighted_pq) throws SQLException{
+        boolean needFullSearch = false;
+        //Use this set to track when certain elements have been added, so we don't add them twice
+        Set<Symbol> uniqueMathQueryElements = new HashSet<Symbol>();
+        List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
+        for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
+        {
+            WmeImpl cue_p = it.next();
+            
+            List<WmeImpl> cueTypes = smem_get_direct_augs_of_id(cue_p.value);
+            if(cueTypes.isEmpty())
+            {
+                //This would be an attribute without a query type attached
+                return new MathQueryProcessResults(false, false);
+            }
+            
+            for(WmeImpl cueType: cueTypes)
+            {
+                if(cueType.attr == predefinedSyms.smem_sym_max)
+                {
+                    if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_max))
+                    {
+                        return new MathQueryProcessResults(false, false);
+                    }
+                    else
+                    {
+                        uniqueMathQueryElements.add(predefinedSyms.smem_sym_max);
+                    }
+                    needFullSearch = true;
+                    _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryMax());
+                    
+                }
+                else if(cueType.attr == predefinedSyms.smem_sym_min)
+                {
+                    if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_min))
+                    {
+                        return new MathQueryProcessResults(false, false);
+                    }
+                    else
+                    {
+                        uniqueMathQueryElements.add(predefinedSyms.smem_sym_min);
+                    }
+                    needFullSearch = true;
+                    _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryMin());
+                    
+                }
+                else if(cueType.attr == predefinedSyms.smem_sym_less)
+                {
+                    if(cueType.value.asDouble() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryLess(cueType.value.asDouble().getValue()));
+                    }
+                    else if(cueType.value.asInteger() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryLess(cueType.value.asInteger().getValue()));
+                    }
+                    else
+                    {
+                        //There isn't a valid value to compare against
+                        return new MathQueryProcessResults(false, false);
+                    }
+                }
+            }
+            
+        }
+        return new MathQueryProcessResults(needFullSearch, true);
+    }
+    
     long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, IdentifierImpl math, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
             throws SQLException
     {
@@ -2504,81 +2581,9 @@ public class DefaultSemanticMemory implements SemanticMemory
             
             //Look through while were here, so that we can make sure the attributes we need are in the results
             if(mathQuery != null){
-                //Use this set to track when certain elements have been added, so wew don't add them twice
-                Set<Symbol> uniqueMathQueryElements = new HashSet<Symbol>();
-                List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
-                for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
-                {
-                    WmeImpl cue_p = it.next();
-                    
-                    //Handle the max case
-                    if(cue_p.attr == predefinedSyms.smem_sym_max){
-                        if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_max)){
-                            good_cue = false;
-                        }
-                        else
-                        {
-                            uniqueMathQueryElements.add(predefinedSyms.smem_sym_max);
-                        }
-                        List<WmeImpl> maxes = smem_get_direct_augs_of_id(cue_p.value);
-                        needFullSearch = true;
-                        //Can only be one max constraint
-                        if(maxes.size() == 1 && good_cue)
-                        {
-                            good_cue = _smem_process_cue_wme(maxes.get(0), true, weighted_pq, new MathQueryMax());
-                        }
-                        else
-                        {
-                            good_cue = false;
-                        }
-                      //Handle the min case
-                    }
-                    else if(cue_p.attr == predefinedSyms.smem_sym_min)
-                    {
-                        if(uniqueMathQueryElements.contains(predefinedSyms.smem_sym_min)){
-                            good_cue = false;
-                        }
-                        else
-                        {
-                            uniqueMathQueryElements.add(predefinedSyms.smem_sym_min);
-                        }
-                        List<WmeImpl> mins = smem_get_direct_augs_of_id(cue_p.value);
-                        needFullSearch = true;
-                        //Can only be one min constraint
-                        if(mins.size() == 1 && good_cue)
-                        {
-                            good_cue = _smem_process_cue_wme(mins.get(0), true, weighted_pq, new MathQueryMin());
-                        }
-                        else
-                        {
-                            good_cue = false;
-                        }
-                    }else if(cue_p.attr == predefinedSyms.smem_sym_less){
-                        //We don't really care how many less than constraints are added
-                        List<WmeImpl> lesses = smem_get_direct_augs_of_id(cue_p.value);
-                        for(WmeImpl wme: lesses){
-                            Symbol value = wme.getValue();
-                            if(value.asDouble() != null)
-                            {
-                                MathQueryLess mq = new MathQueryLess(value.asDouble().getValue()); 
-                                good_cue = _smem_process_cue_wme(wme, true, weighted_pq, mq);
-                            }
-                            else if(value.asInteger() != null)
-                            {
-                                MathQueryLess mq = new MathQueryLess(value.asInteger().getValue());
-                                good_cue = _smem_process_cue_wme(wme, true, weighted_pq, mq);
-                            }
-                            else
-                            {
-                                good_cue = false;
-                            }
-                            //One bad cue and were done
-                            if(!good_cue){
-                                break;
-                            }
-                        }
-                    }
-                }
+                MathQueryProcessResults mpr = processMathQuery(mathQuery, weighted_pq);
+                good_cue = mpr.goodCue;
+                needFullSearch = mpr.needFullSearch;
             }
             
             // negative que - if present
