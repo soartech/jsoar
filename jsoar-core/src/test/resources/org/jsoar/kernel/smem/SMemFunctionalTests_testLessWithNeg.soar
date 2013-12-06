@@ -37,7 +37,7 @@ sp {apply*query
 -->
   (<sc> ^query.name |val|)
   (<sc> ^neg-query.value 1)
-  (<sc> ^math-query.less.value 3)
+  (<sc> ^math-query.value.less 3)
 }
 
 sp {success

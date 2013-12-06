@@ -41,7 +41,7 @@ sp {apply*query
              ^smem.command <sc>)
 -->
   (<sc> ^query.name |val|)
-  (<sc> ^math-query.max.value <x>)
+  (<sc> ^math-query.value.max <x>)
 }
 
 sp {success

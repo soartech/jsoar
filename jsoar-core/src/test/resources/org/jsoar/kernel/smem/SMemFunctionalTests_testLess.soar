@@ -36,7 +36,7 @@ sp {apply*query
              ^smem.command <sc>)
 -->
   (<sc> ^query.name |val|)
-  (<sc> ^math-query.less.value 2)
+  (<sc> ^math-query.value.less 2)
 }
 
 sp {success

@@ -41,9 +41,9 @@ sp {apply*query
 -->
   (<sc> ^store <store> -)
   (<sc> ^query.email |jobs@apple.com|)
-  (<sc> ^math-query.max <mc>)
-  (<mc> ^number <x>
-		^other-number <y>)
+  (<sc> ^math-query <mc>)
+  (<mc> ^number.max <x>
+		^other-number.max <y>)
 }
 
 sp {success
