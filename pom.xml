@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soartech</groupId>
     <artifactId>jsoar</artifactId>
-    <version>0.13.7</version>
+    <version>0.13.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <scm>
         <developerConnection>scm:git:https://git.soartech.com/git/jsoar.git</developerConnection>
-        <tag>jsoar-0.13.7</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
