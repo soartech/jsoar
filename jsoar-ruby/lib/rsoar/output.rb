@@ -18,6 +18,26 @@ module RSoar
       end      
     end
 
+    def getAttrs()
+      ## Get the attributes for this output command.  
+      ## @id is the id of the output command, so a command on the output link
+      ## It is the Soar Identifier for that WME
+      ## This creates a filter that just returns all the attributes for that
+      ## WME identifier.  The return value is a JRuby list of strings
+      ## that are the attribute names
+    
+      wmeList = org.jsoar.kernel.memory.Wmes.matcher(@agent).filter(@id)
+      attrList = []
+      
+      if !wmeList.isEmpty
+        wmeList.each do |c|
+            attrList << c.getAttribute
+        end
+      end
+      
+      attrList
+    end
+
     def root
       @id
     end
