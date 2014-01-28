@@ -37,6 +37,6 @@ public class WeightedCueElement implements Comparable<WeightedCueElement>
     public int compareTo(WeightedCueElement o)
     {
         // semantic_memory.h:292:smem_compare_weighted_cue_elements
-        return -1 * (weight > o.weight ? 1 : (weight < o.weight ? -1 : 0));
+        return (weight > o.weight ? 1 : (weight < o.weight ? -1 : 0));
     }
 }
