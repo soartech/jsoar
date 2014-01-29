@@ -19,8 +19,10 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
+import org.jsoar.kernel.smem.DefaultSemanticMemory.BasicWeightedCue;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.LearningChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivateOnQueryChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.ActivationChoices;
@@ -139,6 +141,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             return doBackup(1, args);
         }
+        else if("-l".equals(arg) || "--lastcue".equals(arg))
+        {
+            return doLastCue(1, args);
+        }
         else if(arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -146,6 +152,20 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         else
         {
             throw new SoarException("Unknown argument " + arg);
+        }
+    }
+
+    private String doLastCue(int i, String[] args) throws SoarException
+    {
+        if(i + 1 == args.length){
+            BasicWeightedCue lastCue = smem.getLastCue();
+            if(lastCue == null){
+                return "Either the last decision cycle did not contain a query, or the query was bad.";
+            }
+            return lastCue.cue.toString() + " Weight: " + lastCue.weight;
+            
+        }else{
+            throw new SoarException("LastCue takes no arguments");
         }
     }
 
