@@ -213,6 +213,28 @@ public class DefaultSemanticMemory implements SemanticMemory
     private Set<IdentifierImpl> smem_changed_ids = new LinkedHashSet<IdentifierImpl>();
 
     private boolean smem_ignore_changes;
+    
+    /**
+     * This section regarding the lastCue member has no equivalent in CSoar.  It was
+     * added to allow unit tests to make sure the proper cue is being used.  It could
+     * also be exposed somewhere on the debugger to assist in implementing efficient
+     * SMem agents. 
+     */
+    private BasicWeightedCue lastCue;
+    public BasicWeightedCue getLastCue()
+    {
+        return lastCue;
+    }
+    
+    public static class BasicWeightedCue{
+        public final WmeImpl cue;
+        public final long weight;
+        public BasicWeightedCue(WmeImpl cue, long weight)
+        {
+            this.cue = cue;
+            this.weight = weight;
+        }
+    }
 
     public DefaultSemanticMemory(Adaptable context)
     {
@@ -2688,7 +2710,8 @@ public class DefaultSemanticMemory implements SemanticMemory
 
             // setup first query, which is sorted on activation already
             q = smem_setup_web_crawl(cand_set);
-
+            lastCue = new BasicWeightedCue(cand_set.cue_element, cand_set.weight);
+            
             // this becomes the minimal set to walk (till match or fail)
             final ResultSet qrs = q.executeQuery();
             try
@@ -3880,7 +3903,12 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         boolean do_wm_phase = false;
         boolean mirroring_on = params.mirroring.get() == MirroringChoices.on;
-
+        
+        //Free this up as soon as we start a phase that allows queries
+        if(!store_only){
+            lastCue = null;
+        }
+        
         while (state != null)
         {
             final SemanticMemoryStateInfo smem_info = smem_info(state);

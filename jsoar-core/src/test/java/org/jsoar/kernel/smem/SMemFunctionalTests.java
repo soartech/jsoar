@@ -22,6 +22,7 @@ import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.smem.DefaultSemanticMemory.BasicWeightedCue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
@@ -178,6 +179,19 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     public void testNegQuery() throws Exception
     {
         runTest("testNegQuery", 248);
+    }
+    
+    @Test
+    public void testCueSelection() throws Exception
+    {
+        runTestSetup("testCueSelection");
+        agent.runFor(2, RunType.DECISIONS);
+        DefaultSemanticMemory smem = (DefaultSemanticMemory) agent.getAdapter(DefaultSemanticMemory.class);
+        BasicWeightedCue bwc = smem.getLastCue();
+        assertTrue("Incorrect cue selected", 
+                bwc.cue.attr.asString().getValue().equals("name") && 
+                bwc.cue.value.asString().getValue().equals("val") &&
+                bwc.weight == 4);
     }
     
     private boolean halted = false;
