@@ -75,6 +75,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.kernel.smem.math.MathQuery;
+import org.jsoar.kernel.smem.math.MathQueryGreater;
 import org.jsoar.kernel.smem.math.MathQueryLess;
 import org.jsoar.kernel.smem.math.MathQueryMax;
 import org.jsoar.kernel.smem.math.MathQueryMin;
@@ -2525,6 +2526,22 @@ public class DefaultSemanticMemory implements SemanticMemory
                     else if(cueType.value.asInteger() != null)
                     {
                         _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryLess(cueType.value.asInteger().getValue()));
+                    }
+                    else
+                    {
+                        //There isn't a valid value to compare against
+                        return new MathQueryProcessResults(false, false);
+                    }
+                }
+                else if(cueType.attr == predefinedSyms.smem_sym_greater)
+                {
+                    if(cueType.value.asDouble() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryGreater(cueType.value.asDouble().getValue()));
+                    }
+                    else if(cueType.value.asInteger() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryGreater(cueType.value.asInteger().getValue()));
                     }
                     else
                     {
