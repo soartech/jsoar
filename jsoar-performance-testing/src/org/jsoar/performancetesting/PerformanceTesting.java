@@ -617,6 +617,9 @@ public class PerformanceTesting
             arguments.add("--soar");
 
             // For each version of CSoar, run a child JVM
+            if(test.getTestSettings().getCSoarVersions() == null){
+                throw new RuntimeException("CSoar Enabled but no versions specified");
+            }
             for (String path : test.getTestSettings().getCSoarVersions())
             {
                 List<String> argumentsPerTest = new ArrayList<String>(arguments);
