@@ -2370,6 +2370,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     value_lti = 0;
                     value_hash = smem_temporal_hash(w.value, false);
+                    element_type = smem_cue_element_type.value_const_t;
 
                     if (value_hash != 0)
                     {
@@ -2377,14 +2378,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                         q.setLong(1, attr_hash);
                         q.setLong(2, value_hash);
 
-                        element_type = smem_cue_element_type.value_const_t;
                     }
-                    else
+                    else if (pos_cue)
                     {
-                        if (pos_cue)
-                        {
-                            good_wme = false;
-                        }
+                        good_wme = false;
                     }
                 }
                 else
