@@ -3888,8 +3888,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                                 else 
                                 {
-                                    // arbitrarily put starts before ends
-                                    return (a.is_end_point == EPMEM_RANGE_START)?1:-1;
+                                    // put starts before ends so intervals are closed first
+                                    return (a.is_end_point == EPMEM_RANGE_END)?1:-1;
                                 }
                             }
                         }
