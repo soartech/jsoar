@@ -76,7 +76,9 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.kernel.smem.math.MathQuery;
 import org.jsoar.kernel.smem.math.MathQueryGreater;
+import org.jsoar.kernel.smem.math.MathQueryGreaterOrEqual;
 import org.jsoar.kernel.smem.math.MathQueryLess;
+import org.jsoar.kernel.smem.math.MathQueryLessOrEqual;
 import org.jsoar.kernel.smem.math.MathQueryMax;
 import org.jsoar.kernel.smem.math.MathQueryMin;
 import org.jsoar.util.ByRef;
@@ -2539,6 +2541,38 @@ public class DefaultSemanticMemory implements SemanticMemory
                     else if(cueType.value.asInteger() != null)
                     {
                         _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryGreater(cueType.value.asInteger().getValue()));
+                    }
+                    else
+                    {
+                        //There isn't a valid value to compare against
+                        return new MathQueryProcessResults(false, false);
+                    }
+                }
+                else if(cueType.attr == predefinedSyms.smem_sym_less_or_equal)
+                {
+                    if(cueType.value.asDouble() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryLessOrEqual(cueType.value.asDouble().getValue()));
+                    }
+                    else if(cueType.value.asInteger() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryLessOrEqual(cueType.value.asInteger().getValue()));
+                    }
+                    else
+                    {
+                        //There isn't a valid value to compare against
+                        return new MathQueryProcessResults(false, false);
+                    }
+                }
+                else if(cueType.attr == predefinedSyms.smem_sym_greater_or_equal)
+                {
+                    if(cueType.value.asDouble() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryGreaterOrEqual(cueType.value.asDouble().getValue()));
+                    }
+                    else if(cueType.value.asInteger() != null)
+                    {
+                        _smem_process_cue_wme(cue_p, true, weighted_pq, new MathQueryGreaterOrEqual(cueType.value.asInteger().getValue()));
                     }
                     else
                     {
