@@ -33,6 +33,14 @@ class SemanticMemorySymbols
     public final Symbol smem_sym_negquery;
     public final Symbol smem_sym_prohibit;
     public final Symbol smem_sym_store;
+    public final Symbol smem_sym_math_query;
+    
+    public final Symbol smem_sym_max;
+    public final Symbol smem_sym_min;
+    public final Symbol smem_sym_less;
+    public final Symbol smem_sym_greater;
+    public final Symbol smem_sym_less_or_equal;
+    public final Symbol smem_sym_greater_or_equal;
     
     public SemanticMemorySymbols(SymbolFactoryImpl syms)
     {
@@ -52,5 +60,13 @@ class SemanticMemorySymbols
         smem_sym_negquery = syms.createString( "neg-query" );
         smem_sym_prohibit = syms.createString( "prohibit" );
         smem_sym_store = syms.createString( "store" );
+        smem_sym_math_query = syms.createString( "math-query" );
+        
+        smem_sym_max = syms.createString( "max" );
+        smem_sym_min = syms.createString( "min" );
+        smem_sym_less = syms.createString( "less" );
+        smem_sym_greater = syms.createString( "greater" );
+        smem_sym_less_or_equal = syms.createString( "less-or-equal" );
+        smem_sym_greater_or_equal = syms.createString( "greater-or-equal" );
     }
 }

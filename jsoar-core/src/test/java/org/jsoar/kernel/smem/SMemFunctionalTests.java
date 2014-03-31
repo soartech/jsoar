@@ -22,6 +22,7 @@ import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.smem.DefaultSemanticMemory.BasicWeightedCue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
@@ -50,6 +51,97 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleStore", 2);
+    }
+    
+    @Test
+    public void testTrivialMathQuery() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testTrivialMathQuery", 2);
+    }
+    
+    @Test
+    public void testBadMathQuery() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testBadMathQuery", 2);
+    }
+    
+    @Test
+    public void testMaxQuery() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMax", 1);
+    }
+    
+    @Test
+    public void testMaxMixedTypes() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMaxMixedTypes", 1);
+    }
+    
+    @Test
+    public void testMaxMultivalued() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMaxMultivalued", 1);
+    }
+    
+    @Test
+    public void testMin() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMin", 1);
+    }
+    
+    @Test
+    public void testMaxNegQuery() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testMaxNegation", 1);
+    }
+    
+    @Test
+    public void testGreater() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testGreater", 1);
+    }
+    
+    @Test
+    public void testLess() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testLess", 1);
+    }
+    
+    @Test
+    public void testGreaterOrEqual() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testGreaterOrEqual", 1);
+    }
+    
+    @Test
+    public void testLessOrEqual() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testLessOrEqual", 1);
+    }
+    
+    @Test
+    public void testLessWithNeg() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testLessWithNeg", 1);
+    }
+    
+    @Test
+    public void testLessNoSolution() throws Exception
+    {
+        agent.setStopPhase(Phase.OUTPUT);
+        runTest("testLessNoSolution", 1);
     }
     
     @Test
@@ -108,6 +200,19 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     public void testNegQuery() throws Exception
     {
         runTest("testNegQuery", 248);
+    }
+    
+    @Test
+    public void testCueSelection() throws Exception
+    {
+        runTestSetup("testCueSelection");
+        agent.runFor(2, RunType.DECISIONS);
+        DefaultSemanticMemory smem = (DefaultSemanticMemory) agent.getAdapter(DefaultSemanticMemory.class);
+        BasicWeightedCue bwc = smem.getLastCue();
+        assertTrue("Incorrect cue selected", 
+                bwc.cue.attr.asString().getValue().equals("name") && 
+                bwc.cue.value.asString().getValue().equals("val") &&
+                bwc.weight == 4);
     }
     
     private boolean halted = false;

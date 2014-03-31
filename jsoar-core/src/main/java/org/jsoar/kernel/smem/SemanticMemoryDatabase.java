@@ -42,6 +42,7 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement hash_rev_int;
     PreparedStatement hash_rev_float;
     PreparedStatement hash_rev_str;
+    PreparedStatement hash_rev_type;
     PreparedStatement hash_get_int;
     PreparedStatement hash_get_float;
     PreparedStatement hash_get_str;
