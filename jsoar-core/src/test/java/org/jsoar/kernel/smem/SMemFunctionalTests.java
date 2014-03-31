@@ -106,7 +106,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     public void testGreater() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
-        runTest("testLess", 1);
+        runTest("testGreater", 1);
     }
     
     @Test
