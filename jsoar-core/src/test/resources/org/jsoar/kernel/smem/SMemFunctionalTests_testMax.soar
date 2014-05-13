@@ -10,6 +10,10 @@ smem --add {
   	   ^value 5)
 }
 smem --add {
+  (<x> ^name val-wrong-name
+  	   ^value 6)
+}
+smem --add {
   (<x> ^name val
   	   ^value 2)
 }
