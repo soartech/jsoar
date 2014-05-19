@@ -76,6 +76,8 @@ public class StandardCommands
         
         interp.addCommand("time", new TimeCommand(agent));
         
+        interp.addCommand("log", new LogCommand(agent));
+        
         SoarCommands.registerCustomCommands(interp, agent);
     }
     

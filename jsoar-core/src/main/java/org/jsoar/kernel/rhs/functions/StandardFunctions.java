@@ -132,6 +132,8 @@ public class StandardFunctions
         allInternal.add(new RandomInt(context.getRandom()));
         allInternal.add(new RandomFloat(context.getRandom()));
         
+        allInternal.add(new LogRhsFunction(context.getInterpreter()));
+        
         for(RhsFunctionHandler handler : all)
         {
             context.getRhsFunctions().registerHandler(handler);
