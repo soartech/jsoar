@@ -37,6 +37,8 @@ public final class EchoCommand implements SoarCommand
             }
             else
             {
+            	if (i != 1)
+            		agent.getPrinter().print(" ");
                 agent.getPrinter().print(argString);
             }
         }
