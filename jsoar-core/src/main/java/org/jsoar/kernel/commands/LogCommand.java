@@ -30,7 +30,8 @@ public class LogCommand implements SoarCommand {
         strict,
         echo,
         init,
-        collapse
+        collapse,
+        level
     }
     
     public LogCommand(LogManager logManager)
@@ -49,6 +50,7 @@ public class LogCommand implements SoarCommand {
         	.newOption(Options.echo)
         	.newOption(Options.init)
         	.newOption(Options.collapse)
+        	.newOption(Options.level)
         	.done();
     }
 
@@ -79,23 +81,65 @@ public class LogCommand implements SoarCommand {
 		}
 		else if (options.has(Options.on) || options.has(Options.enable) || options.has(Options.yes))
 		{
-			if (logManager.isActive())
-				return "Logger already enabled.";
-			else
+			if (nonOpts.isEmpty())
 			{
-				logManager.setActive(true);
-				return "Logging enabled.";
+				if (logManager.isActive())
+					return "Logger already enabled.";
+				else
+				{
+					try {
+						logManager.setActive(true);
+					} catch (LoggerException e) {
+						throw new SoarException(e.getMessage(), e);
+					}
+					return "Logging enabled.";
+				}
 			}
+			else if (nonOpts.size() == 1)
+			{
+				try
+				{
+					logManager.enableLogger(nonOpts.get(0));
+				}
+				catch (LoggerException e)
+				{
+					throw new SoarException(e.getMessage(), e);
+				}
+				return "Logger [" + nonOpts.get(0) + "] enabled.";
+			}
+			else
+				throw new SoarException("Too many arguments. Expected: a log to enable or no argument (to enable logging altogether).");
 		}
 		else if (options.has(Options.off) || options.has(Options.disable) || options.has(Options.no))
 		{
-			if (!logManager.isActive())
-				return "Logger already disabled.";
-			else
+			if (nonOpts.isEmpty())
 			{
-				logManager.setActive(false);
-				return "Logging disabled.";
+				if (!logManager.isActive())
+					return "Logger already disabled.";
+				else
+				{
+					try {
+						logManager.setActive(false);
+					} catch (LoggerException e) {
+						throw new SoarException(e.getMessage(), e);
+					}
+					return "Logging disabled.";
+				}
 			}
+			else if (nonOpts.size() == 1)
+			{
+				try
+				{
+					logManager.disableLogger(nonOpts.get(0));
+				}
+				catch (LoggerException e)
+				{
+					throw new SoarException(e.getMessage(), e);
+				}
+				return "Logger [" + nonOpts.get(0) + "] disabled.";
+			}
+			else
+				throw new SoarException("Too many arguments. Expected: a log to disable or no argument (to disable logging altogether).");
 		}
 		else if (options.has(Options.init))
 		{
@@ -148,6 +192,24 @@ public class LogCommand implements SoarCommand {
 			logManager.setEchoMode(echoMode);
 			
 			return "Logger echo mode set to: " + echoMode.toString();
+		}
+		else if (options.has(Options.level))
+		{
+			if (nonOpts.size() != 1)
+				throw new SoarException("Expected one argument: trace | debug | info | warn | error");
+			
+			LogLevel logLevel;
+			try
+			{
+				logLevel = LogLevel.fromString(nonOpts.get(0));
+			}
+			catch (IllegalArgumentException e)
+			{
+				throw new SoarException("Unknown echo-mode value: " + nonOpts.get(0));
+			}
+			logManager.setLogLevel(logLevel);
+			
+			return "Logger level set to: " + logLevel.toString();
 		}
 		else if (nonOpts.isEmpty())
 		{

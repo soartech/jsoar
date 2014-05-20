@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jsoar.kernel.commands.LogCommand;
+import org.jsoar.kernel.rhs.functions.LogRhsFunction;
+import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,11 @@ public class LogManager {
 	private EchoMode echoMode = EchoMode.on;
 	private boolean active = true;
 	private boolean strict = false;
+	private LogLevel currentLogLevel = LogLevel.info;
 	private final Map<String, Logger> loggers = new HashMap<String, Logger>();
+	private final Set<String> disabledLoggers = new HashSet<String>();
+	
+	//private RhsFunctionHandler handler = null;
 	
 	static private final SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	
@@ -36,11 +43,11 @@ public class LogManager {
 	
 	public enum LogLevel
 	{
-		info("INFO"),
-		debug("DEBUG"),
-		warn("WARN"),
-		trace("TRACE"),
-		error("ERROR");
+		trace("TRACE", 1),
+		debug("DEBUG", 2),
+		info("INFO", 3),
+		warn("WARN", 4),
+		error("ERROR", 5);
 		
 		static private Map<String, LogLevel> logLevelStrings;
 		static
@@ -54,10 +61,12 @@ public class LogManager {
 		}
 		
 		private String stringValue;
+		private int numericValue;
 		
-		private LogLevel(String stringValue)
+		private LogLevel(String stringValue, int numericValue)
 		{
 			this.stringValue = stringValue;
+			this.numericValue = numericValue;
 		}
 		
 		static public LogLevel fromString(String logLevel)
@@ -72,6 +81,11 @@ public class LogManager {
 		public String toString()
 		{
 			return stringValue;
+		}
+		
+		public boolean wouldAcceptLogLevel(LogLevel logLevel)
+		{
+			return logLevel.numericValue >= this.numericValue;
 		}
 	}
 	
@@ -176,20 +190,23 @@ public class LogManager {
     	result += "logging:           " + (isActive() ? "on" : "off") + "\n";
     	result += "strict:            " + (isStrict() ? "on" : "off") + "\n";
     	result += "echo mode:         " + getEchoMode().toString().toLowerCase() + "\n";
+    	result += "log level:         " + getLogLevel().toString().toLowerCase() + "\n";
     	result += "number of loggers: " + loggers.size() + "\n";
     	result += "------- Loggers -------\n";
     	
     	List<String> loggerList = new ArrayList<String>(getLoggerNames());
     	Collections.sort(loggerList);
     	for (String loggerName : loggerList)
-    		result += loggerName + "\n";
+    	{
+    		result += (disabledLoggers.contains(loggerName) ? "*" : " ") + " " + loggerName + "\n";
+    	}
     	
     	return result;
     }
 
     public void log(String loggerName, LogLevel logLevel, List<String> args, boolean collapse) throws LoggerException
     {
-    	if (!active)
+    	if (!isActive())
     		return;
     	
     	Logger logger = getLogger(loggerName);
@@ -207,7 +224,7 @@ public class LogManager {
     	else
     		logger.error(result);
     	
-    	if (echoMode != EchoMode.off)
+    	if (echoMode != EchoMode.off && currentLogLevel.wouldAcceptLogLevel(logLevel) && !disabledLoggers.contains(loggerName))
     	{
     		agent.getPrinter().startNewLine();
     		
@@ -246,9 +263,13 @@ public class LogManager {
     	return active;
     }
     
-    public void setActive(boolean active)
+    public void setActive(boolean active) throws LoggerException
     {
     	this.active = active;
+    	if (this.active)
+    		enableRhsFunction();
+    	else
+    		disableRhsFunction();
     }
     
     public boolean isStrict()
@@ -269,5 +290,59 @@ public class LogManager {
     public void setEchoMode(EchoMode echoMode)
     {
     	this.echoMode = echoMode;
+    }
+    
+    private void disableRhsFunction() throws LoggerException
+    {
+    	// Is this already disabled?
+    	//if (handler != null)
+    	//	return;
+    	
+    	final String commandName = (new LogRhsFunction(null)).getName();
+    	agent.getRhsFunctions().disableHandler(commandName);
+    	
+    	/*handler = agent.getRhsFunctions().getHandler(commandName);
+    	if (handler == null)
+    		throw new LoggerException("Could not find RHS function handler for \"" + commandName + "\" command.");
+    	
+    	agent.getRhsFunctions().unregisterHandler(commandName);*/
+    }
+    
+    private void enableRhsFunction()
+    {
+    	// Is this already enabled?
+    	/*if (handler == null)
+    		return;
+    	
+    	agent.getRhsFunctions().registerHandler(handler);
+    	handler = null;*/
+    	final String commandName = (new LogRhsFunction(null)).getName();
+    	agent.getRhsFunctions().enableHandler(commandName);
+    }
+    
+    public void setLogLevel(LogLevel logLevel)
+    {
+    	currentLogLevel = logLevel;
+    }
+    
+    public LogLevel getLogLevel()
+    {
+    	return currentLogLevel;
+    }
+    
+    public void enableLogger(String name) throws LoggerException
+    {
+    	getLogger(name);
+    	if (isStrict() && !disabledLoggers.contains(name))
+    		throw new LoggerException("Logger is not currently disabled (strict mode enabled).");
+    	disabledLoggers.remove(name);
+    }
+    
+    public void disableLogger(String name) throws LoggerException
+    {
+    	getLogger(name);
+    	if (isStrict() && disabledLoggers.contains(name))
+    		throw new LoggerException("Logger is already disabled (strict mode enabled).");
+    	disabledLoggers.add(name);
     }
 }

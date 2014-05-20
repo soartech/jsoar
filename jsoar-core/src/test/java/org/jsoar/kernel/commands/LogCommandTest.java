@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
+import org.jsoar.kernel.rhs.functions.LogRhsFunction;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
@@ -173,24 +174,31 @@ public class LogCommandTest
 		
 		logManager.setActive(true);
 		assertTrue(logManager.isActive());
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--disable"});
 		assertTrue(!logManager.isActive());
+		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--enable"});
 		assertTrue(logManager.isActive());
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--no"});
 		assertTrue(!logManager.isActive());
+		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--yes"});
 		assertTrue(logManager.isActive());
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--off"});
 		assertTrue(!logManager.isActive());
+		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--on"});
 		assertTrue(logManager.isActive());
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 	}
 	
 	@Test

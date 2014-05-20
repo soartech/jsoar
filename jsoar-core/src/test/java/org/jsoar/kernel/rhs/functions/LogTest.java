@@ -10,6 +10,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.commands.LogCommand;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class LogTest
 	}
 	
 	@Test
-	public void testLogOff() throws Exception
+	public void testLogNoTrace() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
 		logManager.setEchoMode(EchoMode.off);
@@ -86,8 +87,33 @@ public class LogTest
 		
 		agent.runFor(1, RunType.DECISIONS);
 		
-		Pattern regex = Pattern.compile("^\\[INFO .+?\\] default: Simple test$", Pattern.MULTILINE);
+		Pattern regex = Pattern.compile("Simple test", Pattern.MULTILINE);
 		assertFalse(regex.matcher(outputWriter.toString()).find());
+	}
+	
+	@Test
+	public void testLogDisabled() throws Exception
+	{
+		LogManager logManager = agent.getLogManager();
+		Pattern regex = Pattern.compile("Simple test", Pattern.MULTILINE);
+		
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
+		
+		logManager.setActive(false);
+		agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (log info |Simple test|)");
+		clearBuffer();
+		agent.runFor(1, RunType.DECISIONS);
+		assertFalse(regex.matcher(outputWriter.toString()).find());
+		
+		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
+		
+		logManager.setActive(true);
+		agent.getProductions().loadProduction("test2 (state <s> ^superstate nil) --> (log info |Simple test|)");
+		clearBuffer();
+		agent.runFor(1, RunType.DECISIONS);
+		assertTrue(regex.matcher(outputWriter.toString()).find());
+		
+		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 	}
 	
 	@Test

@@ -6,8 +6,10 @@
 package org.jsoar.kernel.rhs.functions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jsoar.kernel.symbols.Symbol;
@@ -23,7 +25,7 @@ public class RhsFunctionManager
 {
     private final RhsFunctionContext rhsContext;
     private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
-    
+    private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
     
     /**
      * Construct a new RHS function manager with the given execution context
@@ -91,6 +93,45 @@ public class RhsFunctionManager
     }
     
     /**
+     * Disables a RHS function handler (so that calling it is a NOP).
+     * @author adam.sypniewski
+     * @param name Name of handler to disable.
+     */
+    public void disableHandler(String name)
+    {
+    	Arguments.checkNotNull(name, "name");
+    	
+    	if (handlers.containsKey(name))
+    		disabledHandlers.put(name, handlers.remove(name));
+    }
+    
+    /**
+     * Enables a previously disabled RHS function handler (so that calling it is no longer a NOP).
+     * @author adam.sypniewski
+     * @param name Name of handler to enable.
+     */
+    public void enableHandler(String name)
+    {
+    	Arguments.checkNotNull(name, "name");
+    	
+    	if (disabledHandlers.containsKey(name) && !handlers.containsKey(name))
+    		handlers.put(name, disabledHandlers.remove(name));
+    }
+    
+    /**
+     * Checks to see if a function handler is disabled.
+     * @author adam.sypniewski
+     * @param name Name of handler to check/
+     * @return true if the handler is disabled; otherwise--if it is enabled or not registered--returns false.
+     */
+    public boolean isDisabled(String name)
+    {
+    	Arguments.checkNotNull(name, "name");
+
+    	return disabledHandlers.containsKey(name);
+    }
+    
+    /**
      * Execute the named RHS function with the given arguments.
      *  
      * @param name The name of the RHS function to execute
@@ -103,10 +144,12 @@ public class RhsFunctionManager
     {
         RhsFunctionHandler handler = handlers.get(name);
         
-        if(handler != null)
+        if (handler != null)
         {
             return handler.execute(rhsContext, arguments);
         }
+        else if (disabledHandlers.containsKey(name))
+        	return null;
         
         throw new RhsFunctionException("No function '" + name + "' registered");
     }
