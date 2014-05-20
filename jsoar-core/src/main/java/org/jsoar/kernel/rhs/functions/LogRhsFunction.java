@@ -29,6 +29,7 @@ public class LogRhsFunction extends AbstractRhsFunctionHandler {
 		final String commandName = "log";
         List<String> commandArgs = mapSymbolListToStringList(arguments);
         commandArgs.add(0, commandName);
+        commandArgs.add(1, "--collapse");
         
         try
         {
