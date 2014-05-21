@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jsoar.kernel.rhs.functions.LogRhsFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -262,13 +261,9 @@ public class LogManager {
     	return active;
     }
     
-    public void setActive(boolean active) throws LoggerException
+    public void setActive(boolean active)
     {
     	this.active = active;
-    	if (this.active)
-    		enableRhsFunction();
-    	else
-    		disableRhsFunction();
     }
     
     public boolean isStrict()
@@ -289,34 +284,6 @@ public class LogManager {
     public void setEchoMode(EchoMode echoMode)
     {
     	this.echoMode = echoMode;
-    }
-    
-    private void disableRhsFunction() throws LoggerException
-    {
-    	// Is this already disabled?
-    	//if (handler != null)
-    	//	return;
-    	
-    	final String commandName = (new LogRhsFunction(null)).getName();
-    	agent.getRhsFunctions().disableHandler(commandName);
-    	
-    	/*handler = agent.getRhsFunctions().getHandler(commandName);
-    	if (handler == null)
-    		throw new LoggerException("Could not find RHS function handler for \"" + commandName + "\" command.");
-    	
-    	agent.getRhsFunctions().unregisterHandler(commandName);*/
-    }
-    
-    private void enableRhsFunction()
-    {
-    	// Is this already enabled?
-    	/*if (handler == null)
-    		return;
-    	
-    	agent.getRhsFunctions().registerHandler(handler);
-    	handler = null;*/
-    	final String commandName = (new LogRhsFunction(null)).getName();
-    	agent.getRhsFunctions().enableHandler(commandName);
     }
     
     public void setLogLevel(LogLevel logLevel)

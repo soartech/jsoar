@@ -91,31 +91,6 @@ public class LogTest
 	}
 	
 	@Test
-	public void testLogDisabled() throws Exception
-	{
-		LogManager logManager = agent.getLogManager();
-		Pattern regex = Pattern.compile("Simple test", Pattern.MULTILINE);
-		
-		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
-		
-		logManager.setActive(false);
-		agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (log info |Simple test|)");
-		clearBuffer();
-		agent.runFor(1, RunType.DECISIONS);
-		assertFalse(regex.matcher(outputWriter.toString()).find());
-		
-		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
-		
-		logManager.setActive(true);
-		agent.getProductions().loadProduction("test2 (state <s> ^superstate nil) --> (log info |Simple test|)");
-		clearBuffer();
-		agent.runFor(1, RunType.DECISIONS);
-		assertTrue(regex.matcher(outputWriter.toString()).find());
-		
-		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
-	}
-	
-	@Test
 	public void testLogReplacement() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();

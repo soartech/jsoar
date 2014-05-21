@@ -87,11 +87,7 @@ public class LogCommand implements SoarCommand {
 					return "Logger already enabled.";
 				else
 				{
-					try {
-						logManager.setActive(true);
-					} catch (LoggerException e) {
-						throw new SoarException(e.getMessage(), e);
-					}
+					logManager.setActive(true);
 					return "Logging enabled.";
 				}
 			}
@@ -118,11 +114,7 @@ public class LogCommand implements SoarCommand {
 					return "Logger already disabled.";
 				else
 				{
-					try {
-						logManager.setActive(false);
-					} catch (LoggerException e) {
-						throw new SoarException(e.getMessage(), e);
-					}
+					logManager.setActive(false);
 					return "Logging disabled.";
 				}
 			}

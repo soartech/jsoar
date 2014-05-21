@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.LogManager.LoggerException;
-import org.jsoar.kernel.rhs.functions.LogRhsFunction;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -165,15 +164,12 @@ public class LogManagerTest {
 		
 		logManager.setActive(true);
 		assertTrue(logManager.isActive());
-		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logManager.setActive(false);
 		assertFalse(logManager.isActive());
-		assertTrue(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 		
 		logManager.setActive(true);
 		assertTrue(logManager.isActive());
-		assertFalse(agent.getRhsFunctions().isDisabled((new LogRhsFunction(null)).getName()));
 	}
 	
 	@Test

@@ -11,6 +11,7 @@ import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +47,21 @@ public class HandlerCommandTest
 	
 	@Test
 	public void testHandlerEnableDisable() throws Exception
+	{
+		RhsFunctionManager rhsFunctionManager = agent.getRhsFunctions();
+		
+		rhsFunctionManager.enableHandler("log");
+		assertFalse(rhsFunctionManager.isDisabled("log"));
+		
+		rhsFunctionManager.disableHandler("log");
+		assertTrue(rhsFunctionManager.isDisabled("log"));
+		
+		rhsFunctionManager.enableHandler("log");
+		assertFalse(rhsFunctionManager.isDisabled("log"));
+	}
+	
+	@Test
+	public void testHandlerDisabledFunction() throws Exception
 	{
 		// Variables
 		Pattern regex = Pattern.compile("^Simple test$", Pattern.MULTILINE);
