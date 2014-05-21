@@ -152,7 +152,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final SoarEventManager eventManager = new SoarEventManager();
     private final DefaultProductionManager productions = new DefaultProductionManager(this);
     
-    /**
+    private final LogManager logManager = new LogManager(this);
+    
+	/**
      * agent.h:480:total_cpu_time
      */
     private final ExecutionTimer totalCpuTimer = DefaultExecutionTimer.newInstance().setName("Total CPU time");
@@ -828,6 +830,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     public MatchSet getMatchSet()
     {
         return soarReteListener.getMatchSet();
+    }
+    
+    public LogManager getLogManager()
+    {
+    	return logManager;
     }
     
     /**

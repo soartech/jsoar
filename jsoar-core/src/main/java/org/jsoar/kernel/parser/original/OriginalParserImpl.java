@@ -1331,7 +1331,8 @@ class OriginalParserImpl
         RhsFunctionHandler handler = funcs.getHandler(fun_name.getValue());
         if (handler == null)
         {
-            printer.warn("No RHS function named '%s'\n", fun_name);
+        	if (!funcs.isDisabled(fun_name.getValue()))
+        		printer.warn("No RHS function named '%s'\n", fun_name);
         }
 
         // build list of rhs_function and arguments

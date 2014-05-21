@@ -1,3 +1,7 @@
+pushd ../..
+source common.soar
+popd
+
 learn --on
 
 pushd arithmetic

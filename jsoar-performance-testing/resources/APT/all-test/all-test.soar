@@ -1,4 +1,6 @@
-
+pushd ../..
+source common.soar
+popd
 
 echo |Blocks-World|
 pushd blocks-world

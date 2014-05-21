@@ -1,3 +1,7 @@
+pushd ..
+source common.soar
+popd
+
 sp {top-state*propose*wait
    (state <s> ^superstate nil
              -^operator.name wait)
