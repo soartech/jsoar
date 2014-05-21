@@ -10,7 +10,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.commands.LogCommand;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

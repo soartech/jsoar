@@ -6,10 +6,8 @@
 package org.jsoar.kernel.rhs.functions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jsoar.kernel.symbols.Symbol;
@@ -129,6 +127,11 @@ public class RhsFunctionManager
     	Arguments.checkNotNull(name, "name");
 
     	return disabledHandlers.containsKey(name);
+    }
+    
+    public List<RhsFunctionHandler> getDisabledHandlers()
+    {
+    	return new ArrayList<RhsFunctionHandler>(disabledHandlers.values());
     }
     
     /**

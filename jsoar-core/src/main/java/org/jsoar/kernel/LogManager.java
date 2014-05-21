@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jsoar.kernel.commands.LogCommand;
 import org.jsoar.kernel.rhs.functions.LogRhsFunction;
-import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +133,7 @@ public class LogManager {
 	public void init()
 	{
 		loggers.clear();
+		disabledLoggers.clear();
 		loggers.put("default", LoggerFactory.getLogger("default"));
 	}
 	
