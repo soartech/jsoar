@@ -1304,13 +1304,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void epmem_go(boolean allow_store)
     {
+        boolean new_memory = false;
         if (allow_store)
         {
-            epmem_consider_new_episode();
+            new_memory = epmem_consider_new_episode();
         }
         try
         {
-            epmem_respond_to_cmd();
+            epmem_respond_to_cmd(new_memory);
         }
         catch (SQLException e)
         {
@@ -1361,7 +1362,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 new_memory = true;
                 break;
             case none:
-                new_memory = false;
+                new_memory = false;     // Only create a new episode if ^epmem.command.store is present.
                 break;
             }
         }
@@ -3061,7 +3062,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @throws SoarException 
      * @throws SQLException 
      */
-    private void epmem_respond_to_cmd() throws SoarException, SQLException
+    private void epmem_respond_to_cmd(boolean created_new_memory) throws SoarException, SQLException
     {
         // if this is before the first episode, initialize db components
         if (db == null)
@@ -3095,6 +3096,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
         final ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
         final ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
+        final ByRef<SymbolImpl> store = new ByRef<SymbolImpl>(null);
 
         Set<SymbolImpl> currents = Sets.newLinkedHashSet();
 
@@ -3182,7 +3184,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (new_cue && wme_count != 0)
             {
                 _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next, 
-                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes);
+                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes, store);
                 
                 // ////////////////////////////////////////////////////////////////////////////
                 // my_agent->epmem_timers->api->stop();
@@ -3266,6 +3268,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         // add one to the cbr stat
                         stats.cbr.set(stats.cbr.get() + 1L);
+                    }
+                    // store
+                    else if (path.value == 4)
+                    {
+                        // Only do this if we haven't already made an episode.
+                        if (!created_new_memory)
+                        {
+                            epmem_new_episode();
+                        }
+                        
+                        epmem_buffer_add_wme(
+                            meta_wmes, 
+                            epmem_info.epmem_result_header,
+                            predefinedSyms.epmem_sym_success,
+                            store.value
+                        );
                     }
                 }
                 else
@@ -6399,7 +6417,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final ByRef<Long> before, 
             final ByRef<Long> after, 
             Set<SymbolImpl> currents, 
-            Set<WmeImpl> cue_wmes)
+            Set<WmeImpl> cue_wmes,
+            final ByRef<SymbolImpl> store)
     {
         cue_wmes.clear();
 
@@ -6542,6 +6561,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         currents.add( w_p.value );
                         path.value = 3;
+                    }
+                    else
+                    {
+                        good_cue.value = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_store )
+                {
+                    if ( ( path.value == 0 ) )
+                    {
+                        store.value = w_p.value;
+                        path.value = 4;
                     }
                     else
                     {
