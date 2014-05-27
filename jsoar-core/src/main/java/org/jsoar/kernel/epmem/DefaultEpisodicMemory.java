@@ -7,6 +7,8 @@ package org.jsoar.kernel.epmem;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -59,12 +61,16 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.LexemeType;
+import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
@@ -7152,10 +7158,79 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /////////////////////////////
     
-    /*static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, epmem_chunk_lti> chunks, Set<epmem_chunk_lti> newbies) throws IOException
+    static void epmem_deallocate_chunk(epmem_chunk_lti chunk)
+    {
+        epmem_deallocate_chunk(chunk, true);
+    }
+
+
+    static void epmem_deallocate_chunk(epmem_chunk_lti chunk, boolean free_chunk /*
+                                                                                * =
+                                                                                * true
+                                                                                */)
+    {
+        // Nothing to do in JSoar. Yay!
+        if (chunk != null)
+        {
+            chunk.slots = null;
+        }
+    }
+    
+    static public class ParsedLtiName
+    {
+        public final String value;
+        public final char id_letter;
+        public final long id_number;
+        
+        public ParsedLtiName(String value, char idLetter, long idNumber)
+        {
+            this.value = value;
+            id_letter = idLetter;
+            id_number = idNumber;
+        }
+
+    }
+    
+    static ParsedLtiName epmem_parse_lti_name(Lexeme lexeme)
+    {
+        if (lexeme.type == LexemeType.IDENTIFIER)
+        {
+            return new ParsedLtiName(String.format("%c%d", lexeme.id_letter, lexeme.id_number), lexeme.id_letter, lexeme.id_number);
+        }
+        else
+        {
+            return new ParsedLtiName(lexeme.string, Character.toUpperCase(lexeme.string.charAt(1)), 0);
+        }
+    }
+
+    static SymbolImpl epmem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme)
+    {
+        final SymbolImpl return_val;
+
+        if ((lexeme.type == LexemeType.SYM_CONSTANT))
+        {
+            return_val = syms.createString(lexeme.string);
+        }
+        else if (lexeme.type == LexemeType.INTEGER)
+        {
+            return_val = syms.createInteger(lexeme.int_val);
+        }
+        else if (lexeme.type == LexemeType.FLOAT)
+        {
+            return_val = syms.createDouble(lexeme.float_val);
+        }
+        else
+        {
+            return_val = null;
+        }
+
+        return return_val;
+    }
+    
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, epmem_chunk_lti> chunks/*, Set<epmem_chunk_lti> newbies*/) throws IOException
     {
         boolean return_val = false;
-        smem_chunk_lti new_chunk = null;
+        epmem_chunk_lti new_chunk = null;
         boolean good_at = false;
         ParsedLtiName chunk_name = null;
         //
@@ -7177,13 +7252,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (good_at)
             {
                 // save identifier
-                chunk_name = smem_parse_lti_name(lexer.getCurrentLexeme());
-                new_chunk = new smem_chunk_lti();
+                chunk_name = epmem_parse_lti_name(lexer.getCurrentLexeme());
+                new_chunk = new epmem_chunk_lti();
                 new_chunk.lti_letter = chunk_name.id_letter;
                 new_chunk.lti_number = chunk_name.id_number;
                 new_chunk.lti_id = 0;
                 new_chunk.soar_id = null;
-                new_chunk.slots = smem_chunk_lti.newSlotMap();
+                new_chunk.slots = epmem_chunk_lti.newSlotMap();
 
                 // consume id
                 lexer.getNextLexeme();
@@ -7191,7 +7266,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //
 
                 long intermediate_counter = 1;
-                smem_chunk_lti intermediate_parent;
+                epmem_chunk_lti intermediate_parent;
 
                 // populate slots
                 while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
@@ -7202,7 +7277,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     lexer.getNextLexeme();
 
                     // get the appropriate constant type
-                    SymbolImpl chunk_attr = smem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+                    SymbolImpl chunk_attr = epmem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
 
                     // if constant attribute, proceed to value
                     if (chunk_attr != null)
@@ -7217,15 +7292,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
                         {
                             // create a new chunk
-                            final smem_chunk_lti temp_chunk = new smem_chunk_lti();
+                            final epmem_chunk_lti temp_chunk = new epmem_chunk_lti();
                             temp_chunk.lti_letter = chunk_attr.asString() != null ? chunk_attr.getFirstLetter() : 'X';
                             temp_chunk.lti_number = (intermediate_counter++);
                             temp_chunk.lti_id = 0;
-                            temp_chunk.slots = smem_chunk_lti.newSlotMap();
+                            temp_chunk.slots = epmem_chunk_lti.newSlotMap();
                             temp_chunk.soar_id = null;
 
                             // add it as a child to the current parent
-                            final List<Object> s = smem_chunk_lti.smem_make_slot(intermediate_parent.slots, chunk_attr);
+                            final List<Object> s = epmem_chunk_lti.epmem_make_slot(intermediate_parent.slots, chunk_attr);
                             s.add(temp_chunk);
 
                             // create a key guaranteed to be unique
@@ -7235,7 +7310,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             chunks.put(temp_key, temp_chunk);
 
                             // definitely a new chunk
-                            newbies.add(temp_chunk);
+                            //newbies.add(temp_chunk);
 
                             // the new chunk is our parent for this set of
                             // values (or further dots)
@@ -7243,7 +7318,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                             // get the next attribute
                             lexer.getNextLexeme();
-                            chunk_attr = smem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+                            chunk_attr = epmem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
 
                             // consume attribute
                             lexer.getNextLexeme();
@@ -7282,10 +7357,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     if (good_at)
                                     {
                                         // get key
-                                        final ParsedLtiName temp_key2 = smem_parse_lti_name(lexer.getCurrentLexeme());
+                                        final ParsedLtiName temp_key2 = epmem_parse_lti_name(lexer.getCurrentLexeme());
 
                                         // search for an existing chunk
-                                        final smem_chunk_lti p = chunks.get(temp_key2.value);
+                                        final epmem_chunk_lti p = chunks.get(temp_key2.value);
 
                                         // if exists, point; else create new
                                         if (p != null)
@@ -7295,7 +7370,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                         else
                                         {
                                             // create new chunk
-                                            final smem_chunk_lti temp_chunk = new smem_chunk_lti();
+                                            final epmem_chunk_lti temp_chunk = new epmem_chunk_lti();
                                             temp_chunk.lti_letter = temp_key2.id_letter;
                                             temp_chunk.lti_number = temp_key2.id_number;
                                             temp_chunk.lti_id = 0;
@@ -7307,7 +7382,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                                             // possibly a newbie (could be a
                                             // self-loop)
-                                            newbies.add(temp_chunk);
+                                            //newbies.add(temp_chunk);
 
                                             chunk_value = temp_chunk;
                                         }
@@ -7320,7 +7395,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     lexer.getNextLexeme();
 
                                     // add to appropriate slot
-                                    final List<Object> s = smem_chunk_lti.smem_make_slot(intermediate_parent.slots, chunk_attr);
+                                    final List<Object> s = epmem_chunk_lti.epmem_make_slot(intermediate_parent.slots, chunk_attr);
                                     s.add(chunk_value);
 
                                     // if this was the last attribute
@@ -7349,14 +7424,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if (return_val)
         {
             // search for an existing chunk (occurs if value comes before id)
-            final smem_chunk_lti p = chunks.get(chunk_name.value);
+            final epmem_chunk_lti p = chunks.get(chunk_name.value);
 
             if (p == null)
             {
                 chunks.put(chunk_name.value, new_chunk);
 
                 // a newbie!
-                newbies.add(new_chunk);
+                //newbies.add(new_chunk);
             }
             else
             {
@@ -7371,7 +7446,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // otherwise, copy
                     for (Map.Entry<SymbolImpl, List<Object>> ss_p : new_chunk.slots.entrySet())
                     {
-                        final List<Object> target_slot = smem_chunk_lti.smem_make_slot(p.slots, ss_p.getKey());
+                        final List<Object> target_slot = epmem_chunk_lti.epmem_make_slot(p.slots, ss_p.getKey());
                         final List<Object> source_slot = ss_p.getValue();
 
                         // Copy from source to target
@@ -7390,19 +7465,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 new_chunk.slots = null;
 
                 // contents are new
-                newbies.add(p);
+                //newbies.add(p);
 
                 // deallocate
-                smem_deallocate_chunk(new_chunk);
+                epmem_deallocate_chunk(new_chunk);
             }
         }
         else
         {
-            newbies.clear();
+            //newbies.clear();
         }
 
         return return_val;
-    }*/
+    }
 
     boolean epmem_parse_chunks(String chunkString) throws SoarException
     {
@@ -7423,7 +7498,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private boolean epmem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
     {
         boolean return_val = false;
-        /*long clause_count = 0;
+        long clause_count = 0;
 
         // parsing chunks requires an open semantic database
         epmem_init_db();
@@ -7438,10 +7513,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         boolean good_chunk = true;
 
-        final Map<String, smem_chunk_lti> chunks = new LinkedHashMap<String, smem_chunk_lti>();
+        final Map<String, epmem_chunk_lti> chunks = new LinkedHashMap<String, epmem_chunk_lti>();
         // smem_str_to_chunk_map::iterator c_old;
 
-        final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
+        //final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
         // smem_chunk_set::iterator c_new;
 
         // consume next token
@@ -7455,12 +7530,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // while there are chunks to consume
         while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
         {
-            good_chunk = smem_parse_chunk(symbols, lexer, chunks, newbies);
+            good_chunk = epmem_parse_chunk(symbols, lexer, chunks/*, newbies*/);
 
             if (good_chunk)
             {
                 // add all newbie lti's as appropriate
-                for (smem_chunk_lti c_new : newbies)
+                /*for (smem_chunk_lti c_new : newbies)
                 {
                     if (c_new.lti_id == 0)
                     {
@@ -7519,7 +7594,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     smem_deallocate_chunk(c_new, false);
                 }
                 // clear newbie list
-                newbies.clear();
+                newbies.clear();*/
 
                 // increment clause counter
                 clause_count++;
@@ -7528,11 +7603,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         return_val = good_chunk;
+        
+        System.err.println("[epmem_parse_chunks_safe] return_val = " + return_val);
+        for (Entry<String, epmem_chunk_lti> entry : chunks.entrySet())
+        {
+            System.err.println("[epmem_parse_chunks_safe] chunk = " + entry.getKey() + " (" + entry.toString() + ")");
+            System.err.println("   soar_id: " + (entry.getValue().soar_id == null ? "null" : entry.getValue().soar_id.toString()));
+            System.err.println("   lti_id: " + entry.getValue().lti_id);
+            System.err.println("   lti_letter: " + entry.getValue().lti_letter);
+            System.err.println("   lti_number: " + entry.getValue().lti_number);
+            System.err.println("   slots: " + (entry.getValue().slots == null ? "null" : entry.getValue().slots.toString()));
+        }
 
         // deallocate all chunks
-        for (smem_chunk_lti c_old : chunks.values())
+        for (epmem_chunk_lti c_old : chunks.values())
         {
-            smem_deallocate_chunk(c_old, true);
+            epmem_deallocate_chunk(c_old, true);
         }
         chunks.clear();
 
@@ -7541,7 +7627,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             throw new SoarException("Error parsing clause #" + clause_count);
         }
-*/
+
         return return_val;
     }
 }
