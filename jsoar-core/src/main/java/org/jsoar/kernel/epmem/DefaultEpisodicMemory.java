@@ -7149,4 +7149,399 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         return return_val;
     }
+    
+    /////////////////////////////
+    
+    /*static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, epmem_chunk_lti> chunks, Set<epmem_chunk_lti> newbies) throws IOException
+    {
+        boolean return_val = false;
+        smem_chunk_lti new_chunk = null;
+        boolean good_at = false;
+        ParsedLtiName chunk_name = null;
+        //
+
+        // consume left paren
+        lexer.getNextLexeme();
+
+        if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
+        {
+            good_at = true;
+
+            if (lexer.getCurrentLexeme().type == LexemeType.AT)
+            {
+                lexer.getNextLexeme();
+
+                good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
+            }
+
+            if (good_at)
+            {
+                // save identifier
+                chunk_name = smem_parse_lti_name(lexer.getCurrentLexeme());
+                new_chunk = new smem_chunk_lti();
+                new_chunk.lti_letter = chunk_name.id_letter;
+                new_chunk.lti_number = chunk_name.id_number;
+                new_chunk.lti_id = 0;
+                new_chunk.soar_id = null;
+                new_chunk.slots = smem_chunk_lti.newSlotMap();
+
+                // consume id
+                lexer.getNextLexeme();
+
+                //
+
+                long intermediate_counter = 1;
+                smem_chunk_lti intermediate_parent;
+
+                // populate slots
+                while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
+                {
+                    intermediate_parent = new_chunk;
+
+                    // go on to attribute
+                    lexer.getNextLexeme();
+
+                    // get the appropriate constant type
+                    SymbolImpl chunk_attr = smem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+
+                    // if constant attribute, proceed to value
+                    if (chunk_attr != null)
+                    {
+                        // consume attribute
+                        lexer.getNextLexeme();
+
+                        // support for dot notation:
+                        // when we encounter a dot, instantiate
+                        // the previous attribute as a temporary
+                        // identifier and use that as the parent
+                        while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
+                        {
+                            // create a new chunk
+                            final smem_chunk_lti temp_chunk = new smem_chunk_lti();
+                            temp_chunk.lti_letter = chunk_attr.asString() != null ? chunk_attr.getFirstLetter() : 'X';
+                            temp_chunk.lti_number = (intermediate_counter++);
+                            temp_chunk.lti_id = 0;
+                            temp_chunk.slots = smem_chunk_lti.newSlotMap();
+                            temp_chunk.soar_id = null;
+
+                            // add it as a child to the current parent
+                            final List<Object> s = smem_chunk_lti.smem_make_slot(intermediate_parent.slots, chunk_attr);
+                            s.add(temp_chunk);
+
+                            // create a key guaranteed to be unique
+                            final String temp_key = String.format("<%c#%d>", temp_chunk.lti_letter, temp_chunk.lti_number);
+
+                            // insert the new chunk
+                            chunks.put(temp_key, temp_chunk);
+
+                            // definitely a new chunk
+                            newbies.add(temp_chunk);
+
+                            // the new chunk is our parent for this set of
+                            // values (or further dots)
+                            intermediate_parent = temp_chunk;
+
+                            // get the next attribute
+                            lexer.getNextLexeme();
+                            chunk_attr = smem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+
+                            // consume attribute
+                            lexer.getNextLexeme();
+                        }
+
+                        if (chunk_attr != null)
+                        {
+                            Object chunk_value = null;
+                            do
+                            {
+                                chunk_value = null;
+                                // value by type
+                                if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
+                                {
+                                    chunk_value = symbols.createString(lexer.getCurrentLexeme().string);
+                                }
+                                else if (lexer.getCurrentLexeme().type == LexemeType.INTEGER)
+                                {
+                                    chunk_value = symbols.createInteger(lexer.getCurrentLexeme().int_val);
+                                }
+                                else if (lexer.getCurrentLexeme().type == LexemeType.FLOAT)
+                                {
+                                    chunk_value = symbols.createDouble(lexer.getCurrentLexeme().float_val);
+                                }
+                                else if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
+                                {
+                                    // @ must be followed by an identifier
+                                    good_at = true;
+                                    if (lexer.getCurrentLexeme().type == LexemeType.AT)
+                                    {
+                                        lexer.getNextLexeme();
+
+                                        good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
+                                    }
+
+                                    if (good_at)
+                                    {
+                                        // get key
+                                        final ParsedLtiName temp_key2 = smem_parse_lti_name(lexer.getCurrentLexeme());
+
+                                        // search for an existing chunk
+                                        final smem_chunk_lti p = chunks.get(temp_key2.value);
+
+                                        // if exists, point; else create new
+                                        if (p != null)
+                                        {
+                                            chunk_value = p;
+                                        }
+                                        else
+                                        {
+                                            // create new chunk
+                                            final smem_chunk_lti temp_chunk = new smem_chunk_lti();
+                                            temp_chunk.lti_letter = temp_key2.id_letter;
+                                            temp_chunk.lti_number = temp_key2.id_number;
+                                            temp_chunk.lti_id = 0;
+                                            temp_chunk.slots = null;
+                                            temp_chunk.soar_id = null;
+
+                                            // add to chunks
+                                            chunks.put(temp_key2.value, temp_chunk);
+
+                                            // possibly a newbie (could be a
+                                            // self-loop)
+                                            newbies.add(temp_chunk);
+
+                                            chunk_value = temp_chunk;
+                                        }
+                                    }
+                                }
+
+                                if (chunk_value != null)
+                                {
+                                    // consume
+                                    lexer.getNextLexeme();
+
+                                    // add to appropriate slot
+                                    final List<Object> s = smem_chunk_lti.smem_make_slot(intermediate_parent.slots, chunk_attr);
+                                    s.add(chunk_value);
+
+                                    // if this was the last attribute
+                                    if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
+                                    {
+                                        return_val = true;
+                                        lexer.getNextLexeme();
+                                        chunk_value = null;
+                                    }
+                                }
+                            } while (chunk_value != null);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // delete new_chunk;
+            }
+        }
+        else
+        {
+            // delete new_chunk;
+        }
+
+        if (return_val)
+        {
+            // search for an existing chunk (occurs if value comes before id)
+            final smem_chunk_lti p = chunks.get(chunk_name.value);
+
+            if (p == null)
+            {
+                chunks.put(chunk_name.value, new_chunk);
+
+                // a newbie!
+                newbies.add(new_chunk);
+            }
+            else
+            {
+                // transfer slots
+                if (p.slots == null)
+                {
+                    // if none previously, can just use
+                    p.slots = new_chunk.slots;
+                }
+                else
+                {
+                    // otherwise, copy
+                    for (Map.Entry<SymbolImpl, List<Object>> ss_p : new_chunk.slots.entrySet())
+                    {
+                        final List<Object> target_slot = smem_chunk_lti.smem_make_slot(p.slots, ss_p.getKey());
+                        final List<Object> source_slot = ss_p.getValue();
+
+                        // Copy from source to target
+                        target_slot.addAll(source_slot);
+                        // for all values in the slot
+                        // for(smem_chunk_value s_p : source_slot)
+                        // {
+                        // // copy each value
+                        // target_slot.add(s_p);
+                        // }
+                    }
+
+                }
+
+                // we no longer need the slots
+                new_chunk.slots = null;
+
+                // contents are new
+                newbies.add(p);
+
+                // deallocate
+                smem_deallocate_chunk(new_chunk);
+            }
+        }
+        else
+        {
+            newbies.clear();
+        }
+
+        return return_val;
+    }*/
+
+    boolean epmem_parse_chunks(String chunkString) throws SoarException
+    {
+        try
+        {
+            return epmem_parse_chunks_safe(chunkString);
+        }
+        catch (IOException e)
+        {
+            throw new SoarException(e);
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+    }
+
+    private boolean epmem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
+    {
+        boolean return_val = false;
+        /*long clause_count = 0;
+
+        // parsing chunks requires an open semantic database
+        epmem_init_db();
+
+        long time_counter = stats.getTime();
+
+        // copied primarily from cli_sp
+        final StringWriter errorWriter = new StringWriter();
+        final Lexer lexer = new Lexer(new Printer(errorWriter), new StringReader(chunkString));
+        lexer.getNextLexeme();
+        lexer.setAllowIds(true);
+
+        boolean good_chunk = true;
+
+        final Map<String, smem_chunk_lti> chunks = new LinkedHashMap<String, smem_chunk_lti>();
+        // smem_str_to_chunk_map::iterator c_old;
+
+        final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
+        // smem_chunk_set::iterator c_new;
+
+        // consume next token
+        lexer.getNextLexeme();
+
+        if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
+        {
+            good_chunk = false;
+        }
+
+        // while there are chunks to consume
+        while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
+        {
+            good_chunk = smem_parse_chunk(symbols, lexer, chunks, newbies);
+
+            if (good_chunk)
+            {
+                // add all newbie lti's as appropriate
+                for (smem_chunk_lti c_new : newbies)
+                {
+                    if (c_new.lti_id == 0)
+                    {
+                        // deal differently with variable vs. lti
+                        if (c_new.lti_number == 0)
+                        {
+                            // add a new lti id (we have a guarantee this won't
+                            // be in Soar's WM)
+                            c_new.lti_number = symbols.incrementIdNumber(c_new.lti_letter);
+                            c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
+                        }
+                        else
+                        {
+                            // should ALWAYS be the case (it's a newbie and
+                            // we've initialized lti_id to NIL)
+                            if (c_new.lti_id == 0)
+                            {
+                                // get existing
+                                c_new.lti_id = smem_lti_get_id(c_new.lti_letter, c_new.lti_number);
+
+                                // if doesn't exist, add it
+                                if (c_new.lti_id == 0)
+                                {
+                                    c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
+
+                                    // this could affect an existing identifier
+                                    // in Soar's WM
+                                    final IdentifierImpl id_parent = symbols.findIdentifier(c_new.lti_letter, c_new.lti_number);
+                                    if (id_parent != null)
+                                    {
+                                        // if so we make it an lti manually
+                                        id_parent.smem_lti = c_new.lti_id;
+
+                                        id_parent.smem_time_id = epmem.getStats().getTime();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // add all newbie contents (append, as opposed to replace,
+                // children)
+                for (smem_chunk_lti c_new : newbies)
+                {
+                    if (c_new.slots != null)
+                    {
+                        smem_store_chunk(c_new.lti_id, c_new.slots, false);
+                    }
+                }
+
+                // deallocate *contents* of all newbies (need to keep around
+                // name->id association for future chunks)
+                for (smem_chunk_lti c_new : newbies)
+                {
+                    smem_deallocate_chunk(c_new, false);
+                }
+                // clear newbie list
+                newbies.clear();
+
+                // increment clause counter
+                clause_count++;
+
+            }
+        }
+
+        return_val = good_chunk;
+
+        // deallocate all chunks
+        for (smem_chunk_lti c_old : chunks.values())
+        {
+            smem_deallocate_chunk(c_old, true);
+        }
+        chunks.clear();
+
+        // produce error message on failure
+        if (!return_val)
+        {
+            throw new SoarException("Error parsing clause #" + clause_count);
+        }
+*/
+        return return_val;
+    }
 }
