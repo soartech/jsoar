@@ -203,6 +203,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testNegStringFloat() throws Exception
+    {
+        runTest("testNegStringFloat", 5);
+    }
+    
+    @Test
     public void testCueSelection() throws Exception
     {
         runTestSetup("testCueSelection");
