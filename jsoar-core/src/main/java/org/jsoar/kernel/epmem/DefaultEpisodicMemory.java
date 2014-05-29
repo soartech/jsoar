@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1304,13 +1305,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void epmem_go(boolean allow_store)
     {
+        boolean new_memory = false;
         if (allow_store)
         {
-            epmem_consider_new_episode();
+            new_memory = epmem_consider_new_episode();
         }
         try
         {
-            epmem_respond_to_cmd();
+            epmem_respond_to_cmd(new_memory);
         }
         catch (SQLException e)
         {
@@ -1361,7 +1363,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 new_memory = true;
                 break;
             case none:
-                new_memory = false;
+                new_memory = false;     // Only create a new episode if ^epmem.command.store is present.
                 break;
             }
         }
@@ -1389,6 +1391,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         return new_memory;
+    }
+    
+    private Set<WmeImpl> epmem_find_inclusion_wmes(IdentifierImpl id)
+    {
+        Set<WmeImpl> result = new HashSet<WmeImpl>();
+        
+        final Marker tc = DefaultMarker.create();
+        
+        epmem_expand_inclusions(id, tc, result);
+        
+        return result;
+    }
+    
+    private boolean epmem_expand_inclusions(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
+    {
+        boolean keptSomething = false;
+        IdentifierImpl id = sym.asIdentifier();
+        
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
+        {
+            List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
+            for (WmeImpl wme : wmes)
+            {
+                if (params.inclusions.contains(wme.attr))
+                {
+                    // We, and everything below us, can stay.
+                    wmesToKeep.add(wme);
+                    mark_all_includable(wme.value, tc, wmesToKeep);
+                    keptSomething = true;
+                }
+                else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
+                {
+                    // We can stay if there is an inclusion attribute below us.
+                    wmesToKeep.add(wme);
+                    keptSomething = true;
+                }
+            }
+        }
+        
+        return keptSomething;
+    }
+    
+    private void mark_all_includable(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
+    {
+        IdentifierImpl id = sym.asIdentifier();
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
+        {
+            List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
+            for (WmeImpl wme : wmes)
+            {
+                wmesToKeep.add(wme);
+                mark_all_includable(wme.value, tc, wmesToKeep);
+            }
+        }
     }
 
     /**
@@ -1448,10 +1504,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // cross-level information
                 Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations = new LinkedHashMap<WmeImpl, EpisodicMemoryIdReservation>();
                 Set<SymbolImpl> new_identifiers = new LinkedHashSet<SymbolImpl>();
+                
+                Set<WmeImpl> inclusion_wmes = null;
 
                 // start with new WMEs attached to known identifiers
                 for (IdentifierImpl id_p : epmem_wme_adds)
                 {
+                    if (!params.inclusions.isEmpty())
+                    {
+                        inclusion_wmes = epmem_find_inclusion_wmes(id_p);
+                    }
+                    
                     // make sure the WME is valid
                     // it can be invalid if a child WME was added, but then the
                     // parent was removed, setting the epmem_id to
@@ -1465,6 +1528,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             parent_sym = parent_syms.poll();
                             parent_id = parent_ids.poll();
                             wmes = epmem_get_augs_of_id(parent_sym, tc);
+                            if (!params.inclusions.isEmpty())
+                            {
+                                ListIterator<WmeImpl> it = wmes.listIterator();
+                                while (it.hasNext())
+                                {
+                                    if (!inclusion_wmes.contains(it.next()))
+                                        it.remove();
+                                }
+                            }
                             if (!wmes.isEmpty())
                             {
                                 _epmem_store_level(
@@ -3061,7 +3133,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @throws SoarException 
      * @throws SQLException 
      */
-    private void epmem_respond_to_cmd() throws SoarException, SQLException
+    private void epmem_respond_to_cmd(boolean created_new_memory) throws SoarException, SQLException
     {
         // if this is before the first episode, initialize db components
         if (db == null)
@@ -3095,6 +3167,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
         final ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
         final ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
+        final ByRef<SymbolImpl> store = new ByRef<SymbolImpl>(null);
 
         Set<SymbolImpl> currents = Sets.newLinkedHashSet();
 
@@ -3182,7 +3255,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (new_cue && wme_count != 0)
             {
                 _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next, 
-                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes);
+                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes, store);
                 
                 // ////////////////////////////////////////////////////////////////////////////
                 // my_agent->epmem_timers->api->stop();
@@ -3266,6 +3339,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         // add one to the cbr stat
                         stats.cbr.set(stats.cbr.get() + 1L);
+                    }
+                    // store
+                    else if (path.value == 4)
+                    {
+                        // Only do this if we haven't already made an episode.
+                        if (!created_new_memory)
+                        {
+                            epmem_new_episode();
+                        }
+                        
+                        epmem_buffer_add_wme(
+                            meta_wmes, 
+                            epmem_info.epmem_result_header,
+                            predefinedSyms.epmem_sym_success,
+                            store.value
+                        );
                     }
                 }
                 else
@@ -6399,7 +6488,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final ByRef<Long> before, 
             final ByRef<Long> after, 
             Set<SymbolImpl> currents, 
-            Set<WmeImpl> cue_wmes)
+            Set<WmeImpl> cue_wmes,
+            final ByRef<SymbolImpl> store)
     {
         cue_wmes.clear();
 
@@ -6542,6 +6632,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         currents.add( w_p.value );
                         path.value = 3;
+                    }
+                    else
+                    {
+                        good_cue.value = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_store )
+                {
+                    if ( ( path.value == 0 ) )
+                    {
+                        store.value = w_p.value;
+                        path.value = 4;
                     }
                     else
                     {

@@ -27,6 +27,10 @@ class DefaultEpisodicMemoryParams
      */
     Set<SymbolImpl> exclusions = new HashSet<SymbolImpl>();
     /**
+     * Set of attributes which are included in epmem.
+     */
+    Set<SymbolImpl> inclusions = new HashSet<SymbolImpl>();
+    /**
      * Policy for committing data to disk
      */
     static enum Optimization { safety, performance };

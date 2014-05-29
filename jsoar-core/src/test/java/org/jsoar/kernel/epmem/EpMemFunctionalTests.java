@@ -36,6 +36,18 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testInclusions() throws Exception
+    {
+        runTest("testInclusions", 5);
+    }
+    
+    @Test
+    public void testDeliberateStorage() throws Exception
+    {
+        runTest("testDeliberateStorage", 7);
+    }
+    
+    @Test
     public void testKB() throws Exception
     {
         runTest("testKB", 246);
