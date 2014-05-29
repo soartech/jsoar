@@ -187,10 +187,6 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             }
             else if (name.equals("exclusions"))
             {
-                if(epmem.db != null){
-                    return "Lazy commit is protected while the database is open.";
-                }
-                
                 DefaultEpisodicMemoryParams params = epmem.getParams();
                 
                 SymbolImpl sym = symbols.createString(value);
@@ -206,10 +202,6 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             }
             else if (name.equals("inclusions"))
             {
-                if(epmem.db != null){
-                    return "Lazy commit is protected while the database is open.";
-                }
-                
                 DefaultEpisodicMemoryParams params = epmem.getParams();
                 
                 SymbolImpl sym = symbols.createString(value);
