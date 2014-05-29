@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1391,6 +1392,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         return new_memory;
     }
+    
+    private Set<WmeImpl> epmem_find_inclusion_wmes(IdentifierImpl id)
+    {
+        Set<WmeImpl> result = new HashSet<WmeImpl>();
+        
+        final Marker tc = DefaultMarker.create();
+        
+        epmem_expand_inclusions(id, tc, result);
+        
+        return result;
+    }
+    
+    private boolean epmem_expand_inclusions(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
+    {
+        boolean keptSomething = false;
+        IdentifierImpl id = sym.asIdentifier();
+        
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
+        {
+            List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
+            for (WmeImpl wme : wmes)
+            {
+                if (params.inclusions.contains(wme.attr))
+                {
+                    // We, and everything below us, can stay.
+                    wmesToKeep.add(wme);
+                    mark_all_includable(wme.value, tc, wmesToKeep);
+                    keptSomething = true;
+                }
+                else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
+                {
+                    // We can stay if there is an inclusion attribute below us.
+                    wmesToKeep.add(wme);
+                    keptSomething = true;
+                }
+            }
+        }
+        
+        return keptSomething;
+    }
+    
+    private void mark_all_includable(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
+    {
+        IdentifierImpl id = sym.asIdentifier();
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
+        {
+            List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
+            for (WmeImpl wme : wmes)
+            {
+                wmesToKeep.add(wme);
+                mark_all_includable(wme.value, tc, wmesToKeep);
+            }
+        }
+    }
 
     /**
      * <p>
@@ -1449,10 +1504,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // cross-level information
                 Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations = new LinkedHashMap<WmeImpl, EpisodicMemoryIdReservation>();
                 Set<SymbolImpl> new_identifiers = new LinkedHashSet<SymbolImpl>();
+                
+                Set<WmeImpl> inclusion_wmes = null;
 
                 // start with new WMEs attached to known identifiers
                 for (IdentifierImpl id_p : epmem_wme_adds)
                 {
+                    if (!params.inclusions.isEmpty())
+                    {
+                        inclusion_wmes = epmem_find_inclusion_wmes(id_p);
+                    }
+                    
                     // make sure the WME is valid
                     // it can be invalid if a child WME was added, but then the
                     // parent was removed, setting the epmem_id to
@@ -1466,6 +1528,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             parent_sym = parent_syms.poll();
                             parent_id = parent_ids.poll();
                             wmes = epmem_get_augs_of_id(parent_sym, tc);
+                            if (!params.inclusions.isEmpty())
+                            {
+                                ListIterator<WmeImpl> it = wmes.listIterator();
+                                while (it.hasNext())
+                                {
+                                    if (!inclusion_wmes.contains(it.next()))
+                                        it.remove();
+                                }
+                            }
                             if (!wmes.isEmpty())
                             {
                                 _epmem_store_level(
