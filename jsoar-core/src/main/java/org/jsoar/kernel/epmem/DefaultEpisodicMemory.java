@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -7227,13 +7228,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
     
-    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, epmem_chunk_lti> chunks/*, Set<epmem_chunk_lti> newbies*/) throws IOException
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes) throws IOException
     {
         boolean return_val = false;
-        epmem_chunk_lti new_chunk = null;
         boolean good_at = false;
-        ParsedLtiName chunk_name = null;
-        //
 
         // consume left paren
         lexer.getNextLexeme();
@@ -7251,27 +7249,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             if (good_at)
             {
-                // save identifier
-                chunk_name = epmem_parse_lti_name(lexer.getCurrentLexeme());
-                new_chunk = new epmem_chunk_lti();
-                new_chunk.lti_letter = chunk_name.id_letter;
-                new_chunk.lti_number = chunk_name.id_number;
-                new_chunk.lti_id = 0;
-                new_chunk.soar_id = null;
-                new_chunk.slots = epmem_chunk_lti.newSlotMap();
+                Lexeme lexeme = lexer.getCurrentLexeme();
+                String idKey;
+                IdentifierImpl id;
+                if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
+                {
+                    id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
+                    idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
+                }
+                else
+                {
+                    id = ids.get(lexeme.string);
+                    if (id == null)
+                        id = symbols.createIdentifier('X');
+                    idKey = lexeme.string;
+                }
+                
+                ids.put(idKey, id);
 
                 // consume id
                 lexer.getNextLexeme();
 
                 //
 
-                long intermediate_counter = 1;
-                epmem_chunk_lti intermediate_parent;
+                IdentifierImpl intermediate_parent;
 
                 // populate slots
                 while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
                 {
-                    intermediate_parent = new_chunk;
+                    intermediate_parent = id;
 
                     // go on to attribute
                     lexer.getNextLexeme();
@@ -7291,30 +7297,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // identifier and use that as the parent
                         while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
                         {
-                            // create a new chunk
-                            final epmem_chunk_lti temp_chunk = new epmem_chunk_lti();
-                            temp_chunk.lti_letter = chunk_attr.asString() != null ? chunk_attr.getFirstLetter() : 'X';
-                            temp_chunk.lti_number = (intermediate_counter++);
-                            temp_chunk.lti_id = 0;
-                            temp_chunk.slots = epmem_chunk_lti.newSlotMap();
-                            temp_chunk.soar_id = null;
-
-                            // add it as a child to the current parent
-                            final List<Object> s = epmem_chunk_lti.epmem_make_slot(intermediate_parent.slots, chunk_attr);
-                            s.add(temp_chunk);
-
-                            // create a key guaranteed to be unique
-                            final String temp_key = String.format("<%c#%d>", temp_chunk.lti_letter, temp_chunk.lti_number);
-
-                            // insert the new chunk
-                            chunks.put(temp_key, temp_chunk);
-
-                            // definitely a new chunk
-                            //newbies.add(temp_chunk);
+                            IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
+                            WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
+                            wmes.add(newWme);
 
                             // the new chunk is our parent for this set of
                             // values (or further dots)
-                            intermediate_parent = temp_chunk;
+                            intermediate_parent = temp_id;
 
                             // get the next attribute
                             lexer.getNextLexeme();
@@ -7356,36 +7345,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                                     if (good_at)
                                     {
-                                        // get key
-                                        final ParsedLtiName temp_key2 = epmem_parse_lti_name(lexer.getCurrentLexeme());
-
-                                        // search for an existing chunk
-                                        final epmem_chunk_lti p = chunks.get(temp_key2.value);
-
-                                        // if exists, point; else create new
-                                        if (p != null)
+                                        lexeme = lexer.getCurrentLexeme();
+                                        if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
                                         {
-                                            chunk_value = p;
+                                            id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
+                                            idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
                                         }
                                         else
                                         {
-                                            // create new chunk
-                                            final epmem_chunk_lti temp_chunk = new epmem_chunk_lti();
-                                            temp_chunk.lti_letter = temp_key2.id_letter;
-                                            temp_chunk.lti_number = temp_key2.id_number;
-                                            temp_chunk.lti_id = 0;
-                                            temp_chunk.slots = null;
-                                            temp_chunk.soar_id = null;
-
-                                            // add to chunks
-                                            chunks.put(temp_key2.value, temp_chunk);
-
-                                            // possibly a newbie (could be a
-                                            // self-loop)
-                                            //newbies.add(temp_chunk);
-
-                                            chunk_value = temp_chunk;
+                                            id = ids.get(lexeme.string);
+                                            if (id == null)
+                                                id = symbols.createIdentifier('X');
+                                            idKey = lexeme.string;
                                         }
+                                        
+                                        ids.put(idKey, id);
                                     }
                                 }
 
@@ -7393,10 +7367,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 {
                                     // consume
                                     lexer.getNextLexeme();
-
-                                    // add to appropriate slot
-                                    final List<Object> s = epmem_chunk_lti.epmem_make_slot(intermediate_parent.slots, chunk_attr);
-                                    s.add(chunk_value);
+                                    
+                                    IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
+                                    String temp_key = temp_id.toString();
+                                    WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
+                                    wmes.add(newWme);
 
                                     // if this was the last attribute
                                     if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
@@ -7419,61 +7394,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         else
         {
             // delete new_chunk;
-        }
-
-        if (return_val)
-        {
-            // search for an existing chunk (occurs if value comes before id)
-            final epmem_chunk_lti p = chunks.get(chunk_name.value);
-
-            if (p == null)
-            {
-                chunks.put(chunk_name.value, new_chunk);
-
-                // a newbie!
-                //newbies.add(new_chunk);
-            }
-            else
-            {
-                // transfer slots
-                if (p.slots == null)
-                {
-                    // if none previously, can just use
-                    p.slots = new_chunk.slots;
-                }
-                else
-                {
-                    // otherwise, copy
-                    for (Map.Entry<SymbolImpl, List<Object>> ss_p : new_chunk.slots.entrySet())
-                    {
-                        final List<Object> target_slot = epmem_chunk_lti.epmem_make_slot(p.slots, ss_p.getKey());
-                        final List<Object> source_slot = ss_p.getValue();
-
-                        // Copy from source to target
-                        target_slot.addAll(source_slot);
-                        // for all values in the slot
-                        // for(smem_chunk_value s_p : source_slot)
-                        // {
-                        // // copy each value
-                        // target_slot.add(s_p);
-                        // }
-                    }
-
-                }
-
-                // we no longer need the slots
-                new_chunk.slots = null;
-
-                // contents are new
-                //newbies.add(p);
-
-                // deallocate
-                epmem_deallocate_chunk(new_chunk);
-            }
-        }
-        else
-        {
-            //newbies.clear();
         }
 
         return return_val;
@@ -7515,6 +7435,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         final Map<String, epmem_chunk_lti> chunks = new LinkedHashMap<String, epmem_chunk_lti>();
         // smem_str_to_chunk_map::iterator c_old;
+        
+        Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
+        Set<WmeImpl> wmes = new HashSet<WmeImpl>();
 
         //final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
         // smem_chunk_set::iterator c_new;
@@ -7530,89 +7453,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // while there are chunks to consume
         while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
         {
-            good_chunk = epmem_parse_chunk(symbols, lexer, chunks/*, newbies*/);
-
-            if (good_chunk)
-            {
-                // add all newbie lti's as appropriate
-                /*for (smem_chunk_lti c_new : newbies)
-                {
-                    if (c_new.lti_id == 0)
-                    {
-                        // deal differently with variable vs. lti
-                        if (c_new.lti_number == 0)
-                        {
-                            // add a new lti id (we have a guarantee this won't
-                            // be in Soar's WM)
-                            c_new.lti_number = symbols.incrementIdNumber(c_new.lti_letter);
-                            c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
-                        }
-                        else
-                        {
-                            // should ALWAYS be the case (it's a newbie and
-                            // we've initialized lti_id to NIL)
-                            if (c_new.lti_id == 0)
-                            {
-                                // get existing
-                                c_new.lti_id = smem_lti_get_id(c_new.lti_letter, c_new.lti_number);
-
-                                // if doesn't exist, add it
-                                if (c_new.lti_id == 0)
-                                {
-                                    c_new.lti_id = smem_lti_add_id(c_new.lti_letter, c_new.lti_number);
-
-                                    // this could affect an existing identifier
-                                    // in Soar's WM
-                                    final IdentifierImpl id_parent = symbols.findIdentifier(c_new.lti_letter, c_new.lti_number);
-                                    if (id_parent != null)
-                                    {
-                                        // if so we make it an lti manually
-                                        id_parent.smem_lti = c_new.lti_id;
-
-                                        id_parent.smem_time_id = epmem.getStats().getTime();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // add all newbie contents (append, as opposed to replace,
-                // children)
-                for (smem_chunk_lti c_new : newbies)
-                {
-                    if (c_new.slots != null)
-                    {
-                        smem_store_chunk(c_new.lti_id, c_new.slots, false);
-                    }
-                }
-
-                // deallocate *contents* of all newbies (need to keep around
-                // name->id association for future chunks)
-                for (smem_chunk_lti c_new : newbies)
-                {
-                    smem_deallocate_chunk(c_new, false);
-                }
-                // clear newbie list
-                newbies.clear();*/
-
-                // increment clause counter
-                clause_count++;
-
-            }
+            good_chunk = epmem_parse_chunk(symbols, lexer, ids, wmes);
         }
 
         return_val = good_chunk;
         
-        System.err.println("[epmem_parse_chunks_safe] return_val = " + return_val);
-        for (Entry<String, epmem_chunk_lti> entry : chunks.entrySet())
+        if (return_val)
         {
-            System.err.println("[epmem_parse_chunks_safe] chunk = " + entry.getKey() + " (" + entry.toString() + ")");
-            System.err.println("   soar_id: " + (entry.getValue().soar_id == null ? "null" : entry.getValue().soar_id.toString()));
-            System.err.println("   lti_id: " + entry.getValue().lti_id);
-            System.err.println("   lti_letter: " + entry.getValue().lti_letter);
-            System.err.println("   lti_number: " + entry.getValue().lti_number);
-            System.err.println("   slots: " + (entry.getValue().slots == null ? "null" : entry.getValue().slots.toString()));
+            Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
+            for (WmeImpl wme : wmes)
+            {
+                IdentifierImpl id = wme.value.asIdentifier();
+                if (id != null)
+                    possibleRoots.remove(id);
+            }
+            
+            if (possibleRoots.size() != 1)
+                return_val = false;
+            else
+            {
+                IdentifierImpl root = possibleRoots.iterator().next();
+            
+                System.err.println(root.toString());
+            }
         }
 
         // deallocate all chunks
@@ -7629,5 +7492,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         return return_val;
+        
+        // Create fake WM structure.
+        // Set fake "top state" id to have epmem_id = EPMEM_NODEID_ROOT
+        // Set epmem_wme_adds to contain only the fake "top state"
+        // Add all of working memory to epmem_edge_removals.
+        // Call epmem_new_memory
+        // Add the real top state to epmem_wme_adds
+        
+        // epmem --add {(<c> ^fish.bait 1 2 ^cluck <cluck>) (<s> ^stuff <c> ^awesome true)}
     }
 }
