@@ -7158,51 +7158,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     /////////////////////////////
-    
-    static void epmem_deallocate_chunk(epmem_chunk_lti chunk)
-    {
-        epmem_deallocate_chunk(chunk, true);
-    }
-
-
-    static void epmem_deallocate_chunk(epmem_chunk_lti chunk, boolean free_chunk /*
-                                                                                * =
-                                                                                * true
-                                                                                */)
-    {
-        // Nothing to do in JSoar. Yay!
-        if (chunk != null)
-        {
-            chunk.slots = null;
-        }
-    }
-    
-    static public class ParsedLtiName
-    {
-        public final String value;
-        public final char id_letter;
-        public final long id_number;
-        
-        public ParsedLtiName(String value, char idLetter, long idNumber)
-        {
-            this.value = value;
-            id_letter = idLetter;
-            id_number = idNumber;
-        }
-
-    }
-    
-    static ParsedLtiName epmem_parse_lti_name(Lexeme lexeme)
-    {
-        if (lexeme.type == LexemeType.IDENTIFIER)
-        {
-            return new ParsedLtiName(String.format("%c%d", lexeme.id_letter, lexeme.id_number), lexeme.id_letter, lexeme.id_number);
-        }
-        else
-        {
-            return new ParsedLtiName(lexeme.string, Character.toUpperCase(lexeme.string.charAt(1)), 0);
-        }
-    }
 
     static SymbolImpl epmem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme)
     {
@@ -7315,7 +7270,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         if (chunk_attr != null)
                         {
-                            Object chunk_value = null;
+                            SymbolImpl chunk_value = null;
                             do
                             {
                                 chunk_value = null;
@@ -7368,9 +7323,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     // consume
                                     lexer.getNextLexeme();
                                     
-                                    IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
-                                    String temp_key = temp_id.toString();
-                                    WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
+                                    //IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
+                                    //String temp_key = temp_id.toString();
+                                    WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
                                     wmes.add(newWme);
 
                                     // if this was the last attribute
@@ -7478,11 +7433,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
 
-        // deallocate all chunks
-        for (epmem_chunk_lti c_old : chunks.values())
-        {
-            epmem_deallocate_chunk(c_old, true);
-        }
         chunks.clear();
 
         // produce error message on failure
