@@ -308,8 +308,11 @@ public class LogCommand implements SoarCommand {
 	    }
 	    
 	    String result = "";
-	    for (int i = 0; i < cwdParts.length - marker; ++i)
-	        result += "^";
+	    
+	    int diff = cwdParts.length - marker;
+	    if (diff > 0)
+	        result += "^" + diff + ".";
+	    
 	    for (int i = marker; i < fileParts.length - 1; ++i)
 	        result += fileParts[i].charAt(0) + ".";
 	    result += fileParts[fileParts.length-1];
