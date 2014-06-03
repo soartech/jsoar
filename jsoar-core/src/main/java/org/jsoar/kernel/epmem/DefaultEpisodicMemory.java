@@ -7255,6 +7255,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
                             WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
                             wmes.add(newWme);
+                            Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
 
                             // the new chunk is our parent for this set of
                             // values (or further dots)
@@ -7327,6 +7328,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     //String temp_key = temp_id.toString();
                                     WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
                                     wmes.add(newWme);
+                                    Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
 
                                     // if this was the last attribute
                                     if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
@@ -7388,7 +7390,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         boolean good_chunk = true;
 
-        final Map<String, epmem_chunk_lti> chunks = new LinkedHashMap<String, epmem_chunk_lti>();
+        //final Map<String, epmem_chunk_lti> chunks = new LinkedHashMap<String, epmem_chunk_lti>();
         // smem_str_to_chunk_map::iterator c_old;
         
         Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
@@ -7433,7 +7435,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
 
-        chunks.clear();
+        //chunks.clear();
 
         // produce error message on failure
         if (!return_val)
