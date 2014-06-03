@@ -124,4 +124,9 @@ public interface SoarCommandInterpreter
      * Saves the current rete network of an agent to the given file.
      */
     void saveRete(File file) throws SoarException;
+    
+    /**
+     * Returns the current working directory of the interpreter (or null if not applicable).
+     */
+    String getWorkingDirectory();
 }

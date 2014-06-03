@@ -157,6 +157,12 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         reteNetCommand.save(file.getPath());
     }   
     
+    @Override
+    public String getWorkingDirectory()
+    {
+        return sourceCommand.getWorkingDirectory();
+    }
+    
     private String evalAndClose(Reader reader, String context) throws SoarException
     {
         try

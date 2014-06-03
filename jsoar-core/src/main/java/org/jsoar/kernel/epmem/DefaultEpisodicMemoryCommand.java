@@ -187,10 +187,6 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             }
             else if (name.equals("exclusions"))
             {
-                if(epmem.db != null){
-                    return "Lazy commit is protected while the database is open.";
-                }
-                
                 DefaultEpisodicMemoryParams params = epmem.getParams();
                 
                 SymbolImpl sym = symbols.createString(value);
@@ -202,6 +198,21 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
                 else
                 {
                     params.exclusions.add(sym);
+                }
+            }
+            else if (name.equals("inclusions"))
+            {
+                DefaultEpisodicMemoryParams params = epmem.getParams();
+                
+                SymbolImpl sym = symbols.createString(value);
+                
+                if (params.inclusions.contains(sym))
+                {
+                    params.inclusions.remove(sym);
+                }
+                else
+                {
+                    params.inclusions.add(sym);
                 }
             }
             else if (name.equals("force"))
@@ -289,6 +300,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf(PrintHelper.generateItem("trigger:", p.trigger.get(), 40));
         pw.printf(PrintHelper.generateItem("force:", p.force.get(), 40));
         pw.printf(PrintHelper.generateItem("exclusions:", p.exclusions, 40));
+        pw.printf(PrintHelper.generateItem("inclusions:", p.inclusions, 40));
         pw.printf(PrintHelper.generateSection("Storage", 40));
         pw.printf(PrintHelper.generateItem("driver:", p.driver, 40));
         

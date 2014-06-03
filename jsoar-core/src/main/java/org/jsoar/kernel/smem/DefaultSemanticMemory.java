@@ -2385,6 +2385,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                     {
                         good_wme = false;
                     }
+                    else
+                    {
+                        //This would be a negative query that smem has no hash for.  This means that
+                        //there is no way it could be in any of the results, and we don't 
+                        //need to continue processing it, let alone use it in the search.  --ACN
+                        return true;
+                    }
                 }
                 else
                 {
