@@ -2,6 +2,8 @@ package org.jsoar.kernel.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.LogManager;
@@ -285,18 +287,41 @@ public class LogCommand implements SoarCommand {
 		}
 	}
 	
+	public static List<String> uberSplit(String file) throws IOException
+	{	    
+	    List<String> result = new ArrayList<String>();
+	    
+	    File f = new File(file).getCanonicalFile();
+	    
+	    result.add(f.getName());
+	    f = f.getParentFile();
+	    while (f != null)
+	    {
+	        String n = f.getName();
+	        if (!n.isEmpty())
+	            result.add(f.getName());
+	        f = f.getParentFile();
+	    }
+	    
+	    Collections.reverse(result);
+	    
+	    return result;
+	}
+	
 	public static String collapseFileName(String file, String cwd)
 	{
-	    String pathSeparator = System.getProperty("file.separator");
-	    
 	    String[] cwdParts;
 	    String[] fileParts;
-        try {
-            cwdParts = new File(cwd).getCanonicalPath().split(pathSeparator);
-            fileParts = new File(file).getCanonicalPath().split(pathSeparator);
-        } catch (IOException e) {
-            return null;
-        }
+	    
+	    try
+	    {
+	        cwdParts = uberSplit(cwd).toArray(new String[0]);
+	        fileParts = uberSplit(file).toArray(new String[0]);
+	    }
+	    catch (IOException e)
+	    {
+	        return null;
+	    }
         
         int minLength = Math.min(cwdParts.length, fileParts.length);
 	    
