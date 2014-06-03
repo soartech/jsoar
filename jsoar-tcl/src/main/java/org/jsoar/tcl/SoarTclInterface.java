@@ -24,8 +24,11 @@ import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private static final Logger logger = LoggerFactory.getLogger(SoarTclInterface.class);
     
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
+    
+    private SoarCommandContext context = DefaultSoarCommandContext.empty();
     
     /**
      * Find the SoarTclInterface for the given agent.
@@ -173,7 +178,30 @@ public class SoarTclInterface implements SoarCommandInterpreter
 
     private Command adapt(SoarCommand c)
     {
-        return new SoarTclCommandAdapter(c);
+        return new SoarTclCommandAdapter(c, this);
+    }
+    
+    public SoarCommandContext getContext()
+    {
+        return context;
+    }
+    
+    private void updateLastKnownSourceLocation(String location)
+    {
+        if (location != null)
+        {
+            try
+            {
+                SourceLocation sourceLocation = DefaultSourceLocation.newBuilder()
+                        .file(new File(location).getCanonicalPath())
+                        .build();
+                context = new DefaultSoarCommandContext(sourceLocation);
+            }
+            catch (IOException e)
+            {
+                // Do nothing.
+            }
+        }
     }
     
     /* (non-Javadoc)
@@ -255,7 +283,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     }
     
     public String eval(String command) throws SoarException
-    {
+    {        
     	// Convert CRLFs (Windows line delimiters) to LFs.
         // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
         // See {@link TclLineContinuationTest}
@@ -301,6 +329,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         @Override
         public void eval(File file) throws SoarException
         {
+            SoarTclInterface.this.updateLastKnownSourceLocation(file.getPath());
+            
             try
             {
                 interp.evalFile(file.getAbsolutePath());
@@ -315,6 +345,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         @Override
         public void eval(URL url) throws SoarException
         {
+            SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
+            
             try
             {
                 final InputStream in = new BufferedInputStream(url.openStream());
@@ -323,7 +355,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
                     final ByteArrayOutputStream out = new ByteArrayOutputStream();
                     ByteStreams.copy(in, out);
                     eval(out.toString());
-            }
+                }
                 finally
                 {
                     in.close();
