@@ -248,6 +248,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
         reteNetCommand.save(file.getPath());
     }
     
+    @Override
+    public String getWorkingDirectory()
+    {
+        return sourceCommand.getWorkingDirectory();
+    }
+    
     public String eval(String command) throws SoarException
     {
     	// Convert CRLFs (Windows line delimiters) to LFs.

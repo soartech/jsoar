@@ -1,5 +1,7 @@
 package org.jsoar.kernel.commands;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.jsoar.kernel.LogManager;
@@ -7,9 +9,12 @@ import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.LogManager.LoggerException;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import com.google.common.collect.Lists;
 
@@ -20,6 +25,7 @@ import com.google.common.collect.Lists;
 public class LogCommand implements SoarCommand {
 	
 	private final LogManager logManager;
+	private final SoarCommandInterpreter soarCommandInterpreter;
     private final OptionProcessor<Options> options = OptionProcessor.create();
     
     private enum Options
@@ -34,9 +40,10 @@ public class LogCommand implements SoarCommand {
         level
     }
     
-    public LogCommand(LogManager logManager)
+    public LogCommand(LogManager logManager, SoarCommandInterpreter soarCommandInterpreter)
     {
         this.logManager = logManager;
+        this.soarCommandInterpreter = soarCommandInterpreter;
         
         options
         	.newOption(Options.add)
@@ -221,7 +228,34 @@ public class LogCommand implements SoarCommand {
 			try
 			{
 				logLevel = LogManager.LogLevel.fromString(loggerName);
-				loggerName = "default";
+				
+				loggerName = null;
+				
+				SourceLocation sourceLocation = context.getSourceLocation();
+		        if (sourceLocation != DefaultSourceLocation.UNKNOWN)
+		        {
+		            String fileName = sourceLocation.getFile();
+		            if (fileName != null && !fileName.isEmpty())
+		            {
+		                loggerName = collapseFileName(fileName, soarCommandInterpreter.getWorkingDirectory());
+		                if (loggerName != null)
+		                {
+		                    // Prevent strict mode from biting us.
+		                    if (!logManager.hasLogger(loggerName))
+		                    {
+                                try {
+                                    logManager.addLogger(loggerName);
+                                } catch (LoggerException e) {
+                                    loggerName = null;
+                                }
+		                    }
+		                }
+		            }
+		        }
+		        
+		        if (loggerName == null)
+		            loggerName = "default";
+				
 				parameters = nonOpts.subList(1, nonOpts.size());
 			}
 			catch (IllegalArgumentException e)
@@ -249,5 +283,37 @@ public class LogCommand implements SoarCommand {
 			
 			return "";
 		}
+	}
+	
+	public static String collapseFileName(String file, String cwd)
+	{
+	    String pathSeparator = System.getProperty("file.separator");
+	    
+	    String[] cwdParts;
+	    String[] fileParts;
+        try {
+            cwdParts = new File(cwd).getCanonicalPath().split(pathSeparator);
+            fileParts = new File(file).getCanonicalPath().split(pathSeparator);
+        } catch (IOException e) {
+            return null;
+        }
+        
+        int minLength = Math.min(cwdParts.length, fileParts.length);
+	    
+	    int marker;
+	    for (marker = 0; marker < minLength; ++marker)
+	    {
+	        if (!cwdParts[marker].equals(fileParts[marker]))
+	            break;
+	    }
+	    
+	    String result = "";
+	    for (int i = 0; i < cwdParts.length - marker; ++i)
+	        result += "^";
+	    for (int i = marker; i < fileParts.length - 1; ++i)
+	        result += fileParts[i].charAt(0) + ".";
+	    result += fileParts[fileParts.length-1];
+	    	    
+	    return result;
 	}
 }

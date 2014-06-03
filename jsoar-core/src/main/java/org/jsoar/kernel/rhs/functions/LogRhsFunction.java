@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
@@ -61,5 +62,11 @@ public class LogRhsFunction extends AbstractRhsFunctionHandler {
     public boolean mayBeStandalone()
     {
         return true;
+    }
+	
+	@Override
+	public boolean mayBeValue()
+    {
+        return false;
     }
 }
