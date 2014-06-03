@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,13 +61,19 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
+import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.symbols.DoubleSymbol;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.IntegerSymbol;
+import org.jsoar.kernel.symbols.JavaSymbol;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -7252,6 +7259,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // identifier and use that as the parent
                         while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
                         {
+                            // Anonymous WME: don't need an idKey, don't need to add it to "ids", don't need to check for existing slots.
                             IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
                             WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
                             wmes.add(newWme);
@@ -7316,6 +7324,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                         }
                                         
                                         ids.put(idKey, id);
+                                        
+                                        chunk_value = id;
                                     }
                                 }
 
@@ -7326,8 +7336,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     
                                     //IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
                                     //String temp_key = temp_id.toString();
-                                    WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
-                                    wmes.add(newWme);
+                                    
+                                    WmeImpl newWme = null;
+                                    
+                                    // Need to check if this WME exists already
+                                    Iterator<Wme> it = intermediate_parent.getWmes(EnumSet.of(WmeType.NORMAL));
+                                    while (it.hasNext())
+                                    {
+                                        Wme wme = it.next();
+                                        if (compare_symbol(wme.getAttribute(), chunk_attr) && compare_symbol(wme.getValue(), chunk_value))
+                                        {
+                                            if (wme instanceof WmeImpl)
+                                                newWme = (WmeImpl)wme;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (newWme == null)
+                                    {
+                                        newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
+                                        wmes.add(newWme);
+                                    }
                                     Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
 
                                     // if this was the last attribute
@@ -7354,6 +7383,31 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         return return_val;
+    }
+    
+    static public boolean compare_symbol(Symbol a, Symbol b)
+    {
+        Identifier idA = a.asIdentifier();
+        Identifier idB = b.asIdentifier();
+        
+        if ((idA == null) != (idB == null))
+            return false;
+        if (idA != null)
+            return a.equals(b);
+        
+        if (!a.getClass().equals(b.getClass()))
+            return false;
+        
+        if (a instanceof DoubleSymbol)
+            return a.asDouble().getValue() == b.asDouble().getValue();
+        else if (a instanceof IntegerSymbol)
+            return a.asInteger().getValue() == b.asInteger().getValue();
+        else if (a instanceof StringSymbol)
+            return a.asString().getValue() == b.asString().getValue();
+        else if (a instanceof JavaSymbol)
+            return a.asJava().getValue().equals(b.asJava().getValue());
+        
+        return false;
     }
 
     boolean epmem_parse_chunks(String chunkString) throws SoarException
