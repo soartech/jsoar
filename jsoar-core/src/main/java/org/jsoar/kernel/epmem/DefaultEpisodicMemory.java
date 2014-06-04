@@ -5,10 +5,13 @@
  */
 package org.jsoar.kernel.epmem;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -7417,11 +7420,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return false;
     }
 
-    boolean epmem_parse_chunks(String chunkString) throws SoarException
+    boolean epmem_parse_and_add(String chunkString) throws SoarException
     {
         try
         {
-            return epmem_parse_chunks_safe(chunkString);
+            // Figure out if the chunkString is a file or an identifier.
+            File filename = new File(chunkString);
+            if (filename.isFile())
+                return epmem_parse_and_add_file(filename);
+            else
+                return epmem_parse_and_add_string("{" + chunkString + "}");     // The interpreter strips braces; put them back.
         }
         catch (IOException e)
         {
@@ -7432,8 +7440,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             throw new SoarException(e);
         }
     }
+    
+    private boolean epmem_parse_and_add_file(File filename) throws SoarException, SQLException
+    {
+        try
+        {
+            String fileContents = new String(Files.readAllBytes(filename.toPath()), Charset.defaultCharset());
+            return epmem_parse_and_add_string(fileContents);
+        }
+        catch (IOException e)
+        {
+            throw new SoarException("Failed to read file contents: " + filename.getPath());
+        }
+    }
 
-    private boolean epmem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
+    private boolean epmem_parse_and_add_string(String chunkString) throws SoarException, IOException, SQLException
     {        
         // Which bracket group we're in (1-based index)
         long episode_index = 0;
@@ -7489,6 +7510,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (!good_clause)
                     throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
             }
+            
+            if (clause_count == 0)
+                throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
             
             // Determine which ID represents the top-state.
             Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());

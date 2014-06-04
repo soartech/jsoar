@@ -524,8 +524,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             throw new SoarException("No argument for " + args[i] + " option");
         }
-        // Braces are stripped by the interpreter, so put them back
-        epmem.epmem_parse_chunks("{" + args[i+1] + "}");
+        epmem.epmem_parse_and_add(args[i+1]);
         return "EpMem| Knowledge added to episodic memory.";
     }
 }
