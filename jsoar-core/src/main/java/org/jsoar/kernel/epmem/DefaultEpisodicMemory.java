@@ -7434,58 +7434,63 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     private boolean epmem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
-    {
-        boolean return_val = false;
-        long clause_count = 0;
+    {        
+        // Which bracket group we're in (1-based index)
+        long episode_index = 0;
 
         // parsing chunks requires an open semantic database
         epmem_init_db();
 
-        long time_counter = stats.getTime();
-
         // copied primarily from cli_sp
         final StringWriter errorWriter = new StringWriter();
         final Lexer lexer = new Lexer(new Printer(errorWriter), new StringReader(chunkString));
+        // Consume the outermost bracket
         lexer.getNextLexeme();
         lexer.setAllowIds(true);
-
-        boolean good_chunk = true;
-
-        //final Map<String, epmem_chunk_lti> chunks = new LinkedHashMap<String, epmem_chunk_lti>();
-        // smem_str_to_chunk_map::iterator c_old;
         
-        Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
-        Set<WmeImpl> wmes = new HashSet<WmeImpl>();
+        // If we expect multiple episodes, this gets set to true.
+        boolean multi_episode = false;
 
-        //final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
-        // smem_chunk_set::iterator c_new;
-
-        // consume next token
-        lexer.getNextLexeme();
-
-        if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
+        do
         {
-            good_chunk = false;
-        }
-
-        // while there are chunks to consume
-        while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
-        {
-            clause_count++;
+            episode_index++;
             
-            good_chunk = epmem_parse_chunk(symbols, lexer, ids, wmes);
-            if (!good_chunk)
-                throw new SoarException("Error parsing clause #" + clause_count);
-        }
-
-        return_val = good_chunk;
-        if (!return_val)
-        {
-            throw new SoarException("Error parsing clause #" + clause_count);
-        }
-        
-        if (return_val)
-        {
+            // Keep track of the WMEs and IDs we add during each episode.
+            Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
+            Set<WmeImpl> wmes = new HashSet<WmeImpl>();
+            
+            // consume next token
+            lexer.getNextLexeme();
+    
+            if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
+            {
+                // We just ate a bracket: we must be in a multi-episode add command.
+                multi_episode = true;
+                
+                // Move on to the first clause.
+                lexer.getNextLexeme();
+            }
+            else if (multi_episode && lexer.getCurrentLexeme().type == LexemeType.R_BRACE)
+            {
+                break;
+            }
+            else if (multi_episode)
+            {
+                throw new SoarException("Unexpected charater at the beginning of episode #" + episode_index);
+            }
+            
+            // Parse each clause in this episode.
+            long clause_count = 0;          // Which parentheses group we're in (1-based index)
+            while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
+            {
+                clause_count++;
+                
+                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes);
+                if (!good_clause)
+                    throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
+            }
+            
+            // Determine which ID represents the top-state.
             Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
             for (WmeImpl wme : wmes)
             {
@@ -7496,77 +7501,75 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
             if (possibleRoots.size() != 1)
             {
-                throw new SoarException("Too many possible top-states in epmem --add command.");
+                throw new SoarException("Too many possible top-states in episode #" + episode_index);
             }
-            else
+
+            // Grab the fake root ID.
+            IdentifierImpl root = possibleRoots.iterator().next();
+            
+            // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
+            epmem_wme_adds.clear();
+            
+            // Mark our fake WM for addition in epmem
+            root.epmem_id = EPMEM_NODEID_ROOT;
+            root.epmem_valid = epmem_validation;
+            addWme(root);
+            
+            // Mark all real WMEs for termination
+            final Marker marker = DefaultMarker.create();
+            Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
+            symbolsToTraverse.add(decider.top_state);
+            while (!symbolsToTraverse.isEmpty())
             {
-                // Grab the fake root ID.
-                IdentifierImpl root = possibleRoots.iterator().next();
-                
-                // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
-                epmem_wme_adds.clear();
-                
-                // Mark our fake WM for addition in epmem
-                root.epmem_id = EPMEM_NODEID_ROOT;
-                root.epmem_valid = epmem_validation;
-                addWme(root);
-                
-                // Mark all real WMEs for termination
-                final Marker marker = DefaultMarker.create();
-                Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
-                symbolsToTraverse.add(decider.top_state);
-                while (!symbolsToTraverse.isEmpty())
+                SymbolImpl sym = symbolsToTraverse.poll();
+                List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
+                for (WmeImpl wme : children)
                 {
-                    SymbolImpl sym = symbolsToTraverse.poll();
-                    List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
+                    if (wme.value.asIdentifier() != null)
+                        symbolsToTraverse.add(wme.value);
+                    removeWme(wme);
+                }
+            }
+            
+            // Create the fake episode.
+            epmem_new_episode();
+            
+            // Mark the real top-state for addition
+            epmem_wme_adds.add(decider.top_state);
+            decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
+            decider.top_goal.epmem_valid = epmem_validation;
+            
+            // Mark the fake WMEs for termination
+            for (WmeImpl wme : wmes)
+                removeWme(wme);
+            
+            // Print out debug statements
+            /*{
+                Map<IdentifierImpl, String> inv = debug_invert_map(ids);
+            
+                // Print the structure we built (by manually traversing each WME).
+                epmem_debug_print_id(root, inv);
+                
+                // Print the structure we built (by using epmem_get_augs_of_id)
+                final Marker tc = DefaultMarker.create();
+                Queue<SymbolImpl> parent_syms = new LinkedList<SymbolImpl>();
+                parent_syms.add(root);
+                while (!parent_syms.isEmpty())
+                {
+                    SymbolImpl sym = parent_syms.poll();
+                    List<WmeImpl> children = epmem_get_augs_of_id(sym, tc);
                     for (WmeImpl wme : children)
                     {
-                        if (wme.value.asIdentifier() != null)
-                            symbolsToTraverse.add(wme.value);
-                        removeWme(wme);
+                        System.err.println(debug_format_wme(wme, inv));
+                        SymbolImpl child = wme.value;
+                        if (child != null)
+                            parent_syms.add(child);
                     }
                 }
-                
-                // Create the fake episode.
-                epmem_new_episode();
-                
-                // Mark the real top-state for addition
-                epmem_wme_adds.add(decider.top_state);
-                decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
-                decider.top_goal.epmem_valid = epmem_validation;
-                
-                // Mark the fake WMEs for termination
-                for (WmeImpl wme : wmes)
-                    removeWme(wme);
-                
-                // Print out debug statements
-                /*{
-                    Map<IdentifierImpl, String> inv = debug_invert_map(ids);
-                
-                    // Print the structure we built (by manually traversing each WME).
-                    epmem_debug_print_id(root, inv);
-                    
-                    // Print the structure we built (by using epmem_get_augs_of_id)
-                    final Marker tc = DefaultMarker.create();
-                    Queue<SymbolImpl> parent_syms = new LinkedList<SymbolImpl>();
-                    parent_syms.add(root);
-                    while (!parent_syms.isEmpty())
-                    {
-                        SymbolImpl sym = parent_syms.poll();
-                        List<WmeImpl> children = epmem_get_augs_of_id(sym, tc);
-                        for (WmeImpl wme : children)
-                        {
-                            System.err.println(debug_format_wme(wme, inv));
-                            SymbolImpl child = wme.value;
-                            if (child != null)
-                                parent_syms.add(child);
-                        }
-                    }
-                }*/
-            }
-        }
+            }*/
+        } while (multi_episode);
 
-        return return_val;
+        return true;
         
         // Create fake WM structure.
         // Set fake "top state" id to have epmem_id = EPMEM_NODEID_ROOT
