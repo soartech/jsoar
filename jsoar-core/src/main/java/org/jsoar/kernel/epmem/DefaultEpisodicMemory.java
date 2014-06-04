@@ -1428,18 +1428,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
             for (WmeImpl wme : wmes)
             {
-                if (params.inclusions.contains(wme.attr))
+                if (!params.exclusions.contains(wme.attr))
                 {
-                    // We, and everything below us, can stay.
-                    wmesToKeep.add(wme);
-                    mark_all_includable(wme.value, tc, wmesToKeep);
-                    keptSomething = true;
-                }
-                else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
-                {
-                    // We can stay if there is an inclusion attribute below us.
-                    wmesToKeep.add(wme);
-                    keptSomething = true;
+                    if (params.inclusions.contains(wme.attr))
+                    {
+                        // We, and everything below us, can stay.
+                        wmesToKeep.add(wme);
+                        mark_all_includable(wme.value, tc, wmesToKeep);
+                        keptSomething = true;
+                    }
+                    else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
+                    {
+                        // We can stay if there is an inclusion attribute below us.
+                        wmesToKeep.add(wme);
+                        keptSomething = true;
+                    }
                 }
             }
         }
@@ -1455,8 +1458,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
             for (WmeImpl wme : wmes)
             {
-                wmesToKeep.add(wme);
-                mark_all_includable(wme.value, tc, wmesToKeep);
+                if (!params.exclusions.contains(wme.attr))
+                {
+                    wmesToKeep.add(wme);
+                    mark_all_includable(wme.value, tc, wmesToKeep);
+                }
             }
         }
     }
@@ -7234,12 +7240,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                 //
 
+                IdentifierImpl parent = id;
                 IdentifierImpl intermediate_parent;
 
                 // populate slots
                 while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
                 {
-                    intermediate_parent = id;
+                    intermediate_parent = parent;
 
                     // go on to attribute
                     lexer.getNextLexeme();
@@ -7464,10 +7471,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // while there are chunks to consume
         while ((lexer.getCurrentLexeme().type == LexemeType.L_PAREN) && (good_chunk))
         {
+            clause_count++;
+            
             good_chunk = epmem_parse_chunk(symbols, lexer, ids, wmes);
+            if (!good_chunk)
+                throw new SoarException("Error parsing clause #" + clause_count);
         }
 
         return_val = good_chunk;
+        if (!return_val)
+        {
+            throw new SoarException("Error parsing clause #" + clause_count);
+        }
         
         if (return_val)
         {
@@ -7480,21 +7495,75 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             
             if (possibleRoots.size() != 1)
-                return_val = false;
+            {
+                throw new SoarException("Too many possible top-states in epmem --add command.");
+            }
             else
             {
+                // Grab the fake root ID.
                 IdentifierImpl root = possibleRoots.iterator().next();
-            
-                System.err.println(root.toString());
+                
+                // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
+                epmem_wme_adds.clear();
+                
+                // Mark our fake WM for addition in epmem
+                root.epmem_id = EPMEM_NODEID_ROOT;
+                root.epmem_valid = epmem_validation;
+                addWme(root);
+                
+                // Mark all real WMEs for termination
+                final Marker marker = DefaultMarker.create();
+                Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
+                symbolsToTraverse.add(decider.top_state);
+                while (!symbolsToTraverse.isEmpty())
+                {
+                    SymbolImpl sym = symbolsToTraverse.poll();
+                    List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
+                    for (WmeImpl wme : children)
+                    {
+                        if (wme.value.asIdentifier() != null)
+                            symbolsToTraverse.add(wme.value);
+                        removeWme(wme);
+                    }
+                }
+                
+                // Create the fake episode.
+                epmem_new_episode();
+                
+                // Mark the real top-state for addition
+                epmem_wme_adds.add(decider.top_state);
+                decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
+                decider.top_goal.epmem_valid = epmem_validation;
+                
+                // Mark the fake WMEs for termination
+                for (WmeImpl wme : wmes)
+                    removeWme(wme);
+                
+                // Print out debug statements
+                /*{
+                    Map<IdentifierImpl, String> inv = debug_invert_map(ids);
+                
+                    // Print the structure we built (by manually traversing each WME).
+                    epmem_debug_print_id(root, inv);
+                    
+                    // Print the structure we built (by using epmem_get_augs_of_id)
+                    final Marker tc = DefaultMarker.create();
+                    Queue<SymbolImpl> parent_syms = new LinkedList<SymbolImpl>();
+                    parent_syms.add(root);
+                    while (!parent_syms.isEmpty())
+                    {
+                        SymbolImpl sym = parent_syms.poll();
+                        List<WmeImpl> children = epmem_get_augs_of_id(sym, tc);
+                        for (WmeImpl wme : children)
+                        {
+                            System.err.println(debug_format_wme(wme, inv));
+                            SymbolImpl child = wme.value;
+                            if (child != null)
+                                parent_syms.add(child);
+                        }
+                    }
+                }*/
             }
-        }
-
-        //chunks.clear();
-
-        // produce error message on failure
-        if (!return_val)
-        {
-            throw new SoarException("Error parsing clause #" + clause_count);
         }
 
         return return_val;
@@ -7508,4 +7577,67 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // epmem --add {(<c> ^fish.bait 1 2 ^cluck <cluck>) (<s> ^stuff <c> ^awesome true)}
     }
+    
+    /*private void epmem_debug_print_id(IdentifierImpl id, Map<IdentifierImpl, String> idMap)
+    {
+        epmem_debug_print_id(id, idMap, 0); 
+    }
+    
+    private String debug_format_id(IdentifierImpl id, Map<IdentifierImpl, String> idMap)
+    {
+        if (idMap != null)
+        {
+            String name = idMap.get(id);
+            if (name != null)
+                return name;
+        }
+        return id.toString();
+    }
+    
+    private String debug_format_wme(Wme wme, Map<IdentifierImpl, String> idMap)
+    {
+        String result = "(";
+        
+        result += debug_format_id((IdentifierImpl)wme.getIdentifier(), idMap);
+        result += " ^" + wme.getAttribute().toString() + " ";
+        
+        if (wme.getValue().asIdentifier() != null)
+            result += debug_format_id((IdentifierImpl)wme.getValue(), idMap);
+        else
+            result += wme.getValue().toString();
+        
+        result += ")";
+        
+        return result;
+    }
+    
+    private void epmem_debug_print_id(Identifier id, Map<IdentifierImpl, String> idMap, int indent)
+    {        
+        Iterator<Wme> it = id.getWmes();
+        while (it.hasNext())
+        {
+            Wme wme = it.next();
+            String result = make_indent(indent) + debug_format_wme(wme, idMap);
+
+            System.out.println(result);
+            Identifier child = wme.getValue().asIdentifier();
+            if (child != null)
+                epmem_debug_print_id(child, idMap, indent+1);
+        }
+    }
+    
+    private String make_indent(int indent)
+    {
+        return new String(new char[2*indent]).replace('\0', ' ');
+    }
+    
+    private static <V, K> Map<V, K> debug_invert_map(Map<K, V> map)
+    {
+        Map<V, K> inv = new HashMap<V, K>();
+        
+        for (Entry<K, V> entry : map.entrySet())
+            inv.put(entry.getValue(), entry.getKey());
+        
+        return inv;
+    }*/
 }
