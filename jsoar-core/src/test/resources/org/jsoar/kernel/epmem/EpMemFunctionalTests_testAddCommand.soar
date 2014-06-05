@@ -121,8 +121,7 @@ sp {propose*create-memory-56
 sp {apply*create-memory-56
    (state <s> ^operator.name create-memory-56)
 -->
-   (cmd epmem --add |(<s> ^multi <multi>) (<multi> ^test 1)|)
-   (cmd epmem --add |(<s> ^multi <multi>) (<multi> ^test <c>) (<c> ^v 2)|)
+   (cmd epmem --add |{(<s> ^multi <multi>) (<multi> ^test 1)} {(<s> ^multi <multi>) (<multi> ^test <c>) (<c> ^v 2)}|)
    (log info |Creating memories #5 and #6 using epmem --add|)
 }
 
@@ -150,7 +149,7 @@ sp {apply*prepare
 -->
    (<s> ^testing-again true -
         ^ready 1
-        ^total-tests 6)              # <-- Total number of retrieval tests
+        ^total-tests 8)              # <-- Total number of retrieval tests
 }
 
 ##############################################################
@@ -406,6 +405,90 @@ sp {propose*verify-retrieval-6
         -^also-test.and-that birds
         -^testing-again
         -^multi
+        -^io
+        -^reward-link
+        -^superstate
+        -^type)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name verify-retrieval)
+}
+
+### Seventh retrieval
+# 1st test that we can retrieve a memory stored in a multi-episode add command.
+
+# Do the query
+sp {apply*do-retrieval-7
+   (state <s> ^operator <o>
+              ^epmem.command <cmd>)
+   (<o> ^name do-retrieval
+        ^test 7)
+-->
+   (<cmd> ^query <q>)
+   (<q> ^multi.test 1)
+   (log info |Starting test #7|)
+}
+
+# Test the query
+sp {propose*verify-retrieval-7
+   (state <s> ^name epmem-add
+              ^epmem <epmem>
+              ^ready 7)
+   (<epmem> ^command.query <q>
+            ^result <result>)
+   (<result> ^success <q>
+             ^graph-match 1
+             ^retrieved <r>)
+   (<r> -^attr
+        -^test
+        -^symbol
+        -^deliberate
+        -^also-test
+        -^second-test
+        -^testing-again
+        -^multi.test.v
+        -^io
+        -^reward-link
+        -^superstate
+        -^type)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name verify-retrieval)
+}
+
+### Eighth retrieval
+# 2nd test that we can retrieve a memory stored in a multi-episode add command.
+
+# Do the query
+sp {apply*do-retrieval-8
+   (state <s> ^operator <o>
+              ^epmem.command <cmd>)
+   (<o> ^name do-retrieval
+        ^test 8)
+-->
+   (<cmd> ^query <q>)
+   (<q> ^multi.test.v 2)
+   (log info |Starting test #8|)
+}
+
+# Test the query
+sp {propose*verify-retrieval-8
+   (state <s> ^name epmem-add
+              ^epmem <epmem>
+              ^ready 8)
+   (<epmem> ^command.query <q>
+            ^result <result>)
+   (<result> ^success <q>
+             ^graph-match 1
+             ^retrieved <r>)
+   (<r> -^attr
+        -^test
+        -^symbol
+        -^deliberate
+        -^also-test
+        -^second-test
+        -^testing-again
+        -^multi.test 1
         -^io
         -^reward-link
         -^superstate

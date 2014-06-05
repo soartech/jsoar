@@ -38,7 +38,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testAddCommand() throws Exception
     {
-        runTest("testAddCommand", 23);
+        runTest("testAddCommand", 27);
     }
     
     @Test
