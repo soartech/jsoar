@@ -2657,7 +2657,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             
             //Look through while were here, so that we can make sure the attributes we need are in the results
-            if(mathQuery != null){
+            if(mathQuery != null && good_cue){
                 MathQueryProcessResults mpr = processMathQuery(mathQuery, weighted_pq);
                 good_cue = mpr.goodCue;
                 needFullSearch = mpr.needFullSearch;
