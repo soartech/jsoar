@@ -5,8 +5,13 @@
  */
 package org.jsoar.kernel.epmem;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -17,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -57,14 +64,24 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
+import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.LexemeType;
+import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.symbols.DoubleSymbol;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.IntegerSymbol;
+import org.jsoar.kernel.symbols.JavaSymbol;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
@@ -1414,18 +1431,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
             for (WmeImpl wme : wmes)
             {
-                if (params.inclusions.contains(wme.attr))
+                if (!params.exclusions.contains(wme.attr))
                 {
-                    // We, and everything below us, can stay.
-                    wmesToKeep.add(wme);
-                    mark_all_includable(wme.value, tc, wmesToKeep);
-                    keptSomething = true;
-                }
-                else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
-                {
-                    // We can stay if there is an inclusion attribute below us.
-                    wmesToKeep.add(wme);
-                    keptSomething = true;
+                    if (params.inclusions.contains(wme.attr))
+                    {
+                        // We, and everything below us, can stay.
+                        wmesToKeep.add(wme);
+                        mark_all_includable(wme.value, tc, wmesToKeep);
+                        keptSomething = true;
+                    }
+                    else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
+                    {
+                        // We can stay if there is an inclusion attribute below us.
+                        wmesToKeep.add(wme);
+                        keptSomething = true;
+                    }
                 }
             }
         }
@@ -1441,8 +1461,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
             for (WmeImpl wme : wmes)
             {
-                wmesToKeep.add(wme);
-                mark_all_includable(wme.value, tc, wmesToKeep);
+                if (!params.exclusions.contains(wme.attr))
+                {
+                    wmesToKeep.add(wme);
+                    mark_all_includable(wme.value, tc, wmesToKeep);
+                }
             }
         }
     }
@@ -7149,4 +7172,499 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         return return_val;
     }
+    
+    /////////////////////////////
+
+    static SymbolImpl epmem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme)
+    {
+        final SymbolImpl return_val;
+
+        if ((lexeme.type == LexemeType.SYM_CONSTANT))
+        {
+            return_val = syms.createString(lexeme.string);
+        }
+        else if (lexeme.type == LexemeType.INTEGER)
+        {
+            return_val = syms.createInteger(lexeme.int_val);
+        }
+        else if (lexeme.type == LexemeType.FLOAT)
+        {
+            return_val = syms.createDouble(lexeme.float_val);
+        }
+        else
+        {
+            return_val = null;
+        }
+
+        return return_val;
+    }
+    
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes) throws IOException
+    {
+        boolean return_val = false;
+        boolean good_at = false;
+
+        // consume left paren
+        lexer.getNextLexeme();
+
+        if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
+        {
+            good_at = true;
+
+            if (lexer.getCurrentLexeme().type == LexemeType.AT)
+            {
+                lexer.getNextLexeme();
+
+                good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
+            }
+
+            if (good_at)
+            {
+                Lexeme lexeme = lexer.getCurrentLexeme();
+                String idKey;
+                IdentifierImpl id;
+                if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
+                {
+                    id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
+                    idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
+                }
+                else
+                {
+                    id = ids.get(lexeme.string);
+                    if (id == null)
+                        id = symbols.createIdentifier('X');
+                    idKey = lexeme.string;
+                }
+                
+                ids.put(idKey, id);
+
+                // consume id
+                lexer.getNextLexeme();
+
+                //
+
+                IdentifierImpl parent = id;
+                IdentifierImpl intermediate_parent;
+
+                // populate slots
+                while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
+                {
+                    intermediate_parent = parent;
+
+                    // go on to attribute
+                    lexer.getNextLexeme();
+
+                    // get the appropriate constant type
+                    SymbolImpl chunk_attr = epmem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+
+                    // if constant attribute, proceed to value
+                    if (chunk_attr != null)
+                    {
+                        // consume attribute
+                        lexer.getNextLexeme();
+
+                        // support for dot notation:
+                        // when we encounter a dot, instantiate
+                        // the previous attribute as a temporary
+                        // identifier and use that as the parent
+                        while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
+                        {
+                            // Anonymous WME: don't need an idKey, don't need to add it to "ids", don't need to check for existing slots.
+                            IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
+                            WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
+                            wmes.add(newWme);
+                            Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
+
+                            // the new chunk is our parent for this set of
+                            // values (or further dots)
+                            intermediate_parent = temp_id;
+
+                            // get the next attribute
+                            lexer.getNextLexeme();
+                            chunk_attr = epmem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
+
+                            // consume attribute
+                            lexer.getNextLexeme();
+                        }
+
+                        if (chunk_attr != null)
+                        {
+                            SymbolImpl chunk_value = null;
+                            do
+                            {
+                                chunk_value = null;
+                                // value by type
+                                if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
+                                {
+                                    chunk_value = symbols.createString(lexer.getCurrentLexeme().string);
+                                }
+                                else if (lexer.getCurrentLexeme().type == LexemeType.INTEGER)
+                                {
+                                    chunk_value = symbols.createInteger(lexer.getCurrentLexeme().int_val);
+                                }
+                                else if (lexer.getCurrentLexeme().type == LexemeType.FLOAT)
+                                {
+                                    chunk_value = symbols.createDouble(lexer.getCurrentLexeme().float_val);
+                                }
+                                else if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
+                                {
+                                    // @ must be followed by an identifier
+                                    good_at = true;
+                                    if (lexer.getCurrentLexeme().type == LexemeType.AT)
+                                    {
+                                        lexer.getNextLexeme();
+
+                                        good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
+                                    }
+
+                                    if (good_at)
+                                    {
+                                        lexeme = lexer.getCurrentLexeme();
+                                        if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
+                                        {
+                                            id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
+                                            idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
+                                        }
+                                        else
+                                        {
+                                            id = ids.get(lexeme.string);
+                                            if (id == null)
+                                                id = symbols.createIdentifier('X');
+                                            idKey = lexeme.string;
+                                        }
+                                        
+                                        ids.put(idKey, id);
+                                        
+                                        chunk_value = id;
+                                    }
+                                }
+
+                                if (chunk_value != null)
+                                {
+                                    // consume
+                                    lexer.getNextLexeme();
+                                    
+                                    //IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
+                                    //String temp_key = temp_id.toString();
+                                    
+                                    WmeImpl newWme = null;
+                                    
+                                    // Need to check if this WME exists already
+                                    Iterator<Wme> it = intermediate_parent.getWmes(EnumSet.of(WmeType.NORMAL));
+                                    while (it.hasNext())
+                                    {
+                                        Wme wme = it.next();
+                                        if (compare_symbol(wme.getAttribute(), chunk_attr) && compare_symbol(wme.getValue(), chunk_value))
+                                        {
+                                            if (wme instanceof WmeImpl)
+                                                newWme = (WmeImpl)wme;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (newWme == null)
+                                    {
+                                        newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
+                                        wmes.add(newWme);
+                                    }
+                                    Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
+
+                                    // if this was the last attribute
+                                    if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
+                                    {
+                                        return_val = true;
+                                        lexer.getNextLexeme();
+                                        chunk_value = null;
+                                    }
+                                }
+                            } while (chunk_value != null);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // delete new_chunk;
+            }
+        }
+        else
+        {
+            // delete new_chunk;
+        }
+
+        return return_val;
+    }
+    
+    static public boolean compare_symbol(Symbol a, Symbol b)
+    {
+        Identifier idA = a.asIdentifier();
+        Identifier idB = b.asIdentifier();
+        
+        if ((idA == null) != (idB == null))
+            return false;
+        if (idA != null)
+            return a.equals(b);
+        
+        if (!a.getClass().equals(b.getClass()))
+            return false;
+        
+        if (a instanceof DoubleSymbol)
+            return a.asDouble().getValue() == b.asDouble().getValue();
+        else if (a instanceof IntegerSymbol)
+            return a.asInteger().getValue() == b.asInteger().getValue();
+        else if (a instanceof StringSymbol)
+            return a.asString().getValue() == b.asString().getValue();
+        else if (a instanceof JavaSymbol)
+            return a.asJava().getValue().equals(b.asJava().getValue());
+        
+        return false;
+    }
+
+    boolean epmem_parse_and_add(String chunkString) throws SoarException
+    {
+        try
+        {
+            // Figure out if the chunkString is a file or an identifier.
+            File filename = new File(chunkString);
+            if (filename.isFile())
+                return epmem_parse_and_add_file(filename);
+            else
+                return epmem_parse_and_add_string("{" + chunkString + "}");     // The interpreter strips braces; put them back.
+        }
+        catch (IOException e)
+        {
+            throw new SoarException(e);
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+    }
+    
+    private boolean epmem_parse_and_add_file(File filename) throws SoarException, SQLException
+    {
+        try
+        {
+            String fileContents = new String(Files.readAllBytes(filename.toPath()), Charset.defaultCharset());
+            return epmem_parse_and_add_string(fileContents);
+        }
+        catch (IOException e)
+        {
+            throw new SoarException("Failed to read file contents: " + filename.getPath());
+        }
+    }
+
+    private boolean epmem_parse_and_add_string(String chunkString) throws SoarException, IOException, SQLException
+    {        
+        // Which bracket group we're in (1-based index)
+        long episode_index = 0;
+
+        // parsing chunks requires an open semantic database
+        epmem_init_db();
+
+        // copied primarily from cli_sp
+        final StringWriter errorWriter = new StringWriter();
+        final Lexer lexer = new Lexer(new Printer(errorWriter), new StringReader(chunkString));
+        // Consume the outermost bracket
+        lexer.getNextLexeme();
+        lexer.setAllowIds(true);
+        
+        // If we expect multiple episodes, this gets set to true.
+        boolean multi_episode = false;
+
+        do
+        {
+            episode_index++;
+            
+            // Keep track of the WMEs and IDs we add during each episode.
+            Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
+            Set<WmeImpl> wmes = new HashSet<WmeImpl>();
+            
+            // consume next token
+            lexer.getNextLexeme();
+    
+            if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
+            {
+                // We just ate a bracket: we must be in a multi-episode add command.
+                multi_episode = true;
+                
+                // Move on to the first clause.
+                lexer.getNextLexeme();
+            }
+            else if (multi_episode && lexer.getCurrentLexeme().type == LexemeType.R_BRACE)
+            {
+                break;
+            }
+            else if (multi_episode)
+            {
+                throw new SoarException("Unexpected charater at the beginning of episode #" + episode_index);
+            }
+            
+            // Parse each clause in this episode.
+            long clause_count = 0;          // Which parentheses group we're in (1-based index)
+            while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
+            {
+                clause_count++;
+                
+                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes);
+                if (!good_clause)
+                    throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
+            }
+            
+            if (clause_count == 0)
+                throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
+            
+            // Determine which ID represents the top-state.
+            Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
+            for (WmeImpl wme : wmes)
+            {
+                IdentifierImpl id = wme.value.asIdentifier();
+                if (id != null)
+                    possibleRoots.remove(id);
+            }
+            
+            if (possibleRoots.size() != 1)
+            {
+                throw new SoarException("Too many possible top-states in episode #" + episode_index);
+            }
+
+            // Grab the fake root ID.
+            IdentifierImpl root = possibleRoots.iterator().next();
+            
+            // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
+            epmem_wme_adds.clear();
+            
+            // Mark our fake WM for addition in epmem
+            root.epmem_id = EPMEM_NODEID_ROOT;
+            root.epmem_valid = epmem_validation;
+            addWme(root);
+            
+            // Mark all real WMEs for termination
+            final Marker marker = DefaultMarker.create();
+            Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
+            symbolsToTraverse.add(decider.top_state);
+            while (!symbolsToTraverse.isEmpty())
+            {
+                SymbolImpl sym = symbolsToTraverse.poll();
+                List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
+                for (WmeImpl wme : children)
+                {
+                    if (wme.value.asIdentifier() != null)
+                        symbolsToTraverse.add(wme.value);
+                    removeWme(wme);
+                }
+            }
+            
+            // Create the fake episode.
+            epmem_new_episode();
+            
+            // Mark the real top-state for addition
+            epmem_wme_adds.add(decider.top_state);
+            decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
+            decider.top_goal.epmem_valid = epmem_validation;
+            
+            // Mark the fake WMEs for termination
+            for (WmeImpl wme : wmes)
+                removeWme(wme);
+            
+            // Print out debug statements
+            /*{
+                Map<IdentifierImpl, String> inv = debug_invert_map(ids);
+            
+                // Print the structure we built (by manually traversing each WME).
+                epmem_debug_print_id(root, inv);
+                
+                // Print the structure we built (by using epmem_get_augs_of_id)
+                final Marker tc = DefaultMarker.create();
+                Queue<SymbolImpl> parent_syms = new LinkedList<SymbolImpl>();
+                parent_syms.add(root);
+                while (!parent_syms.isEmpty())
+                {
+                    SymbolImpl sym = parent_syms.poll();
+                    List<WmeImpl> children = epmem_get_augs_of_id(sym, tc);
+                    for (WmeImpl wme : children)
+                    {
+                        System.err.println(debug_format_wme(wme, inv));
+                        SymbolImpl child = wme.value;
+                        if (child != null)
+                            parent_syms.add(child);
+                    }
+                }
+            }*/
+        } while (multi_episode);
+
+        return true;
+        
+        // Create fake WM structure.
+        // Set fake "top state" id to have epmem_id = EPMEM_NODEID_ROOT
+        // Set epmem_wme_adds to contain only the fake "top state"
+        // Add all of working memory to epmem_edge_removals.
+        // Call epmem_new_memory
+        // Add the real top state to epmem_wme_adds
+        
+        // epmem --add {(<c> ^fish.bait 1 2 ^cluck <cluck>) (<s> ^stuff <c> ^awesome true)}
+    }
+    
+    /*private void epmem_debug_print_id(IdentifierImpl id, Map<IdentifierImpl, String> idMap)
+    {
+        epmem_debug_print_id(id, idMap, 0); 
+    }
+    
+    private String debug_format_id(IdentifierImpl id, Map<IdentifierImpl, String> idMap)
+    {
+        if (idMap != null)
+        {
+            String name = idMap.get(id);
+            if (name != null)
+                return name;
+        }
+        return id.toString();
+    }
+    
+    private String debug_format_wme(Wme wme, Map<IdentifierImpl, String> idMap)
+    {
+        String result = "(";
+        
+        result += debug_format_id((IdentifierImpl)wme.getIdentifier(), idMap);
+        result += " ^" + wme.getAttribute().toString() + " ";
+        
+        if (wme.getValue().asIdentifier() != null)
+            result += debug_format_id((IdentifierImpl)wme.getValue(), idMap);
+        else
+            result += wme.getValue().toString();
+        
+        result += ")";
+        
+        return result;
+    }
+    
+    private void epmem_debug_print_id(Identifier id, Map<IdentifierImpl, String> idMap, int indent)
+    {        
+        Iterator<Wme> it = id.getWmes();
+        while (it.hasNext())
+        {
+            Wme wme = it.next();
+            String result = make_indent(indent) + debug_format_wme(wme, idMap);
+
+            System.out.println(result);
+            Identifier child = wme.getValue().asIdentifier();
+            if (child != null)
+                epmem_debug_print_id(child, idMap, indent+1);
+        }
+    }
+    
+    private String make_indent(int indent)
+    {
+        return new String(new char[2*indent]).replace('\0', ' ');
+    }
+    
+    private static <V, K> Map<V, K> debug_invert_map(Map<K, V> map)
+    {
+        Map<V, K> inv = new HashMap<V, K>();
+        
+        for (Entry<K, V> entry : map.entrySet())
+            inv.put(entry.getValue(), entry.getKey());
+        
+        return inv;
+    }*/
 }

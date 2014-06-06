@@ -103,6 +103,10 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doBackup(1, args);
         }
+        else if ("-a".equals(arg) || "--add".equals(arg))
+        {
+            return doAdd(1, args);
+        }
         else if (arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -512,5 +516,15 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         }
         
         throw new SoarException("epmem --backup requires a path for an argument");
+    }
+    
+    private String doAdd(int i, String[] args) throws SoarException
+    {
+        if(i + 1 == args.length)
+        {
+            throw new SoarException("No argument for " + args[i] + " option");
+        }
+        epmem.epmem_parse_and_add(args[i+1]);
+        return "EpMem| Knowledge added to episodic memory.";
     }
 }
