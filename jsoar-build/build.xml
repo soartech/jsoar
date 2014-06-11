@@ -7,14 +7,44 @@
    <property name="dist" location="dist" />
    <property name="dist.lib" location="${dist}/lib" />
    <property name="dist.bin" location="${dist}/bin" />
-	
 
-   <target name="init-props" description="Create temporary build directories">
+   <!-- 
+   This grabs the latest version from the maven branch of git, and uses that as the version.  This 
+   technique is adapted from http://stackoverflow.com/questions/2974106/how-to-lookup-the-latest-git-commit-hash-from-an-ant-build-script
+   -->
+   <available file="../.git" type="dir" property="git.present"/>
+   <target name="git.revision" description="Store git revision in ${version}" if="git.present">
+      <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+         <arg value="describe"/>
+         <arg value="--tags"/>
+         <arg value="--always"/>
+         <arg value="--abbrev=0"/>
+         <arg value="origin/maven"/>
+      </exec>
+      <loadresource property="git.revision.clean">
+         <propertyresource name="git.revision"/>
+         <filterchain>
+            <tokenfilter>
+               <filetokenizer/>
+               <replacestring from="jsoar-" to=""/>
+            </tokenfilter>
+         </filterchain>
+      </loadresource>
+      <condition property="version" value="snapshot-${git.revision.clean}" else="snapshot-${DSTAMP}">
+         <and>
+            <isset property="git.revision.clean"/>
+            <length string="${git.revision.clean}" trim="yes" length="0" when="greater"/>
+         </and>
+      </condition>
+   </target>
+   <!-- End versioning -->
+
+   <target name="init-props"  depends="git.revision" description="Create temporary build directories">
       <tstamp />
-      <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override -->
-      <property name="version" value="snapshot-${DSTAMP}" />
+      <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override
+      <property name="version" value="snapshot-${DSTAMP}" /> -->
       <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
-   	
+
       <filterset id="filters">
         <filter token="JSOAR_VERSION" value="${version}"/>
         <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
