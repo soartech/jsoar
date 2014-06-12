@@ -54,6 +54,14 @@ public class JSoarTest
         {
             return null;
         }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getAgent()
+         */
+		@Override
+		public Agent getAgent() {
+			return null;
+		}
         
     };
     

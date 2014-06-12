@@ -5,11 +5,13 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
@@ -68,7 +70,17 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             SourceLocation srcLoc = context.getProductionBeingFired().getLocation();
             SoarCommand command = this.interp.getCommand(commandName, srcLoc);
             final SoarCommandContext commandContext = new DefaultSoarCommandContext(srcLoc);
+            
+            // we are using a string writer to intercept whatever printing happens so that the example (write (crlf) (print <s> -d 2))
+            // actually works like csoar (i.e., you have call write for it to appear
+            // the actual returned result gets concatenated at the end. This should match how the command output looks when executed normally
+            // while still matching csoar's behavior.
+            Printer printer = context.getAgent().getPrinter();
+            StringWriter stringWriter = new StringWriter();
+            printer.pushWriter(stringWriter);
             String result = command.execute(commandContext, commandArgs.toArray(new String[commandArgs.size()]));
+            printer.popWriter();
+            result = stringWriter.toString() + result;
             return context.getSymbols().createString(result);
         }
         catch (SoarException e)

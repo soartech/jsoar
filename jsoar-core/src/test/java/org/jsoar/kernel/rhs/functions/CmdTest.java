@@ -25,8 +25,7 @@ public class CmdTest
     public void setUp() throws Exception
     {
         this.agent = new Agent(false);
-        this.agent.getPrinter().addPersistentWriter(
-                outputWriter = new StringWriter());
+        this.agent.getPrinter().pushWriter(outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
         
         // Since this compares text and .initialize() writes a \n to the trace
