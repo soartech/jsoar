@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
@@ -42,4 +43,11 @@ public interface RhsFunctionContext extends WmeFactory<Void>
      * @return The production being fired.
      */
     Production getProductionBeingFired();
+    
+    /**
+     * Returns the agent that this is happening in.
+     * 
+     * @return The agent
+     */
+    Agent getAgent();
 }

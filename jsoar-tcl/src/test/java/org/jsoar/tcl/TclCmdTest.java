@@ -38,8 +38,7 @@ public class TclCmdTest
     {
         this.agent = new Agent(false);
         ifc = SoarTclInterface.findOrCreate(agent);
-        this.agent.getPrinter().addPersistentWriter(
-                outputWriter = new StringWriter());
+        this.agent.getPrinter().pushWriter(outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
         
         // Since this compares text and .initialize() writes a \n to the trace

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Wme;
@@ -288,6 +289,14 @@ public class SimpleMatcher
         {
             return null;
         }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getAgent()
+         */
+		@Override
+		public Agent getAgent() {
+			return null;
+		}
     };
     
     private class Listener implements ReteListener
