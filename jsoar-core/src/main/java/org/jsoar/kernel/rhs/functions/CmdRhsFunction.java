@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
@@ -46,11 +47,13 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 public class CmdRhsFunction extends AbstractRhsFunctionHandler
 {
     private final SoarCommandInterpreter interp;
+    private final Agent agent;
 
-    public CmdRhsFunction(SoarCommandInterpreter interp)
+    public CmdRhsFunction(SoarCommandInterpreter interp, Agent agent)
     {
         super("cmd", 1, Integer.MAX_VALUE);
-        this.interp = interp; 
+        this.interp = interp;
+        this.agent = agent;
     }
     
     /* (non-Javadoc)
@@ -75,7 +78,7 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             // actually works like csoar (i.e., you have call write for it to appear
             // the actual returned result gets concatenated at the end. This should match how the command output looks when executed normally
             // while still matching csoar's behavior.
-            Printer printer = context.getAgent().getPrinter();
+            Printer printer = this.agent.getPrinter();
             StringWriter stringWriter = new StringWriter();
             printer.pushWriter(stringWriter);
             String result = command.execute(commandContext, commandArgs.toArray(new String[commandArgs.size()]));

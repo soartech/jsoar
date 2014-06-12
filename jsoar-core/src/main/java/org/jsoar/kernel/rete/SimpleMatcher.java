@@ -290,13 +290,6 @@ public class SimpleMatcher
             return null;
         }
 
-        /* (non-Javadoc)
-         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getAgent()
-         */
-		@Override
-		public Agent getAgent() {
-			return null;
-		}
     };
     
     private class Listener implements ReteListener

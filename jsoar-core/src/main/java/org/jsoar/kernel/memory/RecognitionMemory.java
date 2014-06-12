@@ -1765,14 +1765,6 @@ public class RecognitionMemory
         {
             return production_being_fired;
         }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getAgent()
-         */
-		@Override
-		public Agent getAgent() {
-			return RecognitionMemory.this.context;
-		}
         
     }
 }

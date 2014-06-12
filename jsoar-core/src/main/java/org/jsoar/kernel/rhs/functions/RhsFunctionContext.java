@@ -44,10 +44,4 @@ public interface RhsFunctionContext extends WmeFactory<Void>
      */
     Production getProductionBeingFired();
     
-    /**
-     * Returns the agent that this is happening in.
-     * 
-     * @return The agent
-     */
-    Agent getAgent();
 }
