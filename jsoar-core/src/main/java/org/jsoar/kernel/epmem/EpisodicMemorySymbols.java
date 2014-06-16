@@ -41,6 +41,7 @@ class EpisodicMemorySymbols
     public final SymbolImpl epmem_sym_prev;
     public final SymbolImpl epmem_sym_query;
     public final SymbolImpl epmem_sym_negquery;
+    public final SymbolImpl epmem_sym_filter;
     public final SymbolImpl epmem_sym_before;
     public final SymbolImpl epmem_sym_after;
     public final SymbolImpl epmem_sym_prohibit;
@@ -76,6 +77,7 @@ class EpisodicMemorySymbols
         epmem_sym_prev = syms.createString("previous" );
         epmem_sym_query = syms.createString("query" );
         epmem_sym_negquery = syms.createString("neg-query" );
+        epmem_sym_filter = syms.createString("filter");
         epmem_sym_before = syms.createString("before" );
         epmem_sym_after = syms.createString("after" );
         epmem_sym_prohibit = syms.createString("prohibit" );
