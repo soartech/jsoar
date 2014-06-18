@@ -119,11 +119,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private ReteNetCommand reteNetCommand;
     
     private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
-    private final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
+    private final CmdRhsFunction cmdRhsFunction;
     
     private SoarTclInterface(Agent agent)
     {
         this.agent = agent;
+        this.cmdRhsFunction = new CmdRhsFunction(this, agent);
         
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
