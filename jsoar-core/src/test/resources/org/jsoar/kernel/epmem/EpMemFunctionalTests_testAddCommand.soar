@@ -33,7 +33,7 @@ sp {propose*create-memory-1
 sp {apply*create-memory-1
    (state <s> ^operator.name create-memory-1)
 -->
-   (cmd epmem --add |(<v> ^multivalued-attribute 4 5) (<s> ^attr <v> ^test.anonymous.ids true ^symbol <sym>)|)
+   (cmd epmem --add |(<v> ^multivalued-attribute 4 5) (state <s> ^attr <v> ^test.anonymous.ids true ^symbol <sym>)|)
    (log info |Creating memory #1 using epmem --add|)
 }
 
@@ -76,7 +76,7 @@ sp {propose*create-memory-3
 sp {apply*create-memory-3
    (state <s> ^operator.name create-memory-3)
 -->
-   (cmd epmem --add |(<s> ^second-test <test> ^also-test <also-test>) (<test> ^simple memory) (<also-test> ^and-that 2)|)
+   (cmd epmem --add |(state <s> ^second-test <test> ^also-test <also-test>) (<test> ^simple memory) (<also-test> ^and-that 2)|)
    (log info |Creating memory #3 using epmem --add|)
 }
 
@@ -121,7 +121,7 @@ sp {propose*create-memory-56
 sp {apply*create-memory-56
    (state <s> ^operator.name create-memory-56)
 -->
-   (cmd epmem --add |{(<s> ^multi <multi>) (<multi> ^test 1)} {(<s> ^multi <multi>) (<multi> ^test <c>) (<c> ^v 2)}|)
+   (cmd epmem --add |{(state <s> ^multi <multi>) (<multi> ^test 1)} {(state <s> ^multi <multi>) (<multi> ^test <c>) (<c> ^v 2)}|)
    (log info |Creating memories #5 and #6 using epmem --add|)
 }
 

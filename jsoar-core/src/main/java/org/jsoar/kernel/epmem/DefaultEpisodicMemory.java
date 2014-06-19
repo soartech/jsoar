@@ -6166,9 +6166,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 
                 // take care of any orphans
                 if ( !orphans.isEmpty() )
-                {
-                    System.err.println("AHHH! Orphans everywhere!");
-                    
+                {                    
                     int /*std::queue<epmem_edge *>::size_type*/ orphans_left;
                     Queue<EpmemEdge> still_orphans = new LinkedList<EpmemEdge>();
                     
@@ -6391,7 +6389,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             while (it.hasNext())
                                             {
                                                 WmeImpl childWme = (WmeImpl)it.next();
-                                                if (compare_symbol(childWme.value, value))
+                                                
+                                                IdentifierImpl valueId = childWme.value.asIdentifier();
+                                                // If these are the same value, or if this matches a dangling identifier on the filter.
+                                                if (valueId != null && valueId.slots == null)
+                                                {
+                                                    passedFilter.add(memoryId);
+                                                    should_install = true;  // addToWM(wme)
+                                                    break;
+                                                }
+                                                else if (compare_symbol(childWme.value, value))
                                                 {
                                                     should_install = true;  // addToWM(wme)
                                                     break;
@@ -6430,7 +6437,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 while (i < goodIndex)
                 {
                     SymbolTriple wme = retrieval_wmes.get(i);
-                    if (wme.value.asIdentifier() == null || passedFilter.contains(wme.id))
+                    if (wme.value.asIdentifier() == null)
+                        passedFilter.add(wme.id.asIdentifier());
+                    if (passedFilter.contains(wme.id))
                         Collections.swap(retrieval_wmes, i, --goodIndex);
                     else
                         ++i;
@@ -6457,9 +6466,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         break;
                 }
                 
-                List<SymbolTriple> tmp = retrieval_wmes.subList(goodIndex, retrieval_wmes.size());
-                retrieval_wmes.clear();
-                retrieval_wmes.addAll(tmp);
+                retrieval_wmes.subList(0, goodIndex).clear();
             }
         }
         
@@ -7513,13 +7520,52 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
     
-    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes) throws IOException
+    class IdentifierHolder
+    {
+        private IdentifierImpl id;
+        
+        public IdentifierHolder()
+        {
+            this.id = null;
+        }
+        
+        public IdentifierHolder(IdentifierImpl id)
+        {
+            this.id = id;
+        }
+        
+        public IdentifierImpl getIdentifier()
+        {
+            return id;
+        }
+        
+        public IdentifierImpl setIdentifier(IdentifierImpl id)
+        {
+            IdentifierImpl oldId = this.id;
+            this.id = id;
+            return oldId;
+        }
+    }
+    
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes, IdentifierHolder root, IdentifierHolder firstHolder) throws IOException
     {
         boolean return_val = false;
         boolean good_at = false;
 
         // consume left paren
         lexer.getNextLexeme();
+        
+        boolean nextIdentifierIsState = false;
+        
+        if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
+        {
+            String s = lexer.getCurrentLexeme().string;
+            if (s != null && s.equalsIgnoreCase("state"))
+            {
+                nextIdentifierIsState = true;
+                lexer.getNextLexeme();
+            }
+        }
 
         if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
         {
@@ -7549,6 +7595,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         id = symbols.createIdentifier('X');
                     idKey = lexeme.string;
                 }
+                
+                if (nextIdentifierIsState)
+                {
+                    root.setIdentifier(id);
+                }
+                
+                if (firstHolder.getIdentifier() == null)
+                    firstHolder.setIdentifier(id);
                 
                 ids.put(idKey, id);
 
@@ -7680,8 +7734,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     {
                                         newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
                                         wmes.add(newWme);
+                                        
+                                        Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
                                     }
-                                    Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
 
                                     // if this was the last attribute
                                     if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
@@ -7815,20 +7870,37 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             
             // Parse each clause in this episode.
+            IdentifierImpl rootId = null;
+            IdentifierHolder firstHolder = new IdentifierHolder();
+            
             long clause_count = 0;          // Which parentheses group we're in (1-based index)
             while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
             {
                 clause_count++;
                 
-                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes);
+                IdentifierHolder rootHolder = new IdentifierHolder();
+                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes, rootHolder, firstHolder);
                 if (!good_clause)
                     throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
+                if (rootHolder.getIdentifier() != null)
+                {
+                    if (rootId != null)
+                        throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index + ": too many root nodes.");
+                    rootId = rootHolder.getIdentifier();
+                }
             }
             
             if (clause_count == 0)
                 throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
             
-            // Determine which ID represents the top-state.
+            if (rootId == null)
+            {
+                rootId = firstHolder.getIdentifier();
+                if (rootId == null)
+                    throw new SoarException("No top-state specified in episode #" + episode_index);
+            }
+            
+            // Make sure that our structure is compatible with a single component.
             Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
             for (WmeImpl wme : wmes)
             {
@@ -7836,22 +7908,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (id != null)
                     possibleRoots.remove(id);
             }
-            
-            if (possibleRoots.size() != 1)
-            {
+            if ((possibleRoots.size() == 1 && possibleRoots.iterator().next() != rootId) || possibleRoots.size() > 1)
                 throw new SoarException("Too many possible top-states in episode #" + episode_index);
-            }
-
-            // Grab the fake root ID.
-            IdentifierImpl root = possibleRoots.iterator().next();
             
             // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
             epmem_wme_adds.clear();
             
             // Mark our fake WM for addition in epmem
-            root.epmem_id = EPMEM_NODEID_ROOT;
-            root.epmem_valid = epmem_validation;
-            addWme(root);
+            rootId.epmem_id = EPMEM_NODEID_ROOT;
+            rootId.epmem_valid = epmem_validation;
+            addWme(rootId);
             
             // Mark all real WMEs for termination
             final Marker marker = DefaultMarker.create();

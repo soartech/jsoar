@@ -38,7 +38,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testFilterEpMem() throws Exception
     {
-        runTest("testFilterEpMem", 27);
+        runTest("testFilterEpMem", 103);
     }
     
     @Test
