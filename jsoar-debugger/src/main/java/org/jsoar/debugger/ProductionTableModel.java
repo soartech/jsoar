@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.runtime.ThreadedAgent;
@@ -54,7 +55,17 @@ public class ProductionTableModel extends AbstractTableModel
             {
                 synchronized(productions)
                 {
-                    productions.addAll(agent.getProductions().getProductions(null));
+                    for(ProductionType pt : ProductionType.values())
+                    {
+                        // RPM: in general, justifications can come and go rapidly, so we're not going to try to show them in the debugger
+                        //      we will also ignore them below where new rules are added/removed
+                        //      in at least one project, this makes a significant performance/memory difference
+                        if(pt == ProductionType.JUSTIFICATION)
+                        {
+                            continue;
+                        }
+                        productions.addAll(agent.getProductions().getProductions(pt));
+                    }
                 }
                 return null;
             }}, null);
@@ -158,6 +169,11 @@ public class ProductionTableModel extends AbstractTableModel
     
     private void handleProductionAdded(Production p)
     {
+        if(p.getType() == ProductionType.JUSTIFICATION)
+        {
+            return;
+        }
+        
         int row = 0;
         synchronized (productions)
         {
@@ -169,6 +185,11 @@ public class ProductionTableModel extends AbstractTableModel
     
     private void handleProductionExcised(Production p)
     {
+        if(p.getType() == ProductionType.JUSTIFICATION)
+        {
+            return;
+        }
+        
         int row = 0;
         synchronized (productions)
         {
