@@ -1046,6 +1046,7 @@ public class RecognitionMemory
                                 {
                                     trace.inst.preferences_generated = trace.inst_next;
                                 }
+                                trace.inst_next = trace.inst_prev = null;
 
                                 if ( ( trace.inst.preferences_generated == null ) && ( !trace.inst.in_ms ) ) 
                                 {
