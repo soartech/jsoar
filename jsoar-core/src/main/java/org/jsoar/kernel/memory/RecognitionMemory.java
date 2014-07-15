@@ -1025,6 +1025,7 @@ public class RecognitionMemory
                                     {
                                         trace.inst.match_goal.goalInfo.preferences_from_goal = trace.all_of_goal_next;
                                     }
+                                    trace.all_of_goal_next = trace.all_of_goal_prev = null;
                                 }
 
                                 /* --- remove it from the list of bt.trace's from that instantiation --- */
