@@ -1111,6 +1111,15 @@ public class RecognitionMemory
         for(Condition temp : cond_stack)
         {
             temp.asPositiveCondition().bt().trace = null;
+            if(temp.next != null)
+            {
+                temp.next.prev = temp.prev;
+            }
+            if(temp.prev != null)
+            {
+                temp.prev.next = temp.next;
+            }
+            temp.next = temp.prev = null;
         }
         
         for(Instantiation temp : inst_list)
@@ -1118,6 +1127,16 @@ public class RecognitionMemory
             temp.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
             temp.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
             temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
+            
+            if(temp.nextInProdList != null)
+            {
+                temp.nextInProdList.prevInProdList = temp.prevInProdList;
+            }
+            if(temp.prevInProdList != null)
+            {
+                temp.prevInProdList.nextInProdList = temp.nextInProdList;
+            }
+            temp.nextInProdList = temp.prevInProdList = null;
         }
     }
     
