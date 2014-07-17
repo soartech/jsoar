@@ -1128,6 +1128,8 @@ public class RecognitionMemory
             temp.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
             temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
             
+            temp.prod = null;
+            
             if(temp.nextInProdList != null)
             {
                 temp.nextInProdList.prevInProdList = temp.prevInProdList;

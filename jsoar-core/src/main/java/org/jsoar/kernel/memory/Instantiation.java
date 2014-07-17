@@ -28,7 +28,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
  */
 public class Instantiation implements Traceable
 {
-    public final Production prod; 
+    public Production prod; 
     public Instantiation nextInProdList, prevInProdList; // next/prev, dll of inst's from same prod
     public Token rete_token; // used by rete for retractions (TODO make final?)
     public WmeImpl rete_wme;     // used by rete for retractions (TODO make final?)
