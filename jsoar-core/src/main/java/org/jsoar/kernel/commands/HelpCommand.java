@@ -43,7 +43,7 @@ public final class HelpCommand implements SoarCommand
         else 
         {
             String command = args[1];
-            url = resources.getString("help.url.base") + command;
+            url = resources.getString("help.url.base") + command.replace('-', '_');
         }
         
         try

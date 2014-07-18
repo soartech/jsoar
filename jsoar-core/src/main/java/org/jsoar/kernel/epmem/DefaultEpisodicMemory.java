@@ -3187,6 +3187,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final ByRef<SymbolImpl> previous = new ByRef<SymbolImpl>(null);
         final ByRef<SymbolImpl> query = new ByRef<SymbolImpl>(null);
         final ByRef<SymbolImpl> neg_query = new ByRef<SymbolImpl>(null);
+        final ByRef<SymbolImpl> filter = new ByRef<SymbolImpl>(null);
         List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
         final ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
         final ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
@@ -3278,7 +3279,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (new_cue && wme_count != 0)
             {
                 _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next, 
-                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes, store);
+                        previous, query, neg_query, filter, prohibit, before, after, currents, cue_wmes, store);
                 
                 // ////////////////////////////////////////////////////////////////////////////
                 // my_agent->epmem_timers->api->stop();
@@ -3351,7 +3352,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         epmem_process_query(
                                 state, 
                                 query.value, 
-                                neg_query.value, 
+                                neg_query.value,
+                                filter.value,
                                 prohibit, 
                                 before.value, 
                                 after.value, 
@@ -3588,10 +3590,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @throws SQLException 
      * @throws SoarException 
      */
-    private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, List<Long> prohibit, long before, 
+    private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, SymbolImpl filter, List<Long> prohibit, long before, 
             long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException, SoarException
     {
-        epmem_process_query(state, query, neg_query, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
+        epmem_process_query(state, query, neg_query, filter, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
     }
     
     private static class EpmemLiteral implements Comparable<EpmemLiteral>
@@ -3868,6 +3870,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             IdentifierImpl state, 
             SymbolImpl pos_query, 
             SymbolImpl neg_query, 
+            SymbolImpl filter, 
             List<Long> prohibits, 
             long before, 
             long after,
@@ -4775,7 +4778,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // reconstruct the actual episode
                 if (level > 2) 
                 {
-                    epmem_install_memory(state, best_episode, meta_wmes, retrieval_wmes, node_mem_map);
+                    epmem_install_memory(state, best_episode, meta_wmes, retrieval_wmes, node_mem_map, filter);
                 }
                 if (best_graph_matched)
                 {
@@ -5833,6 +5836,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     };
     
+    private void epmem_install_memory(
+            IdentifierImpl state, 
+            long /*epmem_time_id*/ memory_id, 
+            List<SymbolTriple> meta_wmes, 
+            List<SymbolTriple> retrieval_wmes,
+            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/
+        ) throws SQLException, SoarException
+    {
+        epmem_install_memory(state, memory_id, meta_wmes, retrieval_wmes, id_record, null);
+    }
+    
     /**
      * episodic_memory.cpp: 2847:
      * void epmem_install_memory( 
@@ -5855,7 +5869,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long /*epmem_time_id*/ memory_id, 
             List<SymbolTriple> meta_wmes, 
             List<SymbolTriple> retrieval_wmes,
-            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/
+            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/,
+            SymbolImpl filter /*=null*/
         ) throws SQLException, SoarException
     {
         final EpisodicMemoryStateInfo epmemInfo = epmem_info(state);
@@ -5938,6 +5953,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
             boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.add);
             
+            Set<IdentifierImpl> passedFilter = null;
+            Map<IdentifierImpl, Set<SymbolImpl>> filterParents = null;
+            if (filter != null)
+            {
+                filterParents = new HashMap<IdentifierImpl, Set<SymbolImpl>>();
+                passedFilter = new HashSet<IdentifierImpl>();
+            }
+            
             // symbols used to create WMEs
             SymbolImpl attr = null;
             
@@ -5946,6 +5969,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
             // initialize the lookup table
             ids.put(EPMEM_NODEID_ROOT, new SymbolBooleanPair(retrieved_header, true));
+            
+            // Add the filter head.
+            if (filter != null)
+            {
+                Set<SymbolImpl> initialFilter = new HashSet<SymbolImpl>();
+                initialFilter.add(filter);
+                filterParents.put(retrieved_header.asIdentifier(), initialFilter);
+            }
+            
             // first identifiers (i.e. reconstruct)
             PreparedStatement my_q = db.get_wmes_with_identifier_values;
             {
@@ -5963,13 +5995,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //match much closer if we use the variable. -ACN
                 //std::map< epmem_node_id, std::pair< Symbol*, bool> >::iterator id_p;
                 SymbolBooleanPair id_p;
-                
+                                
                 // orphaned children
                 Queue<EpmemEdge> orphans = new LinkedList<EpmemEdge>();
                 EpmemEdge orphan;
                 
                 epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_EDGE ]  );
-                
+                                
                 my_q.setLong(1, memory_id);
                 my_q.setLong(2, memory_id);
                 my_q.setLong(3, memory_id);
@@ -6004,18 +6036,104 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // if existing lti with kids don't touch
                         if ( dont_abide_by_ids_second || id_p.second )
                         {
-                            _epmem_install_id_wme( 
-                                    id_p.first, 
-                                    attr, 
-                                    ids, 
-                                    child_n_id, 
-                                    val_is_short_term, 
-                                    val_letter, 
-                                    val_num, 
-                                    id_record, 
-                                    retrieval_wmes 
-                                );
-                            num_wmes++;
+                            Set<Slot> filterSlots = null;
+                            boolean should_install;
+                            if (filter == null)
+                                should_install = true;
+                            else
+                            {
+                                should_install = false;
+                                                                
+                                IdentifierImpl memoryId = id_p.first.asIdentifier();
+                                
+                                // Check to see if this ID has made it all the way through the filter.
+                                if (passedFilter.contains(memoryId))
+                                {
+                                    should_install = true;
+                                }
+                                else
+                                {
+                                    Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
+                                    if (filterIdSet != null)    // if filterParents.contains(wme.parent)
+                                    {
+                                        for (SymbolImpl filterSym : filterIdSet)    // for each filterWme in filterParents[wme.parent]:
+                                        {
+                                            IdentifierImpl filterId = filterSym.asIdentifier();
+                                            Slot slot = Slot.find_slot(filterId, attr);
+                                            if (slot != null)   // if filterWme.hasAttribute(wme.attr)
+                                            {
+                                                // Check to make sure that this filter WME's value is an identifier.
+                                                Iterator<Wme> it = slot.getWmeIterator();
+                                                while (it.hasNext())
+                                                {
+                                                    WmeImpl childWme = (WmeImpl)it.next();
+                                                    if (childWme.value.asIdentifier() != null)
+                                                    {
+                                                        if (filterSlots == null)
+                                                            filterSlots = new HashSet<Slot>();
+                                                        filterSlots.add(slot);
+                                                        should_install = true;  // addToWM(wme)
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (should_install)
+                            {
+                                _epmem_install_id_wme( 
+                                        id_p.first, 
+                                        attr, 
+                                        ids, 
+                                        child_n_id, 
+                                        val_is_short_term, 
+                                        val_letter, 
+                                        val_num, 
+                                        id_record, 
+                                        retrieval_wmes 
+                                    );
+                                num_wmes++;
+                                
+                                if (filterSlots != null)
+                                {
+                                    SymbolImpl childMemorySym = ids.get(child_n_id).first;
+                                    IdentifierImpl childMemoryId = childMemorySym.asIdentifier();
+                                    
+                                    Set<SymbolImpl> currentFilterList = filterParents.get(childMemorySym);
+                                    if (currentFilterList == null)
+                                    {
+                                        currentFilterList = new HashSet<SymbolImpl>();
+                                        filterParents.put(childMemoryId, currentFilterList);
+                                    }
+                                    
+                                    for (Slot filterSlot : filterSlots)
+                                    {
+                                        Iterator<Wme> it = filterSlot.getWmeIterator();
+                                        while (it.hasNext())    // for childWme in filterWme.getChildren()
+                                        {
+                                            WmeImpl childWme = (WmeImpl)it.next();
+                                            SymbolImpl childSym = childWme.value;
+                                            
+                                            // Check if there is substructure under this filter.
+                                            IdentifierImpl childId = childSym.asIdentifier();
+                                            if (childId != null)
+                                            {
+                                                if (childId.slots == null)
+                                                    passedFilter.add(childMemoryId);
+                                                else
+                                                    currentFilterList.add(childSym);
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (filter != null)
+                                {
+                                    passedFilter.add(ids.get(child_n_id).first.asIdentifier());
+                                }
+                            }
                         }
                         //Ref counting doesn't matter in Java
                         //symbol_remove_ref( my_agent, attr );
@@ -6048,7 +6166,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 
                 // take care of any orphans
                 if ( !orphans.isEmpty() )
-                {
+                {                    
                     int /*std::queue<epmem_edge *>::size_type*/ orphans_left;
                     Queue<EpmemEdge> still_orphans = new LinkedList<EpmemEdge>();
                     
@@ -6066,18 +6184,104 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 if ( dont_abide_by_ids_second || id_p.second )
                                 {
-                                    _epmem_install_id_wme( 
-                                            id_p.first, 
-                                            orphan.attribute, 
-                                            ids, 
-                                            orphan.child_n_id, 
-                                            orphan.val_is_short_term, 
-                                            orphan.val_letter, 
-                                            orphan.val_num, 
-                                            id_record, 
-                                            retrieval_wmes 
-                                        );
-                                    num_wmes++;
+                                    Set<Slot> filterSlots = null;
+                                    boolean should_install;
+                                    if (filter == null)
+                                        should_install = true;
+                                    else
+                                    {
+                                        should_install = false;
+                                                                        
+                                        IdentifierImpl memoryId = id_p.first.asIdentifier();
+                                        
+                                        // Check to see if this ID has made it all the way through the filter.
+                                        if (passedFilter.contains(memoryId))
+                                        {
+                                            should_install = true;
+                                        }
+                                        else
+                                        {
+                                            Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
+                                            if (filterIdSet != null)    // if filterParents.contains(wme.parent)
+                                            {
+                                                for (SymbolImpl filterSym : filterIdSet)    // for each filterWme in filterParents[wme.parent]:
+                                                {
+                                                    IdentifierImpl filterId = filterSym.asIdentifier();
+                                                    Slot slot = Slot.find_slot(filterId, attr);
+                                                    if (slot != null)   // if filterWme.hasAttribute(wme.attr)
+                                                    {
+                                                        // Check to make sure that this filter WME's value is an identifier.
+                                                        Iterator<Wme> it = slot.getWmeIterator();
+                                                        while (it.hasNext())
+                                                        {
+                                                            WmeImpl childWme = (WmeImpl)it.next();
+                                                            if (childWme.value.asIdentifier() != null)
+                                                            {
+                                                                if (filterSlots == null)
+                                                                    filterSlots = new HashSet<Slot>();
+                                                                filterSlots.add(slot);
+                                                                should_install = true;  // addToWM(wme)
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (should_install)
+                                    {
+                                        _epmem_install_id_wme( 
+                                                id_p.first, 
+                                                orphan.attribute, 
+                                                ids, 
+                                                orphan.child_n_id, 
+                                                orphan.val_is_short_term, 
+                                                orphan.val_letter, 
+                                                orphan.val_num, 
+                                                id_record, 
+                                                retrieval_wmes 
+                                            );
+                                        num_wmes++;
+                                        
+                                        if (filterSlots != null)
+                                        {
+                                            SymbolImpl childMemorySym = ids.get(orphan.child_n_id).first;
+                                            IdentifierImpl childMemoryId = childMemorySym.asIdentifier();
+                                            
+                                            Set<SymbolImpl> currentFilterList = filterParents.get(childMemorySym);
+                                            if (currentFilterList == null)
+                                            {
+                                                currentFilterList = new HashSet<SymbolImpl>();
+                                                filterParents.put(childMemoryId, currentFilterList);
+                                            }
+                                            
+                                            for (Slot filterSlot : filterSlots)
+                                            {
+                                                Iterator<Wme> it = filterSlot.getWmeIterator();
+                                                while (it.hasNext())    // for childWme in filterWme.getChildren()
+                                                {
+                                                    WmeImpl childWme = (WmeImpl)it.next();
+                                                    SymbolImpl childSym = childWme.value;
+                                                    
+                                                    // Check if there is substructure under this filter.
+                                                    IdentifierImpl childId = childSym.asIdentifier();
+                                                    if (childId != null)
+                                                    {
+                                                        if (childId.slots == null)
+                                                            passedFilter.add(childMemoryId);
+                                                        else
+                                                            currentFilterList.add(childSym);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (filter != null)
+                                        {
+                                            passedFilter.add(ids.get(orphan.child_n_id).first.asIdentifier());
+                                        }
+                                    }
                                 }
                                 
                                 //Java does this for us
@@ -6141,8 +6345,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     
                     // get a reference to the parent
                     parent = ids.get( parent_n_id );
+                    if (parent == null)
+                        continue;
                     
-                    if ( dont_abide_by_ids_second || (parent != null && parent.second) )
+                    if ( dont_abide_by_ids_second || parent.second )
                     {
                         // make a symbol to represent the attribute
                         //attr = epmem_reverse_hash( my_agent, my_q->column_int( 2 ));
@@ -6152,8 +6358,66 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
                         value = epmem_reverse_hash( resultSet.getLong( 3 + 1 ));
                         
-                        epmem_buffer_add_wme( retrieval_wmes, parent.first, attr, value );
-                        num_wmes++;
+                        Slot filterSlot = null;
+                        boolean should_install;
+                        if (filter == null)
+                            should_install = true;
+                        else
+                        {
+                            should_install = false;
+                                                            
+                            IdentifierImpl memoryId = parent.first.asIdentifier();
+                            
+                            // Check to see if this ID has made it all the way through the filter.
+                            if (passedFilter.contains(memoryId))
+                            {
+                                should_install = true;
+                            }
+                            else
+                            {
+                                Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
+                                if (filterIdSet != null)    // if filterParents.contains(wme.parent)
+                                {
+                                    for (SymbolImpl filterSym : filterIdSet)    // for each filterWme in filterParents[wme.parent]:
+                                    {
+                                        IdentifierImpl filterId = filterSym.asIdentifier();
+                                        Slot slot = Slot.find_slot(filterId, attr);
+                                        if (slot != null)   // if filterWme.hasAttribute(wme.attr)
+                                        {
+                                            // Check to make sure that this filter WME's value is an identifier.
+                                            Iterator<Wme> it = slot.getWmeIterator();
+                                            while (it.hasNext())
+                                            {
+                                                WmeImpl childWme = (WmeImpl)it.next();
+                                                
+                                                IdentifierImpl valueId = childWme.value.asIdentifier();
+                                                // If these are the same value, or if this matches a dangling identifier on the filter.
+                                                if (valueId != null && valueId.slots == null)
+                                                {
+                                                    passedFilter.add(memoryId);
+                                                    should_install = true;  // addToWM(wme)
+                                                    break;
+                                                }
+                                                else if (compare_symbol(childWme.value, value))
+                                                {
+                                                    should_install = true;  // addToWM(wme)
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            if (should_install)
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (should_install)
+                        {
+                            epmem_buffer_add_wme( retrieval_wmes, parent.first, attr, value );
+                            num_wmes++;
+                        }
                         
                         //symbol_remove_ref( my_agent, attr );
                         //symbol_remove_ref( my_agent, value ); 
@@ -6162,6 +6426,47 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //my_q->reinitialize();
                 resultSet.close();
                 epmem_rit_clear_left_right();
+            }
+            
+            // Prune if necessary
+            if (filter != null)
+            {
+                int goodIndex = retrieval_wmes.size();
+                
+                int i = 0;
+                while (i < goodIndex)
+                {
+                    SymbolTriple wme = retrieval_wmes.get(i);
+                    if (wme.value.asIdentifier() == null)
+                        passedFilter.add(wme.id.asIdentifier());
+                    if (passedFilter.contains(wme.id))
+                        Collections.swap(retrieval_wmes, i, --goodIndex);
+                    else
+                        ++i;
+                }
+                
+                while (true)
+                {
+                    int oldSize = goodIndex;
+                    
+                    i = 0;
+                    while (i < goodIndex)
+                    {
+                        SymbolTriple wme = retrieval_wmes.get(i);
+                        if (passedFilter.contains(wme.value))
+                        {
+                            Collections.swap(retrieval_wmes, i, --goodIndex);
+                            passedFilter.add(wme.id.asIdentifier());
+                        }
+                        else
+                            ++i;
+                    }
+                    
+                    if (oldSize == goodIndex)
+                        break;
+                }
+                
+                retrieval_wmes.subList(0, goodIndex).clear();
             }
         }
         
@@ -6507,6 +6812,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final ByRef<SymbolImpl> previous,
             final ByRef<SymbolImpl> query, 
             final ByRef<SymbolImpl> neg_query, 
+            final ByRef<SymbolImpl> filter,
             List<Long> prohibit, 
             final ByRef<Long> before, 
             final ByRef<Long> after, 
@@ -6596,6 +6902,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     {
                         neg_query.value = w_p.value;
+                        path.value = 3;
+                    }
+                    else
+                    {
+                        good_cue.value = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_filter )
+                {
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
+                            ( filter.value == null ) )
+
+                    {
+                        filter.value = w_p.value;
                         path.value = 3;
                     }
                     else
@@ -7199,13 +7520,52 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
     
-    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes) throws IOException
+    class IdentifierHolder
+    {
+        private IdentifierImpl id;
+        
+        public IdentifierHolder()
+        {
+            this.id = null;
+        }
+        
+        public IdentifierHolder(IdentifierImpl id)
+        {
+            this.id = id;
+        }
+        
+        public IdentifierImpl getIdentifier()
+        {
+            return id;
+        }
+        
+        public IdentifierImpl setIdentifier(IdentifierImpl id)
+        {
+            IdentifierImpl oldId = this.id;
+            this.id = id;
+            return oldId;
+        }
+    }
+    
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes, IdentifierHolder root, IdentifierHolder firstHolder) throws IOException
     {
         boolean return_val = false;
         boolean good_at = false;
 
         // consume left paren
         lexer.getNextLexeme();
+        
+        boolean nextIdentifierIsState = false;
+        
+        if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
+        {
+            String s = lexer.getCurrentLexeme().string;
+            if (s != null && s.equalsIgnoreCase("state"))
+            {
+                nextIdentifierIsState = true;
+                lexer.getNextLexeme();
+            }
+        }
 
         if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
         {
@@ -7235,6 +7595,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         id = symbols.createIdentifier('X');
                     idKey = lexeme.string;
                 }
+                
+                if (nextIdentifierIsState)
+                {
+                    root.setIdentifier(id);
+                }
+                
+                if (firstHolder.getIdentifier() == null)
+                    firstHolder.setIdentifier(id);
                 
                 ids.put(idKey, id);
 
@@ -7366,8 +7734,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     {
                                         newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
                                         wmes.add(newWme);
+                                        
+                                        Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
                                     }
-                                    Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
 
                                     // if this was the last attribute
                                     if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
@@ -7501,20 +7870,37 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             
             // Parse each clause in this episode.
+            IdentifierImpl rootId = null;
+            IdentifierHolder firstHolder = new IdentifierHolder();
+            
             long clause_count = 0;          // Which parentheses group we're in (1-based index)
             while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
             {
                 clause_count++;
                 
-                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes);
+                IdentifierHolder rootHolder = new IdentifierHolder();
+                boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes, rootHolder, firstHolder);
                 if (!good_clause)
                     throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
+                if (rootHolder.getIdentifier() != null)
+                {
+                    if (rootId != null)
+                        throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index + ": too many root nodes.");
+                    rootId = rootHolder.getIdentifier();
+                }
             }
             
             if (clause_count == 0)
                 throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
             
-            // Determine which ID represents the top-state.
+            if (rootId == null)
+            {
+                rootId = firstHolder.getIdentifier();
+                if (rootId == null)
+                    throw new SoarException("No top-state specified in episode #" + episode_index);
+            }
+            
+            // Make sure that our structure is compatible with a single component.
             Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
             for (WmeImpl wme : wmes)
             {
@@ -7522,22 +7908,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (id != null)
                     possibleRoots.remove(id);
             }
-            
-            if (possibleRoots.size() != 1)
-            {
+            if ((possibleRoots.size() == 1 && possibleRoots.iterator().next() != rootId) || possibleRoots.size() > 1)
                 throw new SoarException("Too many possible top-states in episode #" + episode_index);
-            }
-
-            // Grab the fake root ID.
-            IdentifierImpl root = possibleRoots.iterator().next();
             
             // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
             epmem_wme_adds.clear();
             
             // Mark our fake WM for addition in epmem
-            root.epmem_id = EPMEM_NODEID_ROOT;
-            root.epmem_valid = epmem_validation;
-            addWme(root);
+            rootId.epmem_id = EPMEM_NODEID_ROOT;
+            rootId.epmem_valid = epmem_validation;
+            addWme(rootId);
             
             // Mark all real WMEs for termination
             final Marker marker = DefaultMarker.create();

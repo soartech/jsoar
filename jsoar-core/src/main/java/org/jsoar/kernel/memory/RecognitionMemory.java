@@ -1025,6 +1025,7 @@ public class RecognitionMemory
                                     {
                                         trace.inst.match_goal.goalInfo.preferences_from_goal = trace.all_of_goal_next;
                                     }
+                                    trace.all_of_goal_next = trace.all_of_goal_prev = null;
                                 }
 
                                 /* --- remove it from the list of bt.trace's from that instantiation --- */
@@ -1045,6 +1046,7 @@ public class RecognitionMemory
                                 {
                                     trace.inst.preferences_generated = trace.inst_next;
                                 }
+                                trace.inst_next = trace.inst_prev = null;
 
                                 if ( ( trace.inst.preferences_generated == null ) && ( !trace.inst.in_ms ) ) 
                                 {
@@ -1109,6 +1111,15 @@ public class RecognitionMemory
         for(Condition temp : cond_stack)
         {
             temp.asPositiveCondition().bt().trace = null;
+            if(temp.next != null)
+            {
+                temp.next.prev = temp.prev;
+            }
+            if(temp.prev != null)
+            {
+                temp.prev.next = temp.next;
+            }
+            temp.next = temp.prev = null;
         }
         
         for(Instantiation temp : inst_list)
@@ -1116,6 +1127,8 @@ public class RecognitionMemory
             temp.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
             temp.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
             temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
+            
+            temp.prod = null;
         }
     }
     
