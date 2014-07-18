@@ -1,0 +1,54 @@
+smem --set learning on
+
+sp "propose*initialize
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize)
+"
+
+sp "apply*initialize
+   (state <s> ^operator.name initialize)
+-->
+   (<s> ^name count
+        ^count.number 0)
+"
+
+sp "count*propose*increment
+   (state <s> ^name count
+              ^count.number <c>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name increment
+        ^value <c>)
+"
+
+sp "increment*propose*add
+   (state <s> ^name increment)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name add)
+"
+
+sp "apply*add
+   (state <s> ^operator.name add
+              ^superstate <ss>)
+	(<ss> ^smem.command <command>)
+   (<ss> ^count <c>)
+   (<c> ^number <n>)
+-->
+   (<ss> ^count <c> -)
+	(<ss> ^count <new>)
+	(<new> ^number  (+ <n> 1))
+   (<command> ^store <new>)
+"
+
+##!
+# @brief Appends the name of the selected operator that triggered us.
+# @type state-elaboration
+sp {elaborate*state*name
+   (state <s> ^superstate.operator.name <name>)
+-->
+   (<s> ^name <name>)
+}
