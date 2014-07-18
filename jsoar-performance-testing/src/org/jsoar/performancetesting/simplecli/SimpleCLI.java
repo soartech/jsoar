@@ -31,6 +31,10 @@ public class SimpleCLI
                 case "exit":
                     continu = false;
                     break;
+                case "gc":
+                    System.gc();
+                    System.gc();
+                    break;
                 default:
                     String result = "CLI failed to execute command";
                     try{
