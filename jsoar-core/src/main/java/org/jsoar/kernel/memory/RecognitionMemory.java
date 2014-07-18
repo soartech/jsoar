@@ -1129,16 +1129,6 @@ public class RecognitionMemory
             temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
             
             temp.prod = null;
-            
-            if(temp.nextInProdList != null)
-            {
-                temp.nextInProdList.prevInProdList = temp.prevInProdList;
-            }
-            if(temp.prevInProdList != null)
-            {
-                temp.prevInProdList.nextInProdList = temp.nextInProdList;
-            }
-            temp.nextInProdList = temp.prevInProdList = null;
         }
     }
     
