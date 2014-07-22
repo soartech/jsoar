@@ -1270,9 +1270,9 @@ public class RecognitionMemory
             if (inst.in_ms)
             {
                 inst.prod.instantiations = inst.insertAtHeadOfProdList(inst.prod.instantiations);
+				trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
             }
 
-            trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
 
             Preference pref, next_pref;
             for (pref = inst.preferences_generated; pref != null; pref = next_pref)
