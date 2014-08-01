@@ -3507,34 +3507,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         for ( Preference pref = inst.preferences_generated; pref != null; pref=pref.inst_next )
         {
             // add the preference to temporary memory
-            if ( recognitionMemory.add_preference_to_tm( pref ) )
+            // add to the list of preferences to be removed
+            // when the goal is removed
+            //insert_at_head_of_dll( state->id.preferences_from_goal, pref, all_of_goal_next, all_of_goal_prev );
+            recognitionMemory.add_preference_to_tm( pref );
+            Preference header = state.goalInfo.preferences_from_goal;
+            pref.all_of_goal_next = header;
+            pref.all_of_goal_prev = null;//NIL
+            if(header != null)
             {
-                // add to the list of preferences to be removed
-                // when the goal is removed
-                //insert_at_head_of_dll( state->id.preferences_from_goal, pref, all_of_goal_next, all_of_goal_prev );
-                Preference header = state.goalInfo.preferences_from_goal;
-                pref.all_of_goal_next = header;
-                pref.all_of_goal_prev = null;//NIL
-                if(header != null)
-                {
-                    header.all_of_goal_prev = pref;
-                }
-                state.goalInfo.preferences_from_goal = pref;
-                
-                pref.on_goal_list = true;
-
-                if ( epmem_wmes != null )
-                {
-                    // if this is a meta wme, then it is completely local
-                    // to the state and thus we will manually remove it
-                    // (via preference removal) when the time comes
-                    epmem_wmes.add( pref );
-                }
+                header.all_of_goal_prev = pref;
             }
-            else
+            state.goalInfo.preferences_from_goal = pref;
+            
+            pref.on_goal_list = true;
+
+            if ( epmem_wmes != null )
             {
-                pref.preference_add_ref( );
-                pref.preference_remove_ref( recognitionMemory );
+                // if this is a meta wme, then it is completely local
+                // to the state and thus we will manually remove it
+                // (via preference removal) when the time comes
+                epmem_wmes.add( pref );
             }
         }
 
@@ -3567,17 +3560,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     for ( just_pref=my_justification.preferences_generated; just_pref!=null/*NIL*/; just_pref=just_pref.inst_next )
                     {
-                        if ( recognitionMemory.add_preference_to_tm( just_pref ) )
+                        recognitionMemory.add_preference_to_tm( just_pref );
+                        if ( wma.wma_enabled() )
                         {
-                            if ( wma.wma_enabled() )
-                            {
-                                wma.wma_activate_wmes_in_pref( just_pref );
-                            }
-                        }
-                        else
-                        {
-                            just_pref.preference_add_ref() ;
-                            just_pref.preference_remove_ref(recognitionMemory);
+                            wma.wma_activate_wmes_in_pref( just_pref );
                         }
                     }
                 }

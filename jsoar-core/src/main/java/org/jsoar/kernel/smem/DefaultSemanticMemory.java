@@ -547,25 +547,18 @@ public class DefaultSemanticMemory implements SemanticMemory
         for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
         {
             // add the preference to temporary memory
-            if (recMem.add_preference_to_tm(pref))
-            {
-                // and add it to the list of preferences to be removed
-                // when the goal is removed
-                state.goalInfo.addGoalPreference(pref);
-                pref.on_goal_list = true;
+            recMem.add_preference_to_tm(pref);
+            // and add it to the list of preferences to be removed
+            // when the goal is removed
+            state.goalInfo.addGoalPreference(pref);
+            pref.on_goal_list = true;
 
-                if (meta)
-                {
-                    // if this is a meta wme, then it is completely local
-                    // to the state and thus we will manually remove it
-                    // (via preference removal) when the time comes
-                    smem_info(state).smem_wmes.push(pref);
-                }
-            }
-            else
+            if (meta)
             {
-                pref.preference_add_ref();
-                pref.preference_remove_ref(this.recMem);
+                // if this is a meta wme, then it is completely local
+                // to the state and thus we will manually remove it
+                // (via preference removal) when the time comes
+                smem_info(state).smem_wmes.push(pref);
             }
         }
 
@@ -597,17 +590,10 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     for (Preference just_pref = my_justification.preferences_generated; just_pref != null; just_pref = just_pref.inst_next)
                     {
-                        if (recMem.add_preference_to_tm(just_pref))
+                        recMem.add_preference_to_tm(just_pref);
+                        if (wma.wma_enabled())
                         {
-                            if (wma.wma_enabled())
-                            {
-                                wma.wma_activate_wmes_in_pref(just_pref);
-                            }
-                        }
-                        else
-                        {
-                            just_pref.preference_add_ref();
-                            just_pref.preference_remove_ref(recMem);
+                            wma.wma_activate_wmes_in_pref(just_pref);
                         }
                     }
                 }

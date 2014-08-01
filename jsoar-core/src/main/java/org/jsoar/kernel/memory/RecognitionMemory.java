@@ -1270,9 +1270,9 @@ public class RecognitionMemory
             if (inst.in_ms)
             {
                 inst.prod.instantiations = inst.insertAtHeadOfProdList(inst.prod.instantiations);
+				trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
             }
 
-            trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
 
             Preference pref, next_pref;
             for (pref = inst.preferences_generated; pref != null; pref = next_pref)
@@ -1284,28 +1284,13 @@ public class RecognitionMemory
                 if ( inst.in_ms || pref.o_supported )
                 {
                     // normal case
-                    if(add_preference_to_tm(pref))
+                    add_preference_to_tm(pref);
+                    // No knowledge retrieval necessary in Operand2
+                    
+                    if (wma.wma_enabled())
                     {
-                        // No knowledge retrieval necessary in Operand2
-                        
-                        if (wma.wma_enabled())
-                        {
-                            wma.wma_activate_wmes_in_pref(pref);
-                        }
+                        wma.wma_activate_wmes_in_pref(pref);
                     }
-                    else
-                    {
-                        // NLD: the preference was o-supported, at
-                        // the top state, and was asserting an acceptable 
-                        // preference for a WME that was already
-                        // o-supported. hence unnecessary.
-
-                        RecognitionMemory recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
-                        pref.preference_add_ref();
-                        pref.preference_remove_ref(recMemory);
-                    }
-
-
                 }
                 else
                 {
@@ -1392,7 +1377,7 @@ public class RecognitionMemory
      * 
      * @param pref
      */
-    public boolean add_preference_to_tm (Preference pref) 
+    public void add_preference_to_tm (Preference pref) 
     {
 //    #ifdef DEBUG_PREFS
 //       print (thisAgent, "\nAdd preference at 0x%8x:  ",reinterpret_cast<uintptr_t>(pref));
@@ -1400,26 +1385,6 @@ public class RecognitionMemory
 //    #endif
        
        Slot s = Slot.make_slot( pref.id, pref.attr, predefinedSyms.operator_symbol );
-       
-
-       if ( !s.isa_context_slot && pref.o_supported && ( pref.type == PreferenceType.ACCEPTABLE ) && ( pref.inst.match_goal == this.decider.top_state ) )
-       {
-           boolean already_top_o_supported = false;
-
-           for ( Preference p2=s.getAllPreferences(); ( p2 != null && !already_top_o_supported ); p2=p2.nextOfSlot )
-           {
-               if ( ( p2.value == pref.value ) && p2.o_supported && ( p2.inst.match_goal == this.decider.top_state ) )
-               {
-                   already_top_o_supported = true;
-               }
-           }
-
-           if ( already_top_o_supported )
-           {
-               // NLD: if it is suspected that this code is causing an issue, simply comment out the following line to debug.
-               return false;
-           }
-       }
        
        pref.slot = s;
        s.addPreference(pref); // note this handles inserting at the head of the all_preferences list and inserting into the correct preference type list
@@ -1502,8 +1467,6 @@ public class RecognitionMemory
        {
            decider.mark_context_slot_as_acceptable_preference_changed (s);
        }
-       
-       return true;
     }
 
     /**
