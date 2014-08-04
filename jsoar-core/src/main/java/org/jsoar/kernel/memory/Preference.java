@@ -290,6 +290,7 @@ public class Preference implements Formattable
         recMemory.possibly_deallocate_instantiation(pref.inst);
 
         pref.deallocated = true;
+        pref.destroy();
     } 
     
     /**
@@ -384,5 +385,33 @@ public class Preference implements Formattable
         {
             return false;
         }
+    }
+    
+    private void destroy(){
+        referent = null;
+        slot = null;
+
+        next = null;
+        previous = null;
+
+        nextOfSlot = null;
+        previousOfSlot = null;
+
+        // dll of all pref's from the same match goal
+        all_of_goal_next = null;
+        all_of_goal_prev = null;
+        
+        // dll (without header) of cloned preferences (created when chunking)
+        next_clone = null;
+        prev_clone = null;
+          
+        inst = null;
+        inst_next = null;
+        inst_prev = null;
+        
+        next_candidate = null;
+        next_result = null;
+
+        wma_o_set = null; // initialized by WorkingMemoryActivation
     }
 }
