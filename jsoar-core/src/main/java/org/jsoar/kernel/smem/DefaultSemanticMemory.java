@@ -4979,6 +4979,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                     {
                     case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
                         temp_str2 = new StringBuilder(smem_reverse_hash_str(rs.getLong(3 + 1)));
+                        temp_str2.insert(0, "|");
+                        temp_str2.append("|");
                         break;
                     case Symbols.INT_CONSTANT_SYMBOL_TYPE:
                         temp_str2 = new StringBuilder((new Integer(smem_reverse_hash_int(rs.getLong(3 + 1)))).toString());
