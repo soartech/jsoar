@@ -3555,7 +3555,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     if ( my_justification.in_ms )
                     {
-                        my_justification.insertAtHeadOfProdList(my_justification.prod.instantiations);
+                        my_justification.prod.instantiations = my_justification.insertAtHeadOfProdList(my_justification.prod.instantiations);
                     }
 
                     for ( just_pref=my_justification.preferences_generated; just_pref!=null/*NIL*/; just_pref=just_pref.inst_next )
