@@ -1110,6 +1110,15 @@ public class RecognitionMemory
         
         for(Condition temp : cond_stack)
         {
+            final Preference trace = temp.asPositiveCondition().bt().trace;
+            if(trace != null)
+            {
+                if(trace.type == PreferenceType.BINARY_INDIFFERENT)
+                {
+                    trace.referent = null;
+                }
+                trace.wma_o_set = null;
+            }
             temp.asPositiveCondition().bt().trace = null;
             if(temp.next != null)
             {
