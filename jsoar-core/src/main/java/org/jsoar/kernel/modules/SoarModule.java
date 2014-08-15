@@ -277,7 +277,14 @@ public class SoarModule
                 
                 if (cond.bt().trace != null)
                 {
-                    if (!SoarConstants.DO_TOP_LEVEL_REF_CTS || inst.match_goal_level > SoarConstants.TOP_GOAL_LEVEL)
+                    if (!SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                    {
+                        if(inst.match_goal_level > SoarConstants.TOP_GOAL_LEVEL)
+                        {
+                            cond.bt().trace.preference_add_ref();
+                        }
+                    }
+                    else 
                     {
                         cond.bt().trace.preference_add_ref();
                     }
