@@ -1017,21 +1017,7 @@ public class RecognitionMemory
                                 // The code below is an expansion of this remove_from_dll macro...
                                 //remove_from_dll( cond->bt.trace->inst->preferences_generated, cond->bt.trace, inst_next, inst_prev );
 
-                                if(trace.inst_next != null)
-                                {
-                                    trace.inst_next.inst_prev = 
-                                        trace.inst_prev;
-                                }
-                                if(trace.inst_prev != null)
-                                {
-                                    trace.inst_prev.inst_next = 
-                                        trace.inst_next;
-                                }
-                                else
-                                {
-                                    trace.inst.preferences_generated = trace.inst_next;
-                                }
-                                trace.inst_next = trace.inst_prev = null;
+                                trace.inst.removeGeneratedPreferece(trace);
 
                                 if ( ( trace.inst.preferences_generated == null ) && ( !trace.inst.in_ms ) ) 
                                 {
