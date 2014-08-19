@@ -1010,22 +1010,7 @@ public class RecognitionMemory
                                     //remove_from_dll( 
                                     //        cond->bt.trace->inst->match_goal->id.preferences_from_goal, 
                                     //        cond->bt.trace, all_of_goal_next, all_of_goal_prev );
-
-                                    if(trace.all_of_goal_next != null)
-                                    {
-                                        trace.all_of_goal_next.all_of_goal_prev = 
-                                            trace.all_of_goal_prev;
-                                    }
-                                    if(trace.all_of_goal_prev != null)
-                                    {
-                                        trace.all_of_goal_prev.all_of_goal_next = 
-                                            trace.all_of_goal_next;
-                                    }
-                                    else
-                                    {
-                                        trace.inst.match_goal.goalInfo.preferences_from_goal = trace.all_of_goal_next;
-                                    }
-                                    trace.all_of_goal_next = trace.all_of_goal_prev = null;
+                                    trace.inst.match_goal.goalInfo.removeGoalPreference(trace);
                                 }
 
                                 /* --- remove it from the list of bt.trace's from that instantiation --- */
