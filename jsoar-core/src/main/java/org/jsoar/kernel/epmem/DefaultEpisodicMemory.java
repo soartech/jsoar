@@ -3511,15 +3511,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // when the goal is removed
             //insert_at_head_of_dll( state->id.preferences_from_goal, pref, all_of_goal_next, all_of_goal_prev );
             recognitionMemory.add_preference_to_tm( pref );
-            Preference header = state.goalInfo.preferences_from_goal;
-            pref.all_of_goal_next = header;
-            pref.all_of_goal_prev = null;//NIL
-            if(header != null)
-            {
-                header.all_of_goal_prev = pref;
-            }
-            state.goalInfo.preferences_from_goal = pref;
             
+            state.goalInfo.addGoalPreference(pref);
             pref.on_goal_list = true;
 
             if ( epmem_wmes != null )
