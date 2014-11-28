@@ -52,7 +52,7 @@ public class LogCommandTest
 	public void testLogInit() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		Set<String> testSet = new HashSet<String>();
 		testSet.add("default");
@@ -72,7 +72,7 @@ public class LogCommandTest
 	public void testLogAdd() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "disable"});
 		assertFalse(logManager.isStrict());
@@ -107,7 +107,7 @@ public class LogCommandTest
 	public void testLogAddStrict() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "enable"});
 		assertTrue(logManager.isStrict());
@@ -171,7 +171,7 @@ public class LogCommandTest
 	public void testLogEnableDisable() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logManager.setActive(true);
 		assertTrue(logManager.isActive());
@@ -199,7 +199,7 @@ public class LogCommandTest
 	public void testLogLevel() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logManager.setStrict(false);
 		
@@ -228,7 +228,7 @@ public class LogCommandTest
 	public void testLogDefault() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logManager.setStrict(false);
 		
@@ -253,7 +253,7 @@ public class LogCommandTest
 	public void testEchoBasic() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "simple"});
 		assertEquals(logManager.getEchoMode(), EchoMode.simple);
@@ -268,7 +268,7 @@ public class LogCommandTest
 	public void testEchoOff() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "off"});
 		assertEquals(logManager.getEchoMode(), EchoMode.off);
@@ -283,7 +283,7 @@ public class LogCommandTest
 	public void testEchoOn() throws Exception
 	{
 		LogManager logManager = agent.getLogManager();
-		LogCommand logCommand = new LogCommand(logManager, new DefaultInterpreter(agent));
+		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "on"});
 		assertEquals(logManager.getEchoMode(), EchoMode.on);

@@ -3,6 +3,7 @@ package org.jsoar.kernel.rhs.functions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.DefaultSourceLocation;

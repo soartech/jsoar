@@ -76,7 +76,7 @@ public class StandardCommands
         
         interp.addCommand("time", new TimeCommand(agent));
         
-        interp.addCommand("log", new LogCommand(agent.getLogManager(), interp));
+        interp.addCommand("log", new LogCommand(agent, interp));
         
         interp.addCommand("handler", new HandlerCommand(agent));
         
