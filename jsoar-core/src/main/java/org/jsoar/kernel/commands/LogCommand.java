@@ -35,7 +35,7 @@ public class LogCommand implements SoarCommand {
 	private final LogManager logManager;
 	private final SoarCommandInterpreter soarCommandInterpreter;
     private final OptionProcessor<Options> options = OptionProcessor.create();
-    private static String sourceLocationSeparator = ":";
+    private static String sourceLocationSeparator = ".";
     
     private enum Options
     {
