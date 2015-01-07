@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.LogManager.LoggerException;
+import org.jsoar.kernel.LogManager.SourceLocationMethod;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
@@ -26,9 +31,11 @@ import com.google.common.collect.Lists;
  */
 public class LogCommand implements SoarCommand {
 	
+    private final Agent agent;
 	private final LogManager logManager;
 	private final SoarCommandInterpreter soarCommandInterpreter;
     private final OptionProcessor<Options> options = OptionProcessor.create();
+    private static String sourceLocationSeparator = ".";
     
     private enum Options
     {
@@ -39,12 +46,15 @@ public class LogCommand implements SoarCommand {
         echo,
         init,
         collapse,
-        level
+        level,
+        source,
+        abbreviate
     }
     
-    public LogCommand(LogManager logManager, SoarCommandInterpreter soarCommandInterpreter)
+    public LogCommand(Agent agent, SoarCommandInterpreter soarCommandInterpreter)
     {
-        this.logManager = logManager;
+        this.agent = agent;
+        this.logManager = agent.getLogManager();
         this.soarCommandInterpreter = soarCommandInterpreter;
         
         options
@@ -55,11 +65,13 @@ public class LogCommand implements SoarCommand {
         	.newOption(Options.off).shortOption('z')
         		.newOption(Options.disable)
         		.newOption(Options.no)
-        	.newOption(Options.strict)
+        	.newOption(Options.strict).shortOption('k')
         	.newOption(Options.echo)
         	.newOption(Options.init)
         	.newOption(Options.collapse)
         	.newOption(Options.level)
+        	.newOption(Options.source).shortOption('s')
+        	.newOption(Options.abbreviate).shortOption('v')
         	.done();
     }
 
@@ -176,6 +188,25 @@ public class LogCommand implements SoarCommand {
 			else
 				throw new SoarException("Expected one argument: yes | no");
 		}
+		else if (options.has(Options.abbreviate))
+        {
+            if (nonOpts.size() != 1)
+                throw new SoarException("Expected one argument: yes | enable | on | no | disable | off");
+            
+            String mode = nonOpts.get(0);
+            if (mode.toLowerCase().equalsIgnoreCase("yes") || mode.toLowerCase().equalsIgnoreCase("enable") || mode.toLowerCase().equalsIgnoreCase("on"))
+            {
+                logManager.setAbbreviate(true);
+                return "Logger using abbreviated paths.";
+            }
+            else if (mode.toLowerCase().equalsIgnoreCase("no") || mode.toLowerCase().equalsIgnoreCase("disable") || mode.toLowerCase().equalsIgnoreCase("off"))
+            {
+                logManager.setAbbreviate(false);
+                return "Logger using full paths.";
+            }
+            else
+                throw new SoarException("Expected one argument: yes | no");
+        }
 		else if (options.has(Options.echo))
 		{
 			if (nonOpts.size() != 1)
@@ -194,6 +225,24 @@ public class LogCommand implements SoarCommand {
 			
 			return "Logger echo mode set to: " + echoMode.toString();
 		}
+		else if (options.has(Options.source))
+        {
+            if (nonOpts.size() != 1)
+                throw new SoarException("Expected one argument: disk | stack | none");
+            
+            SourceLocationMethod sourceLocationMethod;
+            try
+            {
+                sourceLocationMethod = SourceLocationMethod.fromString(nonOpts.get(0));
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new SoarException("Unknown source location method value: " + nonOpts.get(0));
+            }
+            logManager.setSourceLocationMethod(sourceLocationMethod);
+            
+            return "Logger source location method set to: " + sourceLocationMethod.toString();
+        }
 		else if (options.has(Options.level))
 		{
 			if (nonOpts.size() != 1)
@@ -221,49 +270,47 @@ public class LogCommand implements SoarCommand {
 			if (nonOpts.size() < 2)
 				throw new SoarException("Too few argugments. Expected: log [LOGGER-NAME] {INFO | DEBUG | WARN | ERROR} MESSAGE...");
 			
-			boolean collapse = options.has(Options.collapse);				
+			boolean collapse = options.has(Options.collapse);
 			
-			String loggerName = nonOpts.get(0);
+			String loggerName;
 			LogLevel logLevel;
 			List<String> parameters;
 			
 			try
 			{
-				logLevel = LogManager.LogLevel.fromString(loggerName);
+			    // Did the user omit the LOGGER-NAME?
+			    // If so, the first argument will by the log level.
+			    // So let's try to cast the first argument to a log level.
+				logLevel = LogManager.LogLevel.fromString(nonOpts.get(0));
 				
-				loggerName = null;
-				
-				SourceLocation sourceLocation = context.getSourceLocation();
-		        if (sourceLocation != DefaultSourceLocation.UNKNOWN)
-		        {
-		            String fileName = sourceLocation.getFile();
-		            if (fileName != null && !fileName.isEmpty())
-		            {
-		                loggerName = collapseFileName(fileName, soarCommandInterpreter.getWorkingDirectory());
-		                if (loggerName != null)
-		                {
-		                    // Prevent strict mode from biting us.
-		                    if (!logManager.hasLogger(loggerName))
-		                    {
-                                try {
-                                    logManager.addLogger(loggerName);
-                                } catch (LoggerException e) {
-                                    loggerName = null;
-                                }
-		                    }
-		                }
-		            }
-		        }
-		        
-		        if (loggerName == null)
-		            loggerName = "default";
+				// The user omitted LOGGER-NAME (we know because we just properly parsed the log level).
+				loggerName = getSourceLocation(context, logManager.getAbbreviate(), logManager.getSourceLocationMethod());
+				if (loggerName != null)
+                {
+                    // Prevent strict mode from biting us.
+                    if (!logManager.hasLogger(loggerName))
+                    {
+                        try {
+                            logManager.addLogger(loggerName);
+                        } catch (LoggerException e) {
+                            //
+                        }
+                    }
+                }
+
+				if (loggerName == null)
+				    loggerName = "default";
 				
 				parameters = nonOpts.subList(1, nonOpts.size());
 			}
 			catch (IllegalArgumentException e)
 			{
+			    // The user specified LOGGER-NAME.
+			    loggerName = nonOpts.get(0);
+			    
 				try
 				{
+				    // Make sure that the log-level is valid.
 					logLevel = LogManager.LogLevel.fromString(nonOpts.get(1));
 				}
 				catch (IllegalArgumentException ee)
@@ -274,6 +321,7 @@ public class LogCommand implements SoarCommand {
 				parameters = nonOpts.subList(2, nonOpts.size());
 			}
 
+			// Log the message.
 			try
 			{
 				logManager.log(loggerName, logLevel, parameters, collapse);
@@ -286,6 +334,62 @@ public class LogCommand implements SoarCommand {
 			return "";
 		}
 	}
+	
+	public String getSourceLocation(SoarCommandContext context, boolean abbreviate, SourceLocationMethod sourceLocationMethod)
+	{
+	    if (sourceLocationMethod.equals(SourceLocationMethod.stack))
+	        return getGoalStackLocation(abbreviate);
+	    else if (sourceLocationMethod.equals(SourceLocationMethod.disk))
+	        return getSourceFileLocation(context, abbreviate);
+	    else
+	        return null;
+	}
+	
+	public String getGoalStackLocation(boolean abbreviate)
+	{
+	    final StringBuffer location = new StringBuffer();
+	    
+	    Iterator<Goal> it = agent.getGoalStack().iterator();
+	    if (it.hasNext())
+	    {
+	        // location.append(getOperatorNameFromGoal(it.next()));
+	        String thisGoal = getOperatorNameFromGoal(it.next());
+	        if (!abbreviate || !it.hasNext())
+	            location.append(thisGoal);
+	        else
+	            location.append(thisGoal.charAt(0));
+	        while (it.hasNext())
+	        {
+	            location.append(LogCommand.sourceLocationSeparator);
+	            //location.append(getOperatorNameFromGoal(it.next()));
+	            thisGoal = getOperatorNameFromGoal(it.next());
+	            if (!abbreviate || !it.hasNext())
+	                location.append(thisGoal);
+	            else
+	                location.append(thisGoal.charAt(0));
+	        }
+	    }
+	    
+	    return location.toString();
+	}
+	
+	public String getSourceFileLocation(SoarCommandContext context, boolean abbreviate)
+    {
+	    SourceLocation sourceLocation = context.getSourceLocation();
+        if (sourceLocation != DefaultSourceLocation.UNKNOWN)
+        {
+            String fileName = sourceLocation.getFile();
+            if (fileName != null && !fileName.isEmpty())
+                return collapseFileName(fileName, soarCommandInterpreter.getWorkingDirectory(), abbreviate);
+        }
+        return null;
+    }
+	
+	private static String getOperatorNameFromGoal(Goal g)
+    {
+        Symbol opName = g.getOperatorName();
+        return opName == null ? "?" : opName.toString();
+    }
 	
 	public static List<String> uberSplit(String file) throws IOException
 	{	    
@@ -308,7 +412,7 @@ public class LogCommand implements SoarCommand {
 	    return result;
 	}
 	
-	public static String collapseFileName(String file, String cwd)
+	public static String collapseFileName(String file, String cwd, boolean abbreviate)
 	{
 	    String[] cwdParts;
 	    String[] fileParts;
@@ -336,10 +440,16 @@ public class LogCommand implements SoarCommand {
 	    
 	    int diff = cwdParts.length - marker;
 	    if (diff > 0)
-	        result += "^" + diff + ".";
+	        result += "^" + diff + sourceLocationSeparator;
 	    
 	    for (int i = marker; i < fileParts.length - 1; ++i)
-	        result += fileParts[i].charAt(0) + ".";
+	    {
+	        if (abbreviate)
+	            result += fileParts[i].charAt(0);
+	        else
+	            result += fileParts[i];
+	        result += sourceLocationSeparator;
+	    }
 	    result += fileParts[fileParts.length-1];
 	    	    
 	    return result;

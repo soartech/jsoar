@@ -19,11 +19,11 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
         String expectedResultSMem = "========================================\n" +
                                     "            Semantic Memory             \n" +
                                     "========================================\n" +
-                                    "(@F4 ^complete true ^number 3 ^factor @F5 [+5.0])\n" +
+                                    "(@F4 ^complete |true| ^number 3 ^factor @F5 [+5.0])\n" +
                                     "(@F5 ^value 3 ^multiplicity 1 [+6.0])\n" +
-                                    "(@F12 ^complete true ^number 5 ^factor @F13 [+3.0])\n" +
+                                    "(@F12 ^complete |true| ^number 5 ^factor @F13 [+3.0])\n" +
                                     "(@F13 ^value 5 ^multiplicity 1 [+4.0])\n" +
-                                    "(@F17 ^complete true ^number 7 ^factor @F18 [+7.0])\n" +
+                                    "(@F17 ^complete |true| ^number 7 ^factor @F18 [+7.0])\n" +
                                     "(@F18 ^value 7 ^multiplicity 1 [+8.0])\n";
                 
         assertTrue("Unexpected output from SMem!", actualResultSMem.equals(expectedResultSMem));

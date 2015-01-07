@@ -256,8 +256,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+6.0])\n" +
-                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name foo ^location @L2 [+5.0])\n";
+                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+5.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -293,8 +293,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+5.0])\n" +
-                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name foo ^location @L2 [+3.0])\n";
+                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+3.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -330,8 +330,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+1.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+2.0])\n" +
-                          "(@X1 ^name foo ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name foo ^location @L2 [+2.0])\n";
+                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+2.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -452,8 +452,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
-                          "(@X1 ^name foo ^location @L1 [+0.0])\n" +
-                          "(@X2 ^name foo ^location @L2 [+0.456])\n";
+                          "(@X1 ^name |foo| ^location @L1 [+0.0])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -506,8 +506,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
-                          "(@X1 ^name foo ^location @L1 [-0.693])\n" +
-                          "(@X2 ^name foo ^location @L2 [+0.456])\n";
+                          "(@X1 ^name |foo| ^location @L1 [-0.693])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -560,8 +560,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "========================================\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [-0.347])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+0.405])\n" +
-                          "(@X1 ^name foo ^location @L1 [+0.109])\n" +
-                          "(@X2 ^name foo ^location @L2 [+0.144])\n";
+                          "(@X1 ^name |foo| ^location @L1 [+0.109])\n" +
+                          "(@X2 ^name |foo| ^location @L2 [+0.144])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
         
@@ -677,11 +677,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String expectedResult = "========================================\n" +
                                 "            Semantic Memory             \n" +
                                 "========================================\n" +
-                                "(@F1 ^number 2 ^complete true ^factor @F2 [+5.0])\n" +
+                                "(@F1 ^number 2 ^complete |true| ^factor @F2 [+5.0])\n" +
                                 "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
-                                "(@F3 ^number 3 ^complete true ^factor @F4 [+3.0])\n" +
+                                "(@F3 ^number 3 ^complete |true| ^factor @F4 [+3.0])\n" +
                                 "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
-                                "(@F5 ^number 4 ^complete true ^factor @F6 [+7.0])\n" +
+                                "(@F5 ^number 4 ^complete |true| ^factor @F6 [+7.0])\n" +
                                 "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
                 
         assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));

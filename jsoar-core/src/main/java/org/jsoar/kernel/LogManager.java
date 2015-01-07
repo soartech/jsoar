@@ -21,6 +21,8 @@ public class LogManager {
 	private EchoMode echoMode = EchoMode.on;
 	private boolean active = true;
 	private boolean strict = false;
+	private boolean abbreviate = true;
+	private SourceLocationMethod sourceLocationMethod = SourceLocationMethod.disk;
 	private LogLevel currentLogLevel = LogLevel.info;
 	private final Map<String, Logger> loggers = new HashMap<String, Logger>();
 	private final Set<String> disabledLoggers = new HashSet<String>();
@@ -36,6 +38,42 @@ public class LogManager {
 		{
 			super(message);
 		}
+	}
+	
+	public enum SourceLocationMethod
+	{
+	    none("NONE"),
+	    disk("DISK"),
+	    stack("STACK");
+	    
+	    static private Map<String, SourceLocationMethod> sourceLocationMethodStrings;
+	    static
+	    {
+	        sourceLocationMethodStrings = new HashMap<String, SourceLocationMethod>();
+	        sourceLocationMethodStrings.put("NONE", none);
+	        sourceLocationMethodStrings.put("DISK", disk);
+	        sourceLocationMethodStrings.put("STACK", stack);
+	    }
+	    private String stringValue;
+	    
+	    private SourceLocationMethod(String stringValue)
+	    {
+	        this.stringValue = stringValue;
+	    }
+	    
+	    static public SourceLocationMethod fromString(String sourceLocationMethod)
+        {
+	        SourceLocationMethod val = sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
+            if (val == null)
+                throw new IllegalArgumentException();
+            return val;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return stringValue;
+        }
 	}
 	
 	public enum LogLevel
@@ -189,6 +227,8 @@ public class LogManager {
     	result += "strict:            " + (isStrict() ? "on" : "off") + "\n";
     	result += "echo mode:         " + getEchoMode().toString().toLowerCase() + "\n";
     	result += "log level:         " + getLogLevel().toString().toLowerCase() + "\n";
+    	result += "source location:   " + getSourceLocationMethod().toString().toLowerCase() + "\n";
+    	result += "abbreviate:        " + (getAbbreviate() ? "yes" : "no") + "\n";
     	result += "number of loggers: " + loggers.size() + "\n";
     	result += "------- Loggers -------\n";
     	
@@ -296,6 +336,16 @@ public class LogManager {
     	return currentLogLevel;
     }
     
+    public void setSourceLocationMethod(SourceLocationMethod sourceLocationMethod)
+    {
+        this.sourceLocationMethod = sourceLocationMethod;
+    }
+    
+    public SourceLocationMethod getSourceLocationMethod()
+    {
+        return sourceLocationMethod;
+    }
+    
     public void enableLogger(String name) throws LoggerException
     {
     	getLogger(name);
@@ -310,5 +360,13 @@ public class LogManager {
     	if (isStrict() && disabledLoggers.contains(name))
     		throw new LoggerException("Logger is already disabled (strict mode enabled).");
     	disabledLoggers.add(name);
+    }
+
+    public void setAbbreviate(boolean abbreviate) {
+        this.abbreviate = abbreviate;        
+    }
+    
+    public boolean getAbbreviate() {
+        return abbreviate;
     }
 }

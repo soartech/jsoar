@@ -120,7 +120,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     /**
      * agent.h:679:prev_top_state
      */
-    private IdentifierImpl prev_top_state = null;
+    private boolean prev_top_state = false;
     
     private IdentifierImpl io_header;
 
@@ -408,7 +408,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     {
         this.pendingCommands.clear();
         
-        if (prev_top_state != null && decider.top_state == null)
+        if (prev_top_state == true && decider.top_state == null)
         {
             // top state was just removed
 
@@ -434,7 +434,10 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         decider.do_buffered_wm_and_ownership_changes();
 
         // save current top state for next time
-        prev_top_state = decider.top_state;
+        if(decider.top_state != null)
+        {
+            prev_top_state = true;
+        }
 
         // reset the output-link status flag to FALSE when running til output, 
         // only want to stop if agent does add-wme to output.  don't stop if 
