@@ -137,6 +137,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     private boolean output_link_changed = false;
     private Set<Wme> lastOutputSet = null;
     private final Set<Wme> pendingCommands = new HashSet<Wme>();
+    private final Set<Wme> removingCommands = new HashSet<Wme>();
     private Marker output_link_tc_num;
 
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
@@ -393,6 +394,15 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#getRemovingCommands()
+     */
+    @Override
+    public List<Wme> getRemovingCommands()
+    {
+        return new ArrayList<Wme>(removingCommands);
+    }
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#asynchronousInputReady()
      */
     @Override
@@ -407,6 +417,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     public void do_input_cycle()
     {
         this.pendingCommands.clear();
+        this.removingCommands.clear();
         
         if (prev_top_state == true && decider.top_state == null)
         {
@@ -526,10 +537,12 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
                     if(added)
                     {
                         pendingCommands.add(w);
+                        removingCommands.remove(w);
                     }
                     else
                     {
                         pendingCommands.remove(w);
+                        removingCommands.add(w);
                     }
                 }
             }
