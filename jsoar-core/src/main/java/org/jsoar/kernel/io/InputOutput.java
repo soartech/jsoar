@@ -98,6 +98,16 @@ public interface InputOutput
     List<Wme> getPendingCommands();
     
     /**
+     * Returns a list of output commands removed from the output link in the 
+     * last decision cycle. The returned list is a copy and may be manipulated
+     * by the caller
+     * 
+     * @return List of output command WMEs removed from the output link in the
+     *     last decision cycle.
+     */
+    List<Wme> getRemovingCommands();
+
+    /**
      * Notify the agent that asynchronous input is ready. This will ensure that 
      * the agent will break out of suspension (e.g. due to "wait" rhs function)
      * and proceed to the input phase.
