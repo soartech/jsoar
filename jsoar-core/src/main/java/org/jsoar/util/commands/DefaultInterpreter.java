@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;
+import org.jsoar.util.UrlTools;
 
 import com.google.common.base.Joiner;
 
@@ -349,10 +351,12 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         public void eval(URL url) throws SoarException
         {
             try
-            {
+            {   
+                url = UrlTools.normalize(url);
+                
                 evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
             }
-            catch (IOException e)
+            catch (IOException | URISyntaxException e)
             {
                 throw new SoarException("Failed to open '" + url + "': " + e.getMessage(), e);
             }

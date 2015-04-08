@@ -9,8 +9,10 @@ package org.jsoar.tcl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.util.adaptables.AbstractAdaptable;
+import org.jsoar.util.commands.SoarCommands;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,5 +113,36 @@ public class SoarTclInterfaceTest
         assertNotNull(newParser);
         assertNotSame(oldParser, newParser);
         assertEquals(TestParser.class, newParser.getClass());
+    }
+    
+    @Test
+    public void testCanLoadRelativePathInJar() throws Exception
+    {
+        // it turns out that loading a file from a jar whose path contains a "." causes problems
+        // this problem can arise via a sequence like this (which NGS used to do):
+        //
+        // pushd .
+        // source myfile.soar
+        //
+        // jsoar was modified (both default and Tcl interps) to normalize these paths
+        // this test ensures it stays fixed: it uses a jar with a file that does the above
+        // specifically, test.soar contains:
+        //
+        // pushd .
+        // source test2.soar
+        //
+        // test2.soar contains a rule. So we simply test that the rule gets sourced.
+        // When it failed before the fix, it did so by throwing an exception.
+        
+        // trying to construct "jar:file:test.jar!/test.soar" with the proper path to the jar
+        // probably there is a better way, but this is what worked first
+        
+        String path = getClass().getResource("test.jar").toExternalForm();
+        String inputFile = "jar:" + path + "!/test.soar";
+        
+        URL url = new URL(inputFile);
+        SoarCommands.source(ifc, url );
+        
+        assertTrue("Expected a rule to be loaded", ifc.getAgent().getProductions().getProductionCount() == 1);
     }
 }

@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -26,6 +27,7 @@ import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
+import org.jsoar.util.UrlTools;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
@@ -346,10 +348,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
         @Override
         public void eval(URL url) throws SoarException
         {
-            SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
-            
             try
             {
+                url = UrlTools.normalize(url);
+                
+                SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
+                
                 final InputStream in = new BufferedInputStream(url.openStream());
                 try
                 {
@@ -362,7 +366,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
                     in.close();
                 }
             }
-            catch(IOException e)
+            catch(IOException | URISyntaxException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
