@@ -38,8 +38,10 @@ public class Lexer
     
     private Reader input;
 
-    private char current_char;
+    private char current_char; // The last lexeme read from the input string (set by get_lexeme()).
 
+    private int prev_char; // The second-to-last character read from the input string.
+    
     private int current_column = 0;
 
     private int current_line = 0;
@@ -188,20 +190,38 @@ public class Lexer
 
     private static LexerRoutine lex_period = new LexerRoutine()
     {
+        /**
+         * Lexes a section of input beginning with a period (".").
+         * Sometimes it is ambiguous whether a string is a floating
+         * point value or a dot followed by a test:
+         * ^number.1 or ^<number>.1 each have an attribute named "1", but
+         * ^number .1 and ^number {.1 .2} have floating point values
+         *
+         * This ambiguity is resolved by looking at the previous character
+         * and lexeme. After a space, ".#" may be lexed as a single number
+         * (LexemeType.FLOAT). Directly after a variable or
+         * string constant with no intervening space, "." is interpreted
+         * as LexemeType.PERIOD and trailing numbers are lexed separately.
+         */
         public void lex(Lexer lexer) throws IOException
         {
+            // Disambiguate floating point numbers from WME names:
+            boolean float_disallowed = !Character.isWhitespace(lexer.prev_char) &&
+                    (lexer.lexeme.type == LexemeType.SYM_CONSTANT || 
+                     lexer.lexeme.type == LexemeType.VARIABLE);
+            
             lexer.store_and_advance();
-            // if we stopped at '.', it might be a floating-point number, so
-            // be careful to check for this case ---
-            if (Character.isDigit(lexer.current_char))
+            
+            if(!float_disallowed && Character.isDigit(lexer.current_char))
             {
                 lexer.read_rest_of_floating_point_number();
             }
-            if (lexer.lexeme.length() == 1)
+            if(lexer.lexeme.length() == 1)
             {
                 lexer.lexeme.type = LexemeType.PERIOD;
                 return;
             }
+            
             lexer.determine_type_of_constituent_string();
         }
     };
@@ -456,8 +476,11 @@ public class Lexer
     }
     
     /**
-     * Get_next_char() gets the next character from the current input file and
-     * puts it into the agent variable current_char.
+     * Get the next character from the current input file
+     * and put it into the member variable current_char.
+     * Set current_char to EOF if the input string is null
+     * or '\0' is found. The old value of current_char is
+     * stored in prev_char.
      * 
      * <p>lexer.cpp::get_next_char
      * 
@@ -467,9 +490,11 @@ public class Lexer
     {
         if (current_char == EOF_AS_CHAR)
         {
+            prev_char = EOF_AS_CHAR;
             return;
         }
 
+        prev_char = current_char;
         int next_char = input.read();
         current_char = next_char >= 0 ? (char) next_char : EOF_AS_CHAR;
     }
