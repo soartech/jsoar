@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;

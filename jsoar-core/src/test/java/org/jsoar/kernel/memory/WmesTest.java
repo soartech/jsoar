@@ -83,7 +83,6 @@ public class WmesTest
     @Test
     public void testCreateLinkedListWithTwoEntries()
     {
-        @SuppressWarnings("unchecked")
         final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first", 99).iterator()).asIdentifier();
         assertNotNull(result);
         assertEquals(4, factory.triples.size());

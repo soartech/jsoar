@@ -13,7 +13,6 @@ import org.jsoar.kernel.events.InputWmeGarbageCollectedEvent;
 import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.rete.Rete;
-import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
