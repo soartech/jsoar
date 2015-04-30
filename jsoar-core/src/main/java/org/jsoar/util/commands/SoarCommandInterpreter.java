@@ -7,6 +7,7 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collection;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -50,6 +51,15 @@ public interface SoarCommandInterpreter
      * @throws SoarException 
      */
     SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException;
+    
+    /**
+     * Return a list of files that have been sourced by this object.
+     * 
+     * This is used by the Soar IDE.
+     * 
+     * @return an absolute path to each sourced file
+     */
+    Collection<String> getSourcedFiles();
     
     /**
      * Evaluate a bit of code and return the result.

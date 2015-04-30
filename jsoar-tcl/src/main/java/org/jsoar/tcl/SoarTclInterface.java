@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -234,6 +235,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
+    @Override
+    public Collection<String> getSourcedFiles() 
+    {
+        return sourceCommand.getSourcedFiles();
+    }
+
     public Agent getAgent()
     {
         return agent;

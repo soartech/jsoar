@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -165,6 +166,12 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return sourceCommand.getWorkingDirectory();
     }
     
+    @Override
+    public Collection<String> getSourcedFiles() 
+    {
+        return sourceCommand.getSourcedFiles();
+    }
+
     private String evalAndClose(Reader reader, String context) throws SoarException
     {
         try
