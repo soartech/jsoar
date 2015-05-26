@@ -1,7 +1,7 @@
 JSoar is a pure Java implementation of the Soar kernel. See 
 https://github.com/soartech/jsoar/wiki for more information.
 
-See jsoar-build/readme.txt for build instructions
+See jsoar-build/readme.txt for build instructions 
 
 *** Coding Conventions ***
 

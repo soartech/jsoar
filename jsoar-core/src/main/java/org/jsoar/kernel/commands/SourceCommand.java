@@ -46,6 +46,15 @@ public class SourceCommand implements SoarCommand
     private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
     private Stack<String> fileStack = new Stack<String>();
     
+    /**
+     * Save the path to each sourced file in this list.
+     * 
+     * The Soar IDE uses this list to notify the user of un-sourced files.
+     * 
+     * QUESTION: Should this also have urls added to it in evalUrlAndPop()?
+     */
+    private List<String> sourcedFiles = new ArrayList<String>();
+    
     private TopLevelState topLevelState;
     private final SoarEventManager events;
     private final SoarEventListener eventListener = new SoarEventListener()
@@ -85,6 +94,11 @@ public class SourceCommand implements SoarCommand
     public String getCurrentFile()
     {
         return fileStack.peek();
+    }
+    
+    public List<String> getSourcedFiles()
+    {
+        return sourcedFiles;
     }
     
     public void pushd(String dirString) throws SoarException
@@ -308,6 +322,9 @@ public class SourceCommand implements SoarCommand
     {
         try
         {
+            //replace the system file separator to be a standard forward slash 
+            sourcedFiles.add(file.getAbsolutePath().replace(File.separator, "/"));
+            
             fileStack.push(file.getAbsolutePath());
             if(topLevelState != null)
             {

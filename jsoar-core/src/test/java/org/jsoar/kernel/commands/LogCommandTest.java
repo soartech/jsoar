@@ -1,8 +1,8 @@
 package org.jsoar.kernel.commands;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
 import java.util.HashSet;
@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
-import org.jsoar.kernel.rhs.functions.LogRhsFunction;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;

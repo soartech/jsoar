@@ -6,7 +6,8 @@
 package org.jsoar.kernel.rhs.functions;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.StringWriter;
 import java.net.URL;
@@ -18,7 +19,6 @@ import org.jsoar.kernel.symbols.Symbols;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 
 public class GetUrlTest extends JSoarTest
@@ -37,7 +37,7 @@ public class GetUrlTest extends JSoarTest
         assertNotNull(resultAsString);
         
         final StringWriter expected = new StringWriter();
-        CharStreams.copy(Resources.newReaderSupplier(urlToGet, Charsets.UTF_8), expected);
+        Resources.asCharSource(urlToGet, Charsets.UTF_8).copyTo(expected);
         assertEquals(expected.toString(), resultAsString.toString());
     }
 }
