@@ -109,21 +109,21 @@ test-count-test:
     - Name: Count Test
     - Path: resources/APT/count-test-files/count-test.soar
 
-#
-# Factorization Stress Tests
-#
-# The following are a series of stress tests doing factorizations.
-# Each of these brute forces factorizations up to 1,500.  This
-# stress test can use:
+##
+## Factorization Stress Tests
+##
+## The following are a series of stress tests doing factorizations.
+## Each of these brute forces factorizations up to 1,500.  This
+## stress test can use:
 
-## Pure Soar
-## Chunking
-## SMem
-## EpMem
-## SMem with Chunking
-## EpMem with Chunking
-## SMem and EpMem
-## SMem and EpMem AND Chunking
+### Pure Soar
+### Chunking
+### SMem
+### EpMem
+### SMem with Chunking
+### EpMem with Chunking
+### SMem and EpMem
+### SMem and EpMem AND Chunking
 
 # This brute forces the factors of every number.
 # It finds a factor, divides the number, goes into
