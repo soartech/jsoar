@@ -36,7 +36,7 @@ default:
     - CSoar Directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
     #- JSoar Directories: [ 'resources/jsoar-snapshot-0.14.3/' ] # can list multiple versions of jsoar to use
     - WarmUp Count: 0
-    - Run Count: 1
+    - Run Count: 5
     - Decision Cycles: [ 0 ] # Magic Number.  Run a test until it halts
     - Use Seed: FALSE
     - Seed: 1
@@ -72,7 +72,7 @@ default:
 test-wait-snc:
     - Name: wait-snc
     - Path: resources/APT/wait.soar
-    - Decision Cycles: [ 10000 ]
+    - Decision Cycles: [ 100, 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory
