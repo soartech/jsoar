@@ -18,10 +18,9 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.performancetesting.helpers.FileFinder;
 
 /**
- * So this is a very unique class. What this does is it tries to find sml.jar
- * and then load sml.kernel from it. If it can it'll create JSoarKernelWrappers
- * with the appropriate kernel constructors otherwise it'll return a default
- * version which is entire asserts.
+ * So this is a very unique class. What this does is it tries to find
+ * jsoar-core-*.jar and then load Agent from it. If it can it'll fall back on
+ * the internal jsoar version.
  * 
  * @author ALT
  */
@@ -61,7 +60,7 @@ public class JSoarAgentFactory
             return;
         }
 
-        // Load sml.jar into memory and then resolve all it's classes that we
+        // Load the new jsoar-core-*.jar into memory and then resolve all it's classes that we
         // use.
         URLClassLoader child;
 
