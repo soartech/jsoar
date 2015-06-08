@@ -12,22 +12,22 @@ import java.util.Set;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * This is a configuration class for parsing the YAML files used
- * by the performance testing framework.
+ * This is a configuration class for parsing the YAML files used by the
+ * performance testing framework.
  * 
  * @author ALT
  *
  */
 public class Configuration
 {
-	/**
-	 * Package private classes for configuration.
-	 */
-	
-	// Package Private
     /**
-     * A class for handling tests that we aren't running just yet.
-     * This is basically just a container for the test information.
+     * Package private classes for configuration.
+     */
+
+    // Package Private
+    /**
+     * A class for handling tests that we aren't running just yet. This is
+     * basically just a container for the test information.
      * 
      * @author ALT
      *
@@ -35,53 +35,57 @@ public class Configuration
     class ConfigurationTest implements Comparable<ConfigurationTest>
     {
         private String testName;
+
         private String testFile;
+
         private TestSettings settings;
-        
-        public ConfigurationTest(String testName, String testFile, TestSettings settings)
+
+        public ConfigurationTest(String testName, String testFile,
+                TestSettings settings)
         {
             this.testName = testName;
             this.testFile = testFile;
             this.settings = settings;
         }
-        
+
         public String getTestName()
         {
             return testName;
         }
-        
+
         public String getTestFile()
         {
             return testFile;
         }
-        
+
         public TestSettings getTestSettings()
         {
             return settings;
         }
-        
+
         @Override
         public int compareTo(ConfigurationTest o)
         {
             return this.testName.compareTo(o.testName);
         }
     }
-    
+
     /**
      * Class variables
      */
-    
+
     private final String file;
-    
+
     public static final int PARSE_FAILURE = 201;
+
     public static final int PARSE_SUCCESS = 200;
-    
+
     private final Yaml yaml;
-    
+
     private Set<ConfigurationTest> configurationTests;
 
     private TestSettings defaultTestSettings = null;
-        
+
     /**
      * Initializes the Configuration class
      * 
@@ -91,28 +95,29 @@ public class Configuration
     {
         this.file = file;
         this.yaml = new Yaml();
-                
+
         this.configurationTests = new LinkedHashSet<ConfigurationTest>();
     }
-    
+
     /**
-     * This parses the entire configuration file and places it into the class variables.
+     * This parses the entire configuration file and places it into the class
+     * variables.
      * 
      * @return Whether the configuration file was parsed successfully or not
      * @throws IOException
      */
     public int parse() throws IOException
-    {   
+    {
         FileInputStream fileStream = new FileInputStream(file);
 
         try
         {
             for (Object object : yaml.loadAll(fileStream))
             {
-                assert(object.getClass() == LinkedHashMap.class);
+                assert (object.getClass() == LinkedHashMap.class);
 
                 @SuppressWarnings("unchecked")
-                LinkedHashMap<String, Object> yamlFile = (LinkedHashMap<String, Object>)object;
+                LinkedHashMap<String, Object> yamlFile = (LinkedHashMap<String, Object>) object;
 
                 boolean hasFoundDefaults = false;
                 for (Map.Entry<String, Object> root : yamlFile.entrySet())
@@ -121,10 +126,13 @@ public class Configuration
                     {
                         hasFoundDefaults = true;
 
-                        defaultTestSettings = new TestSettings(false, false, 0, 0, new ArrayList<Integer>(), false, 1, null, null, null, null);
+                        defaultTestSettings = new TestSettings(false, false, 0,
+                                0, new ArrayList<Integer>(), false, 1, null,
+                                null, null, null, null);
 
                         @SuppressWarnings("unchecked")
-                        ArrayList<LinkedHashMap<String, Object>> defaultMap = (ArrayList<LinkedHashMap<String, Object>>)root.getValue();
+                        ArrayList<LinkedHashMap<String, Object>> defaultMap = (ArrayList<LinkedHashMap<String, Object>>) root
+                                .getValue();
 
                         parseTestSettings(defaultMap, defaultTestSettings);
                     }
@@ -132,13 +140,16 @@ public class Configuration
                     {
                         if (!hasFoundDefaults)
                         {
-                            throw new RuntimeException("You must place the defaults first in the yaml file!");
+                            throw new RuntimeException(
+                                    "You must place the defaults first in the yaml file!");
                         }
 
                         @SuppressWarnings("unchecked")
-                        ArrayList<LinkedHashMap<String, Object>> testMap = (ArrayList<LinkedHashMap<String, Object>>)root.getValue();
+                        ArrayList<LinkedHashMap<String, Object>> testMap = (ArrayList<LinkedHashMap<String, Object>>) root
+                                .getValue();
 
-                        TestSettings testSettings = new TestSettings(defaultTestSettings);
+                        TestSettings testSettings = new TestSettings(
+                                defaultTestSettings);
 
                         parseTestSettings(testMap, testSettings);
 
@@ -147,13 +158,16 @@ public class Configuration
 
                         for (LinkedHashMap<String, Object> map : testMap)
                         {
-                            for (Map.Entry<String, Object> keyValuePair : map.entrySet())
+                            for (Map.Entry<String, Object> keyValuePair : map
+                                    .entrySet())
                             {
-                                if (keyValuePair.getKey().equalsIgnoreCase("name"))
+                                if (keyValuePair.getKey().equalsIgnoreCase(
+                                        "name"))
                                 {
                                     name = (String) keyValuePair.getValue();
                                 }
-                                else if (keyValuePair.getKey().equalsIgnoreCase("path"))
+                                else if (keyValuePair.getKey()
+                                        .equalsIgnoreCase("path"))
                                 {
                                     path = (String) keyValuePair.getValue();
                                 }
@@ -175,7 +189,8 @@ public class Configuration
                             throw new RuntimeException("Malformed test!");
                         }
 
-                        ConfigurationTest test = new ConfigurationTest(name, path, testSettings);
+                        ConfigurationTest test = new ConfigurationTest(name,
+                                path, testSettings);
                         configurationTests.add(test);
                     }
                 }
@@ -188,8 +203,10 @@ public class Configuration
 
         return PARSE_SUCCESS;
     }
-    
-    private void parseTestSettings(ArrayList<LinkedHashMap<String, Object>> paramMap, TestSettings settings)
+
+    private void parseTestSettings(
+            ArrayList<LinkedHashMap<String, Object>> paramMap,
+            TestSettings settings)
     {
         for (LinkedHashMap<String, Object> map : paramMap)
         {
@@ -197,54 +214,75 @@ public class Configuration
             {
                 if (keyValuePair.getKey().equalsIgnoreCase("JSoar Enabled"))
                 {
-                    settings.setJSoarEnabled((Boolean)keyValuePair.getValue());
+                    settings.setJSoarEnabled((Boolean) keyValuePair.getValue());
                 }
-                else if (keyValuePair.getKey().equalsIgnoreCase("CSoar Enabled"))
+                else if (keyValuePair.getKey()
+                        .equalsIgnoreCase("CSoar Enabled"))
                 {
-                    settings.setCSoarEnabled((Boolean)keyValuePair.getValue());
+                    settings.setCSoarEnabled((Boolean) keyValuePair.getValue());
                 }
-                else if (keyValuePair.getKey().equalsIgnoreCase("CSoar Directories"))
+                else if (keyValuePair.getKey().equalsIgnoreCase(
+                        "CSoar Directories"))
                 {
                     Object arrayObject = keyValuePair.getValue();
 
                     @SuppressWarnings("unchecked")
-                    List<String> directoriesUnchecked = (ArrayList<String>)arrayObject;
-                    
+                    List<String> directoriesUnchecked = (ArrayList<String>) arrayObject;
+
                     List<String> directoriesChecked = new ArrayList<String>();
-                    
+
                     for (String directory : directoriesUnchecked)
                     {
                         directoriesChecked.add(directory.replace("\\", "/"));
                     }
-                    
+
                     settings.setCSoarVersions(directoriesChecked);
+                }
+                else if (keyValuePair.getKey().equalsIgnoreCase(
+                        "JSoar Directories"))
+                {
+                    Object arrayObject = keyValuePair.getValue();
+
+                    @SuppressWarnings("unchecked")
+                    List<String> directoriesUnchecked = (ArrayList<String>) arrayObject;
+
+                    List<String> directoriesChecked = new ArrayList<String>();
+
+                    for (String directory : directoriesUnchecked)
+                    {
+                        directoriesChecked.add(directory.replace("\\", "/"));
+                    }
+
+                    settings.setJSoarVersions(directoriesChecked);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("WarmUp Count"))
                 {
-                    settings.setWarmUpCount((Integer)keyValuePair.getValue());
+                    settings.setWarmUpCount((Integer) keyValuePair.getValue());
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Run Count"))
                 {
-                    settings.setRunCount((Integer)keyValuePair.getValue());
+                    settings.setRunCount((Integer) keyValuePair.getValue());
                 }
-                else if (keyValuePair.getKey().equalsIgnoreCase("Decision Cycles"))
+                else if (keyValuePair.getKey().equalsIgnoreCase(
+                        "Decision Cycles"))
                 {
                     Object arrayObject = keyValuePair.getValue();
-                    
+
                     @SuppressWarnings("unchecked")
-                    List<Integer> decisionCycles = (ArrayList<Integer>)arrayObject;
-                    
+                    List<Integer> decisionCycles = (ArrayList<Integer>) arrayObject;
+
                     settings.setDecisionCycles(decisionCycles);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Use Seed"))
                 {
-                    settings.setUseSeed((Boolean)keyValuePair.getValue());
+                    settings.setUseSeed((Boolean) keyValuePair.getValue());
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Seed"))
                 {
-                    settings.setSeed(((Integer)keyValuePair.getValue()));
+                    settings.setSeed(((Integer) keyValuePair.getValue()));
                 }
-                else if (keyValuePair.getKey().equalsIgnoreCase("CSV Directory"))
+                else if (keyValuePair.getKey()
+                        .equalsIgnoreCase("CSV Directory"))
                 {
                     settings.setCSVDirectory((String) keyValuePair.getValue());
                 }
@@ -259,7 +297,7 @@ public class Configuration
             }
         }
     }
-    
+
     /**
      * 
      * @return All the ConfigurationTest holders
@@ -268,7 +306,7 @@ public class Configuration
     {
         return configurationTests;
     }
-    
+
     public TestSettings getDefaultSettings()
     {
         return defaultTestSettings;

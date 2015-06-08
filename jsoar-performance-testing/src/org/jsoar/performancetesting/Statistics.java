@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Statistics class for some helper functions.
  * 
- * This includes functions for calculating averages
- * as well as means and other stuff.
+ * This includes functions for calculating averages as well as means and other
+ * stuff.
  * 
  * @author ALT
  *
@@ -19,30 +19,30 @@ public class Statistics
     public static Double calculateAverage(Collection<Double> c)
     {
         Double sum = 0.0;
-        
+
         if (!c.isEmpty())
         {
             for (Double d : c)
             {
                 sum += d;
             }
-            
+
             return sum / (double) c.size();
         }
-        
+
         return sum;
     }
-    
+
     public static Double calculateMedian(Collection<Double> c)
     {
-        int middle = (new Double((double)c.size() / 2.0)).intValue();
-        
+        int middle = (new Double((double) c.size() / 2.0)).intValue();
+
         List<Double> list = new ArrayList<Double>(c);
-        
+
         Collections.sort(list);
-        
+
         if (c.size() % 2 == 1)
-        {   
+        {
             return list.get(middle);
         }
         else
@@ -57,23 +57,23 @@ public class Statistics
             }
             else
             {
-                return (list.get(middle-1) + list.get(middle)) / 2.0;
+                return (list.get(middle - 1) + list.get(middle)) / 2.0;
             }
         }
     }
-    
+
     public static Double calculateTotal(Collection<Double> c)
     {
         double sum = 0.0;
-        
+
         for (Double d : c)
         {
             sum += d;
         }
-        
+
         return sum;
     }
-    
+
     public static Double calculateDeviation(Collection<Double> c)
     {
         if (c.size() > 0)

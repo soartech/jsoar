@@ -34,13 +34,18 @@ default:
     - JSoar Enabled: TRUE
     - CSoar Enabled: FALSE
     - CSoar Directories: [ 'resources/csoar/' ] # can list multiple versions of csoar to use
+    #- JSoar Directories: [ 'resources/jsoar-snapshot-0.14.3/' ] # can list multiple versions of jsoar to use
     - WarmUp Count: 0
-    - Run Count: 5
+    - Run Count: 1
     - Decision Cycles: [ 0 ] # Magic Number.  Run a test until it halts
     - Use Seed: FALSE
     - Seed: 1
     - CSV Directory: resources/Test-Results
     - JVM Settings: -Xmx2G
+    
+    # If you wish to debug the child performance testing framework JVM
+    #- JVM Settings: -Xmx2G -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+    
     - Summary File: test-summaries.txt
 
 #
@@ -67,7 +72,7 @@ default:
 test-wait-snc:
     - Name: wait-snc
     - Path: resources/APT/wait.soar
-    - Decision Cycles: [ 100, 10000 ]
+    - Decision Cycles: [ 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory
@@ -104,21 +109,21 @@ test-count-test:
     - Name: Count Test
     - Path: resources/APT/count-test-files/count-test.soar
 
-##
-## Factorization Stress Tests
-##
-## The following are a series of stress tests doing factorizations.
-## Each of these brute forces factorizations up to 1,500.  This
-## stress test can use:
+#
+# Factorization Stress Tests
+#
+# The following are a series of stress tests doing factorizations.
+# Each of these brute forces factorizations up to 1,500.  This
+# stress test can use:
 
-### Pure Soar
-### Chunking
-### SMem
-### EpMem
-### SMem with Chunking
-### EpMem with Chunking
-### SMem and EpMem
-### SMem and EpMem AND Chunking
+## Pure Soar
+## Chunking
+## SMem
+## EpMem
+## SMem with Chunking
+## EpMem with Chunking
+## SMem and EpMem
+## SMem and EpMem AND Chunking
 
 # This brute forces the factors of every number.
 # It finds a factor, divides the number, goes into

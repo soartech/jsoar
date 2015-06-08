@@ -7,14 +7,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 /**
- *  This is a class to "gobble" up the output from a stream
- *  and then output it to another stream.  It is used for
- *  process IO instead of redirects for instance.  It is
- *  necessary because Windows has some issues on CLI with
- *  regards to IO.
- *  
- *  Adapted from
- *         http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4
+ * This is a class to "gobble" up the output from a stream and then output it to
+ * another stream. It is used for process IO instead of redirects for instance.
+ * It is necessary because Windows has some issues on CLI with regards to IO.
+ * 
+ * Adapted from http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4
  * 
  * @author ALT
  */
@@ -31,8 +28,7 @@ public class StreamGobbler extends Thread
     }
 
     /**
-     * Run the thread for input but output each character
-     * as we get it.
+     * Run the thread for input but output each character as we get it.
      */
     public void run()
     {
@@ -44,7 +40,7 @@ public class StreamGobbler extends Thread
             while ((value = br.read()) != -1)
             {
                 char c = (char) value;
-                
+
                 output.print(c);
                 output.flush();
             }

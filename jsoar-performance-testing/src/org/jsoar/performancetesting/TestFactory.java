@@ -12,13 +12,15 @@ package org.jsoar.performancetesting;
 public interface TestFactory
 {
     /**
-     * The main worker function of the factory.  It creates new and initialized tests from the
-     * passed parameters.
+     * The main worker function of the factory. It creates new and initialized
+     * tests from the passed parameters.
      * 
      * @param testName
      * @param testFile
      * @param decisionCycles
-     * @return A new instance of a class which has already been created and initialized.
+     * @return A new instance of a class which has already been created and
+     *         initialized.
      */
-    public Test createTest(String testName, String testFile, TestSettings settings);
+    public Test createTest(String testName, String testFile,
+            TestSettings settings);
 }

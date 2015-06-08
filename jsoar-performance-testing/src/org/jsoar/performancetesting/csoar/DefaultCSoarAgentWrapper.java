@@ -3,7 +3,7 @@ package org.jsoar.performancetesting.csoar;
 /**
  * This class is just an assertion error version of the CSoarAgentWrapper class.
  * It's purpose is to let the user know that the Agent class isn't loaded and
- * therefore you cannot use CSoar functions.  This can happen if CSoar wasn't
+ * therefore you cannot use CSoar functions. This can happen if CSoar wasn't
  * found in the directory specified for instance.
  * 
  * @author ALT

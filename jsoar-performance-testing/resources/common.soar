@@ -1,3 +1,7 @@
 # Put any common production rules / configuration settings here.
 
-handler --disable log
+# Not needed because none of the tests use log.  In addition this
+# will cause CSoar tests to fail miserably because handler
+# doesn't exist in CSoar.
+
+#handler --disable log

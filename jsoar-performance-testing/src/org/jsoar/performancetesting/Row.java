@@ -66,11 +66,11 @@ public class Row
         {
             return;
         }
-        
-        for (int i = cell.getRowLocation();i < cells.size();i++)
+
+        for (int i = cell.getRowLocation(); i < cells.size(); i++)
         {
             Cell c = cells.get(i);
-            
+
             c.setRowLocation(i);
         }
     }
@@ -80,11 +80,11 @@ public class Row
         if (cell < cells.size())
         {
             cells.remove(cell);
-            
-            for (int i = cell;i < cells.size();i++)
+
+            for (int i = cell; i < cells.size(); i++)
             {
                 Cell c = cells.get(i);
-                
+
                 c.setRowLocation(i);
             }
         }
@@ -94,12 +94,12 @@ public class Row
     {
         return cells.get(cell);
     }
-    
+
     public int getCellCount()
     {
         return cells.size();
     }
-    
+
     public List<Cell> getCells()
     {
         return cells;
