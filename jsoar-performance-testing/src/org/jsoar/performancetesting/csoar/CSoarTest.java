@@ -3,8 +3,6 @@
  */
 package org.jsoar.performancetesting.csoar;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
