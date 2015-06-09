@@ -13,6 +13,7 @@
 		<copy todir="${dist.performance-testing}">
 			<fileset dir="src/main/resources/">
 				<exclude name="**/.svn"/>
+				<exclude name="Test-Results/"/>
 			</fileset>
 		</copy>
 	</target>
