@@ -88,7 +88,8 @@
        <ant dir="../jsoar-demos" antfile="build.xml"/>
        <ant dir="../jsoar-ruby" antfile="build.xml"/>
        <ant dir="../jsoar-soar2soar" antfile="build.xml"/>
-    	
+	   <ant dir="../jsoar-performance-testing" antfile="build.xml"/>
+		
       <antcall target="zip"/>
    </target>
     
@@ -110,6 +111,7 @@
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-soar2soar" antfile="build.xml" target="clean"/>
+	  <ant dir="../jsoar-performance-testing" antfile="build.xml" target="clean"/>
    </target>
     
     <target name="doc">
