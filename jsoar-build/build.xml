@@ -72,6 +72,8 @@
          <fileset file="resources/bin/soarunit.bat"/>
          <fileset file="resources/bin/soarunit"/>
       	
+      	<fileset file="resources/bin/perftesting.bat"/>
+      	
     	 <filterset refid="filters"/>
       </copy>
  	  <chmod file="${dist.bin}/jsoar" perm="+x"/>
