@@ -5,13 +5,14 @@
  */
 package org.jsoar.kernel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import android.content.Context;
 
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ray
@@ -22,69 +23,15 @@ public class PerformanceTimer
     private static List<Double> kernelTimes = new ArrayList<Double>();
     private static List<Integer> decisionCycles = new ArrayList<Integer>();
     private static List<Long> totalMemory = new ArrayList<Long>();
-    
-    /**
-     * @param args
-     * @throws SoarTclException 
-     */
-    public static void main(String[] args) throws Exception
-    {
-        int numRuns = 10;
-        
-        for(int i = 0; i < args.length; ++i)
-        {
-            final String arg = args[i]; 
-            if("--raw".equals(arg))
-            {
-                System.out.println("TotalCPU, TotalKernel");
-            }
-            else if("--decisions".equals(arg))
-            {
-                System.out.println("Decisions!");
-            }
-            else if("--runs".equals(arg))
-            {
-                ++i;
-                boolean badArg = false;
-                if( i < args.length )
-                {
-                    numRuns = Integer.parseInt(args[i]);
-                }
-                else
-                {
-                    badArg = true;
-                }
-                if(numRuns <= 0) badArg = true;
-                if(badArg) System.out.println("Positive integer argument required for --runs option");
-            }
-        }
-        
-        System.out.println("Doing " + numRuns + " runs");
-        for(int i = 0; i < numRuns; ++i)
-        {
-            doRun(args);
-        }
-        
-        System.out.println("\n-----------------------------------------");
-        Collections.sort(cpuTimes);
-        Collections.sort(kernelTimes);
-        Collections.sort(decisionCycles);
-        Collections.sort(totalMemory);
-        System.out.printf("   CPU: min %f, med %f, max %f\n", cpuTimes.get(0), cpuTimes.get(cpuTimes.size() / 2) , cpuTimes.get(cpuTimes.size() - 1));
-        System.out.printf("Kernel: min %f, med %f, max %f\n", kernelTimes.get(0), kernelTimes.get(kernelTimes.size() / 2) , kernelTimes.get(kernelTimes.size() - 1));
-        System.out.printf("DecCyc: min %8d, med %8d, max %8d\n", decisionCycles.get(0), decisionCycles.get(decisionCycles.size() / 2) , decisionCycles.get(decisionCycles.size() - 1));
-        System.out.printf("TotMem: min %8d, med %8d, max %8d\n", totalMemory.get(0), totalMemory.get(totalMemory.size() / 2) , totalMemory.get(totalMemory.size() - 1));
-        
-    }
 
     /**
      * @param args
      * @throws SoarTclException
      * @throws SoarException 
      */
-    private static void doRun(String[] args) throws SoarException
+    private static void doRun(String[] args, Context androidContext) throws SoarException
     {
-        Agent agent = new Agent();
+        Agent agent = new Agent(androidContext);
         agent.getTrace().setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter());
         SoarCommandInterpreter ifc = agent.getInterpreter();

@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.symbols;
 
-import org.jsoar.script.ScriptCommand;
-
 /**
  * A symbol whose value is an arbitrary Java object. 
  * 

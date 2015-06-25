@@ -1,13 +1,15 @@
 package org.jsoar.kernel.rete;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import android.content.Context;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.SoarException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Convenience methods for {@link ReteNetReader} and {@link ReteNetWriter} that
@@ -40,9 +42,9 @@ public class ReteSerializer
      * @throws SoarException if the input stream contains an unrecognized rete file.
      * @throws IOException on general I/O errors (e.g., permission issues)
      */
-    public static Agent createAgent(InputStream is) throws IOException, SoarException
+    public static Agent createAgent(InputStream is, Context androidContext) throws IOException, SoarException
     {
-        Agent agent = new Agent();
+        Agent agent = new Agent(androidContext);
         replaceRete(agent, is);
         return agent;
     }

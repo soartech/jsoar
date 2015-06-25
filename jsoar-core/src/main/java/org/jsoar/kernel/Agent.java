@@ -5,20 +5,7 @@
  */
 package org.jsoar.kernel;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import android.content.Context;
 
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
@@ -70,6 +57,20 @@ import org.jsoar.util.timing.ExecutionTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * This is a the base agent object in JSoar. It is a "raw" agent which roughly
  * corresponds to the {@code agent_struct} in CSoar (see agent.h).
@@ -111,7 +112,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new NullWriter());
-    
+
     /**
      * The random number generator used throughout the agent
      */
@@ -138,11 +139,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Explain explain = new Explain(this);
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultWorkingMemoryActivation wma = new DefaultWorkingMemoryActivation(this);
-    private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
-    private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
+    private final DefaultSemanticMemory smem;
+    private final DefaultEpisodicMemory epmem;
     
-    private final Rete rete = new Rete(trace, syms, epmem, smem, rl.getParams());
-    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
+    private final Rete rete;
+    private final SoarReteListener soarReteListener;
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);
@@ -178,14 +179,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * while still making them accessible to the spaghetti that is the kernel at the
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
-    private final List<Object> adaptables = Arrays.asList((Object) 
-            printer, trace, decisionManip, exploration, io, traceFormats, properties, 
-            chunker, explain, decisionCycle, rete, predefinedSyms, 
-            predefinedSyms.getSyms(), decider, printer, rhsFunctions,
-            workingMemory, tempMemory, recMemory, osupport, soarReteListener,
-            consistency,
-            debuggerProvider, decider, rl,
-            smem, wma, epmem);
+    private final List<Object> adaptables;
     
     /**
      * Construct a new agent with a generated name.  Also initializes
@@ -193,10 +187,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * 
      * @see #Agent(String, boolean)
      */
-    public Agent()
-    {
-        this(null, true);
-    }
+    public Agent(Context context){this(null, true, context);}
     
     /**
      * Construct a new agent with a generated name.  Also lets you explicitly
@@ -204,9 +195,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * 
      * @see #Agent(String, boolean)
      */
-    public Agent(boolean initializeAgent)
+    public Agent(boolean initializeAgent, Context context)
     {
-        this(null, initializeAgent);
+        this(null, initializeAgent, context);
     }
     
     /**
@@ -215,9 +206,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * 
      * @see #Agent(String, boolean)
      */
-    public Agent(String name)
+    public Agent(String name, Context context)
     {
-        this(name, true);
+        this(name, true, context);
     }
     
     /**
@@ -228,12 +219,27 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * @param initializeAgent lets you explicitly choose whether to initialize
      * the agent.
      */
-    public Agent(String name, boolean initializeAgent)
+    public Agent(String name, boolean initializeAgent, Context androidContext)
     {
         setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
         
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
-        
+
+        smem = new DefaultSemanticMemory(this, androidContext);
+        epmem = new DefaultEpisodicMemory(this, androidContext);
+
+        rete = new Rete(trace, syms, epmem, smem, rl.getParams());
+        soarReteListener = new SoarReteListener(this, rete);
+
+        adaptables = Arrays.asList((Object)
+                        printer, trace, decisionManip, exploration, io, traceFormats, properties,
+                chunker, explain, decisionCycle, rete, predefinedSyms,
+                predefinedSyms.getSyms(), decider, printer, rhsFunctions,
+                workingMemory, tempMemory, recMemory, osupport, soarReteListener,
+                consistency,
+                debuggerProvider, decider, rl,
+                smem, wma, epmem);
+
         // Initialize components that rely on adaptables lookup
         decider.initialize();
         decisionCycle.initialize();
@@ -1046,10 +1052,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         return getName();
     }
     
-    private static Agent agent() throws Exception
+    private static Agent agent(Context context) throws Exception
     {
         //.setProperty("jsoar.agent.interpreter", "tcl");
-        final Agent a = new Agent();
+        final Agent a = new Agent(context);
         a.getPrinter().pushWriter(new OutputStreamWriter(System.out));
         a.initialize();
         a.getInterpreter().source(new File("../performance/count-test-single.soar"));
@@ -1061,18 +1067,5 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         //a.runFor(40000, RunType.FOREVER);
         
         return a;
-    }
-    public static void main(String[] args) throws Exception
-    {
-        final List<Agent> agents = new ArrayList<Agent>();
-        for(int i = 0; i < 1; ++i)
-        {
-            System.out.print("\n#" + (i + 1));
-            agents.add(agent());
-        }
-        while(true)
-        {
-            Thread.sleep(1000);
-        }
     }
 }

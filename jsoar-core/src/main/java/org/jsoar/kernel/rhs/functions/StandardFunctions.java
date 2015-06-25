@@ -5,16 +5,16 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.Adaptables;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author ray
@@ -100,8 +100,7 @@ public class StandardFunctions
                 new FromAutoTypeXml(),
                 new FromManualTypeXml(),
                 new ToSoarTechXml(),
-                new GetUrl(), 
-                new AcceptRhsFunction(),
+                new GetUrl(),
                 new ListRhsFunction(),
                 new FormatRhsFunction()));
     {

@@ -1,8 +1,0 @@
-; Define the dispose method called when the script engine is disposed.
-; This has to be in the user namespace since that's where the script engine
-; looks for globals.
-(require 'org.jsoar.script.clojure)
-(defn soar_dispose
-  []
-  (org.jsoar.script.clojure/dispose))
-

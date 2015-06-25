@@ -5,15 +5,7 @@
  */
 package org.jsoar.runtime;
 
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.content.Context;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
@@ -45,6 +37,16 @@ import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.properties.PropertyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
@@ -109,9 +111,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @return the new agent
      * @see #create(String)
      */
-    public static ThreadedAgent create()
+    public static ThreadedAgent create(Context androidContext)
     {
-        return create(null);
+        return create(null, androidContext);
     }
 
     /**
@@ -134,9 +136,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @param name the name of the agent. If {@code null} generate a new name.
      * @return a new, initialized threaded agent
      */
-    public static ThreadedAgent create(String name)
+    public static ThreadedAgent create(String name, Context androidContext)
     {
-        return ThreadedAgentManager.INSTANCE.create(name);
+        return ThreadedAgentManager.INSTANCE.create(name, androidContext);
     }
     
     /**

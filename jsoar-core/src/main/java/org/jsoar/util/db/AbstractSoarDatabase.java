@@ -5,6 +5,11 @@
  */
 package org.jsoar.util.db;
 
+import com.google.common.io.ByteStreams;
+
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.JdbcTools;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -18,11 +23,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import org.jsoar.kernel.SoarException;
-import org.jsoar.util.JdbcTools;
-
-import com.google.common.io.ByteStreams;
 
 /**
  * Base class for Soar databases like SMEM and EPMEM. 

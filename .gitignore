@@ -23,3 +23,4 @@ jsoar-build/lib/db/*.jar
 jsoar-performance-testing/bin
 jsoar-performance-testing/resources/csoar
 jsoar-performance-testing/resources/Test-Results
+jsoar-core/build/

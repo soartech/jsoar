@@ -1,0 +1,19 @@
+apply plugin: 'com.android.library'
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+}
+dependencies {
+    compile 'commons-beanutils:commons-beanutils:1.8.3'
+    compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.5'
+    compile 'org.apache.commons:commons-math3:3.2'
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'com.android.support:appcompat-v7:22.2.0'
+}

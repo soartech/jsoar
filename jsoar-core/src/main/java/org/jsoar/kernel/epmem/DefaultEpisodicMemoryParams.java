@@ -5,8 +5,7 @@
  */
 package org.jsoar.kernel.epmem;
 
-import java.util.HashSet;
-import java.util.Set;
+import android.content.Context;
 
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -16,6 +15,10 @@ import org.jsoar.util.properties.EnumPropertyProvider;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author voigtjr
@@ -99,10 +102,10 @@ class DefaultEpisodicMemoryParams
         return PropertyKey.builder(PREFIX + name, type);
     }
     
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
     
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
@@ -111,7 +114,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
     final DoublePropertyProvider balance = new DoublePropertyProvider(BALANCE);
     
-    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(EpisodicMemoryDatabase.IN_MEMORY_PATH).build();
+    static final PropertyKey<String> PATH = key("path", String.class).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<PageChoices> PAGE_SIZE = key("page-size", PageChoices.class).defaultValue(PageChoices.page_8k).build();
@@ -149,12 +152,14 @@ class DefaultEpisodicMemoryParams
     
     private final PropertyManager properties;
 
-    public DefaultEpisodicMemoryParams(PropertyManager properties, SymbolFactory sf)
+    public DefaultEpisodicMemoryParams(PropertyManager properties, SymbolFactory sf, Context androidContext)
     {
         this.properties = properties;
         
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PROTOCOL, protocol);
+        //We can't know this before runtime in android
+        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
         properties.setProvider(PATH, path);
 
         properties.setProvider(LAZY_COMMIT, lazy_commit);

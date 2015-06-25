@@ -5,28 +5,7 @@
  */
 package org.jsoar.kernel.smem;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
+import android.content.Context;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -89,6 +68,29 @@ import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
 /**
  * Default implementation of {@link SemanticMemory}
@@ -215,6 +217,8 @@ public class DefaultSemanticMemory implements SemanticMemory
     private Set<IdentifierImpl> smem_changed_ids = new LinkedHashSet<IdentifierImpl>();
 
     private boolean smem_ignore_changes;
+
+    private final Context androidContext;
     
     /**
      * This section regarding the lastCue member has no equivalent in CSoar.  It was
@@ -238,15 +242,16 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
 
-    public DefaultSemanticMemory(Adaptable context)
+    public DefaultSemanticMemory(Adaptable context, Context androidContext)
     {
-        this(context, null);
+        this(context, null, androidContext);
     }
 
-    public DefaultSemanticMemory(Adaptable context, SemanticMemoryDatabase db)
+    public DefaultSemanticMemory(Adaptable context, SemanticMemoryDatabase db, Context androidContext)
     {
         this.context = context;
         this.db = db;
+        this.androidContext = androidContext;
     }
 
     public void initialize()
@@ -265,7 +270,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         this.trace = agent.getTrace();
 
         final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
-        params = new DefaultSemanticMemoryParams(properties);
+        params = new DefaultSemanticMemoryParams(properties, androidContext);
         stats = new DefaultSemanticMemoryStats(properties);
     }
 

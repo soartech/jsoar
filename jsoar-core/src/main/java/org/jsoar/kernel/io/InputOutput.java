@@ -5,12 +5,9 @@
  */
 package org.jsoar.kernel.io;
 
-import java.util.List;
-
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
-import org.jsoar.kernel.io.beans.SoarBeanOutputManager;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeFactory;
@@ -19,6 +16,8 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.events.SoarEventManager;
+
+import java.util.List;
 
 /**
  * This is the JSoar I/O interface. This is the interface you use for handling output

@@ -5,16 +5,18 @@
  */
 package org.jsoar.runtime;
 
+import android.content.Context;
+
+import com.google.common.collect.MapMaker;
+
+import org.jsoar.kernel.Agent;
+import org.jsoar.util.events.SoarEventManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jsoar.kernel.Agent;
-import org.jsoar.util.events.SoarEventManager;
-
-import com.google.common.collect.MapMaker;
 
 /**
  * Helper class that deals with managing which threaded agents are attached to which
@@ -36,11 +38,11 @@ enum ThreadedAgentManager
      * @param name
      * @return
      */
-    public ThreadedAgent create(String name)
+    public ThreadedAgent create(String name, Context androidContext)
     {
         synchronized(agents)
         {
-            final ThreadedAgent agent = attach(new Agent(name, false)).initialize(new CompletionHandler<Void>() {
+            final ThreadedAgent agent = attach(new Agent(name, false, androidContext)).initialize(new CompletionHandler<Void>() {
 
                 @Override
                 public void finish(Void result)

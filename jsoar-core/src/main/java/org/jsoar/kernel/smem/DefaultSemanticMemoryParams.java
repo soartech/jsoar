@@ -5,9 +5,7 @@
  */
 package org.jsoar.kernel.smem;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import android.content.Context;
 
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.DoublePropertyProvider;
@@ -15,6 +13,11 @@ import org.jsoar.util.properties.EnumPropertyProvider;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * <p>semantic_memory.h:44:smem_param_container
@@ -207,13 +210,13 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<LearningChoices> LEARNING = key("learning", LearningChoices.class).defaultValue(LearningChoices.off).build();
     final EnumPropertyProvider<LearningChoices> learning = new EnumPropertyProvider<LearningChoices>(LEARNING);
     
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
     
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqldroid").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(SemanticMemoryDatabase.IN_MEMORY_PATH).build();
+    static final PropertyKey<String> PATH = key("path", String.class).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
@@ -257,13 +260,14 @@ class DefaultSemanticMemoryParams
     
     private final PropertyManager properties;
     
-    public DefaultSemanticMemoryParams(PropertyManager properties)
+    public DefaultSemanticMemoryParams(PropertyManager properties, Context androidContext)
     {
         this.properties = properties;
         
         properties.setProvider(LEARNING, learning);
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PROTOCOL, protocol);
+        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
         properties.setProvider(PATH, path);
         
         properties.setProvider(LAZY_COMMIT, lazy_commit);

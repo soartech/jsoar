@@ -5,6 +5,8 @@
  */
 package org.jsoar.util;
 
+import org.jsoar.kernel.SoarException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +20,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import org.jsoar.kernel.SoarException;
 
 /**
  * JDBC helpers.
@@ -150,7 +150,7 @@ public class JdbcTools
                         line = filterLine(driverFilter, line);
                         if(line != null)
                         {
-                            s.addBatch(line);
+                            s.addBatch(line + ";");
                         }
                     }
                     

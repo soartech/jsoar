@@ -5,44 +5,12 @@
  */
 package org.jsoar.kernel.epmem;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableSet;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicLong;
+import android.content.Context;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -95,10 +63,43 @@ import org.jsoar.util.properties.PropertyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableSet;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <h2>Variance from CSoar Implementation</h2>
@@ -287,9 +288,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] { new epmem_rit_state(),
             new epmem_rit_state() };
 
+    private final Context androidContext;
+
     private Trace trace;
     private Random random;
-    
+
+
     // bool epmem_first_switch;
 
     EpisodicMemorySymbols predefinedSyms;
@@ -301,15 +305,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     private WorkingMemoryActivation wma;
 
-    public DefaultEpisodicMemory(Adaptable context)
+    public DefaultEpisodicMemory(Adaptable context, Context androidContext)
     {
-        this(context, null);
+        this(context, null, androidContext);
     }
 
-    public DefaultEpisodicMemory(Adaptable context, EpisodicMemoryDatabase db)
+    public DefaultEpisodicMemory(Adaptable context, EpisodicMemoryDatabase db, Context androidContext)
     {
         this.context = context;
         this.db = db;
+        this.androidContext = androidContext;
     }
     
     /**
@@ -339,7 +344,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
-        params = new DefaultEpisodicMemoryParams(properties, symbols);
+        params = new DefaultEpisodicMemoryParams(properties, symbols, androidContext);
         stats = new DefaultEpisodicMemoryStats(properties);
 
         predefinedSyms = new EpisodicMemorySymbols(symbols);
@@ -7793,7 +7798,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         try
         {
-            String fileContents = new String(Files.readAllBytes(filename.toPath()), Charset.defaultCharset());
+            RandomAccessFile file = new RandomAccessFile(filename, "r");
+            //Danger of buffer overwrite here
+            byte[] fileBytes = new byte[(int)file.length()];
+            file.read(fileBytes);
+            String fileContents = new String(fileBytes);
             return epmem_parse_and_add_string(fileContents);
         }
         catch (IOException e)
