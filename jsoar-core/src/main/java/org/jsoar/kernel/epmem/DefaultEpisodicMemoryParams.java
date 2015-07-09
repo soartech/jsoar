@@ -101,11 +101,11 @@ class DefaultEpisodicMemoryParams
     {
         return PropertyKey.builder(PREFIX + name, type);
     }
-    
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
+
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
-    
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
+
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();

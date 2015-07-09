@@ -7,7 +7,8 @@ package org.jsoar.kernel;
 
 import android.content.Context;
 
-import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.epmem.MockEpmem;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -27,7 +28,8 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardFunctions;
-import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.smem.MockSmem;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -139,8 +141,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Explain explain = new Explain(this);
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultWorkingMemoryActivation wma = new DefaultWorkingMemoryActivation(this);
-    private final DefaultSemanticMemory smem;
-    private final DefaultEpisodicMemory epmem;
+    private final SemanticMemory smem;
+    private final EpisodicMemory epmem;
     
     private final Rete rete;
     private final SoarReteListener soarReteListener;
@@ -225,8 +227,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
 
-        smem = new DefaultSemanticMemory(this, androidContext);
-        epmem = new DefaultEpisodicMemory(this, androidContext);
+        //********UCOMMENT THE INITIALIZERS FURTHER DOWN*******************
+//        smem = new DefaultSemanticMemory(this, androidContext);
+//        epmem = new DefaultEpisodicMemory(this, androidContext);
+        //********UCOMMENT THE INITIALIZERS FURTHER DOWN*******************
+        smem = new MockSmem();
+        epmem = new MockEpmem();
 
         rete = new Rete(trace, syms, epmem, smem, rl.getParams());
         soarReteListener = new SoarReteListener(this, rete);
@@ -253,8 +259,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         io.initialize();
         soarReteListener.initialize();
         exploration.initialize();
-        smem.initialize();
-        epmem.initialize();
+        //smem.initialize();
+        //epmem.initialize();
         wma.initialize();
         
         // Set up standard RHS functions

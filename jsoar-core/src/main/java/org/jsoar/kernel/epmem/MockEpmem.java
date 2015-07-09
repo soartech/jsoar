@@ -4,6 +4,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This implementation is intended to be used for testing. The only useful thing
@@ -15,6 +17,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
  */
 public class MockEpmem implements EpisodicMemory
 {
+    private static final Logger logger = LoggerFactory.getLogger(MockEpmem.class);
+
+    public MockEpmem(){
+        logger.warn("Instantiated MockEpmem.  This will not perform any epmem operations.");
+    }
 
     @Override
     public boolean epmem_enabled()
@@ -29,16 +36,10 @@ public class MockEpmem implements EpisodicMemory
     }
 
     @Override
-    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
-    {
-        throw new UnsupportedOperationException();
-    }
+    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id){}
 
     @Override
-    public void epmem_reset(IdentifierImpl state)
-    {
-        throw new UnsupportedOperationException();
-    }
+    public void epmem_reset(IdentifierImpl state){}
 
     @Override
     public void epmem_go()

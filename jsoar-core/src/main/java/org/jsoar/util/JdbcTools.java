@@ -49,7 +49,11 @@ public class JdbcTools
         
         try
         {
-            return DriverManager.getConnection(jdbcUrl);
+            //String prop = System.getProperty("java.specification.version");
+            //System.setProperty("java.specification.version", "1.1");
+            Connection conn = DriverManager.getConnection(jdbcUrl);
+            //System.setProperty("java.specification.version", prop);
+            return conn;
         }
         catch (SQLException e)
         {
