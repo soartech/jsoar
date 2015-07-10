@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -17,4 +19,18 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'org.xerial:sqlite-jdbc:3.8.10.1'
     //compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/") {
+                authentication(userName: nexusUser, password: nexusPassword)
+            }
+            pom.version = "0.0.1-SNAPSHOT"
+            pom.artifactId = "jsoar-core-android"
+            pom.groupId = "com.soartech"
+            pom.packaging = "aar"
+        }
+    }
 }
