@@ -3,15 +3,9 @@
  */
 package org.jsoar.kernel.commands;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Stack;
+import android.content.res.AssetManager;
+
+import com.google.common.io.ByteStreams;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
@@ -25,36 +19,49 @@ import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Stack;
+
 /**
- * Implementation of the "source" command. 
- * 
+ * Implementation of the "source" command.
+ *
  * <p> Manages the following:
  * <ul>
  * <li>The current working directory (pwd)
  * <li>The directory stack (pushd and popd)
  * <li>Stats about current top-level source command (last command, productions added, etc)
  * </ul>
- * 
+ *
  * @author ray
  */
 public class SourceCommand implements SoarCommand
 {
     private static enum Options { ALL, DISABLE, VERBOSE };
-    
+
     private final SourceCommandAdapter interp;
     private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
-    private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
     private Stack<String> fileStack = new Stack<String>();
-    
+
     /**
      * Save the path to each sourced file in this list.
-     * 
+     *
      * The Soar IDE uses this list to notify the user of un-sourced files.
-     * 
+     *
      * QUESTION: Should this also have urls added to it in evalUrlAndPop()?
      */
     private List<String> sourcedFiles = new ArrayList<String>();
-    
+
+    private final AssetManager assetManager;
+
     private TopLevelState topLevelState;
     private final SoarEventManager events;
     private final SoarEventListener eventListener = new SoarEventListener()
@@ -73,108 +80,53 @@ public class SourceCommand implements SoarCommand
         }
     };
     private String[] lastTopLevelCommand = null;
-    
-    public SourceCommand(SourceCommandAdapter interp, SoarEventManager events)
+
+    public SourceCommand(SourceCommandAdapter interp, SoarEventManager events, AssetManager assetManager)
     {
         this.interp = interp;
         this.events = events;
         fileStack.push("");
+        this.assetManager = assetManager;
     }
-    
+
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
     }
-    
+
     /*package*/ DirStackEntry getWorkingDirectoryRaw()
     {
         return workingDirectory;
     }
-    
+
     public String getCurrentFile()
     {
         return fileStack.peek();
     }
-    
+
     public List<String> getSourcedFiles()
     {
         return sourcedFiles;
-    }
-    
-    public void pushd(String dirString) throws SoarException
-    {
-        File newDir = new File(dirString);
-        URL url = FileTools.asUrl(dirString);
-        if(url != null)
-        {
-            // A new URL. Just set that to be the working directory
-            directoryStack.push(workingDirectory);
-            workingDirectory = new DirStackEntry(url);
-        }
-        else if(workingDirectory.url != null && !newDir.isAbsolute())
-        {
-            // Relative path where current directory is a URL.
-            directoryStack.push(workingDirectory);
-            workingDirectory = new DirStackEntry(joinUrl(workingDirectory.url, dirString));
-        }
-        else 
-        {
-            if(!newDir.isAbsolute())
-            {
-                assert workingDirectory.url == null;
-                newDir = new File(workingDirectory.file, dirString);
-            }
-            
-            if(!newDir.exists())
-            {
-                throw new SoarException("Directory '" + newDir  + "' does not exist");
-            }
-            if(!newDir.isDirectory())
-            {
-                throw new SoarException("'" + newDir + "' is not a directory");
-            }
-            directoryStack.push(workingDirectory);
-            workingDirectory = new DirStackEntry(newDir);
-        }
-    }
-    
-    public void popd() throws SoarException
-    {
-        if(directoryStack.isEmpty())
-        {
-            throw new SoarException("Directory stack is empty");
-        }
-        workingDirectory = directoryStack.pop();
     }
 
     public void source(String fileString) throws SoarException
     {
         final URL url = FileTools.asUrl(fileString);
-        File file = new File(fileString);
         if(url != null)
         {
-            pushd(getParentUrl(url).toExternalForm());
             evalUrlAndPop(url);
-        }
-        else if(file.isAbsolute())
-        {
-            pushd(file.getParent());
-            evalFileAndPop(file);
         }
         else if(workingDirectory.url != null)
         {
             final URL childUrl = joinUrl(workingDirectory.url, fileString);
-            pushd(getParentUrl(childUrl).toExternalForm());
             evalUrlAndPop(childUrl);
         }
-        else 
+        else
         {
-            file = new File(workingDirectory.file, file.getPath());
-            pushd(file.getParent());
-            evalFileAndPop(file);
+            evalFileAndPop(fileString);
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
@@ -185,14 +137,14 @@ public class SourceCommand implements SoarCommand
         {
             throw new SoarException("Expected fileName argument");
         }
-        
+
         final boolean topLevel = topLevelState == null;
-        
+
         final boolean reload = "-r".equals(args[1]) || "--reload".equals(args[1]);
         if(topLevel && reload && lastTopLevelCommand != null)
         {
-            return "Reloaded: " + 
-                   StringTools.join(Arrays.asList(lastTopLevelCommand), " ") + "\n" + 
+            return "Reloaded: " +
+                   StringTools.join(Arrays.asList(lastTopLevelCommand), " ") + "\n" +
                    execute(commandContext, lastTopLevelCommand);
         }
         else if(!topLevel && reload)
@@ -203,7 +155,7 @@ public class SourceCommand implements SoarCommand
         {
             throw new SoarException("No previous file to reload");
         }
-        
+
         // Process args to get list of files and options ...
         final List<String> files = new ArrayList<String>();
         final EnumSet<Options> opts = EnumSet.noneOf(Options.class);
@@ -222,7 +174,7 @@ public class SourceCommand implements SoarCommand
                 files.add(arg);
             }
         }
-        
+
         // If this is the top source command (user-initiated), set up the 
         // state info and register for production events
         if(topLevel)
@@ -253,7 +205,7 @@ public class SourceCommand implements SoarCommand
             }
         }
     }
-    
+
     private String generateResult(boolean topLevel, EnumSet<Options> opts)
     {
         final StringBuilder result = new StringBuilder();
@@ -276,7 +228,7 @@ public class SourceCommand implements SoarCommand
             }
             if(!opts.contains(Options.DISABLE))
             {
-                result.append(String.format("Total: %d productions sourced. %d productions excised.\n", 
+                result.append(String.format("Total: %d productions sourced. %d productions excised.\n",
                                 topLevelState.totalProductionsAdded,
                                 topLevelState.totalProductionsExcised));
             }
@@ -295,54 +247,44 @@ public class SourceCommand implements SoarCommand
         }
         return result.toString();
     }
-    
-    private URL getParentUrl(URL url) throws SoarException
-    {
-        final String s = url.toExternalForm();
-        final int i = s.lastIndexOf('/');
-        if(i == -1)
-        {
-            throw new SoarException("Cannot determine parent of URL: " + url);
-        }
-        URL parent = FileTools.asUrl(s.substring(0, i));
-        if (parent != null)
-        {
-            return parent;
-        }
-        return FileTools.asUrl(s.substring(0, i) + "/");
-    }
-    
+
     /*package*/ URL joinUrl(URL parent, String child)
     {
         final String s = parent.toExternalForm();
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
     }
-    
-    private void evalFileAndPop(File file) throws SoarException
+
+    private void evalFileAndPop(String file) throws SoarException
     {
         try
         {
-            //replace the system file separator to be a standard forward slash 
-            sourcedFiles.add(file.getAbsolutePath().replace(File.separator, "/"));
-            
-            fileStack.push(file.getAbsolutePath());
+            //replace the system file separator to be a standard forward slash
+            sourcedFiles.add(file.replace(File.separator, "/"));
+
+            fileStack.push(file);
             if(topLevelState != null)
             {
-                topLevelState.files.add(new FileInfo(file.getName()));
+                topLevelState.files.add(new FileInfo(file));
             }
-            interp.eval(file);
+            String code = null;
+            try {
+                InputStream is = assetManager.open(file);
+                code = new String(ByteStreams.toByteArray(is));
+            } catch (IOException e) {
+                throw new SoarException("Error while sourcing file: " + file, e);
+            }
+            interp.eval(code);
         }
         finally
         {
             fileStack.pop();
-            popd();
         }
     }
-        
+
     private void evalUrlAndPop(URL urlIn) throws SoarException
     {
         final URL url = normalizeUrl(urlIn);
-        
+
         try
         {
             fileStack.push(url.toExternalForm());
@@ -355,14 +297,13 @@ public class SourceCommand implements SoarCommand
         finally
         {
             fileStack.pop();
-            popd();
         }
     }
 
     /**
      * Make sure an URL is normalized, i.e. does not contain any .. or .
      * path components.
-     * 
+     *
      * @param url the url to normalize
      * @return normalized URL
      * @throws SoarException if there are any problems with the URL
@@ -382,36 +323,35 @@ public class SourceCommand implements SoarCommand
             throw new SoarException(e.getMessage(), e);
         }
     }
-    
+
     // This ain't pretty, but it's private and it works
     /*package*/ static class DirStackEntry
     {
         File file;
         URL url;
-        
+
         public DirStackEntry(File file) { this.file = file; }
-        public DirStackEntry(URL url) { this.url = url; }
     }
-    
+
     private static class FileInfo
     {
         final String name;
         final List<String> productionsAdded = new ArrayList<String>();
         final List<String> productionsExcised = new ArrayList<String>();
-        
+
         public FileInfo(String name)
         {
             this.name = name;
         }
     }
-    
+
     private static class TopLevelState
     {
         final List<FileInfo> files = new ArrayList<FileInfo>();
         int totalProductionsAdded = 0;
         int totalProductionsExcised = 0;
         //int totalProductionsIgnored = 0; // TODO implement totalProductionsIgnored
-        
+
         void productionAdded(Production p)
         {
             current().productionsAdded.add(p.getName());

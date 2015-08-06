@@ -5,6 +5,8 @@
  */
 package org.jsoar.util.commands;
 
+import android.content.res.AssetManager;
+
 import org.jsoar.kernel.Agent;
 
 /**
@@ -17,9 +19,9 @@ public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory
      * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#create(org.jsoar.kernel.Agent)
      */
     @Override
-    public SoarCommandInterpreter create(Agent agent)
+    public SoarCommandInterpreter create(Agent agent, AssetManager assetManager)
     {
-        return new DefaultInterpreter(agent);
+        return new DefaultInterpreter(agent, assetManager);
     }
 
     /* (non-Javadoc)

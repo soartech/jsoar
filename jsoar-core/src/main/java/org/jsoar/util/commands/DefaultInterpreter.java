@@ -5,6 +5,24 @@
  */
 package org.jsoar.util.commands;
 
+import android.content.res.AssetManager;
+
+import com.google.common.base.Joiner;
+
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.PopdCommand;
+import org.jsoar.kernel.commands.PushdCommand;
+import org.jsoar.kernel.commands.PwdCommand;
+import org.jsoar.kernel.commands.ReteNetCommand;
+import org.jsoar.kernel.commands.SourceCommand;
+import org.jsoar.kernel.commands.SourceCommandAdapter;
+import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.util.ByRef;
+import org.jsoar.util.SourceLocation;
+import org.jsoar.util.StringTools;
+import org.jsoar.util.UrlTools;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,22 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.PopdCommand;
-import org.jsoar.kernel.commands.PushdCommand;
-import org.jsoar.kernel.commands.PwdCommand;
-import org.jsoar.kernel.commands.ReteNetCommand;
-import org.jsoar.kernel.commands.SourceCommand;
-import org.jsoar.kernel.commands.SourceCommandAdapter;
-import org.jsoar.kernel.commands.StandardCommands;
-import org.jsoar.util.ByRef;
-import org.jsoar.util.SourceLocation;
-import org.jsoar.util.StringTools;
-import org.jsoar.util.UrlTools;
-
-import com.google.common.base.Joiner;
-
 /**
  * Default implementation of {@link SoarCommandInterpreter}.
  * 
@@ -52,11 +54,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final SourceCommand sourceCommand;
     private final ReteNetCommand reteNetCommand;
     
-    public DefaultInterpreter(Agent agent)
+    public DefaultInterpreter(Agent agent, AssetManager assetManager)
     {
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
-        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
+        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents(), assetManager));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));

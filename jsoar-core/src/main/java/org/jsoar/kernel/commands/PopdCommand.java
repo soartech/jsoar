@@ -5,11 +5,11 @@
  */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
-
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+
+import java.util.Arrays;
 
 /**
  * Implementation of the "popd" command.
@@ -39,8 +39,8 @@ public class PopdCommand implements SoarCommand
         {
             throw new SoarException("Expected 0 args, got " + Arrays.asList(args));
         }
-        
-        sourceCommand.popd();
+
+        //sourceCommand.popd();
         return sourceCommand.getWorkingDirectory();
     }
 

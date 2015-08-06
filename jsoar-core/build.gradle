@@ -18,6 +18,7 @@ dependencies {
     compile 'com.google.guava:guava:16.0.1'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'org.xerial:sqlite-jdbc:3.8.10.1'
+    compile 'org.codehaus:jtcl:2.4.0'
     //compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
 }
 

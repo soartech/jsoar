@@ -119,7 +119,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * The random number generator used throughout the agent
      */
     private final Random random = new Random();
-    
+
+    private final Context androidContext;
+
     private SoarCommandInterpreter interp;
     private final PropertyManager properties = new PropertyManager();
     private final Trace trace = new Trace(printer);
@@ -224,7 +226,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     public Agent(String name, boolean initializeAgent, Context androidContext)
     {
         setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
-        
+
+        this.androidContext = androidContext;
+
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
 
         //********UCOMMENT THE INITIALIZERS FURTHER DOWN*******************
@@ -414,7 +418,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             if(interp == null)
             {
-                interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "default"));
+                interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "tcl"));
                 logger.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
@@ -438,12 +442,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             final SoarCommandInterpreterFactory factory = it.next();
             if(name == null || name.equals(factory.getName()))
             {
-                return factory.create(this);
+                return factory.create(this, androidContext.getAssets());
             }
         }
         
         logger.warn("Could not find interpreter named '" + name + "'. Using default.");
-        return new DefaultInterpreter(this);
+        return new DefaultInterpreter(this, androidContext.getAssets());
     }
     
     /**

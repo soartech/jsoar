@@ -5,11 +5,11 @@
  */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
-
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+
+import java.util.Arrays;
 
 /**
  * Implementation of the "pushd" command.
@@ -40,7 +40,7 @@ public class PushdCommand implements SoarCommand
             throw new SoarException("Expected 1 arg, got " + Arrays.asList(args));
         }
         
-        sourceCommand.pushd(args[1]);
+        //sourceCommand.pushd(args[1]);
         return args[1];
     }
 
