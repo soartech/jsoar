@@ -1703,7 +1703,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             try
             {
                 rs = db.act_lti_child_ct_get.executeQuery();
-
+                rs.next();
                 existing_edges = rs.getLong(0 + 1);
             }
             finally
