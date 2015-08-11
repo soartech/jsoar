@@ -210,10 +210,10 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<LearningChoices> LEARNING = key("learning", LearningChoices.class).defaultValue(LearningChoices.off).build();
     final EnumPropertyProvider<LearningChoices> learning = new EnumPropertyProvider<LearningChoices>(LEARNING);
 
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
 
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqldroid").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
     static final PropertyKey<String> PATH = key("path", String.class).build();

@@ -98,10 +98,9 @@
     <orderEntry type="library" exported="" name="guava-16.0.1" level="project" />
     <orderEntry type="library" exported="" name="jtcl-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="slf4j-api-1.7.5" level="project" />
-    <orderEntry type="library" exported="" name="commons-beanutils-1.8.3" level="project" />
     <orderEntry type="library" exported="" name="jcl-over-slf4j-1.7.5" level="project" />
+    <orderEntry type="library" exported="" name="commons-beanutils-1.8.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="sqlite-jdbc-3.8.10.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="commons-math3-3.2" level="project" />
