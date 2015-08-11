@@ -995,6 +995,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         decider.top_goal.epmem_valid = epmem_validation;
         
         ResultSet r = db.database_version.executeQuery();
+        r.next();
         try{
         	stats.db_version.set(r.getString(1));
         }finally{
@@ -2575,6 +2576,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             db.hash_add_type.setInt(1, sym_type);
             db.hash_add_type.execute();
             ResultSet rs = db.hash_add_type.getGeneratedKeys();
+            rs.next();
             try{
                 toReturn = rs.getLong(1);
             }
@@ -6739,6 +6741,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
             my_q.setLong( 1, memory_id );
             ResultSet resultSet = my_q.executeQuery();
+            resultSet.next();
             //return_val = ( my_q->column_int( 0 ) > 0 );
             return_val = ( resultSet.getLong( 0 + 1 ) > 0 );
             resultSet.close();
