@@ -894,7 +894,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             db.history_get.setLong(1, lti);
             rs = db.history_get.executeQuery();
-
+            rs.next();
             int available_history = (int) (SMEM_ACT_HISTORY_ENTRIES < n ? (SMEM_ACT_HISTORY_ENTRIES) : (n));
             t_k = time_now - rs.getLong(available_history - 1 + 1);
 
@@ -1019,7 +1019,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 db.lti_access_get.setLong(1, lti);
                 rs = db.lti_access_get.executeQuery();
-
+                rs.next();
                 prev_access_n = rs.getLong(0 + 1);
                 prev_access_t = rs.getLong(1 + 1);
                 prev_access_1 = rs.getLong(2 + 1);
@@ -1086,7 +1086,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 db.act_lti_child_ct_get.setLong(1, lti);
                 rs = db.act_lti_child_ct_get.executeQuery();
-
+                rs.next();
                 num_edges = rs.getLong(0 + 1);
             }
             finally
@@ -1703,7 +1703,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             try
             {
                 rs = db.act_lti_child_ct_get.executeQuery();
-
+                rs.next();
                 existing_edges = rs.getLong(0 + 1);
             }
             finally

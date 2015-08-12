@@ -2,13 +2,15 @@
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="bad_container_name" value="\jsoar-performance-testing\tool"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/jsoar-performance-testing/src/org/jsoar/performancetesting/PerformanceTesting.java"/>
+<listEntry value="/jsoar-performance-testing/src/main/java/org/jsoar/performancetesting/PerformanceTesting.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jsoar.performancetesting.PerformanceTesting"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--configuration resources/example_configuration.yaml"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--configuration example_configuration.yaml"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar-performance-testing"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:jsoar-performance-testing/src/main/resources}"/>
 </launchConfiguration>
