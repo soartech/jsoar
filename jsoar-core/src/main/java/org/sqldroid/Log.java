@@ -1,7 +1,7 @@
 package org.sqldroid;
 
 public class Log {
-    public static int LEVEL = android.util.Log.WARN;
+    public static int LEVEL = android.util.Log.VERBOSE;
     private static final String TAG = "SQLDroid";
 
     static void d(String message) {
