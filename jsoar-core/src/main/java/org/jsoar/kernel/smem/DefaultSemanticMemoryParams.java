@@ -219,7 +219,7 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<String> PATH = key("path", String.class).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
-    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
+    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.off).build();
     final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
     static final PropertyKey<AppendDatabaseChoices> APPEND_DB = key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.on).build();

@@ -108,7 +108,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqldroid").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
+    static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.off).build();
     final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
     static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
