@@ -1,3 +1,0 @@
-# Put any common production rules / configuration settings here.
-
-handler --disable log
