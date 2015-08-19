@@ -2,6 +2,10 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
+    signingConfigs {
+        config {
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
@@ -9,6 +13,10 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
     }
 }
 dependencies {
@@ -18,9 +26,10 @@ dependencies {
     compile 'com.google.guava:guava:16.0.1'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'org.codehaus:jtcl:2.4.0'
-//    compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
-//    compile 'org.xerial:sqlite-jdbc:3.8.10.1'
-//    compile 'org.sqldroid:sqldroid:1.0.3'
+    //    compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
+    //    compile 'org.xerial:sqlite-jdbc:3.8.10.1'
+    //    compile 'org.sqldroid:sqldroid:1.0.3'
+//    testCompile 'junit:junit:4.10'
 }
 
 uploadArchives {

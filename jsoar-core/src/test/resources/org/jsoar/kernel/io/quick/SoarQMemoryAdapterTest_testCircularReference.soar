@@ -1,8 +1,0 @@
-waitsnc --on
-
-sp {first
-(state <s> ^superstate nil ^io.output-link <ol>)
--->
-(<ol> ^root <root>)
-(<root> ^a.path.back.to.root <root>) 
-}

@@ -1,0 +1,201 @@
+# Unit tests for JavaScript script API
+
+test "can update a wme" {
+  waitsnc --on
+
+  script javascript {
+   
+    cycle = 0;
+
+    stringWme = null;
+    intWme = null;
+    floatWme = null;
+    idWme = null;
+
+    soar.onInput(function(e) {
+        if(cycle == 0) {
+          stringWme = soar.wmes.add("string", "first");
+          intWme = soar.wmes.add("int", soar.integer(99));
+          floatWme = soar.wmes.add("float", 2.5);
+          idWme = soar.wmes.add("id", soar.wmes.fromJavaScript({
+            value : "first"
+          }));
+        }
+        else if(cycle == 1) {
+          stringWme = soar.wmes.update(stringWme, "second");
+          intWme = soar.wmes.update(intWme, soar.integer(100));
+          floatWme = soar.wmes.update(floatWme, 3.5);
+          idWme = soar.wmes.update(idWme, soar.wmes.fromJavaScript({
+            value : "second"
+          }));
+        }
+        cycle++;
+    });
+  }
+
+  sp {propose*first-passed
+    (state <s> ^superstate nil
+               ^io.input-link <il>
+              -^first-passed)
+    (<il> ^string first
+          ^int    99
+          ^float  2.5
+          ^id.value first)
+  -->
+    (<s> ^operator.name first-passed)
+  }
+  sp {apply*first-passed
+    (state <s> ^operator.name first-passed)
+  -->
+    (<s> ^first-passed true)
+  }
+
+  sp {pass
+    (state <s> ^superstate nil
+               ^first-passed
+               ^io.input-link <il>)
+    (<il> ^string second
+          ^int    100
+          ^float  3.5
+          ^id.value second)
+  -->
+    (pass)
+  }
+}
+
+test "can create input from JavaScript objects" {
+ 
+  waitsnc --on
+
+  # Put some stuff on the input link
+  script javascript {
+    soar.forOneEvent(soar.onInput, function(e) {
+      soar.wmes.add("company", soar.wmes.fromJavaScript({
+        name: "FooTech",
+        size: soar.integer(2),
+        morale : 12.4,
+        employee : [
+          "phil",
+          {
+             name: "jim",
+             role: "big boss"
+          }
+        ]
+      }, "C"));
+    });
+  }
+
+  # Check that it's there.
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link.company <c>)
+    (<c> ^name |FooTech|
+         ^size 2
+         ^morale 12.4
+         ^employee |phil|
+         ^employee <jim>)
+    (<jim> ^name |jim|
+           ^role |big boss|)
+  -->
+    (pass)
+  }
+}
+
+test "can create input from JavaScript objects with nesting" {
+  waitsnc --on
+
+  # There was a bug in JavaScript objects with multiple-nesting
+  # levels.
+  script javascript {
+    soar.forOneEvent(soar.onInput, function(e) {
+      soar.wmes.add("my-location", soar.wmes.fromJavaScript({
+        north: {
+          contents: {
+            type: "food",
+            quantity: soar.integer(3)
+          }
+        }
+      }, "C"));
+    });
+  }
+
+  # Check that it's there.
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link.my-location.north.contents <c>)
+    (<c> ^type food
+         ^quantity 3)
+  -->
+    (pass)
+  }
+}
+
+test "can handle output commands with JavaScript" {
+  waitsnc --on
+
+  script javascript {
+    value = null;
+    valueWme = null;
+
+    // Catch a value and return ^status done!
+    soar.onOutputCommand("test-command", function(e) {
+      value = e["value"];
+      return "done!";
+    });
+
+    // Put the output-command value back on the input-link
+    soar.onInput(function(e) {
+      if(value && !valueWme) {
+        valueWme = soar.wmes.add("test-value", value);
+      }
+    });
+  }
+
+  sp {do-output
+    (state <s> ^superstate nil
+               ^io.output-link <ol>)
+  -->
+    (<ol> ^test-command.value 123456)
+  }
+
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link <il>
+               ^io.output-link <ol>)
+    (<il> ^test-value 123456)
+    (<ol> ^test-command.status |done!|)
+  -->
+    (pass)
+  }
+}
+
+test "can register a new RHS function with JavaScript" {
+
+  waitsnc --on
+
+  script javascript {
+    // Register a RHS function...
+    soar.rhsFunction({
+      name: "test javascript function",
+
+      // Just concatenate first two args...
+      execute: function(context, args) {
+        return "result-" + args[0] + "-" + args[1];
+      }
+    });
+  }
+
+  sp {do-function
+    (state <s> ^superstate nil)
+  -->
+    (<s> ^function-result (|test javascript function| hi 3.14))
+  }
+
+  sp {pass
+    (state <s> ^superstate nil
+               ^function-result |result-hi-3.14|)
+  -->
+    (pass)
+  }
+}
+

@@ -1,0 +1,16 @@
+
+
+sp {test1
+    (state <s> ^superstate nil)
+-->
+    (<s> ^contacts.contact <c>)
+    (<c> ^name Eagle10 ^range 1001) 
+}
+
+sp {test2
+    (state <s> ^superstate nil)
+-->
+    (<s> ^contacts.contact <c>)
+    (<c> ^range 1001 ^threat *yes*) 
+}
+    

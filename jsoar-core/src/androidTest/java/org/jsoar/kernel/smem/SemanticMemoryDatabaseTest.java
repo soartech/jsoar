@@ -1,0 +1,187 @@
+/*
+ * Copyright (c) 2010 Dave Ray <daveray@gmail.com>
+ *
+ * Created on Jun 23, 2010
+ */
+package org.jsoar.kernel.smem;
+
+
+import android.test.AndroidTestCase;
+
+import org.jsoar.util.JdbcTools;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.HashSet;
+import java.util.Set;
+
+public class SemanticMemoryDatabaseTest extends AndroidTestCase
+{
+    private Connection db;
+    
+    @Override
+    public void setUp() throws Exception
+    {
+        db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+    }
+
+    @Override
+    public void tearDown() throws Exception
+    {
+        db.close();
+    }
+    
+    // With the change to make JSoar behave like CSoar, this test is no longer valid
+    // Because it will recreate the tables (or at least try to).
+    // - ALT
+//    @Test
+//    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
+//    {
+//        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+//        assertTrue(smdb.structure());
+//        
+//        assertFalse(smdb.structure());
+//    }
+    
+    public void testCanCreateInitialTables() throws Exception
+    {
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+        smdb.structure();
+        
+        final Set<String> tables = new HashSet<String>();
+        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
+        while(rs.next())
+        {
+            tables.add(rs.getString("TABLE_NAME").toLowerCase());
+        }
+        
+        // Here's the tables we expect
+        final String[] expectedTables = new String[] {
+            SemanticMemoryDatabase.SMEM_SCHEMA + "persistent_variables", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_integer",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_string",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "activation_history",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "attribute_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_lti_frequency",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii",
+            
+            "versions"
+        };
+        
+        for(String expected : expectedTables)
+        {
+            assertTrue("Missing expected table '" + expected + "'", 
+                       tables.contains(expected));
+        }
+        assertEquals(expectedTables.length, tables.size());
+    }
+    
+    public void testCanCreateInitialIndexes() throws Exception
+    {
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+        smdb.structure();
+        
+        final Set<String> tables = new HashSet<String>();
+        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"INDEX"});
+        while(rs.next())
+        {
+            tables.add(rs.getString("TABLE_NAME").toLowerCase());
+        }
+        
+        // Here's the tables we expect
+        final String[] expectedTables = new String[] {
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_t",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_parent_attr_val_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_val_lti_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
+            "sqlite_autoindex_versions_1",
+        };
+        
+        for(String expected : expectedTables)
+        {
+            assertTrue("Missing expected index '" + expected + "'", tables.contains(expected));
+        }
+        assertEquals(expectedTables.length, tables.size());
+    }
+
+    public void testPreparesStatements() throws Exception
+    {
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
+        smdb.structure();
+        smdb.prepare();
+        
+        assertNotNull(smdb.begin);
+        assertNotNull(smdb.commit);
+        assertNotNull(smdb.rollback);
+
+        assertNotNull(smdb.var_get);
+        assertNotNull(smdb.var_set);
+
+        assertNotNull(smdb.hash_rev_int);
+        assertNotNull(smdb.hash_rev_float);
+        assertNotNull(smdb.hash_rev_str);
+        assertNotNull(smdb.hash_get_int);
+        assertNotNull(smdb.hash_get_float);
+        assertNotNull(smdb.hash_get_str);
+        assertNotNull(smdb.hash_add_type);
+        assertNotNull(smdb.hash_add_int);
+        assertNotNull(smdb.hash_add_float);
+        assertNotNull(smdb.hash_add_str);
+
+        assertNotNull(smdb.lti_add);
+        assertNotNull(smdb.lti_get);
+        assertNotNull(smdb.lti_letter_num);
+        assertNotNull(smdb.lti_max);
+
+        assertNotNull(smdb.web_add);
+        assertNotNull(smdb.web_truncate);
+        assertNotNull(smdb.web_expand);
+
+        assertNotNull(smdb.web_all);
+
+        assertNotNull(smdb.web_attr_all);
+        assertNotNull(smdb.web_const_all);
+        assertNotNull(smdb.web_lti_all);
+
+        assertNotNull(smdb.web_attr_child);
+        assertNotNull(smdb.web_const_child);
+        assertNotNull(smdb.web_lti_child);
+
+        assertNotNull(smdb.attribute_frequency_check);
+        assertNotNull(smdb.wmes_constant_frequency_check);
+        assertNotNull(smdb.wmes_lti_frequency_check);
+
+        assertNotNull(smdb.attribute_frequency_add);
+        assertNotNull(smdb.wmes_constant_frequency_add);
+        assertNotNull(smdb.wmes_lti_frequency_add);
+
+        assertNotNull(smdb.attribute_frequency_update);
+        assertNotNull(smdb.wmes_constant_frequency_update);
+        assertNotNull(smdb.wmes_lti_frequency_update);
+        
+        assertNotNull(smdb.attribute_frequency_get);
+        assertNotNull(smdb.wmes_constant_frequency_get);
+        assertNotNull(smdb.wmes_lti_frequency_get);
+
+        assertNotNull(smdb.act_set);
+        assertNotNull(smdb.act_lti_child_ct_set);
+        assertNotNull(smdb.act_lti_child_ct_get);
+        assertNotNull(smdb.act_lti_set);
+        assertNotNull(smdb.act_lti_get);
+
+        assertNotNull(smdb.vis_lti);
+        assertNotNull(smdb.vis_value_const);
+        assertNotNull(smdb.vis_value_lti);
+    }
+}

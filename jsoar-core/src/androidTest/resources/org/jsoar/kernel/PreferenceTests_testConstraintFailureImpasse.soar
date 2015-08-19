@@ -1,0 +1,69 @@
+# test for constraint failure impasse between two operators
+# makes sure that the right wmes are created and no others
+# this means the test will need to be updated when support for additional modules is added
+# if those modules add new links to substates
+
+sp {propose*operator-one
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator <o> !)
+   (<o> ^name one)
+}
+
+sp {propose*operator-two
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator <o> !)
+   (<o> ^name two)
+}
+
+sp {report*constraint-failure*impasse
+#make sure all wmes that should be here are here and of the correct type
+   (state <s> ^attribute operator
+              ^choices none
+              ^impasse constraint-failure
+              ^quiescence t
+              ^type state
+              ^reward-link {<rl> <=> <s>}
+              ^smem {<sm> <=> <s>}
+              ^epmem {<em> <=> <s>}
+              ^superstate {<ss> <=> <s>}
+              ^item-count 2
+              ^item {<ione> <=> <s>}
+              ^item {<itwo> <=> <s> <> <ione>})
+    (<ione> ^name one)
+    (<itwo> ^name two)
+#make sure we're at the right level in the goal stack
+    (<ss> ^superstate nil)
+#make sure there are no wmes with unexpected attributes
+   -(<s> ^{<> attribute 
+           <> choices
+           <> impasse
+           <> quiescence
+           <> type
+           <> reward-link
+           <> smem
+           <> epmem
+           <> superstate 
+           <> item-count
+           <> item})
+   -(<ione> ^<> name)
+   -(<itwo> ^<> name)
+#make sure there are no wmes with unexpected values
+    (<s> -^attribute <> operator
+         -^choices <> none
+         -^impasse <> constraint-failure
+         -^quiescence <> t
+         -^type <> state
+         -^reward-link <> <rl>
+         -^smem <> <sm>
+         -^epmem <> <em>
+         -^superstate <> <ss>
+         -^item-count <> 2
+         -^item {<> <ione> <> <itwo>})
+   -(<ione> ^name <> one)
+   -(<itwo> ^name <> two)
+-->
+   (succeeded)
+   (write (crlf) |correct constraint failure impasse detected|)
+}

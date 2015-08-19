@@ -1,0 +1,25 @@
+rl --set learning on
+learn --on
+
+sp {propose
+  (state <s> ^superstate nil)
+-->
+  (<s> ^operator <o1> +
+       ^operator <o2> +)
+  (<o1> ^name op1)
+  (<o2> ^name op2)}
+
+sp {subgoal
+  (state <s> ^impasse tie)
+-->
+  (<s> ^blah 0.0)}
+
+sp {result
+  (state <s> ^impasse tie
+             ^superstate <ss>
+             ^item <op>
+             ^blah <n>)
+  (<op> ^name <name>)
+-->
+  (<ss> ^operator <op> = <n>)}
+

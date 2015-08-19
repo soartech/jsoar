@@ -1,0 +1,3 @@
+source FunctionalTests_testCountTest.soar
+
+learn --on

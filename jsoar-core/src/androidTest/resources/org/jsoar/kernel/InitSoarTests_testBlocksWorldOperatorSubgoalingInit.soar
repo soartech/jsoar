@@ -1,0 +1,3 @@
+source FunctionalTests_testBlocksWorldOperatorSubgoaling.soar
+
+learn --on
