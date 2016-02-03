@@ -15,6 +15,7 @@ import java.util.Formatter;
 public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
 {
     private final Object value;
+    private final String classString;
 
     /**
      * @param hash_id
@@ -24,6 +25,15 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
         super(factory, hash_id);
         
         this.value = value;
+        if(value != null)
+        {
+            this.classString = " (" + value.getClass().getName() + ")";
+        }
+        else
+        {
+            this.classString = " (null Java Symbol)";
+        }
+       
     }
 
     public Object getValue()
@@ -65,7 +75,7 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     @Override
     public String toString()
     {
-        return value != null ? value.toString() : "null";
+        return value != null ? value.toString() + classString : "null";
     }
 
     /* (non-Javadoc)
@@ -74,6 +84,6 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format("%s", value);
+        formatter.format("%s", value + classString);
     }
 }
