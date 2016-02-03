@@ -28,10 +28,12 @@ import org.w3c.dom.NodeList;
  * example in:<br>
  * <br>
  * 
- * &lt;Message id="1"><br>
- * &nbsp;&nbsp;&nbsp;&lt;MessageValue>1.0&lt;/MessageValue><br>
- * &lt;/Message><br>
- * <br>
+ * <pre>
+ * {@code
+ * <Message id="1">
+ *    <MessageValue>1.0</MessageValue>
+ * </Message>
+ * }</pre>
  * 
  * the values of MessageValue and id would be specified as a floating point or
  * integer using the paths <code>Message.MessageValue</code> and
@@ -48,9 +50,11 @@ import org.w3c.dom.NodeList;
  * would be:<br>
  * <br>
  * 
- * <code>^id |1|</code><br>
- * <code>^MessageValue |1.0|</code><br>
- * <br>
+ * <pre>
+ * {@code
+ * ^id |1|
+ * ^MessageValue |1.0|
+ * }</pre>
  * 
  * Note that the root XML tag is ignored, but its attributes are still added. If
  * {@link #xmlToWme(java.io.File, InputOutput) xmlToWme} is used, the message is
@@ -58,12 +62,14 @@ import org.w3c.dom.NodeList;
  * results in the following WME structure:<br>
  * <br>
  * 
- * <code>^io</code><br>
- * &nbsp;&nbsp;&nbsp;<code>^input-link</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^Message</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^id |1|</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^MessageValue |1.0|</code><br>
- * <br>
+ * <pre>
+ * {@code
+ * ^io
+ *   ^input-link
+ *     ^Message
+ *       ^id |1|
+ *       ^MessageValue |1.0|
+ * }</pre>
  * 
  * @author chris.kawatsu
  * 
