@@ -18,6 +18,9 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+    lintOptions{
+        abortOnError false
+    }
 }
 dependencies {
     compile 'commons-beanutils:commons-beanutils:1.8.3'
@@ -38,7 +41,7 @@ uploadArchives {
             repository(url: "https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/") {
                 authentication(userName: nexusUser, password: nexusPassword)
             }
-            pom.version = "0.0.1-SNAPSHOT"
+            pom.version = "0.0.2-SNAPSHOT"
             pom.artifactId = "jsoar-core-android"
             pom.groupId = "com.soartech"
             pom.packaging = "aar"
