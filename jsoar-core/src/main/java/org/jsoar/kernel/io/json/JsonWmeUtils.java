@@ -7,13 +7,18 @@ import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility methods for adding json to the input link and converting output link wmes to json.
@@ -206,38 +211,83 @@ public class JsonWmeUtils
     @SuppressWarnings("unchecked")
     public static JSONObject parse(Identifier root)
     {
-        JSONObject jsonObj = new JSONObject();
-        Map<String, JSONArray> arrayAttrs = Maps.newHashMap();
+        final JSONObject jsonObj = new JSONObject();
+        final Map<String, JSONArray> arrayAttrs = Maps.newHashMap();
 
-        Iterator<Wme> wmes = root.getWmes();
+        // Create empty arrays for all array attributes
+        getJsonArrayAttributes(root).forEach(attr -> {
+            JSONArray array = new JSONArray();
+            jsonObj.put(attr, array);
+            arrayAttrs.put(attr, array);
+        });
+
+        final Iterator<Wme> wmes = root.getWmes();
         while (wmes.hasNext())
         {
-            Wme wme = wmes.next();
+            final Wme wme = wmes.next();
 
-            Object jsonValue = parse(wme.getValue());
+            final String attr = wme.getAttribute().toString();
 
-            String attr = wme.getAttribute().toString();
-
-            if (jsonObj.containsKey(attr))
+            // Ignore special attribute for setting JSON arrays.
+            if(attr.equals(JSON_ARRAY))
             {
-                // collect multi-value attributes into an array
-                JSONArray array = arrayAttrs.get(attr);
-                if (array == null)
-                {
-                    // no array yet, create one and add the existing value
-                    array = new JSONArray();
-                    array.add(jsonObj.get(attr));
-                    jsonObj.put(attr, array);
-                    arrayAttrs.put(attr, array);
-                }
+                continue;
+            }
+
+            // Recursively parse values.
+            final Object jsonValue = parse(wme.getValue());
+
+            // If this attribute is an array, then add the value to the array.
+            // Otherwise, add it as a JSON value.
+            // Multiple attributes that have not been specified as an array are considered an error.
+            JSONArray array = arrayAttrs.get(attr);
+            if (array != null)
+            {
                 array.add(jsonValue);
             }
             else
             {
+                if (jsonObj.containsKey(attr))
+                {
+                    logger.error("Parsing identifier {} - Replacing value for key {} ({} -> {}). To make an array instead add a ^{} {} WME to the identifier.",
+                            root, attr, jsonObj.get(attr), jsonValue, JSON_ARRAY, attr);
+                }
                 jsonObj.put(attr, jsonValue);
             }
         }
 
         return jsonObj;
+    }
+
+    private static final String JSON_ARRAY = "json-array-attributes";
+
+    /**
+     * Get the set of identifiers which should be treated as json arrays.
+     *
+     * @param id
+     * @return
+     */
+    private static Set<String> getJsonArrayAttributes(Identifier id)
+    {
+        final Set<String> attrs = new HashSet<String>();
+
+        final Iterator<Wme> wmes = id.getWmes();
+        while (wmes.hasNext())
+        {
+            final Wme wme = wmes.next();
+
+            final StringSymbol attr = wme.getAttribute().asString();
+            final StringSymbol value = wme.getValue().asString();
+
+            if(attr != null && attr.getValue().equals(JSON_ARRAY))
+            {
+                if(value != null)
+                {
+                    attrs.add(value.getValue());
+                }
+            }
+        }
+
+        return attrs;
     }
 }
