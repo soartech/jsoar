@@ -29,6 +29,8 @@ import java.util.Set;
  */
 public class JsonWmeUtils
 {
+    private static Logger logger = LoggerFactory.getLogger(JsonWmeUtils.class);
+
     private JsonWmeUtils() {}
 
     public static void addWmes(
@@ -215,11 +217,14 @@ public class JsonWmeUtils
         final Map<String, JSONArray> arrayAttrs = Maps.newHashMap();
 
         // Create empty arrays for all array attributes
-        getJsonArrayAttributes(root).forEach(attr -> {
+        Iterator<String> arrayAttributes = getJsonArrayAttributes(root).iterator();
+        while (arrayAttributes.hasNext())
+        {
+            String attr = arrayAttributes.next();
             JSONArray array = new JSONArray();
             jsonObj.put(attr, array);
             arrayAttrs.put(attr, array);
-        });
+        }
 
         final Iterator<Wme> wmes = root.getWmes();
         while (wmes.hasNext())
