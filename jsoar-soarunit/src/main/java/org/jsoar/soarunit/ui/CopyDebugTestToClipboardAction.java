@@ -12,10 +12,11 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 
 import org.jsoar.soarunit.SoarUnitCommand;
 import org.jsoar.soarunit.Test;
+import org.jsoar.util.UrlTools;
 
 /**
  * @author ray
@@ -40,14 +41,19 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        final String command = String.format("%s --ui --debug \"%s\" \"%s\"",
-                SoarUnitCommand.NAME,
-                test.getName(),
-                test.getTestCase().getFile().getAbsolutePath().replace('\\', '/'));
-        
-        final StringSelection ss = new StringSelection(command); 
-        final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
-        cb.setContents(ss, this);
+        final String command;
+        try
+        {
+            command = String.format("%s --ui --debug \"%s\" \"%s\"",
+                    SoarUnitCommand.NAME,
+                    test.getName(),
+                    UrlTools.toFile(test.getTestCase().getUrl()).getAbsolutePath().replace('\\', '/'));
+            final StringSelection ss = new StringSelection(command);
+            final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
+            cb.setContents(ss, this);
+        } catch (Exception e1) {
+            JOptionPane.showMessageDialog(null, e1.getMessage(), "Error creating debug test string", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /* (non-Javadoc)

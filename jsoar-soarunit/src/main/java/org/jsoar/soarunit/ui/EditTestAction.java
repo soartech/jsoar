@@ -13,6 +13,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
 import org.jsoar.soarunit.Test;
+import org.jsoar.util.UrlTools;
 
 /**
  * @author ray
@@ -45,9 +46,9 @@ public class EditTestAction extends AbstractAction
     {
         try
         {
-            Desktop.getDesktop().edit(test.getTestCase().getFile());
+            Desktop.getDesktop().edit(UrlTools.toFile(test.getTestCase().getUrl()));
         }
-        catch (IOException e1)
+        catch (Exception e1)
         {
             JOptionPane.showMessageDialog(null, e1.getMessage(), "Error opening test", JOptionPane.ERROR_MESSAGE);
         }
