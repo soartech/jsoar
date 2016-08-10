@@ -4,9 +4,11 @@
 package org.jsoar.kernel.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -19,6 +21,7 @@ import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
+import org.jsoar.util.UrlTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.events.SoarEvent;
@@ -105,8 +108,17 @@ public class SourceCommand implements SoarCommand
     {
         File newDir = new File(dirString);
         URL url = FileTools.asUrl(dirString);
-        if(url != null)
+        if(url != null || UrlTools.isClassPath(dirString))
         {
+            if (UrlTools.isClassPath(dirString))
+            {
+                try
+                {
+                    url = UrlTools.lookupClassPathURL(dirString);
+                } catch (IOException e) {
+                    throw new SoarException(e);
+                }
+            }
             // A new URL. Just set that to be the working directory
             directoryStack.push(workingDirectory);
             workingDirectory = new DirStackEntry(url);
@@ -149,10 +161,21 @@ public class SourceCommand implements SoarCommand
 
     public void source(String fileString) throws SoarException
     {
-        final URL url = FileTools.asUrl(fileString);
+        URL url = FileTools.asUrl(fileString);
         File file = new File(fileString);
         if(url != null)
         {
+            pushd(getParentUrl(url).toExternalForm());
+            evalUrlAndPop(url);
+        }
+        else if (UrlTools.isClassPath(fileString))
+        {
+            try
+            {
+                url = UrlTools.lookupClassPathURL(fileString);
+            } catch (IOException e) {
+                throw new SoarException(e);
+            }
             pushd(getParentUrl(url).toExternalForm());
             evalUrlAndPop(url);
         }
@@ -341,7 +364,7 @@ public class SourceCommand implements SoarCommand
         
     private void evalUrlAndPop(URL urlIn) throws SoarException
     {
-        final URL url = normalizeUrl(urlIn);
+        URL url = normalizeUrl(urlIn);
         
         try
         {

@@ -1,12 +1,17 @@
 package org.jsoar.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Arrays;
+import java.util.List;
 
 public class UrlTools
 {
@@ -59,4 +64,42 @@ public class UrlTools
         return url;
     }
 
+    /**
+     * Get the parent of a url.
+     *
+     * @param url the url
+     * @return the parent of the url, never {@code null}
+     */
+    public static URL getParent(URL url) throws Exception
+    {
+        URI uri = url.toURI().getPath().endsWith("/") ? url.toURI().resolve("..") : url.toURI().resolve(".");
+        return uri.toURL();
+    }
+
+    /**
+     * If url is a classpath url, see {@link UrlTools#isClassPath(String)}, return a URL to its location.
+     * @param url the string of the classpath url
+     * @return the url to the classpath resource.
+     */
+    public static URL lookupClassPathURL(String url) throws IOException
+    {
+        final PathMatchingResourcePatternResolver resolverSoarUnit = new PathMatchingResourcePatternResolver();
+        if (isClassPath(url))
+        {
+            List<Resource> resources = Arrays.asList(resolverSoarUnit.getResources(url));
+            if (!resources.isEmpty())
+            {
+                return resources.get(0).getURL();
+            }
+        }
+        throw new IOException("Invalid classpath resource: " + url);
+    }
+
+    /**
+     * Determines if this is a classpath URL or not.
+     */
+    public static boolean isClassPath(String url)
+    {
+        return url.startsWith("classpath:");
+    }
 }
