@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -102,4 +103,52 @@ public class UrlTools
     {
         return url.startsWith("classpath:");
     }
+
+    /**
+     * Converts a file: URL to a file object, if possible.
+     * @param url url to convert
+     * @return {@link java.io.File} representing the URL
+     * @throws Exception on failure
+     */
+    public static File toFile(URL url) throws Exception
+    {
+        URI uri = url.toURI();
+        // Handle UNC paths.
+        if (uri.toString().startsWith("file:") && uri.getAuthority() != null && uri.getAuthority().length() > 0)
+        {
+            uri = new URL("file://" + url.toString().substring("file:".length())).toURI();
+        }
+        return new File(uri);
+    }
+
+    /**
+     * Converts a file: URL to a file object, if possible.
+     * @param url url to convert
+     * @return {@link java.io.File} representing the URL, or null if it can't be converted.
+     */
+    public static File toFile2(URL url)
+    {
+        try
+        {
+            return toFile(url);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param url URL to check
+     * @return true if the url is url to a file (even if the file doesn't exist), false otherwise.
+     */
+    public static boolean isFileURL(URL url)
+    {
+        try
+        {
+            toFile(url);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }

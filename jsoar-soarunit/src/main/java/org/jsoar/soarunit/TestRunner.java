@@ -134,7 +134,7 @@ public class TestRunner
        
     }
     
-    private Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
+    public Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
     {
         return new Callable<TestCaseResult>()
         {
@@ -155,7 +155,7 @@ public class TestRunner
     {
         out.printf("%d/%d: Running test case '%s' from '%s'%n", index, total, 
                             testCase.getName(), 
-                            testCase.getFile());
+                            testCase.getUrl());
         final TestCaseResult result = new TestCaseResult(testCase);
         for(Test test : testCase.getTests())
         {
@@ -169,7 +169,7 @@ public class TestRunner
                 }
                 catch (SoarException e)
                 {
-                    throw new SoarException(testCase.getFile() + ":" + testCase.getName() + ": " + e.getMessage(), e);
+                    throw new SoarException(testCase.getUrl() + ":" + testCase.getName() + ": " + e.getMessage(), e);
                 }
                 result.addTestResult(testResult);
                 if(haltOnFailure && !testResult.isPassed())

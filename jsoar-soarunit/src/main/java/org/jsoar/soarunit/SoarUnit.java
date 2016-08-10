@@ -234,7 +234,7 @@ public class SoarUnit
             final TestCase testCase = result.getTestCase();
             totalTests += testCase.getTests().size();
             out.println("-------------------------------------------------------------");
-            out.printf("Test Case: %s (%s)%n", testCase.getName(), testCase.getFile());
+            out.printf("Test Case: %s (%s)%n", testCase.getName(), testCase.getUrl());
             out.printf("%d passed, %d failed%n", result.getPassed(), result.getFailed());
             for(TestResult testResult : result.getTestResults())
             {

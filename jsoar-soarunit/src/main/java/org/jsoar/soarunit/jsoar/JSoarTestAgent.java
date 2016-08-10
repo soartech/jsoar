@@ -28,8 +28,9 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.soarunit.FiringCounts;
 import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
-import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
+import org.jsoar.util.UrlTools;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
@@ -216,7 +217,11 @@ public class JSoarTestAgent implements TestAgent
     
     private void loadTestCode(Test test) throws SoarException
     {
-        agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')));
+        try {
+            agent.getInterpreter().eval(String.format("pushd \"%s\"", UrlTools.getParent(test.getTestCase().getUrl()).toString().replace('\\', '/')));
+        } catch (Exception e) {
+            throw new SoarException(e);
+        }
         agent.getInterpreter().eval(test.getTestCase().getSetup());
         agent.getInterpreter().eval(test.getContent());
     }
@@ -299,5 +304,11 @@ public class JSoarTestAgent implements TestAgent
         agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
         agent.getPrinter().flush();
         
+    }
+
+    @Override
+    public SoarCommandInterpreter getInterpreter()
+    {
+        return agent.getInterpreter();
     }
 }

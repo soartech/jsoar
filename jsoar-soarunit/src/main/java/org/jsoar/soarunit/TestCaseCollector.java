@@ -8,10 +8,14 @@ package org.jsoar.soarunit;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.UrlTools;
 
 /**
  * @author ray
@@ -28,7 +32,17 @@ public class TestCaseCollector
 
     public void addEntry(File file, boolean recursive)
     {
-        entries.add(new Entry(file, recursive));
+        try
+        {
+            URL url = file.toURI().toURL();
+            entries.add(new Entry(url, recursive));
+        } catch (MalformedURLException e) {
+        }
+    }
+
+    public void addEntry(URL url, boolean recursive)
+    {
+        entries.add(new Entry(url, recursive));
     }
     
     public List<TestCase> collect() throws SoarException, IOException
@@ -36,21 +50,29 @@ public class TestCaseCollector
         final List<TestCase> all = new ArrayList<TestCase>();
         for(Entry entry : entries)
         {
-            final File input = entry.file;
-            if(input.isFile())
+            final URL input = entry.url;
+            if (UrlTools.isFileURL(input))
             {
-                all.add(TestCase.fromFile(input));
+                File file = UrlTools.toFile2(input);
+                if(file.isFile())
+                {
+                    all.add(TestCase.fromFile(file));
+                }
+                else if(file.isDirectory() && entry.recursive)
+                {
+                    all.addAll(collectTestCasesInDirectory(file));
+                }
             }
-            else if(input.isDirectory() && entry.recursive)
+            else
             {
-                all.addAll(collectTestCasesInDirectory(input));
+                all.add(TestCase.fromURL(input));
             }
         }
         out.printf("Found %d test case%s%n", all.size(), all.size() != 1 ? "s" : "");
         return all;
         
     }
-    
+
     private List<TestCase> collectTestCasesInDirectory(File dir) throws SoarException, IOException
     {
         out.println("Collecting tests in directory '" + dir + "'");
@@ -85,12 +107,12 @@ public class TestCaseCollector
     
     private static class Entry
     {
-        final File file;
+        final URL url;
         final boolean recursive;
         
-        public Entry(File file, boolean recursive)
+        public Entry(URL url, boolean recursive)
         {
-            this.file = file;
+            this.url = url;
             this.recursive = recursive;
         }
     }

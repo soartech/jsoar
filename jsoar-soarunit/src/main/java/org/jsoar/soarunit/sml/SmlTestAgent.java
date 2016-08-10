@@ -18,6 +18,8 @@ import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
 import org.jsoar.util.FileTools;
 
+import org.jsoar.util.UrlTools;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import sml.Agent;
 import sml.Agent.PrintEventInterface;
 import sml.Identifier;
@@ -146,6 +148,13 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // matches output.append("\n" + executeCommandLine("matches pass"));
     }
 
+    @Override
+    public SoarCommandInterpreter getInterpreter()
+    {
+        // No interpreter for SML interface?
+        return null;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -260,10 +269,14 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
 
     private void loadTestCode(Test test) throws SoarException
     {
-        executeCommandLine(String.format("pushd \"%s\"", 
-                FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')), true);
-        executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
-        executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
+        try {
+            executeCommandLine(String.format("pushd \"%s\"",
+                    FileTools.getParent(UrlTools.toFile(test.getTestCase().getUrl())).replace('\\', '/')), true);
+            executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
+            executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
+        } catch (Exception e) {
+            throw new SoarException(e);
+        }
     }
     
     private String prepSoarCodeForSml(String code)

@@ -6,6 +6,7 @@
 package org.jsoar.soarunit;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
@@ -33,4 +34,6 @@ public interface TestAgent
     FiringCounts getFiringCounts();
     
     void printMatchesOnFailure();
+
+    SoarCommandInterpreter getInterpreter();
 }
