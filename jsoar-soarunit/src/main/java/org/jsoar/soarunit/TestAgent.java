@@ -14,7 +14,9 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 public interface TestAgent
 {
     void initialize(Test test) throws SoarException;
-    
+
+    void reinitialize(Test test) throws SoarException;
+
     void run();
     
     long getCycleCount();
@@ -36,4 +38,5 @@ public interface TestAgent
     void printMatchesOnFailure();
 
     SoarCommandInterpreter getInterpreter();
+
 }

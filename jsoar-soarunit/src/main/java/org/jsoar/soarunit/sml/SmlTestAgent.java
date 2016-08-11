@@ -195,6 +195,13 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         loadTestCode(test);
     }
 
+    @Override
+    public void reinitialize(Test test) throws SoarException
+    {
+        // Not supported for SML agents.
+        initialize(test);
+    }
+
     private static int getAvailablePort()
     {
         for (int tries = 0; tries < TRIES; ++tries)

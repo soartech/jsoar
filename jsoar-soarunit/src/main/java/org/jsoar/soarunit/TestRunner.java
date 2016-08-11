@@ -151,7 +151,7 @@ public class TestRunner
         };
     }
    
-    private TestCaseResult run(TestCase testCase, int index) throws SoarException
+    public TestCaseResult run(TestCase testCase, int index) throws SoarException
     {
         out.printf("%d/%d: Running test case '%s' from '%s'%n", index, total, 
                             testCase.getName(), 
@@ -195,7 +195,7 @@ public class TestRunner
     }
     
     
-    private TestResult runTest(Test test, final TestAgent agent) throws SoarException
+    public TestResult runTest(Test test, final TestAgent agent) throws SoarException
     {
         out.printf("   Running test: '%s/%s' on thread %s%n", test.getTestCase().getName(), test.getName(), Thread.currentThread().getName());
         

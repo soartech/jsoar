@@ -171,16 +171,29 @@ public class JSoarTestAgent implements TestAgent
     @Override
     public void initialize(Test test) throws SoarException 
     {
-        commonInitialize(test);
+        commonInitialize(test, true);
         agent.getTrace().setWatchLevel(0);
         output = new StringWriter();
         agent.getPrinter().addPersistentWriter(output);
         loadTestCode(test);
     }
-    
-    public void commonInitialize(Test test)
+
+    @Override
+    public void reinitialize(Test test) throws SoarException
     {
-        agent = ThreadedAgent.create(test.getName());
+        commonInitialize(test, false);
+        agent.getTrace().setWatchLevel(0);
+        output = new StringWriter();
+        agent.getPrinter().addPersistentWriter(output);
+        loadTestCode(test);
+    }
+
+    public void commonInitialize(Test test, boolean recreateAgent)
+    {
+        if (recreateAgent || agent == null)
+        {
+            agent = ThreadedAgent.create(test.getName());
+        }
         
         initializeRhsFunctions();
         
@@ -292,7 +305,7 @@ public class JSoarTestAgent implements TestAgent
 
     public void debug(Test test, boolean exitOnClose) throws SoarException, InterruptedException
     {
-        commonInitialize(test);
+        commonInitialize(test, true);
         
         final Map<String, Object> debugProps = new HashMap<String, Object>();
         debugProps.put(DebuggerProvider.CLOSE_ACTION, exitOnClose ? CloseAction.EXIT : CloseAction.DISPOSE);
