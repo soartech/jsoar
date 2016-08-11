@@ -56,24 +56,10 @@ public class SoarUnitRunner extends Runner
             String newInterpreter = testClass.getAnnotation(SoarInterpreter.class).interpreter();
             System.setProperty("jsoar.agent.interpreter", newInterpreter);
         }
-        if (testClass.getAnnotation(SoarSourceInclude.class) != null || testClass.getAnnotation(SoarSourceIncludes.class) != null)
+        if (testClass.getAnnotation(SoarSourceInclude.class) != null)
         {
-            List<Annotation> annotations = Arrays.asList(testClass.getAnnotations());
-            for(Annotation a : annotations)
-            {
-                if (a instanceof SoarSourceInclude)
-                {
-                    sourceIncludes.add(((SoarSourceInclude) a).url());
-                }
-                else if (a instanceof SoarSourceIncludes)
-                {
-                    List<SoarSourceInclude> soarSourceIncludes = Arrays.asList(((SoarSourceIncludes) a).value());
-                    for(SoarSourceInclude include : soarSourceIncludes)
-                    {
-                        sourceIncludes.add(include.url());
-                    }
-                }
-            }
+            // TODO: When jsoar upgrades to Java 8, turn this into a repeatable.
+            sourceIncludes.add(testClass.getAnnotation(SoarSourceInclude.class).url());
         }
 
         List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
