@@ -39,8 +39,7 @@ public class SoarUnitRunner extends Runner
     private final JSoarTestAgentFactory agentFactory = new AgentFactory();
     private final PrintWriter out = new PrintWriter(System.out);
     private final PathMatchingResourcePatternResolver resolverSoarUnit = new PathMatchingResourcePatternResolver();
-    // TODO: Make make configurable via attributes.
-    private final int POOL_SIZE = 8;
+    private final int POOL_SIZE;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(8));
     private final ListeningExecutorService runNotifierExec = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
     private final Description rootDescription;
@@ -60,6 +59,14 @@ public class SoarUnitRunner extends Runner
         {
             // TODO: When jsoar upgrades to Java 8, turn this into a repeatable.
             sourceIncludes.add(testClass.getAnnotation(SoarSourceInclude.class).url());
+        }
+        if (testClass.getAnnotation(SoarUnitSettings.class) != null)
+        {
+            POOL_SIZE = testClass.getAnnotation(SoarUnitSettings.class).threads();
+        }
+        else
+        {
+            POOL_SIZE = 1;
         }
 
         List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
@@ -185,6 +192,8 @@ public class SoarUnitRunner extends Runner
             Futures.successfulAsList(runNotifications).get();
         } catch (Exception e) {
         }
+        exec.shutdown();
+        runNotifierExec.shutdown();
     }
 
     private List<URL> getResources(String path) throws IOException
