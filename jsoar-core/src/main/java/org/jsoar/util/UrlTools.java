@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.List;
 public class UrlTools
 {
     private static final Logger logger = LoggerFactory.getLogger(UrlTools.class);
-    private static ClassLoader classLoader = null;
+    private static ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
     
     /**
      * This normalizes URLs by converting them to URIs and using the URI normalization method
@@ -85,23 +86,32 @@ public class UrlTools
      */
     public static URL lookupClassPathURL(String url) throws IOException
     {
-        final PathMatchingResourcePatternResolver resolverSoarUnit = (classLoader == null) ? new PathMatchingResourcePatternResolver()
-        		: new PathMatchingResourcePatternResolver(classLoader);
         if (isClassPath(url))
         {
-            List<Resource> resources = Arrays.asList(resolverSoarUnit.getResources(url));
+            List<Resource> resources = Arrays.asList(resourceResolver.getResources(url));
             if (!resources.isEmpty())
             {
-//            	System.out.println("lookupClassPathURL: classloader: " + resolverSoarUnit.getClassLoader());
-//            	System.out.println("lookupClassPathURL: resourceloader: " + resolverSoarUnit.getResourceLoader());
-//            	System.out.println("lookupClassPathURL: pathmatcher: " + resolverSoarUnit.getPathMatcher());
-//            	boolean exists = resources.get(0).exists();
-//            	boolean isreadable = resources.get(0).isReadable();
-//            	System.out.println("lookupClassPathURL: " + resources.get(0) + ": exists: " + exists + " isreadable: " + isreadable);
                 return resources.get(0).getURL();
             }
         }
         throw new IOException("Invalid classpath resource: " + url);
+    }
+
+    /**
+     * Set a custom {@link org.springframework.core.io.support.ResourcePatternResolver} for resolving classpath:
+     * URLs.
+     */
+    public static void setClasspathResourceResolver(ResourcePatternResolver resourcePatternResolver)
+    {
+        resourceResolver = resourcePatternResolver;
+    }
+
+    /**
+     * Convenience method for setting the {@link java.lang.ClassLoader} used when resolving classpath: URLs.
+     */
+    public static void setClasspathResourceResolverClassLoader(ClassLoader cl)
+    {
+        resourceResolver = new PathMatchingResourcePatternResolver(cl);
     }
 
     /**
@@ -158,9 +168,4 @@ public class UrlTools
         }
         return true;
     }
-    
-    public static void setClassLoader(ClassLoader cl) {
-    	classLoader = cl;
-    }
-
 }
