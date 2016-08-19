@@ -17,6 +17,7 @@ import java.util.List;
 public class UrlTools
 {
     private static final Logger logger = LoggerFactory.getLogger(UrlTools.class);
+    private static ClassLoader classLoader = null;
     
     /**
      * This normalizes URLs by converting them to URIs and using the URI normalization method
@@ -84,12 +85,19 @@ public class UrlTools
      */
     public static URL lookupClassPathURL(String url) throws IOException
     {
-        final PathMatchingResourcePatternResolver resolverSoarUnit = new PathMatchingResourcePatternResolver();
+        final PathMatchingResourcePatternResolver resolverSoarUnit = (classLoader == null) ? new PathMatchingResourcePatternResolver()
+        		: new PathMatchingResourcePatternResolver(classLoader);
         if (isClassPath(url))
         {
             List<Resource> resources = Arrays.asList(resolverSoarUnit.getResources(url));
             if (!resources.isEmpty())
             {
+//            	System.out.println("lookupClassPathURL: classloader: " + resolverSoarUnit.getClassLoader());
+//            	System.out.println("lookupClassPathURL: resourceloader: " + resolverSoarUnit.getResourceLoader());
+//            	System.out.println("lookupClassPathURL: pathmatcher: " + resolverSoarUnit.getPathMatcher());
+//            	boolean exists = resources.get(0).exists();
+//            	boolean isreadable = resources.get(0).isReadable();
+//            	System.out.println("lookupClassPathURL: " + resources.get(0) + ": exists: " + exists + " isreadable: " + isreadable);
                 return resources.get(0).getURL();
             }
         }
@@ -149,6 +157,10 @@ public class UrlTools
             return false;
         }
         return true;
+    }
+    
+    public static void setClassLoader(ClassLoader cl) {
+    	classLoader = cl;
     }
 
 }
