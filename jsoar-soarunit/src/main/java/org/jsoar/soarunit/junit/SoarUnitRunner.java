@@ -81,7 +81,7 @@ public class SoarUnitRunner extends Runner
             SoarUnitTestFile testFile = method.getAnnotation(SoarUnitTestFile.class);
             for(URL url : getResources(testFile.url()))
             {
-                final TestCase testCase = TestCase.fromURL(url);
+                final TestCase testCase = TestCase.fromURL(url, 0);
                 String testCaseName = FilenameUtils.getBaseName(url.toString());
                 final Map<String, Description> testDescriptions = Maps.newHashMap();
                 for(final org.jsoar.soarunit.Test test : testCase.getTests())

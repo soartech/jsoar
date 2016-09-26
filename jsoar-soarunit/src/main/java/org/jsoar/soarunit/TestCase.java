@@ -23,29 +23,30 @@ public class TestCase
 {
     private final URL url;
     private final String name;
+    private final int prefixIndex;
     private String setup = "";
     private final List<Test> tests = new ArrayList<Test>();
     
-    private static String getNameFromFile(URL url)
+    private static String getNameFromFile(URL url, int prefixIndex)
     {
-        final String name = url.getFile();
+        final String name = url.getFile().substring(prefixIndex);
         final int dot = name.lastIndexOf('.');
         
         return dot > 0 ? name.substring(0, dot) : name;
     }
     
-    public static TestCase fromFile(File file) throws SoarException, IOException
+    public static TestCase fromFile(File file, int prefixIndex) throws SoarException, IOException
     {
-        return fromURL(file.toURI().toURL());
+        return fromURL(file.toURI().toURL(), prefixIndex);
     }
 
-    public static TestCase fromURL(URL url) throws SoarException, IOException
+    public static TestCase fromURL(URL url, int prefixIndex) throws SoarException, IOException
     {
         final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream()))));
         reader.setFile(url.getPath());
         try
         {
-            final TestCase testCase = new TestCase(url, getNameFromFile(url));
+            final TestCase testCase = new TestCase(url, getNameFromFile(url, prefixIndex), prefixIndex);
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             ParsedCommand parsedCommand = parser.parseCommand(reader);
             while(!parsedCommand.isEof())
@@ -86,10 +87,11 @@ public class TestCase
         return result;
     }
     
-    public TestCase(URL url, String name)
+    public TestCase(URL url, String name, int prefixIndex)
     {
         this.url = url;
         this.name = name;
+        this.prefixIndex = prefixIndex;
     }
 
     /**
@@ -160,7 +162,7 @@ public class TestCase
 
     public TestCase reload() throws SoarException, IOException
     {
-        return fromURL(getUrl());
+        return fromURL(getUrl(), this.prefixIndex);
     }
     
 }
