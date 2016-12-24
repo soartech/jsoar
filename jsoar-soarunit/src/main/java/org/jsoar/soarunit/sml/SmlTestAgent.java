@@ -35,10 +35,20 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         UpdateEventInterface
 {
     private static final int TRIES = 10;
-    private Kernel kernel;
+    private static Kernel kernel;
+    private static int port;
+    private static TestRhsFunction passFunction;
+    private static TestRhsFunction failFunction;
+    
+    static {
+        port = getAvailablePort();
+        kernel = Kernel.CreateKernelInNewThread(port);
+        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
+        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
+    }
+    
     private Agent agent;
-    private TestRhsFunction passFunction;
-    private TestRhsFunction failFunction;
+    
     private final StringBuilder output = new StringBuilder();
 
     // these used to put soarunit-specific input on the input-link
@@ -47,6 +57,8 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private Identifier inputLink;
     private Identifier soarUnitWme;
     private IntElement cycleCountWme;
+    
+    private long updateHandlerId;
 
     /*
      * (non-Javadoc)
@@ -62,11 +74,14 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
             kernel.DestroyAgent(agent);
             agent = null;
         }
-        if (kernel != null)
-        {
-            kernel.Shutdown();
-            kernel = null;
-        }
+//        if (kernel != null)
+//        {
+//            kernel.Shutdown();
+//            kernel = null;
+//        }
+        kernel.UnregisterForUpdateEvent(this.updateHandlerId);
+        passFunction.Reset();
+        failFunction.Reset();        
     }
 
     /*
@@ -188,8 +203,12 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     {
         output.setLength(0);
 
-        kernel = Kernel.CreateKernelInCurrentThread();
-        kernel.StopEventThread();
+//        if(kernel == null)
+//        {
+//            port = getAvailablePort();
+//            kernel = Kernel.CreateKernelInNewThread(port);
+//            //kernel.StopEventThread();
+//        }
         this.commonInitialize(test);
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
         loadTestCode(test);
@@ -258,8 +277,8 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
      */
     private void commonInitialize(Test test)
     {
-        initializeRhsFunctions();
-        this.kernel.RegisterForUpdateEvent(
+        //initializeRhsFunctions();
+        this.updateHandlerId = kernel.RegisterForUpdateEvent(
                 sml.smlUpdateEventId.smlEVENT_AFTER_ALL_OUTPUT_PHASES, this,
                 null);
         this.agent = kernel.CreateAgent(test.getName());
@@ -313,7 +332,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     @Override
     public long getCycleCount()
     {
-        return agent.GetDecisionCycleCounter();
+        return agent.GetDecisionCycleCounter()+1;
     }
     
     public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
@@ -324,8 +343,11 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
-        int port = getAvailablePort();
-        kernel = Kernel.CreateKernelInNewThread(port);
+//        if(kernel == null)
+//        {
+//            port = getAvailablePort();
+//            kernel = Kernel.CreateKernelInNewThread(port);
+//        }
         this.commonInitialize(test);
 
         // TODO SoarUnit SML: If this fails, there's really no way to tell.
