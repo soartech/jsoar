@@ -279,6 +279,82 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         throw new IllegalStateException("Cannot import identifiers");
     }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericLess(SymbolImpl other)
+    {
+        IdentifierImpl i = other.asIdentifier();
+        if(i != null)
+        {
+        	if( this.name_letter == i.name_letter) {
+        		return this.name_number < i.name_number;
+        	} else {
+            	return this.name_letter < i.name_letter;
+        	}
+        }
+        
+        return super.numericLess(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericLessOrEqual(SymbolImpl other)
+    {
+    	IdentifierImpl i = other.asIdentifier();
+        if(i != null)
+        {
+        	if( this.name_letter == i.name_letter) {
+        		return this.name_number <= i.name_number;
+        	} else {
+            	return this.name_letter <= i.name_letter;
+        	}
+        }
+        
+        return super.numericLessOrEqual(other);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericGreater(SymbolImpl other)
+    {
+    	IdentifierImpl i = other.asIdentifier();
+        if(i != null)
+        {
+        	if( this.name_letter == i.name_letter) {
+        		return this.name_number > i.name_number;
+        	} else {
+            	return this.name_letter > i.name_letter;
+        	}
+        }
+        
+        return super.numericGreater(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericGreaterOrEqual(SymbolImpl other)
+    {
+    	IdentifierImpl i = other.asIdentifier();
+        if(i != null)
+        {
+        	if( this.name_letter == i.name_letter) {
+        		return this.name_number >= i.name_number;
+        	} else {
+            	return this.name_letter >= i.name_letter;
+        	}
+        }
+        
+        return super.numericGreaterOrEqual(other);
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
