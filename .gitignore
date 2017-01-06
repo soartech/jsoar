@@ -29,3 +29,5 @@ jsoar-performance-testing/build
 jsoar-performance-testing/target
 jsoar-performance-testing/.settings/
 *.iml
+dependency-reduced-pom.xml
+target/
