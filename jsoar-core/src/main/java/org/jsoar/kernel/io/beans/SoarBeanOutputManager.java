@@ -146,7 +146,14 @@ public class SoarBeanOutputManager
         }
         catch (SoarBeanException e)
         {
-            logger.error("While handling output command '" + name + "'", e);
+            if(info.handler.exceptionHandler != null)
+            {
+                info.handler.exceptionHandler.handleSoarBeanException(e);
+            }
+            else
+            {
+                logger.error("While handling output command '" + name + "'", e);
+            }
         }
     }
     
