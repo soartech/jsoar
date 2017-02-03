@@ -22,7 +22,7 @@ public abstract class SoarBeanOutputHandler<T>
      * @param context output command execution context info
      * @param bean the bean object constructed from the output command's working memory
      */
-    abstract void handleOutputCommand(SoarBeanOutputContext context, T bean);
+    public abstract void handleOutputCommand(SoarBeanOutputContext context, T bean);
     
     /**
      * Set a handler to be called when a WME fails to be converted to a SoarBean.
