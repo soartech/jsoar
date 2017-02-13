@@ -106,6 +106,10 @@ public class SoarBeanReader
     private final BeanUtilsBean util = new BeanUtilsBean();
     private final Map<Identifier, Object> beanMap = new HashMap<Identifier, Object>();
     
+    // these are only for debugging purposes
+    private Identifier debugId = null;
+    private Class<?> debugSoarBeanClass = null;
+    
     /**
      * Read the working memory structure under the given identifier into
      * a JavaBean (mostly) of the given type.
@@ -118,6 +122,9 @@ public class SoarBeanReader
      */
     public <T> T read(Identifier id, Class<T> klass) throws SoarBeanException
     {
+        debugSoarBeanClass = klass;
+        debugId = id;
+        
         try
         {
             return readInternal(id, klass);
@@ -151,33 +158,33 @@ public class SoarBeanReader
         }
         catch (InstantiationException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
         catch (IllegalAccessException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
         catch (InvocationTargetException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
         catch (NoSuchMethodException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
         catch (SecurityException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
         catch (IllegalArgumentException e)
         {
-            throw makeException(e);
+            throw makeException(e, debugSoarBeanClass, debugId);
         }
     }
 
-    private SoarBeanException makeException(Exception cause)
+    private <T> SoarBeanException makeException(Exception cause, Class<?> klass, Identifier id)
     {
-        return new SoarBeanException(cause.getMessage(), cause);
+        return new SoarBeanException(cause.getMessage(), cause, klass, id);
     }
     
     private String getPropertyName(Wme wme)
@@ -270,7 +277,7 @@ public class SoarBeanReader
     {
         if(convertedValue == null)
         {
-            throw new SoarBeanException("Can't convert '" + initialValue + "' to " + symbolType.getCanonicalName());
+            throw new SoarBeanException("Can't convert '" + initialValue + "' to " + symbolType.getCanonicalName(), debugSoarBeanClass, debugId);
         }
         return convertedValue;
     }
@@ -302,7 +309,7 @@ public class SoarBeanReader
             final JavaSymbol s = value.asJava();
             if(s == null)
             {
-                throw new SoarBeanException("Can't convert '" + value + "' to JavaSymbol");
+                throw new SoarBeanException("Can't convert '" + value + "' to JavaSymbol", debugSoarBeanClass, debugId);
             }
             return util.getConvertUtils().convert(s.getValue(), targetType);
         }
