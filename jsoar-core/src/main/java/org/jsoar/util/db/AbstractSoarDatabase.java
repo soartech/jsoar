@@ -161,7 +161,11 @@ public abstract class AbstractSoarDatabase
             // abstract method, implemented by the sub-class that sets the field.
             // This works for now.
             field.setAccessible(true);
-            field.set(this, prepareNamedStatement(name));
+            PreparedStatement ps = prepareNamedStatement(name);
+            if(ps == null){
+                throw new SoarException("Failed to prepare statement '" + name +"'");
+            }
+            field.set(this, ps);
         }
         catch (SecurityException e)
         {
