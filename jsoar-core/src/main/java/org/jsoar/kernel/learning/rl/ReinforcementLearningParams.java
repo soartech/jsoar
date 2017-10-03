@@ -28,6 +28,8 @@ public class ReinforcementLearningParams
     /**
      * Options for RL algorithm learning policy
      */
+	// TODO Soar Manual version 9.6.0 replaces "q" with "q-learning", and
+	// adds "off-policy-gq-lambda" and "on-policy-gq-lambda"
     public static enum LearningPolicy { sarsa, q };
     
     /**
@@ -56,6 +58,8 @@ public class ReinforcementLearningParams
 //    							logarithmic_decay, delta_bar_delta_decay }
     public static enum DecayMode
     {
+    	// TODO Soar Manual version 9.6.0 replaces "exp" with "exponential" and
+    	// "log" with "logarithmic"
     	normal_decay("normal"), exponential_decay("exp"),
 		logarithmic_decay("log"), delta_bar_delta_decay("delta-bar-delta");
         
@@ -190,6 +194,8 @@ public class ReinforcementLearningParams
     public static final PropertyKey<Meta> META = key("meta", Meta.class).defaultValue(Meta.off).build();
     final EnumPropertyProvider<Meta> meta = new EnumPropertyProvider<Meta>(META);
     
+    // NOTE: Documentation of the "meta-learning-rate" parameter appears to have been
+    // inadvertently omitted from Soar Manual version 9.6.0
     public static final PropertyKey<Double> META_LEARNING_RATE = key("meta-learning-rate", Double.class).defaultValue(0.1).build();
     final DefaultPropertyProvider<Double> meta_learning_rate = new DefaultPropertyProvider<Double>(META_LEARNING_RATE);
     
