@@ -17,13 +17,17 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author bob.marinier
  */
 public class EpMemFunctionalTests extends FunctionalTestHarness
 {
-    @Test
+    private static final Logger logger = LoggerFactory.getLogger(EpMemFunctionalTests.class);
+	
+	@Test
     public void testCountEpMem() throws Exception
     {
         runTest("testCountEpMem", 1693);
@@ -218,7 +222,8 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                                 "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
                                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
                 
-        assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
+        logger.info("Epmem test actual result: " + actualResult);
+        assertTrue("Unexpected output from CSoar database! ", actualResult.equals(expectedResult));
     }
     
     @Test

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -3099,7 +3100,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // //////////////////////////////////////////////////////////////////////////
 
         // attempt connection
-        final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
+        final String jdbcUrl = URLDecoder.decode(params.protocol.get() + ":" + params.path.get(), "UTF-8");
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
                 

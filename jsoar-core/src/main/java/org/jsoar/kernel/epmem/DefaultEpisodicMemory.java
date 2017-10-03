@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.sql.Connection;
@@ -504,7 +506,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             catch (IOException e)
             {
                 throw new SoarException("While attaching epmem: " + e.getMessage(), e);
-            }
+            } 
         }
     }
 
@@ -659,6 +661,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * @param readonly
      * @throws SoarException
+     * @throws URISyntaxException 
      */
     private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException
     {
@@ -672,7 +675,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // //////////////////////////////////////////////////////////////////////////
 
         // attempt connection
-        final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
+        // Convert out special URL characters like spaces
+        final String jdbcUrl = URLDecoder.decode(params.protocol.get() + ":" + params.path.get(), "UTF-8");
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
         
@@ -7457,7 +7461,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         catch (SoarException e)
         {
             logger.error("Failed to reinitialize epmem:" + e.getMessage());
-        }
+        } 
     }
     
     boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
