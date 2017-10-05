@@ -64,6 +64,8 @@ public class StandardCommands
         interp.addCommand("properties", new PropertiesCommand(agent));
         interp.addCommand("symbols", new SymbolsCommand(agent));
         
+        interp.addCommand("decide", new DecideCommand(agent));
+        
         interp.addCommand("help", new HelpCommand());
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));

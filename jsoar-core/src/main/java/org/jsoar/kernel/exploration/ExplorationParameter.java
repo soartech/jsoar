@@ -24,7 +24,7 @@ public class ExplorationParameter
      */
     public static enum ReductionPolicy
     {
-        EXPLORATION_REDUCTION_EXPONENTIAL("expontential") {
+        EXPLORATION_REDUCTION_EXPONENTIAL("exponential") {
 
             /* (non-Javadoc)
              * @see org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy#isRateValid(double)
@@ -119,6 +119,11 @@ public class ExplorationParameter
             if ( ( current_value > 0 ) && ( reduction_rate != 0 ) )
                 this.value = ( ( ( current_value - reduction_rate ) > 0 )?( current_value - reduction_rate ):( 0 ) );
         }
+    }
+    
+    public double getReductionRate(ReductionPolicy policy)
+    {
+    	return rates.get(policy).doubleValue();
     }
     
     public boolean setReductionRate(ReductionPolicy policy, double rate)

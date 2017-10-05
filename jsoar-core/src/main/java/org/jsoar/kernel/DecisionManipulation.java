@@ -52,7 +52,7 @@ public class DecisionManipulation
      * 
      * @param operator_id
      */
-    void select_next_operator( String operator_id )
+    public void select_next_operator( String operator_id )
     {
         select_init( );
         
@@ -65,7 +65,7 @@ public class DecisionManipulation
      * 
      * @return
      */
-    String select_get_operator(  )
+    public String select_get_operator(  )
     {
         if ( !this.select_enabled )
             return null;
@@ -162,7 +162,7 @@ public class DecisionManipulation
      * 
      * @return
      */
-    String predict_get()
+    public String predict_get()
     {
         predict_srand_store_snapshot();
         decider.do_decision_phase( true );

@@ -18,12 +18,12 @@ public class ReinforcementLearningParams
     /**
      * Options to turn RL on and off
      */
-    static enum Learning { on, off };
+    public static enum Learning { on, off };
     
     /**
      * Options for temporal-extension
      */
-    static enum TemporalExtension { on, off };
+    public static enum TemporalExtension { on, off };
     
     /**
      * Options for RL algorithm learning policy
@@ -40,7 +40,7 @@ public class ReinforcementLearningParams
     /**
      * Options for temporal-discount
      */
-    static enum TemporalDiscount { on, off };
+    public static enum TemporalDiscount { on, off };
     
     /**
      * Options for chunk-stop
