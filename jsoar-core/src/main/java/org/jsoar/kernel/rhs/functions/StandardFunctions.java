@@ -103,7 +103,8 @@ public class StandardFunctions
                 new GetUrl(), 
                 new AcceptRhsFunction(),
                 new ListRhsFunction(),
-                new FormatRhsFunction()));
+                new FormatRhsFunction(),
+                new Timestamp()));
     {
         allInternal.addAll(MathFunctions.all);
     }
