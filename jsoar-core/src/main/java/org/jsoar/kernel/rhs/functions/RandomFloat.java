@@ -11,7 +11,7 @@ import java.util.Random;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * {@code (random-float)} RHS function.
+ * {@code (random-float)} RHS function. This is deprecated, use rand-float instead for better csoar compatibility.
  * 
  * <p>Has the following usage:
  * <ul>

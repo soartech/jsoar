@@ -132,6 +132,8 @@ public class StandardFunctions
         
         allInternal.add(new RandomInt(context.getRandom()));
         allInternal.add(new RandomFloat(context.getRandom()));
+        allInternal.add(new RandInt(context.getRandom()));
+        allInternal.add(new RandFloat(context.getRandom()));
         
         allInternal.add(new LogRhsFunction(context.getInterpreter()));
         

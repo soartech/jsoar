@@ -12,7 +12,7 @@ import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * {@code (random-int)} RHS function.
+ * {@code (random-int)} RHS function. This is deprecated, use rand-int instead for better csoar compatibility.
  * 
  * <p>Has the following usage:
  * <ul>
