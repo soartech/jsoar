@@ -88,7 +88,7 @@ uploadArchives {
             repository(url: "https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/") {
                 authentication(userName: nexusUser, password: nexusPassword)
             }
-            pom.version = "0.0.2-SNAPSHOT"
+            pom.version = "0.0.3-SNAPSHOT"
             pom.artifactId = "jsoar-core-android"
             pom.groupId = "com.soartech"
             pom.packaging = "aar"
