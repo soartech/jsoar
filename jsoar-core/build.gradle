@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.0'
+    }
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -7,7 +16,7 @@ android {
         }
     }
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "27.0.3"
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 22
@@ -22,6 +31,44 @@ android {
         abortOnError false
     }
 }
+
+repositories {
+    mavenCentral()
+
+    jcenter()
+
+    maven {
+        name = "soartech-releases"
+        url = "https://nexus.soartech.com:8443/nexus/content/repositories/releases"
+        credentials
+                {
+                    username nexusUser
+                    password nexusPassword
+                }
+    }
+
+    maven {
+        name "soartech-snapshots"
+        url "https://nexus.soartech.com:8443/nexus/content/repositories/snapshots"
+        credentials
+                {
+                    username nexusUser
+                    password nexusPassword
+                }
+    }
+
+    maven {
+        name "soartech-thirdparty"
+        url "https://nexus.soartech.com:8443/nexus/content/repositories/thirdparty"
+        credentials
+                {
+                    username nexusUser
+                    password nexusPassword
+                }
+    }
+}
+
+
 dependencies {
     compile 'commons-beanutils:commons-beanutils:1.8.3'
     compile 'org.slf4j:jcl-over-slf4j:1.7.5'
