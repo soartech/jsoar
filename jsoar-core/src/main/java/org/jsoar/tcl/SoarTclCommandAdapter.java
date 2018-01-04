@@ -22,7 +22,7 @@ public class SoarTclCommandAdapter implements Command
 {
     private final SoarCommand inner;
     private final SoarTclInterface soarTclInterface;
-    
+
     /**
      * @param inner
      */
@@ -39,7 +39,11 @@ public class SoarTclCommandAdapter implements Command
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
         final String[] stringArgs = new String[args.length];
-        for(int i = 0; i < args.length; ++i) { stringArgs[i] = args[i].toString(); }
+        for(int i = 0; i < args.length; ++i)
+        {
+            stringArgs[i] = args[i].toString();
+        }
+
         try
         {
             interp.setResult(inner.execute(soarTclInterface.getContext(), stringArgs));

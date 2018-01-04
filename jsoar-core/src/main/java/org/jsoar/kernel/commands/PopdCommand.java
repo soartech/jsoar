@@ -40,8 +40,8 @@ public class PopdCommand implements SoarCommand
             throw new SoarException("Expected 0 args, got " + Arrays.asList(args));
         }
 
-        //sourceCommand.popd();
-        return sourceCommand.getWorkingDirectory();
+        sourceCommand.popd();
+        return sourceCommand.getWorkingDirectoryPath();
     }
 
 }

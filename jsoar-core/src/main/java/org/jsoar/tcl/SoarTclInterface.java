@@ -55,7 +55,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private static final String DEFAULT_TCL_CODE = "/org/jsoar/tcl/jsoar.tcl";
 
     private static final Logger logger = LoggerFactory.getLogger(SoarTclInterface.class);
-    
+
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
     private SoarCommandContext context = DefaultSoarCommandContext.empty();
@@ -250,7 +250,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     public void source(File file) throws SoarException
     {
-        sourceCommand.source(file.getPath());
+        String directory = file.getParent();
+        sourceCommand.initDirectoryStack(directory);
+        sourceCommand.source(file.getName());
     }
     
     public void source(URL url) throws SoarException
@@ -301,6 +303,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         // See {@link TclLineContinuationTest}
         command = command.replaceAll("\r\n", "\n");
         command = command.replaceAll("\r", "\n");
+
         try
         {
             interp.eval(command);

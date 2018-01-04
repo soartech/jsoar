@@ -50,6 +50,7 @@ public class SourceCommand implements SoarCommand
     private final SourceCommandAdapter interp;
     private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
     private Stack<String> fileStack = new Stack<String>();
+    private Stack<String> directoryStack = new Stack<String>();
 
     /**
      * Save the path to each sourced file in this list.
@@ -92,6 +93,7 @@ public class SourceCommand implements SoarCommand
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
+//        return getWorkingDirectoryPath();
     }
 
     /*package*/ DirStackEntry getWorkingDirectoryRaw()
@@ -107,6 +109,17 @@ public class SourceCommand implements SoarCommand
     public List<String> getSourcedFiles()
     {
         return sourcedFiles;
+    }
+
+
+    public void pushd(String dirString) throws SoarException
+    {
+        directoryStack.push(dirString);
+    }
+
+    public void popd() throws SoarException
+    {
+        directoryStack.pop();
     }
 
     public void source(String fileString) throws SoarException
@@ -268,7 +281,7 @@ public class SourceCommand implements SoarCommand
             }
             String code = null;
             try {
-                InputStream is = assetManager.open(file);
+                InputStream is = assetManager.open(getWorkingDirectoryPath() + file);
                 code = new String(ByteStreams.toByteArray(is));
             } catch (IOException e) {
                 throw new SoarException("Error while sourcing file: " + file, e);
@@ -322,6 +335,51 @@ public class SourceCommand implements SoarCommand
         {
             throw new SoarException(e.getMessage(), e);
         }
+    }
+
+    public String getWorkingDirectoryPath()
+    {
+        String path = "";
+
+        for(String s : directoryStack)
+        {
+            path = path + s + "/";
+        }
+
+        return path;
+    }
+
+    public void initDirectoryStack(String directory)
+    {
+        String[] dirs = splitPath(directory);
+        for(int i = 0; i < dirs.length; i++)
+        {
+            directoryStack.push(dirs[i]);
+        }
+    }
+
+    public String[] splitPath(String path)
+    {
+        ArrayList<String> parts = new ArrayList<String>();
+
+        int start = 0;
+        int index = 0;
+        while(index < path.length())
+        {
+            if(index == path.length()-1)
+            {
+                parts.add(path.substring(start, index+1));
+            }
+            else if(path.charAt(index) == '/')
+            {
+                parts.add(path.substring(start, index));
+                start = index + 1;
+            }
+
+            index++;
+        }
+
+        return parts.toArray(new String[0]);
     }
 
     // This ain't pretty, but it's private and it works

@@ -40,7 +40,7 @@ public class PushdCommand implements SoarCommand
             throw new SoarException("Expected 1 arg, got " + Arrays.asList(args));
         }
         
-        //sourceCommand.pushd(args[1]);
+        sourceCommand.pushd(args[1]);
         return args[1];
     }
 
