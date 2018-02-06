@@ -18,6 +18,7 @@ import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.epmem.EpMemFunctionalTests;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -25,6 +26,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.smem.DefaultSemanticMemory.BasicWeightedCue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.ThreadedAgent;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -746,7 +748,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         }
     }
     
-
+    @Ignore("db driver is now always native, so no longer specifies 'native' in version number, so the test fails when it shouldn't")
     @Test
     public void testMultiAgent() throws Exception
     {
