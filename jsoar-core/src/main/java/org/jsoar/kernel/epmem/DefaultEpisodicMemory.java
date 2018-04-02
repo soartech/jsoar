@@ -7285,9 +7285,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
                         
+                        //logger.error("col type was" + result.getMetaData().getColumnType(3 + 1));
                         val_is_short_term = 
-                                ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
-                                        == EpisodicMemoryDatabase.value_type.null_t );
+                                ( result.getObject(3 + 1) 
+                                        == null );
     
                         if ( val_is_short_term )
                         {
