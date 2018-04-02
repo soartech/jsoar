@@ -103,7 +103,7 @@ public class SemanticMemoryDatabaseTest
         smdb.structure();
 
         final Set<String> tableNames = new HashSet<String>();
-        final Set<String> tables = new HashSet<String>();
+        final Set<String> indexColumns = new HashSet<String>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null,
                 new String[] { "TABLE" });
 
@@ -122,7 +122,7 @@ public class SemanticMemoryDatabaseTest
             while (rsIndex.next())
             {
                 // Add all index columns to the result list
-                tables.add(rsIndex.getString(6));
+                indexColumns.add(rsIndex.getString(6));
             }
         }
 
@@ -145,9 +145,9 @@ public class SemanticMemoryDatabaseTest
         for (String expected : expectedTables)
         {
             assertTrue("Missing expected index '" + expected + "'",
-                    tables.contains(expected));
+                    indexColumns.contains(expected));
         }
-        assertEquals(expectedTables.length, tables.size());
+        assertEquals(expectedTables.length, indexColumns.size());
     }
 
     @Test
