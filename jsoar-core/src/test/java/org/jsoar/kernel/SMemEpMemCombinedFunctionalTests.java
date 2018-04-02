@@ -1,5 +1,6 @@
 package org.jsoar.kernel;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                     "(@F17 ^complete |true| ^number 7 ^factor @F18 [+7.0])\n" +
                                     "(@F18 ^value 7 ^multiplicity 1 [+8.0])\n";
                 
-        assertTrue("Unexpected output from SMem!", actualResultSMem.equals(expectedResultSMem));
+        assertEquals("Unexpected output from SMem!", actualResultSMem, expectedResultSMem);
         
         String actualResultEpMem = agent.getInterpreter().eval("epmem --print 97");
         
@@ -37,6 +38,6 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                      "(@F17 ^complete true ^factor @F18 ^number 7)\n" +
                                      "(@F18 ^multiplicity 1 ^value 7)\n";
         
-        assertTrue("Unexpected output from EpMem!", actualResultEpMem.equals(expectedResultEpMem));
+        assertEquals("Unexpected output from EpMem!", expectedResultEpMem, actualResultEpMem);
     }
 }
