@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+		<pmd.version>6.0.1</pmd.version>
     </properties>
 
     <profiles>
@@ -53,6 +54,11 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+  						<groupId>org.jacoco</groupId>
+  						<artifactId>jacoco-maven-plugin</artifactId>
+  						<version>0.8.1</version>
+					</plugin>
                 </plugins>
             </build>
         </profile>
@@ -80,6 +86,35 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <pluginManagement>
+        	<plugins>
+        		<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.9.0</version>
+					<configuration>
+						<rulesets>
+							<ruleset>${maven.multiModuleProjectDirectory}/pmd-rules.xml</ruleset>
+						</rulesets>
+						<printFailingErrors>true</printFailingErrors>
+						<linkXRef>false</linkXRef>
+						<analysisCache>false</analysisCache> <!-- breaks on Jenkins -->
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-java</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-xml</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+        	</plugins>
+        </pluginManagement>
     </build>
 
     <dependencies>
@@ -143,6 +178,47 @@
             <url>https://nexus.soartech.com:8443/nexus/content/repositories/releases/</url>
         </repository>
     </distributionManagement>
+
+	<reporting>
+		<!-- Findbugs plugin (invoked with mvn findbugs:findbugs) -->
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<configuration>
+					<findbugsXmlOutput>true</findbugsXmlOutput>
+					<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+					<xmlOutput>true</xmlOutput>
+					<effort>Max</effort>
+					<threshold>Medium</threshold>
+				</configuration>
+			</plugin>
+			<!-- PMD plugin (invoked with mvn pmd:pmd) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<rulesets>
+						<rulesets>
+							<ruleset>${maven.multiModuleProjectDirectory}/pmd-rules.xml</ruleset>
+						</rulesets>
+					</rulesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<!-- select non-aggregate reports -->
+							<report>report</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
 
     <modules>
         <module>jsoar-build</module>

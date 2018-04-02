@@ -16,7 +16,7 @@ pipeline {
 			steps {
 					withMaven(maven: 'Maven 3.5.0') {
 						// Run the maven build
-						sh "mvn clean package"
+						sh "mvn clean package pmd:pmd pmd:cpd findbugs:findbugs"
 				}
 			}
 		}
