@@ -23,7 +23,12 @@ pipeline {
 	
 		stage('Analysis') {
 			steps {
-				warnings consoleParsers: [[parserName: 'Maven'], [parserName: 'Java Compiler (javac)']]
+				warnings consoleParsers: [[parserName: 'Maven'], [parserName: 'Java Compiler (javac)']], shouldDetectModules: true
+				openTasks canComputeNew: true
+				findbugs canComputeNew: true
+				pmd canComputeNew: true
+				dry canComputeNew: true
+				step([$class: 'JUnitResultArchiver', testResults: ''])			
 				step([$class: 'AnalysisPublisher', canComputeNew: true])
 			}
 		}
