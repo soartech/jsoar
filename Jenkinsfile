@@ -24,7 +24,7 @@ pipeline {
 		stage('Analysis') {
 			steps {
 				warnings consoleParsers: [[parserName: 'Maven'], [parserName: 'Java Compiler (javac)']], shouldDetectModules: true
-				findbugs canComputeNew: true pattern: '**/target/findbugsXml.xml'
+				findbugs canComputeNew: true
 				pmd canComputeNew: true
 				dry canComputeNew: true			
 				step([$class: 'AnalysisPublisher', canComputeNew: true])
