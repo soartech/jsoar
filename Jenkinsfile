@@ -14,7 +14,7 @@ pipeline {
 
 			stage('Maven Build') {
 			steps {
-					withMaven(maven: 'Maven 3.5.0') {
+					withMaven(maven: 'Maven 3.5.0', options: [findbugsPublisher(disabled: true)]) {
 						// Run the maven build
 						sh "mvn clean package pmd:pmd pmd:cpd findbugs:findbugs"
 				}
@@ -24,7 +24,6 @@ pipeline {
 		stage('Analysis') {
 			steps {
 				warnings consoleParsers: [[parserName: 'Maven'], [parserName: 'Java Compiler (javac)']], shouldDetectModules: true
-				openTasks canComputeNew: true
 				findbugs canComputeNew: true pattern: '**/target/findbugsXml.xml'
 				pmd canComputeNew: true
 				dry canComputeNew: true			
