@@ -27,8 +27,7 @@ pipeline {
 				openTasks canComputeNew: true
 				findbugs canComputeNew: true
 				pmd canComputeNew: true
-				dry canComputeNew: true
-				step([$class: 'JUnitResultArchiver', testResults: ''])			
+				dry canComputeNew: true			
 				step([$class: 'AnalysisPublisher', canComputeNew: true])
 			}
 		}
