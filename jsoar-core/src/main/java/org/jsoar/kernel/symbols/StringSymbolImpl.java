@@ -76,6 +76,66 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericLess(SymbolImpl other)
+    {
+        StringSymbolImpl s = other.asString();
+        if(s != null)
+        {
+        	return (this.value.compareTo(s.value) < 0);
+        }
+        
+        return super.numericLess(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericLessOrEqual(SymbolImpl other)
+    {
+    	StringSymbolImpl s = other.asString();
+        if(s != null)
+        {
+        	return (this.value.compareTo(s.value) <= 0);
+        }
+        
+        return super.numericLessOrEqual(other);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericGreater(SymbolImpl other)
+    {
+    	StringSymbolImpl s = other.asString();
+        if(s != null)
+        {
+        	return (this.value.compareTo(s.value) > 0);
+        }
+        
+        return super.numericGreater(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
+     */
+    @Override
+    public boolean numericGreaterOrEqual(SymbolImpl other)
+    {
+    	StringSymbolImpl s = other.asString();
+        if(s != null)
+        {
+        	return (this.value.compareTo(s.value) >= 0);
+        }
+        
+        return super.numericGreaterOrEqual(other);
+    }
+    
+    /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

@@ -41,8 +41,32 @@ public class Exploration
      */
     public static enum NumericIndifferentMode
     {
-        NUMERIC_INDIFFERENT_MODE_AVG,
-        NUMERIC_INDIFFERENT_MODE_SUM,
+        NUMERIC_INDIFFERENT_MODE_AVG("avg"),
+        NUMERIC_INDIFFERENT_MODE_SUM("sum");
+
+        private final String modeName;
+        
+        private NumericIndifferentMode(String modeName)
+        {
+            this.modeName = modeName;
+        }
+        
+        public String getModeName()
+        {
+            return modeName;
+        }
+        
+        public static NumericIndifferentMode findNumericIndifferentMode(String modeName)
+        {
+            for(NumericIndifferentMode p : values())
+            {
+                if(p.modeName.equals(modeName))
+                {
+                    return p;
+                }
+            }
+            return null;
+        }
     }
     
     /**
@@ -169,6 +193,7 @@ public class Exploration
         if(policy != null)
         {
             userSelectMode = policy;
+            return true;
         }
         
         return false;
@@ -182,6 +207,33 @@ public class Exploration
     public Policy exploration_get_policy()
     {
         return userSelectMode;
+    }
+    
+    public boolean exploration_set_numeric_indifferent_mode(String mode_name)
+    {   
+        NumericIndifferentMode mode = NumericIndifferentMode.findNumericIndifferentMode(mode_name);
+        
+        if ( mode != null )
+            return exploration_set_numeric_indifferent_mode( mode );
+        
+        return false;
+    }
+
+    public boolean exploration_set_numeric_indifferent_mode( NumericIndifferentMode mode )
+    {
+        // TODO throw exception?
+        if(mode != null)
+        {
+            numeric_indifferent_mode = mode;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public NumericIndifferentMode exploration_get_numeric_indifferent_mode()
+    {
+        return numeric_indifferent_mode;
     }
     
     /**
@@ -214,12 +266,27 @@ public class Exploration
      * @param parameter
      * @return value of the parameter
      */
-    double exploration_get_parameter_value(String parameter )
+    public double exploration_get_parameter_value(String parameter )
     {   
         ExplorationParameter param = parameters.get(parameter);
         return param != null ? param.value : 0.0;
     }  
     
+    /**
+     * <p>exploration_valid_parameter
+     * 
+     * @param name of the parameter
+     * @return whether this parameter name is a valid exploration parameter
+     */
+    public boolean exploration_valid_parameter( String name )
+    {
+        ExplorationParameter param = parameters.get( name );
+        if ( param == null )
+            return false;
+        
+        return true;
+    }
+
     /**
      * <p>exploration.cpp:204:exploration_valid_parameter_value
      * 
@@ -227,7 +294,7 @@ public class Exploration
      * @param value parameter value
      * @return true if the value is valid
      */
-    boolean exploration_valid_parameter_value( String name, double value )
+    public boolean exploration_valid_parameter_value( String name, double value )
     {
         ExplorationParameter param = parameters.get( name );
         if ( param == null )
@@ -260,7 +327,7 @@ public class Exploration
      * @param value new value
      * @return true if the parameter was set successfully
      */
-    boolean exploration_set_parameter_value(String name, double value )
+    public boolean exploration_set_parameter_value(String name, double value )
     {
         ExplorationParameter param = parameters.get( name );
         if ( param == null )
@@ -293,7 +360,7 @@ public class Exploration
      * 
      * @return true if auto update is enabled
      */
-    boolean exploration_get_auto_update()
+    public boolean exploration_get_auto_update()
     {
         return autoUpdate;
     }
@@ -304,7 +371,7 @@ public class Exploration
      * @param setting new auto update setting
      * @return true
      */
-    boolean exploration_set_auto_update( boolean setting )
+    public boolean exploration_set_auto_update( boolean setting )
     {
         this.autoUpdate = setting;
         
@@ -331,7 +398,7 @@ public class Exploration
      * @param parameter parameter name
      * @return the reudction policy
      */
-    ReductionPolicy exploration_get_reduction_policy( String parameter )
+    public ReductionPolicy exploration_get_reduction_policy( String parameter )
     {
         ExplorationParameter param = parameters.get(parameter);
         
@@ -349,6 +416,24 @@ public class Exploration
         return parameter != null ? parameter.reduction_policy : null;
     }
     
+    public boolean exploration_valid_reduction_policy( String parameter, String policy_name )
+    {
+        ExplorationParameter param = parameters.get(parameter);
+        if(param == null)
+        {
+            return false;
+        }
+        ReductionPolicy policy = ReductionPolicy.findPolicy(policy_name);
+        
+        if(policy == null)
+        {
+            return false;
+        }
+        
+        return true;
+
+    }
+    
     /**
      * <p>exploration:375:exploration_set_reduction_policy
      * 
@@ -356,7 +441,7 @@ public class Exploration
      * @param policy_name policy name
      * @return true if the reduction policy was set
      */
-    boolean exploration_set_reduction_policy( String parameter, String policy_name )
+    public boolean exploration_set_reduction_policy( String parameter, String policy_name )
     {
         ExplorationParameter param = parameters.get(parameter);
         if(param == null)
@@ -376,6 +461,30 @@ public class Exploration
     }
 
     /**
+     * <p>exploration_get_reduction_rate
+     * 
+     * @param parameter parameter name
+     * @param policy_name policy name
+     * @return the current reduction rate value (or 0.0 if something goes wrong)
+     */
+    public double exploration_get_reduction_rate( String parameter, String policy_name )
+    {
+        ExplorationParameter param = parameters.get(parameter);
+        
+        if(param == null)
+        {
+        	return 0.0;
+        }
+        
+        ReductionPolicy policy = ReductionPolicy.findPolicy(policy_name);
+        if(policy == null)
+        {
+            return 0.0;
+        }
+        return param.getReductionRate(policy);
+    }
+
+    /**
      * <p>exploration.cpp:468:exploration_set_reduction_rate
      * 
      * @param parameter parameter name
@@ -383,7 +492,7 @@ public class Exploration
      * @param reduction_rate reduction rate
      * @return true if the reduction rate was set
      */
-    boolean exploration_set_reduction_rate(String parameter, String policy_name, double reduction_rate )
+    public boolean exploration_set_reduction_rate(String parameter, String policy_name, double reduction_rate )
     {
         ExplorationParameter param = parameters.get(parameter);
         if(param == null)

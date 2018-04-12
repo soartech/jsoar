@@ -91,7 +91,7 @@ public class StandardFunctions
     
     private final List<RhsFunctionHandler> allInternal = 
         new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
-                new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen(), new Split(),
+                new Concat(), new IfEq(), new MakeConstantSymbol(), new MakeIntegerSymbol(), new StrLen(), new Split(),
                 new DeepCopy(),
                 new StringRhsFunction(), new IntRhsFunction(), new FloatRhsFunction(),
                 new FromXml(), 
@@ -102,7 +102,8 @@ public class StandardFunctions
                 new ToSoarTechXml(),
                 new GetUrl(),
                 new ListRhsFunction(),
-                new FormatRhsFunction()));
+                new FormatRhsFunction(),
+                new Timestamp()));
     {
         allInternal.addAll(MathFunctions.all);
     }
@@ -130,6 +131,8 @@ public class StandardFunctions
         
         allInternal.add(new RandomInt(context.getRandom()));
         allInternal.add(new RandomFloat(context.getRandom()));
+        allInternal.add(new RandInt(context.getRandom()));
+        allInternal.add(new RandFloat(context.getRandom()));
         
         allInternal.add(new LogRhsFunction(context.getInterpreter()));
         

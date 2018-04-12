@@ -11,6 +11,10 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.runtime.ThreadedAgent;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -24,6 +28,9 @@ import java.util.List;
  */
 public class EpMemFunctionalTests extends FunctionalTestHarness
 {
+    private static final Logger logger = LoggerFactory.getLogger(EpMemFunctionalTests.class);
+	
+	@Test
     public void testCountEpMem() throws Exception
     {
         runTest("testCountEpMem", 1693);
@@ -173,6 +180,8 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         runTest("testEpMemSoarGroupTests", 140);
     }
     
+    @Ignore("Not currently compatible with CSoar db's. TODO: check whether it's just a sqlite version difference issue.")
+    @Test
     public void readCSoarDB() throws Exception
     {
         agent.initialize();
@@ -189,9 +198,12 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                                 "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
                                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
                 
-        assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
+        logger.info("Epmem test actual result: " + actualResult);
+        assertTrue("Unexpected output from CSoar database! ", actualResult.equals(expectedResult));
     }
     
+    @Ignore("db driver is now always native, so no longer specifies 'native' in version number, so the test fails when it shouldn't")
+    @Test
     public void testMultiAgent() throws Exception
     {
         List<ThreadedAgent> agents = new ArrayList<>();

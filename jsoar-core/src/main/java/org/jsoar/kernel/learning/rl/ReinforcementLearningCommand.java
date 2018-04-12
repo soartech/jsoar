@@ -15,6 +15,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Learning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Meta;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalDiscount;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtension;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Trace;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -78,6 +79,7 @@ public final class ReinforcementLearningCommand implements SoarCommand
         {
             return doGet(1, args);
         }
+        // TODO: Soar Manual version 9.6.0 includes RL options "-t/--trace" and "-S/--stats"
         else if (arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -111,8 +113,18 @@ public final class ReinforcementLearningCommand implements SoarCommand
             }
             else if (name.equals("learning-policy"))
             {
+            	// TODO
+            	if (value.equals("off-policy-gq-lambda") || value.equals("on-policy-gq-lambda"))
+            	{
+                    throw new SoarException("RL learning-policy '" + value + "' has not yet been implemented in JSoar");
+            	}
                 props.set(ReinforcementLearningParams.LEARNING_POLICY, LearningPolicy.valueOf(value));
                 return "Set learning-policy to " + LearningPolicy.valueOf(value);
+            }
+            else if (name.equals("step-size-parameter"))
+            {
+            	// TODO
+                throw new SoarException("RL GQ parameter 'step-size-parameter' has not yet been implemented in JSoar");
             }
             else if (name.equals("learning-rate"))
             {
@@ -128,6 +140,21 @@ public final class ReinforcementLearningCommand implements SoarCommand
             {
                 props.set(ReinforcementLearningParams.TEMPORAL_DISCOUNT, TemporalDiscount.valueOf(value));
                 return "Set temporal-discount to " + TemporalDiscount.valueOf(value);
+            }
+            else if (name.equals("temporal-extension"))
+            {
+                props.set(ReinforcementLearningParams.TEMPORAL_EXTENSION, TemporalExtension.valueOf(value));
+                return "Set temporal-extension to " + TemporalExtension.valueOf(value);
+            }
+            else if (name.equals("eligibility-trace-decay-rate"))
+            {
+                props.set(ReinforcementLearningParams.ET_DECAY_RATE, Double.parseDouble(value));
+                return "Set eligibility-trace-decay-rate to " + Double.parseDouble(value);
+            }
+            else if (name.equals("eligibility-trace-tolerance"))
+            {
+                props.set(ReinforcementLearningParams.ET_TOLERANCE, Double.parseDouble(value));
+                return "Set eligibility-trace-tolerance to " + Double.parseDouble(value);
             }
             else if (name.equals("chunk-stop"))
             {

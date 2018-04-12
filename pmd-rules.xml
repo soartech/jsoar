@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="pmd-eclipse"
+	xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+	<description>PMD Plugin preferences rule set</description>
+	
+	<!-- Main Java categories -->
+	<rule ref="category/java/bestpractices.xml">
+		<!-- Optimization we don't care about -->
+		<exclude name="GuardLogStatement" />
+		<exclude name="JUnitTestContainsTooManyAsserts" />
+	</rule>
+    <rule ref="category/java/codestyle.xml">
+		<!-- I'll use short names if I darn well want to -->
+		<exclude name="ShortVariable" />
+		<!-- Or long names, for that matter -->
+		<exclude name="LongVariable" />
+		
+		<exclude name="CommentDefaultAccessModifier" />
+		<exclude name="DefaultPackage" />
+		<exclude name="AtLeastOneConstructor" />
+		<!-- People think this is a good style? -->
+		<exclude name="OnlyOneReturn" />
+	</rule>
+    <rule ref="category/java/design.xml">
+		<!-- Don't really care about these -->
+		<exclude name="CyclomaticComplexity" />
+		<exclude name="StdCyclomaticComplexity" />
+		<exclude name="ModifiedCyclomaticComplexity" />
+		<exclude name="NPathComplexity" />
+		<exclude name="ExcessiveMethodLength" />
+		<exclude name="ExcessivePublicCount" />
+		<exclude name="TooManyMethods" />  
+		<exclude name="CouplingBetweenObjects" />
+		<exclude name="ExcessiveImports" />
+		<exclude name="NcssCount" />
+		<!-- This one is a huge pain -->
+		<exclude name="LawOfDemeter" />
+		<!-- Generates build errors if we don't set it up with specific rules -->
+		<exclude name="LoosePackageCoupling" />
+		<!--  This one might be worth it someday, but not right now -->
+		<exclude name="GodClass" />
+	</rule>
+    <rule ref="category/java/documentation.xml">
+		<!-- Documentation is hard -->
+		<exclude name="CommentRequired" />
+		<exclude name="CommentSize" />
+	</rule>
+    <rule ref="category/java/errorprone.xml">
+		<!-- Broken, pops up warnings in non-beans -->
+		<exclude name="BeanMembersShouldSerialize" />
+		<!-- Pain in the rear when we concatenate strings in log statements -->
+		<exclude name="AvoidDuplicateLiterals" />
+		<!-- Excluding controversial rules -->
+		<exclude name="AvoidLiteralsInIfCondition" />
+		<exclude name="DataflowAnomalyAnalysis" />
+	</rule>
+    <rule ref="category/java/multithreading.xml">
+		<!-- Broken, detects threading in non-j2ee classes -->
+		<exclude name="DoNotUseThreads" />
+	</rule>
+    <rule ref="category/java/performance.xml" />
+    <rule ref="category/java/security.xml" />
+    
+    <!--  Controversial rules which we like -->
+	<rule ref="rulesets/java/controversial.xml/AvoidAccessibilityAlteration" />
+	<rule ref="rulesets/java/controversial.xml/AvoidUsingShortType" />
+	<rule ref="rulesets/java/controversial.xml/AvoidUsingVolatile" />
+	<rule ref="rulesets/java/controversial.xml/AvoidUsingNativeCode" />
+	<rule
+		ref="rulesets/java/controversial.xml/DoNotCallGarbageCollectionExplicitly" />
+	<rule ref="rulesets/java/controversial.xml/SuspiciousOctalEscape" />
+	<rule ref="rulesets/java/controversial.xml/SuspiciousOctalEscape" />
+	<rule ref="rulesets/java/controversial.xml/UnnecessaryConstructor" />
+	
+	<!-- POM categories (most of these are empty right now) -->
+	<rule ref="category/pom/bestpractices.xml" />
+    <rule ref="category/pom/codestyle.xml" />
+    <rule ref="category/pom/design.xml" />
+    <rule ref="category/pom/documentation.xml" />
+    <rule ref="category/pom/errorprone.xml" />
+    <rule ref="category/pom/multithreading.xml" />
+    <rule ref="category/pom/performance.xml" />
+    <rule ref="category/pom/security.xml" />
+	
+	<!-- XML categories (most of these are empty right now) -->
+	<rule ref="category/xml/bestpractices.xml" />
+    <rule ref="category/xml/codestyle.xml" />
+    <rule ref="category/xml/design.xml" />
+    <rule ref="category/xml/documentation.xml" />
+    <rule ref="category/xml/errorprone.xml" />
+    <rule ref="category/xml/multithreading.xml" />
+    <rule ref="category/xml/performance.xml" />
+    <rule ref="category/xml/security.xml" />
+</ruleset>

@@ -509,9 +509,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             catch (IOException e)
             {
                 throw new SoarException("While attaching epmem: " + e.getMessage(), e);
+            } 
             }
         }
-    }
 
     /**
      * Extracted from epmem_init_db(). Take performance settings and apply then
@@ -664,6 +664,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * @param readonly
      * @throws SoarException
+     * @throws URISyntaxException 
      */
     private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException
     {
@@ -677,7 +678,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // //////////////////////////////////////////////////////////////////////////
 
         // attempt connection
-        final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
+        // Convert out special URL characters like spaces
+        final String jdbcUrl = URLDecoder.decode(params.protocol.get() + ":" + params.path.get(), "UTF-8");
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
         
@@ -7286,9 +7288,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
                         
+                        //logger.error("col type was" + result.getMetaData().getColumnType(3 + 1));
                         val_is_short_term = 
-                                ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
-                                        == EpisodicMemoryDatabase.value_type.null_t );
+                                ( result.getObject(3 + 1) 
+                                        == null );
     
                         if ( val_is_short_term )
                         {
@@ -7462,8 +7465,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         catch (SoarException e)
         {
             logger.error("Failed to reinitialize epmem:" + e.getMessage());
+        } 
         }
-    }
     
     boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
     {

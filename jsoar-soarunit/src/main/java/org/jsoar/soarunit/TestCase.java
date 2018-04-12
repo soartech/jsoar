@@ -5,11 +5,9 @@
  */
 package org.jsoar.soarunit;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PushbackReader;
+import java.io.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,26 +21,32 @@ import org.jsoar.util.commands.ParserBuffer;
  */
 public class TestCase
 {
-    private final File file;
+    private final URL url;
     private final String name;
+    private final int prefixIndex;
     private String setup = "";
     private final List<Test> tests = new ArrayList<Test>();
     
-    private static String getNameFromFile(File file)
+    private static String getNameFromFile(URL url, int prefixIndex)
     {
-        final String name = file.getName();
+        final String name = url.getFile().substring(prefixIndex);
         final int dot = name.lastIndexOf('.');
         
         return dot > 0 ? name.substring(0, dot) : name;
     }
     
-    public static TestCase fromFile(File file) throws SoarException, IOException
+    public static TestCase fromFile(File file, int prefixIndex) throws SoarException, IOException
     {
-        final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new FileReader(file))));
-        reader.setFile(file.getPath());
+        return fromURL(file.toURI().toURL(), prefixIndex);
+    }
+
+    public static TestCase fromURL(URL url, int prefixIndex) throws SoarException, IOException
+    {
+        final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream()))));
+        reader.setFile(url.getPath());
         try
         {
-            final TestCase testCase = new TestCase(file, getNameFromFile(file));
+            final TestCase testCase = new TestCase(url, getNameFromFile(url, prefixIndex), prefixIndex);
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             ParsedCommand parsedCommand = parser.parseCommand(reader);
             while(!parsedCommand.isEof())
@@ -60,9 +64,9 @@ public class TestCase
                 }
                 else
                 {
-                    throw new SoarException(file + ": Unsupported SoarUnit command '" + name + "'");
+                    throw new SoarException(url.toString() + ": Unsupported SoarUnit command '" + name + "'");
                 }
-                
+
                 parsedCommand = parser.parseCommand(reader);
             }
             return testCase;
@@ -83,10 +87,11 @@ public class TestCase
         return result;
     }
     
-    public TestCase(File file, String name)
+    public TestCase(URL url, String name, int prefixIndex)
     {
-        this.file = file;
+        this.url = url;
         this.name = name;
+        this.prefixIndex = prefixIndex;
     }
 
     /**
@@ -114,11 +119,11 @@ public class TestCase
     }
     
     /**
-     * @return the file
+     * @return the url
      */
-    public File getFile()
+    public URL getUrl()
     {
-        return file;
+        return url;
     }
 
     public void addTest(Test test)
@@ -157,7 +162,7 @@ public class TestCase
 
     public TestCase reload() throws SoarException, IOException
     {
-        return fromFile(getFile());
+        return fromURL(getUrl(), this.prefixIndex);
     }
     
 }

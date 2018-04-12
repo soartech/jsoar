@@ -2,7 +2,7 @@
     <parent>
         <groupId>com.soartech</groupId>
         <artifactId>jsoar</artifactId>
-        <version>0.14.4-SNAPSHOT</version>
+        <version>0.14.10-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -38,6 +38,20 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-shade-plugin</artifactId>
+                 <version>2.4.3</version>
+                 <configuration />
+                 <executions>
+                     <execution>
+                         <phase>none</phase>
+                         <goals>
+                             <goal>shade</goal>
+                         </goals>
+                     </execution>
+                 </executions>
+             </plugin>
         </plugins>
     </build>
 

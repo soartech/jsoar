@@ -29,17 +29,20 @@ import org.w3c.dom.NodeList;
  * For example, the following XML:<br>
  * <br>
  * 
- * &lt;Message id="1"><br>
- * &nbsp;&nbsp;&nbsp;&lt;MessageValue>1.0&lt;/MessageValue><br>
- * &lt;/Message><br>
- * <br>
+ * <pre>
+ * {@code
+ * <Message id="1">
+ *    <MessageValue>1.0</MessageValue>
+ * </Message>
+ * }</pre>
  * 
  * results in<br>
  * <br>
- * 
- * <code>^id 1</code><br>
- * <code>^MessageValue 1.0</code><br>
- * <br>
+ * <pre>
+ * {@code
+ * ^id 1
+ * ^MessageValue 1.0
+ * }</pre>
  * 
  * when using {@link #fromXml(org.w3c.dom.Element) fromXml}. Note that the root
  * XML tag is ignored, but its attributes are still added. If
@@ -48,13 +51,14 @@ import org.w3c.dom.NodeList;
  * results in the following WME structure:<br>
  * <br>
  * 
- * <code>^io</code><br>
- * &nbsp;&nbsp;&nbsp;<code>^input-link</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^Message</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^id 1</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- * <code>^MessageValue 1.0</code><br>
- * <br>
+ * <pre>
+ * {@code
+ * ^io
+ *   ^input-link
+ *     ^Message
+ *       ^id 1
+ *       ^MessageValue 1.0
+ * }</pre>
  * 
  * @author chris.kawatsu
  * 

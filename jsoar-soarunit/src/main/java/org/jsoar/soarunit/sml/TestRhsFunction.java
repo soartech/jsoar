@@ -29,6 +29,12 @@ public class TestRhsFunction implements RhsFunctionInterface
     public TestRhsFunction()
     {
     }
+    
+    public void Reset()
+    {
+        this.called = false;
+        this.arguments = null;
+    }
 
     /**
      * @return the called

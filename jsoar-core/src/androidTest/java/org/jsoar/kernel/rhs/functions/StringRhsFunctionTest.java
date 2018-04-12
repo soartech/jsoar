@@ -43,7 +43,7 @@ public class StringRhsFunctionTest extends JSoarTest
         final StringRhsFunction f = new StringRhsFunction();
         final File o = new File("/path/to/something");
         final Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, o));
-        assertEquals(o.toString(), result.asString().getValue());
+        assertEquals(o.toString() +" ("+o.getClass().getName()+")", result.asString().getValue());
     }
     
     public void testConvertsIdentifierToString() throws Exception

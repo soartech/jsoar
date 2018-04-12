@@ -367,7 +367,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             }
             catch (IOException | URISyntaxException e)
             {
-                throw new SoarException("Failed to open '" + url + "': " + e.getMessage(), e);
+                throw new SoarException("Failed to open '" + url + "': " + e.getStackTrace(), e);
             }
         }
 

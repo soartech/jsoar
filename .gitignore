@@ -29,3 +29,7 @@ jsoar-performance-testing/src/main/resources/Test-Results
 jsoar-performance-testing/build
 jsoar-performance-testing/target
 jsoar-performance-testing/.settings/
+*.iml
+dependency-reduced-pom.xml
+target/
+*.pmd

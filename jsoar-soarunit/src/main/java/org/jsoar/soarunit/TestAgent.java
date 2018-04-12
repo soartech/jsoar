@@ -6,6 +6,7 @@
 package org.jsoar.soarunit;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
@@ -13,7 +14,9 @@ import org.jsoar.kernel.SoarException;
 public interface TestAgent
 {
     void initialize(Test test) throws SoarException;
-    
+
+    void reinitialize(Test test) throws SoarException;
+
     void run();
     
     long getCycleCount();
@@ -33,4 +36,7 @@ public interface TestAgent
     FiringCounts getFiringCounts();
     
     void printMatchesOnFailure();
+
+    SoarCommandInterpreter getInterpreter();
+
 }
