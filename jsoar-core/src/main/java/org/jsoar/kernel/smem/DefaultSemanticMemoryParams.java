@@ -222,7 +222,7 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.off).build();
     final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
-    static final PropertyKey<AppendDatabaseChoices> APPEND_DB = key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.on).build();
+    static final PropertyKey<AppendDatabaseChoices> APPEND_DB = key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.off).build();
     final EnumPropertyProvider<AppendDatabaseChoices> append_db = new EnumPropertyProvider<AppendDatabaseChoices>(APPEND_DB);
     
     static final PropertyKey<PageChoices> PAGE_SIZE = key("page-size", PageChoices.class).defaultValue(PageChoices.page_8k).build();
