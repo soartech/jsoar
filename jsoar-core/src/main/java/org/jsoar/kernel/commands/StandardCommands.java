@@ -57,7 +57,6 @@ public class StandardCommands
         interp.addCommand("init-soar", new InitSoarCommand(agent));
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("memories", new MemoriesCommand(agent));
-        interp.addCommand("edit-production", new EditProductionCommand(agent));
         interp.addCommand("production-find", new ProductionFindCommand(agent));
         
         interp.addCommand("set-parser", new SetParserCommand(agent));
@@ -65,8 +64,6 @@ public class StandardCommands
         interp.addCommand("symbols", new SymbolsCommand(agent));
         
         interp.addCommand("decide", new DecideCommand(agent));
-        
-        interp.addCommand("help", new HelpCommand());
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("timers", new TimersCommand());
