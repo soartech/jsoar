@@ -5,3 +5,4 @@ project
 .project
 .classpath
 backup.sqlite
+/.gradle/

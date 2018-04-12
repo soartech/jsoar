@@ -33,3 +33,5 @@ jsoar-performance-testing/.settings/
 dependency-reduced-pom.xml
 target/
 *.pmd
+.gradle/
+jsoar-core/.idea/
