@@ -35,3 +35,4 @@ target/
 *.pmd
 .gradle/
 jsoar-core/.idea/
+jsoar-core/local.properties
