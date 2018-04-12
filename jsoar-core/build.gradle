@@ -71,6 +71,9 @@ repositories {
 
 dependencies {
     compile 'commons-beanutils:commons-beanutils:1.8.3'
+    compile ('com.googlecode.json-simple:json-simple:1.1.1'){
+        exclude module: 'hamcrest-core'
+    }
     compile 'org.slf4j:jcl-over-slf4j:1.7.5'
     compile 'org.apache.commons:commons-math3:3.2'
     compile 'com.google.guava:guava:16.0.1'
