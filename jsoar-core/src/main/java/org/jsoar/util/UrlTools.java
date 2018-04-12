@@ -2,9 +2,6 @@ package org.jsoar.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +15,6 @@ import java.util.List;
 public class UrlTools
 {
     private static final Logger logger = LoggerFactory.getLogger(UrlTools.class);
-    private static ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
     
     /**
      * This normalizes URLs by converting them to URIs and using the URI normalization method
@@ -77,41 +73,6 @@ public class UrlTools
     {
         URI uri = url.toURI().getPath().endsWith("/") ? url.toURI().resolve("..") : url.toURI().resolve(".");
         return uri.toURL();
-    }
-
-    /**
-     * If url is a classpath url, see {@link UrlTools#isClassPath(String)}, return a URL to its location.
-     * @param url the string of the classpath url
-     * @return the url to the classpath resource.
-     */
-    public static URL lookupClassPathURL(String url) throws IOException
-    {
-        if (isClassPath(url))
-        {
-            List<Resource> resources = Arrays.asList(resourceResolver.getResources(url));
-            if (!resources.isEmpty())
-            {
-                return resources.get(0).getURL();
-            }
-        }
-        throw new IOException("Invalid classpath resource: " + url);
-    }
-
-    /**
-     * Set a custom {@link org.springframework.core.io.support.ResourcePatternResolver} for resolving classpath:
-     * URLs.
-     */
-    public static void setClasspathResourceResolver(ResourcePatternResolver resourcePatternResolver)
-    {
-        resourceResolver = resourcePatternResolver;
-    }
-
-    /**
-     * Convenience method for setting the {@link java.lang.ClassLoader} used when resolving classpath: URLs.
-     */
-    public static void setClasspathResourceResolverClassLoader(ClassLoader cl)
-    {
-        resourceResolver = new PathMatchingResourcePatternResolver(cl);
     }
 
     /**
