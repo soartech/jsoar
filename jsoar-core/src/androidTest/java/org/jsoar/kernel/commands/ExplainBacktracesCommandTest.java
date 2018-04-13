@@ -22,29 +22,39 @@ public class ExplainBacktracesCommandTest extends AndroidTestCase
         verifyOptions(new Options(true, -1, null), "eb", "-f");
         verifyOptions(new Options(true, -1, null), "eb", "--full");
     }
-    
+
     public void testConditionOption() throws Exception
     {
         verifyOptions(new Options(false, -1, null), "eb");
         verifyOptions(new Options(false, 99, null), "eb", "-c", "99");
         verifyOptions(new Options(false, 101, null), "eb", "--condition", "101");
     }
-    
-    public void testThrowsExceptionForNonNumericCondition() throws Exception
+
+    public void testThrowsExceptionForNonNumericCondition()
     {
-        ExplainBacktracesCommand.processArgs(new String[] {"eb", "-c", "b"});
+        try {
+            ExplainBacktracesCommand.processArgs(new String[] {"eb", "-c", "b"});
+            Assert.fail("Should have thrown exception");
+        } catch (SoarException e) {
+            e.printStackTrace();
+        }
     }
-    
-    public void testThrowsExceptionForMissingNumericCondition() throws Exception
+
+    public void testThrowsExceptionForMissingNumericCondition()
     {
-        ExplainBacktracesCommand.processArgs(new String[] {"eb","-c" });
+        try {
+            ExplainBacktracesCommand.processArgs(new String[] {"eb","-c" });
+            Assert.fail("Should have thrown exception");
+        } catch (SoarException e) {
+            //success
+        }
     }
-    
+
     public void testProductionArgument() throws Exception
     {
         verifyOptions(new Options(false, -1, "p"), "eb", "p");
     }
-    
+
     public void testMixedOptions() throws Exception
     {
         verifyOptions(new Options(false, 99, "rule"), "eb", "-c", "99", "rule");
