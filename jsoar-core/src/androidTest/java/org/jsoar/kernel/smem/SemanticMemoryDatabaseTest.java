@@ -5,15 +5,12 @@
  */
 package org.jsoar.kernel.smem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import android.test.AndroidTestCase;
 
-import java.io.IOException;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.util.JdbcTools;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,13 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SemanticMemoryDatabaseTest extends AndroidTestCase
-import org.jsoar.kernel.SoarException;
-import org.jsoar.util.JdbcTools;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-public class SemanticMemoryDatabaseTest
 {
 
     private Connection db;
