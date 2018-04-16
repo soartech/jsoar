@@ -3404,8 +3404,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                     db.commit.executeUpdate( /* soar_module::op_reinit */);
                 }
 
+                /*
+                Android uses the system database, so actually closing it prevents anyone else in
+                the app from using it.  Technically this does cause a small resource leak, but we
+                ca worry about that later.
+                 */
                 // close the database
-                db.getConnection().close();
+                //db.getConnection().close();
                 db = null;
             }
             catch (SQLException e)
