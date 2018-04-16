@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.rhs.ReordererException;
 
@@ -44,7 +46,7 @@ public class ParserTests extends FunctionalTestHarness
     		// <bad> is unbound referent in value test
     		success = true;
     	}
-    	assertTrue(success);
+		Assert.assertTrue(success);
     	
     	success = false;
     	try {
@@ -53,7 +55,7 @@ public class ParserTests extends FunctionalTestHarness
     		// <bad> is unbound referent in attr test
     		success = true;
     	}
-    	assertTrue(success);
+		Assert.assertTrue(success);
     	
     	success = false;
     	try {
@@ -62,7 +64,7 @@ public class ParserTests extends FunctionalTestHarness
     		// <b> is unbound referent in test, defined in ncc out of scope
     		success = true;
     	}
-    	assertTrue(success);
+		Assert.assertTrue(success);
     	
     	success = false;
     	try {
@@ -71,7 +73,7 @@ public class ParserTests extends FunctionalTestHarness
     		// <d> is unbound referent in value test in ncc
     		success = true;
     	}
-    	assertTrue(success);
+		Assert.assertTrue(success);
     	
     	// these should succeed
    		agent.getProductions().loadProduction("test (state <s> ^superstate <d>) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");

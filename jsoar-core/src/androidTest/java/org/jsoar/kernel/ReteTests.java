@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -39,7 +41,7 @@ public class ReteTests extends FunctionalTestHarness
         agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, 5);
         agent.runFor(1, RunType.DECISIONS);
         final DecisionCycle dc = Adaptables.adapt(agent, DecisionCycle.class);
-        assertFalse(dc.isHitMaxElaborations());
+        Assert.assertFalse(dc.isHitMaxElaborations());
     }    
     
     public void testSplitNode() throws Exception

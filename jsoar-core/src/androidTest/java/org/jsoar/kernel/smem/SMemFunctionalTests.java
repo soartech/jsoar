@@ -5,6 +5,10 @@
  */
 package org.jsoar.kernel.smem;
 
+import android.support.test.InstrumentationRegistry;
+
+import junit.framework.Assert;
+
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
@@ -193,7 +197,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.runFor(2, RunType.DECISIONS);
         DefaultSemanticMemory smem = (DefaultSemanticMemory) agent.getAdapter(DefaultSemanticMemory.class);
         BasicWeightedCue bwc = smem.getLastCue();
-        assertTrue("Incorrect cue selected", 
+        Assert.assertTrue("Incorrect cue selected",
                 bwc.cue.attr.asString().getValue().equals("name") && 
                 bwc.cue.value.asString().getValue().equals("val") &&
                 bwc.weight == 4);
@@ -206,7 +210,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -219,8 +223,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(3, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency functional test did not halt", halted);
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency functional test did not halt", halted);
         
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
@@ -231,8 +235,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+5.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency: Invalid Activation Values", result.equals(expected));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency: Invalid Activation Values", result.equals(expected));
     
         halted = false;
     }
@@ -242,7 +246,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -255,9 +259,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(3, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery functional test did not halt", halted);
-        
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery functional test did not halt", halted);
+
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
                           "========================================\n" +
@@ -267,8 +271,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+3.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery: Invalid Activation Values", result.equals(expected));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery: Invalid Activation Values", result.equals(expected));
     
         halted = false;
     }
@@ -278,7 +282,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationFrequency");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -291,8 +295,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(3, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency functional test did not halt", halted);
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency functional test did not halt", halted);
         
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
@@ -303,8 +307,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+2.0])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency: Invalid Activation Values", result.equals(expected));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency: Invalid Activation Values", result.equals(expected));
     
         halted = false;
     }
@@ -382,7 +386,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -395,8 +399,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(3, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable functional test did not halt", halted);
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable functional test did not halt", halted);
         
         List<Double> lowEndExpectations = new ArrayList<Double>();
         List<Double> highEndExpectations = new ArrayList<Double>();
@@ -424,8 +428,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
         halted = false;
     }
@@ -435,7 +439,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -448,8 +452,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(3, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive functional test did not halt", halted);
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive functional test did not halt", halted);
         
         List<Double> lowEndExpectations = new ArrayList<Double>();
         List<Double> highEndExpectations = new ArrayList<Double>();
@@ -477,8 +481,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
         halted = false;
     }
@@ -488,7 +492,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -501,8 +505,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(4, RunType.DECISIONS);
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental functional test did not halt", halted);
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental functional test did not halt", halted);
         
         List<Double> lowEndExpectations = new ArrayList<Double>();
         List<Double> highEndExpectations = new ArrayList<Double>();
@@ -530,8 +534,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X2 ^name |foo| ^location @L2 [+0.144])\n";
         
         String result = agent.getInterpreter().eval("smem --print");
-        
-        assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
+
+        Assert.assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
         halted = false;
     }
@@ -552,8 +556,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         outputWriter.getBuffer().setLength(0);
         
         String expectedResultOfPS1 = "(S1 ^counter 50 ^epmem E1 ^io I1 ^name Factorization ^operator O1385 ^operator O1385 + ^reward-link R1 ^smem S2 ^superstate nil ^type state ^using-smem true)\n";
-        
-        assertTrue("Didn't stop where expected!", resultOfPS1.equals(expectedResultOfPS1));
+
+        Assert.assertTrue("Didn't stop where expected!", resultOfPS1.equals(expectedResultOfPS1));
         
         agent.getInterpreter().eval("smem --backup backup.sqlite");
         agent.getInterpreter().eval("smem --init");
@@ -564,15 +568,15 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         }
         catch (SoarException e)
         {
-            assertTrue("smem --init didn't init smem!", e.getMessage().equals("SMem| Semantic memory is empty."));
+            Assert.assertTrue("smem --init didn't init smem!", e.getMessage().equals("SMem| Semantic memory is empty."));
         }
         
         agent.getInterpreter().eval("p");
         
         String resultOfP = outputWriter.toString();
         outputWriter.getBuffer().setLength(0);
-                
-        assertTrue("smem --init didn't excise all productions!", resultOfP.length() == 0);
+
+        Assert.assertTrue("smem --init didn't excise all productions!", resultOfP.length() == 0);
         
         agent.getInterpreter().eval("p s1");
         
@@ -580,8 +584,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         outputWriter.getBuffer().setLength(0);
         
         expectedResultOfPS1 = "(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n";
-        
-        assertTrue("smem --init didn't reinit WM!", resultOfPS1.equals(expectedResultOfPS1));
+
+        Assert.assertTrue("smem --init didn't reinit WM!", resultOfPS1.equals(expectedResultOfPS1));
         
         agent.getInterpreter().eval("smem --set path backup.sqlite");
         agent.getInterpreter().eval("smem --set append-database on");
@@ -590,7 +594,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         runTestSetup("testFactorization");
         
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -603,8 +607,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         });
         
         agent.runFor(2811 + 1, RunType.DECISIONS);
-        
-        assertTrue("testFactorization: Test did not halt.", halted);
+
+        Assert.assertTrue("testFactorization: Test did not halt.", halted);
         
         outputWriter.getBuffer().setLength(0);
         
@@ -615,8 +619,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                                          "  (@F198 ^multiplicity 2 ^value 2)\n";
         
         String resultOfPD2F197 = outputWriter.toString();
-        
-        assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
+
+        Assert.assertTrue("testFactorization: Test did not get the correct result!", expectedResultOfPD2F197.equals(resultOfPD2F197));
     
         agent.dispose();
         
@@ -631,7 +635,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.initialize();
         
         URL db = getClass().getResource("smem-csoar-db.sqlite");
-        assertNotNull("No CSoar db!", db);
+        Assert.assertNotNull("No CSoar db!", db);
         agent.getInterpreter().eval("smem --set path " + db.getPath());
         agent.getInterpreter().eval("smem --set append-database on");
         agent.getInterpreter().eval("smem --init");
@@ -647,8 +651,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                                 "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
                                 "(@F5 ^number 4 ^complete |true| ^factor @F6 [+7.0])\n" +
                                 "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
-                
-        assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
+
+        Assert.assertTrue("Unexpected output from CSoar database!", actualResult.equals(expectedResult));
     }
     
     public void testSimpleStoreGC() throws Exception
@@ -704,7 +708,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             if ((lti.length() == 3 || lti.length() == 4) && lti.charAt(0) == '@')
             {
                 String correctLti = lti.substring(0, 3);
-                assertTrue(ltis.contains(correctLti));
+                Assert.assertTrue(ltis.contains(correctLti));
             }
         }
     }
@@ -716,11 +720,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         for (int i = 1;i <= 250;i++)
         {
-            ThreadedAgent t = ThreadedAgent.create("Agent " + i, getContext());
+            ThreadedAgent t = ThreadedAgent.create("Agent " + i, InstrumentationRegistry.getTargetContext());
             t.getAgent().getTrace().setEnabled(true);
             String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
             URL sourceUrl = getClass().getResource(sourceName);
-            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            Assert.assertNotNull("Could not find test file " + sourceName, sourceUrl);
             t.getAgent().getInterpreter().source(sourceUrl);
             
             agents.add(t);

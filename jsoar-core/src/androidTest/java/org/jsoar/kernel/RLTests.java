@@ -21,6 +21,8 @@
 package org.jsoar.kernel;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
 
 /**
@@ -33,7 +35,7 @@ public class RLTests extends FunctionalTestHarness
     public void testTemplateVariableNameBug1121() throws Exception
     {
         runTest("testTemplateVariableNameBug1121", 1);
-        assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
 
 /*
@@ -72,7 +74,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues[] = {19.999961853027344, 10.0, 10.0, 15.0, 10.0, 15.0, 10.0, 18.75, 10.0};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -90,7 +92,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues2[] = {37.99992752075195, 19.5, 19.0, 28.75, 19.0, 28.75, 19.0, 35.6875, 19.0};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues2));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues2));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -108,7 +110,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues3[] = {54.1998966217041, 28.5, 27.1, 41.35, 27.1, 41.35, 27.1, 50.9875, 27.1};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues3));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues3));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -126,7 +128,7 @@ public class RLTests extends FunctionalTestHarness
 
         //	Check the correct value set
         double expectedValues4[] = {68.77986881256103, 37.005, 34.39, 52.8925, 34.39, 52.8925, 34.39, 64.808125, 34.39};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues4));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues4));
 
     }
     public void testRLUnitHrlDiscountOff() throws Exception
@@ -150,7 +152,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues[] = {44.0625, 10.0, 10.0, 15.0, 10.0, 20.0, 10.0, 20.0, 10.0};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -168,7 +170,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues2[] = {83.71875, 19.5, 19.0, 28.75, 19.0, 38.5, 19.0, 38.125, 19.0};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues2));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues2));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -186,7 +188,7 @@ public class RLTests extends FunctionalTestHarness
         
         //	Check the correct value set
         double expectedValues3[] = {119.409375, 28.5, 27.1, 41.35, 27.1, 55.6, 27.1, 54.55, 27.1};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues3));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues3));
         
         agent.initialize();
         runTestExecute("testRLUnit", 25);
@@ -204,7 +206,7 @@ public class RLTests extends FunctionalTestHarness
 
         //	Check the correct value set
         double expectedValues4[] = {151.5309375, 37.005, 34.39, 52.8925, 34.39, 71.395, 34.39, 69.43375, 34.39};
-        assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues4));
+        Assert.assertTrue("Actual RL values don't match expected values", checkExpectedValues("rl*value*function*", expectedValues4));
 
     }
     
@@ -265,7 +267,7 @@ public class RLTests extends FunctionalTestHarness
         agent.getProductions().loadProduction(chunkStopTestSoar2);
     	
         //	See that there is only one production
-        assertEquals(1, agent.getProductions().getProductionCount());
+        Assert.assertEquals(1, agent.getProductions().getProductionCount());
     }
     
     public void testChunkStopOff() throws Exception
@@ -280,7 +282,7 @@ public class RLTests extends FunctionalTestHarness
         agent.getProductions().loadProduction(chunkStopTestSoar2);
     	
         //	See that there are two productions
-        assertEquals(2, agent.getProductions().getProductionCount());
+        Assert.assertEquals(2, agent.getProductions().getProductionCount());
     }
 
 }

@@ -1,9 +1,10 @@
 buildscript {
     repositories {
         mavenCentral()
+        google() //Add the google repository for Android stuff
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.1.0'
     }
 }
 
@@ -22,6 +23,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -66,23 +69,21 @@ repositories {
                     password nexusPassword
                 }
     }
+    google() //Add the google repo for Android dependencies
 }
 
 
 dependencies {
-    compile 'commons-beanutils:commons-beanutils:1.8.3'
-    compile ('com.googlecode.json-simple:json-simple:1.1.1'){
+    implementation ('com.googlecode.json-simple:json-simple:1.1.1'){
         exclude module: 'hamcrest-core'
     }
-    compile 'org.slf4j:jcl-over-slf4j:1.7.5'
-    compile 'org.apache.commons:commons-math3:3.2'
-    compile 'com.google.guava:guava:16.0.1'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'org.codehaus:jtcl:2.4.0'
-    //    compile 'org.xerial:sqlite-jdbc:3.7.2-macfix'
-    //    compile 'org.xerial:sqlite-jdbc:3.8.10.1'
-    //    compile 'org.sqldroid:sqldroid:1.0.3'
-//    testCompile 'junit:junit:4.10'
+    implementation 'org.slf4j:jcl-over-slf4j:1.7.5'
+    implementation 'org.apache.commons:commons-math3:3.2'
+    implementation 'com.google.guava:guava:16.0.1'
+    implementation 'com.android.support:appcompat-v7:22.2.0'
+    implementation 'org.codehaus:jtcl:2.4.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
 
 uploadArchives {

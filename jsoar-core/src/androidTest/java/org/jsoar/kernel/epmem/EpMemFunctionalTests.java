@@ -5,7 +5,10 @@
  */
 package org.jsoar.kernel.epmem;
 
+import android.support.test.InstrumentationRegistry;
 import android.util.Log;
+
+import junit.framework.Assert;
 
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.RunType;
@@ -187,7 +190,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         agent.initialize();
         
         URL db = getClass().getResource("epmem-csoar-db.sqlite");
-        assertNotNull("No CSoar db!", db);
+        Assert.assertNotNull("No CSoar db!", db);
         agent.getInterpreter().eval("epmem --set path " + db.getPath());
         agent.getInterpreter().eval("epmem --set append-database on");
         agent.getInterpreter().eval("epmem --reinit");
@@ -199,7 +202,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
                 
         logger.info("Epmem test actual result: " + actualResult);
-        assertTrue("Unexpected output from CSoar database! ", actualResult.equals(expectedResult));
+        Assert.assertTrue("Unexpected output from CSoar database! ", actualResult.equals(expectedResult));
     }
     
     @Ignore("db driver is now always native, so no longer specifies 'native' in version number, so the test fails when it shouldn't")
@@ -210,11 +213,11 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
 
         for (int i = 1;i <= 1;i++)
         {
-            final ThreadedAgent t = ThreadedAgent.create("Agent " + i, getContext());
+            final ThreadedAgent t = ThreadedAgent.create("Agent " + i, InstrumentationRegistry.getTargetContext());
             t.getAgent().getTrace().setEnabled(true);
             String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
             URL sourceUrl = getClass().getResource(sourceName);
-            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            Assert.assertNotNull("Could not find test file " + sourceName, sourceUrl);
             t.getAgent().getInterpreter().source(sourceUrl);
             t.getAgent().getPrinter().addPersistentWriter(new Writer(agent) {
 

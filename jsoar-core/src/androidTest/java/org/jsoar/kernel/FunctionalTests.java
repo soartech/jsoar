@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 
+import junit.framework.Assert;
+
 /**
  * @author ray
  */
@@ -73,16 +75,16 @@ public class FunctionalTests extends FunctionalTestHarness
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", -1);
-        assertTrue(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() > 40000);
+        Assert.assertTrue(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() > 40000);
     }
     
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", 45047);
-        assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(15012, agent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
-        assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
-        assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(15012, agent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        Assert.assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
 }

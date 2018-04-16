@@ -1,5 +1,7 @@
 package org.jsoar.kernel.epmem;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -44,13 +46,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         while(results.next()){
             final long id = results.getLong("wi_id");
             final long start = results.getLong("start_episode_id");
-            assertTrue(
+            Assert.assertTrue(
                     "edge_now contained unexpected " + id + ", " + start, 
                     expectedRowIds.contains(id) && start == 1
                 );
             expectedRowIds.remove(id);
         }
-        assertTrue(expectedRowIds.isEmpty());
+        Assert.assertTrue(expectedRowIds.isEmpty());
     }
     
     public void testWMEsConstantNowTable() throws Exception
@@ -74,13 +76,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         while(results.next()){
             final long id = results.getLong("wc_id");
             final long start = results.getLong("start_episode_id");
-            assertTrue(
+            Assert.assertTrue(
                     "node_now contained unexpected " + id + ", " + start, 
                     expectedRowIds.contains(id) && start == 1
                 );
             expectedRowIds.remove(id);
         }
-        assertTrue(
+        Assert.assertTrue(
                 "node_now did not contain expected id " + 
                 (expectedRowIds.isEmpty()?"":expectedRowIds.get(0)) + 
                 ", " + 1,
@@ -189,13 +191,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getLong("attribute_s_id"),
                         results.getLong("value_s_id")
                     );
-            assertTrue(
+            Assert.assertTrue(
                     "node_unique contained unexpected " + row, 
                     expectedRows.contains(row)
                 );
             expectedRows.remove(row);
         }
-        assertTrue(
+        Assert.assertTrue(
                 expectedRows.size() > 0 ? "node_unique did not contain expected row " + expectedRows.toArray()[0] : "",
                 expectedRows.isEmpty()
             );
@@ -298,13 +300,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getLong("s_id"),
                         results.getString("symbol_value")
                     );
-            assertTrue(
+            Assert.assertTrue(
                     "epmem_symbols_string contained unexpected " + row, 
                     expectedRows.contains(row)
                 );
             expectedRows.remove(row);
         }
-        assertTrue(
+        Assert.assertTrue(
                 "epmem_symbols_string did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
                 expectedRows.isEmpty()
@@ -434,13 +436,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getLong("child_n_id"),
                         results.getLong("last_episode_id")
                     );
-            assertTrue(
+            Assert.assertTrue(
                     "epmem_wmes_identifer contained unexpected " + row, 
                     expectedRows.contains(row)
                 );
             expectedRows.remove(row);
         }
-        assertTrue(
+        Assert.assertTrue(
                 "epmem_wmes_identifier did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
                 expectedRows.isEmpty()
@@ -465,13 +467,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            assertTrue(
+            Assert.assertTrue(
                     "epmem_episodes contained unexpected " + results.getLong("episode_id"),
                     expectedRows.contains(results.getLong("episode_id"))
                 );
             expectedRows.remove(results.getLong("episode_id"));
         }
-        assertTrue(
+        Assert.assertTrue(
                 "epmem_episodes did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.get(0)),
                 expectedRows.isEmpty()
@@ -504,13 +506,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            assertTrue(
+            Assert.assertTrue(
                     "epmem_persistent_variables contained unexpected " + results.getLong("variable_id") + ", " + results.getLong("variable_value"),
                     expectedRows.get(results.getLong("variable_id")) == results.getLong("variable_value")
                 );
             expectedRows.remove(results.getLong("variable_id"));
         }
-        assertTrue(
+        Assert.assertTrue(
                 "epmem_persistent_variables did not contain expected row " + 
                         (expectedRows.isEmpty()?"":
                             expectedRows.keySet().toArray()[0]

@@ -1,5 +1,7 @@
 package org.jsoar.kernel.epmem;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -60,7 +62,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             rs = ps.executeQuery();
             rs.next();
             value = rs.getLong("variable_value");
-            assertTrue("variable_id "+id+" is "+value+", expected "+expectedVals.get(id), value == (long)expectedVals.get(id));
+            Assert.assertTrue("variable_id "+id+" is "+value+", expected "+expectedVals.get(id), value == (long)expectedVals.get(id));
             expectedVals.remove((Integer)id);
         }
     }
@@ -94,12 +96,12 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             sym_const = rs.getString("symbol_value");
             if(sym_const == null)
             {
-                assertTrue("id " + id + " is " + sym_const + ", expected " + symbolsString.get(id),
+                Assert.assertTrue("id " + id + " is " + sym_const + ", expected " + symbolsString.get(id),
                         symbolsString.get(id) == null);
             }
             else
             {
-                assertTrue("id " + id + " is " + sym_const + ", expected " + symbolsString.get(id),
+                Assert.assertTrue("id " + id + " is " + sym_const + ", expected " + symbolsString.get(id),
                         symbolsString.get(id).equals(sym_const));
             }
             symbolsString.remove(id);

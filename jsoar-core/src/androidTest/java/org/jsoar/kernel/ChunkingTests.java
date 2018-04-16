@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.util.adaptables.Adaptables;
@@ -19,7 +21,7 @@ public class ChunkingTests extends FunctionalTestHarness
     {
         runTest("testJustifications", 2);
         Production j = agent.getProductions().getProduction("justification-1");
-        assertNull(j);
+        Assert.assertNull(j);
     }
     
     public void testChunks() throws Exception
@@ -53,8 +55,8 @@ public class ChunkingTests extends FunctionalTestHarness
     public void testNegatedConjunctiveChunkLoopBug510() throws Exception
     {
         runTest("testNegatedConjunctiveChunkLoopBug510", 3);
-        assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
-        assertEquals(5, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
+        Assert.assertEquals(5, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
     
     public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
@@ -65,9 +67,9 @@ public class ChunkingTests extends FunctionalTestHarness
         Chunker chunker = Adaptables.adapt(agent, Chunker.class);
         chunker.chunkThroughEvaluationRules = true;
         runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 15);
-        assertEquals(72, agent.getProductions().getProductions(ProductionType.DEFAULT).size());
-        assertEquals(15, agent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(4, agent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(72, agent.getProductions().getProductions(ProductionType.DEFAULT).size());
+        Assert.assertEquals(15, agent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(4, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         
         // Make sure the chunk was built correctly.
         JSoarTest.verifyProduction(agent, 
@@ -126,7 +128,7 @@ public class ChunkingTests extends FunctionalTestHarness
         Chunker chunker = Adaptables.adapt(agent, Chunker.class);
         chunker.chunkThroughEvaluationRules = true;
         runTest("testCDPS", -1);
-        assertEquals(11, agent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(11, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         
         // Make sure the chunks were built correctly.
         

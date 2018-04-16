@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel;
 
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+
+import junit.framework.Assert;
 
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -16,7 +18,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import java.net.URL;
 import java.util.List;
 
-public class FunctionalTestHarness extends AndroidTestCase
+public class FunctionalTestHarness
 {
     public Agent agent;
     
@@ -32,7 +34,7 @@ public class FunctionalTestHarness extends AndroidTestCase
     {
         String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
         URL sourceUrl = getClass().getResource(sourceName);
-        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+        Assert.assertNotNull("Could not find test file " + sourceName, sourceUrl);
         agent.getInterpreter().source(sourceUrl);
     }
     
@@ -48,11 +50,11 @@ public class FunctionalTestHarness extends AndroidTestCase
             agent.runForever();
         }
         
-        assertTrue(testName + " functional test did not halt", halted);
-        assertFalse(testName + " functional test failed", failed);
+        Assert.assertTrue(testName + " functional test did not halt", halted);
+        Assert.assertFalse(testName + " functional test failed", failed);
         if(expectedDecisions >= 0)
         {
-            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
+            Assert.assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
         }
         
         agent.getInterpreter().eval("stats");
@@ -67,12 +69,11 @@ public class FunctionalTestHarness extends AndroidTestCase
     /**
      * @throws java.lang.Exception
      */
-    @Override
     public void setUp() throws Exception
     {
         halted = false;
         failed = false;
-        agent = new Agent(getContext());
+        agent = new Agent(InstrumentationRegistry.getTargetContext());
         
         installRHS(agent);
     }
@@ -80,7 +81,6 @@ public class FunctionalTestHarness extends AndroidTestCase
     /**
      * @throws java.lang.Exception
      */
-    @Override
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
@@ -96,7 +96,7 @@ public class FunctionalTestHarness extends AndroidTestCase
     {
         // set up the agent with common RHS functions
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);     
+        Assert.assertNotNull(oldHalt);
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 

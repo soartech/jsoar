@@ -1,11 +1,15 @@
 package org.jsoar.kernel.commands;
 
+import android.support.test.InstrumentationRegistry;
 import android.test.AndroidTestCase;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.FunctionalTests;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarProperties;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.io.File;
 
@@ -20,15 +24,13 @@ public class ReteNetCommandTest extends AndroidTestCase
     private Agent revivedAgent;
     private Agent originalAgent;
     private FunctionalTests funTests;
-
-    @Override
     public void setUp() throws Exception
     {
         funTests = new FunctionalTests();
         funTests.setUp();
         originalAgent = funTests.agent;
         originalAgent.getTrace().disableAll();
-        revivedAgent = new Agent(getContext());
+        revivedAgent = new Agent(InstrumentationRegistry.getTargetContext());
         revivedAgent.getTrace().disableAll();
     }
 
@@ -108,37 +110,39 @@ public class ReteNetCommandTest extends AndroidTestCase
     {
         runTest("testCountTest", 45047, 0);
         
-        assertEquals(42, originalAgent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(15012, originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(115136, originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
-        assertEquals(40039, originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
-        assertEquals(42, originalAgent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(15012, originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(115136, originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
-        assertEquals(40039, originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
-        assertEquals(120146, originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
-        
-        assertEquals(revivedAgent.getProductions().getProductions(ProductionType.USER).size(), originalAgent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(revivedAgent.getProductions().getProductions(ProductionType.CHUNK).size(), originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProductions().getProductions(ProductionType.USER).size(), originalAgent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(revivedAgent.getProductions().getProductions(ProductionType.CHUNK).size(), originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
-        assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(42, originalAgent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(15012, originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(115136, originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(40039, originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        Assert.assertEquals(42, originalAgent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(15012, originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(115136, originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(40039, originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        Assert.assertEquals(120146, originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
+
+        Assert.assertEquals(revivedAgent.getProductions().getProductions(ProductionType.USER).size(), originalAgent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(revivedAgent.getProductions().getProductions(ProductionType.CHUNK).size(), originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProductions().getProductions(ProductionType.USER).size(), originalAgent.getProductions().getProductions(ProductionType.USER).size());
+        Assert.assertEquals(revivedAgent.getProductions().getProductions(ProductionType.CHUNK).size(), originalAgent.getProductions().getProductions(ProductionType.CHUNK).size());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
+        Assert.assertEquals(revivedAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue(), originalAgent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
     
     public void runTest(String testName, int expectedDecisions, long randSeed) throws Exception
     {
+        File filesDir = InstrumentationRegistry.getTargetContext().getFilesDir();
+
         funTests.runTestSetup(testName);
         funTests.agent.getRandom().setSeed(randSeed);
-        funTests.agent.getInterpreter().eval("rete-net -s test.jrete");
+        funTests.agent.getInterpreter().eval("rete-net -s "+filesDir.getPath()+"test.jrete");
         funTests.installRHS(funTests.agent);
         funTests.runTestExecute(testName, expectedDecisions);
-        revivedAgent.getInterpreter().eval("rete-net -l test.jrete");
+        revivedAgent.getInterpreter().eval("rete-net -l "+filesDir.getPath()+"test.jrete");
         funTests.installRHS(revivedAgent);
         revivedAgent.getRandom().setSeed(randSeed);
         funTests.agent = revivedAgent;

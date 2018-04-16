@@ -1,5 +1,7 @@
 package org.jsoar.kernel.epmem;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
@@ -343,9 +345,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
         agent.runFor(1, RunType.DECISIONS);
         populateDataBase(getConnection());
         agent.runFor(2, RunType.DECISIONS);
-        
-        assertTrue("Retrieval test did not halt", halted);
-        assertFalse("Retrieval test failed", failed);
-        assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
+
+		Assert.assertTrue("Retrieval test did not halt", halted);
+		Assert.assertFalse("Retrieval test failed", failed);
+		Assert.assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
     }
 }
