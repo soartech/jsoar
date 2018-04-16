@@ -7,6 +7,8 @@ package org.jsoar.kernel.commands;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
@@ -54,29 +56,54 @@ public class RunCommandTest extends AndroidTestCase
         this.command = new RunCommand(mock);
     }
     
-    public void testThrowsExceptionOnNonNumericCount() throws Exception
+    public void testThrowsExceptionOnNonNumericCount()
     {
-        execute("run", "-d", "xyz");
+        try {
+            execute("run", "-d", "xyz");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Expected integer for run count, got 'xyz'", e.getMessage());
+        }
     }
     
-    public void testThrowsExceptionOnZeroCount() throws Exception
+    public void testThrowsExceptionOnZeroCount()
     {
-        execute("run", "-e", "0");
+        try {
+            execute("run", "-e", "0");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Expected count larger than 0 for run command, got 0", e.getMessage());
+        }
     }
     
-    public void testThrowsExceptionNegativeCount() throws Exception
+    public void testThrowsExceptionNegativeCount()
     {
-        execute("run", "-e", "-10");
+        try {
+            execute("run", "-e", "-10");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Unknow option '-10'", e.getMessage());
+        }
     }
     
-    public void testThrowsExceptionWhenMultipleCountsGiven() throws Exception
+    public void testThrowsExceptionWhenMultipleCountsGiven()
     {
-        execute("run", "5", "-e", "10");
+        try {
+            execute("run", "5", "-e", "10");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Multiple counts given for run command: run 5 -e 10",e.getMessage());
+        }
     }
     
-    public void testThrowsExceptionWhenMultipleRunTypesGiven() throws Exception
+    public void testThrowsExceptionWhenMultipleRunTypesGiven()
     {
-        execute("run", "-d", "-e");
+        try {
+            execute("run", "-d", "-e");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Multiple run types specified, DECISIONS and ELABORATIONS", e.getMessage());
+        }
     }
     
     public void testDefaultsToRunForever() throws Exception
