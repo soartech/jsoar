@@ -2,6 +2,8 @@ package org.jsoar.kernel.commands;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
@@ -55,14 +57,24 @@ public class PrintCommandTest extends AndroidTestCase
         assertEquals(command.getDefaultDepth(), 5);
     }
 
-    public void testZeroDefaultDepth() throws SoarException
+    public void testZeroDefaultDepth()
     {
-        command.setDefaultDepth(0);
+        try {
+            command.setDefaultDepth(0);
+            Assert.fail("Should have thrown exception");
+        } catch (SoarException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void testNegativeDefaultDepth() throws SoarException
+    public void testNegativeDefaultDepth()
     {
-        command.setDefaultDepth(-1);
+        try {
+            command.setDefaultDepth(-1);
+            Assert.fail("Should have thrown exception");
+        } catch (SoarException e) {
+            e.printStackTrace();
+        }
     }
 
     public void testPrintS1() throws SoarException
@@ -100,9 +112,14 @@ public class PrintCommandTest extends AndroidTestCase
         outputWriter.getBuffer().setLength(0);
     }
 
-    public void testVarprintNotImplemented() throws SoarException
+    public void testVarprintNotImplemented()
     {
-        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" });
+        try {
+            command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" });
+            Assert.fail("Should have thrown exception");
+        } catch (SoarException e) {
+            e.printStackTrace();
+        }
     }
 
     public void testPrintAll() throws SoarException
