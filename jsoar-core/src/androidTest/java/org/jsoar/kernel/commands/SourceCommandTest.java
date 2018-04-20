@@ -15,6 +15,7 @@ import org.jsoar.util.events.SoarEventManager;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SourceCommandTest extends AndroidTestCase
@@ -60,7 +61,7 @@ public class SourceCommandTest extends AndroidTestCase
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager(), getContext().getAssets());
         try {
-        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
+            command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
             fail("Should have thrown exception");
         } catch (SoarException e) {
             assertEquals("No previous file to reload", e.getMessage());
@@ -72,7 +73,7 @@ public class SourceCommandTest extends AndroidTestCase
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager(), getContext().getAssets());
         try {
-        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
+            command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
             fail("Should have thrown exception");
         } catch (SoarException e) {
             assertEquals("No previous file to reload", e.getMessage());
@@ -82,20 +83,25 @@ public class SourceCommandTest extends AndroidTestCase
     public void testReloadCallsLastSourcedFile() throws Exception
     {
         final TestAdapter a = new TestAdapter();
+        String[] commandStrings = new String[] {"source", "-a", "test.soar"};
         final SourceCommand command = new SourceCommand(a, new SoarEventManager(), getContext().getAssets());
-        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-a", "test.soar"});
-        assertEquals(1, a.files.size());
-        assertEquals("test.soar", a.files.get(0).getName());
-        
-        a.files.clear();
-        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
-        assertEquals(1, a.files.size());
-        assertEquals("test.soar", a.files.get(0).getName());
-        
-        a.files.clear();
-        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
-        assertEquals(1, a.files.size());
-        assertEquals("test.soar", a.files.get(0).getName());
+        command.execute(DefaultSoarCommandContext.empty(), commandStrings);
+        //In Android, these are sourcing assets, not files, so there are not files in the list
+        assertEquals(1, a.codes.size());
+        assertEquals("", a.codes.get(0));
+        assertTrue(Arrays.deepEquals(command.getLastTopLevelCommand(), commandStrings));
+
+        a.codes.clear();
+        command.execute(DefaultSoarCommandContext.empty(), commandStrings);
+        assertEquals(1, a.codes.size());
+        assertEquals("", a.codes.get(0));
+        assertTrue(Arrays.deepEquals(command.getLastTopLevelCommand(), commandStrings));
+
+        a.codes.clear();
+        command.execute(DefaultSoarCommandContext.empty(), commandStrings);
+        assertEquals(1, a.codes.size());
+        assertEquals("", a.codes.get(0));
+        assertTrue(Arrays.deepEquals(command.getLastTopLevelCommand(), commandStrings));
     }
 
     public void testReloadCallsLastSourcedUrl() throws Exception

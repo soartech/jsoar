@@ -18,8 +18,11 @@ import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -45,6 +48,9 @@ import java.util.Stack;
  */
 public class SourceCommand implements SoarCommand
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(SourceCommand.class);
+
     private static enum Options { ALL, DISABLE, VERBOSE };
 
     private final SourceCommandAdapter interp;
@@ -81,6 +87,10 @@ public class SourceCommand implements SoarCommand
         }
     };
     private String[] lastTopLevelCommand = null;
+    //This method is for testing purposes
+    public String[] getLastTopLevelCommand(){
+        return Arrays.copyOf(lastTopLevelCommand, lastTopLevelCommand.length);
+    }
 
     public SourceCommand(SourceCommandAdapter interp, SoarEventManager events, AssetManager assetManager)
     {
@@ -267,6 +277,7 @@ public class SourceCommand implements SoarCommand
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
     }
 
+    //In Android, this is really parsing an asset, not a file
     private void evalFileAndPop(String file) throws SoarException
     {
         try
@@ -279,10 +290,12 @@ public class SourceCommand implements SoarCommand
             {
                 topLevelState.files.add(new FileInfo(file));
             }
-            String code = null;
+            String code = "";
             try {
                 InputStream is = assetManager.open(getWorkingDirectoryPath() + file);
                 code = new String(ByteStreams.toByteArray(is));
+            } catch (FileNotFoundException e){
+                logger.warn("Sourced file not found: " + file, e);
             } catch (IOException e) {
                 throw new SoarException("Error while sourcing file: " + file, e);
             }
