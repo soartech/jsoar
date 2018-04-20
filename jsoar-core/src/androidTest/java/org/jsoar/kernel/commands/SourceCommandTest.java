@@ -55,18 +55,28 @@ public class SourceCommandTest extends AndroidTestCase
     {
     }
     
-    public void testShortReloadThrowsExceptionIfNoPreviousCommand() throws Exception
+    public void testShortReloadThrowsExceptionIfNoPreviousCommand()
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager(), getContext().getAssets());
+        try {
         command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            assertEquals("No previous file to reload", e.getMessage());
+        }
     }
     
-    public void testLongReloadThrowsExceptionIfNoPreviousCommand() throws Exception
+    public void testLongReloadThrowsExceptionIfNoPreviousCommand()
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager(), getContext().getAssets());
+        try {
         command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            assertEquals("No previous file to reload", e.getMessage());
+        }
     }
     
     public void testReloadCallsLastSourcedFile() throws Exception

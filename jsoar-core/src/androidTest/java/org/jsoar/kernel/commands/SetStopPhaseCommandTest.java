@@ -32,9 +32,14 @@ public class SetStopPhaseCommandTest extends AndroidTestCase
         command = new SetStopPhaseCommand(props);
     }
     
-    public void testThrowsExceptionOnUnknownOption() throws Exception
+    public void testThrowsExceptionOnUnknownOption()
     {
-        verify(null, "--unknown");
+        try {
+            verify(null, "--unknown");
+            fail("Should have thrown exception");
+        } catch (SoarException e) {
+            Assert.assertEquals("Unknown option '--unknown'", e.getMessage());
+        }
     }
     
     // input -> propose -> decision -> apply -> output
