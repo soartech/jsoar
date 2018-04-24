@@ -29,7 +29,7 @@ public class EpisodicMemoryDatabaseTest extends AndroidTestCase
     @Override
     public void setUp() throws Exception
     {
-        db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        db = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
     }
 
     @Override
@@ -100,26 +100,27 @@ public class EpisodicMemoryDatabaseTest extends AndroidTestCase
     
     public void testCanCreateInitialIndexes() throws Exception
     {
-        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqldroid.SQLDroidDriver", db);
         emdb.structure();
         
         final Set<String> indicies = new HashSet<String>();
         
         // Here's the tables we expect
+        //Android fails the query for tables that don't have indexes, so they are commented out
         final Set<String> table_names = new HashSet<String>(Arrays.asList(            
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "nodes",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "nodes",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_left_nodes",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_right_nodes",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "persistent_variables",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_left_nodes",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_right_nodes",
             
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_integer",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_string",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_type",
+//            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_type",
             
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now",
@@ -141,7 +142,7 @@ public class EpisodicMemoryDatabaseTest extends AndroidTestCase
         while(rs.next())
         {
                 String idx = rs.getString("INDEX_NAME").toLowerCase();
-                indicies.add(idx);;
+                indicies.add(idx);
                 System.err.println("Got index with name: " + idx);
         }
         }
