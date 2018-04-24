@@ -26,7 +26,7 @@ public class DefaultEpisodicMemoryTest extends AndroidTestCase
     {
         Agent temp = new Agent(getContext());
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), temp);
-        conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
 //        final EpisodicMemoryDatabase db = new EpisodicMemoryDatabase("org.sqlite.JDBC", conn);
 //        db.structure();
 //        db.prepare();
