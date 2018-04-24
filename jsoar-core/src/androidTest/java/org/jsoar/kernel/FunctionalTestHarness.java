@@ -14,6 +14,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
+import org.junit.Before;
 
 import java.net.URL;
 import java.util.List;
@@ -69,6 +70,7 @@ public class FunctionalTestHarness
     /**
      * @throws java.lang.Exception
      */
+    @Before
     public void setUp() throws Exception
     {
         halted = false;
