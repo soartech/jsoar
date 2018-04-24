@@ -32,6 +32,7 @@ import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
+import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +45,14 @@ public class InputOutputImplTest extends JSoarTest
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
-    
+
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         boolean called = false;
         List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
-        
+
         public MatchFunction() { super("match"); }
-        
+
         /* (non-Javadoc)
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
@@ -63,14 +64,14 @@ public class InputOutputImplTest extends JSoarTest
             return null;
         }
     }
-    
+
     private MatchFunction match;
-    
+
     private void sourceTestFile(String name) throws SoarException
     {
         ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/')  + "_" + name));
     }
-    
+
     /**
      * @throws java.lang.Exception
      */
@@ -78,12 +79,12 @@ public class InputOutputImplTest extends JSoarTest
     public void setUp() throws Exception
     {
         super.setUp();
-        
+
         agent = new Agent(false, getContext());
         ifc = agent.getInterpreter();
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
-        
+
         // Since this is the InputOutput tests, these tests have to stop after output
         // (ie. before INPUT). I changed this to Phase.APPLY so this broke all the tests.
         // - ALT
@@ -108,7 +109,7 @@ public class InputOutputImplTest extends JSoarTest
             public void onEvent(SoarEvent event)
             {
                 listenerCallCount[0]++;
-                
+
                 InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                 builder.push("location").markId("L1").
                             add("x", 3).
@@ -125,7 +126,7 @@ public class InputOutputImplTest extends JSoarTest
                         add(3.0, "double attribute").
                         add("flag", Symbols.NEW_ID);
             }});
-        
+
         sourceTestFile("testBasicInput.soar");
         agent.runFor(3, RunType.DECISIONS);
         assertEquals(3, listenerCallCount[0]);
@@ -135,7 +136,7 @@ public class InputOutputImplTest extends JSoarTest
         }
         assertTrue(match.called);
     }
-    
+
     public void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
@@ -155,26 +156,26 @@ public class InputOutputImplTest extends JSoarTest
                     wme[0].remove();
                 }
             }});
-        
+
         sourceTestFile("testAddAndRemoveInputWme.soar");
-        
+
         // Next the "added" production will fire because the WME has been added
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, match.calls.size());
         assertEquals("added", match.calls.get(0).get(0).toString());
-        
+
         // Finally, "removed" fires again after the WME has been removed
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(2, match.calls.size());
         assertEquals("removed", match.calls.get(1).get(0).toString());
-        
+
     }
-    
+
     public void testBasicOutput() throws Exception
     {
-        
+
         final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
-        
+
         agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
@@ -192,18 +193,18 @@ public class InputOutputImplTest extends JSoarTest
             public void onEvent(SoarEvent event)
             {
                 OutputEvent oe = (OutputEvent) event;
-                
+
                 if(oe.getMode() == OutputMode.MODIFIED_OUTPUT_COMMAND)
                 {
                     outputs.add(Sets.newHashSet(oe.getWmes()));
                 }
             }});
-        
+
         sourceTestFile("testBasicOutput.soar");
         agent.runFor(3, RunType.DECISIONS);
-        
+
         assertEquals(2, outputs.size());
-        
+
         // Initially we'll have an output command with 5 WMEs, the output-link plus
         // the 4 created in our test production
         final Set<Wme> d1 = outputs.get(0);
@@ -215,37 +216,37 @@ public class InputOutputImplTest extends JSoarTest
         assertNotNull(Wmes.matcher(syms).id(struct.getValue().asIdentifier()).attr("name").value("hello").find(d1));
         assertNotNull(Wmes.matcher(syms).id(ol).attr("a").value(1).find(d1));
         assertNotNull(Wmes.matcher(syms).id(ol).attr("b").value(2).find(d1));
-        
+
         // After retract-output is added in the second decision cycle above, the
         // test production will retract and we'll be left with only the output-link
         // wme
         final Set<Wme> d2 = outputs.get(1);
         assertEquals(1, d2.size());
     }
-    
+
     public void testGetPendingCommands() throws Exception
     {
         final InputOutput io = agent.getInputOutput();
         new CycleCountInput(io);
         sourceTestFile("testGetPendingCommands.soar");
-        
+
         final MatcherBuilder m = Wmes.matcher(agent);
-        
+
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(1, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(m.id(io.getOutputLink()).attr("first").find(io.getPendingCommands()));
-        
+
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(2, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(m.id(io.getOutputLink()).attr("second").find(io.getPendingCommands()));
-        
+
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(m.id(io.getOutputLink()).attr("third").find(io.getPendingCommands()));
-        
+
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(0, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
@@ -285,25 +286,37 @@ public class InputOutputImplTest extends JSoarTest
         assertSame(wme2.value, inner2.getAdapter(InputWme.class));
     }
     */
-    
+
     public void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(other.createIdentifier('T'), syms.createString("hi"), syms.createInteger(99));
+        try {
+            agent.getInputOutput().addInputWme(other.createIdentifier('T'), syms.createString("hi"), syms.createInteger(99));
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Symbol 'T1' is from another symbol factory", e.getMessage());
+        }
     }
-    
+
     public void testAddInputWmeThrowsAnExceptionIfAttributeComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), other.createString("hi"), syms.createInteger(99));
+        try {
+            agent.getInputOutput().addInputWme(syms.createIdentifier('T'), other.createString("hi"), syms.createInteger(99));
+        }catch(IllegalArgumentException e){
+            Assert.assertEquals("Symbol 'hi' is from another symbol factory", e.getMessage());
+        }
     }
-    
+
     public void testAddInputWmeThrowsAnExceptionIfValueComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99));
+        try{
+            agent.getInputOutput().addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99));
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Symbol '99' is from another symbol factory", e.getMessage());
+        }
     }
 }
