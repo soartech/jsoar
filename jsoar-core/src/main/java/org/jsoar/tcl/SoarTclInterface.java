@@ -46,6 +46,7 @@ import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
+import tcl.lang.cmd.InterpAliasCmd;
 
 /**
  * @author ray
@@ -329,8 +330,16 @@ public class SoarTclInterface implements SoarCommandInterpreter
      * @see org.jsoar.util.commands.SoarCommandInterpreter#getCommand(java.lang.String, org.jsoar.util.SourceLocation)
      */
     @Override
-    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
-    {
+    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException {
+        Object command = interp.getCommand(name);
+        while(command instanceof InterpAliasCmd) {
+            try {
+                name = ((InterpAliasCmd) command).getTargetCmd(interp).hashKey;
+                command = interp.getCommand(name);
+            } catch (TclException e) {
+                throw new SoarException("Improperly aliased command: " + name);
+            }
+        }
         SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter)interp.getCommand(name);
         if (commandAdapter == null)
         {
