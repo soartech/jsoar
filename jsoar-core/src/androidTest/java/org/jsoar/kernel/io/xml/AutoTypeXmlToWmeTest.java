@@ -7,6 +7,7 @@ package org.jsoar.kernel.io.xml;
 
 import android.test.AndroidTestCase;
 
+import org.jsoar.AndroidResourceAsFile;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
@@ -39,8 +40,7 @@ public class AutoTypeXmlToWmeTest extends AndroidTestCase
 
     public void testXmlToWme() throws URISyntaxException
     {
-        File testMsg = new File(this.getClass().getResource("testMessage.xml")
-                .toURI());
+        File testMsg = AndroidResourceAsFile.resourceToTempFile(this.getClass().getResourceAsStream("testMessage.xml"), "testMessage.xml");
         assertTrue(testMsg.canRead());
 
         AutoTypeXmlToWme pat = new AutoTypeXmlToWme(agent.getInputOutput());
