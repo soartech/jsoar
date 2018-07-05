@@ -7,6 +7,7 @@ package org.jsoar.kernel.io.xml;
 
 import android.test.AndroidTestCase;
 
+import org.jsoar.AndroidResourceAsFile;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
@@ -43,8 +44,7 @@ public class ManualTypeXmlToWmeTest extends AndroidTestCase
     public void testXmlToWmeAllString() throws URISyntaxException,
             TagAlreadyAddedException
     {
-        File testMsg = new File(this.getClass().getResource("testMessage.xml")
-                .toURI());
+        File testMsg = AndroidResourceAsFile.resourceToTempFile(this.getClass().getResourceAsStream("testMessage.xml"), "testMessage.xml");
         assertTrue(testMsg.canRead());
 
         ManualTypeXmlToWme pat = new ManualTypeXmlToWme(agent.getInputOutput());
@@ -92,8 +92,7 @@ public class ManualTypeXmlToWmeTest extends AndroidTestCase
     public void testXmlToWmeManualSettings() throws URISyntaxException,
             TagAlreadyAddedException
     {
-        File testMsg = new File(this.getClass().getResource("testMessage.xml")
-                .toURI());
+        File testMsg = AndroidResourceAsFile.resourceToTempFile(this.getClass().getResourceAsStream("testMessage.xml"), "testMessage.xml");
         assertTrue(testMsg.canRead());
 
         ManualTypeXmlToWme pat = new ManualTypeXmlToWme(agent.getInputOutput());
@@ -186,8 +185,7 @@ public class ManualTypeXmlToWmeTest extends AndroidTestCase
     public void testXmlToWmeRemoveMessage() throws URISyntaxException,
             TagAlreadyAddedException
     {
-        File testMsg = new File(this.getClass().getResource("testMessage.xml")
-                .toURI());
+        File testMsg = AndroidResourceAsFile.resourceToTempFile(this.getClass().getResourceAsStream("testMessage.xml"), "testMessage.xml");
         assertTrue(testMsg.canRead());
 
         ManualTypeXmlToWme pat = new ManualTypeXmlToWme(agent.getInputOutput());
