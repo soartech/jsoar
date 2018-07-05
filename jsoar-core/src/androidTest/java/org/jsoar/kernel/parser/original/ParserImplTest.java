@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.parser.original;
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
@@ -399,7 +401,12 @@ public class ParserImplTest extends JSoarTest
                 "(state <s> ^value @L1)" +
                 "-->" +
                 "(write hello)");
-        parser.parseProduction();
+        try {
+            parser.parseProduction();
+            Assert.fail("Should have thrown.");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Long term identifiers are not supported by this parser.", e.getMessage());
+        }
     }
 
     public void testCanParseLongTermIdentifierInTest() throws Exception
