@@ -15,6 +15,7 @@ import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -99,6 +100,9 @@ public class XmlTools
         {
             TransformerFactory xformFactory = TransformerFactory.newInstance();
             Transformer idTransform = xformFactory.newTransformer();
+            idTransform.setOutputProperty(OutputKeys.VERSION, "1.0");
+            idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            idTransform.setOutputProperty(OutputKeys.STANDALONE, "no");
             Source input = new DOMSource(node);
             Result output = new StreamResult(out);
             idTransform.transform(input, output);
