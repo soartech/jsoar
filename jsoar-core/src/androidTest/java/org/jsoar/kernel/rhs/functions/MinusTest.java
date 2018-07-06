@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
 
@@ -19,7 +21,12 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        minus.execute(rhsFuncContext, Symbols.asList(syms));
+        try {
+            minus.execute(rhsFuncContext, Symbols.asList(syms));
+            Assert.fail("Should have thrown");
+        }catch(RhsFunctionException e){
+            Assert.assertEquals("'-' function called with 0 arguments. Expected at least 1.", e.getMessage());
+        }
     }
     
     public void testOneIntArg() throws Exception

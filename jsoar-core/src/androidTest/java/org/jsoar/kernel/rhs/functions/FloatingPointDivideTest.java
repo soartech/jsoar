@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
 
@@ -18,8 +20,12 @@ public class FloatingPointDivideTest extends JSoarTest
     public void testZeroArgs() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
-        
-        divide.execute(rhsFuncContext, Symbols.asList(syms));
+        try {
+            divide.execute(rhsFuncContext, Symbols.asList(syms));
+            Assert.fail("Should have thrown");
+        }catch (RhsFunctionException e){
+            Assert.assertEquals("'/' function called with 0 arguments. Expected at least 1.", e.getMessage());
+        }
     }
     
     public void testOneIntArg() throws Exception

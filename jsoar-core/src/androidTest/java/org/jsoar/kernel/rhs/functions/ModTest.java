@@ -6,6 +6,8 @@
 package org.jsoar.kernel.rhs.functions;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
@@ -32,7 +34,11 @@ public class ModTest extends JSoarTest
     
     public void testModThrowsExceptionOnDivideByZero() throws Exception
     {
-        validateMod(1, 0);
+        try {
+            validateMod(1, 0);
+        }catch(RhsFunctionException e){
+            Assert.assertEquals("Attempt to divide (mod) by zero", e.getMessage());
+        }
     }
     
     private void validateMod(int a, int b) throws Exception

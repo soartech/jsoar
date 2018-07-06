@@ -7,6 +7,8 @@ package org.jsoar.kernel.rhs.functions;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
@@ -23,17 +25,32 @@ public class RhsFunctionsTest extends AndroidTestCase
     
     public void testCheckArgumentCountThrowsExceptionWhenMinConstraintIsViolated() throws Exception
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 4, Integer.MAX_VALUE);
+        try {
+            RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 4, Integer.MAX_VALUE);
+            Assert.fail("Should have thrown");
+        }catch(RhsFunctionException e){
+            Assert.assertEquals("'test' function called with 3 arguments. Expected at least 4.", e.getMessage());
+        }
     }
     
     public void testCheckArgumentCountThrowsExceptionWhenMaxConstraintIsViolated() throws Exception
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 0, 2);
+        try {
+            RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 0, 2);
+            Assert.fail("Should have thrown");
+        } catch(RhsFunctionException e){
+            Assert.assertEquals("'test' function called with 3 arguments. Expected at most 2.", e.getMessage());
+        }
     }
     
     public void testCheckArgumentCountThrowsExceptionWhenExactConstraintIsViolated() throws Exception
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 2, 2);
+        try {
+            RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 2, 2);
+            Assert.fail("Should have thrown");
+        }catch(RhsFunctionException e){
+            Assert.assertEquals("'test' function called with 3 arguments. Expected 2.", e.getMessage());
+        }
     }
     
     public void testCheckArgumentCountPasses() throws Exception
@@ -44,6 +61,11 @@ public class RhsFunctionsTest extends AndroidTestCase
 
     public void testCheckAllArgumentsAreNumericThrowsExceptionWhenConstraintViolated() throws Exception
     {
-        RhsFunctions.checkAllArgumentsAreNumeric("test", Symbols.asList(syms, 1, 2, 3.14, 6, "nan", 99));
+        try {
+            RhsFunctions.checkAllArgumentsAreNumeric("test", Symbols.asList(syms, 1, 2, 3.14, 6, "nan", 99));
+            Assert.fail("Should have thrown");
+        }catch(RhsFunctionException e){
+            Assert.assertEquals("non-number (nan) passed to 'test' function", e.getMessage());
+        }
     }
 }

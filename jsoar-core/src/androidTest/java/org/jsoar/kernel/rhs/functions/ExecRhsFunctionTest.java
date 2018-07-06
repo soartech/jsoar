@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
@@ -21,14 +23,24 @@ public class ExecRhsFunctionTest extends JSoarTest
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
-        exec.execute(rhsFuncContext, new ArrayList<Symbol>());
+        try {
+            exec.execute(rhsFuncContext, new ArrayList<Symbol>());
+            Assert.fail("Should have thrown");
+        }catch (RhsFunctionException e){
+            Assert.assertEquals("'exec' function called with 0 arguments. Expected at least 1.", e.getMessage());
+        }
     }
     
     public void testExecCantCallItself() throws Exception
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
-        exec.execute(rhsFuncContext, Symbols.asList(syms, exec.getName()));
+        try {
+            exec.execute(rhsFuncContext, Symbols.asList(syms, exec.getName()));
+            Assert.fail("Should have thrown");
+        }catch (RhsFunctionException e){
+            Assert.assertEquals("'exec' RHS function calling itself", e.getMessage());
+        }
     }
     
     public void testExecCallsNamedFunctionWithRestOfArguments() throws Exception

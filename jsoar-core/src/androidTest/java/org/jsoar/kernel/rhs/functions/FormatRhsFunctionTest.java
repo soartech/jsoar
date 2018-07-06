@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
@@ -29,7 +31,12 @@ public class FormatRhsFunctionTest extends JSoarTest
 
     public void testFormatThrowsExceptionWhenGivenAnInvalidFormatSpecifier() throws Exception
     {
-        func.execute(rhsFuncContext, Symbols.asList(syms, "%d", "hello"));
+        try {
+            func.execute(rhsFuncContext, Symbols.asList(syms, "%d", "hello"));
+            Assert.fail("Should have thrown");
+        }catch (RhsFunctionException e){
+            Assert.assertEquals("Invalid format '%d' in rule 'unknown': d != java.lang.String", e.getMessage());
+        }
     }
     
     private void checkResult(String expected, Symbol result)

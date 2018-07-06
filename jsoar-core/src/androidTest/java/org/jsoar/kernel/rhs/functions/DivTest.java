@@ -6,6 +6,8 @@
 package org.jsoar.kernel.rhs.functions;
 
 
+import junit.framework.Assert;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
@@ -32,7 +34,12 @@ public class DivTest extends JSoarTest
     
     public void testDivThrowsExceptionOnDivideByZero() throws Exception
     {
-        validateDiv(1, 0);
+        try {
+            validateDiv(1, 0);
+            Assert.fail("Should have thrown");
+        }catch (RhsFunctionException e){
+            Assert.assertEquals("Attempt to divide by zero", e.getMessage());
+        }
     }
     
     private void validateDiv(int a, int b) throws Exception
