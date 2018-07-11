@@ -8,6 +8,8 @@ package org.jsoar.kernel.symbols;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import org.jsoar.util.ByRef;
 
 import java.io.File;
@@ -243,13 +245,23 @@ public class SymbolFactoryImplTest extends AndroidTestCase
     public void testImportThrowsAnExceptionForIdentifiers()
     {
         final Identifier id = syms.createIdentifier('T');
-        syms.importSymbol(id);
+        try {
+            syms.importSymbol(id);
+            Assert.fail("Should have thrown");
+        }catch(IllegalArgumentException e){
+            Assert.assertEquals("Tried to import identifier T1 into symbol factory.", e.getMessage());
+        }
     }
     
     public void testImportThrowsAnExceptionForVariables()
     {
         final Variable id = syms.make_variable("foo");
-        syms.importSymbol(id);
+        try {
+            syms.importSymbol(id);
+            Assert.fail("Should have thrown");
+        }catch(IllegalArgumentException e){
+            Assert.assertEquals("Tried to import variable foo into symbol factory.", e.getMessage());
+        }
     }
     
     public void testCanImportStringsAcrossFactories()
