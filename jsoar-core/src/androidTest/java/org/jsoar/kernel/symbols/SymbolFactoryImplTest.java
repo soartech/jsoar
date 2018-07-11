@@ -134,7 +134,8 @@ public class SymbolFactoryImplTest extends AndroidTestCase
     
     public void testGarbageCollectedSymbolsAreRemovedFromCache()
     {
-        final int iterations = 100000;
+        //This needs to be larger than twice the base capacity of the map -ACNickels
+        final int iterations = 1000;
         for(int i = 0; i < iterations; ++i)
         {
             assertNotNull(syms.createInteger(i));
@@ -145,18 +146,18 @@ public class SymbolFactoryImplTest extends AndroidTestCase
 
         // Well, I managed to make this work again, and did indeed confirm that
         // symbols will be garbage collected, but now the test is even uglier.
-        // There are three cycles here.  The first writes,  the the second
-        // does several reads on the orphaned soft references and the third confirms that
-        // it worked.  -ACNickels
+        //There are three cycles here.  The first writes,  the the second
+        //does several reads on the orphaned soft references, and the third
+        //confirms that it worked.  -ACNickels
         System.gc();
         for(int i = 0; i < iterations; ++i)
         {
-            syms.findInteger(i);
-            syms.findString(Integer.toString(i));
-            syms.findInteger(i);
-            syms.findString(Integer.toString(i));
-            syms.findInteger(i);
-            syms.findString(Integer.toString(i));
+            //The more iterations the better.  Each read has a chance to free an
+            //orphaned soft reference
+            for(int j = 0; j < 1000; j++) {
+                syms.findInteger(i);
+                syms.findString(Integer.toString(i));
+            }
         }
         System.gc();
         for(int i = 0; i < iterations; ++i)
