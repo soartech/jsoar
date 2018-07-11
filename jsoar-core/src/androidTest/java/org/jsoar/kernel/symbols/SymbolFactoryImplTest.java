@@ -132,15 +132,32 @@ public class SymbolFactoryImplTest extends AndroidTestCase
     
     public void testGarbageCollectedSymbolsAreRemovedFromCache()
     {
-        for(int i = 0; i < 1000; ++i)
+        final int iterations = 100000;
+        for(int i = 0; i < iterations; ++i)
         {
             assertNotNull(syms.createInteger(i));
             assertNotNull(syms.createString(Integer.toString(i)));
         }
         // Why do I believe this test works? Because it fails if I remove the
-        // call to the garbage collector here :)
+        // call to the garbage collector here :) -Unknown
+
+        // Well, I managed to make this work again, and did indeed confirm that
+        // symbols will be garbage collected, but now the test is even uglier.
+        // There are three cycles here.  The first writes,  the the second
+        // does several reads on the orphaned soft references and the third confirms that
+        // it worked.  -ACNickels
         System.gc();
-        for(int i = 0; i < 1000; ++i)
+        for(int i = 0; i < iterations; ++i)
+        {
+            syms.findInteger(i);
+            syms.findString(Integer.toString(i));
+            syms.findInteger(i);
+            syms.findString(Integer.toString(i));
+            syms.findInteger(i);
+            syms.findString(Integer.toString(i));
+        }
+        System.gc();
+        for(int i = 0; i < iterations; ++i)
         {
             assertNull(syms.findInteger(i));
             assertNull(syms.findString(Integer.toString(i)));
