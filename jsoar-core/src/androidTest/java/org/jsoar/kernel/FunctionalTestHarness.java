@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import android.support.test.InstrumentationRegistry;
+import android.test.AndroidTestCase;
 
 import junit.framework.Assert;
 
@@ -19,7 +20,7 @@ import org.junit.Before;
 import java.net.URL;
 import java.util.List;
 
-public class FunctionalTestHarness
+public class FunctionalTestHarness extends AndroidTestCase
 {
     public Agent agent;
     
