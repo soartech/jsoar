@@ -7,6 +7,10 @@ package org.jsoar.util.commands;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
+import org.jsoar.kernel.SoarException;
+
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -114,21 +118,35 @@ public class DefaultInterpreterParserTest extends AndroidTestCase
     public void testErrorOnUnclosedBrace() throws Exception
     {
         final ParserBuffer reader = reader("    { words { ");
-        parser.parseWord(reader);
-        
+        try{
+            parser.parseWord(reader);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("*unknown*:1: Unexpected end of input. Unmatched opening brace", e.getMessage());
+        }
+
     }
     
     public void testErrorOnUnclosedBraceWithSemicolonComment() throws Exception
     {
         final ParserBuffer reader = reader("    { words ;#{ ");
-        parser.parseWord(reader);
-        
+        try{
+            parser.parseWord(reader);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("*unknown*:1: Unexpected end of input. Unmatched opening brace", e.getMessage());
+        }
     }
     
     public void testErrorOnUnclosedQuote() throws Exception
     {
         final ParserBuffer reader = reader("    \" words { ");
-        parser.parseWord(reader);
+        try{
+            parser.parseWord(reader);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("*unknown*:1: Unexpected end of input. Unmatched quote.", e.getMessage());
+        }
         
     }
     

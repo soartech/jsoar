@@ -8,8 +8,12 @@ package org.jsoar.util.commands;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -95,11 +99,16 @@ public class DefaultInterpreterTest extends AndroidTestCase
         };
         interp.addCommand("testCanChoose", command);
         interp.addCommand("testCanAlsoChoose", command);
-        interp.eval("testCan");
-        assertFalse("Expected an ambiguous command exception", called.get());
+        try {
+            interp.eval("testCan");
+            assertFalse("Expected an ambiguous command exception", called.get());
+        }catch (SoarException e){
+            Assert.assertEquals("Ambiguous command 'testCan'. Could be one of 'testCanAlsoChoose, testCanChoose", e.getMessage());
+        }
     }
-    
-    public void testCanLoadRelativePathInJar() throws Exception
+
+    @Ignore("We shouldn't be loading anything out of jars on Android")
+    public void IGNOREDtestCanLoadRelativePathInJar() throws Exception
     {
         // it turns out that loading a file from a jar whose path contains a "." causes problems
         // this problem can arise via a sequence like this (which NGS used to do):

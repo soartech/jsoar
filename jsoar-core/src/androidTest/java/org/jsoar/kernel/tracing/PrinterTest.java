@@ -7,9 +7,12 @@ package org.jsoar.kernel.tracing;
 
 import android.test.AndroidTestCase;
 
+import junit.framework.Assert;
+
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 /**
  * @author ray
@@ -45,7 +48,12 @@ public class PrinterTest extends AndroidTestCase
     public void testPopWriterThrowsNoSuchElementException()
     {
         Printer printer = new Printer(new StringWriter());
-        printer.popWriter();
+        try {
+            printer.popWriter();
+            Assert.fail("Should have thrown");
+        }catch(NoSuchElementException e){
+            //No message.  Just need to get here
+        }
     }
     
     /**

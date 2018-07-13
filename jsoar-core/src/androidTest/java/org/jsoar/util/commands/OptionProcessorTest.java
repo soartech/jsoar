@@ -4,6 +4,8 @@ import android.test.AndroidTestCase;
 
 import com.google.common.collect.Lists;
 
+import junit.framework.Assert;
+
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.OptionProcessor.OptionBuilder;
 
@@ -36,31 +38,56 @@ public class OptionProcessorTest extends AndroidTestCase
 
     public void testRegisterNullLong()
     {
-        op.newOption(null).done();
+        try {
+            op.newOption(null).done();
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("longOption must not be null.", e.getMessage());
+        }
     }
 
     public void testRegisterTwiceLong()
     {
         op.newOption(alpha).done();
-        op.newOption(alpha).done();
+        try {
+            op.newOption(alpha).done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Already have a short option using -a: alpha(NONE)", e.getMessage());
+        }
     }
 
     public void testRegisterTwiceLongDiffShort()
     {
         op.newOption(alpha).shortOption('a').done();
-        op.newOption(alpha).shortOption('A').done();
+        try {
+            op.newOption(alpha).shortOption('A').done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Already have a long option using --alpha: alpha(NONE)", e.getMessage());
+        }
     }
 
     public void testRegisterTwiceDiffCaseLongDiffShort()
     {
         op.newOption(alpha).shortOption('a').done();
-        op.newOption("Alpha").shortOption('A').done();
+        try {
+            op.newOption("Alpha").shortOption('A').done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Already have a long option using --alpha: alpha(NONE)", e.getMessage());
+        }
     }
 
     public void testRegisterTwiceShort()
     {
         op.newOption(alpha).shortOption('a').done();
-        op.newOption(bravo).shortOption('a').done();
+        try {
+            op.newOption(bravo).shortOption('a').done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Already have a short option using -a: alpha(NONE)", e.getMessage());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -68,7 +95,12 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
         b.done();
-        b.shortOption('a');
+        try {
+            b.shortOption('a');
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Already registered.", e.getMessage());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -76,7 +108,12 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
         b.done();
-        b.noArg();
+        try {
+            b.noArg();
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Already registered.", e.getMessage());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -84,7 +121,12 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
         b.done();
-        b.optionalArg();
+        try {
+            b.optionalArg();
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Already registered.", e.getMessage());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -92,7 +134,12 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
         b.done();
-        b.requiredArg();
+        try {
+            b.requiredArg();
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Already registered.", e.getMessage());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -100,23 +147,43 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
         b.done();
-        b.done();
+        try {
+            b.done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Already registered.", e.getMessage());
+        }
     }
 
     public void testRegisterTwiceLongDifferentType()
     {
         op.newOption(bravo).noArg().done();
-        op.newOption(bravo).optionalArg().done();
+        try {
+            op.newOption(bravo).optionalArg().done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Already have a short option using -b: bravo(NONE)", e.getMessage());
+        }
     }
 
     public void testRegisterDash()
     {
-        op.newOption("-").done();
+        try {
+            op.newOption("-").done();
+            Assert.fail("Should have thrown");
+        }catch(IllegalArgumentException e){
+            Assert.assertEquals("Short option is not a single letter.", e.getMessage());
+        }
     }
 
     public void testRegisterEmptyLong()
     {
-        op.newOption("").done();
+        try {
+            op.newOption("").done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Long option is empty string.", e.getMessage());
+        }
     }
 
     public void testRegisterIllegalCharacters()
@@ -150,22 +217,42 @@ public class OptionProcessorTest extends AndroidTestCase
 
     public void testUnknownLongOption() throws SoarException
     {
-        op.process(Lists.newArrayList("command", "--alpha"));
+        try {
+            op.process(Lists.newArrayList("command", "--alpha"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Unknown option: --alpha", e.getMessage());
+        }
     }
 
     public void testUnknownShortOption() throws SoarException
     {
-        op.process(Lists.newArrayList("command", "-a"));
+        try {
+            op.process(Lists.newArrayList("command", "-a"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Unknown option: -a", e.getMessage());
+        }
     }
 
     public void testBadCharacterLongOption() throws SoarException
     {
-        op.process(Lists.newArrayList("command", "--_"));
+        try {
+            op.process(Lists.newArrayList("command", "--_"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Unknown option: --_", e.getMessage());
+        }
     }
 
     public void testBadCharacterShortOption() throws SoarException
     {
-        op.process(Lists.newArrayList("command", "-_"));
+        try {
+            op.process(Lists.newArrayList("command", "-_"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Short option is not a letter: _", e.getMessage());
+        }
     }
 
     public void testRegisterLegalOptions01() throws SoarException
@@ -248,12 +335,23 @@ public class OptionProcessorTest extends AndroidTestCase
 
     public void testRegisterIllegalOptionNumber1() throws SoarException
     {
-        op.newOption("640").done();
+        try {
+            op.newOption("640").done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Short option is not a single letter.", e.getMessage());
+        }
     }
 
     public void testRegisterIllegalOptionNumber2() throws SoarException
     {
-        op.newOption("1eet").done();
+        try {
+            //The first character must be a letter
+            op.newOption("1eet").done();
+            Assert.fail("Should have thrown");
+        }catch (IllegalArgumentException e){
+            Assert.assertEquals("Short option is not a single letter.", e.getMessage());
+        }
     }
 
     public void testProcessNoOptions1() throws SoarException
@@ -286,14 +384,24 @@ public class OptionProcessorTest extends AndroidTestCase
     {
         op.newOption(alpha).done();
         // no process() call
-        op.has(alpha);
+        try {
+            op.has(alpha);
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Call process() before testing for options.", e.getMessage());
+        }
     }
 
     public void testCheckArgOutOfOrder()
     {
         op.newOption(alpha).done();
         // no process() call
-        op.get(alpha);
+        try {
+            op.get(alpha);
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Call process() before testing for options.", e.getMessage());
+        }
     }
 
     public void testMultipleOptions() throws SoarException
@@ -452,14 +560,24 @@ public class OptionProcessorTest extends AndroidTestCase
     public void testMissingRequired() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
-        op.process(Lists.newArrayList("command", "-a"));
+        try {
+            op.process(Lists.newArrayList("command", "-a"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Option requires argument: -a", e.getMessage());
+        }
     }
 
     public void testMissingRequiredTwo() throws SoarException
     {
         op.newOption(alpha).done();
         op.newOption(bravo).requiredArg().done();
-        op.process(Lists.newArrayList("command", "-ab"));
+        try {
+            op.process(Lists.newArrayList("command", "-ab"));
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Option requires argument: -ab", e.getMessage());
+        }
     }
 
     public void testArgConsumesOption() throws SoarException
@@ -638,54 +756,94 @@ public class OptionProcessorTest extends AndroidTestCase
     public void testManualOrderException1()
     {
         op.newOption(alpha).done();
-        op.set(alpha);
+        try {
+            op.set(alpha);
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Call process() before testing for options.", e.getMessage());
+        }
     }
 
     public void testManualOrderException2()
     {
         op.newOption(alpha).done();
-        op.unset(alpha);
+        try {
+            op.unset(alpha);
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Call process() before testing for options.", e.getMessage());
+        }
     }
 
     public void testManualOrderException3()
     {
         op.newOption(alpha).done();
-        op.set(alpha, null);
+        try {
+            op.set(alpha, null);
+            Assert.fail("Should have thrown");
+        }catch (IllegalStateException e){
+            Assert.assertEquals("Call process() before testing for options.", e.getMessage());
+        }
     }
 
     public void testHasNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
-        op.has(null);
+        try {
+            op.has(null);
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("Long option is null.", e.getMessage());
+        }
     }
 
     public void testGetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
-        op.get(null);
+        try {
+            op.get(null);
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("Long option is null.", e.getMessage());
+        }
     }
 
     public void testSetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
-        op.set(null);
+        try {
+            op.set(null);
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("Long option is null.", e.getMessage());
+        }
     }
 
     public void testSetArgNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
-        op.set(null, null); // the second null here is legal
+        try {
+            op.set(null, null); // the second null here is legal
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("Long option is null.", e.getMessage());
+        }
     }
 
     public void testUnsetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
-        op.unset(null);
+        try {
+            op.unset(null);
+            Assert.fail("Should have thrown");
+        }catch (NullPointerException e){
+            Assert.assertEquals("Long option is null.", e.getMessage());
+        }
     }
 
     public void testClientUpperCaseGiven() throws SoarException
@@ -733,7 +891,12 @@ public class OptionProcessorTest extends AndroidTestCase
         op.newOption(alpha).requiredArg().done();
         op.process(Lists.newArrayList("command", "--alpha", "1.0"));
         assertTrue(op.has(alpha));
-        op.getInteger(alpha);
+        try {
+            op.getInteger(alpha);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Invalid integer value: 1.0", e.getMessage());
+        }
     }
 
     public void testGetBadDouble() throws SoarException
@@ -741,7 +904,12 @@ public class OptionProcessorTest extends AndroidTestCase
         op.newOption(alpha).requiredArg().done();
         op.process(Lists.newArrayList("command", "--alpha", "a"));
         assertTrue(op.has(alpha));
-        op.getDouble(alpha);
+        try {
+            op.getDouble(alpha);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Invalid double value: a", e.getMessage());
+        }
     }
 
     public void testGetBadFloat() throws SoarException
@@ -749,7 +917,12 @@ public class OptionProcessorTest extends AndroidTestCase
         op.newOption(alpha).requiredArg().done();
         op.process(Lists.newArrayList("command", "--alpha", "a"));
         assertTrue(op.has(alpha));
-        op.getFloat(alpha);
+        try {
+            op.getFloat(alpha);
+            Assert.fail("Should have thrown");
+        }catch (SoarException e){
+            Assert.assertEquals("Invalid float value: a", e.getMessage());
+        }
     }
 
     public void testToString() throws SoarException
@@ -782,11 +955,11 @@ public class OptionProcessorTest extends AndroidTestCase
         {
             op.newOption("print").newOption("Priority").done();
             op.process(Lists.newArrayList("command", "--pRI"));
+            Assert.fail("Should have thrown");
         }
         catch (SoarException e)
         {
-            System.out.println(e.getMessage());
-            throw e;
+            Assert.assertEquals("pRI matches multiple options: print(NONE) priority(NONE)", e.getMessage());
         }
     }
 }
