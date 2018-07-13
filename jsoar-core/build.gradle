@@ -99,3 +99,5 @@ uploadArchives {
         }
     }
 }
+
+build.finalizedBy(uploadArchives)
