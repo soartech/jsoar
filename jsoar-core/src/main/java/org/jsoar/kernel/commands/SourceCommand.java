@@ -56,7 +56,7 @@ public class SourceCommand implements SoarCommand
     private final SourceCommandAdapter interp;
     private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
     private Stack<String> fileStack = new Stack<String>();
-    private Stack<String> directoryStack = new Stack<String>();
+    private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
 
     /**
      * Save the path to each sourced file in this list.
@@ -124,12 +124,48 @@ public class SourceCommand implements SoarCommand
 
     public void pushd(String dirString) throws SoarException
     {
-        directoryStack.push(dirString);
+        File newDir = new File(dirString);
+        URL url = FileTools.asUrl(dirString);
+        if(url != null)
+        {
+            // A new URL. Just set that to be the working directory
+            directoryStack.push(workingDirectory);
+            workingDirectory = new DirStackEntry(url);
+        }
+        else if(workingDirectory.url != null && !newDir.isAbsolute())
+        {
+            // Relative path where current directory is a URL.
+            directoryStack.push(workingDirectory);
+            workingDirectory = new DirStackEntry(joinUrl(workingDirectory.url, dirString));
+        }
+        else
+        {
+            if(!newDir.isAbsolute())
+            {
+                assert workingDirectory.url == null;
+                newDir = new File(workingDirectory.file, dirString);
+            }
+
+            if(!newDir.exists())
+            {
+                throw new SoarException("Directory '" + newDir  + "' does not exist");
+            }
+            if(!newDir.isDirectory())
+            {
+                throw new SoarException("'" + newDir + "' is not a directory");
+            }
+            directoryStack.push(workingDirectory);
+            workingDirectory = new DirStackEntry(newDir);
+        }
     }
 
     public void popd() throws SoarException
     {
-        directoryStack.pop();
+        if(directoryStack.isEmpty())
+        {
+            throw new SoarException("Directory stack is empty");
+        }
+        workingDirectory = directoryStack.pop();
     }
 
     public void source(String fileString) throws SoarException
@@ -137,16 +173,21 @@ public class SourceCommand implements SoarCommand
         final URL url = FileTools.asUrl(fileString);
         if(url != null)
         {
+            pushd(getParentUrl(url).toExternalForm());
             evalUrlAndPop(url);
         }
         else if(workingDirectory.url != null)
         {
             final URL childUrl = joinUrl(workingDirectory.url, fileString);
+            pushd(getParentUrl(childUrl).toExternalForm());
             evalUrlAndPop(childUrl);
         }
         else
         {
-            evalFileAndPop(fileString);
+            File file = new File(fileString);
+            file = new File(workingDirectory.file, file.getPath());
+            pushd(file.getParent());
+            evalFileAndPop(file.getAbsolutePath());
         }
     }
 
@@ -271,6 +312,23 @@ public class SourceCommand implements SoarCommand
         return result.toString();
     }
 
+    private URL getParentUrl(URL url) throws SoarException
+    {
+        final String s = url.toExternalForm();
+        final int i = s.lastIndexOf('/');
+        if(i == -1)
+        {
+            throw new SoarException("Cannot determine parent of URL: " + url);
+        }
+        URL parent = FileTools.asUrl(s.substring(0, i));
+        if (parent != null)
+        {
+            return parent;
+        }
+        return FileTools.asUrl(s.substring(0, i) + "/");
+    }
+
+
     /*package*/ URL joinUrl(URL parent, String child)
     {
         final String s = parent.toExternalForm();
@@ -354,7 +412,7 @@ public class SourceCommand implements SoarCommand
     {
         String path = "";
 
-        for(String s : directoryStack)
+        for(DirStackEntry s : directoryStack)
         {
             path = path + s + "/";
         }
@@ -362,13 +420,14 @@ public class SourceCommand implements SoarCommand
         return path;
     }
 
-    public void initDirectoryStack(String directory)
+    public void initDirectoryStack(File directory)
     {
-        String[] dirs = splitPath(directory);
-        for(int i = 0; i < dirs.length; i++)
-        {
-            directoryStack.push(dirs[i]);
-        }
+        directoryStack.push(new DirStackEntry(directory));
+//        String[] dirs = splitPath(directory);
+//        for(int i = 0; i < dirs.length; i++)
+//        {
+//            directoryStack.push(new DirStackEntry(dirs[i]);
+//        }
     }
 
     public String[] splitPath(String path)
@@ -402,6 +461,7 @@ public class SourceCommand implements SoarCommand
         URL url;
 
         public DirStackEntry(File file) { this.file = file; }
+        public DirStackEntry(URL url) { this.url = url; }
     }
 
     private static class FileInfo

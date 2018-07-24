@@ -251,7 +251,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     public void source(File file) throws SoarException
     {
-        String directory = file.getParent();
+        File directory = file.getParentFile();
         sourceCommand.initDirectoryStack(directory);
         sourceCommand.source(file.getName());
     }
