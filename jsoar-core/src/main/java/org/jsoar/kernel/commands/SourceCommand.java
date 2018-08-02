@@ -362,6 +362,7 @@ public class SourceCommand implements SoarCommand
         finally
         {
             fileStack.pop();
+            popd();
         }
     }
 
@@ -381,6 +382,7 @@ public class SourceCommand implements SoarCommand
         finally
         {
             fileStack.pop();
+            popd();
         }
     }
 
