@@ -52,7 +52,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }});
         SwingTools.addSelectAllOnFocus(field);
         
-        final String[] history = getPrefs().get("history", "").split("\\00"); // split on null character
+        final String rawhistory = getPrefs().get("history", "").replace((char)0, (char)0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
+        final String[] history = rawhistory.split(String.valueOf((char) 0x1F)); // split on "unit separator" character (used to use null, but that's no longer supported in preference values in Java 9+)
         for(String s : history)
         {
             final String trimmed = s.trim();
@@ -80,13 +81,20 @@ public class CommandEntryPanel extends JPanel implements Disposable
         {
             if(!first)
             {
-                b.append((char) 0); // null-separated strings
+                b.append((char) 0x1F); // separate strings using the "unit separator" character (used to use null, but no longer supported in key values in Java 9+)
             }
             b.append(model.getElementAt(i));
             first = false;
         }
         
-        getPrefs().put("history", b.toString());
+        try {
+        	String history = b.toString();
+        	history.replace((char)0, (char)0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
+        	getPrefs().put("history", b.toString());
+        } catch (IllegalArgumentException e) {
+        	// somehow the history is invalid, so don't save it
+        	getPrefs().put("history", "");
+        }
     }
 
     private Preferences getPrefs()
