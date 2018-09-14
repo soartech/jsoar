@@ -3252,7 +3252,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private void applyDatabasePerformanceOptions() throws SQLException, SoarException, IOException
     {
         // cache
-        if (params.driver.equals("org.sqlite.JDBC"))
+        if (params.driver.get().equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
@@ -3298,7 +3298,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // page_size
-        if (params.driver.equals("org.sqlite.JDBC"))
+        if (params.driver.get().equals("org.sqlite.JDBC"))
         {
             final PageChoices pageSize = params.page_size.get();
             

@@ -531,7 +531,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // apply performance options
 
         // cache
-        if (params.driver.equals("org.sqlite.JDBC"))
+        if (params.driver.get().equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
@@ -575,7 +575,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         // page_size
-        if (params.driver.equals("org.sqlite.JDBC"))
+        if (params.driver.get().equals("org.sqlite.JDBC"))
         {
             final PageChoices pageSize = params.page_size.get();
             
