@@ -714,7 +714,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Ignore("db driver is now always native, so no longer specifies 'native' in version number, so the test fails when it shouldn't")
-    public void testMultiAgent() throws Exception
+    @Test
+    public void iGNOREtestMultiAgent() throws Exception
     {
         List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
         

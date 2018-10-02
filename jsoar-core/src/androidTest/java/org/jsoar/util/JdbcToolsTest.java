@@ -5,8 +5,10 @@
  */
 package org.jsoar.util;
 
+import android.support.test.InstrumentationRegistry;
 import android.test.AndroidTestCase;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +29,7 @@ public class JdbcToolsTest extends AndroidTestCase
 
     public void testCanDetectIfATableExists() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        final Connection conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
         try
         {
             assertFalse(JdbcTools.tableExists(conn, "people"));
@@ -43,7 +45,7 @@ public class JdbcToolsTest extends AndroidTestCase
     }
     public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        final Connection conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
         try
         {
             Statement stat = conn.createStatement();
@@ -84,10 +86,10 @@ public class JdbcToolsTest extends AndroidTestCase
             conn.close();
         }
     }
-    
+
     public void testCanGetLastInsertedRowId() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        final Connection conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
         try
         {
             Statement stat = conn.createStatement();

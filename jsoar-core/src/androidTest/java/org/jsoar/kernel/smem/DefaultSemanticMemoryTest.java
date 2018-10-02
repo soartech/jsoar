@@ -30,7 +30,7 @@ public class DefaultSemanticMemoryTest extends AndroidTestCase
     public void setUp() throws Exception
     {
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), new Agent(getContext()));
-        conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
         final SemanticMemoryDatabase db = new SemanticMemoryDatabase("org.sqlite.JDBC", conn);
         db.structure();
         db.prepare();

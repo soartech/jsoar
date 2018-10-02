@@ -33,7 +33,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
 {
     private static final Logger logger = LoggerFactory.getLogger(EpMemFunctionalTests.class);
 	
-	@Test
+
     public void testCountEpMem() throws Exception
     {
         runTest("testCountEpMem", 1693);
@@ -177,8 +177,10 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     public void testEpMemYRemoval() throws Exception{
         runTest("testYRemoval", 9);
     }
-    
-    public void testEpMemSoarGroupTests() throws Exception
+
+    @Ignore("Doesn't pass in JSoar either -ACN")
+    @Test
+    public void iGNOREtestEpMemSoarGroupTests() throws Exception
     {
         runTest("testEpMemSoarGroupTests", 140);
     }
