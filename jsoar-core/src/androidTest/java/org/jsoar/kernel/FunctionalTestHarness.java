@@ -17,6 +17,8 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.junit.Before;
 
+import java.io.File;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.List;
 
@@ -37,6 +39,9 @@ public class FunctionalTestHarness extends AndroidTestCase
         String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
         URL sourceUrl = getClass().getResource(sourceName);
         Assert.assertNotNull("Could not find test file " + sourceName, sourceUrl);
+
+        agent.getPrinter().pushWriter(new OutputStreamWriter(System.out));
+;
         agent.getInterpreter().source(sourceUrl);
     }
     
