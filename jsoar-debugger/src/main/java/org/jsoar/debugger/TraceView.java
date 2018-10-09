@@ -5,9 +5,7 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -21,15 +19,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
+import javax.print.attribute.AttributeSetUtilities;
+import javax.swing.*;
+import javax.swing.text.*;
+import javax.swing.text.AttributeSet.FontAttribute;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -62,7 +58,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private int limitTolerance = 0;
     private boolean scrollLock = true;
     
-    private final JTextArea outputWindow = new JTextArea() {
+    private final JEditorPane outputWindow = new JEditorPane("text/rtf","") {
         private static final long serialVersionUID = 5161494134278464101L;
 
         /* (non-Javadoc)
@@ -98,7 +94,39 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 public void run() {
                     synchronized(outputWriter) // synchronized on outer.this like the flush() method
                     {
-                        outputWindow.append(buffer.toString());
+                        Position endPosition = outputWindow.getDocument().getEndPosition();
+                        SimpleAttributeSet def = new SimpleAttributeSet();
+                        SimpleAttributeSet a = new SimpleAttributeSet();
+                        StyleConstants.setForeground(a, Color.CYAN);
+                        StyleConstants.setBold(a,true);
+
+                        try {
+                            String str = buffer.toString();
+
+                            Pattern pattern = Pattern.compile("[0-9]+");
+                            Matcher m = pattern.matcher(str);
+                            int index = 0;
+                            while(m.find()) {
+                                int start = m.start();
+                                int end = m.end();
+                                String group = m.group();
+                                System.out.println("String found match from "+start+" to "+end+" on \n"+str);
+                                if (start > index) {
+                                    //the stuff between the match
+                                    outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index,start),def);
+                                }
+                                if (start >= end) {
+                                    continue;
+                                }
+                                //the matched stuff
+                                outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(start,end),a);
+                                index = end;
+                            }
+
+
+                        } catch (BadLocationException e) {
+                            e.printStackTrace();
+                        }
                         buffer.setLength(0);
                         flushing = false;
                         
@@ -139,7 +167,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
+        //todo - re-implement word wrap
+        //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) 
@@ -227,8 +256,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         while(outputWriter != printer.popWriter())
         {
         }
-        
-        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
+
+        //todo - reimplement line wrap
+//        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
         getPreferences().put("search", searchPanel.getSearchText());
         getPreferences().putInt("limit", limit);
         getPreferences().putBoolean("scrollLock", scrollLock);
@@ -416,7 +446,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.insert(scrollLockItem, 0);
         
         // Add Wrap text action
-        final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
+        //todo - reimplement line wrap
+        /*final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
         wrapTextItem.addActionListener(new ActionListener() {
 
             @Override
@@ -424,7 +455,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 outputWindow.setLineWrap(!outputWindow.getLineWrap());
             }});
-        menu.insert(wrapTextItem, 0);
+        menu.insert(wrapTextItem, 0);*/
         
         // Add clear action
         menu.insert(new AbstractAction("Clear") {
