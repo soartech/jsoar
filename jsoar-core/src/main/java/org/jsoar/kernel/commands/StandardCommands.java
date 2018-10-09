@@ -82,6 +82,8 @@ public class StandardCommands
         
         interp.addCommand("handler", new HandlerCommand(agent));
         
+        interp.addCommand("soar", new SoarSettingsCommand(agent));
+        
         SoarCommands.registerCustomCommands(interp, agent);
     }
     
