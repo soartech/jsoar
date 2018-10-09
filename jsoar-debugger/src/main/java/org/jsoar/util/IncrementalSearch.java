@@ -5,27 +5,27 @@
  */
 package org.jsoar.util;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
+import javax.swing.text.*;
 
 public class IncrementalSearch implements DocumentListener, ActionListener
 {
-    protected JTextComponent content;
+    protected JEditorPane content;
 
     protected Matcher matcher;
 
     public IncrementalSearch(JTextComponent comp)
     {
-        this.content = comp;
+        this.content = (JEditorPane) comp;
     }
 
     /* DocumentListener implementation */
@@ -66,6 +66,10 @@ public class IncrementalSearch implements DocumentListener, ActionListener
             {
                 matcher = null;
             }
+
+            highlightAll();
+
+
             continueSearch();
         }
         catch (PatternSyntaxException ex)
@@ -78,7 +82,26 @@ public class IncrementalSearch implements DocumentListener, ActionListener
             onError();
         }
     }
-    
+
+    private void highlightAll() {
+        if (matcher != null) {
+
+            Highlighter h = content.getHighlighter();
+            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.red);
+
+            h.install(content);
+            while (matcher.find()) {
+                try {
+
+                    h.addHighlight(matcher.start(),matcher.end(), painter);
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
     protected void onError() {}
     
     protected void onNoMatch() {}
@@ -118,6 +141,8 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         content.getCaret().setDot(matcher.start());
         content.getCaret().moveDot(matcher.end());
         content.getCaret().setSelectionVisible(true);
+
+
         onMatch();
     }
 }

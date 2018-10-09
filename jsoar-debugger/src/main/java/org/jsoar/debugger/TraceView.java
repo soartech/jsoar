@@ -109,8 +109,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             while(m.find()) {
                                 int start = m.start();
                                 int end = m.end();
-                                String group = m.group();
-                                System.out.println("String found match from "+start+" to "+end+" on \n"+str);
+//                                String group = m.group();
+//                                System.out.println("String found match from "+start+" to "+end+" on \n"+str);
                                 if (start > index) {
                                     //the stuff between the match
                                     outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index,start),def);
@@ -169,6 +169,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
         //todo - re-implement word wrap
         //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
+
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) 
