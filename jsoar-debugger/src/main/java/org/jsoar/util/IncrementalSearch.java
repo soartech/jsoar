@@ -88,8 +88,8 @@ public class IncrementalSearch implements DocumentListener, ActionListener
 
             Highlighter h = content.getHighlighter();
             LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.red);
-
-            h.install(content);
+            h.removeAllHighlights();
+//            h.install(content);
             while (matcher.find()) {
                 try {
 
