@@ -16,7 +16,7 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 /**
- * This command is the implementation of the "soar" command.
+ * This is the implementation of the "soar" command.
  * It should be called "SoarCommand" to follow the naming convention, but that is already the name of an interface.
  * @author bob.marinier
  * @author austin.brehob
@@ -67,7 +67,6 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
                 "-                   Soar 9.6.0 Summary                -\n" +
                 "=======================================================\n"
                 );
-        
     }
     
     @Command(name="init", description="Re-initializes Soar", subcommands={HelpCommand.class} )
@@ -81,7 +80,6 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
         {
             parent.agent.initialize();
             parent.agent.getPrinter().startNewLine().print("Agent reinitialized\n").flush();
-            
         }
     }
     
