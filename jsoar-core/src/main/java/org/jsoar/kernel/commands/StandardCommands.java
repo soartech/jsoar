@@ -51,7 +51,6 @@ public class StandardCommands
         interp.addCommand("default-wme-depth", new DefaultWmeDepthCommand(printCommand));
         
         interp.addCommand("o-support-mode", new OSupportModeCommand());
-        interp.addCommand("soar8", new Soar8Command());
         interp.addCommand("firing-counts", new FiringCountsCommand(agent));
         interp.addCommand("excise", new ExciseCommand(agent));
         interp.addCommand("init-soar", new InitSoarCommand(agent));
