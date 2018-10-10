@@ -38,7 +38,11 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     @Override
     public void run()
     {
-        // TODO print soar summary information
+        agent.getPrinter().startNewLine().print(
+                "=======================================================\n" +
+                "-                   Soar 9.6.0 Summary                -\n" +
+                "=======================================================\n"
+                );
         
     }
     
