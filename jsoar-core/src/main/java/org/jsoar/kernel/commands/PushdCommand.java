@@ -1,47 +1,53 @@
-/*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
- * Created on Oct 30, 2008
- */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
-
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "pushd" command.
- * 
- * @author ray
+ * This is the implementation of the "pushd" command.
+ * @author austin.brehob
  */
-public class PushdCommand implements SoarCommand
+@Command(name="pushd", description="Saves the current working directory on a stack",
+         subcommands={HelpCommand.class})
+public class PushdCommand implements SoarCommand, Runnable
 {
     private final SourceCommand sourceCommand;
+    private Agent agent;
     
-    /**
-     * @param sourceCommand
-     */
-    public PushdCommand(SourceCommand sourceCommand)
+    public PushdCommand(SourceCommand sourceCommand, Agent agent)
     {
         this.sourceCommand = sourceCommand;
+        this.agent = agent;
     }
-
-
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
+    
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 2)
-        {
-            throw new SoarException("Expected 1 arg, got " + Arrays.asList(args));
-        }
+        Utils.parseAndRun(agent, this, args);
         
-        sourceCommand.pushd(args[1]);
-        return args[1];
+        return "";
     }
 
+    @Parameters(index="0", description="The directory to push")
+    private String dir;
+    
+    @Override
+    public void run()
+    {
+        try
+        {
+            sourceCommand.pushd(dir);
+        }
+        catch (SoarException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }
