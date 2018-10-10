@@ -2,11 +2,13 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 /**
@@ -17,7 +19,8 @@ import picocli.CommandLine.ParentCommand;
  */
 @Command(name="soar", description="Commands and settings related to running Soar",
          subcommands={HelpCommand.class,
-                      SoarSettingsCommand.Init.class})
+                      SoarSettingsCommand.Init.class,
+                      SoarSettingsCommand.MaxElaborations.class})
 public class SoarSettingsCommand implements SoarCommand, Runnable
 {
     private Agent agent;
@@ -60,5 +63,32 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
             
         }
     }
+    
+    // TODO: fix description
+    @Command(name="max-elaborations", description="Maximum elaboration in a decision cycle",
+            subcommands={HelpCommand.class} )
+    static public class MaxElaborations implements Runnable
+    {
+        @ParentCommand
+        SoarSettingsCommand parent; // injected by picocli
+        
+        @Parameters(index="0", arity = "0..1", description="The new number of maximum elaborations.")
+        private Integer numElaborations = null;
 
+        @Override
+        public void run()
+        {
+            if (numElaborations == null)
+            {
+                parent.agent.getPrinter().print("max-elaborations is " +
+                        parent.agent.getProperties().get(SoarProperties.MAX_ELABORATIONS));
+            }
+            else
+            {
+                parent.agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, numElaborations);
+                parent.agent.getPrinter().print("The maximum number of elaborations in a phase is now " +
+                        parent.agent.getProperties().get(SoarProperties.MAX_ELABORATIONS) + ".");
+            }
+        }
+    }
 }
