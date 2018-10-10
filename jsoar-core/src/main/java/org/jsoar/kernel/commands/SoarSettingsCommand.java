@@ -10,6 +10,7 @@ import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
@@ -24,7 +25,8 @@ import picocli.CommandLine.ParentCommand;
                       SoarSettingsCommand.Init.class,
                       SoarSettingsCommand.MaxElaborations.class,
                       SoarSettingsCommand.StopPhase.class,
-                      SoarSettingsCommand.Stop.class})
+                      SoarSettingsCommand.Stop.class,
+                      SoarSettingsCommand.WaitSNC.class})
 public class SoarSettingsCommand implements SoarCommand, Runnable
 {
     private Agent agent;
@@ -87,7 +89,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
         @ParentCommand
         SoarSettingsCommand parent; // injected by picocli
         
-        @Parameters(index="0", arity = "0..1", description="The new number of maximum elaborations")
+        @Parameters(index="0", arity="0..1", description="The new number of maximum elaborations")
         private Integer numElaborations = null;
 
         @Override
@@ -117,7 +119,8 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
         // These are in the same order as the corresponding entries in the Phase class
         enum CommandPhase {input, proposal, decide, apply, output};
         
-        @Parameters(index="0", arity = "0..1", description="Valid phases are: ${COMPLETION-CANDIDATES}")
+        @Parameters(index="0", arity="0..1",
+                description="Valid phases are: ${COMPLETION-CANDIDATES}")
         private CommandPhase phase = null;
 
         @Override
@@ -156,6 +159,44 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
             else
             {
                 parent.agent.stop();
+            }
+        }
+    }
+    
+    @Command(name="wait-snc", description="Wait instead of impasse after state-no-change",
+            subcommands={HelpCommand.class})
+    static public class WaitSNC implements Runnable
+    {
+        @ParentCommand
+        SoarSettingsCommand parent; // injected by picocli
+        
+        @Option(names={"on", "-e", "--on", "--enable"},
+                description="Enables wait-snc")
+        boolean enable = false;
+        
+        @Option(names={"off", "-d", "--off", "--disable"},
+                description="Disables wait-snc")
+        boolean disable = false;
+
+        @Override
+        public void run()
+        {
+            if (!enable && !disable)
+            {
+                parent.agent.getPrinter().print("waitsnc is " +
+                        (parent.agent.getProperties().get(SoarProperties.WAITSNC) ? "on" : "off"));
+            }
+            else if (enable)
+            {
+                parent.agent.getProperties().set(SoarProperties.WAITSNC, true);
+                parent.agent.getPrinter().print("Soar will now wait instead of "
+                        + "impassing when a state doesn't change.");
+            }
+            else
+            {
+                parent.agent.getProperties().set(SoarProperties.WAITSNC, false);
+                parent.agent.getPrinter().print("Soar will now impasse "
+                        + "when a state doesn't change.");
             }
         }
     }
