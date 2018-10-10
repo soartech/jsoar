@@ -1,47 +1,51 @@
-/*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
- * Created on Oct 30, 2008
- */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
-
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+
 /**
- * Implementation of the "popd" command.
- * 
- * @author ray
+ * This is the implementation of the "popd" command.
+ * @author austin.brehob
  */
-public class PopdCommand implements SoarCommand
+@Command(name="popd", description="Pops the top working directory off the stack and sets "
+        + "the current working directory to it",
+         subcommands={HelpCommand.class})
+public class PopdCommand implements SoarCommand, Runnable
 {
     private final SourceCommand sourceCommand;
+    private Agent agent;
     
-    /**
-     * @param sourceCommand
-     */
-    public PopdCommand(SourceCommand sourceCommand)
+    public PopdCommand(SourceCommand sourceCommand, Agent agent)
     {
         this.sourceCommand = sourceCommand;
+        this.agent = agent;
     }
-
-
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
+    
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 1)
-        {
-            throw new SoarException("Expected 0 args, got " + Arrays.asList(args));
-        }
+        Utils.parseAndRun(agent, this, args);
         
-        sourceCommand.popd();
-        return sourceCommand.getWorkingDirectory();
+        return "";
     }
 
+    @Override
+    public void run()
+    {
+        try
+        {
+            sourceCommand.popd();
+        }
+        catch (SoarException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }
+

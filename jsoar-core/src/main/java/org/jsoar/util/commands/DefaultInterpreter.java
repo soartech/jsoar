@@ -58,7 +58,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("alias", new AliasCommand());
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
-        addCommand("popd", new PopdCommand(sourceCommand));
+        addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand, agent));
         addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
         
