@@ -13,7 +13,7 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "version" command.
  * @author austin.brehob
  */
-@Command(name="version", description="This command prints the version of Soar to the screen.",
+@Command(name="version", description="Prints the version of Soar to the screen",
          subcommands={HelpCommand.class})
 public class VersionCommand implements SoarCommand, Runnable
 {
