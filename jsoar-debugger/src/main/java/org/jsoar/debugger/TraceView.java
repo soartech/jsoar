@@ -17,19 +17,22 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.Consumer;
 
-import javax.print.attribute.AttributeSetUtilities;
+
 import javax.swing.*;
 import javax.swing.text.*;
-import javax.swing.text.AttributeSet.FontAttribute;
 
+import jregex.Matcher;
+import jregex.Pattern;
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.syntax.SyntaxPattern;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
@@ -89,67 +92,86 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             // Send a runnable over to the UI thread to take the current buffer contents
             // and put them in the trace window.
             flushing = true;
-            
-            SwingUtilities.invokeLater(new Runnable() {
+            //make regex groups
+            new Thread() {
+                @Override
                 public void run() {
-                    synchronized(outputWriter) // synchronized on outer.this like the flush() method
-                    {
-                        Position endPosition = outputWindow.getDocument().getEndPosition();
-                        SimpleAttributeSet def = new SimpleAttributeSet();
-                        SimpleAttributeSet a = new SimpleAttributeSet();
-                        StyleConstants.setForeground(a, Color.CYAN);
-                        StyleConstants.setBold(a,true);
-
-                        try {
-                            String str = buffer.toString();
-
-                            Pattern pattern = Pattern.compile("[0-9]+");
-                            Matcher m = pattern.matcher(str);
-                            int index = 0;
-                            while(m.find()) {
-                                int start = m.start();
-                                int end = m.end();
-                                if (start > index) {
-                                    //the stuff between the match
-                                    outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index,start),def);
-                                }
-                                if (start >= end) {
-                                    continue;
-                                }
-                                //the matched stuff
-                                outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(start,end),a);
-                                index = end;
-                            }
-
-
-                        } catch (BadLocationException e) {
-                            e.printStackTrace();
-                        }
-                        buffer.setLength(0);
-                        flushing = false;
-                        
-                        if(limit > 0)
-                        {
-                            final int length = outputWindow.getDocument().getLength();
-                            if(length > limit + limitTolerance)
-                            {
-                                try
-                                {
-                                    // Trim the trace back down to limit
-                                    outputWindow.getDocument().remove(0, length - limit);
-                                }
-                                catch (BadLocationException e) {}
-                            }
-                        }
-                        
-                        if(scrollLock)
-                        {
-                            // Scroll to the end
-                            outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
-                        }
+                    final List<SyntaxPattern.StyleOffset> styles = new LinkedList<>();
+                    final String str = buffer.toString();
+                    for(SyntaxPattern pattern: patterns) {
+                        styles.addAll(pattern.matchAll(str, new SimpleAttributeSet()));
                     }
+                    Collections.sort(styles);
+
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            synchronized(outputWriter) // synchronized on outer.this like the flush() method
+                            {
+                                Position endPosition = outputWindow.getDocument().getEndPosition();
+
+                                SimpleAttributeSet def = new SimpleAttributeSet();
+
+
+                                try {
+
+                                    if (styles.isEmpty()) {
+                                        outputWindow.getDocument().insertString(endPosition.getOffset(), str,def);
+                                    } else {
+                                        int index = 0;
+
+                                        for (SyntaxPattern.StyleOffset offset : styles) {
+                                            int start = offset.start;
+                                            int end = offset.end;
+                                            if (start >= end || start <= index) {
+                                                continue;
+                                            }
+
+                                            //the stuff between the match
+                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, start), def);
+
+                                            //the matched stuff
+                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(start, end), offset.style);
+                                            index = end;
+                                        }
+                                        if (index < str.length()) {
+                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, str.length()-1), def);
+                                        }
+                                    }
+//                            outputWindow.getDocument().insertString(endPosition.getOffset(),str,null);
+
+
+                                } catch (BadLocationException e) {
+                                    e.printStackTrace();
+                                }
+                                buffer.setLength(0);
+                                flushing = false;
+
+                                if(limit > 0)
+                                {
+                                    final int length = outputWindow.getDocument().getLength();
+                                    if(length > limit + limitTolerance)
+                                    {
+                                        try
+                                        {
+                                            // Trim the trace back down to limit
+                                            outputWindow.getDocument().remove(0, length - limit);
+                                        }
+                                        catch (BadLocationException e) {}
+                                    }
+                                }
+
+                                if(scrollLock)
+                                {
+                                    // Scroll to the end
+                                    outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                                }
+                            }
+                        }
+                    });
                 }
-            });
+            }.start();
+
         }
 
         @Override
@@ -158,6 +180,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
+    private final List<SyntaxPattern> patterns;
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -198,7 +221,39 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
             }});
         outputWindow.setEditable(false);
-        
+
+        patterns = new LinkedList<>();
+        SimpleAttributeSet attrs1 = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrs1, Color.BLUE);
+        StyleConstants.setBold(attrs1,true);
+        StyleConstants.setUnderline(attrs1,true);
+        SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new AttributeSet[]{attrs1});
+        patterns.add(pattern1);
+
+        SimpleAttributeSet[] attrs = new SimpleAttributeSet[5];
+        attrs[0] = new SimpleAttributeSet();
+        StyleConstants.setBold(attrs[0],true);
+        attrs[1] = new SimpleAttributeSet(attrs[0]);
+        attrs[2] = new SimpleAttributeSet(attrs[0]);
+        attrs[3] = new SimpleAttributeSet(attrs[0]);
+        attrs[4] = new SimpleAttributeSet(attrs[0]);
+
+        StyleConstants.setBackground(attrs[0],Color.pink);
+        StyleConstants.setForeground(attrs[1],Color.RED);
+        StyleConstants.setForeground(attrs[3],Color.ORANGE);
+        StyleConstants.setForeground(attrs[2],Color.ORANGE);
+        StyleConstants.setBackground(attrs[4],Color.RED);
+        StyleConstants.setUnderline(attrs[4],true);
+
+        patterns.add(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)",attrs));
+
+        attrs1 = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrs1, Color.YELLOW);
+        StyleConstants.setBackground(attrs1,Color.BLACK);
+        patterns.add(new SyntaxPattern("[0-9]+", new AttributeSet[]{attrs1}));
+
+
+
         final JSoarVersion version = JSoarVersion.getInstance();
         outputWindow.setText("JSoar " + version + "\n" + 
                              "http://jsoar.googlecode.com\n" + 
