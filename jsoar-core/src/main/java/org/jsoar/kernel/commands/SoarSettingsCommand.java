@@ -40,7 +40,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
         
-        OutputStream os = new WriterOutputStream(agent.getPrinter().getWriter(), Charset.defaultCharset());
+        OutputStream os = new WriterOutputStream(agent.getPrinter().getWriter(), Charset.defaultCharset(), 1024, true);
         PrintStream ps = new PrintStream(os);
         
         CommandLine commandLine = new CommandLine(this);
