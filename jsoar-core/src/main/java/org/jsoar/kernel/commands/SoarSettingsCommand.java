@@ -4,6 +4,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
@@ -16,25 +17,38 @@ import picocli.CommandLine.ParentCommand;
  * This command is the implementation of the "soar" command.
  * It should be called "SoarCommand" to follow the naming convention, but that is already the name of an interface.
  * @author bob.marinier
- *
+ * @author austin.brehob
  */
 @Command(name="soar", description="Commands and settings related to running Soar",
          subcommands={HelpCommand.class,
                       SoarSettingsCommand.Init.class,
                       SoarSettingsCommand.MaxElaborations.class,
-                      SoarSettingsCommand.StopPhase.class})
+                      SoarSettingsCommand.StopPhase.class,
+                      SoarSettingsCommand.Stop.class})
 public class SoarSettingsCommand implements SoarCommand, Runnable
 {
     private Agent agent;
+    private ThreadedAgent tAgent;
     
     public SoarSettingsCommand(Agent agent)
     {
         this.agent = agent;
     }
     
+    public SoarSettingsCommand(ThreadedAgent tAgent)
+    {
+        this.tAgent = tAgent;
+    }
+    
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
+        // The agent is set here instead of in the constructor because the
+        // Threaded Agent may not have an agent when this class is constructed
+        if (tAgent != null)
+        {
+            this.agent = tAgent.getAgent();
+        }
         Utils.parseAndRun(agent, this, args);
         
         return "";
@@ -115,13 +129,33 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
                         [parent.agent.getProperties().get(SoarProperties.STOP_PHASE).ordinal()];
                 parent.agent.getPrinter().print("stop-phase is " + currentPhase);
             }
-            
             else
             {
                 parent.agent.getProperties().set(SoarProperties.STOP_PHASE,
                         Phase.values()[phase.ordinal()]);
                 parent.agent.getPrinter().print("Soar will now stop before the " +
                         phase + " phase.");
+            }
+        }
+    }
+    
+    @Command(name="stop", description="Stop Soar execution",
+            subcommands={HelpCommand.class} )
+    static public class Stop implements Runnable
+    {
+        @ParentCommand
+        SoarSettingsCommand parent; // injected by picocli
+
+        @Override
+        public void run()
+        {
+            if (parent.tAgent != null)
+            {
+                parent.tAgent.stop();
+            }
+            else
+            {
+                parent.agent.stop();
             }
         }
     }
