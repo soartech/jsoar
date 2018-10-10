@@ -7,6 +7,7 @@ import org.jsoar.kernel.SoarProperties;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.timing.ExecutionTimers;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -26,6 +27,7 @@ import picocli.CommandLine.ParentCommand;
                       SoarSettingsCommand.MaxElaborations.class,
                       SoarSettingsCommand.StopPhase.class,
                       SoarSettingsCommand.Stop.class,
+                      SoarSettingsCommand.Timers.class,
                       SoarSettingsCommand.WaitSNC.class})
 public class SoarSettingsCommand implements SoarCommand, Runnable
 {
@@ -56,6 +58,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
         return "";
     }
 
+    // TODO Provide summary
     @Override
     public void run()
     {
@@ -159,6 +162,42 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
             else
             {
                 parent.agent.stop();
+            }
+        }
+    }
+    
+    @Command(name="timers", description="Profile where Soar spends its time",
+            subcommands={HelpCommand.class})
+    static public class Timers implements Runnable
+    {
+        @ParentCommand
+        SoarSettingsCommand parent; // injected by picocli
+        
+        @Option(names={"on", "-e", "--on", "--enable"},
+                description="Enables timers")
+        boolean enable = false;
+        
+        @Option(names={"off", "-d", "--off", "--disable"},
+                description="Disables timers")
+        boolean disable = false;
+
+        @Override
+        public void run()
+        {
+            if (!enable && !disable)
+            {
+                parent.agent.getPrinter().print("timers is " +
+                        (ExecutionTimers.isEnabled() ? "on" : "off"));
+            }
+            else if (enable)
+            {
+                ExecutionTimers.setEnabled(true);
+                parent.agent.getPrinter().print("Timers are now enabled.");
+            }
+            else
+            {
+                ExecutionTimers.setEnabled(false);
+                parent.agent.getPrinter().print("Timers are now disabled.");
             }
         }
     }
