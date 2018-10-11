@@ -42,7 +42,6 @@ public class EchoCommand implements SoarCommand, Runnable
     @Override
     public void run()
     {
-        // Old method: -n can be anywhere in the string; string will be outputted without -n
         for (int i = 0; i < outputString.length; i++)
         {
             if (i != 0)
