@@ -7,9 +7,6 @@ import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "popd" command.
@@ -22,7 +19,6 @@ public class PopdCommand implements SoarCommand, Runnable
 {
     private final SourceCommand sourceCommand;
     private Agent agent;
-    @Spec CommandSpec spec;
     
     public PopdCommand(SourceCommand sourceCommand, Agent agent)
     {
