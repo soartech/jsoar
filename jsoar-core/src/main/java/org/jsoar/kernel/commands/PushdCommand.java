@@ -46,8 +46,7 @@ public class PushdCommand implements SoarCommand, Runnable
         }
         catch (SoarException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            this.agent.getPrinter().print(e.getMessage());
         }
     }
 }
