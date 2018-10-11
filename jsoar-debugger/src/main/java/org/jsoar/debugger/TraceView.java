@@ -16,19 +16,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 
 
 import javax.swing.*;
 import javax.swing.text.*;
 
-import jregex.Matcher;
-import jregex.Pattern;
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
@@ -60,8 +55,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private int limit = -1;
     private int limitTolerance = 0;
     private boolean scrollLock = true;
-    
-    private final JEditorPane outputWindow = new JEditorPane("text/rtf","") {
+
+    private final SimpleAttributeSet defaultAttributes = new SimpleAttributeSet();
+    private final JTextPane outputWindow = new JTextPane() {
         private static final long serialVersionUID = 5161494134278464101L;
 
         /* (non-Javadoc)
@@ -77,6 +73,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         private StringBuilder buffer = new StringBuilder();
         private boolean flushing = false;
+        private boolean printing = false;
         
         @Override
         public void close() throws IOException
@@ -87,7 +84,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         synchronized public void flush() throws IOException
         {
             // If there's already a runnable headed for the UI thread, don't send another
-            if(flushing) { return; }
+            if(flushing || printing) { return; }
             
             // Send a runnable over to the UI thread to take the current buffer contents
             // and put them in the trace window.
@@ -96,30 +93,29 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             new Thread() {
                 @Override
                 public void run() {
-                    final List<SyntaxPattern.StyleOffset> styles = new LinkedList<>();
+                    final long time = System.currentTimeMillis();
                     final String str = buffer.toString();
-                    for(SyntaxPattern pattern: patterns) {
-                        styles.addAll(pattern.matchAll(str, new SimpleAttributeSet()));
-                    }
-                    Collections.sort(styles);
-
-
+                    buffer.setLength(0);
+                    printing = true;
+                    flushing = false;  //moving this here makes it not forget strings, but causes it to block again
+                    final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str,patterns,defaultAttributes);
+                    System.out.println("Processing buffer with size "+str.length()+" took "+(System.currentTimeMillis()-time));
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            synchronized(outputWriter) // synchronized on outer.this like the flush() method
+                            final long time = System.currentTimeMillis();
+                            synchronized (outputWriter) // synchronized on outer.this like the flush() method
                             {
-                                Position endPosition = outputWindow.getDocument().getEndPosition();
 
-                                SimpleAttributeSet def = new SimpleAttributeSet();
+                                Position endPosition = outputWindow.getDocument().getEndPosition();
 
 
                                 try {
 
                                     if (styles.isEmpty()) {
-                                        outputWindow.getDocument().insertString(endPosition.getOffset(), str,def);
+                                        outputWindow.getDocument().insertString(endPosition.getOffset(), str, defaultAttributes);
                                     } else {
                                         int index = 0;
-
+                                        //FIXME - this is SLOW!!!!
                                         for (SyntaxPattern.StyleOffset offset : styles) {
                                             int start = offset.start;
                                             int end = offset.end;
@@ -128,14 +124,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             }
 
                                             //the stuff between the match
-                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, start), def);
+                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, start), defaultAttributes);
 
                                             //the matched stuff
                                             outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(start, end), offset.style);
                                             index = end;
                                         }
                                         if (index < str.length()) {
-                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, str.length()-1), def);
+                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, str.length() - 1), defaultAttributes);
                                         }
                                     }
 //                            outputWindow.getDocument().insertString(endPosition.getOffset(),str,null);
@@ -144,29 +140,25 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                 } catch (BadLocationException e) {
                                     e.printStackTrace();
                                 }
-                                buffer.setLength(0);
-                                flushing = false;
+                                printing = false;
 
-                                if(limit > 0)
-                                {
+                                if (limit > 0) {
                                     final int length = outputWindow.getDocument().getLength();
-                                    if(length > limit + limitTolerance)
-                                    {
-                                        try
-                                        {
+                                    if (length > limit + limitTolerance) {
+                                        try {
                                             // Trim the trace back down to limit
                                             outputWindow.getDocument().remove(0, length - limit);
+                                        } catch (BadLocationException e) {
                                         }
-                                        catch (BadLocationException e) {}
                                     }
                                 }
 
-                                if(scrollLock)
-                                {
+                                if (scrollLock) {
                                     // Scroll to the end
                                     outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                                 }
                             }
+                            System.out.println("Printing buffer with size "+str.length()+" took "+(System.currentTimeMillis()-time));
                         }
                     });
                 }
