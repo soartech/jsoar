@@ -25,7 +25,8 @@ import picocli.CommandLine.ParentCommand;
 @Command(name="output", description="Commands related to handling output",
 subcommands={HelpCommand.class,
              OutputCommand.Log.class,
-             OutputCommand.PrintDepth.class})
+             OutputCommand.PrintDepth.class,
+             OutputCommand.Warnings.class})
 public final class OutputCommand implements SoarCommand, Runnable
 {
     private Agent agent;
@@ -159,6 +160,40 @@ public final class OutputCommand implements SoarCommand, Runnable
                 {
                     parent.agent.getPrinter().print(e.getMessage());
                 }
+            }
+        }
+    }
+    
+    @Command(name="warnings", description="Toggles output warnings",
+            subcommands={HelpCommand.class} )
+    static public class Warnings implements Runnable
+    {
+        @ParentCommand
+        OutputCommand parent; // injected by picocli
+        
+        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables output warnings")
+        boolean enable = false;
+        
+        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables output warnings")
+        boolean disable = false;
+        
+        @Override
+        public void run()
+        {
+            if (!enable && !disable)
+            {
+                parent.agent.getPrinter().print("warnings is " +
+                        (parent.agent.getPrinter().isPrintWarnings() ? "on" : "off"));
+            }
+            else if (enable)
+            {
+                parent.agent.getPrinter().setPrintWarnings(true);
+                parent.agent.getPrinter().print("warnings is now on");
+            }
+            else
+            {
+                parent.agent.getPrinter().setPrintWarnings(false);
+                parent.agent.getPrinter().print("warnings is now off");
             }
         }
     }
