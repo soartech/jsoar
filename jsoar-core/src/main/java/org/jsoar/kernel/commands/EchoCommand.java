@@ -33,7 +33,7 @@ public class EchoCommand implements SoarCommand, Runnable
         return "";
     }
     
-    @Option(names={"-n", "--nonewline"}, description="Suppress printing of the newline character")
+    @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
     boolean noNewline = false;
     
     @Parameters(description="The string to output")
