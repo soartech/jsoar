@@ -19,6 +19,8 @@ import java.io.Writer;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import javax.swing.*;
@@ -68,9 +70,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             executePastedInput();
         }
     };
-    
+
+    private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
     private final Writer outputWriter = new Writer()
     {
+        private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
         private boolean flushing = false;
         private boolean printing = false;
@@ -80,12 +84,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
         }
 
-        @Override
-        synchronized public void flush() throws IOException
-        {
+        synchronized public void flushNew() throws IOException {
             // If there's already a runnable headed for the UI thread, don't send another
-            if(flushing || printing) { return; }
-            
+            if(flushing) { return; }
+
             // Send a runnable over to the UI thread to take the current buffer contents
             // and put them in the trace window.
             flushing = true;
@@ -93,26 +95,23 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             new Thread() {
                 @Override
                 public void run() {
-                    final long time = System.currentTimeMillis();
-                    final String str = buffer.toString();
-                    buffer.setLength(0);
-                    printing = true;
-                    flushing = false;  //moving this here makes it not forget strings, but causes it to block again
-                    final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str,patterns,defaultAttributes);
-                    System.out.println("Processing buffer with size "+str.length()+" took "+(System.currentTimeMillis()-time));
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            final long time = System.currentTimeMillis();
-                            synchronized (outputWriter) // synchronized on outer.this like the flush() method
-                            {
-
-                                Position endPosition = outputWindow.getDocument().getEndPosition();
-
-
+                    synchronized (outputWriter) // synchronized on outer.this like the flush() method
+                    {
+                        final long time = System.currentTimeMillis();
+                        final String str = buffer.toString();
+                        buffer.setLength(0);
+                        printing = true;
+                        flushing = false;  //moving this here makes it not forget strings, but causes it to block again
+                        final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str, patterns, defaultAttributes);
+                        System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                final long time = System.currentTimeMillis();
                                 try {
-
+                                    outputWindow.setDocument(new DefaultStyledDocument());
+                                    Position endPosition = styledDocument.getEndPosition();
                                     if (styles.isEmpty()) {
-                                        outputWindow.getDocument().insertString(endPosition.getOffset(), str, defaultAttributes);
+                                        styledDocument.insertString(endPosition.getOffset(), str, defaultAttributes);
                                     } else {
                                         int index = 0;
                                         //FIXME - this is SLOW!!!!
@@ -124,16 +123,17 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             }
 
                                             //the stuff between the match
-                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, start), defaultAttributes);
+                                            styledDocument.insertString(endPosition.getOffset(), str.substring(index, start), defaultAttributes);
 
                                             //the matched stuff
-                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(start, end), offset.style);
+                                            styledDocument.insertString(endPosition.getOffset(), str.substring(start, end), offset.style);
                                             index = end;
                                         }
                                         if (index < str.length()) {
-                                            outputWindow.getDocument().insertString(endPosition.getOffset(), str.substring(index, str.length() - 1), defaultAttributes);
+                                            styledDocument.insertString(endPosition.getOffset(), str.substring(index, str.length() - 1), defaultAttributes);
                                         }
                                     }
+                                    outputWindow.setDocument(styledDocument);
 //                            outputWindow.getDocument().insertString(endPosition.getOffset(),str,null);
 
 
@@ -142,27 +142,125 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                 }
                                 printing = false;
 
-                                if (limit > 0) {
-                                    final int length = outputWindow.getDocument().getLength();
-                                    if (length > limit + limitTolerance) {
-                                        try {
-                                            // Trim the trace back down to limit
-                                            outputWindow.getDocument().remove(0, length - limit);
-                                        } catch (BadLocationException e) {
-                                        }
-                                    }
-                                }
+                                trimOutput();
 
                                 if (scrollLock) {
                                     // Scroll to the end
                                     outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                                 }
+
+
+                                System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                             }
-                            System.out.println("Printing buffer with size "+str.length()+" took "+(System.currentTimeMillis()-time));
-                        }
-                    });
+                        });
+                    }
                 }
             }.start();
+        }
+
+        @Override
+        synchronized public void flush() throws IOException
+        {
+            if (coloredOutput) {
+                flushNew();
+            } else {
+
+
+                // If there's already a runnable headed for the UI thread, don't send another
+                if (flushing) {
+                    return;
+                }
+
+                // Send a runnable over to the UI thread to take the current buffer contents
+                // and put them in the trace window.
+                flushing = true;
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        synchronized (outputWriter) // synchronized on outer.this like the flush() method
+                        {
+                            Position endPosition = outputWindow.getDocument().getEndPosition();
+
+                            try {
+                                String str = buffer.toString();
+                                outputWindow.getDocument().insertString(endPosition.getOffset(), str, defaultAttributes);
+                            } catch (BadLocationException e) {
+                                e.printStackTrace();
+                            }
+                            buffer.setLength(0);
+                            flushing = false;
+
+                            trimOutput();
+
+                            if (scrollLock) {
+                                // Scroll to the end
+                                outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                            }
+                        }
+                    }
+                });
+
+
+                //delayed syntax highlighting
+                lastFlush = System.currentTimeMillis();
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            sleep(250);
+                        } catch (InterruptedException ignored) {
+                        }
+                        if (System.currentTimeMillis() - lastFlush >= 250) {
+                            try {
+                                final String str = styledDocument.getText(0, styledDocument.getLength());
+
+                                final long time = System.currentTimeMillis();
+                                final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str, patterns, defaultAttributes);
+
+                                System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    public void run() {
+                                        int caretPosition = outputWindow.getCaretPosition();
+                                        final long time = System.currentTimeMillis();
+                                        try {
+                                            if (styles.isEmpty()) {
+                                                return;
+                                            } else {
+                                                outputWindow.setDocument(new DefaultStyledDocument());
+                                                Position startPosition = styledDocument.getStartPosition();
+                                                int index = 0;
+                                                for (SyntaxPattern.StyleOffset offset : styles) {
+                                                    int start = offset.start;
+                                                    int end = offset.end;
+                                                    if (start >= end || start <= index) {
+                                                        continue;
+                                                    }
+                                                    //the matched stuff
+                                                    int offsetStart = startPosition.getOffset() + start;
+                                                    int offsetEnd = startPosition.getOffset() + (end - start);
+                                                    System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
+
+                                                    styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
+                                                    index = end;
+                                                }
+                                                outputWindow.setDocument(styledDocument);
+                                            }
+
+                                        } catch (BadLocationException e) {
+                                            e.printStackTrace();
+                                        }
+                                        printing = false;
+                                        outputWindow.setCaretPosition(caretPosition);
+                                        System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+                                    }
+
+                                });
+                            } catch (BadLocationException ignored) {
+                            }
+                        }
+                    }
+                }.start();
+            }
 
         }
 
@@ -172,6 +270,21 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
+    private boolean coloredOutput = true;
+
+    private void trimOutput() {
+        if (limit > 0) {
+            final int length = outputWindow.getDocument().getLength();
+            if (length > limit + limitTolerance) {
+                try {
+                    // Trim the trace back down to limit
+                    outputWindow.getDocument().remove(0, length - limit);
+                } catch (BadLocationException e) {
+                }
+            }
+        }
+    }
+
     private final List<SyntaxPattern> patterns;
 
     public TraceView(JSoarDebugger debuggerIn)
@@ -213,7 +326,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
             }});
         outputWindow.setEditable(false);
-
+        outputWindow.setDocument(styledDocument);
         patterns = new LinkedList<>();
         SimpleAttributeSet attrs1 = new SimpleAttributeSet();
         StyleConstants.setForeground(attrs1, Color.BLUE);
@@ -254,8 +367,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "Right-click for trace options (or use watch command)\n" +
                              "Double-click identifiers, wmes, and rule names to drill down\n" +
                              "You can paste code (ctrl+v) directly into this window.\n");
-        
         setLimit(getPreferences().getInt("limit", -1));
+        coloredOutput = getPreferences().getBoolean("coloredOutput", true);
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
@@ -490,6 +603,15 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 scrollLock = !scrollLock;
             }});
         menu.insert(scrollLockItem, 0);
+
+        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", coloredOutput);
+        colorItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                coloredOutput = !coloredOutput;
+            }
+        });
+        menu.insert(colorItem,0);
         
         // Add Wrap text action
         //todo - reimplement line wrap
