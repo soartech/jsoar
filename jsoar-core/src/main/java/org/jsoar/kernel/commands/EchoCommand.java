@@ -14,9 +14,7 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "echo" command.
  * @author austin.brehob
  */
-@Command(name="echo", description="Outputs the given string",
-         subcommands={HelpCommand.class})
-public class EchoCommand implements SoarCommand, Runnable
+public class EchoCommand implements SoarCommand
 {
     private Agent agent;
     
@@ -28,33 +26,48 @@ public class EchoCommand implements SoarCommand, Runnable
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, this, args);
+        Utils.parseAndRun(agent, new Echo(agent), args);
         
         return "";
     }
     
-    @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
-    boolean noNewline = false;
-    
-    @Parameters(description="The string to output")
-    String[] outputString = null;
-
-    @Override
-    public void run()
+    @Command(name="echo", description="Outputs the given string",
+            subcommands={HelpCommand.class})
+    static public class Echo implements Runnable
     {
-        for (int i = 0; i < outputString.length; i++)
+        private Agent agent;
+        
+        public Echo(Agent agent)
         {
-            if (i != 0)
-            {
-                agent.getPrinter().print(" ");
-            }
-            agent.getPrinter().print(outputString[i]);
+            this.agent = agent;
         }
         
-        if (!noNewline)
+        @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
+        boolean noNewline = false;
+        
+        @Parameters(description="The string to output")
+        String[] outputString = null;
+
+        @Override
+        public void run()
         {
-            agent.getPrinter().print("\n");
+            if (outputString != null)
+            {
+                for (int i = 0; i < outputString.length; i++)
+                {
+                    if (i != 0)
+                    {
+                        agent.getPrinter().print(" ");
+                    }
+                    agent.getPrinter().print(outputString[i]);
+                }
+            }
+            
+            if (!noNewline)
+            {
+                agent.getPrinter().print("\n");
+            }
+            agent.getPrinter().flush();
         }
-        agent.getPrinter().flush();
     }
 }
