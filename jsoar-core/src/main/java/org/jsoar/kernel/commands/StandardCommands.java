@@ -42,7 +42,7 @@ public class StandardCommands
         interp.addCommand("echo", new EchoCommand(agent));
         interp.addCommand("clog", new CLogCommand(agent));
         interp.addCommand("watch", new WatchCommand(agent.getTrace()));
-        interp.addCommand("pwatch", new ProductionWatchCommand(agent.getProductions()));
+        interp.addCommand("pwatch", new PWatchCommand(agent.getProductions()));
         interp.addCommand("pbreak", new ProductionBreakCommand(agent.getProductions()));
         interp.addCommand("rhs-functions", new RhsFunctionsCommand(agent));
         
@@ -83,6 +83,7 @@ public class StandardCommands
         
         interp.addCommand("soar", new SoarSettingsCommand(agent));
         interp.addCommand("output", new OutputCommand(agent, printCommand));
+        interp.addCommand("production-watch", new ProductionWatchCommand(agent));
         
         SoarCommands.registerCustomCommands(interp, agent);
     }
