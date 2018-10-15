@@ -21,7 +21,6 @@ import picocli.CommandLine.ParentCommand;
  * @author bob.marinier
  * @author austin.brehob
  */
-
 public class SoarSettingsCommand implements SoarCommand
 {
     private Agent agent;
@@ -59,12 +58,13 @@ public class SoarSettingsCommand implements SoarCommand
                          SoarSettingsCommand.Stop.class,
                          SoarSettingsCommand.Timers.class,
                          SoarSettingsCommand.WaitSNC.class})
-    static public class Soar implements Runnable {
-        
+    static public class Soar implements Runnable
+    {
         private Agent agent;
         private ThreadedAgent tAgent;
         
-        public Soar(Agent agent, ThreadedAgent tAgent) {
+        public Soar(Agent agent, ThreadedAgent tAgent)
+        {
             this.agent = agent;
             this.tAgent = tAgent;
         }
@@ -77,7 +77,7 @@ public class SoarSettingsCommand implements SoarCommand
                     "=======================================================\n" +
                     "-                   Soar 9.6.0 Summary                -\n" +
                     "=======================================================\n"
-                    );
+            );
         }
     }
     
