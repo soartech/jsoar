@@ -22,12 +22,7 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "output" command.
  * @author austin.brehob
  */
-@Command(name="output", description="Commands related to handling output",
-subcommands={HelpCommand.class,
-             OutputCommand.Log.class,
-             OutputCommand.PrintDepth.class,
-             OutputCommand.Warnings.class})
-public final class OutputCommand implements SoarCommand, Runnable
+public final class OutputCommand implements SoarCommand
 {
     private Agent agent;
     private PrintCommand printCommand;
@@ -42,20 +37,39 @@ public final class OutputCommand implements SoarCommand, Runnable
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, this, args);
+        Utils.parseAndRun(agent, new Output(agent, printCommand, writerStack), args);
         
         return "";
     }
     
-    // TODO Provide summary
-    @Override
-    public void run()
+    @Command(name="output", description="Commands related to handling output",
+            subcommands={HelpCommand.class,
+                         OutputCommand.Log.class,
+                         OutputCommand.PrintDepth.class,
+                         OutputCommand.Warnings.class})
+    static public class Output implements Runnable
     {
-        agent.getPrinter().startNewLine().print(
-                "=======================================================\n" +
-                "-                    Output Status                    -\n" +
-                "=======================================================\n"
-        );
+        private Agent agent;
+        private PrintCommand printCommand;
+        private LinkedList<Writer> writerStack;
+        
+        public Output(Agent agent, PrintCommand printCommand, LinkedList<Writer> writerStack)
+        {
+            this.agent = agent;
+            this.printCommand = printCommand;
+            this.writerStack = writerStack;
+        }
+        
+        // TODO Provide summary
+        @Override
+        public void run()
+        {
+            agent.getPrinter().startNewLine().print(
+                    "=======================================================\n" +
+                    "-                    Output Status                    -\n" +
+                    "=======================================================\n"
+            );
+        }
     }
     
     @Command(name="log", description="Changes output log settings",
@@ -63,7 +77,7 @@ public final class OutputCommand implements SoarCommand, Runnable
     static public class Log implements Runnable
     {
         @ParentCommand
-        OutputCommand parent; // injected by picocli
+        Output parent; // injected by picocli
 
         @Option(names={"-c", "--close"}, arity="0..1", description="Closes the log file")
         boolean close = false;
@@ -135,7 +149,7 @@ public final class OutputCommand implements SoarCommand, Runnable
     static public class PrintDepth implements Runnable
     {
         @ParentCommand
-        OutputCommand parent; // injected by picocli
+        Output parent; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="New print depth")
         Integer printDepth = null;
@@ -169,7 +183,7 @@ public final class OutputCommand implements SoarCommand, Runnable
     static public class Warnings implements Runnable
     {
         @ParentCommand
-        OutputCommand parent; // injected by picocli
+        Output parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"}, description="Enables output warnings")
         boolean enable = false;
