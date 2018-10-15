@@ -21,15 +21,8 @@ import picocli.CommandLine.ParentCommand;
  * @author bob.marinier
  * @author austin.brehob
  */
-@Command(name="soar", description="Commands and settings related to running Soar",
-         subcommands={HelpCommand.class,
-                      SoarSettingsCommand.Init.class,
-                      SoarSettingsCommand.MaxElaborations.class,
-                      SoarSettingsCommand.StopPhase.class,
-                      SoarSettingsCommand.Stop.class,
-                      SoarSettingsCommand.Timers.class,
-                      SoarSettingsCommand.WaitSNC.class})
-public class SoarSettingsCommand implements SoarCommand, Runnable
+
+public class SoarSettingsCommand implements SoarCommand
 {
     private Agent agent;
     private ThreadedAgent tAgent;
@@ -53,27 +46,46 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
         {
             this.agent = tAgent.getAgent();
         }
-        Utils.parseAndRun(agent, this, args);
+        Utils.parseAndRun(agent, new Soar(agent, tAgent), args);
         
         return "";
     }
 
-    // TODO Provide summary
-    @Override
-    public void run()
-    {
-        agent.getPrinter().startNewLine().print(
-                "=======================================================\n" +
-                "-                   Soar 9.6.0 Summary                -\n" +
-                "=======================================================\n"
-                );
+    @Command(name="soar", description="Commands and settings related to running Soar",
+            subcommands={HelpCommand.class,
+                         SoarSettingsCommand.Init.class,
+                         SoarSettingsCommand.MaxElaborations.class,
+                         SoarSettingsCommand.StopPhase.class,
+                         SoarSettingsCommand.Stop.class,
+                         SoarSettingsCommand.Timers.class,
+                         SoarSettingsCommand.WaitSNC.class})
+    static public class Soar implements Runnable {
+        
+        private Agent agent;
+        private ThreadedAgent tAgent;
+        
+        public Soar(Agent agent, ThreadedAgent tAgent) {
+            this.agent = agent;
+            this.tAgent = tAgent;
+        }
+        
+        // TODO Provide summary
+        @Override
+        public void run()
+        {
+            agent.getPrinter().startNewLine().print(
+                    "=======================================================\n" +
+                    "-                   Soar 9.6.0 Summary                -\n" +
+                    "=======================================================\n"
+                    );
+        }
     }
     
     @Command(name="init", description="Re-initializes Soar", subcommands={HelpCommand.class} )
     static public class Init implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
 
         @Override
         public void run()
@@ -88,7 +100,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     static public class MaxElaborations implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="The new number of maximum elaborations")
         private Integer numElaborations = null;
@@ -115,7 +127,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     static public class StopPhase implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
         
         // These are in the same order as the corresponding entries in the Phase class
         enum CommandPhase {input, proposal, decide, apply, output};
@@ -148,7 +160,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     static public class Stop implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
 
         @Override
         public void run()
@@ -169,7 +181,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     static public class Timers implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
                 description="Enables timers")
@@ -205,7 +217,7 @@ public class SoarSettingsCommand implements SoarCommand, Runnable
     static public class WaitSNC implements Runnable
     {
         @ParentCommand
-        SoarSettingsCommand parent; // injected by picocli
+        Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
                 description="Enables wait-snc")
