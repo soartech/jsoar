@@ -13,9 +13,7 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "pushd" command.
  * @author austin.brehob
  */
-@Command(name="pushd", description="Saves the current working directory on a stack",
-         subcommands={HelpCommand.class})
-public class PushdCommand implements SoarCommand, Runnable
+public class PushdCommand implements SoarCommand
 {
     private final SourceCommand sourceCommand;
     private Agent agent;
@@ -29,24 +27,38 @@ public class PushdCommand implements SoarCommand, Runnable
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, this, args);
+        Utils.parseAndRun(agent, new Pushd(sourceCommand, agent), args);
         
         return "";
     }
 
-    @Parameters(index="0", description="The directory to push")
-    private String dir;
-    
-    @Override
-    public void run()
+    @Command(name="pushd", description="Saves the current working directory on a stack",
+            subcommands={HelpCommand.class})
+    static public class Pushd implements Runnable
     {
-        try
+        private final SourceCommand sourceCommand;
+        private Agent agent;
+        
+        public Pushd(SourceCommand sourceCommand, Agent agent)
         {
-            sourceCommand.pushd(dir);
+            this.sourceCommand = sourceCommand;
+            this.agent = agent;
         }
-        catch (SoarException e)
+        
+        @Parameters(index="0", description="The directory to push")
+        private String dir;
+        
+        @Override
+        public void run()
         {
-            this.agent.getPrinter().print(e.getMessage());
+            try
+            {
+                sourceCommand.pushd(dir);
+            }
+            catch (SoarException e)
+            {
+                this.agent.getPrinter().print(e.getMessage());
+            }
         }
     }
 }
