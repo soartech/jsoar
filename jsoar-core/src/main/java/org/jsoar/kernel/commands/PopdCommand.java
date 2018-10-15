@@ -12,10 +12,7 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "popd" command.
  * @author austin.brehob
  */
-@Command(name="popd", description="Pops the top working directory off the stack and sets "
-        + "the current working directory to it",
-         subcommands={HelpCommand.class})
-public class PopdCommand implements SoarCommand, Runnable
+public class PopdCommand implements SoarCommand
 {
     private final SourceCommand sourceCommand;
     private Agent agent;
@@ -29,21 +26,36 @@ public class PopdCommand implements SoarCommand, Runnable
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, this, args);
+        Utils.parseAndRun(agent, new Popd(sourceCommand, agent), args);
         
         return "";
     }
-
-    @Override
-    public void run()
+    
+    @Command(name="popd", description="Pops the top working directory off the stack and sets "
+            + "the current working directory to it",
+             subcommands={HelpCommand.class})
+    static public class Popd implements Runnable
     {
-        try
+        private final SourceCommand sourceCommand;
+        private Agent agent;
+        
+        public Popd(SourceCommand sourceCommand, Agent agent)
         {
-            sourceCommand.popd();
+            this.sourceCommand = sourceCommand;
+            this.agent = agent;
         }
-        catch (SoarException e)
+        
+        @Override
+        public void run()
         {
-            this.agent.getPrinter().print(e.getMessage());
+            try
+            {
+                sourceCommand.popd();
+            }
+            catch (SoarException e)
+            {
+                this.agent.getPrinter().print(e.getMessage());
+            }
         }
     }
 }
