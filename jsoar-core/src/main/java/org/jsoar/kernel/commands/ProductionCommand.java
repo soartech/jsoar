@@ -114,6 +114,7 @@ public class ProductionCommand implements SoarCommand
             
             if (prodName != null)
             {
+                // If the production of the given name exists, excise it
                 Production p = pm.getProduction(prodName);
                 if (p == null)
                 {
@@ -130,6 +131,7 @@ public class ProductionCommand implements SoarCommand
                 final Set<Production> toExcise = new LinkedHashSet<Production>();
                 boolean doInit = false;
                 
+                // Determine which productions to excise based on the options provided
                 if (exciseAll)
                 {
                     toExcise.addAll(pm.getProductions(null));
@@ -194,6 +196,7 @@ public class ProductionCommand implements SoarCommand
                     Adaptables.adapt(parent.agent, ReinforcementLearning.class).rl_initialize_template_tracking();
                 }
                 
+                // Initialize the agent if the "-a" option is provided
                 if (doInit)
                 {
                     parent.agent.initialize();
@@ -247,19 +250,24 @@ public class ProductionCommand implements SoarCommand
             Integer topN = null;
             String prodName = null;
             
-            try
+            // Determine if the parameter provided is an integer or string
+            if (param != null)
             {
-                topN = Integer.valueOf(param);
-            }
-            catch (NumberFormatException e)
-            {
-                prodName = param;
+                try
+                {
+                    topN = Integer.valueOf(param);
+                }
+                catch (NumberFormatException e)
+                {
+                    prodName = param;
+                }
             }
             
             if (topN != null)
             {
                 if (topN == 0)
                 {
+                    // Find and print all productions that have not fired yet
                     List<Production> productionsNotFired = new ArrayList<Production>();
                     for (Production p : parent.agent.getProductions().getProductions(null))
                     {
