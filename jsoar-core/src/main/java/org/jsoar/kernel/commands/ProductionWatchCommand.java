@@ -12,11 +12,9 @@ import org.jsoar.util.commands.SoarCommandContext;
 
 import com.google.common.base.Joiner;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 /**
  * This is the implementation of the "production-watch" command.
