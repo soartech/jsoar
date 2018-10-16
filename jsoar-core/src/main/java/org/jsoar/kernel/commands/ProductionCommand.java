@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,8 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
@@ -48,8 +51,9 @@ public class ProductionCommand implements SoarCommand
     
     @Command(name="production", description="Commands related to altering and printing production info",
             subcommands={HelpCommand.class,
-                         Excise.class,
-                         FiringCounts.class})
+                         ProductionCommand.Excise.class,
+                         ProductionCommand.FiringCounts.class,
+                         ProductionCommand.Matches.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -344,5 +348,90 @@ public class ProductionCommand implements SoarCommand
             printResults(prods, n);
         }
     }
+    
+    @Command(name="matches", description="Print the list of productions that will "
+            + "retract or fire in the next propose or apply phase",
+            subcommands={HelpCommand.class} )
+    static public class Matches implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-c", "--counts"}, description="Same as default implementation")
+        boolean includeCounts = false;
+        
+        @Option(names={"-n", "--names"}, description="Same as default implementation")
+        boolean includeNames = false;
+        
+        @Option(names={"-t", "--timetags"}, description="Also print the "
+                + "timetags of the wmes at the first failing condition")
+        boolean includeTimetags = false;
+        
+        @Option(names={"-w", "--wmes"}, description="Also print the full wmes, not just "
+                + "the timetags, at the first failing condition")
+        boolean includeWmes = false;
+        
+        @Option(names={"-a", "--assertions"}, description="List only productions about to fire")
+        boolean onlyAssertions = false;
+        
+        @Option(names={"-r", "--retractions"}, description="List only productions about to retract")
+        boolean onlyRetractions = false;
+        
+        @Option(names={"-i", "--internal"}, description="Also print some internal "
+                + "information when a production name is provided")
+        boolean includeInternalInfo = false;
+        
+        @Parameters(index="0", arity="0..1", description="Print partial match information for the named production")
+        private String prodName = null;
+        
+        @Override
+        public void run()
+        {
+            WmeTraceType wmeTraceType = WmeTraceType.NONE;
+            EnumSet<MatchSetTraceType> mstt = EnumSet.allOf(MatchSetTraceType.class);
+            
+            if (includeWmes)
+            {
+                wmeTraceType = WmeTraceType.FULL;
+            }
+            else if (includeTimetags)
+            {
+                wmeTraceType = WmeTraceType.TIMETAG;
+            }
+            
+            if (onlyAssertions)
+            {
+                mstt.clear();
+                mstt.add(MatchSetTraceType.MS_ASSERT);
+            }
+            else if (onlyRetractions)
+            {
+                mstt.clear();
+                mstt.add(MatchSetTraceType.MS_RETRACT);
+            }
+            
+            if (prodName != null)
+            {
+                // Print partial matches for the named production
+                Production p = parent.agent.getProductions().getProduction(prodName);
+                if (p == null)
+                {
+                    parent.agent.getPrinter().startNewLine().print("No production '" + prodName + "'");
+                }
+                else if (p.getReteNode() == null)
+                {
+                    parent.agent.getPrinter().startNewLine().print("Production '" + prodName + "' is not in rete");
+                }
+                else
+                {
+                    p.printPartialMatches(parent.agent.getPrinter(), wmeTraceType, includeInternalInfo);
+                }
+            }
+            else
+            {
+                parent.agent.printMatchSet(parent.agent.getPrinter(), wmeTraceType, mstt);
+                parent.agent.getPrinter().flush();
+            }
+        }
+    }
 }
-
