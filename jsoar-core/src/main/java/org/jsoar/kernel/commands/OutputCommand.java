@@ -42,6 +42,7 @@ public final class OutputCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="output", description="Commands related to handling output",
             subcommands={HelpCommand.class,
                          OutputCommand.Log.class,
@@ -72,8 +73,9 @@ public final class OutputCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="log", description="Changes output log settings",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class Log implements Runnable
     {
         @ParentCommand
@@ -144,8 +146,9 @@ public final class OutputCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="print-depth", description="Adjusts or displays the print-depth",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class PrintDepth implements Runnable
     {
         @ParentCommand
@@ -178,8 +181,9 @@ public final class OutputCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="warnings", description="Toggles output warnings",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class Warnings implements Runnable
     {
         @ParentCommand

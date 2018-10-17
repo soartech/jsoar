@@ -32,6 +32,7 @@ public class PushdCommand implements SoarCommand
         return "";
     }
 
+    
     @Command(name="pushd", description="Saves the current working directory on a stack",
             subcommands={HelpCommand.class})
     static public class Pushd implements Runnable

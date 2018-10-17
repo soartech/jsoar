@@ -31,6 +31,7 @@ public class EchoCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="echo", description="Outputs the given string",
             subcommands={HelpCommand.class})
     static public class Echo implements Runnable

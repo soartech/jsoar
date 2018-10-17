@@ -31,8 +31,8 @@ public class PwdCommand implements SoarCommand
         return "";
     }
 
-    @Command(name="pwd", description="Prints the working directory to the screen",
-            subcommands={HelpCommand.class})
+    
+    @Command(name="pwd", description="Prints the working directory to the screen", subcommands={HelpCommand.class})
     static public class Pwd implements Runnable
     {
         private final SourceCommand sourceCommand;

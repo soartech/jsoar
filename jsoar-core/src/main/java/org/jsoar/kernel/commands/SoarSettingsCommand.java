@@ -50,12 +50,13 @@ public class SoarSettingsCommand implements SoarCommand
         return "";
     }
 
+    
     @Command(name="soar", description="Commands and settings related to running Soar",
             subcommands={HelpCommand.class,
                          SoarSettingsCommand.Init.class,
                          SoarSettingsCommand.MaxElaborations.class,
-                         SoarSettingsCommand.StopPhase.class,
                          SoarSettingsCommand.Stop.class,
+                         SoarSettingsCommand.StopPhase.class,
                          SoarSettingsCommand.Timers.class,
                          SoarSettingsCommand.WaitSNC.class})
     static public class Soar implements Runnable
@@ -81,7 +82,8 @@ public class SoarSettingsCommand implements SoarCommand
         }
     }
     
-    @Command(name="init", description="Re-initializes Soar", subcommands={HelpCommand.class} )
+    
+    @Command(name="init", description="Re-initializes Soar", subcommands={HelpCommand.class})
     static public class Init implements Runnable
     {
         @ParentCommand
@@ -95,8 +97,9 @@ public class SoarSettingsCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="max-elaborations", description="Maximum elaboration in a decision cycle",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class MaxElaborations implements Runnable
     {
         @ParentCommand
@@ -122,8 +125,29 @@ public class SoarSettingsCommand implements SoarCommand
         }
     }
     
-    @Command(name="stop-phase", description="Phase before which Soar will stop",
-            subcommands={HelpCommand.class} )
+    
+    @Command(name="stop", description="Stop Soar execution", subcommands={HelpCommand.class})
+    static public class Stop implements Runnable
+    {
+        @ParentCommand
+        Soar parent; // injected by picocli
+
+        @Override
+        public void run()
+        {
+            if (parent.tAgent != null)
+            {
+                parent.tAgent.stop();
+            }
+            else
+            {
+                parent.agent.stop();
+            }
+        }
+    }
+    
+    
+    @Command(name="stop-phase", description="Phase before which Soar will stop", subcommands={HelpCommand.class})
     static public class StopPhase implements Runnable
     {
         @ParentCommand
@@ -155,29 +179,8 @@ public class SoarSettingsCommand implements SoarCommand
         }
     }
     
-    @Command(name="stop", description="Stop Soar execution",
-            subcommands={HelpCommand.class} )
-    static public class Stop implements Runnable
-    {
-        @ParentCommand
-        Soar parent; // injected by picocli
-
-        @Override
-        public void run()
-        {
-            if (parent.tAgent != null)
-            {
-                parent.tAgent.stop();
-            }
-            else
-            {
-                parent.agent.stop();
-            }
-        }
-    }
     
-    @Command(name="timers", description="Profile where Soar spends its time",
-            subcommands={HelpCommand.class})
+    @Command(name="timers", description="Profile where Soar spends its time", subcommands={HelpCommand.class})
     static public class Timers implements Runnable
     {
         @ParentCommand

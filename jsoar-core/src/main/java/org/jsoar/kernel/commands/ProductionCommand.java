@@ -59,15 +59,16 @@ public class ProductionCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="production", description="Commands related to altering and printing production info",
             subcommands={HelpCommand.class,
+                         ProductionCommand.Break.class,
                          ProductionCommand.Excise.class,
+                         ProductionCommand.Find.class,
                          ProductionCommand.FiringCounts.class,
                          ProductionCommand.Matches.class,
                          ProductionCommand.MemoryUsage.class,
-                         ProductionCommand.OptimizeAttribute.class,
-                         ProductionCommand.Break.class,
-                         ProductionCommand.Find.class})
+                         ProductionCommand.OptimizeAttribute.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -88,6 +89,85 @@ public class ProductionCommand implements SoarCommand
             );
         }
     }
+    
+
+    @Command(name="break", description="Stops the Soar decision cycle when the given rule fires",
+            subcommands={HelpCommand.class})
+    static public class Break implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-c", "--clear"}, description="Clear :interrupt flag from a production")
+        String prodToClear = null;
+        
+        @Option(names={"-p", "--print"}, description="Print which production rules "
+                + "have had their :interrupt flags set")
+        boolean printBreaks = false;
+        
+        @Option(names={"-s", "--set"}, description="Set interrupt flag on a production rule")
+        String prodToBreak = null;
+        
+        @Parameters(index="0", arity="0..1", description="Production rule on which to set :interrupt flag")
+        private String prodName = null;
+        
+        @Override
+        public void run()
+        {
+            String name = null;
+            boolean flag = false;
+            
+            // Determine the production on which to set/clear the :interrupt flag
+            if (prodToClear != null)
+            {
+                name = prodToClear;
+            }
+            else if (prodToBreak != null)
+            {
+                name = prodToBreak;
+                flag = true;
+            }
+            else if (prodName != null)
+            {
+                name = prodName;
+                flag = true;
+            }
+            
+            if (name != null)
+            {
+                Production p = parent.agent.getProductions().getProduction(name);
+                if (p != null)
+                {
+                    p.setBreakpointEnabled(flag);
+                }
+                else
+                {
+                    parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
+                }
+            }
+            else
+            {
+                parent.agent.getPrinter().startNewLine().print(Joiner.on('\n').join(collectAndSortRuleNames()));
+            }
+        }
+        
+        private List<String> collectAndSortRuleNames()
+        {
+            ProductionManager pm = parent.agent.getProductions();
+            final List<String> result = new ArrayList<String>();
+            
+            for (Production p : pm.getProductions(null))
+            {
+                if (p.isBreakpointEnabled())
+                {
+                    result.add(p.getName());
+                }
+            }
+            Collections.sort(result);
+            return result;
+        }
+    }
+    
     
     @Command(name="excise", description="Excises specified productions", subcommands={HelpCommand.class})
     static public class Excise implements Runnable
@@ -226,6 +306,107 @@ public class ProductionCommand implements SoarCommand
         }
     }
     
+    
+    @Command(name="find", description="Find productions by condition or action patterns",
+            subcommands={HelpCommand.class})
+    static public class Find implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-l", "--lhs"}, description="Match pattern only "
+                + "against the conditions of productions (default)")
+        boolean matchLHS = false;
+        
+        @Option(names={"-r", "--rhs"}, description="Match pattern against the actions of productions")
+        boolean matchRHS = false;
+        
+        @Option(names={"-c", "--chunks"}, description="Look only for chunks that match the pattern")
+        boolean matchChunks = false;
+        
+        @Option(names={"-n", "--nochunks"}, description="Disregard chunks when looking for the pattern")
+        boolean matchNoChunks = false;
+        
+        @Option(names={"-s", "--show-bindings"}, description="Show the bindings associated with a wildcard pattern")
+        boolean showBindings = false;
+        
+        @Parameters(arity="1", description="Any pattern that can appear in productions")
+        String[] arrPattern = null;
+        
+        @Override
+        public void run()
+        {
+            final ProductionFinder finder = new ProductionFinder(parent.agent);
+            finder.options().clear();
+            
+            if (matchRHS)
+            {
+                finder.options().add(Options.RHS);
+            }
+            else
+            {
+                finder.options().add(Options.LHS);
+            }
+            
+            if (showBindings)
+            {
+                parent.agent.getPrinter().startNewLine().print("Option not yet supported");
+                return;
+            }
+            
+            final String pattern = StringTools.join(Arrays.asList(arrPattern), " ");
+            final Collection<Production> productions = collectProductions(matchChunks, matchNoChunks);
+            
+            try
+            {
+                List<Production> result = finder.find(pattern, productions);
+                printResults(pattern, result);
+            }
+            catch (ParserException e)
+            {
+                parent.agent.getPrinter().startNewLine().print(e.getMessage());
+            }
+        }
+        
+        private void printResults(final String pattern, List<Production> result)
+        {
+            final Printer printer = parent.agent.getPrinter();
+            printer.startNewLine();
+            if (result.isEmpty())
+            {
+                printer.print("No productions match '%s'\n", pattern);
+            }
+            else
+            {
+                for (Production p : result)
+                {
+                    printer.print("%s\n", p.getName());
+                }
+            }
+        }
+
+        // Obtains all productions filtered by chunks, nochunks, or neither
+        private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
+        {
+            final Predicate<Production> filter = new Predicate<Production>()
+            {
+                @Override
+                public boolean apply(Production p)
+                {
+                    final ProductionType type = p.getType();
+                    return (type == ProductionType.CHUNK && chunks) ||
+                           (type != ProductionType.CHUNK && nochunks) ||
+                           (!chunks && !nochunks);
+                }
+            };
+                
+            final Collection<Production> productions = Collections2.filter(
+                    parent.agent.getProductions().getProductions(null), filter);
+            return productions;
+        }
+    }
+    
+    
     @Command(name="firing-counts", description="Print the number of times productions have fired",
             subcommands={HelpCommand.class})
     static public class FiringCounts implements Runnable
@@ -363,6 +544,7 @@ public class ProductionCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="matches", description="Print the list of productions that will "
             + "retract or fire in the next propose or apply phase",
             subcommands={HelpCommand.class})
@@ -448,6 +630,7 @@ public class ProductionCommand implements SoarCommand
             }
         }
     }
+    
     
     @Command(name="memory-usage", description="Print memory usage for partial matches",
             subcommands={HelpCommand.class})
@@ -582,6 +765,7 @@ public class ProductionCommand implements SoarCommand
         }
     }
     
+    
     @Command(name="optimize-attribute", description="Declare a symbol to be multi-attributed so "
             + "the rule can be matched more efficiently",
             subcommands={HelpCommand.class})
@@ -602,181 +786,6 @@ public class ProductionCommand implements SoarCommand
             final StringSymbol attr = parent.agent.getSymbols().createString(attribute);
             final int cost = Integer.valueOf(degree);
             parent.agent.getMultiAttributes().setCost(attr, cost);
-        }
-    }
-    
-    @Command(name="break", description="Stops the Soar decision cycle when the given rule fires",
-            subcommands={HelpCommand.class})
-    static public class Break implements Runnable
-    {
-        @ParentCommand
-        ProductionC parent; // injected by picocli
-        
-        @Option(names={"-c", "--clear"}, description="Clear :interrupt flag from a production")
-        String prodToClear = null;
-        
-        @Option(names={"-p", "--print"}, description="Print which production rules "
-                + "have had their :interrupt flags set")
-        boolean printBreaks = false;
-        
-        @Option(names={"-s", "--set"}, description="Set interrupt flag on a production rule")
-        String prodToBreak = null;
-        
-        @Parameters(index="0", arity="0..1", description="Production rule on which to set :interrupt flag")
-        private String prodName = null;
-        
-        @Override
-        public void run()
-        {
-            String name = null;
-            boolean flag = false;
-            
-            // Determine the production on which to set/clear the :interrupt flag
-            if (prodToClear != null)
-            {
-                name = prodToClear;
-            }
-            else if (prodToBreak != null)
-            {
-                name = prodToBreak;
-                flag = true;
-            }
-            else if (prodName != null)
-            {
-                name = prodName;
-                flag = true;
-            }
-            
-            if (name != null)
-            {
-                Production p = parent.agent.getProductions().getProduction(name);
-                if (p != null)
-                {
-                    p.setBreakpointEnabled(flag);
-                }
-                else
-                {
-                    parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
-                }
-            }
-            else
-            {
-                parent.agent.getPrinter().startNewLine().print(Joiner.on('\n').join(collectAndSortRuleNames()));
-            }
-        }
-        
-        private List<String> collectAndSortRuleNames()
-        {
-            ProductionManager pm = parent.agent.getProductions();
-            final List<String> result = new ArrayList<String>();
-            
-            for (Production p : pm.getProductions(null))
-            {
-                if (p.isBreakpointEnabled())
-                {
-                    result.add(p.getName());
-                }
-            }
-            Collections.sort(result);
-            return result;
-        }
-    }
-    
-    @Command(name="find", description="Find productions by condition or action patterns",
-            subcommands={HelpCommand.class})
-    static public class Find implements Runnable
-    {
-        @ParentCommand
-        ProductionC parent; // injected by picocli
-        
-        @Option(names={"-l", "--lhs"}, description="Match pattern only "
-                + "against the conditions of productions (default)")
-        boolean matchLHS = false;
-        
-        @Option(names={"-r", "--rhs"}, description="Match pattern against the actions of productions")
-        boolean matchRHS = false;
-        
-        @Option(names={"-c", "--chunks"}, description="Look only for chunks that match the pattern")
-        boolean matchChunks = false;
-        
-        @Option(names={"-n", "--nochunks"}, description="Disregard chunks when looking for the pattern")
-        boolean matchNoChunks = false;
-        
-        @Option(names={"-s", "--show-bindings"}, description="Show the bindings associated with a wildcard pattern")
-        boolean showBindings = false;
-        
-        @Parameters(arity="1", description="Any pattern that can appear in productions")
-        String[] arrPattern = null;
-        
-        @Override
-        public void run()
-        {
-            final ProductionFinder finder = new ProductionFinder(parent.agent);
-            finder.options().clear();
-            
-            if (matchRHS)
-            {
-                finder.options().add(Options.RHS);
-            }
-            else
-            {
-                finder.options().add(Options.LHS);
-            }
-            
-            if (showBindings)
-            {
-                parent.agent.getPrinter().startNewLine().print("Option not yet supported");
-                return;
-            }
-            
-            final String pattern = StringTools.join(Arrays.asList(arrPattern), " ");
-            final Collection<Production> productions = collectProductions(matchChunks, matchNoChunks);
-            
-            try
-            {
-                List<Production> result = finder.find(pattern, productions);
-                printResults(pattern, result);
-            }
-            catch (ParserException e)
-            {
-                parent.agent.getPrinter().startNewLine().print(e.getMessage());
-            }
-        }
-        
-        private void printResults(final String pattern, List<Production> result)
-        {
-            final Printer printer = parent.agent.getPrinter();
-            printer.startNewLine();
-            if (result.isEmpty())
-            {
-                printer.print("No productions match '%s'\n", pattern);
-            }
-            else
-            {
-                for (Production p : result)
-                {
-                    printer.print("%s\n", p.getName());
-                }
-            }
-        }
-
-        private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
-        {
-            final Predicate<Production> filter = new Predicate<Production>()
-            {
-                @Override
-                public boolean apply(Production p)
-                {
-                    final ProductionType type = p.getType();
-                    return (type == ProductionType.CHUNK && chunks) ||
-                           (type != ProductionType.CHUNK && nochunks) ||
-                           (!chunks && !nochunks);
-                }
-            };
-                
-            final Collection<Production> productions = Collections2.filter(
-                    parent.agent.getProductions().getProductions(null), filter);
-            return productions;
         }
     }
 }

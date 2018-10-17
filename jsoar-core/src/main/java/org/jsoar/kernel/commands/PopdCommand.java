@@ -31,9 +31,9 @@ public class PopdCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="popd", description="Pops the top working directory off the stack and sets "
-            + "the current working directory to it",
-             subcommands={HelpCommand.class})
+            + "the current working directory to it", subcommands={HelpCommand.class})
     static public class Popd implements Runnable
     {
         private final SourceCommand sourceCommand;
