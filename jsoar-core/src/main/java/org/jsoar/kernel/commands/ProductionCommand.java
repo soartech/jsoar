@@ -15,6 +15,7 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -54,7 +55,8 @@ public class ProductionCommand implements SoarCommand
                          ProductionCommand.Excise.class,
                          ProductionCommand.FiringCounts.class,
                          ProductionCommand.Matches.class,
-                         ProductionCommand.MemoryUsage.class})
+                         ProductionCommand.MemoryUsage.class,
+                         ProductionCommand.OptimizeAttribute.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -76,7 +78,7 @@ public class ProductionCommand implements SoarCommand
         }
     }
     
-    @Command(name="excise", description="Excises specified productions", subcommands={HelpCommand.class} )
+    @Command(name="excise", description="Excises specified productions", subcommands={HelpCommand.class})
     static public class Excise implements Runnable
     {
         @ParentCommand
@@ -214,7 +216,7 @@ public class ProductionCommand implements SoarCommand
     }
     
     @Command(name="firing-counts", description="Print the number of times productions have fired",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class FiringCounts implements Runnable
     {
         @ParentCommand
@@ -352,7 +354,7 @@ public class ProductionCommand implements SoarCommand
     
     @Command(name="matches", description="Print the list of productions that will "
             + "retract or fire in the next propose or apply phase",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class Matches implements Runnable
     {
         @ParentCommand
@@ -437,7 +439,7 @@ public class ProductionCommand implements SoarCommand
     }
     
     @Command(name="memory-usage", description="Print memory usage for partial matches",
-            subcommands={HelpCommand.class} )
+            subcommands={HelpCommand.class})
     static public class MemoryUsage implements Runnable
     {
         @ParentCommand
@@ -566,6 +568,30 @@ public class ProductionCommand implements SoarCommand
                 }
             });
             printResults(prods, n);
+        }
+    }
+    
+    @Command(name="optimize-attribute", description="Declare a symbol to be multi-attributed so "
+            + "that conditions in productions that test that attribute are re-ordered so that "
+            + "the rule can be matched more efficiently.",
+            subcommands={HelpCommand.class})
+    static public class OptimizeAttribute implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Parameters(index="0", description="Any Soar attribute")
+        private String attribute = null;
+        
+        @Parameters(index="1", description="Estimate of degree of simultaneous values for attribute")
+        private Integer degree = null;
+        
+        @Override
+        public void run()
+        {
+            final StringSymbol attr = parent.agent.getSymbols().createString(attribute);
+            final int cost = Integer.valueOf(degree);
+            parent.agent.getMultiAttributes().setCost(attr, cost);
         }
     }
 }
