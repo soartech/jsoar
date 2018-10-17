@@ -53,7 +53,8 @@ public class ProductionCommand implements SoarCommand
             subcommands={HelpCommand.class,
                          ProductionCommand.Excise.class,
                          ProductionCommand.FiringCounts.class,
-                         ProductionCommand.Matches.class})
+                         ProductionCommand.Matches.class,
+                         ProductionCommand.MemoryUsage.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -432,6 +433,139 @@ public class ProductionCommand implements SoarCommand
                 parent.agent.printMatchSet(parent.agent.getPrinter(), wmeTraceType, mstt);
                 parent.agent.getPrinter().flush();
             }
+        }
+    }
+    
+    @Command(name="memory-usage", description="Print memory usage for partial matches",
+            subcommands={HelpCommand.class} )
+    static public class MemoryUsage implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-c", "--chunks"}, description="Print memory usage of chunks")
+        boolean filterByChunks = false;
+        
+        @Option(names={"-d", "--default"}, description="Print memory usage of default productions")
+        boolean filterByDefault = false;
+        
+        @Option(names={"-j", "--justifications"}, description="Print memory usage of justifications")
+        boolean filterByJustify = false;
+        
+        @Option(names={"-T", "--templates"}, description="Print how many times Soar-RL templates fired")
+        boolean filterByTemplates = false;
+        
+        @Option(names={"-u", "--user"}, description="Print memory usage of user-defined productions")
+        boolean filterByUser = false;
+        
+        @Parameters(index="0", arity="0..1", description="If an integer, list the top n productions according to "
+                + "memory usage. If not an integer, print memory usage for a specific production.")
+        private String param = null;
+        
+        @Override
+        public void run()
+        {
+            Integer topN = null;
+            String prodName = null;
+            
+            Production single = null;
+            int count = Integer.MAX_VALUE;
+            final EnumSet<ProductionType> types = EnumSet.noneOf(ProductionType.class);
+            
+            // Determine if the parameter provided is an integer or string
+            if (param != null)
+            {
+                try
+                {
+                    topN = Integer.valueOf(param);
+                }
+                catch (NumberFormatException e)
+                {
+                    prodName = param;
+                }
+            }
+            
+            if (topN != null)
+            {
+                count = topN;
+                if (count < 1)
+                {
+                    parent.agent.getPrinter().startNewLine().print("Count argument "
+                            + "must be greater than 0, got " + count);
+                    return;
+                }
+            }
+            else if (prodName != null)
+            {
+                single = parent.agent.getProductions().getProduction(prodName);
+                if (single == null)
+                {
+                    parent.agent.getPrinter().startNewLine().print("No production named '" + prodName + "'");
+                    return;
+                }
+            }
+            else if (filterByDefault)
+            {
+                types.add(ProductionType.DEFAULT);
+            }
+            else if (filterByChunks)
+            {
+                types.add(ProductionType.CHUNK);
+            }
+            else if (filterByUser)
+            {
+                types.add(ProductionType.USER);
+            }
+            else if (filterByJustify)
+            {
+                types.add(ProductionType.JUSTIFICATION);
+            }
+            else if (filterByTemplates)
+            {
+                types.add(ProductionType.TEMPLATE);
+            }
+            
+            if (single != null)
+            {
+                printResults(Arrays.asList(single), 1);
+            }
+            else
+            {
+                if (types.isEmpty())
+                {
+                    types.addAll(EnumSet.allOf(ProductionType.class));
+                }
+                printTopProductions(types, count);
+            }
+        }
+        
+        private void printResults(List<Production> productions, int n)
+        {
+            final Printer printer = parent.agent.getPrinter();
+            for (int i = 0; i < n && i < productions.size(); ++i)
+            {
+                final Production p = productions.get(i);
+                printer.startNewLine().print("%5d:  %s", p.getReteTokenCount(), p.getName());
+            }
+        }
+
+        private void printTopProductions(EnumSet<ProductionType> types, int n)
+        {
+            final List<Production> prods = new ArrayList<Production>();
+            for (ProductionType type : types)
+            {
+                prods.addAll(parent.agent.getProductions().getProductions(type));
+            }
+            
+            Collections.sort(prods, new Comparator<Production>()
+            {
+                @Override
+                public int compare(Production o1, Production o2)
+                {
+                    return o2.getReteTokenCount() - o1.getReteTokenCount();
+                }
+            });
+            printResults(prods, n);
         }
     }
 }
