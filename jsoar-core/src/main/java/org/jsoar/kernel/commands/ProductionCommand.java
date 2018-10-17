@@ -23,6 +23,8 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import com.google.common.base.Joiner;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
@@ -56,7 +58,8 @@ public class ProductionCommand implements SoarCommand
                          ProductionCommand.FiringCounts.class,
                          ProductionCommand.Matches.class,
                          ProductionCommand.MemoryUsage.class,
-                         ProductionCommand.OptimizeAttribute.class})
+                         ProductionCommand.OptimizeAttribute.class,
+                         ProductionCommand.Break.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -572,8 +575,7 @@ public class ProductionCommand implements SoarCommand
     }
     
     @Command(name="optimize-attribute", description="Declare a symbol to be multi-attributed so "
-            + "that conditions in productions that test that attribute are re-ordered so that "
-            + "the rule can be matched more efficiently.",
+            + "the rule can be matched more efficiently",
             subcommands={HelpCommand.class})
     static public class OptimizeAttribute implements Runnable
     {
@@ -592,6 +594,83 @@ public class ProductionCommand implements SoarCommand
             final StringSymbol attr = parent.agent.getSymbols().createString(attribute);
             final int cost = Integer.valueOf(degree);
             parent.agent.getMultiAttributes().setCost(attr, cost);
+        }
+    }
+    
+    @Command(name="break", description="Stops the Soar decision cycle when the given rule fires",
+            subcommands={HelpCommand.class})
+    static public class Break implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-c", "--clear"}, description="Clear :interrupt flag from a production")
+        String prodToClear = null;
+        
+        @Option(names={"-p", "--print"}, description="Print which production rules "
+                + "have had their :interrupt flags set")
+        boolean printBreaks = false;
+        
+        @Option(names={"-s", "--set"}, description="Set interrupt flag on a production rule")
+        String prodToBreak = null;
+        
+        @Parameters(index="0", arity="0..1", description="Production rule on which to set :interrupt flag")
+        private String prodName = null;
+        
+        @Override
+        public void run()
+        {
+            String name = null;
+            boolean flag = false;
+            
+            // Determine the production on which to set/clear the :interrupt flag
+            if (prodToClear != null)
+            {
+                name = prodToClear;
+            }
+            else if (prodToBreak != null)
+            {
+                name = prodToBreak;
+                flag = true;
+            }
+            else if (prodName != null)
+            {
+                name = prodName;
+                flag = true;
+            }
+            
+            if (name != null)
+            {
+                Production p = parent.agent.getProductions().getProduction(name);
+                if (p != null)
+                {
+                    p.setBreakpointEnabled(flag);
+                }
+                else
+                {
+                    parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
+                }
+            }
+            else
+            {
+                parent.agent.getPrinter().startNewLine().print(Joiner.on('\n').join(collectAndSortRuleNames()));
+            }
+        }
+        
+        private List<String> collectAndSortRuleNames()
+        {
+            ProductionManager pm = parent.agent.getProductions();
+            final List<String> result = new ArrayList<String>();
+            
+            for (Production p : pm.getProductions(null))
+            {
+                if (p.isBreakpointEnabled())
+                {
+                    result.add(p.getName());
+                }
+            }
+            Collections.sort(result);
+            return result;
         }
     }
 }
