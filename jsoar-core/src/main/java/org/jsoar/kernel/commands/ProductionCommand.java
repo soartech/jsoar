@@ -2,6 +2,7 @@ package org.jsoar.kernel.commands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -11,19 +12,25 @@ import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionFinder;
+import org.jsoar.kernel.ProductionFinder.Options;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -59,7 +66,8 @@ public class ProductionCommand implements SoarCommand
                          ProductionCommand.Matches.class,
                          ProductionCommand.MemoryUsage.class,
                          ProductionCommand.OptimizeAttribute.class,
-                         ProductionCommand.Break.class})
+                         ProductionCommand.Break.class,
+                         ProductionCommand.Find.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -671,6 +679,104 @@ public class ProductionCommand implements SoarCommand
             }
             Collections.sort(result);
             return result;
+        }
+    }
+    
+    @Command(name="find", description="Find productions by condition or action patterns",
+            subcommands={HelpCommand.class})
+    static public class Find implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"-l", "--lhs"}, description="Match pattern only "
+                + "against the conditions of productions (default)")
+        boolean matchLHS = false;
+        
+        @Option(names={"-r", "--rhs"}, description="Match pattern against the actions of productions")
+        boolean matchRHS = false;
+        
+        @Option(names={"-c", "--chunks"}, description="Look only for chunks that match the pattern")
+        boolean matchChunks = false;
+        
+        @Option(names={"-n", "--nochunks"}, description="Disregard chunks when looking for the pattern")
+        boolean matchNoChunks = false;
+        
+        @Option(names={"-s", "--show-bindings"}, description="Show the bindings associated with a wildcard pattern")
+        boolean showBindings = false;
+        
+        @Parameters(arity="1", description="Any pattern that can appear in productions")
+        String[] arrPattern = null;
+        
+        @Override
+        public void run()
+        {
+            final ProductionFinder finder = new ProductionFinder(parent.agent);
+            finder.options().clear();
+            
+            if (matchRHS)
+            {
+                finder.options().add(Options.RHS);
+            }
+            else
+            {
+                finder.options().add(Options.LHS);
+            }
+            
+            if (showBindings)
+            {
+                parent.agent.getPrinter().startNewLine().print("Option not yet supported");
+                return;
+            }
+            
+            final String pattern = StringTools.join(Arrays.asList(arrPattern), " ");
+            final Collection<Production> productions = collectProductions(matchChunks, matchNoChunks);
+            
+            try
+            {
+                List<Production> result = finder.find(pattern, productions);
+                printResults(pattern, result);
+            }
+            catch (ParserException e)
+            {
+                parent.agent.getPrinter().startNewLine().print(e.getMessage());
+            }
+        }
+        
+        private void printResults(final String pattern, List<Production> result)
+        {
+            final Printer printer = parent.agent.getPrinter();
+            printer.startNewLine();
+            if (result.isEmpty())
+            {
+                printer.print("No productions match '%s'\n", pattern);
+            }
+            else
+            {
+                for (Production p : result)
+                {
+                    printer.print("%s\n", p.getName());
+                }
+            }
+        }
+
+        private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
+        {
+            final Predicate<Production> filter = new Predicate<Production>()
+            {
+                @Override
+                public boolean apply(Production p)
+                {
+                    final ProductionType type = p.getType();
+                    return (type == ProductionType.CHUNK && chunks) ||
+                           (type != ProductionType.CHUNK && nochunks) ||
+                           (!chunks && !nochunks);
+                }
+            };
+                
+            final Collection<Production> productions = Collections2.filter(
+                    parent.agent.getProductions().getProductions(null), filter);
+            return productions;
         }
     }
 }
