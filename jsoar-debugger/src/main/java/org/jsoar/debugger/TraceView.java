@@ -10,6 +10,7 @@ import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.syntax.*;
+import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
@@ -36,7 +37,6 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -109,7 +109,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                     outputWindow.setDocument(new DefaultStyledDocument());
                                     Position endPosition = styledDocument.getEndPosition();
                                     if (styles.isEmpty()) {
-                                        styledDocument.insertString(endPosition.getOffset(), str, defaultAttributes);
+                                        styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, defaultAttributes);
                                     } else {
                                         int index = 0;
                                         //FIXME - this is SLOW!!!!
@@ -121,16 +121,17 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             }
 
                                             //the stuff between the match
-                                            styledDocument.insertString(endPosition.getOffset(), str.substring(index, start), defaultAttributes);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, start), defaultAttributes);
 
                                             //the matched stuff
-                                            styledDocument.insertString(endPosition.getOffset(), str.substring(start, end), offset.style);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(start, end), offset.style);
                                             index = end;
                                         }
                                         if (index < str.length()) {
-                                            styledDocument.insertString(endPosition.getOffset(), str.substring(index, str.length() - 1), defaultAttributes);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, str.length() - 1), defaultAttributes);
                                         }
                                     }
+                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
                                     outputWindow.setDocument(styledDocument);
 //                            outputWindow.getDocument().insertString(endPosition.getOffset(),str,null);
 
@@ -181,7 +182,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
                             try {
                                 String str = buffer.toString();
-                                outputWindow.getDocument().insertString(endPosition.getOffset(), str, defaultAttributes);
+                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, str, defaultAttributes);
+                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n", defaultAttributes);
                             } catch (BadLocationException e) {
                                 e.printStackTrace();
                             }
