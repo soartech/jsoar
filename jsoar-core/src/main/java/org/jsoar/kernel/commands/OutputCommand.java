@@ -167,16 +167,9 @@ public final class OutputCommand implements SoarCommand
             }
             else
             {
-                try
-                {
-                    int depth = Integer.valueOf(printDepth);
-                    parent.printCommand.setDefaultDepth(depth);
-                    parent.agent.getPrinter().startNewLine().print("print-depth is now " + depth);
-                }
-                catch (SoarException e)
-                {
-                    parent.agent.getPrinter().print(e.getMessage());
-                }
+                int depth = Integer.valueOf(printDepth);
+                parent.printCommand.setDefaultDepth(depth);
+                parent.agent.getPrinter().startNewLine().print("print-depth is now " + depth);
             }
         }
     }
