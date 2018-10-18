@@ -3,92 +3,64 @@ package org.jsoar.debugger.syntax;
 
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
-import javax.swing.text.AttributeSet;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import javax.swing.text.SimpleAttributeSet;
+import java.util.*;
 
 
 public class SyntaxPattern {
+    private String name ="";
     private String regex;
-    private AttributeSet[] styling;
+    private List<String> components;
 
+    public SyntaxPattern() {
+    }
 
-    public SyntaxPattern(String regex, AttributeSet[] styling) {
+    public SyntaxPattern(String regex, List<String> components) {
         this.regex = regex;
-        this.styling = styling;
+        this.components = components;
+        fixSize();
+    }
+
+    public SyntaxPattern(String regex, String[] strings) {
+        components = Arrays.asList(strings);
+        this.regex = regex;
+        fixSize();
+    }
+
+    public void fixSize() {
+        Pattern p = Pattern.compile(this.regex);
+        int size = components.size();
+        int i1 = p.groupCount();
+        for (int i = 0; i < (i1 - size); i++){
+            this.components.add("");
+        }
     }
 
 
-    public synchronized List<StyleOffset> matchAll(String input, AttributeSet defaultAttributes) {
-        List<StyleOffset> matches = new LinkedList<>();
-        try {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher m = pattern.matcher(input);
-            while (m.find()) {
-                int groupCount = m.groupCount();
-                if (groupCount == 1) {
-                    matches.add(new StyleOffset(m.start(), m.end(), styling[0]));
-                } else {
-                    for (int i = 1; i < groupCount; i++) {
-                        int start = m.start(i);
-                        int end = m.end(i);
-                        matches.add(new StyleOffset(start, end, styling[i - 1]));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return matches;
+    public String getRegex() {
+        return regex;
     }
 
-    public static TreeSet<StyleOffset> getForAll(String str, List<SyntaxPattern> patterns, AttributeSet defaultAttributes) {
-        TreeSet<StyleOffset> offsets = new TreeSet<>();
-        for (SyntaxPattern pattern : patterns) {
-            offsets.addAll(pattern.matchAll(str, defaultAttributes));
-        }
-        return offsets;
+    public void setRegex(String regex) {
+        this.regex = regex;
     }
 
-
-    @SafeVarargs
-    public static TreeSet<StyleOffset> mergeAll(List<StyleOffset>... offsets) {
-        TreeSet<StyleOffset> list = new TreeSet<>();
-        for (List<StyleOffset> offset : offsets)
-            list.addAll(offset);
-
-        return list;
+    public List<String> getComponents() {
+        return components;
     }
 
-    public class StyleOffset implements Comparable<StyleOffset> {
-        public int start = 0, end = 0;
-        public AttributeSet style;
+    public void setComponents(List<String> components) {
+        this.components = components;
+    }
 
-        public StyleOffset(int start, int end, AttributeSet attributeSet) {
-            this.start = start;
-            this.end = end;
-            this.style = attributeSet;
-        }
+    public String getName() {
+        return name;
+    }
 
-        public int length() {
-            return end - start;
-        }
-
-        @Override
-        public int compareTo(StyleOffset o) {
-            if (o != null) {
-                if (start == o.start)
-                    return length() - o.length();
-                else
-                    return start - o.start;
-            } else {
-                return -1;
-            }
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 }
+
+

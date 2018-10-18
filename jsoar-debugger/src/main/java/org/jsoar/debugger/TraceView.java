@@ -5,6 +5,25 @@
  */
 package org.jsoar.debugger;
 
+import bibliothek.gui.dock.common.action.CButton;
+import org.jsoar.debugger.ParseSelectedText.SelectedObject;
+import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.syntax.*;
+import org.jsoar.kernel.JSoarVersion;
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.util.IncrementalSearchPanel;
+import org.jsoar.util.Prefs;
+
+import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -16,32 +35,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-
-import javax.swing.*;
-import javax.swing.text.*;
-
-import org.jsoar.debugger.ParseSelectedText.SelectedObject;
-import org.jsoar.debugger.selection.SelectionManager;
-import org.jsoar.debugger.selection.SelectionProvider;
-import org.jsoar.debugger.syntax.SyntaxPattern;
-import org.jsoar.kernel.JSoarVersion;
-import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.IncrementalSearchPanel;
-
-import bibliothek.gui.dock.common.action.CButton;
 
 /**
  * @author ray
@@ -102,7 +100,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                         buffer.setLength(0);
                         printing = true;
                         flushing = false;  //moving this here makes it not forget strings, but causes it to block again
-                        final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str, patterns, defaultAttributes);
+                        final TreeSet<StyleOffset> styles = patterns.getForAll(str);
                         System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
@@ -115,7 +113,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                     } else {
                                         int index = 0;
                                         //FIXME - this is SLOW!!!!
-                                        for (SyntaxPattern.StyleOffset offset : styles) {
+                                        for (StyleOffset offset : styles) {
                                             int start = offset.start;
                                             int end = offset.end;
                                             if (start >= end || start <= index) {
@@ -215,7 +213,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                 final String str = styledDocument.getText(0, styledDocument.getLength());
 
                                 final long time = System.currentTimeMillis();
-                                final TreeSet<SyntaxPattern.StyleOffset> styles = SyntaxPattern.getForAll(str, patterns, defaultAttributes);
+                                final TreeSet<StyleOffset> styles = patterns.getForAll(str);
 
                                 System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                                 SwingUtilities.invokeLater(new Runnable() {
@@ -229,7 +227,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                                 outputWindow.setDocument(new DefaultStyledDocument());
                                                 Position startPosition = styledDocument.getStartPosition();
                                                 int index = 0;
-                                                for (SyntaxPattern.StyleOffset offset : styles) {
+                                                for (StyleOffset offset : styles) {
                                                     int start = offset.start;
                                                     int end = offset.end;
                                                     if (start >= end || start <= index) {
@@ -285,7 +283,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     }
 
-    private final List<SyntaxPattern> patterns;
+    private SyntaxSettings patterns;
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -327,36 +325,50 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }});
         outputWindow.setEditable(false);
         outputWindow.setDocument(styledDocument);
-        patterns = new LinkedList<>();
-        SimpleAttributeSet attrs1 = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrs1, Color.BLUE);
-        StyleConstants.setBold(attrs1,true);
-        StyleConstants.setUnderline(attrs1,true);
-        SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new AttributeSet[]{attrs1});
-        patterns.add(pattern1);
 
-        SimpleAttributeSet[] attrs = new SimpleAttributeSet[5];
-        attrs[0] = new SimpleAttributeSet();
-        StyleConstants.setBold(attrs[0],true);
-        attrs[1] = new SimpleAttributeSet(attrs[0]);
-        attrs[2] = new SimpleAttributeSet(attrs[0]);
-        attrs[3] = new SimpleAttributeSet(attrs[0]);
-        attrs[4] = new SimpleAttributeSet(attrs[0]);
+        patterns = Prefs.loadSyntax();
+//        patterns.addAll(Prefs.loadSyntax());
 
-        StyleConstants.setBackground(attrs[0],Color.pink);
-        StyleConstants.setForeground(attrs[1],Color.RED);
-        StyleConstants.setForeground(attrs[3],Color.ORANGE);
-        StyleConstants.setForeground(attrs[2],Color.ORANGE);
-        StyleConstants.setBackground(attrs[4],Color.RED);
-        StyleConstants.setUnderline(attrs[4],true);
+        if (patterns == null) {
 
-        patterns.add(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)",attrs));
+            patterns = new SyntaxSettings();
+            TextStyle attrs1 = new TextStyle();
+            attrs1.setForeground(Color.BLUE);
+            attrs1.setBold(true);
+            attrs1.setUnderline(true);
+            SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new String[]{"phase"});
+            patterns.addTextStyle("phase", attrs1);
+            patterns.addPattern(pattern1);
 
-        attrs1 = new SimpleAttributeSet();
-        StyleConstants.setForeground(attrs1, Color.YELLOW);
-        StyleConstants.setBackground(attrs1,Color.BLACK);
-        patterns.add(new SyntaxPattern("[0-9]+", new AttributeSet[]{attrs1}));
 
+            attrs1 = new TextStyle();
+            attrs1.setBold(true);
+            attrs1.setBackground(Color.pink);
+            patterns.addTextStyle("step number", attrs1);
+
+            attrs1 = new TextStyle();
+            attrs1.setBold(true);
+            attrs1.setForeground(Color.RED);
+            patterns.addTextStyle("first thing", attrs1);
+
+            attrs1 = new TextStyle();
+            attrs1.setForeground(Color.ORANGE);
+            attrs1.setItalic(true);
+
+            patterns.addTextStyle("operator",attrs1);
+
+            patterns.addPattern(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)", new String[]{"step number","first thing","operator","operator","operator"}));
+
+
+
+
+            attrs1 = new TextStyle();
+            attrs1.setForeground(Color.YELLOW);
+            attrs1.setBackground(Color.BLACK);
+            patterns.addPattern(new SyntaxPattern("(\\d)+", new String[]{"number"}));
+            patterns.addTextStyle("number", attrs1);
+            Prefs.storeSyntax(patterns);
+        }
 
 
         final JSoarVersion version = JSoarVersion.getInstance();
@@ -421,6 +433,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         getPreferences().put("search", searchPanel.getSearchText());
         getPreferences().putInt("limit", limit);
         getPreferences().putBoolean("scrollLock", scrollLock);
+        getPreferences().putBoolean("coloredOutput", coloredOutput);
     }
 
     /* (non-Javadoc)
@@ -612,7 +625,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }
         });
         menu.insert(colorItem,0);
-        
+
+        menu.insert(new AbstractAction("Edit Syntax Highlighting") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new SyntaxConfigurator(patterns).go();
+            }
+        },0);
+
         // Add Wrap text action
         //todo - reimplement line wrap
         /*final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());

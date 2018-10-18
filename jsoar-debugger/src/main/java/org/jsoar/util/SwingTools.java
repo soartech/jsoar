@@ -5,27 +5,18 @@
  */
 package org.jsoar.util;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Collection;
+import java.util.Enumeration;
 
-import javax.swing.AbstractAction;
-import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.CannotRedoException;
@@ -200,5 +191,22 @@ public class SwingTools
             }
         }
         return false;
+    }
+
+    public static void setFontScale(float scale) {
+        UIDefaults defaults = UIManager.getLookAndFeel().getDefaults();
+        Enumeration newKeys = defaults.keys();
+
+        while (newKeys.hasMoreElements()) {
+            Object obj = newKeys.nextElement();
+            Object current = UIManager.get(obj);
+            if (current instanceof FontUIResource) {
+                FontUIResource resource = (FontUIResource) current;
+                defaults.put(obj, new FontUIResource(resource.deriveFont(resource.getSize2D()*scale)));
+            } else if (current instanceof Font) {
+                Font resource = (Font) current;
+                defaults.put(obj, resource.deriveFont(resource.getSize2D()*scale));
+            }
+        }
     }
 }
