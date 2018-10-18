@@ -84,6 +84,7 @@ public class StandardCommands
         interp.addCommand("output", new OutputCommand(agent, printCommand));
         interp.addCommand("production-watch", new ProductionWatchCommand(agent));
         interp.addCommand("production", new ProductionCommand(agent));
+        interp.addCommand("chunk", new ChunkCommand(agent));
         
         SoarCommands.registerCustomCommands(interp, agent);
     }
