@@ -15,7 +15,7 @@ import java.awt.event.WindowEvent;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class SyntaxConfigurator{
+public class SyntaxConfigurator {
 
     private final SyntaxSettings syntaxSettings;
     private TraceView parent;
@@ -29,15 +29,15 @@ public class SyntaxConfigurator{
 
     private final JFrame frame;
 
-    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent){
+    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent) {
         this.syntaxSettings = syntaxSettings;
         this.parent = parent;
 
         frame = new JFrame("Syntax Settings");
-        frame.setBounds(100,100,800,600);
+        frame.setBounds(100, 100, 800, 600);
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel,BoxLayout.LINE_AXIS));
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         bottomPanel.add(Box.createHorizontalGlue());
         bottomPanel.add(btnOk);
@@ -50,7 +50,7 @@ public class SyntaxConfigurator{
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        panel.add(bottomPanel,BorderLayout.PAGE_END);
+        panel.add(bottomPanel, BorderLayout.PAGE_END);
 
         syntaxList = new JPanel();
         syntaxList.setLayout(new VerticalLayout());
@@ -77,7 +77,8 @@ public class SyntaxConfigurator{
         JScrollPane scrollPane = new JScrollPane(syntaxList);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setVisible(true);
-        panel.add(scrollPane,BorderLayout.WEST);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        panel.add(scrollPane, BorderLayout.WEST);
 
         styleList = new JPanel();
         styleList.setLayout(new VerticalLayout());
@@ -102,7 +103,8 @@ public class SyntaxConfigurator{
         scrollPane = new JScrollPane(styleList);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setVisible(true);
-        panel.add(scrollPane,BorderLayout.EAST);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        panel.add(scrollPane, BorderLayout.EAST);
 
 
         frame.getContentPane().add(panel);
@@ -112,10 +114,22 @@ public class SyntaxConfigurator{
         btnAddRegex.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SyntaxPattern newPattern = new SyntaxPattern();
+                final SyntaxPattern newPattern = new SyntaxPattern();
                 syntaxSettings.getSyntaxPatterns().add(newPattern);
-                syntaxList.add(new JSeparator(JSeparator.HORIZONTAL), syntaxList.getComponentCount()-1);
-                syntaxList.add(new SyntaxPatternComponent(newPattern,syntaxSettings.componentStyles.keySet()), syntaxList.getComponentCount()-1);
+                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet());
+                final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+
+                comp.addDeleteButtonListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        syntaxList.remove(comp);
+                        syntaxList.remove(sep);
+                        syntaxSettings.getSyntaxPatterns().remove(newPattern);
+                        onSyntaxChanged();
+                    }
+                });
+                syntaxList.add(sep, syntaxList.getComponentCount() - 1);
+                syntaxList.add(comp, syntaxList.getComponentCount() - 1);
                 onSyntaxChanged();
             }
         });
@@ -126,13 +140,25 @@ public class SyntaxConfigurator{
                 TextStyle newStyle = new TextStyle();
                 String key = "new style";
                 int i = 1;
-                while(syntaxSettings.getComponentStyles().containsKey(key)) {
-                    key = "new style "+i;
+                while (syntaxSettings.getComponentStyles().containsKey(key)) {
+                    key = "new style " + i;
                     i++;
                 }
-                syntaxSettings.addTextStyle(key,newStyle);
-                styleList.add(new JSeparator(JSeparator.HORIZONTAL), styleList.getComponentCount()-1);
-                styleList.add(new TextStyleComponent(key,newStyle), styleList.getComponentCount()-1);
+                syntaxSettings.addTextStyle(key, newStyle);
+                final TextStyleComponent comp = new TextStyleComponent(key, syntaxSettings.getComponentStyles().get(key));
+                final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+                final String finalKey = key;
+                comp.addDeleteButtonListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        styleList.remove(comp);
+                        styleList.remove(sep);
+                        syntaxSettings.getComponentStyles().remove(finalKey);
+                        onStyleChanged();
+                    }
+                });
+                styleList.add(sep, styleList.getComponentCount() - 1);
+                styleList.add(comp, styleList.getComponentCount() - 1);
                 onStyleChanged();
             }
         });
@@ -157,21 +183,22 @@ public class SyntaxConfigurator{
             public void actionPerformed(ActionEvent e) {
                 parent.reloadSyntax();
                 parent.reformatText();
-                frame.dispatchEvent(new WindowEvent(frame,WindowEvent.WINDOW_CLOSING));
+                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
     }
-    public void go(){
+
+    public void go() {
         frame.setVisible(true);
     }
 
 
-    private void onSyntaxChanged(){
+    private void onSyntaxChanged() {
         syntaxList.revalidate();
     }
 
-    private void onStyleChanged(){
-        for (int i = 0; i < syntaxList.getComponentCount(); i++){
+    private void onStyleChanged() {
+        for (int i = 0; i < syntaxList.getComponentCount(); i++) {
             Component component = syntaxList.getComponent(i);
             if (!(component instanceof SyntaxPatternComponent))
                 continue;
