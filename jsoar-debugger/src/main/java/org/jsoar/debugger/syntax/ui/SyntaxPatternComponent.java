@@ -67,7 +67,9 @@ public class SyntaxPatternComponent extends JPanel {
         constraints.gridx = 1;
         constraints.gridy = 2;
         constraints.anchor = GridBagConstraints.LINE_START;
+        chkEnabled.setSelected(pattern.isEnabled());
         this.add(chkEnabled, constraints);
+
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -93,8 +95,6 @@ public class SyntaxPatternComponent extends JPanel {
         txtComment.setColumns(20);
         txtComment.setRows(6);
         this.add(txtComment, constraints);
-
-
 
 
         //capture groups

@@ -22,35 +22,30 @@ public class TextStyleComponent extends JPanel {
 
         this.setBorder(new EmptyBorder(5,5,5,5));
 
-        final JCheckBox chkEnabled = new JCheckBox();
+        final JCheckBox chkEnabled = new JCheckBox("Enabled?");
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx=0;
         constraints.gridy=2;
-        constraints.anchor=GridBagConstraints.NORTH;
-        constraints.gridheight=2;
+        constraints.anchor=GridBagConstraints.LINE_START;
+        chkEnabled.setSelected(style.isEnabled());
         this.add(chkEnabled,constraints);
 
         constraints = new GridBagConstraints();
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridheight=2;
-        constraints.anchor = GridBagConstraints.SOUTH;
-        this.add(new JLabel("Enabled?"), constraints);
-
-        constraints = new GridBagConstraints();
-        constraints.gridx=1;
+        constraints.gridx=0;
         constraints.gridy=0;
         constraints.anchor=GridBagConstraints.LINE_START;
+        constraints.gridwidth=2;
         this.add(new JLabel("Name"),constraints);
 
         //type of thing to highlight
         final JTextField txtName = new JTextField(name);
         constraints = new GridBagConstraints();
-        constraints.gridx=1;
+        constraints.gridx=0;
         constraints.gridy=1;
+        constraints.gridwidth=2;
         constraints.anchor=GridBagConstraints.LINE_START;
         constraints.fill=GridBagConstraints.HORIZONTAL;
-        txtName.setColumns(18);
+        txtName.setColumns(20);
         this.add(txtName,constraints);
 
         final JCheckBox chkBold = new JCheckBox("Bold");
@@ -110,7 +105,7 @@ public class TextStyleComponent extends JPanel {
         this.add(btnBackground,constraints);
 
         btnDelete = new JButton("Delete");
-        constraints.gridx = 1;
+        constraints.gridx = 0;
         constraints.gridy=3;
         constraints.anchor=GridBagConstraints.LINE_START;
         this.add(btnDelete,constraints);
