@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.LoadCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
@@ -61,6 +62,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand, agent));
         addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
+        
+        addCommand("load", new LoadCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
