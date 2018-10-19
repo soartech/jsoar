@@ -16,12 +16,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -172,6 +167,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return sourceCommand.getSourcedFiles();
     }
 
+    public Set<String> getCommandStrings() {
+        return commands.keySet();
+    }
+    public Set<String> getAliasStrings() {
+        return aliases.keySet();
+    }
+
     private String evalAndClose(Reader reader, String context) throws SoarException
     {
         try
@@ -297,7 +299,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             return new ParsedCommand(parsedCommand.getLocation(), result);
         }
     }
-    
+
     private class AliasCommand implements SoarCommand
     {
         private String aliasToString(String name, List<String> args)

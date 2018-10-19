@@ -7,6 +7,9 @@ import org.jsoar.debugger.syntax.SyntaxSettings;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 
 public class Prefs {
     public static boolean storeSyntax(SyntaxSettings syntax) {
@@ -51,5 +54,19 @@ public class Prefs {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static SyntaxSettings loadDefaultSyntax() {
+        try {
+            InputStream resource = Prefs.class.getResourceAsStream("/org/jsoar/debugger/defaultsyntax.json");
+            ObjectMapper mapper = new ObjectMapper();
+            TypeReference<SyntaxSettings> highlightsType = new TypeReference<SyntaxSettings>() {
+            };
+            return mapper.readValue(resource, highlightsType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new SyntaxSettings();
     }
 }

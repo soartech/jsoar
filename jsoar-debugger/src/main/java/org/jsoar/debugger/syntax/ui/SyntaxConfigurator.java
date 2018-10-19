@@ -105,11 +105,9 @@ public class SyntaxConfigurator {
         scrollPane.setVisible(true);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane, BorderLayout.EAST);
-
-
+        
         frame.getContentPane().add(panel);
         frame.pack();
-
 
         btnAddRegex.addActionListener(new ActionListener() {
             @Override

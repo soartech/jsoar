@@ -2,12 +2,12 @@ package org.jsoar.debugger.syntax;
 
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
+import org.jsoar.debugger.JSoarDebugger;
+import org.jsoar.util.commands.DefaultInterpreter;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import javax.swing.text.SimpleAttributeSet;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class SyntaxSettings {
     public HashMap<String, TextStyle> componentStyles = new HashMap<>();
@@ -17,9 +17,44 @@ public class SyntaxSettings {
 
     }
 
-    public synchronized List<StyleOffset> matchAll(String input, SyntaxPattern syntax, HashMap<String, TextStyle> styles) {
+    public synchronized List<StyleOffset> matchAll(String input, SyntaxPattern syntax, HashMap<String, TextStyle> styles, JSoarDebugger debugger) {
         List<StyleOffset> matches = new LinkedList<>();
         String regex = syntax.getRegex();
+
+
+
+        //search for special commands %commands% and %alias%
+        if (regex.contains("%aliases%")) {
+            StringBuilder aliasesStr = new StringBuilder();
+            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
+            if (interpreter instanceof DefaultInterpreter){
+                Set<String> aliases = ((DefaultInterpreter) interpreter).getAliasStrings();
+                for (Iterator<String> iterator = aliases.iterator(); iterator.hasNext(); ) {
+                    String s = iterator.next();
+                    aliasesStr.append(s);
+                    if (iterator.hasNext())
+                        aliasesStr.append("|");
+                }
+
+            }
+            regex = regex.replaceAll("%aliases%", aliasesStr.toString());
+        }
+        if (regex.contains("%commands%")) {
+            StringBuilder commandsStr = new StringBuilder();
+            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
+            if (interpreter instanceof DefaultInterpreter){
+                Set<String> commands = ((DefaultInterpreter) interpreter).getCommandStrings();
+                for (Iterator<String> iterator = commands.iterator(); iterator.hasNext(); ) {
+                    String s = iterator.next();
+                    commandsStr.append(s);
+                    if (iterator.hasNext())
+                        commandsStr.append("|");
+                }
+
+            }
+            regex = regex.replaceAll("%commands%", commandsStr.toString());
+        }
+
         List<String> components = syntax.getComponents();
         try {
             Pattern pattern = Pattern.compile(regex);
@@ -65,11 +100,11 @@ public class SyntaxSettings {
         return matches;
     }
 
-    public TreeSet<StyleOffset> getForAll(String str) {
+    public TreeSet<StyleOffset> getForAll(String str, JSoarDebugger debugger) {
         TreeSet<StyleOffset> offsets = new TreeSet<>();
         for (SyntaxPattern pattern : syntaxPatterns) {
             if (pattern.isEnabled()) {
-                offsets.addAll(matchAll(str, pattern, componentStyles));
+                offsets.addAll(matchAll(str, pattern, componentStyles, debugger));
             }
         }
         return offsets;

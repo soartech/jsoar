@@ -1,0 +1,107 @@
+{
+  "componentStyles" : {
+    "phase" : {
+      "styleType" : null,
+      "bold" : true,
+      "underline" : true,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
+    },
+    "number" : {
+      "styleType" : null,
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 1.0, 0.0, 1.0 ]
+    },
+    "step number" : {
+      "styleType" : "step number",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 0.6862745, 0.6862745, 1.0 ],
+      "foregroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+    },
+    "new style" : {
+      "styleType" : null,
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+    },
+    "first thing" : {
+      "styleType" : null,
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 0.0, 0.0, 1.0 ]
+    },
+    "operator" : {
+      "styleType" : null,
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : true,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 0.78431374, 0.0, 1.0 ]
+    },
+    "command" : {
+      "styleType" : null,
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.37254903, 0.3529412, 0.2, 1.0 ]
+    }
+  },
+  "syntaxPatterns" : [ {
+    "comment" : "",
+    "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
+    "components" : [ "phase" ],
+    "enabled" : true
+  }, {
+    "comment" : "",
+    "regex" : "\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)",
+    "components" : [ "step number", "first thing", "operator", "operator", "operator" ],
+    "enabled" : true
+  }, {
+    "comment" : "",
+    "regex" : "(\\d)+",
+    "components" : [ "number" ],
+    "enabled" : true
+  }, {
+    "comment" : "%aliases% expands to soar aliases",
+    "regex" : "(%aliases%)",
+    "components" : [ "command" ],
+    "enabled" : true
+  }, {
+    "comment" : "%commands% expands to soar commands",
+    "regex" : "(%commands%)",
+    "components" : [ "command" ],
+    "enabled" : true
+  } ]
+}

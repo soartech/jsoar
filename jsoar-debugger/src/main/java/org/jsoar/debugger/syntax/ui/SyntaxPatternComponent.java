@@ -143,7 +143,7 @@ public class SyntaxPatternComponent extends JPanel {
         chkEnabled.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                pattern.setEnabled(chkEnabled.isEnabled());
+                pattern.setEnabled(chkEnabled.isSelected());
             }
         });
         txtComment.getDocument().addDocumentListener(new DocumentListener() {

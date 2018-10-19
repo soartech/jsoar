@@ -100,7 +100,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                         buffer.setLength(0);
                         printing = true;
                         flushing = false;  //moving this here makes it not forget strings, but causes it to block again
-                        final TreeSet<StyleOffset> styles = patterns.getForAll(str);
+                        final TreeSet<StyleOffset> styles = patterns.getForAll(str, debugger);
                         System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
@@ -637,7 +637,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             final String str = styledDocument.getText(0, styledDocument.getLength());
 
             final long time = System.currentTimeMillis();
-            final TreeSet<StyleOffset> styles = patterns.getForAll(str);
+            final TreeSet<StyleOffset> styles = patterns.getForAll(str, debugger);
 
             System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
             SwingUtilities.invokeLater(new Runnable() {
@@ -686,39 +686,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         if (patterns == null) {
             //todo - replace with a "load defaults" type function
-            patterns = new SyntaxSettings();
-            TextStyle attrs1 = new TextStyle();
-            attrs1.setForeground(Color.BLUE);
-            attrs1.setBold(true);
-            attrs1.setUnderline(true);
-            SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new String[]{"phase"});
-            patterns.addTextStyle("phase", attrs1);
-            patterns.addPattern(pattern1);
-
-
-            attrs1 = new TextStyle();
-            attrs1.setBold(true);
-            attrs1.setBackground(Color.pink);
-            patterns.addTextStyle("step number", attrs1);
-
-            attrs1 = new TextStyle();
-            attrs1.setBold(true);
-            attrs1.setForeground(Color.RED);
-            patterns.addTextStyle("first thing", attrs1);
-
-            attrs1 = new TextStyle();
-            attrs1.setForeground(Color.ORANGE);
-            attrs1.setItalic(true);
-
-            patterns.addTextStyle("operator",attrs1);
-
-            patterns.addPattern(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)", new String[]{"step number","first thing","operator","operator","operator"}));
-
-            attrs1 = new TextStyle();
-            attrs1.setForeground(Color.YELLOW);
-            attrs1.setBackground(Color.BLACK);
-            patterns.addPattern(new SyntaxPattern("(\\d)+", new String[]{"number"}));
-            patterns.addTextStyle("number", attrs1);
+            patterns = Prefs.loadDefaultSyntax();
             Prefs.storeSyntax(patterns);
         }
     }
