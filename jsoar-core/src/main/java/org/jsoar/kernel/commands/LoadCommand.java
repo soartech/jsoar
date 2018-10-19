@@ -74,7 +74,7 @@ public class LoadCommand implements SoarCommand
         Load parent; // injected by picocli
 
         @Option(names={"-l", "--load, -r, --restore"}, description="Required to load the file")
-        boolean close = false;
+        boolean load = false;
         
         @Parameters(description="File name")
         String fileName = null;
