@@ -1,6 +1,5 @@
 package org.jsoar.debugger.syntax.ui;
 
-import javafx.scene.control.CheckBox;
 import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jsoar.debugger.syntax.TextStyle;
 
