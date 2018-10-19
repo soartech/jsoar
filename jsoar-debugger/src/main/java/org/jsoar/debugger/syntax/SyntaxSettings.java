@@ -30,31 +30,33 @@ public class SyntaxSettings {
             if (interpreter instanceof DefaultInterpreter){
                 Set<String> aliases = ((DefaultInterpreter) interpreter).getAliasStrings();
                 for (Iterator<String> iterator = aliases.iterator(); iterator.hasNext(); ) {
-                    String s = iterator.next();
-                    aliasesStr.append(s);
+                    String alias = iterator.next();
+                    if (alias.equals("?")){
+                        alias = "\\?";
+                    }
+                    aliasesStr.append(alias);
                     if (iterator.hasNext())
                         aliasesStr.append("|");
                 }
 
             }
-            regex = regex.replaceAll("%aliases%", aliasesStr.toString());
+            regex = regex.replaceAll("%aliases%", Matcher.quoteReplacement(aliasesStr.toString()));
         }
         if (regex.contains("%commands%")) {
             StringBuilder commandsStr = new StringBuilder();
             SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
-            if (interpreter instanceof DefaultInterpreter){
+            if (interpreter instanceof DefaultInterpreter) {
                 Set<String> commands = ((DefaultInterpreter) interpreter).getCommandStrings();
                 for (Iterator<String> iterator = commands.iterator(); iterator.hasNext(); ) {
-                    String s = iterator.next();
-                    commandsStr.append(s);
+                    String command = iterator.next();
+                    commandsStr.append(command);
                     if (iterator.hasNext())
                         commandsStr.append("|");
                 }
 
             }
-            regex = regex.replaceAll("%commands%", commandsStr.toString());
+            regex = regex.replaceAll("%commands%", Matcher.quoteReplacement(commandsStr.toString()));
         }
-
         List<String> components = syntax.getComponents();
         try {
             Pattern pattern = Pattern.compile(regex);
@@ -94,7 +96,8 @@ public class SyntaxSettings {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println("attempted regex: "+ regex);
         }
 
         return matches;

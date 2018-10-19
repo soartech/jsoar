@@ -50,8 +50,8 @@ public class Prefs {
             TypeReference<SyntaxSettings> highlightsType = new TypeReference<SyntaxSettings>() {
             };
             return mapper.readValue(file, highlightsType);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+            System.out.println("Error loading syntax, reverting to defaults");
         }
         return null;
     }
@@ -64,8 +64,8 @@ public class Prefs {
             };
             return mapper.readValue(resource, highlightsType);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+
         }
         return new SyntaxSettings();
     }
