@@ -4,16 +4,19 @@ package org.jsoar.debugger.syntax;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 
-import javax.swing.text.SimpleAttributeSet;
 import java.util.*;
 
 
 public class SyntaxPattern {
-    private String name ="";
+    private String comment ="";
     private String regex;
     private List<String> components;
+    private boolean enabled = true;
 
     public SyntaxPattern() {
+        components = new LinkedList<>();
+        regex = "";
+        fixSize();
     }
 
     public SyntaxPattern(String regex, List<String> components) {
@@ -54,12 +57,20 @@ public class SyntaxPattern {
         this.components = components;
     }
 
-    public String getName() {
-        return name;
+    public String getComment() {
+        return comment;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
 

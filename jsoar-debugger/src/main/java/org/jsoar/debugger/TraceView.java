@@ -107,7 +107,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                 final long time = System.currentTimeMillis();
                                 try {
                                     outputWindow.setDocument(new DefaultStyledDocument());
-                                    Position endPosition = styledDocument.getEndPosition();
                                     if (styles.isEmpty()) {
                                         styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, defaultAttributes);
                                     } else {
@@ -128,7 +127,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             index = end;
                                         }
                                         if (index < str.length()) {
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, str.length() - 1), defaultAttributes);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), defaultAttributes);
                                         }
                                     }
                                     styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
@@ -211,52 +210,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                         } catch (InterruptedException ignored) {
                         }
                         if (System.currentTimeMillis() - lastFlush >= 250) {
-                            try {
-                                final String str = styledDocument.getText(0, styledDocument.getLength());
-
-                                final long time = System.currentTimeMillis();
-                                final TreeSet<StyleOffset> styles = patterns.getForAll(str);
-
-                                System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    public void run() {
-                                        int caretPosition = outputWindow.getCaretPosition();
-                                        final long time = System.currentTimeMillis();
-                                        try {
-                                            if (styles.isEmpty()) {
-                                                return;
-                                            } else {
-                                                outputWindow.setDocument(new DefaultStyledDocument());
-                                                Position startPosition = styledDocument.getStartPosition();
-                                                int index = 0;
-                                                for (StyleOffset offset : styles) {
-                                                    int start = offset.start;
-                                                    int end = offset.end;
-                                                    if (start >= end || start <= index) {
-                                                        continue;
-                                                    }
-                                                    //the matched stuff
-                                                    int offsetStart = startPosition.getOffset() + start;
-                                                    int offsetEnd = startPosition.getOffset() + (end - start);
-                                                    System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
-
-                                                    styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
-                                                    index = end;
-                                                }
-                                                outputWindow.setDocument(styledDocument);
-                                            }
-
-                                        } catch (BadLocationException e) {
-                                            e.printStackTrace();
-                                        }
-                                        printing = false;
-                                        outputWindow.setCaretPosition(caretPosition);
-                                        System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-                                    }
-
-                                });
-                            } catch (BadLocationException ignored) {
-                            }
+                            reformatText();
                         }
                     }
                 }.start();
@@ -328,49 +282,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setEditable(false);
         outputWindow.setDocument(styledDocument);
 
-        patterns = Prefs.loadSyntax();
-//        patterns.addAll(Prefs.loadSyntax());
-
-        if (patterns == null) {
-
-            patterns = new SyntaxSettings();
-            TextStyle attrs1 = new TextStyle();
-            attrs1.setForeground(Color.BLUE);
-            attrs1.setBold(true);
-            attrs1.setUnderline(true);
-            SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new String[]{"phase"});
-            patterns.addTextStyle("phase", attrs1);
-            patterns.addPattern(pattern1);
-
-
-            attrs1 = new TextStyle();
-            attrs1.setBold(true);
-            attrs1.setBackground(Color.pink);
-            patterns.addTextStyle("step number", attrs1);
-
-            attrs1 = new TextStyle();
-            attrs1.setBold(true);
-            attrs1.setForeground(Color.RED);
-            patterns.addTextStyle("first thing", attrs1);
-
-            attrs1 = new TextStyle();
-            attrs1.setForeground(Color.ORANGE);
-            attrs1.setItalic(true);
-
-            patterns.addTextStyle("operator",attrs1);
-
-            patterns.addPattern(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)", new String[]{"step number","first thing","operator","operator","operator"}));
-
-
-
-
-            attrs1 = new TextStyle();
-            attrs1.setForeground(Color.YELLOW);
-            attrs1.setBackground(Color.BLACK);
-            patterns.addPattern(new SyntaxPattern("(\\d)+", new String[]{"number"}));
-            patterns.addTextStyle("number", attrs1);
-            Prefs.storeSyntax(patterns);
-        }
+        reloadSyntax();
 
 
         final JSoarVersion version = JSoarVersion.getInstance();
@@ -631,7 +543,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.insert(new AbstractAction("Edit Syntax Highlighting") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SyntaxConfigurator(patterns).go();
+                new SyntaxConfigurator(patterns,TraceView.this).go();
             }
         },0);
 
@@ -714,7 +626,103 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }
         }
     }
-    
+
+    public void saveSyntax() {
+        Prefs.storeSyntax(patterns);
+        reformatText();
+    }
+
+    public void reformatText() {
+        try {
+            final String str = styledDocument.getText(0, styledDocument.getLength());
+
+            final long time = System.currentTimeMillis();
+            final TreeSet<StyleOffset> styles = patterns.getForAll(str);
+
+            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    int caretPosition = outputWindow.getCaretPosition();
+                    final long time = System.currentTimeMillis();
+                    try {
+                        if (styles.isEmpty()) {
+                            return;
+                        } else {
+                            outputWindow.setDocument(new DefaultStyledDocument());
+                            Position startPosition = styledDocument.getStartPosition();
+                            int index = 0;
+                            for (StyleOffset offset : styles) {
+                                int start = offset.start;
+                                int end = offset.end;
+                                if (start >= end || start <= index) {
+                                    continue;
+                                }
+                                //the matched stuff
+                                int offsetStart = startPosition.getOffset() + start;
+                                int offsetEnd = startPosition.getOffset() + (end - start);
+                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
+
+                                styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
+                                index = end;
+                            }
+                            outputWindow.setDocument(styledDocument);
+                        }
+
+                    } catch (BadLocationException e) {
+                        e.printStackTrace();
+                    }
+                    outputWindow.setCaretPosition(caretPosition);
+                    System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+                }
+
+            });
+        } catch (BadLocationException ignored) {
+        }
+    }
+
+    public void reloadSyntax() {
+        patterns = Prefs.loadSyntax();
+//        patterns.addAll(Prefs.loadSyntax());
+
+        if (patterns == null) {
+            //todo - replace with a "load defaults" type function
+            patterns = new SyntaxSettings();
+            TextStyle attrs1 = new TextStyle();
+            attrs1.setForeground(Color.BLUE);
+            attrs1.setBold(true);
+            attrs1.setUnderline(true);
+            SyntaxPattern pattern1 = new SyntaxPattern("(---\\ [a-z]+\\ phase\\ ---)", new String[]{"phase"});
+            patterns.addTextStyle("phase", attrs1);
+            patterns.addPattern(pattern1);
+
+
+            attrs1 = new TextStyle();
+            attrs1.setBold(true);
+            attrs1.setBackground(Color.pink);
+            patterns.addTextStyle("step number", attrs1);
+
+            attrs1 = new TextStyle();
+            attrs1.setBold(true);
+            attrs1.setForeground(Color.RED);
+            patterns.addTextStyle("first thing", attrs1);
+
+            attrs1 = new TextStyle();
+            attrs1.setForeground(Color.ORANGE);
+            attrs1.setItalic(true);
+
+            patterns.addTextStyle("operator",attrs1);
+
+            patterns.addPattern(new SyntaxPattern("\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)", new String[]{"step number","first thing","operator","operator","operator"}));
+
+            attrs1 = new TextStyle();
+            attrs1.setForeground(Color.YELLOW);
+            attrs1.setBackground(Color.BLACK);
+            patterns.addPattern(new SyntaxPattern("(\\d)+", new String[]{"number"}));
+            patterns.addTextStyle("number", attrs1);
+            Prefs.storeSyntax(patterns);
+        }
+    }
+
     private class Provider implements SelectionProvider
     {
         SelectionManager manager;

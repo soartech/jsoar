@@ -34,7 +34,7 @@ public class SyntaxSettings {
                     } else {
                         String type = components.get(0);
                         TextStyle style = styles.get(type);
-                        if (style == null) {
+                        if (style == null || !style.isEnabled()) {
                             matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
                         } else {
                             matches.add(new StyleOffset(start, end, style.getAttributes()));
@@ -68,7 +68,9 @@ public class SyntaxSettings {
     public TreeSet<StyleOffset> getForAll(String str) {
         TreeSet<StyleOffset> offsets = new TreeSet<>();
         for (SyntaxPattern pattern : syntaxPatterns) {
-            offsets.addAll(matchAll(str, pattern, componentStyles));
+            if (pattern.isEnabled()) {
+                offsets.addAll(matchAll(str, pattern, componentStyles));
+            }
         }
         return offsets;
     }

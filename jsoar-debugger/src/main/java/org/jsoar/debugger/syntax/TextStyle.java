@@ -19,6 +19,7 @@ public class TextStyle {
     private boolean strikethrough = false;
     private boolean italic = false;
     private int fontSize = 0;
+    private boolean enabled = true;
 
     private Color foreground = Color.WHITE;
     private Color background = Color.BLACK;
@@ -139,4 +140,11 @@ public class TextStyle {
         return background.getRGBComponents(null);
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }
