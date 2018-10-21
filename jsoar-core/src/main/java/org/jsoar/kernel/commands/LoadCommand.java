@@ -11,7 +11,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rete.ReteSerializer;
 import org.jsoar.util.FileTools;
-import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
@@ -65,8 +64,9 @@ public class LoadCommand implements SoarCommand
         }
     }
     
-    @Command(name="rete-net", description="Resotres an agent's productions from a binary file. " + 
-            "Loading productions from a rete-net file causes all prior productions in memory to be excised.",
+    @Command(name="rete-net", description="Resotres an agent's productions from "
+            + "a binary file. Loading productions from a rete-net file causes all "
+            + "prior productions in memory to be excised.",
             subcommands={HelpCommand.class})
     static public class ReteNet implements Runnable
     {
@@ -91,14 +91,13 @@ public class LoadCommand implements SoarCommand
             }
             catch (IOException e)
             {
-                parent.agent.getPrinter().startNewLine().print("Unable to deserialize rete (I/O error): " + 
-                        (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()) + "\n" +
-                        StringTools.getStackTrace(e));
+                parent.agent.getPrinter().startNewLine().print("Load file failed.");
                 return;
             }
             catch (SoarException e)
             {
                 parent.agent.getPrinter().startNewLine().print(e.getMessage());
+                return;
             }
             finally
             {
@@ -110,7 +109,8 @@ public class LoadCommand implements SoarCommand
                     }
                     catch (IOException e)
                     {
-                        parent.agent.getPrinter().startNewLine().print("IO error while closing the input source.");
+                        parent.agent.getPrinter().startNewLine().print(
+                                "IO error while closing the input source.");
                     }
                 }
             }

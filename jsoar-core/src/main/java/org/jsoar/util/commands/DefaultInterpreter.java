@@ -30,6 +30,7 @@ import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.ReteNetCommand;
+import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
@@ -64,6 +65,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
         
         addCommand("load", new LoadCommand(sourceCommand, agent));
+        addCommand("save", new SaveCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
