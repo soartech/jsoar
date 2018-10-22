@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -67,7 +69,7 @@ public class TextStyleComponent extends JPanel {
 
 
         final JCheckBox chkUnderline = new JCheckBox("Underline");
-        chkUnderline.setSelected(style.isItalic());
+        chkUnderline.setSelected(style.isUnderline());
         constraints = new GridBagConstraints();
         constraints.gridx=2;
         constraints.gridy=2;
@@ -138,6 +140,22 @@ public class TextStyleComponent extends JPanel {
         btnBackground.getChooser().getSelectionModel().addChangeListener(colorChangeListener);
 
         txtName.addActionListener(listener);
+        txtName.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                style.setStyleType(txtName.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                style.setStyleType(txtName.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                style.setStyleType(txtName.getText());
+            }
+        });
 
     }
 

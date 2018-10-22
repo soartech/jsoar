@@ -21,14 +21,18 @@ public class SyntaxSettings {
         List<StyleOffset> matches = new LinkedList<>();
         String regex = syntax.getRegex();
 
-
-
         //search for special commands %commands% and %alias%
         if (regex.contains("%aliases%")) {
             StringBuilder aliasesStr = new StringBuilder();
             SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
             if (interpreter instanceof DefaultInterpreter){
-                Set<String> aliases = ((DefaultInterpreter) interpreter).getAliasStrings();
+                List<String> aliases = new ArrayList<>(((DefaultInterpreter) interpreter).getAliasStrings());
+                Collections.sort(aliases, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o2.length()-o1.length();
+                    }
+                });
                 for (Iterator<String> iterator = aliases.iterator(); iterator.hasNext(); ) {
                     String alias = iterator.next();
                     if (alias.equals("?")){
@@ -46,7 +50,13 @@ public class SyntaxSettings {
             StringBuilder commandsStr = new StringBuilder();
             SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
             if (interpreter instanceof DefaultInterpreter) {
-                Set<String> commands = ((DefaultInterpreter) interpreter).getCommandStrings();
+                List<String> commands = new ArrayList<>(((DefaultInterpreter) interpreter).getCommandStrings());
+                Collections.sort(commands,new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o2.length()-o1.length();
+                    }
+                });
                 for (Iterator<String> iterator = commands.iterator(); iterator.hasNext(); ) {
                     String command = iterator.next();
                     commandsStr.append(command);
@@ -78,7 +88,7 @@ public class SyntaxSettings {
                         }
                     }
                 } else {
-                    for (int i = 1; i < groupCount; i++) {
+                    for (int i = 1; i < groupCount+1; i++) {//start with match 1, because match 0 is the whole regex not the capture group
                         int start = m.start(i);
                         int end = m.end(i);
                         if (components.size() < i) {

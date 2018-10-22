@@ -6,9 +6,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.util.Enumeration;
-import java.util.HashMap;
 
 public class TextStyle {
 
@@ -25,34 +22,33 @@ public class TextStyle {
     private Color background = Color.BLACK;
 
 
+    public TextStyle() {
+    }
 
-
-    public TextStyle(){}
-
-    public TextStyle(TextStyle copy){
-        this.bold=copy.bold;
-        this.underline=copy.underline;
-        this.strikethrough=copy.strikethrough;
-        this.italic=copy.italic;
-        this.fontSize=copy.fontSize;
-        this.foreground=copy.foreground;
-        this.background=copy.background;
+    public TextStyle(TextStyle copy) {
+        this.bold = copy.bold;
+        this.underline = copy.underline;
+        this.strikethrough = copy.strikethrough;
+        this.italic = copy.italic;
+        this.fontSize = copy.fontSize;
+        this.foreground = copy.foreground;
+        this.background = copy.background;
     }
 
 
-@JsonIgnore
+    @JsonIgnore
     public AttributeSet getAttributes() {
-        SimpleAttributeSet attrs = new  SimpleAttributeSet();
+        SimpleAttributeSet attrs = new SimpleAttributeSet();
 
-        StyleConstants.setBold(attrs,bold);
-        StyleConstants.setUnderline(attrs,underline);
-        StyleConstants.setStrikeThrough(attrs,strikethrough);
-        StyleConstants.setItalic(attrs,italic);
+        StyleConstants.setBold(attrs, bold);
+        StyleConstants.setUnderline(attrs, underline);
+        StyleConstants.setStrikeThrough(attrs, strikethrough);
+        StyleConstants.setItalic(attrs, italic);
         if (fontSize > 0) {
             StyleConstants.setFontSize(attrs, fontSize);
         }
-        StyleConstants.setForeground(attrs,foreground);
-        StyleConstants.setBackground(attrs,background);
+        StyleConstants.setForeground(attrs, foreground);
+        StyleConstants.setBackground(attrs, background);
 
         return attrs;
 
@@ -126,14 +122,15 @@ public class TextStyle {
     }
 
     public void setForegroundRgb(float[] components) {
-        foreground = new Color(components[0], components[1], components[2]);
+        foreground = new Color(components[0], components[1], components[2], components[3]);
     }
 
     public float[] getForegroundRgb() {
         return foreground.getRGBComponents(null);
     }
+
     public void setBackgroundRgb(float[] components) {
-        background = new Color(components[0], components[1], components[2]);
+        background = new Color(components[0], components[1], components[2], components[3]);
     }
 
     public float[] getBackgroundRgb() {
