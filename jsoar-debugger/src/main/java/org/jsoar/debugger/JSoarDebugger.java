@@ -61,6 +61,7 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.PrefsFactory;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -98,7 +99,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private static final Logger logger = LoggerFactory.getLogger(JSoarDebugger.class);
     
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
-    public static final Preferences PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
+    private static Preferences PREFERENCES;
     private static final PropertyKey<JSoarDebugger> CREATED_BY = PropertyKey.builder("JSoarDebugger.createdBy", JSoarDebugger.class).readonly(true).build(); 
     
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
@@ -129,7 +130,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private JSoarDebugger(Map<String, Object> properties)
     {
         super(new BorderLayout());
-        
+
+
         this.providerProperties.putAll(properties);
     }
     
@@ -292,7 +294,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private Preferences getWindowPrefs()
     {
-        return PREFERENCES.node("window");
+        return getPreferences().node("window");
     }
 
     private <T> void saveListener(PropertyListenerHandle<T> listener)
@@ -382,7 +384,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         {
             try
             {
-                PREFERENCES.removeNode();
+                getPreferences().removeNode();
             }
             catch (BackingStoreException e)
             {
@@ -396,7 +398,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
             System.exit(0);
         }
     }
-        
+
+    public static Preferences getPreferences() {
+        if (PREFERENCES == null) {
+            System.setProperty("java.util.prefs.PreferencesFactory", PrefsFactory.class.getName());
+
+            PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
+        }
+        return PREFERENCES;
+    }
+
     public void restoreLayout()
     {
         // TODO: Implement layout storage in a way that doesn't suck.

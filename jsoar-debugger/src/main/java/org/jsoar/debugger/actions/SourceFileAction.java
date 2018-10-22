@@ -32,7 +32,7 @@ public class SourceFileAction extends AbstractDebuggerAction
         super(manager, "Source File ...");
         
         setAcceleratorKey(KeyStroke.getKeyStroke("ctrl O"));
-        lastDir = JSoarDebugger.PREFERENCES.get("lastSourceDir", System.getProperty("user.dir"));
+        lastDir = JSoarDebugger.getPreferences().get("lastSourceDir", System.getProperty("user.dir"));
     }
 
     /* (non-Javadoc)
@@ -71,7 +71,7 @@ public class SourceFileAction extends AbstractDebuggerAction
         
         final File f = chooser.getSelectedFile();
         lastDir = f.getParentFile().getAbsolutePath();
-        JSoarDebugger.PREFERENCES.put("lastSourceDir", lastDir);
+        JSoarDebugger.getPreferences().put("lastSourceDir", lastDir);
         
         final SoarCommandInterpreter interp = getApplication().getAgent().getInterpreter();
         getApplication().getAgent().execute(new Callable<Void>() {

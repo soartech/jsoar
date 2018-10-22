@@ -94,6 +94,7 @@ public class SyntaxPatternComponent extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         txtComment.setColumns(20);
         txtComment.setRows(6);
+        txtComment.setLineWrap(true);
         this.add(txtComment, constraints);
 
 

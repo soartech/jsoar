@@ -99,7 +99,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private Preferences getPrefs()
     {
-        return JSoarDebugger.PREFERENCES.node("commands");
+        return JSoarDebugger.getPreferences().node("commands");
     }
 
     private void execute()

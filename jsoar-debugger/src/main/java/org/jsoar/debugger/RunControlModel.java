@@ -115,7 +115,7 @@ public class RunControlModel implements Disposable
 
     private Preferences getPrefs()
     {
-        return JSoarDebugger.PREFERENCES.node("run");
+        return JSoarDebugger.getPreferences().node("run");
     }
     
 }
