@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.RunType;
@@ -100,7 +101,8 @@ public class WorkingMemoryTree extends JComponent
     {
         setLayout(null);
         
-        font = Font.decode("Arial-BOLD-11");
+        Font tmpFont = Font.decode("Arial-BOLD-11");
+        font = tmpFont.deriveFont(tmpFont.getSize()* JSoarDebugger.getFontScale());
         rootFont = font.deriveFont(font.getSize() * 1.5f);
         rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
 

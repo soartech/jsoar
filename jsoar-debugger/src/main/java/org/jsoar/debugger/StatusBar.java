@@ -46,10 +46,10 @@ public class StatusBar extends JXStatusBar implements Refreshable
         runState.setFont(boldStatusFont);
         runState.setBackground(new Color(102, 242, 96));
         
-        add(phase, fixed(140));
+        add(phase, fixed((int) (140*JSoarDebugger.getFontScale())));
         phase.setFont(boldStatusFont);
         
-        add(decisions, fixed(120));
+        add(decisions, fixed((int) (120*JSoarDebugger.getFontScale())));
         decisions.setFont(boldStatusFont);
         
         add(settings, fill());

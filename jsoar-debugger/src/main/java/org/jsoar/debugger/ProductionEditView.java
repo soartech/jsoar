@@ -91,10 +91,10 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         this.debugger = debugger;
         this.agent = Adaptables.adapt(debugger, ThreadedAgent.class);
-        
+
         JPanel p = new JPanel(new BorderLayout());
         SwingTools.addUndoSupport(textArea);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         JPanel north = new JPanel(new BorderLayout());

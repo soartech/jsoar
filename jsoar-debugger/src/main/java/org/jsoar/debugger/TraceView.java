@@ -246,7 +246,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         super("trace", "Trace");
         this.debugger = debuggerIn;
         
-        outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         //todo - re-implement word wrap
         //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
 

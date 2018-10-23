@@ -18,7 +18,6 @@ import java.util.LinkedList;
 public class SyntaxConfigurator {
 
     private final SyntaxSettings syntaxSettings;
-    private TraceView parent;
     private final JXButton btnApply = new JXButton("Apply");
     private final JXButton btnOk = new JXButton("Ok");
     private final JXButton btnCancel = new JXButton("Cancel");
@@ -31,7 +30,6 @@ public class SyntaxConfigurator {
 
     public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent) {
         this.syntaxSettings = syntaxSettings;
-        this.parent = parent;
 
         frame = new JFrame("Syntax Settings");
         frame.setBounds(100, 100, 800, 600);
@@ -60,7 +58,7 @@ public class SyntaxConfigurator {
             final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet());
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
-
+            comp.putClientProperty("JComponent.sizeVariant","large");
             comp.addDeleteButtonListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -71,6 +69,7 @@ public class SyntaxConfigurator {
                 }
             });
             syntaxList.add(comp);
+
         }
         syntaxList.add(btnAddRegex);
 

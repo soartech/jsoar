@@ -5,11 +5,8 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,15 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
+import org.jdesktop.swingx.JXFrame;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
@@ -123,7 +114,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
     private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
-    
+    private static float fontScale = 1.0f;
+
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
      */
@@ -134,16 +126,34 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         this.providerProperties.putAll(properties);
     }
-    
+
+    public static float getFontScale() {
+        return fontScale;
+    }
+
     /**
      * Initialize the debugger
      * 
      * @param parentFrame The parent frame of the debugger
      * @param proxy A non-null, <b>initialized</b> agent proxy
      */
-    private void initialize(JFrame parentFrame, ThreadedAgent proxy)
+    private void initialize(final JXFrame parentFrame, ThreadedAgent proxy)
     {
         logger.info("Initializing debugger for agent '" + proxy + "'");
+        parentFrame.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.isControlDown()){
+
+                    if (e.getWheelRotation() < 0) {
+                        SwingTools.setFontScale(4.0f/3.0f);
+                    } else if (e.getWheelRotation() > 0) {
+                        SwingTools.setFontScale(.75f);
+                    }
+                    parentFrame.repaint();
+                }
+            }
+        });
         
         this.frame = parentFrame;
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
@@ -550,7 +560,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     public static void main(final String[] args)
     {
         SwingTools.initializeLookAndFeel();
-        
+        float scale = Float.parseFloat(System.getProperty("fontScale","1.0"));
+        SwingTools.setFontScale(scale);
+        fontScale = scale;
         SwingUtilities.invokeLater(new Runnable() {
             
             public void run() { initialize(args); }
@@ -575,7 +587,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
                 debugger = new JSoarDebugger(properties);
                 
-                final JFrame frame = new JFrame();
+                final JXFrame frame = new JXFrame();
                 
                 frame.setContentPane(debugger);
                 

@@ -89,9 +89,9 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         this.table.getColumnExt(2).setVisible(false);
         
         table.getColumn(0).setResizable(false);
-        table.getColumnExt(0).setMaxWidth(40);
+        table.getColumnExt(0).setMaxWidth((int) (40*JSoarDebugger.getFontScale()));
         table.getColumn(1).setResizable(false);
-        table.getColumn(1).setMaxWidth(60);
+        table.getColumn(1).setMaxWidth((int) (60*JSoarDebugger.getFontScale()));
         
         errorLabel.setVerticalAlignment(SwingConstants.TOP);
         errorLabel.setForeground(Color.RED);
