@@ -43,6 +43,7 @@ public class LoadCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="load", description="Loads a file or rete-net",
             subcommands={HelpCommand.class,
                          ReteNet.class})
@@ -63,6 +64,7 @@ public class LoadCommand implements SoarCommand
             agent.getPrinter().startNewLine().print("File type is required.");
         }
     }
+    
     
     @Command(name="rete-net", description="Resotres an agent's productions from "
             + "a binary file. Loading productions from a rete-net file causes all "

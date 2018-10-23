@@ -9,7 +9,6 @@ import java.util.zip.GZIPOutputStream;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rete.ReteSerializer;
-import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
@@ -42,6 +41,7 @@ public class SaveCommand implements SoarCommand
         return "";
     }
     
+    
     @Command(name="save", description="Saves a rete-net",
             subcommands={HelpCommand.class,
                          ReteNet.class})
@@ -62,6 +62,7 @@ public class SaveCommand implements SoarCommand
             agent.getPrinter().startNewLine().print("File type is required.");
         }
     }
+    
     
     @Command(name="rete-net", description="Serializes an agent's productions to a binary file",
             subcommands={HelpCommand.class})
