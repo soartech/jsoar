@@ -1,46 +1,54 @@
-/*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
- * Created on Oct 30, 2008
- */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
-
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+
 /**
- * Implementation of the "pwd" command.
- * 
- * @author ray
+ * This is the implementation of the "pwd" command.
+ * @author austin.brehob
  */
 public class PwdCommand implements SoarCommand
 {
     private final SourceCommand sourceCommand;
+    private Agent agent;
     
-    /**
-     * @param sourceCommand
-     */
-    public PwdCommand(SourceCommand sourceCommand)
+    public PwdCommand(SourceCommand sourceCommand, Agent agent)
     {
         this.sourceCommand = sourceCommand;
+        this.agent = agent;
+    }
+    
+    @Override
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
+    {
+        Utils.parseAndRun(agent, new Pwd(sourceCommand, agent), args);
+        
+        return "";
     }
 
-
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
-    @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    
+    @Command(name="pwd", description="Prints the working directory to the screen", subcommands={HelpCommand.class})
+    static public class Pwd implements Runnable
     {
-        if(args.length != 1)
+        private final SourceCommand sourceCommand;
+        private Agent agent;
+        
+        public Pwd(SourceCommand sourceCommand, Agent agent)
         {
-            throw new SoarException("Expected 0 args, got " + Arrays.asList(args));
+            this.sourceCommand = sourceCommand;
+            this.agent = agent;
         }
         
-        return sourceCommand.getWorkingDirectory().replace('\\', '/');
+        @Override
+        public void run()
+        {
+            agent.getPrinter().startNewLine().print(
+                    sourceCommand.getWorkingDirectory().replace('\\', '/'));
+        }
     }
-
 }

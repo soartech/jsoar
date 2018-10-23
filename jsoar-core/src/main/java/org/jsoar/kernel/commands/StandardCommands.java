@@ -42,7 +42,7 @@ public class StandardCommands
         interp.addCommand("echo", new EchoCommand(agent));
         interp.addCommand("clog", new CLogCommand(agent));
         interp.addCommand("watch", new WatchCommand(agent.getTrace()));
-        interp.addCommand("pwatch", new ProductionWatchCommand(agent.getProductions()));
+        interp.addCommand("pwatch", new PWatchCommand(agent.getProductions()));
         interp.addCommand("pbreak", new ProductionBreakCommand(agent.getProductions()));
         interp.addCommand("rhs-functions", new RhsFunctionsCommand(agent));
         
@@ -50,8 +50,6 @@ public class StandardCommands
         interp.addCommand("print", printCommand);
         interp.addCommand("default-wme-depth", new DefaultWmeDepthCommand(printCommand));
         
-        interp.addCommand("o-support-mode", new OSupportModeCommand());
-        interp.addCommand("soar8", new Soar8Command());
         interp.addCommand("firing-counts", new FiringCountsCommand(agent));
         interp.addCommand("excise", new ExciseCommand(agent));
         interp.addCommand("init-soar", new InitSoarCommand(agent));
@@ -70,7 +68,7 @@ public class StandardCommands
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("timers", new TimersCommand());
-        interp.addCommand("version", new VersionCommand());
+        interp.addCommand("version", new VersionCommand(agent));
         interp.addCommand("set-stop-phase", new SetStopPhaseCommand(agent.getProperties()));
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
@@ -81,6 +79,12 @@ public class StandardCommands
         interp.addCommand("log", new LogCommand(agent, interp));
         
         interp.addCommand("handler", new HandlerCommand(agent));
+        
+        interp.addCommand("soar", new SoarSettingsCommand(agent));
+        interp.addCommand("output", new OutputCommand(agent, printCommand));
+        interp.addCommand("production-watch", new ProductionWatchCommand(agent));
+        interp.addCommand("production", new ProductionCommand(agent));
+        interp.addCommand("chunk", new ChunkCommand(agent));
         
         SoarCommands.registerCustomCommands(interp, agent);
     }
