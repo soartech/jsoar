@@ -1,7 +1,20 @@
 package org.jsoar.kernel.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.symbols.DoubleSymbol;
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IntegerSymbol;
+import org.jsoar.kernel.symbols.JavaSymbol;
+import org.jsoar.kernel.symbols.StringSymbol;
+import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.timing.DefaultExecutionTimer;
@@ -42,10 +55,12 @@ public class DebugCommand implements SoarCommand
     static public class Debug implements Runnable
     {
         private Agent agent;
+        private SymbolFactoryImpl syms;
         
         public Debug(Agent agent)
         {
             this.agent = agent;
+            this.syms = Adaptables.adapt(agent, SymbolFactoryImpl.class);
         }
         
         @Override
@@ -66,10 +81,44 @@ public class DebugCommand implements SoarCommand
         @Override
         public void run()
         {
+            final List<Symbol> all = parent.syms.getAllSymbols();
+            final StringBuilder result = new StringBuilder();
+            printSymbolsOfType(result, all, Identifier.class);
+            printSymbolsOfType(result, all, StringSymbol.class);
+            printSymbolsOfType(result, all, IntegerSymbol.class);
+            printSymbolsOfType(result, all, DoubleSymbol.class);
+            printSymbolsOfType(result, all, Variable.class);
+            printSymbolsOfType(result, all, JavaSymbol.class);
             
+            parent.agent.getPrinter().startNewLine().print(result.toString());
+        }
+        
+        private <T extends Symbol> void printSymbolsOfType(StringBuilder result, List<Symbol> all, Class<T> klass)
+        {
+            final List<String> asStrings = collectSymbolsOfType(all, klass);
+            result.append("--- " + klass + " (" + asStrings.size() + ") ---\n");
+            Collections.sort(asStrings);
+            for (String s : asStrings)
+            {
+                result.append(s);
+                result.append('\n');
+            }
+        }
+        
+        private <T extends Symbol> List<String> collectSymbolsOfType(List<Symbol> in, Class<T> klass)
+        {
+            final List<String> result = new ArrayList<String>();
+            for (Symbol s : in)
+            {
+                if (klass.isInstance(s))
+                {
+                    result.add(s.toString());
+                }
+            }
+            return result;
         }
     }
-    
+
     
     @Command(name="time", description="Executes command and prints time spent",
             subcommands={HelpCommand.class})
@@ -105,6 +154,7 @@ public class DebugCommand implements SoarCommand
             }
             combined = combined.substring(0, combined.length() - 1);
             
+            // Run the command and record how long it takes to complete
             real.start();
             String result;
             try
