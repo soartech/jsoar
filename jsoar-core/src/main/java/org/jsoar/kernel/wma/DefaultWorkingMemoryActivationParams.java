@@ -48,22 +48,22 @@ public class DefaultWorkingMemoryActivationParams
     static final PropertyKey<ActivationChoices> ACTIVATION = key("activation", ActivationChoices.class).defaultValue(ActivationChoices.off).build();
     public final EnumPropertyProvider<ActivationChoices> activation = new EnumPropertyProvider<ActivationChoices>(ACTIVATION);
     
-    static final PropertyKey<Double> DECAY_RATE = key("decay_rate", Double.class).defaultValue(-0.5).build();
+    static final PropertyKey<Double> DECAY_RATE = key("decay-rate", Double.class).defaultValue(-0.5).build();
     public final DefaultPropertyProvider<Double> decay_rate = new DefaultPropertyProvider<Double>(DECAY_RATE);
     
-    static final PropertyKey<Double> DECAY_THRESH = key("decay_thresh", Double.class).defaultValue(-2.0).build();
+    static final PropertyKey<Double> DECAY_THRESH = key("decay-thresh", Double.class).defaultValue(-2.0).build();
     public final DefaultPropertyProvider<Double> decay_thresh = new DefaultPropertyProvider<Double>(DECAY_THRESH);
     
-    static final PropertyKey<PetrovApproxChoices> PETROV_APPROX = key("petrov_approx", PetrovApproxChoices.class).defaultValue(PetrovApproxChoices.off).build();
+    static final PropertyKey<PetrovApproxChoices> PETROV_APPROX = key("petrov-approx", PetrovApproxChoices.class).defaultValue(PetrovApproxChoices.off).build();
     public final EnumPropertyProvider<PetrovApproxChoices> petrov_approx = new EnumPropertyProvider<PetrovApproxChoices>(PETROV_APPROX);
     
-    static final PropertyKey<ForgettingChoices> FORGETTING_CHOICES = key("forgetting_choices", ForgettingChoices.class).defaultValue(ForgettingChoices.off).build();
+    static final PropertyKey<ForgettingChoices> FORGETTING_CHOICES = key("forgetting", ForgettingChoices.class).defaultValue(ForgettingChoices.off).build();
     public final EnumPropertyProvider<ForgettingChoices> forgetting = new EnumPropertyProvider<ForgettingChoices>(FORGETTING_CHOICES);
     
-    static final PropertyKey<ForgetWmeChoices> FORGET_WME_CHOICES = key("forget_wme_choices", ForgetWmeChoices.class).defaultValue(ForgetWmeChoices.all).build();
+    static final PropertyKey<ForgetWmeChoices> FORGET_WME_CHOICES = key("forget-wme", ForgetWmeChoices.class).defaultValue(ForgetWmeChoices.all).build();
     public final EnumPropertyProvider<ForgetWmeChoices> forget_wme = new EnumPropertyProvider<ForgetWmeChoices>(FORGET_WME_CHOICES);
     
-    static final PropertyKey<FakeForgettingChoices> FAKE_FORGETTING = key("fake_forgetting", FakeForgettingChoices.class).defaultValue(FakeForgettingChoices.off).build();
+    static final PropertyKey<FakeForgettingChoices> FAKE_FORGETTING = key("fake-forgetting", FakeForgettingChoices.class).defaultValue(FakeForgettingChoices.off).build();
     public final EnumPropertyProvider<FakeForgettingChoices> fake_forgetting = new EnumPropertyProvider<FakeForgettingChoices>(FAKE_FORGETTING);
     
     
@@ -74,7 +74,7 @@ public class DefaultWorkingMemoryActivationParams
     public final EnumPropertyProvider<TimerLevels> timers = new EnumPropertyProvider<TimerLevels>(TIMERS);
     
         
-    static final PropertyKey<Integer> MAX_POW_CACHE = key("max_pow_cache", Integer.class).defaultValue(10).build();
+    static final PropertyKey<Integer> MAX_POW_CACHE = key("max-pow-cache", Integer.class).defaultValue(10).build();
     public final IntegerPropertyProvider max_pow_cache = new IntegerPropertyProvider(MAX_POW_CACHE);
     
     
