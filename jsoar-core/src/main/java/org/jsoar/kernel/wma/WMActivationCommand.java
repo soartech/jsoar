@@ -55,7 +55,7 @@ public class WMActivationCommand implements SoarCommand
     
     @Command(name="wm", description="Commands and settings related to working memory",
             subcommands={HelpCommand.class,
-                         Activation.class})
+                         WMActivationCommand.Activation.class})
     static public class WM implements Runnable
     {
         private final DefaultWorkingMemoryActivation wma;
