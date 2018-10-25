@@ -7,7 +7,6 @@ package org.jsoar.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sun.swing.ImageIconUIResource;
-import sun.swing.plaf.synth.SynthIcon;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
