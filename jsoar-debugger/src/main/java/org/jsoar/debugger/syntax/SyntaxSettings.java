@@ -3,6 +3,8 @@ package org.jsoar.debugger.syntax;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import org.jsoar.debugger.JSoarDebugger;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
@@ -17,56 +19,20 @@ public class SyntaxSettings {
 
     }
 
+    /**
+     * generates a list of all style matches for this pattern that occur in this string.
+     * @param input The string to match against
+     * @param syntax The syntax pattern object containing the regex
+     * @param styles A list of styles to be applied based on the syntax pattern
+     * @param debugger A debugger instance (needed to get the interpreter to expand macros)
+     * @return A list of StyleOffset objects containing a text style and position
+     */
     public synchronized List<StyleOffset> matchAll(String input, SyntaxPattern syntax, HashMap<String, TextStyle> styles, JSoarDebugger debugger) {
         List<StyleOffset> matches = new LinkedList<>();
         String regex = syntax.getRegex();
 
         //search for special commands %commands% and %alias%
-        if (regex.contains("%aliases%")) {
-            StringBuilder aliasesStr = new StringBuilder();
-            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
-            if (interpreter instanceof DefaultInterpreter){
-                List<String> aliases = new ArrayList<>(((DefaultInterpreter) interpreter).getAliasStrings());
-                Collections.sort(aliases, new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return o2.length()-o1.length();
-                    }
-                });
-                for (Iterator<String> iterator = aliases.iterator(); iterator.hasNext(); ) {
-                    String alias = iterator.next();
-                    if (alias.equals("?")){
-                        alias = "\\?";
-                    }
-                    aliasesStr.append(alias);
-                    if (iterator.hasNext())
-                        aliasesStr.append("|");
-                }
-
-            }
-            regex = regex.replaceAll("%aliases%", Matcher.quoteReplacement(aliasesStr.toString()));
-        }
-        if (regex.contains("%commands%")) {
-            StringBuilder commandsStr = new StringBuilder();
-            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
-            if (interpreter instanceof DefaultInterpreter) {
-                List<String> commands = new ArrayList<>(((DefaultInterpreter) interpreter).getCommandStrings());
-                Collections.sort(commands,new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return o2.length()-o1.length();
-                    }
-                });
-                for (Iterator<String> iterator = commands.iterator(); iterator.hasNext(); ) {
-                    String command = iterator.next();
-                    commandsStr.append(command);
-                    if (iterator.hasNext())
-                        commandsStr.append("|");
-                }
-
-            }
-            regex = regex.replaceAll("%commands%", Matcher.quoteReplacement(commandsStr.toString()));
-        }
+        regex = expandMacros(debugger, regex);
         List<String> components = syntax.getComponents();
         try {
             Pattern pattern = Pattern.compile(regex);
@@ -88,7 +54,7 @@ public class SyntaxSettings {
                         }
                     }
                 } else {
-                    for (int i = 1; i < groupCount+1; i++) {//start with match 1, because match 0 is the whole regex not the capture group
+                    for (int i = 1; i < groupCount + 1; i++) {//start with match 1, because match 0 is the whole regex not the capture group
                         int start = m.start(i);
                         int end = m.end(i);
                         if (components.size() < i) {
@@ -107,12 +73,102 @@ public class SyntaxSettings {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            System.err.println("attempted regex: "+ regex);
+            System.err.println("attempted regex: " + regex);
         }
 
         return matches;
     }
 
+    /**
+     * Expand %commands% and %aliases% into regex code
+     * @param debugger A degubber instance, needed to get the interpreter instance
+     * @param regex The string to expand
+     * @return an expanded string
+     */
+    public static String expandMacros(JSoarDebugger debugger, String regex) {
+        if (regex.contains("%aliases%")) {
+            StringBuilder aliasesStr = new StringBuilder();
+            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
+            if (interpreter instanceof DefaultInterpreter) {
+                List<String> aliases = new ArrayList<>(((DefaultInterpreter) interpreter).getAliasStrings());
+                Collections.sort(aliases, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o2.length() - o1.length();
+                    }
+                });
+                for (Iterator<String> iterator = aliases.iterator(); iterator.hasNext(); ) {
+                    String alias = iterator.next();
+                    if (alias.equals("?")) {
+                        alias = "\\?";
+                    }
+                    aliasesStr.append(alias);
+                    if (iterator.hasNext())
+                        aliasesStr.append("|");
+                }
+
+            } else if (interpreter instanceof SoarTclInterface) {
+                try {
+                    String aliases = interpreter.eval("alias");
+                    String[] lines = aliases.split("\\r?\\n");
+                    for (int i = 0; i < lines.length; i++) {
+                        String line = lines[i];
+                        if (!line.isEmpty()) {
+                            String alias = line.split(" -> ")[0];
+                            if (alias.equals("?")) {
+                                alias = "\\?";
+                            }
+                            aliasesStr.append(alias);
+                            if (i < lines.length - 1) {
+                                aliasesStr.append("|");
+                            }
+                        }
+                    }
+
+                } catch (SoarException e) {
+                    e.printStackTrace();
+                }
+            }
+            regex = regex.replaceAll("%aliases%", Matcher.quoteReplacement(aliasesStr.toString()));
+        }
+        if (regex.contains("%commands%")) {
+            StringBuilder commandsStr = new StringBuilder();
+            SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
+            if (interpreter instanceof DefaultInterpreter) {
+                List<String> commands = new ArrayList<>(((DefaultInterpreter) interpreter).getCommandStrings());
+                Collections.sort(commands, new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o2.length() - o1.length();
+                    }
+                });
+                for (Iterator<String> iterator = commands.iterator(); iterator.hasNext(); ) {
+                    String command = iterator.next();
+                    commandsStr.append(command);
+                    if (iterator.hasNext())
+                        commandsStr.append("|");
+                }
+
+            } else if (interpreter instanceof SoarTclInterface) {
+                try {
+                    commandsStr.append(interpreter.eval("info commands").replace(" ", "|").replace("?","\\?"));
+                    commandsStr.append("|");
+                    commandsStr.append(interpreter.eval("info procs").replace(" ", "|").replace("?","\\?"));
+                } catch (SoarException e) {
+                    e.printStackTrace();
+                }
+            }
+            regex = regex.replaceAll("%commands%", Matcher.quoteReplacement(commandsStr.toString()));
+        }
+        return regex;
+    }
+
+    /**
+     * Generate a TreeSet (which will be iterated through in sorted order) of this syntax across the input string
+     * @param str The string to apply syntax highlighting to
+     * @param debugger A debugger instance, used for macro expansion
+     * @return A TreeSet of style offsets
+     */
     public TreeSet<StyleOffset> getForAll(String str, JSoarDebugger debugger) {
         TreeSet<StyleOffset> offsets = new TreeSet<>();
         for (SyntaxPattern pattern : syntaxPatterns) {
@@ -140,11 +196,11 @@ public class SyntaxSettings {
         this.syntaxPatterns = syntaxPatterns;
     }
 
-    public void addTextStyle(String phase, TextStyle style) {
-        componentStyles.put(phase,style);
+    public void addTextStyle(String name, TextStyle style) {
+        componentStyles.put(name, style);
     }
 
-    public void addPattern(SyntaxPattern pattern){
+    public void addPattern(SyntaxPattern pattern) {
         syntaxPatterns.add(pattern);
     }
 }

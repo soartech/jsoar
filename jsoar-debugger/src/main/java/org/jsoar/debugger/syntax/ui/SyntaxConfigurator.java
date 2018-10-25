@@ -2,12 +2,16 @@ package org.jsoar.debugger.syntax.ui;
 
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.VerticalLayout;
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.TraceView;
 import org.jsoar.debugger.syntax.SyntaxPattern;
 import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,11 +32,11 @@ public class SyntaxConfigurator {
 
     private final JFrame frame;
 
-    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent) {
+    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent, final JSoarDebugger debugger) {
         this.syntaxSettings = syntaxSettings;
 
         frame = new JFrame("Syntax Settings");
-        frame.setBounds(100, 100, 800, 600);
+        frame.setBounds(100, 100, 1600, 1000);
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
@@ -47,7 +51,7 @@ public class SyntaxConfigurator {
 
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-
+//        panel.setPreferredSize(new Dimension(1600,1000));
         panel.add(bottomPanel, BorderLayout.PAGE_END);
 
         syntaxList = new JPanel();
@@ -55,10 +59,10 @@ public class SyntaxConfigurator {
         LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
         for (Iterator<SyntaxPattern> iterator = syntaxPatterns.iterator(); iterator.hasNext(); ) {
             final SyntaxPattern pattern = iterator.next();
-            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet());
+            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
-            comp.putClientProperty("JComponent.sizeVariant","large");
+            comp.putClientProperty("JComponent.sizeVariant", "large");
             comp.addDeleteButtonListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -71,6 +75,7 @@ public class SyntaxConfigurator {
             syntaxList.add(comp);
 
         }
+//        syntaxList.setPreferredSize(new Dimension(1000,-1));
         syntaxList.add(btnAddRegex);
 
         JScrollPane scrollPane = new JScrollPane(syntaxList);
@@ -83,19 +88,8 @@ public class SyntaxConfigurator {
         styleList.setLayout(new VerticalLayout());
         for (Iterator<String> iterator = syntaxSettings.getComponentStyles().keySet().iterator(); iterator.hasNext(); ) {
             final String key = iterator.next();
-            final TextStyleComponent comp = new TextStyleComponent(key, syntaxSettings.getComponentStyles().get(key));
-            final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-            styleList.add(sep);
-            comp.addDeleteButtonListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    styleList.remove(comp);
-                    styleList.remove(sep);
-                    syntaxSettings.getComponentStyles().remove(key);
-                    onStyleChanged();
-                }
-            });
-            styleList.add(comp);
+            TextStyle style = syntaxSettings.getComponentStyles().get(key);
+            addStyleComponent(key,style);
         }
         styleList.add(btnAddStyle);
 
@@ -104,7 +98,7 @@ public class SyntaxConfigurator {
         scrollPane.setVisible(true);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane, BorderLayout.EAST);
-        
+
         frame.getContentPane().add(panel);
         frame.pack();
 
@@ -113,7 +107,7 @@ public class SyntaxConfigurator {
             public void actionPerformed(ActionEvent e) {
                 final SyntaxPattern newPattern = new SyntaxPattern();
                 syntaxSettings.getSyntaxPatterns().add(newPattern);
-                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet());
+                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet(), debugger);
                 final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 
                 comp.addDeleteButtonListener(new ActionListener() {
@@ -142,21 +136,7 @@ public class SyntaxConfigurator {
                     i++;
                 }
                 syntaxSettings.addTextStyle(key, newStyle);
-                final TextStyleComponent comp = new TextStyleComponent(key, syntaxSettings.getComponentStyles().get(key));
-                final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-                final String finalKey = key;
-                comp.addDeleteButtonListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        styleList.remove(comp);
-                        styleList.remove(sep);
-                        syntaxSettings.getComponentStyles().remove(finalKey);
-                        onStyleChanged();
-                    }
-                });
-                styleList.add(sep, styleList.getComponentCount() - 1);
-                styleList.add(comp, styleList.getComponentCount() - 1);
-                onStyleChanged();
+                addStyleComponent(key, newStyle);
             }
         });
 
@@ -183,6 +163,32 @@ public class SyntaxConfigurator {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
+    }
+
+    public void addStyleComponent(String newStyleName, final TextStyle textStyle) {
+        final String key = newStyleName;
+        final TextStyleComponent comp = new TextStyleComponent(key, textStyle);
+        final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+        comp.addDeleteButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                styleList.remove(comp);
+                styleList.remove(sep);
+                syntaxSettings.getComponentStyles().remove(key);
+                onStyleChanged();
+            }
+        });
+        comp.addNameChangeListener(new TextStyleComponent.NameChangeListener() {
+            @Override
+            public void onChange(String oldName, String newName, TextStyle style) {
+                syntaxSettings.getComponentStyles().remove(oldName);
+                syntaxSettings.addTextStyle(newName,style);
+                onStyleChanged();
+            }
+        });
+        styleList.add(sep, styleList.getComponentCount() - 1);
+        styleList.add(comp, styleList.getComponentCount() - 1);
+        onStyleChanged();
     }
 
     public void go() {
