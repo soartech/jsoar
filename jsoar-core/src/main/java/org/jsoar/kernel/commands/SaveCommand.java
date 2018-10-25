@@ -40,8 +40,13 @@ public class SaveCommand implements SoarCommand
         
         return "";
     }
-    
-    
+
+    @Override
+    public Object getCommand() {
+        return new Save(sourceCommand,agent);
+    }
+
+
     @Command(name="save", description="Saves a rete-net",
             subcommands={HelpCommand.class,
                          ReteNet.class})

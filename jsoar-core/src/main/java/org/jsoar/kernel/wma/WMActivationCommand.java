@@ -52,7 +52,12 @@ public class WMActivationCommand implements SoarCommand
         return "";
     }
 
-    
+    @Override
+    public Object getCommand() {
+        return new WM(wma,rete,agent);
+    }
+
+
     @Command(name="wm", description="Commands and settings related to working memory",
             subcommands={HelpCommand.class,
                          WMActivationCommand.Activation.class})

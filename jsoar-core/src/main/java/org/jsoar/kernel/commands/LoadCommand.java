@@ -42,8 +42,13 @@ public class LoadCommand implements SoarCommand
         
         return "";
     }
-    
-    
+
+    @Override
+    public Object getCommand() {
+        return new Load(sourceCommand,agent);
+    }
+
+
     @Command(name="load", description="Loads a file or rete-net",
             subcommands={HelpCommand.class,
                          ReteNet.class})

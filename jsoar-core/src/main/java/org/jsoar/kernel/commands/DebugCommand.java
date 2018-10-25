@@ -47,7 +47,12 @@ public class DebugCommand implements SoarCommand
         return "";
     }
 
-    
+    @Override
+    public Object getCommand() {
+        return new Debug(agent);
+    }
+
+
     @Command(name="debug", description="Contains low-level technical debugging commands",
             subcommands={HelpCommand.class,
                          DebugCommand.InternalSymbols.class,
