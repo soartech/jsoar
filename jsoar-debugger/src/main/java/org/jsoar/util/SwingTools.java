@@ -5,9 +5,6 @@
  */
 package org.jsoar.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import sun.swing.ImageIconUIResource;
-import sun.swing.plaf.synth.SynthIcon;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,10 +17,8 @@ import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.InsetsUIResource;
-import javax.swing.plaf.synth.SynthLookAndFeel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.CannotRedoException;
@@ -207,14 +202,6 @@ public class SwingTools {
                 Dimension resource = (Dimension) current;
                 resource.width = (int) (resource.width * scale);
                 resource.height = (int) (resource.height * scale);
-                defaults.put(obj, resource);
-            } else if (current instanceof ImageIconUIResource) {
-                ImageIconUIResource resource = (ImageIconUIResource) current;
-                Image image = resource.getImage();
-                int width = image.getWidth(resource.getImageObserver());
-                int height = image.getHeight(resource.getImageObserver());
-                Image scaledInstance = image.getScaledInstance((int) (width * scale), (int) (height * scale), 0);
-                resource.setImage(scaledInstance);
                 defaults.put(obj, resource);
             } else {
                 System.out.println("couldn't format " + current.getClass()+": "+current);

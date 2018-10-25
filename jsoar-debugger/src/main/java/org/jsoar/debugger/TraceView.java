@@ -115,7 +115,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                         for (StyleOffset offset : styles) {
                                             int start = offset.start;
                                             int end = offset.end;
-                                            if (start >= end || start <= index) {
+                                            if (start >= end || start < index) {
                                                 continue;
                                             }
 
@@ -182,7 +182,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             try {
                                 String str = buffer.toString();
                                 outputWindow.getDocument().insertString(endPosition.getOffset()-1, str, defaultAttributes);
-                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n", defaultAttributes);
+//                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n", defaultAttributes);
                             } catch (BadLocationException e) {
                                 e.printStackTrace();
                             }
@@ -543,7 +543,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.insert(new AbstractAction("Edit Syntax Highlighting") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SyntaxConfigurator(patterns,TraceView.this).go();
+                new SyntaxConfigurator(patterns,TraceView.this, debugger).go();
             }
         },0);
 
@@ -654,7 +654,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             for (StyleOffset offset : styles) {
                                 int start = offset.start;
                                 int end = offset.end;
-                                if (start >= end || start <= index) {
+                                if (start >= end || start < index) {
                                     continue;
                                 }
                                 //the matched stuff

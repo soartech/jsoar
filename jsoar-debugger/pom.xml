@@ -68,5 +68,11 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-2-version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.soartech</groupId>
+            <artifactId>jsoar-tcl</artifactId>
+            <version>0.14.10-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -3,15 +3,15 @@
     "phase" : {
       "styleType" : null,
       "bold" : true,
-      "underline" : true,
+      "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
       "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
     },
-    "number" : {
+    "decision type: impasse" : {
       "styleType" : null,
       "bold" : false,
       "underline" : false,
@@ -19,54 +19,21 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 1.0, 0.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ]
     },
-    "step number" : {
-      "styleType" : "step number",
+    "errors/warnings" : {
+      "styleType" : "errors/warnings",
       "bold" : true,
       "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 0.6862745, 0.6862745, 1.0 ],
-      "foregroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ]
     },
-    "new style" : {
-      "styleType" : null,
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
-    },
-    "first thing" : {
-      "styleType" : null,
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 0.0, 0.0, 1.0 ]
-    },
-    "operator" : {
-      "styleType" : null,
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : true,
-      "fontSize" : 0,
-      "enabled" : true,
-      "backgroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 0.78431374, 0.0, 1.0 ]
-    },
-    "command" : {
+    "dc number" : {
       "styleType" : null,
       "bold" : true,
       "underline" : false,
@@ -75,33 +42,77 @@
       "fontSize" : 0,
       "enabled" : true,
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.37254903, 0.3529412, 0.2, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ]
+    },
+    "operator name" : {
+      "styleType" : "operator name",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : true,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
+    },
+    "impasse type" : {
+      "styleType" : "impasse type",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : true,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 0.6, 0.2, 1.0 ]
+    },
+    "command" : {
+      "styleType" : "command",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
+    },
+    "decision type: operator selected" : {
+      "styleType" : null,
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ]
     }
   },
   "syntaxPatterns" : [ {
-    "comment" : "",
+    "comment" : "phase header",
     "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
     "components" : [ "phase" ],
     "enabled" : true
   }, {
-    "comment" : "",
-    "regex" : "\\((\\d+:)?\\ ?([A-Z]\\d+)\\ (\\^[a-zA-Z0-9-]+)\\ (\\S+)?\\ ?(\\S+)?\\)",
-    "components" : [ "step number", "first thing", "operator", "operator", "operator" ],
+    "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
+    "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
+    "components" : [ "dc number", "decision type: operator selected", "operator name" ],
     "enabled" : true
   }, {
-    "comment" : "",
-    "regex" : "(\\d)+",
-    "components" : [ "number" ],
+    "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
+    "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
+    "components" : [ "dc number", "decision type: impasse", "impasse type" ],
     "enabled" : true
   }, {
-    "comment" : "%aliases% expands to soar aliases",
-    "regex" : "(%aliases%)",
-    "components" : [ "command" ],
+    "comment" : "commands and aliass",
+    "regex" : "(?m)^\\b(%commands%|%aliases%)\\b(.*?)$",
+    "components" : [ "command", "phase" ],
     "enabled" : true
   }, {
-    "comment" : "%commands% expands to soar commands",
-    "regex" : "(%commands%)",
-    "components" : [ "command" ],
+    "comment" : "highlight messages that are warnings and errors",
+    "regex" : "((?:Warn|Error|Ignor)(?:.*))",
+    "components" : [ "errors/warnings" ],
     "enabled" : true
   } ]
 }

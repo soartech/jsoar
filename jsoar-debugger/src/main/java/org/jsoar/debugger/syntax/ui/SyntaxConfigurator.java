@@ -2,6 +2,7 @@ package org.jsoar.debugger.syntax.ui;
 
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.VerticalLayout;
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.TraceView;
 import org.jsoar.debugger.syntax.SyntaxPattern;
 import org.jsoar.debugger.syntax.SyntaxSettings;
@@ -28,11 +29,11 @@ public class SyntaxConfigurator {
 
     private final JFrame frame;
 
-    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent) {
+    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent, final JSoarDebugger debugger) {
         this.syntaxSettings = syntaxSettings;
 
         frame = new JFrame("Syntax Settings");
-        frame.setBounds(100, 100, 800, 600);
+        frame.setBounds(100, 100, 1600, 1000);
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
@@ -47,7 +48,7 @@ public class SyntaxConfigurator {
 
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-
+//        panel.setPreferredSize(new Dimension(1600,1000));
         panel.add(bottomPanel, BorderLayout.PAGE_END);
 
         syntaxList = new JPanel();
@@ -55,10 +56,10 @@ public class SyntaxConfigurator {
         LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
         for (Iterator<SyntaxPattern> iterator = syntaxPatterns.iterator(); iterator.hasNext(); ) {
             final SyntaxPattern pattern = iterator.next();
-            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet());
+            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
-            comp.putClientProperty("JComponent.sizeVariant","large");
+            comp.putClientProperty("JComponent.sizeVariant", "large");
             comp.addDeleteButtonListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -71,6 +72,7 @@ public class SyntaxConfigurator {
             syntaxList.add(comp);
 
         }
+//        syntaxList.setPreferredSize(new Dimension(1000,-1));
         syntaxList.add(btnAddRegex);
 
         JScrollPane scrollPane = new JScrollPane(syntaxList);
@@ -104,7 +106,7 @@ public class SyntaxConfigurator {
         scrollPane.setVisible(true);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane, BorderLayout.EAST);
-        
+
         frame.getContentPane().add(panel);
         frame.pack();
 
@@ -113,7 +115,7 @@ public class SyntaxConfigurator {
             public void actionPerformed(ActionEvent e) {
                 final SyntaxPattern newPattern = new SyntaxPattern();
                 syntaxSettings.getSyntaxPatterns().add(newPattern);
-                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet());
+                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet(), debugger);
                 final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 
                 comp.addDeleteButtonListener(new ActionListener() {

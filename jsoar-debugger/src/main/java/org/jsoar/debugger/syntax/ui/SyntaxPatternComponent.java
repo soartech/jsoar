@@ -4,7 +4,9 @@ import com.google.re2j.Pattern;
 import com.google.re2j.PatternSyntaxException;
 import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTable;
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.syntax.SyntaxPattern;
+import org.jsoar.debugger.syntax.SyntaxSettings;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,6 +22,7 @@ import java.util.Set;
 public class SyntaxPatternComponent extends JPanel {
     private Set<String> styleNames;
     private final SyntaxPattern pattern;
+    private JSoarDebugger debugger;
     private final CaptureGroupTableModel tableModel = new CaptureGroupTableModel();
     private final JXTable tblCaptureGroups;
 
@@ -27,9 +30,10 @@ public class SyntaxPatternComponent extends JPanel {
     private static final Color badBackground = new Color(242, 102, 96);
     private final JButton btnDelete = new JButton("Delete");
 
-    public SyntaxPatternComponent(final SyntaxPattern pattern, Set<String> styleNames) {
+    public SyntaxPatternComponent(final SyntaxPattern pattern, Set<String> styleNames, final JSoarDebugger debugger) {
         this.styleNames = styleNames;
         this.pattern = pattern;
+        this.debugger = debugger;
         GridBagLayout mgr = new GridBagLayout();
         this.setLayout(mgr);
 
@@ -52,7 +56,7 @@ public class SyntaxPatternComponent extends JPanel {
         constraints.gridwidth=2;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        txtRegex.setColumns(50);
+        txtRegex.setColumns(45);
         this.add(txtRegex, constraints);
 
         //controls
@@ -123,8 +127,9 @@ public class SyntaxPatternComponent extends JPanel {
         btnUpdate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String text = SyntaxSettings.expandMacros(debugger, txtRegex.getText());
                 try {
-                    Pattern p = Pattern.compile(txtRegex.getText());
+                    Pattern p = Pattern.compile(text);
                     int groupCount = p.groupCount();
                     while (groupCount > pattern.getComponents().size()) {
                         pattern.getComponents().add("");
@@ -135,8 +140,11 @@ public class SyntaxPatternComponent extends JPanel {
                     pattern.setRegex(txtRegex.getText());
                     tableModel.fireTableDataChanged();
                     txtRegex.setBackground(goodBackground);
-                } catch (PatternSyntaxException ignored) {
+                    txtRegex.setToolTipText("<html><b>Detected "+groupCount+" groups in pattern:</b><br>"+text+"</html>");
+
+                } catch (PatternSyntaxException ex) {
                     txtRegex.setBackground(badBackground);
+                    txtRegex.setToolTipText("<html><b>"+ex.getDescription()+"</b><br>"+text+"</html>");
                 }
             }
         });
