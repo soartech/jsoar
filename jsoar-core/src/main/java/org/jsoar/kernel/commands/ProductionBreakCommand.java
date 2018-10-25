@@ -48,7 +48,11 @@ public class ProductionBreakCommand implements SoarCommand
                 newOption(Options.disable).
                 done();
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommand#execute(org.jsoar.util.commands.SoarCommandContext, java.lang.String[])
      */

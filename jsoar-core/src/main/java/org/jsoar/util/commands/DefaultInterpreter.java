@@ -300,6 +300,10 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
     }
 
+    public SoarCommand getCommand(String s) {
+        return commands.get(s);
+    }
+
     private class AliasCommand implements SoarCommand
     {
         private String aliasToString(String name, List<String> args)
@@ -339,6 +343,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
                 aliases.put(args[1], aliasArgs);
                 return aliasToString(args[1], aliasArgs);
             }
+        }
+        @Override
+        public Object getCommand() {
+            //todo - when implementing picocli, return the runnable
+            return null;
         }
     }
     private class MySourceCommandAdapter implements SourceCommandAdapter

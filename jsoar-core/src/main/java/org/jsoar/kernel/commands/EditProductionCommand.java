@@ -63,4 +63,9 @@ public final class EditProductionCommand implements SoarCommand
         }
         return file;
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

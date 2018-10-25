@@ -30,7 +30,11 @@ public class ChunkCommand implements SoarCommand
         
         return "";
     }
+    @Override
+    public Object getCommand() {
 
+        return new Chunk(agent);
+    }
     @Command(name="chunk", description="Prints or adjusts Soar's ability to learn new rules",
             subcommands={HelpCommand.class})
     static public class Chunk implements Runnable

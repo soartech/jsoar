@@ -33,4 +33,9 @@ public final class InitSoarCommand implements SoarCommand
         agent.getPrinter().startNewLine().print("Agent reinitialized\n").flush();
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

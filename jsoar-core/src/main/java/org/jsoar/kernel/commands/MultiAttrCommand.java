@@ -40,4 +40,9 @@ public final class MultiAttrCommand implements SoarCommand
         agent.getMultiAttributes().setCost(attr, cost);
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

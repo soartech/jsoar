@@ -30,7 +30,11 @@ public class VersionCommand implements SoarCommand
         return "";
     }
 
-    
+    @Override
+    public Object getCommand() {
+        return new Version(agent);
+    }
+
     @Command(name="version", description="Prints the version of Soar to the screen", subcommands={HelpCommand.class})
     static public class Version implements Runnable
     {

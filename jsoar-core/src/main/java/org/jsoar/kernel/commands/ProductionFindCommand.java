@@ -105,7 +105,11 @@ public final class ProductionFindCommand implements SoarCommand
         
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private void printResults(final String pattern, List<Production> result)
     {
         final Printer printer = agent.getPrinter();

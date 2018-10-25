@@ -32,6 +32,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
@@ -58,8 +59,13 @@ public class ProductionCommand implements SoarCommand
         
         return "";
     }
-    
-    
+
+    @Override
+    public Object getCommand() {
+        return new ProductionC(agent);
+    }
+
+
     @Command(name="production", description="Commands related to altering and printing production info",
             subcommands={HelpCommand.class,
                          ProductionCommand.Break.class,

@@ -46,7 +46,11 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
             interp.addCommand("wma", new DefaultWorkingMemoryActivationCommand(context));
         }
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     public DefaultWorkingMemoryActivationCommand(Adaptable context)
     {
         this.wma = Adaptables.require(getClass(), context, DefaultWorkingMemoryActivation.class);

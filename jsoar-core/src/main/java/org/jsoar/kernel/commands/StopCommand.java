@@ -28,4 +28,9 @@ public final class StopCommand implements SoarCommand
         threadedAgent.stop();
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

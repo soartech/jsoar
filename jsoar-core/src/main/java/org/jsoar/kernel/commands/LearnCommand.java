@@ -29,7 +29,11 @@ public class LearnCommand extends AbstractToggleCommand
     {
         agent.getProperties().set(SoarProperties.LEARNING_ON, enable);
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     @Override
     protected boolean query(Agent agent)
     {

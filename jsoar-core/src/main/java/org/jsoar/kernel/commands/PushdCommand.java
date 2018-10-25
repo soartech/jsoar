@@ -31,7 +31,10 @@ public class PushdCommand implements SoarCommand
         
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        return new Pushd(sourceCommand,agent);
+    }
     
     @Command(name="pushd", description="Saves the current working directory on a stack",
             subcommands={HelpCommand.class})

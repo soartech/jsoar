@@ -54,7 +54,11 @@ public class SymbolsCommand implements SoarCommand
         
         return result.toString();
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private <T extends Symbol> void printSymbolsOfType(StringBuilder result, List<Symbol> all, Class<T> klass)
     {
         final List<String> asStrings = collectSymbolsOfType(all, klass);

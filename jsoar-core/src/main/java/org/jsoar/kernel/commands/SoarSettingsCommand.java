@@ -50,6 +50,10 @@ public class SoarSettingsCommand implements SoarCommand
         return "";
     }
 
+    @Override
+    public Object getCommand() {
+        return new Soar(agent,tAgent);
+    }
     
     @Command(name="soar", description="Commands and settings related to running Soar",
             subcommands={HelpCommand.class,

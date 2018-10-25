@@ -101,7 +101,11 @@ public final class MemoriesCommand implements SoarCommand
         
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private void printResults(List<Production> productions, int n)
     {
         final Printer printer = agent.getPrinter();

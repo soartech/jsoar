@@ -5,16 +5,26 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
+import javax.swing.*;
 
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jsoar.util.SwingTools;
+import org.jsoar.util.commands.DefaultInterpreter;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import picocli.CommandLine;
 
 /**
  * A panel with a command entry field and history.
@@ -27,7 +37,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel model = new DefaultComboBoxModel();
-    private final JComboBox field = new JComboBox(model);
+    private final JXComboBox field = new JXComboBox(model);
     
     /**
      * Construct the panel with the given debugger
@@ -50,6 +60,35 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 execute();
             }});
+        field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
+//        AutoCompleteDecorator.decorate(field);
+
+        field.getEditor().getEditorComponent().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+                if (e.getKeyChar() == KeyEvent.VK_TAB) {
+                    final String command = field.getEditor().getItem().toString();
+                    if (!command.isEmpty()) {
+//                    field.getEditor().getEditorComponent().
+                        String[] commands = complete(command.trim());
+                        model.removeAllElements();
+                        field.getEditor().setItem(command);
+                        for (String c : commands) {
+                            model.addElement(c);
+                        }
+                        AutoCompleteDecorator.decorate(field);
+
+                    }
+
+
+                } else {
+                    super.keyTyped(e);
+                }
+            }
+        });
+
+
         SwingTools.addSelectAllOnFocus(field);
         
         final String rawhistory = getPrefs().get("history", "").replace((char)0, (char)0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
@@ -118,4 +157,36 @@ public class CommandEntryPanel extends JPanel implements Disposable
         field.insertItemAt(command, 0);
         field.setSelectedIndex(0);
         field.getEditor().selectAll();
-    }}
+    }
+
+    private String[] complete(String input){
+        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter){
+            ArrayList<CharSequence> results = new ArrayList<>();
+
+            DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
+            String[] parts = input.split(" ");
+
+            Set<String> commandStrings = interpreter.getCommandStrings();
+            for (String cmd: commandStrings){
+                if (cmd.startsWith(parts[0])){
+                    results.add(cmd);
+                }
+            }
+            if (results.size() == 1 && results.get(0).length() == input.trim().length()){
+                SoarCommand soarCmd = interpreter.getCommand(results.get(0).toString());
+                ArrayList<CharSequence> longResults = new ArrayList<>();
+                if (soarCmd.getCommand() != null){
+                    CommandLine commandLine = new CommandLine(soarCmd.getCommand());
+                    picocli.AutoComplete.complete(commandLine.getCommandSpec(),parts,0,0,input.length(),longResults);
+                }
+                for (int i = 0; i < longResults.size(); i++){
+                    longResults.set(i,results.get(0)+" "+longResults.get(i));
+                }
+                results = longResults;
+            }
+            return results.toArray(new String[results.size()]);
+        }
+
+        return null;
+    }
+}

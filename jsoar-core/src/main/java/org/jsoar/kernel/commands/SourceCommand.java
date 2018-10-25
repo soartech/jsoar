@@ -83,7 +83,11 @@ public class SourceCommand implements SoarCommand
         this.events = events;
         fileStack.push("");
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();

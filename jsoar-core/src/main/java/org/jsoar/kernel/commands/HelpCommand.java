@@ -60,4 +60,9 @@ public final class HelpCommand implements SoarCommand
             throw new SoarException(e1.getMessage());
         }
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

@@ -36,6 +36,10 @@ public class ProductionWatchCommand implements SoarCommand
         
         return "";
     }
+    @Override
+    public Object getCommand() {
+        return new ProductionWatch(agent);
+    }
     
     @Command(name="production-watch", description="Alters the set of watched productions",
             subcommands={HelpCommand.class})

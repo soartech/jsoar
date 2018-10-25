@@ -114,4 +114,9 @@ public class MatchesCommand implements SoarCommand
         }
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

@@ -45,7 +45,11 @@ public final class QMemoryCommand implements SoarCommand
         // in to the command. This will be ok for now.
         this.adapter = SoarQMemoryAdapter.attach(agent, DefaultQMemory.create());
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     @Override
     public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {

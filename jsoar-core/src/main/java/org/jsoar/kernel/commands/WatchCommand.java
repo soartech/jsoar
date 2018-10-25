@@ -27,7 +27,11 @@ public final class WatchCommand implements SoarCommand
         if(shortOpt != null) categories.put(shortOpt, c);
         if(longOpt != null) categories.put(longOpt, c);
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private static void category(Category c, String longOpt)
     {
         category(EnumSet.of(c), longOpt, longOpt.substring(0, 1));

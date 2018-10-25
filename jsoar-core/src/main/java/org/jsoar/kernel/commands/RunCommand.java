@@ -45,7 +45,11 @@ public final class RunCommand implements SoarCommand
             throw new SoarException("Expected integer for run count, got '" + countString + "'");
         }
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private RunType getRunType(RunType current, RunType newType, String arg) throws SoarException
     {
         if(current != null)

@@ -434,7 +434,11 @@ public final class DecideCommand implements SoarCommand {
             throw new SoarException("Invalid value.");
         }
     }
-
+	@Override
+	public Object getCommand() {
+		//todo - when implementing picocli, return the runnable
+		return null;
+	}
 	private String currentDecideSettings() {
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw);

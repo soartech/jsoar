@@ -135,4 +135,9 @@ public final class ExciseCommand implements SoarCommand
         
         return String.format("\n%d production%s excised.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

@@ -73,7 +73,12 @@ public class ScriptCommand implements SoarCommand
                      .done();
                     
     }
-    
+
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */

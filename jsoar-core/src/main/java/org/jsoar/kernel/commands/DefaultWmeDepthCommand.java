@@ -47,4 +47,9 @@ public final class DefaultWmeDepthCommand implements SoarCommand
             throw new SoarException(String.format("%s <level>", args[0]));
         }
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

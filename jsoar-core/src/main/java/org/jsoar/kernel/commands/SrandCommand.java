@@ -53,4 +53,9 @@ public final class SrandCommand implements SoarCommand
         agent.getRandom().setSeed(seed);
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

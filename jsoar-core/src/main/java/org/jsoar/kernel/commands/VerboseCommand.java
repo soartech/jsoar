@@ -39,5 +39,9 @@ public class VerboseCommand extends AbstractToggleCommand
     {
         return agent.getTrace().isEnabled(Category.VERBOSE);
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

@@ -50,4 +50,9 @@ public final class PropertiesCommand implements SoarCommand
         }
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

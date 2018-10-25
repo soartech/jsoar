@@ -32,7 +32,11 @@ public class WaitSncCommand extends AbstractToggleCommand
     {
         agent.getProperties().set(SoarProperties.WAITSNC, enable);
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     @Override
     protected boolean query(Agent agent)
     {

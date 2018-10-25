@@ -78,7 +78,11 @@ public class PWatchCommand implements SoarCommand
             return "";
         }
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private List<String> collectAndSortTracedRuleNames()
     {
         final List<String> result = new ArrayList<String>();

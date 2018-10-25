@@ -40,7 +40,11 @@ public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
         this.queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).create();
         
         agent.getInterpreter().addCommand("xmq-add", new SoarCommand() {
-
+            @Override
+            public Object getCommand() {
+                //todo - when implementing picocli, return the runnable
+                return null;
+            }
             @Override
             public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {

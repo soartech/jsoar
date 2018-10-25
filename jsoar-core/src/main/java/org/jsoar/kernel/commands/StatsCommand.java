@@ -66,7 +66,11 @@ public final class StatsCommand implements SoarCommand
         }
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private void printSystemStats()
     {
         final Printer p = agent.getPrinter();
@@ -137,5 +141,4 @@ public final class StatsCommand implements SoarCommand
         p.startNewLine();
         
     }
-
 }

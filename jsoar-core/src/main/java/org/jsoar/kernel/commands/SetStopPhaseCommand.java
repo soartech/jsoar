@@ -97,5 +97,9 @@ public class SetStopPhaseCommand implements SoarCommand
     {
         return "Stop before " + phase.toString().toLowerCase() + " phase";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

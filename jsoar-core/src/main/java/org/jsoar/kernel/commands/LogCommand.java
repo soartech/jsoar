@@ -74,7 +74,11 @@ public class LogCommand implements SoarCommand {
         	.newOption(Options.abbreviate).shortOption('v')
         	.done();
     }
-
+	@Override
+	public Object getCommand() {
+		//todo - when implementing picocli, return the runnable
+		return null;
+	}
 	@Override
 	public String execute(SoarCommandContext context, String[] args) throws SoarException
 	{

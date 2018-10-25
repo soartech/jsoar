@@ -51,7 +51,10 @@ public class PrintCommand implements SoarCommand
         
         return "";
     }
-    
+    @Override
+    public Object getCommand() {
+        return new Print(agent,this);
+    }
     @Command(name="print", description="Prints data in the console window",
             subcommands={HelpCommand.class})
     static public class Print implements Runnable

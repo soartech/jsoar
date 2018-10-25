@@ -60,6 +60,11 @@ public class DefaultInterpreterTest
                 context.set(commandContext);
                 return null;
             }
+            @Override
+            public Object getCommand() {
+                //todo - when implementing picocli, return the runnable
+                return null;
+            }
         });
         
         final URL result = getClass().getResource("DefaultInterpreterTest_testPassesCommandContextToCommand.soar");
@@ -84,6 +89,11 @@ public class DefaultInterpreterTest
                 called.set(true);
                 return null;
             }
+            @Override
+            public Object getCommand() {
+                //todo - when implementing picocli, return the runnable
+                return null;
+            }
         });
         interp.eval("testCa");
         assertTrue("Expected testCanChoose command to be called", called.get());
@@ -99,6 +109,11 @@ public class DefaultInterpreterTest
             public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {
                 called.set(true);
+                return null;
+            }
+            @Override
+            public Object getCommand() {
+                //todo - when implementing picocli, return the runnable
                 return null;
             }
         };

@@ -75,5 +75,9 @@ public class TimeCommand implements SoarCommand
         
         return result;
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

@@ -67,7 +67,11 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             interp.addCommand("smem", new DefaultSemanticMemoryCommand(context));
         }
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     public DefaultSemanticMemoryCommand(Adaptable context)
     {
         this.context = context;

@@ -53,7 +53,11 @@ public class ReteNetCommand implements SoarCommand
         this.sourceCommand = sourceCommand;
         this.agent = context;
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {

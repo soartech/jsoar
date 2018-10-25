@@ -33,5 +33,9 @@ public class DebuggerCommand implements SoarCommand
         this.agent.openDebugger();
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
 }

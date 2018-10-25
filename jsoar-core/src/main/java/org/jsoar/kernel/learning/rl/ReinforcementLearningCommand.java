@@ -55,7 +55,11 @@ public final class ReinforcementLearningCommand implements SoarCommand
     {
         this.rl = Adaptables.require(getClass(), context, ReinforcementLearning.class);
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     /*
      * (non-Javadoc)
      * 

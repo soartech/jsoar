@@ -116,7 +116,11 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             throw new SoarException("Unknown argument " + arg);
         }
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     private String doSet(int i, String[] args) throws SoarException
     {
         if (i + 2 >= args.length)

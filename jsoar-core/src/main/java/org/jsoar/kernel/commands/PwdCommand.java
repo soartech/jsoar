@@ -30,7 +30,11 @@ public class PwdCommand implements SoarCommand
         
         return "";
     }
+    @Override
+    public Object getCommand() {
 
+        return new Pwd(sourceCommand,agent);
+    }
     
     @Command(name="pwd", description="Prints the working directory to the screen", subcommands={HelpCommand.class})
     static public class Pwd implements Runnable

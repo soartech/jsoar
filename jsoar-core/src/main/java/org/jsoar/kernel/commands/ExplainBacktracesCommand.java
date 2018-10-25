@@ -57,7 +57,11 @@ public class ExplainBacktracesCommand implements SoarCommand
         }
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     static Options processArgs(String[] args) throws SoarException
     {
         boolean full = false;

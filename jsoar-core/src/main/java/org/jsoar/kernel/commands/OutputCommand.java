@@ -41,7 +41,11 @@ public final class OutputCommand implements SoarCommand
         
         return "";
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return new Output(agent,printCommand,writerStack);
+    }
     
     @Command(name="output", description="Commands related to handling output",
             subcommands={HelpCommand.class,

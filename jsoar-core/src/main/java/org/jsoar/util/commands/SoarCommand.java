@@ -6,6 +6,7 @@
 package org.jsoar.util.commands;
 
 import org.jsoar.kernel.SoarException;
+import picocli.CommandLine;
 
 /**
  * Interface for implementing a Soar command.
@@ -28,4 +29,6 @@ public interface SoarCommand
      * @throws SoarException
      */
     String execute(SoarCommandContext context, String[] args) throws SoarException;
+
+    Object getCommand();
 }
