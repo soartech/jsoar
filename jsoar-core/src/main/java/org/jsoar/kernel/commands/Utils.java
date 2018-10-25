@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.commands.DebugCommand.Debug;
 
 import picocli.CommandLine;
 import picocli.CommandLine.RunLast;
@@ -27,6 +28,15 @@ public class Utils
         PrintStream ps = new PrintStream(os);
         
         CommandLine commandLine = new CommandLine(command);
+        
+        // The "debug time" command takes a command as a parameter, which can contain options
+        // In order to inform picocli that the options are part of the command parameter
+        // the following boolean must be set to true
+        if (command.getClass() == Debug.class)
+        {
+            commandLine.setUnmatchedOptionsArePositionalParams(true);
+        }
+        
         commandLine.parseWithHandlers(
                 new RunLast().useOut(ps),
                 CommandLine.defaultExceptionHandler().useErr(ps),
