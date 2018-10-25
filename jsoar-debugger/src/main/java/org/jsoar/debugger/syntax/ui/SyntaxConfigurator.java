@@ -9,6 +9,9 @@ import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,19 +88,8 @@ public class SyntaxConfigurator {
         styleList.setLayout(new VerticalLayout());
         for (Iterator<String> iterator = syntaxSettings.getComponentStyles().keySet().iterator(); iterator.hasNext(); ) {
             final String key = iterator.next();
-            final TextStyleComponent comp = new TextStyleComponent(key, syntaxSettings.getComponentStyles().get(key));
-            final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-            styleList.add(sep);
-            comp.addDeleteButtonListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    styleList.remove(comp);
-                    styleList.remove(sep);
-                    syntaxSettings.getComponentStyles().remove(key);
-                    onStyleChanged();
-                }
-            });
-            styleList.add(comp);
+            TextStyle style = syntaxSettings.getComponentStyles().get(key);
+            addStyleComponent(key,style);
         }
         styleList.add(btnAddStyle);
 
@@ -144,21 +136,7 @@ public class SyntaxConfigurator {
                     i++;
                 }
                 syntaxSettings.addTextStyle(key, newStyle);
-                final TextStyleComponent comp = new TextStyleComponent(key, syntaxSettings.getComponentStyles().get(key));
-                final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-                final String finalKey = key;
-                comp.addDeleteButtonListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        styleList.remove(comp);
-                        styleList.remove(sep);
-                        syntaxSettings.getComponentStyles().remove(finalKey);
-                        onStyleChanged();
-                    }
-                });
-                styleList.add(sep, styleList.getComponentCount() - 1);
-                styleList.add(comp, styleList.getComponentCount() - 1);
-                onStyleChanged();
+                addStyleComponent(key, newStyle);
             }
         });
 
@@ -185,6 +163,32 @@ public class SyntaxConfigurator {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
+    }
+
+    public void addStyleComponent(String newStyleName, final TextStyle textStyle) {
+        final String key = newStyleName;
+        final TextStyleComponent comp = new TextStyleComponent(key, textStyle);
+        final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+        comp.addDeleteButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                styleList.remove(comp);
+                styleList.remove(sep);
+                syntaxSettings.getComponentStyles().remove(key);
+                onStyleChanged();
+            }
+        });
+        comp.addNameChangeListener(new TextStyleComponent.NameChangeListener() {
+            @Override
+            public void onChange(String oldName, String newName, TextStyle style) {
+                syntaxSettings.getComponentStyles().remove(oldName);
+                syntaxSettings.addTextStyle(newName,style);
+                onStyleChanged();
+            }
+        });
+        styleList.add(sep, styleList.getComponentCount() - 1);
+        styleList.add(comp, styleList.getComponentCount() - 1);
+        onStyleChanged();
     }
 
     public void go() {

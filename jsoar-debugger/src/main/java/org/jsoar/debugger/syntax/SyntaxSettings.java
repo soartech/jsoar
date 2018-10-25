@@ -19,6 +19,14 @@ public class SyntaxSettings {
 
     }
 
+    /**
+     * generates a list of all style matches for this pattern that occur in this string.
+     * @param input The string to match against
+     * @param syntax The syntax pattern object containing the regex
+     * @param styles A list of styles to be applied based on the syntax pattern
+     * @param debugger A debugger instance (needed to get the interpreter to expand macros)
+     * @return A list of StyleOffset objects containing a text style and position
+     */
     public synchronized List<StyleOffset> matchAll(String input, SyntaxPattern syntax, HashMap<String, TextStyle> styles, JSoarDebugger debugger) {
         List<StyleOffset> matches = new LinkedList<>();
         String regex = syntax.getRegex();
@@ -71,6 +79,12 @@ public class SyntaxSettings {
         return matches;
     }
 
+    /**
+     * Expand %commands% and %aliases% into regex code
+     * @param debugger A degubber instance, needed to get the interpreter instance
+     * @param regex The string to expand
+     * @return an expanded string
+     */
     public static String expandMacros(JSoarDebugger debugger, String regex) {
         if (regex.contains("%aliases%")) {
             StringBuilder aliasesStr = new StringBuilder();
@@ -149,6 +163,12 @@ public class SyntaxSettings {
         return regex;
     }
 
+    /**
+     * Generate a TreeSet (which will be iterated through in sorted order) of this syntax across the input string
+     * @param str The string to apply syntax highlighting to
+     * @param debugger A debugger instance, used for macro expansion
+     * @return A TreeSet of style offsets
+     */
     public TreeSet<StyleOffset> getForAll(String str, JSoarDebugger debugger) {
         TreeSet<StyleOffset> offsets = new TreeSet<>();
         for (SyntaxPattern pattern : syntaxPatterns) {
@@ -176,8 +196,8 @@ public class SyntaxSettings {
         this.syntaxPatterns = syntaxPatterns;
     }
 
-    public void addTextStyle(String phase, TextStyle style) {
-        componentStyles.put(phase, style);
+    public void addTextStyle(String name, TextStyle style) {
+        componentStyles.put(name, style);
     }
 
     public void addPattern(SyntaxPattern pattern) {

@@ -106,8 +106,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             public void run() {
                                 final long time = System.currentTimeMillis();
                                 try {
+                                    //put in a blank document while we make changes because it's a little faster
                                     outputWindow.setDocument(new DefaultStyledDocument());
                                     if (styles.isEmpty()) {
+                                        //no matches, just print the text
                                         styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, defaultAttributes);
                                     } else {
                                         int index = 0;
@@ -127,26 +129,23 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             index = end;
                                         }
                                         if (index < str.length()) {
+                                            //trailing text after all matches
                                             styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), defaultAttributes);
                                         }
                                     }
                                     styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
+
+                                    trimOutput(styledDocument);
                                     outputWindow.setDocument(styledDocument);
-//                            outputWindow.getDocument().insertString(endPosition.getOffset(),str,null);
-
-
                                 } catch (BadLocationException e) {
                                     e.printStackTrace();
                                 }
                                 printing = false;
 
-                                trimOutput();
-
                                 if (scrollLock) {
                                     // Scroll to the end
                                     outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                                 }
-
 
                                 System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                             }
@@ -162,8 +161,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             if (coloredOutput) {
                 flushNew();
             } else {
-
-
                 // If there's already a runnable headed for the UI thread, don't send another
                 if (flushing) {
                     return;
@@ -189,7 +186,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             buffer.setLength(0);
                             flushing = false;
 
-                            trimOutput();
+                            trimOutput(outputWindow.getDocument());
 
                             if (scrollLock) {
                                 // Scroll to the end
@@ -205,11 +202,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 new Thread() {
                     @Override
                     public void run() {
+                        final long pauseInterval=200;
                         try {
-                            sleep(250);
+                            sleep(pauseInterval);
                         } catch (InterruptedException ignored) {
                         }
-                        if (System.currentTimeMillis() - lastFlush >= 250) {
+                        if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
                             reformatText();
                         }
                     }
@@ -226,13 +224,13 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     };
     private boolean coloredOutput = true;
 
-    private void trimOutput() {
+    private void trimOutput(Document document) {
         if (limit > 0) {
-            final int length = outputWindow.getDocument().getLength();
+            final int length = document.getLength();
             if (length > limit + limitTolerance) {
                 try {
                     // Trim the trace back down to limit
-                    outputWindow.getDocument().remove(0, length - limit);
+                    document.remove(0, length - limit);
                 } catch (BadLocationException e) {
                 }
             }
@@ -616,11 +614,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 final String text = (String) t.getTransferData(DataFlavor.stringFlavor);
                 debugger.getAgent().execute(new CommandLineRunnable(debugger, text), null);
             }
-            catch (UnsupportedFlavorException e)
-            {
-                // Do nothing
-            }
-            catch (IOException e)
+            catch (UnsupportedFlavorException | IOException ignored)
             {
                 // Do nothing
             }
@@ -654,13 +648,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             for (StyleOffset offset : styles) {
                                 int start = offset.start;
                                 int end = offset.end;
+                                //don't apply any matches that start before the end of our last match, or that have length 0
                                 if (start >= end || start < index) {
                                     continue;
                                 }
                                 //the matched stuff
                                 int offsetStart = startPosition.getOffset() + start;
                                 int offsetEnd = startPosition.getOffset() + (end - start);
-                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
+//                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
 
                                 styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
                                 index = end;

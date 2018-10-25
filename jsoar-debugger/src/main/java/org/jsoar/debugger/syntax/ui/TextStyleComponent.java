@@ -17,8 +17,14 @@ import java.awt.event.ActionListener;
 public class TextStyleComponent extends JPanel {
 
     private final JButton btnDelete;
+    private final JTextField txtName;
+    private String name;
+    private TextStyle style;
+    private NameChangeListener listener;
 
     public TextStyleComponent(String name, final TextStyle style){
+        this.name = name;
+        this.style = style;
         GridBagLayout mgr = new GridBagLayout();
         this.setLayout(mgr);
 
@@ -40,7 +46,7 @@ public class TextStyleComponent extends JPanel {
         this.add(new JLabel("Name"),constraints);
 
         //type of thing to highlight
-        final JTextField txtName = new JTextField(name);
+        txtName = new JTextField(name);
         constraints = new GridBagConstraints();
         constraints.gridx=0;
         constraints.gridy=1;
@@ -143,23 +149,38 @@ public class TextStyleComponent extends JPanel {
         txtName.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                style.setStyleType(txtName.getText());
+                updateName();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                style.setStyleType(txtName.getText());
+                updateName();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                style.setStyleType(txtName.getText());
+                updateName();
             }
         });
 
     }
 
+    public void updateName() {
+        String newName = txtName.getText();
+        style.setStyleType(newName);
+        listener.onChange(name,newName,style);
+        name = newName;
+    }
+
     public void addDeleteButtonListener(ActionListener actionListener) {
         btnDelete.addActionListener(actionListener);
+    }
+
+    public void addNameChangeListener(NameChangeListener listener) {
+        this.listener = listener;
+    }
+
+    public static abstract class NameChangeListener {
+        public abstract void onChange(String oldName, String newName, TextStyle style);
     }
 }

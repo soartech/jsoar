@@ -33,6 +33,7 @@ public class TextStyle {
         this.fontSize = copy.fontSize;
         this.foreground = copy.foreground;
         this.background = copy.background;
+        this.styleType = copy.styleType;
     }
 
 
