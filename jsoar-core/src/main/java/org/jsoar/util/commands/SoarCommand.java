@@ -6,7 +6,6 @@
 package org.jsoar.util.commands;
 
 import org.jsoar.kernel.SoarException;
-import picocli.CommandLine;
 
 /**
  * Interface for implementing a Soar command.
@@ -30,5 +29,9 @@ public interface SoarCommand
      */
     String execute(SoarCommandContext context, String[] args) throws SoarException;
 
+    /**
+     * For the new picocli commands, return the annotated command Object, which will be used for autocomplete processing
+     * @return picocli annotated Object
+     */
     Object getCommand();
 }

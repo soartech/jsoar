@@ -61,4 +61,9 @@ public class SoarUnitCommand implements SoarCommand
         return writer.toString();
     }
 
+    @Override
+    public Object getCommand() {
+        return null;
+    }
+
 }
