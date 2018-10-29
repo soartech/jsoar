@@ -280,7 +280,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setEditable(false);
         outputWindow.setDocument(styledDocument);
 
-        reloadSyntax();
 
 
         final JSoarVersion version = JSoarVersion.getInstance();
@@ -326,6 +325,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         });
         
         getContentPane().add(p);
+
+        reloadSyntax();
+
     }
     
     /* (non-Javadoc)
@@ -684,6 +686,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             patterns = Prefs.loadDefaultSyntax();
             Prefs.storeSyntax(patterns);
         }
+        patterns.expandAllMacros(debugger);
     }
 
     private class Provider implements SelectionProvider
