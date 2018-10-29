@@ -127,7 +127,10 @@ public class SyntaxPatternComponent extends JPanel {
         btnUpdate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String text = SyntaxSettings.expandMacros(debugger, txtRegex.getText());
+                SyntaxPattern testSyntax = new SyntaxPattern();
+                testSyntax.setRegex(txtRegex.getText());
+                testSyntax.expandMacros(debugger);
+                String text = testSyntax.getExpandedRegex();
                 try {
                     Pattern p = Pattern.compile(text);
                     int groupCount = p.groupCount();
