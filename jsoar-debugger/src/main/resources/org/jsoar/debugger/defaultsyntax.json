@@ -12,26 +12,15 @@
       "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
     },
     "decision type: impasse" : {
-      "styleType" : null,
+      "styleType" : "decision type: impasse",
       "bold" : false,
       "underline" : false,
       "strikethrough" : false,
-      "italic" : false,
+      "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
       "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ]
-    },
-    "errors/warnings" : {
-      "styleType" : "errors/warnings",
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ]
     },
     "dc number" : {
       "styleType" : null,
@@ -55,16 +44,60 @@
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
       "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
     },
-    "impasse type" : {
-      "styleType" : "impasse type",
+    "rule firing" : {
+      "styleType" : "rule firing",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.2, 0.8, 1.0, 1.0 ]
+    },
+    "bold" : {
+      "styleType" : "bold",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
+    },
+    "disjunct" : {
+      "styleType" : "disjunct",
       "bold" : false,
       "underline" : false,
       "strikethrough" : false,
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
+    },
+    "wm remove" : {
+      "styleType" : "wm remove",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+    },
+    "subphase" : {
+      "styleType" : "subphase",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 0.6, 0.2, 1.0 ]
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
     },
     "command" : {
       "styleType" : "command",
@@ -87,6 +120,83 @@
       "enabled" : true,
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
       "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ]
+    },
+    "errors/warnings" : {
+      "styleType" : "errors/warnings",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ]
+    },
+    "rule retraction" : {
+      "styleType" : "rule retraction",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+    },
+    "rule arrow" : {
+      "styleType" : "rule arrow",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 0.98039216, 0.8039216, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
+    },
+    "wm add" : {
+      "styleType" : "wm add",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.2, 0.6, 0.0, 1.0 ]
+    },
+    "function" : {
+      "styleType" : "function",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
+    },
+    "impasse type" : {
+      "styleType" : "impasse type",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : true,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+    },
+    "soar variable" : {
+      "styleType" : "soar variable",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.7529412, 1.0 ]
     }
   },
   "syntaxPatterns" : [ {
@@ -113,6 +223,66 @@
     "comment" : "highlight messages that are warnings and errors",
     "regex" : "((?:Warn|Error|Ignor)(?:.*))",
     "components" : [ "errors/warnings" ],
+    "enabled" : true
+  }, {
+    "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
+    "regex" : "(---.*\\((?:IE|PE)\\).*---)",
+    "components" : [ "subphase" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule firings",
+    "regex" : "(Firing\\ .*)",
+    "components" : [ "rule firing" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule retraction",
+    "regex" : "(Retracting\\ .*)",
+    "components" : [ "rule retraction" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM add",
+    "regex" : "(=>WM:\\ .*)",
+    "components" : [ "wm add" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM remove",
+    "regex" : "(<=WM:\\ .*)",
+    "components" : [ "wm remove" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule excise",
+    "regex" : "(#+)",
+    "components" : [ "errors/warnings" ],
+    "enabled" : true
+  }, {
+    "comment" : "unmatched condition in matches command output",
+    "regex" : "(>>>>)",
+    "components" : [ "errors/warnings" ],
+    "enabled" : true
+  }, {
+    "comment" : "matches command total matches found",
+    "regex" : "([0-9]+ complete matches.)",
+    "components" : [ "bold" ],
+    "enabled" : true
+  }, {
+    "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
+    "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
+    "components" : [ "soar variable" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule arrow",
+    "regex" : "(-->)",
+    "components" : [ "rule arrow" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule disjunction",
+    "regex" : "(<<.+?>>)",
+    "components" : [ "disjunct" ],
+    "enabled" : true
+  }, {
+    "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\")",
+    "regex" : "\\(([^<]+?)\\b",
+    "components" : [ "function" ],
     "enabled" : true
   } ]
 }
