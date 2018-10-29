@@ -8,8 +8,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
     },
     "decision type: impasse" : {
       "styleType" : "decision type: impasse",
@@ -19,8 +19,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ]
     },
     "dc number" : {
       "styleType" : null,
@@ -30,8 +30,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ]
     },
     "operator name" : {
       "styleType" : "operator name",
@@ -41,8 +41,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
     },
     "rule firing" : {
       "styleType" : "rule firing",
@@ -52,8 +52,30 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.8, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.2, 0.8, 1.0, 1.0 ]
+    },
+    "bold" : {
+      "styleType" : "bold",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
+    },
+    "disjunct" : {
+      "styleType" : "disjunct",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : true,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
     },
     "wm remove" : {
       "styleType" : "wm remove",
@@ -63,8 +85,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
     },
     "subphase" : {
       "styleType" : "subphase",
@@ -74,8 +96,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
     },
     "command" : {
       "styleType" : "command",
@@ -85,8 +107,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
     },
     "decision type: operator selected" : {
       "styleType" : null,
@@ -96,8 +118,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ]
     },
     "errors/warnings" : {
       "styleType" : "errors/warnings",
@@ -107,8 +129,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ]
     },
     "rule retraction" : {
       "styleType" : "rule retraction",
@@ -118,8 +140,19 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+    },
+    "rule arrow" : {
+      "styleType" : "rule arrow",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 0.98039216, 0.8039216, 1.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
     },
     "wm add" : {
       "styleType" : "wm add",
@@ -129,8 +162,19 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.2, 0.6, 0.0, 1.0 ]
+    },
+    "function" : {
+      "styleType" : "function",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
     },
     "impasse type" : {
       "styleType" : "impasse type",
@@ -140,8 +184,19 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+    },
+    "soar variable" : {
+      "styleType" : "soar variable",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
+      "foregroundRgb" : [ 0.0, 0.0, 0.7529412, 1.0 ]
     }
   },
   "syntaxPatterns" : [ {
@@ -198,6 +253,36 @@
     "comment" : "rule excise",
     "regex" : "(#+)",
     "components" : [ "errors/warnings" ],
+    "enabled" : true
+  }, {
+    "comment" : "unmatched condition in matches command output",
+    "regex" : "(>>>>)",
+    "components" : [ "errors/warnings" ],
+    "enabled" : true
+  }, {
+    "comment" : "matches command total matches found",
+    "regex" : "([0-9]+ complete matches.)",
+    "components" : [ "bold" ],
+    "enabled" : true
+  }, {
+    "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
+    "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
+    "components" : [ "soar variable" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule arrow",
+    "regex" : "(-->)",
+    "components" : [ "rule arrow" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule disjunction",
+    "regex" : "(<<.+?>>)",
+    "components" : [ "disjunct" ],
+    "enabled" : true
+  }, {
+    "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\")",
+    "regex" : "\\(([^<]+?)\\b",
+    "components" : [ "function" ],
     "enabled" : true
   } ]
 }
