@@ -74,8 +74,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
-        private boolean flushing = false;
-        private boolean printing = false;
+        private volatile boolean flushing = false;
+        private volatile boolean printing = false;
         
         @Override
         public void close() throws IOException
@@ -296,7 +296,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
-        
+
+
         final Trace trace = debugger.getAgent().getTrace();
         trace.disableAll();
         trace.setEnabled(Category.LOADING, true);
