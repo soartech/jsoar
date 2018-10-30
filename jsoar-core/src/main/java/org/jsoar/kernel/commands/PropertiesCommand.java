@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
- */
 package org.jsoar.kernel.commands;
 
 import java.util.Collections;
@@ -15,39 +12,64 @@ import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+
 /**
- * Implementation of the "properties" command. Prints out all property values
- * 
- * @author ray
+ * This is the implementation of the "properties" command.
+ * @author austin.brehob
  */
-public final class PropertiesCommand implements SoarCommand
+public class PropertiesCommand implements SoarCommand
 {
     private final Agent agent;
-
+    
     public PropertiesCommand(Agent agent)
     {
         this.agent = agent;
     }
-
+    
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        final Printer p = agent.getPrinter();
+        Utils.parseAndRun(agent, new Properties(agent), args);
         
-        p.startNewLine();
-        final PropertyManager properties = agent.getProperties();
-        final List<PropertyKey<?>> keys = properties.getKeys();
-        Collections.sort(keys, new Comparator<PropertyKey<?>>(){
-
-            @Override
-            public int compare(PropertyKey<?> a, PropertyKey<?> b)
-            {
-                return a.getName().compareTo(b.getName());
-            }});
-        for(PropertyKey<?> key : keys)
-        {
-            p.print("%30s = %s%s\n", key.getName(), properties.get(key), key.isReadonly() ? " [RO]" : "");
-        }
         return "";
+    }
+
+    
+    @Command(name="properties", description="Displays the agent's current properties",
+            subcommands={HelpCommand.class})
+    static public class Properties implements Runnable
+    {
+        private Agent agent;
+        
+        public Properties(Agent agent)
+        {
+            this.agent = agent;
+        }
+        
+        @Override
+        public void run()
+        {
+            final Printer p = agent.getPrinter();
+            
+            // Obtain all properties and sort them
+            p.startNewLine();
+            final PropertyManager properties = agent.getProperties();
+            final List<PropertyKey<?>> keys = properties.getKeys();
+            Collections.sort(keys, new Comparator<PropertyKey<?>>()
+            {
+                @Override
+                public int compare(PropertyKey<?> a, PropertyKey<?> b)
+                {
+                    return a.getName().compareTo(b.getName());
+                }
+            });
+            
+            for (PropertyKey<?> key : keys)
+            {
+                p.print("%30s = %s%s\n", key.getName(), properties.get(key), key.isReadonly() ? " [RO]" : "");
+            }
+        }
     }
 }
