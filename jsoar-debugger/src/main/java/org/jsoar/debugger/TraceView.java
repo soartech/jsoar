@@ -677,6 +677,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     }
 
+    public SyntaxSettings reloadSyntaxDefaults(){
+        patterns = Prefs.loadDefaultSyntax();
+        return patterns;
+    }
+
     public void reloadSyntax() {
         patterns = Prefs.loadSyntax();
 //        patterns.addAll(Prefs.loadSyntax());
