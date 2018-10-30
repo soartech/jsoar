@@ -8,8 +8,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "decision type: impasse" : {
       "styleType" : "decision type: impasse",
@@ -19,8 +19,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ]
+      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "dc number" : {
       "styleType" : null,
@@ -30,8 +30,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "operator name" : {
       "styleType" : "operator name",
@@ -41,8 +41,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "rule firing" : {
       "styleType" : "rule firing",
@@ -52,8 +52,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.2, 0.8, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "bold" : {
       "styleType" : "bold",
@@ -63,8 +63,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "disjunct" : {
       "styleType" : "disjunct",
@@ -74,8 +74,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "wm remove" : {
       "styleType" : "wm remove",
@@ -85,8 +85,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.4, 0.4, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "subphase" : {
       "styleType" : "subphase",
@@ -96,8 +96,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "command" : {
       "styleType" : "command",
@@ -107,8 +107,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ]
+      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "decision type: operator selected" : {
       "styleType" : null,
@@ -118,8 +118,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "errors/warnings" : {
       "styleType" : "errors/warnings",
@@ -129,8 +129,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ]
+      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "rule retraction" : {
       "styleType" : "rule retraction",
@@ -140,8 +140,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "rule arrow" : {
       "styleType" : "rule arrow",
@@ -151,8 +151,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 0.98039216, 0.8039216, 1.0 ],
-      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 0.98039216, 0.8039216, 1.0 ]
     },
     "wm add" : {
       "styleType" : "wm add",
@@ -162,8 +162,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.2, 0.6, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "function" : {
       "styleType" : "function",
@@ -173,8 +173,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "impasse type" : {
       "styleType" : "impasse type",
@@ -184,8 +184,8 @@
       "italic" : true,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ],
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ]
+      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
     },
     "soar variable" : {
       "styleType" : "soar variable",
@@ -195,8 +195,8 @@
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ],
-      "foregroundRgb" : [ 0.0, 0.0, 0.7529412, 1.0 ]
+      "foregroundRgb" : [ 0.0, 0.0, 0.7529412, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     }
   },
   "syntaxPatterns" : [ {
@@ -215,9 +215,9 @@
     "components" : [ "dc number", "decision type: impasse", "impasse type" ],
     "enabled" : true
   }, {
-    "comment" : "commands and aliass",
+    "comment" : "commands and aliases",
     "regex" : "(?m)^\\b(%commands%|%aliases%)\\b(.*?)$",
-    "components" : [ "command", "phase" ],
+    "components" : [ "command", "command" ],
     "enabled" : true
   }, {
     "comment" : "highlight messages that are warnings and errors",
@@ -280,8 +280,8 @@
     "components" : [ "disjunct" ],
     "enabled" : true
   }, {
-    "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\")",
-    "regex" : "\\(([^<]+?)\\b",
+    "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\"), but not after a digit which would be for a selected operator or impasse",
+    "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
     "components" : [ "function" ],
     "enabled" : true
   } ]
