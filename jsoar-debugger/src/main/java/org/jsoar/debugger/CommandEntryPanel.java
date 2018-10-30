@@ -8,16 +8,19 @@ package org.jsoar.debugger;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Element;
 
+import com.sun.xml.internal.fastinfoset.stax.events.CharactersEvent;
 import org.jdesktop.swingx.*;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommand;
@@ -95,8 +98,15 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void removeUpdate(DocumentEvent e)
             {
+                //fixme - backspace seems to be inconsistent on what position and offset are
+                /*
                 int position = editorComponent.getCaretPosition();
+                //fix position with editor removals
+                if ( position > e.getOffset()){
+                    position -= e.getLength();
+                }
                 updateCompletions(field.getEditor().getItem().toString(),position);
+                */
             }
 
             @Override
@@ -124,11 +134,45 @@ public class CommandEntryPanel extends JPanel implements Disposable
         if (!command.isEmpty()) {
 //            updateCompletions(command);
 //                    field.getEditor().getEditorComponent().
-            String[] commands = complete(command, cursorPosition);
-//                    completions.removeAll();
+            CommandLine commandLine = findCommand(command);
+            String[] commands = null;
+
+            //if we don't have a full command, we can't use the picocli completion functionality
+            if (commandLine == null){
+                if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter){
+                    DefaultInterpreter interp = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
+                    List<String> commandsList = new ArrayList<>();
+                    for(String s: interp.getCommandStrings()){
+                        if (s.startsWith(command)){
+                            commandsList.add(s);
+                        }
+                    }
+                    commands = new String[commandsList.size()];
+                    commands = commandsList.toArray(commands);
+                } else if (debugger.getAgent().getInterpreter() instanceof SoarTclInterface) {
+                    SoarTclInterface interp = ((SoarTclInterface) debugger.getAgent().getInterpreter());
+                    try {
+                        String commandsStr = interp.eval("info commands") + " " + interp.eval("info procs");
+                        List<String> commandsList = new ArrayList<>();
+                        for (String s: commandsStr.split(" ")){
+                            if (s.startsWith(command)){
+                                commandsList.add(s);
+                            }
+                        }
+                        commands = new String[commandsList.size()];
+                        commands = commandsList.toArray(commands);
+                    } catch (SoarException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                //if we do have a full command, this will work
+                commands = complete(commandLine, command, cursorPosition);
+
+            }
+
             if (commands != null && commands.length > 0) {
                 try {
-
                     completions.setVisible(true);
                     completionsList.setListData(commands);
                     Point location = field.getLocationOnScreen();
@@ -138,7 +182,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                     completionsList.setToolTipText("");
                     completionsShowing = true;
                     JToolTip toolTip = new JToolTip();
-                    String help = getHelp(command);
+                    String help = getHelp(commandLine);
 
                     if (tooltipPopup != null) {
                         tooltipPopup.hide();
@@ -156,9 +200,39 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 } catch (Exception e) {
 
                 }
+            } else {
+                completions.setVisible(false);
+                if (tooltipPopup != null) {
+                    tooltipPopup.hide();
+                    tooltipPopup = null;
+                }
             }
         }
     }
+
+    private CommandLine findCommand(String substring)
+    {
+        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
+
+            DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
+            String[] parts = substring.split(" ");
+            SoarCommand cmd = interpreter.getCommand(parts[0]);
+            if (cmd != null && cmd.getCommand() != null) {
+                CommandLine command = new CommandLine(cmd.getCommand());
+
+                int part = 1;
+                while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
+                    command = command.getSubcommands().get(parts[part]);
+                }
+                return command;
+
+            }
+        }
+        return null;
+    }
+
+
+
 
     private void hideCompletions()
     {
@@ -172,10 +246,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
-    private void complete()
-    {
-
-    }
 
 
     public void giveFocus()
@@ -232,82 +302,71 @@ public class CommandEntryPanel extends JPanel implements Disposable
     }
 
 
-    private String getHelp(String command)
+    private String getHelp(CommandLine commandLine)
     {
-        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
-            DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
-            SoarCommand soarCmd = interpreter.getCommand(command.split(" ")[0].trim());
-            if (soarCmd.getCommand() != null) {
-                CommandLine.Help help = new CommandLine.Help(soarCmd.getCommand());
-                StringBuilder helpBuilder = new StringBuilder()
-                        .append("<html>")
-                        .append("<b>Usage:</b>")
-                        .append("<br>")
-                        .append(help.abbreviatedSynopsis())
-                        .append("<br>")
-                        .append("<b>Description</b>")
-                        .append("<br>")
-                        .append(help.description())
-                        .append("<br>");
-                if (!help.parameterList().isEmpty()) {
-                    helpBuilder.append("<b>Parameters:</b>")
-                               .append("<br>")
-                               .append(help.parameterList().replaceAll("\n", "<br>"))
-                               .append("<br>");
-                }
-                helpBuilder.append("<b>Options:</b>")
+        if (commandLine != null) {
+            CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), new CommandLine.Help.ColorScheme());
+            StringBuilder helpBuilder = new StringBuilder()
+                    .append("<html>")
+                    .append("<b>Usage:</b>")
+                    .append("<br>")
+                    .append(help.abbreviatedSynopsis())
+                    .append("<br>")
+                    .append("<b>Description</b>")
+                    .append("<br>")
+                    .append(help.description())
+                    .append("<br>");
+            if (!help.parameterList().isEmpty()) {
+                helpBuilder.append("<b>Parameters:</b>")
                            .append("<br>")
-                           .append(help.optionList().replaceAll("\n", "<br>"))
-                           .append("<b>Commands:</b>")
-                           .append("<br>")
-                           .append(help.commandList().replaceAll("\n", "<br>"))
-                           .append("</html>");
-                return helpBuilder.toString();
+                           .append(help.parameterList().replaceAll("\n", "<br>"))
+                           .append("<br>");
             }
+            helpBuilder.append("<b>Options:</b>")
+                       .append("<br>")
+                       .append(help.optionList().replaceAll("\n", "<br>"))
+                       .append("<b>Commands:</b>")
+                       .append("<br>")
+                       .append(help.commandList().replaceAll("\n", "<br>"))
+                       .append("</html>");
+            return helpBuilder.toString();
+
         }
         return "";
     }
 
-    private String[] complete(String input, int cursorPosition)
+    private String[] complete(CommandLine commandLine, String input, int cursorPosition)
     {
-        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
-            ArrayList<CharSequence> results = new ArrayList<>();
+        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter && commandLine != null) {
 
-            DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
             String[] parts = input.split(" ");
             int argIndex = 0;
             int positionInArg = cursorPosition;
             //figure out argIndex
             for (String part: parts){
-                if (positionInArg <= part.length()) {
+
+                if (positionInArg < part.length()) {
                     break;
                 } else {
                     argIndex++;
-                    positionInArg-=part.length();
+                    positionInArg-=part.length()+1;
                 }
             }
+            positionInArg+=1;//offset by 1 because we want the cursor after the character
+
+            ArrayList<CharSequence> longResults = new ArrayList<>();
             System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
+            picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
 
-            Set<String> commandStrings = interpreter.getCommandStrings();
-            for (String cmd : commandStrings) {
-                if (cmd.startsWith(parts[0])) {
-                    results.add(cmd);
-                }
+            for (int i = 0; i < longResults.size(); i++) {
+                longResults.set(i, input + longResults.get(i));
             }
-            if (results.size() == 1 && results.get(0).length() == input.trim().length()) {
-                SoarCommand soarCmd = interpreter.getCommand(results.get(0).toString());
-                ArrayList<CharSequence> longResults = new ArrayList<>();
-                if (soarCmd.getCommand() != null) {
-                    CommandLine commandLine = new CommandLine(soarCmd.getCommand());
-                    picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
-                }
-                for (int i = 0; i < longResults.size(); i++) {
-                    longResults.set(i, results.get(0) + " " + longResults.get(i));
-                }
-                results = longResults;
 
+            if (longResults.isEmpty()){
+                longResults.add(input);
             }
-            return results.toArray(new String[results.size()]);
+
+            return longResults.toArray(new String[0]);
         }
 
         return null;
