@@ -1,6 +1,7 @@
 package org.jsoar.debugger.syntax.ui;
 
 import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.TraceView;
@@ -9,6 +10,7 @@ import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -28,6 +30,8 @@ public class SyntaxConfigurator {
     private final JXButton btnAddRegex = new JXButton("Add Regex");
     private final JXButton btnAddStyle = new JXButton("Add Style");
     private final JXButton btnReloadDefaults = new JXButton("Reload Default Styles");
+    private final JXColorSelectionButton btnBackgroundColorDefault;
+    private final JXColorSelectionButton btnForegroundColorDefault;
     private JPanel syntaxList;
     private JPanel styleList;
 
@@ -39,17 +43,35 @@ public class SyntaxConfigurator {
         frame = new JFrame("Syntax Settings");
         frame.setBounds(100, 100, 1600, 1000);
 
+        btnBackgroundColorDefault = new JXColorSelectionButton(settings.getBackground());
+        btnForegroundColorDefault = new JXColorSelectionButton(settings.getForeground());
+        Dimension size = new Dimension(32, 32);
+        btnForegroundColorDefault.setPreferredSize(size);
+        btnBackgroundColorDefault.setPreferredSize(size);
+        btnBackgroundColorDefault.setMinimumSize(size);
+        btnForegroundColorDefault.setMinimumSize(size);
+        btnForegroundColorDefault.setMaximumSize(size);
+        btnBackgroundColorDefault.setMaximumSize(size);
+
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         bottomPanel.add(Box.createRigidArea(new Dimension(5,0)));
         bottomPanel.add(btnReloadDefaults);
+        bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        bottomPanel.add(new JLabel("Default Text Color"));
+
+        bottomPanel.add(btnForegroundColorDefault);
+        bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        bottomPanel.add(new JLabel("Window Background Color"));
+        bottomPanel.add(btnBackgroundColorDefault);
         bottomPanel.add(Box.createHorizontalGlue());
         bottomPanel.add(btnOk);
         bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         bottomPanel.add(btnCancel);
         bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         bottomPanel.add(btnApply);
+
 
 
         final JPanel panel = new JPanel();
@@ -199,6 +221,7 @@ public class SyntaxConfigurator {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.saveSyntax();
+                parent.reformatText();
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
@@ -211,6 +234,16 @@ public class SyntaxConfigurator {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
+
+        ChangeListener colorChangeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
+                settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
+            }
+        };
+        btnBackgroundColorDefault.addChangeListener(colorChangeListener);
+        btnForegroundColorDefault.addChangeListener(colorChangeListener);
     }
 
     public void addStyleComponent(String newStyleName, final TextStyle textStyle) {

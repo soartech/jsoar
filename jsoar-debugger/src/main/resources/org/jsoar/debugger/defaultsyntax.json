@@ -284,5 +284,7 @@
     "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
     "components" : [ "function" ],
     "enabled" : true
-  } ]
+  } ],
+  "foregroundRgb" : [ 0.2, 0.2, 0.2, 1.0 ],
+  "backgroundRgb" : [ 0.99215686, 0.9647059, 0.8901961, 1.0 ]
 }

@@ -1,5 +1,7 @@
 package org.jsoar.debugger.syntax;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import org.jsoar.debugger.JSoarDebugger;
@@ -11,12 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.text.SimpleAttributeSet;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class SyntaxSettings {
     public HashMap<String, TextStyle> componentStyles = new HashMap<>();
     public LinkedList<SyntaxPattern> syntaxPatterns = new LinkedList<>();
-    private static final Logger logger = LoggerFactory.getLogger(SyntaxSettings.class);
+    private Color foreground;
+    private Color background;
 
     public SyntaxSettings() {
 
@@ -127,5 +132,39 @@ public class SyntaxSettings {
         for(SyntaxPattern pattern: syntaxPatterns){
             pattern.expandMacros(debugger);
         }
+    }
+
+    @JsonIgnore
+    public Color getForeground() {
+        return foreground;
+    }
+
+    public void setForeground(Color foreground) {
+        this.foreground = foreground;
+    }
+
+    @JsonIgnore
+    public Color getBackground() {
+        return background;
+    }
+
+    public void setBackground(Color background) {
+        this.background = background;
+    }
+
+    public void setForegroundRgb(float[] components) {
+        foreground = new Color(components[0], components[1], components[2], components[3]);
+    }
+
+    public float[] getForegroundRgb() {
+        return foreground.getRGBComponents(null);
+    }
+
+    public void setBackgroundRgb(float[] components) {
+        background = new Color(components[0], components[1], components[2], components[3]);
+    }
+
+    public float[] getBackgroundRgb() {
+        return background.getRGBComponents(null);
     }
 }
