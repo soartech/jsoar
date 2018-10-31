@@ -76,7 +76,9 @@ public class SyntaxConfigurator {
 
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-//        panel.setPreferredSize(new Dimension(1600,1000));
+
+
+
         panel.add(bottomPanel, BorderLayout.PAGE_END);
 
         syntaxList = new JPanel();
@@ -124,6 +126,12 @@ public class SyntaxConfigurator {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane, BorderLayout.EAST);
 
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(parent.getContentPane());
+        Dimension panelSize = topFrame.getContentPane().getSize();
+        Dimension preferredSize = panel.getPreferredSize();
+        panelSize = new Dimension(preferredSize.width, Math.min(panelSize.height, preferredSize.height));
+        panel.setMaximumSize(panelSize);
+        panel.setPreferredSize(panelSize);
         frame.getContentPane().add(panel);
         frame.pack();
 
