@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
- *
- */
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
@@ -12,138 +8,135 @@ import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
-/**
- * Implementation of the "qmemory" command. Manipulate quick memory from command-line
- * 
- * <p>Usage:
- * 
- * <pre>{@code
- * 
- * Get the value of a qmemory path:
- * > qmemory --get <path>
- * 
- * Set the value of a qmemory path (use bars to force string):
- * > qmemory --set <path> <value>
- * 
- * Remove a qmemory path:
- * > qmemory --remove <path>
- * 
- * Clear all qmemory:
- * > qmemory --clear
- * 
- * }</pre>
- * 
- * @author ray
- */
-public final class QMemoryCommand implements SoarCommand
-{
-    private final SoarQMemoryAdapter adapter;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
+/**
+ * This is the implementation of the "qmemory" command.
+ * @author austin.brehob
+ */
+public class QMemoryCommand implements SoarCommand
+{
+    private final Agent agent;
+    private final SoarQMemoryAdapter adapter;
+    
     public QMemoryCommand(Agent agent)
     {
-        // TODO: I think this should probably be created by the agent itself or passed
-        // in to the command. This will be ok for now.
+        this.agent = agent;
         this.adapter = SoarQMemoryAdapter.attach(agent, DefaultQMemory.create());
     }
-
-    @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
-    {
-        if(args.length < 2)
-        {
-            throw new SoarException("Expected one of --get, --set, or --remove");
-        }
-        
-        final String arg = args[1];
-        if("-g".equals(arg) || "--get".equals(arg))
-        {
-            return doGet(args, 2);
-        }
-        else if("-s".equals(arg) || "--set".equals(arg))
-        {
-            return doSet(args, 2);
-        }
-        else if("-r".equals(arg) || "--remove".equals(arg))
-        {
-            return doRemove(args, 2);
-        }
-        else if("-c".equals(arg) || "--clear".equals(arg))
-        {
-            return doClear(args, 2);
-        }
-        else if(arg.startsWith("-"))
-        {
-            throw new SoarException("Unsupported option " + arg);
-        }
-        else
-        {
-            return doGet(args, 1);
-        }
-    }
-
-    private String fixPath(String path)
-    {
-        return path.replace('(', '[').replace(')', ']');
-    }
     
-    private String doClear(String[] args, int i) throws SoarException
+    @Override
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        this.adapter.setSource(DefaultQMemory.create());
+        Utils.parseAndRun(agent, new QMemoryC(agent, adapter), args);
+        
         return "";
     }
 
-    private String doRemove(String[] args, int i) throws SoarException
+    
+    @Command(name="qmemory", description="Stores and retrieves items from qmemory",
+            subcommands={HelpCommand.class})
+    static public class QMemoryC implements Runnable
     {
-        if(i >= args.length)
+        private Agent agent;
+        private final SoarQMemoryAdapter adapter;
+        
+        public QMemoryC(Agent agent, SoarQMemoryAdapter adapter)
         {
-            throw new SoarException("Expected <input path>");
-        }
-        adapter.getSource().remove(fixPath(args[i]));
-        return "";
-    }
-
-    private String doSet(String[] args, int i) throws SoarException
-    {
-        if(i + 1 >= args.length)
-        {
-            throw new SoarException("Expected <input path> <value>");
+            this.agent = agent;
+            this.adapter = adapter;
         }
         
-        final QMemory qmemory = adapter.getSource();
-        final String path = fixPath(args[i]);
-        final String value = args[i+1];
-        try
+        @Option(names={"-g", "--get"}, description="Item to retreive from qmemory")
+        String getPath = null;
+        
+        @Option(names={"-s", "--set"}, description="Item to set in qmemory")
+        String setPath = null;
+        
+        @Parameters(arity="0..1", description="New value of item")
+        String value = null;
+        
+        @Option(names={"-r", "--remove"}, description="Item to remove from qmemory")
+        String removePath = null;
+        
+        @Option(names={"-c", "--clear"}, description="Clears everything from qmemory")
+        boolean clear = false;
+        
+        @Override
+        public void run()
         {
-            qmemory.setInteger(path, Integer.parseInt(value));
-        }
-        catch(NumberFormatException e)
-        {
-            try
+            if (getPath != null)
             {
-                qmemory.setDouble(path, Double.parseDouble(value));
+                String returnVal = adapter.getSource().getString(fixPath(getPath));
+                agent.getPrinter().startNewLine().print(returnVal);
             }
-            catch(NumberFormatException e1)
+            else if (setPath != null)
             {
-                if(value.length() >= 2 && value.charAt(0) == '|' && value.charAt(value.length() - 1) == '|')
+                if (value != null)
                 {
-                    qmemory.setString(path, value.substring(1, value.length() - 1));
+                    final QMemory qmemory = adapter.getSource();
+                    final String path = fixPath(setPath);
+                    
+                    // Parse the value's type and set it in qmemory
+                    try
+                    {
+                        qmemory.setInteger(path, Integer.parseInt(value));
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        try
+                        {
+                            qmemory.setDouble(path, Double.parseDouble(value));
+                        }
+                        catch (NumberFormatException e1)
+                        {
+                            // |'s can be used to ensure the value's type is a string
+                            if (value.length() >= 2 && value.charAt(0) == '|' &&
+                                    value.charAt(value.length() - 1) == '|')
+                            {
+                                qmemory.setString(path, value.substring(1, value.length() - 1));
+                            }
+                            else
+                            {
+                                qmemory.setString(path, value);
+                            }
+                        }
+                    }
+                    
+                    agent.getPrinter().startNewLine().print(value);
                 }
                 else
                 {
-                    qmemory.setString(path, value);
+                    agent.getPrinter().startNewLine().print("Error: new value not provided");
                 }
+            }
+            else if (removePath != null)
+            {
+                adapter.getSource().remove(fixPath(removePath));
+            }
+            else if (clear)
+            {
+                this.adapter.setSource(DefaultQMemory.create());
+            }
+            // In case the user forgets to provide the --get option...
+            else if (value != null)
+            {
+                String returnVal = adapter.getSource().getString(fixPath(value));
+                agent.getPrinter().startNewLine().print(returnVal);
+            }
+            else
+            {
+                agent.getPrinter().startNewLine().print("Error: expected one of "
+                        + "--get, --set, --remove, or --clear");
             }
         }
         
-        return value;
-    }
-
-    private String doGet(String[] args, int i) throws SoarException
-    {
-        if(i >= args.length)
+        private String fixPath(String path)
         {
-            throw new SoarException("Expected <input path>");
+            return path.replace('(', '[').replace(')', ']');
         }
-        return adapter.getSource().getString(fixPath(args[i]));
     }
 }
