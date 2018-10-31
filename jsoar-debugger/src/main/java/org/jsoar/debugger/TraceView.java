@@ -133,7 +133,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), defaultAttributes);
                                         }
                                     }
-                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
+//                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
 
                                     trimOutput(styledDocument);
                                     outputWindow.setDocument(styledDocument);
