@@ -46,8 +46,8 @@ public class SyntaxSettings {
             while (m.find()) {
                 int groupCount = m.groupCount();
                 if (groupCount == 1) {
-                    int start = m.start();
-                    int end = m.end();
+                    int start = m.start(1);
+                    int end = m.end(1);
                     if (components.isEmpty()) {
                         matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
                     } else {
