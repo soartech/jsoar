@@ -56,7 +56,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private int limitTolerance = 0;
     private boolean scrollLock = true;
 
-    private final SimpleAttributeSet defaultAttributes = new SimpleAttributeSet();
+    private AttributeSet defaultAttributes = new SimpleAttributeSet();
     private final JTextPane outputWindow = new JTextPane() {
         private static final long serialVersionUID = 5161494134278464101L;
 
@@ -133,7 +133,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), defaultAttributes);
                                         }
                                     }
-                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
+//                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
 
                                     trimOutput(styledDocument);
                                     outputWindow.setDocument(styledDocument);
@@ -245,9 +245,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
+        setLimit(getPreferences().getInt("limit", -1));
+        coloredOutput = getPreferences().getBoolean("coloredOutput", true);
+        scrollLock = getPreferences().getBoolean("scrollLock", true);
+        reloadSyntax();
+
         //todo - re-implement word wrap
         //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
-
+        setDefaultTextStyle();
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) 
@@ -280,8 +285,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setEditable(false);
         outputWindow.setDocument(styledDocument);
 
-
-
         final JSoarVersion version = JSoarVersion.getInstance();
         outputWindow.setText("JSoar " + version + "\n" + 
                              "http://jsoar.googlecode.com\n" + 
@@ -290,9 +293,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "Right-click for trace options (or use watch command)\n" +
                              "Double-click identifiers, wmes, and rule names to drill down\n" +
                              "You can paste code (ctrl+v) directly into this window.\n");
-        setLimit(getPreferences().getInt("limit", -1));
-        coloredOutput = getPreferences().getBoolean("coloredOutput", true);
-        scrollLock = getPreferences().getBoolean("scrollLock", true);
+
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
 
@@ -317,7 +318,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         p.add(bottom, BorderLayout.SOUTH);
                 
         addAction(new CButton("Clear", Images.CLEAR) {
-            
             @Override
             protected void action()
             {
@@ -326,9 +326,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         });
         
         getContentPane().add(p);
-
-        reloadSyntax();
-
     }
     
     /* (non-Javadoc)
@@ -636,17 +633,21 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             final long time = System.currentTimeMillis();
             final TreeSet<StyleOffset> styles = patterns.getForAll(str, debugger);
 
+
             System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     int caretPosition = outputWindow.getCaretPosition();
                     final long time = System.currentTimeMillis();
                     try {
+                        setDefaultTextStyle();
                         if (styles.isEmpty()) {
                             return;
                         } else {
                             outputWindow.setDocument(new DefaultStyledDocument());
                             Position startPosition = styledDocument.getStartPosition();
+                            //reset default text color and size
+                            styledDocument.replace(0,str.length(),str,defaultAttributes);
                             int index = 0;
                             for (StyleOffset offset : styles) {
                                 int start = offset.start;
@@ -678,15 +679,38 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     }
 
+    public void setDefaultTextStyle()
+    {
+        Color backgroundColor = patterns.getBackground();
+        outputWindow.setBackground(backgroundColor);
+        UIDefaults defaults = new UIDefaults();
+        defaults.put("TextPane[Enabled].backgroundPainter", backgroundColor);
+
+        outputWindow.putClientProperty("Nimbus.Overrides", defaults);
+        outputWindow.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+        outputWindow.setBackground(backgroundColor);
+        Color defaultTextColor = patterns.getForeground();
+        outputWindow.setForeground(defaultTextColor);
+        defaultAttributes = StyleContext.getDefaultStyleContext().addAttribute(defaultAttributes,StyleConstants.Foreground,defaultTextColor);
+//        reformatText();
+    }
+
+    public SyntaxSettings reloadSyntaxDefaults(){
+        patterns = Prefs.loadDefaultSyntax();
+        patterns.expandAllMacros(debugger);
+        setDefaultTextStyle();
+        return patterns;
+    }
+
     public void reloadSyntax() {
         patterns = Prefs.loadSyntax();
 //        patterns.addAll(Prefs.loadSyntax());
 
         if (patterns == null) {
-            //todo - replace with a "load defaults" type function
             patterns = Prefs.loadDefaultSyntax();
             Prefs.storeSyntax(patterns);
         }
+        setDefaultTextStyle();
         patterns.expandAllMacros(debugger);
     }
 

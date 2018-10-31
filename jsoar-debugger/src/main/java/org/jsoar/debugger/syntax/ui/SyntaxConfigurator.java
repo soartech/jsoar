@@ -1,6 +1,7 @@
 package org.jsoar.debugger.syntax.ui;
 
 import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.TraceView;
@@ -9,6 +10,7 @@ import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -21,26 +23,48 @@ import java.util.LinkedList;
 
 public class SyntaxConfigurator {
 
-    private final SyntaxSettings syntaxSettings;
+    private SyntaxSettings syntaxSettings;
     private final JXButton btnApply = new JXButton("Apply");
     private final JXButton btnOk = new JXButton("Ok");
     private final JXButton btnCancel = new JXButton("Cancel");
     private final JXButton btnAddRegex = new JXButton("Add Regex");
     private final JXButton btnAddStyle = new JXButton("Add Style");
+    private final JXButton btnReloadDefaults = new JXButton("Reload Default Styles");
+    private final JXColorSelectionButton btnBackgroundColorDefault;
+    private final JXColorSelectionButton btnForegroundColorDefault;
     private JPanel syntaxList;
     private JPanel styleList;
 
     private final JFrame frame;
 
-    public SyntaxConfigurator(final SyntaxSettings syntaxSettings, final TraceView parent, final JSoarDebugger debugger) {
-        this.syntaxSettings = syntaxSettings;
+    public SyntaxConfigurator(final SyntaxSettings settings, final TraceView parent, final JSoarDebugger debugger) {
+        this.syntaxSettings = settings;
 
         frame = new JFrame("Syntax Settings");
         frame.setBounds(100, 100, 1600, 1000);
 
+        btnBackgroundColorDefault = new JXColorSelectionButton(settings.getBackground());
+        btnForegroundColorDefault = new JXColorSelectionButton(settings.getForeground());
+        Dimension size = new Dimension(32, 32);
+        btnForegroundColorDefault.setPreferredSize(size);
+        btnBackgroundColorDefault.setPreferredSize(size);
+        btnBackgroundColorDefault.setMinimumSize(size);
+        btnForegroundColorDefault.setMinimumSize(size);
+        btnForegroundColorDefault.setMaximumSize(size);
+        btnBackgroundColorDefault.setMaximumSize(size);
+
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.LINE_AXIS));
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        bottomPanel.add(Box.createRigidArea(new Dimension(5,0)));
+        bottomPanel.add(btnReloadDefaults);
+        bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        bottomPanel.add(new JLabel("Default Text Color"));
+
+        bottomPanel.add(btnForegroundColorDefault);
+        bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        bottomPanel.add(new JLabel("Window Background Color"));
+        bottomPanel.add(btnBackgroundColorDefault);
         bottomPanel.add(Box.createHorizontalGlue());
         bottomPanel.add(btnOk);
         bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -49,26 +73,30 @@ public class SyntaxConfigurator {
         bottomPanel.add(btnApply);
 
 
+
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-//        panel.setPreferredSize(new Dimension(1600,1000));
+
+
+
         panel.add(bottomPanel, BorderLayout.PAGE_END);
 
         syntaxList = new JPanel();
         syntaxList.setLayout(new VerticalLayout());
-        LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
-        for (Iterator<SyntaxPattern> iterator = syntaxPatterns.iterator(); iterator.hasNext(); ) {
-            final SyntaxPattern pattern = iterator.next();
-            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
+        LinkedList<SyntaxPattern> syntaxPatterns = settings.getSyntaxPatterns();
+        for (final SyntaxPattern pattern : syntaxPatterns) {
+            final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, settings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
             comp.putClientProperty("JComponent.sizeVariant", "large");
-            comp.addDeleteButtonListener(new ActionListener() {
+            comp.addDeleteButtonListener(new ActionListener()
+            {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e)
+                {
                     syntaxList.remove(comp);
                     syntaxList.remove(sep);
-                    syntaxSettings.getSyntaxPatterns().remove(pattern);
+                    settings.getSyntaxPatterns().remove(pattern);
                     onSyntaxChanged();
                 }
             });
@@ -86,10 +114,9 @@ public class SyntaxConfigurator {
 
         styleList = new JPanel();
         styleList.setLayout(new VerticalLayout());
-        for (Iterator<String> iterator = syntaxSettings.getComponentStyles().keySet().iterator(); iterator.hasNext(); ) {
-            final String key = iterator.next();
-            TextStyle style = syntaxSettings.getComponentStyles().get(key);
-            addStyleComponent(key,style);
+        for (final String key : settings.getComponentStyles().keySet()) {
+            TextStyle style = settings.getComponentStyles().get(key);
+            addStyleComponent(key, style);
         }
         styleList.add(btnAddStyle);
 
@@ -99,6 +126,12 @@ public class SyntaxConfigurator {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scrollPane, BorderLayout.EAST);
 
+        JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(parent.getContentPane());
+        Dimension panelSize = topFrame.getContentPane().getSize();
+        Dimension preferredSize = panel.getPreferredSize();
+        panelSize = new Dimension(preferredSize.width, Math.min(panelSize.height, preferredSize.height));
+        panel.setMaximumSize(panelSize);
+        panel.setPreferredSize(panelSize);
         frame.getContentPane().add(panel);
         frame.pack();
 
@@ -106,8 +139,8 @@ public class SyntaxConfigurator {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final SyntaxPattern newPattern = new SyntaxPattern();
-                syntaxSettings.getSyntaxPatterns().add(newPattern);
-                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, syntaxSettings.componentStyles.keySet(), debugger);
+                settings.getSyntaxPatterns().add(newPattern);
+                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, settings.componentStyles.keySet(), debugger);
                 final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 
                 comp.addDeleteButtonListener(new ActionListener() {
@@ -115,7 +148,7 @@ public class SyntaxConfigurator {
                     public void actionPerformed(ActionEvent e) {
                         syntaxList.remove(comp);
                         syntaxList.remove(sep);
-                        syntaxSettings.getSyntaxPatterns().remove(newPattern);
+                        settings.getSyntaxPatterns().remove(newPattern);
                         onSyntaxChanged();
                     }
                 });
@@ -131,14 +164,59 @@ public class SyntaxConfigurator {
                 TextStyle newStyle = new TextStyle();
                 String key = "new style";
                 int i = 1;
-                while (syntaxSettings.getComponentStyles().containsKey(key)) {
+                while (settings.getComponentStyles().containsKey(key)) {
                     key = "new style " + i;
                     i++;
                 }
-                syntaxSettings.addTextStyle(key, newStyle);
+                settings.addTextStyle(key, newStyle);
                 addStyleComponent(key, newStyle);
             }
         });
+
+        btnReloadDefaults.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                int dialogResult = JOptionPane.showConfirmDialog(frame,"Are you sure you want to reload the default syntax? This will erase any customizations.","Are you sure?",JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION){
+                    //reload the syntax
+                    syntaxSettings = parent.reloadSyntaxDefaults();
+                    syntaxList.removeAll();
+                    LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
+                    for (final SyntaxPattern pattern : syntaxPatterns) {
+                        final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
+                        final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+                        syntaxList.add(sep);
+                        comp.putClientProperty("JComponent.sizeVariant", "large");
+                        comp.addDeleteButtonListener(new ActionListener()
+                        {
+                            @Override
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                syntaxList.remove(comp);
+                                syntaxList.remove(sep);
+                                syntaxSettings.getSyntaxPatterns().remove(pattern);
+                                onSyntaxChanged();
+                            }
+                        });
+                        syntaxList.add(comp);
+
+                    }
+                    syntaxList.add(btnAddRegex);
+
+                    styleList.removeAll();
+                    styleList.setLayout(new VerticalLayout());
+                    for (final String key : settings.getComponentStyles().keySet()) {
+                        TextStyle style = settings.getComponentStyles().get(key);
+                        addStyleComponent(key, style);
+                    }
+                    styleList.add(btnAddStyle);
+
+                }
+            }
+        });
+
 
         btnApply.addActionListener(new ActionListener() {
             @Override
@@ -151,6 +229,7 @@ public class SyntaxConfigurator {
             @Override
             public void actionPerformed(ActionEvent e) {
                 parent.saveSyntax();
+                parent.reformatText();
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
@@ -163,6 +242,16 @@ public class SyntaxConfigurator {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
+
+        ChangeListener colorChangeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
+                settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
+            }
+        };
+        btnBackgroundColorDefault.addChangeListener(colorChangeListener);
+        btnForegroundColorDefault.addChangeListener(colorChangeListener);
     }
 
     public void addStyleComponent(String newStyleName, final TextStyle textStyle) {
