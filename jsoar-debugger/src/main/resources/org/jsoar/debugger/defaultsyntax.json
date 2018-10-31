@@ -9,7 +9,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "decision type: impasse" : {
       "styleType" : "decision type: impasse",
@@ -20,7 +20,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "dc number" : {
       "styleType" : null,
@@ -31,7 +31,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "operator name" : {
       "styleType" : "operator name",
@@ -42,7 +42,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "rule firing" : {
       "styleType" : "rule firing",
@@ -53,7 +53,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "bold" : {
       "styleType" : "bold",
@@ -86,7 +86,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.4, 0.4, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "subphase" : {
       "styleType" : "subphase",
@@ -97,7 +97,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "command" : {
       "styleType" : "command",
@@ -108,7 +108,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "decision type: operator selected" : {
       "styleType" : null,
@@ -119,7 +119,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "errors/warnings" : {
       "styleType" : "errors/warnings",
@@ -141,7 +141,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "rule arrow" : {
       "styleType" : "rule arrow",
@@ -163,7 +163,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "function" : {
       "styleType" : "function",
@@ -185,7 +185,7 @@
       "fontSize" : 0,
       "enabled" : true,
       "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 1.0 ]
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "soar variable" : {
       "styleType" : "soar variable",
