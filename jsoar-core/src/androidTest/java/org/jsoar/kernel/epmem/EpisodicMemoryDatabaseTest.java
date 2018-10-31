@@ -29,7 +29,7 @@ public class EpisodicMemoryDatabaseTest extends AndroidTestCase
     @Override
     public void setUp() throws Exception
     {
-        db = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
+        db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
     }
 
     @Override
@@ -100,7 +100,7 @@ public class EpisodicMemoryDatabaseTest extends AndroidTestCase
     
     public void testCanCreateInitialIndexes() throws Exception
     {
-        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqldroid.SQLDroidDriver", db);
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
         
         final Set<String> indicies = new HashSet<String>();

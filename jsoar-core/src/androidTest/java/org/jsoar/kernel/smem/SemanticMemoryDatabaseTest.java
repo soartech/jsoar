@@ -25,7 +25,7 @@ public class SemanticMemoryDatabaseTest extends AndroidTestCase
     @Override
     public void setUp() throws SoarException
     {
-        db = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
+        db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
     }
 
     @Override

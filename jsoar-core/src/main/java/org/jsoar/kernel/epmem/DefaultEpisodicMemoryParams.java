@@ -102,10 +102,10 @@ class DefaultEpisodicMemoryParams
         return PropertyKey.builder(PREFIX + name, type);
     }
 
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
 
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqldroid").build();
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.off).build();
@@ -114,7 +114,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
     final DoublePropertyProvider balance = new DoublePropertyProvider(BALANCE);
     
-    static final PropertyKey<String> PATH = key("path", String.class).build();
+    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(EpisodicMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<PageChoices> PAGE_SIZE = key("page-size", PageChoices.class).defaultValue(PageChoices.page_8k).build();
@@ -159,7 +159,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PROTOCOL, protocol);
         //We can't know this before runtime in android
-        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
+//        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
         properties.setProvider(PATH, path);
 
         properties.setProvider(LAZY_COMMIT, lazy_commit);

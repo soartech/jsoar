@@ -73,7 +73,14 @@ repositories {
 }
 
 
+configurations {
+    nativeLibs
+}
+
 dependencies {
+
+    nativeLibs group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
+
     implementation ('com.googlecode.json-simple:json-simple:1.1.1'){
         exclude module: 'hamcrest-core'
     }
@@ -82,9 +89,21 @@ dependencies {
     implementation 'com.google.guava:guava:16.0.1'
     implementation 'com.android.support:appcompat-v7:22.2.0'
     implementation 'org.codehaus:jtcl:2.4.0'
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
+
+task copyLibs(type: Copy) {
+    from zipTree(configurations.nativeLibs.singleFile)
+    include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
+    eachFile{
+        path = name
+    }
+    into "src/main/jniLibs/armeabi"
+    includeEmptyDirs = false
+}
+preBuild.dependsOn(copyLibs)
 
 uploadArchives {
     repositories {

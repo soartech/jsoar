@@ -210,13 +210,13 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<LearningChoices> LEARNING = key("learning", LearningChoices.class).defaultValue(LearningChoices.off).build();
     final EnumPropertyProvider<LearningChoices> learning = new EnumPropertyProvider<LearningChoices>(LEARNING);
 
-    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqldroid.SQLDroidDriver").build();
+    static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
 
-    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqldroid").build();
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<String> PATH = key("path", String.class).build();
+    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(SemanticMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.off).build();
@@ -267,7 +267,8 @@ class DefaultSemanticMemoryParams
         properties.setProvider(LEARNING, learning);
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PROTOCOL, protocol);
-        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
+        //We can't know this ahead of time in android
+//        path.set(androidContext.getFilesDir().getAbsolutePath() + File.separator + "soar.db");
         properties.setProvider(PATH, path);
         
         properties.setProvider(LAZY_COMMIT, lazy_commit);

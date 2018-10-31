@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.epmem;
 
+import android.support.test.InstrumentationRegistry;
 import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -26,7 +28,8 @@ public class DefaultEpisodicMemoryTest extends AndroidTestCase
     {
         Agent temp = new Agent(getContext());
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), temp);
-        conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite::memory:");
+        conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+//        conn = JdbcTools.connect("org.sqldroid.SQLDroidDriver", "jdbc:sqlite:" + temp.getAndroidContext().getFilesDir() + "/jsoar.db");
 //        final EpisodicMemoryDatabase db = new EpisodicMemoryDatabase("org.sqlite.JDBC", conn);
 //        db.structure();
 //        db.prepare();
@@ -43,7 +46,7 @@ public class DefaultEpisodicMemoryTest extends AndroidTestCase
     public void testCanInitializeTheDatabase() throws Exception
     {
 //        final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(context);
-//        epmem.initialize();
+        epmem.initialize();
         // TODO database is being initialized here, should it be somewhere else?
 //        assertNull(epmem.getDatabase());
         epmem.epmem_init_db();
