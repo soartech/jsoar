@@ -51,6 +51,11 @@ public class LogCommand implements SoarCommand
         return "";
     }
 
+    @Override
+    public Object getCommand()
+    {
+        return new Log(agent,interpreter,null);
+    }
 
     @Command(name="log", description="Adjusts logging settings",
             subcommands={HelpCommand.class})
@@ -69,11 +74,7 @@ public class LogCommand implements SoarCommand
             this.interpreter = interpreter;
             this.context = context;
         }
-        @Override
-        public Object getCommand() {
-            //todo - when implementing picocli, return the runnable
-            return null;
-        }
+
         @Option(names={"-a", "--add"}, description="Adds a logger with the given name")
         String logToAdd = null;
 

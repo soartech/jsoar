@@ -23,11 +23,6 @@ public class HandlerCommand implements SoarCommand
     {
         this.agent = agent;
     }
-	@Override
-	public Object getCommand() {
-		//todo - when implementing picocli, return the runnable
-		return null;
-	}
 
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
@@ -36,7 +31,10 @@ public class HandlerCommand implements SoarCommand
 
         return "";
     }
-
+    @Override
+    public Object getCommand() {
+        return new Handler(agent);
+    }
 
     @Command(name="handler", description="Prints, enables, or disables RHS functions",
             subcommands={HelpCommand.class})

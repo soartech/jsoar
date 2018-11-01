@@ -32,7 +32,7 @@ public class SaveBacktracesCommand implements SoarCommand
     }
     @Override
     public Object getCommand() {
-        return new SaveBackgraces(agent);
+        return new SaveBacktraces(agent);
     }
 
     @Command(name="save-backtraces", description="Toggles or prints backtrace saving",
