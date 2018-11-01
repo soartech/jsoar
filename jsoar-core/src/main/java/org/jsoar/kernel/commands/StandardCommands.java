@@ -88,6 +88,7 @@ public class StandardCommands
         interp.addCommand("chunk", new ChunkCommand(agent));
         interp.addCommand("wm", new WMActivationCommand(agent));
         interp.addCommand("debug", new DebugCommand(agent));
+        interp.addCommand("run", new RunCommand(agent));
         
         SoarCommands.registerCustomCommands(interp, agent);
     }
