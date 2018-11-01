@@ -1,42 +1,73 @@
-/*
- * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
- *
- * Created on Jun 6, 2009
- */
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
 
 /**
- * Implementation of the "save-backtraces" command.
- * 
- * @author ray
+ * This is the implementation of the "save-backtraces" command.
+ * @author austin.brehob
  */
-public class SaveBacktracesCommand extends AbstractToggleCommand
+public class SaveBacktracesCommand implements SoarCommand
 {
+    private final Agent agent;
+
     public SaveBacktracesCommand(Agent agent)
     {
-        super(agent);
+        this.agent = agent;
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.tcl.AbstractToggleCommand#execute(org.jsoar.kernel.Agent, boolean)
-     */
     @Override
-    protected void execute(Agent agent, boolean enable) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        agent.getProperties().set(SoarProperties.EXPLAIN, enable);
+        Utils.parseAndRun(agent, new SaveBacktraces(agent), args);
+
+        return "";
     }
     @Override
     public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return null;
+        return new SaveBackgraces(agent);
     }
-    @Override
-    protected boolean query(Agent agent)
+
+    @Command(name="save-backtraces", description="Toggles or prints backtrace saving",
+            subcommands={HelpCommand.class})
+    static public class SaveBacktraces implements Runnable
     {
-        return agent.getProperties().get(SoarProperties.EXPLAIN);
+        private Agent agent;
+
+        public SaveBacktraces(Agent agent)
+        {
+            this.agent = agent;
+        }
+
+        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables backtrace saving")
+        boolean enable = false;
+
+        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables backtrace saving")
+        boolean disable = false;
+
+        @Override
+        public void run()
+        {
+            if (!enable && !disable)
+            {
+                agent.getPrinter().startNewLine().print("The current save-backtraces setting is: " +
+                        (agent.getProperties().get(SoarProperties.EXPLAIN) ? "enabled" : "disabled"));
+            }
+            else if (enable)
+            {
+                agent.getProperties().set(SoarProperties.EXPLAIN, true);
+            }
+            else
+            {
+                agent.getProperties().set(SoarProperties.EXPLAIN, false);
+            }
+        }
     }
 }
