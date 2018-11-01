@@ -1,9 +1,6 @@
-/*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
- * Created on Dec 7, 2008
- */
 package org.jsoar.kernel.commands;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -11,10 +8,13 @@ import org.jsoar.kernel.parser.Parser;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "set-parser" command.
- * 
- * @author ray
+ * This is the implementation of the "set-parser" command.
+ * @author austin.brehob
  */
 public class SetParserCommand implements SoarCommand
 {
@@ -24,41 +24,51 @@ public class SetParserCommand implements SoarCommand
     {
         this.agent = agent;
     }
-
-    /* (non-Javadoc)
-     * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
-     */
+    
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 2)
-        {
-            // TODO illegal arguments
-            throw new SoarException(String.format("%s <class>", args[0]));
-        }
-        try
-        {
-            Class<?> klass = Class.forName(args[1].toString());
-            Parser parser = (Parser) klass.newInstance();
-            agent.getProductions().setParser(parser);
-            return "";
-        }
-        catch (ClassNotFoundException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-        catch (InstantiationException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-        catch (ClassCastException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
+        Utils.parseAndRun(agent, new SetParser(agent), args);
+        
+        return "";
     }
 
+    
+    @Command(name="set-parser", description="Sets the current parser",
+            subcommands={HelpCommand.class})
+    static public class SetParser implements Runnable
+    {
+        private Agent agent;
+        
+        public SetParser(Agent agent)
+        {
+            this.agent = agent;
+        }
+        
+        @Parameters(description="The new parser")
+        String parser = null;
+        
+        @Override
+        public void run()
+        {
+            if (parser == null)
+            {
+                agent.getPrinter().startNewLine().print("No parser provided");
+                return;
+            }
+            
+            try
+            {
+                Class<?> klass = Class.forName(parser);
+                Parser parser = (Parser) klass.getConstructor().newInstance();
+                agent.getProductions().setParser(parser);
+            }
+            catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                    ClassCastException | IllegalArgumentException | InvocationTargetException |
+                    NoSuchMethodException | SecurityException e)
+            {
+                agent.getPrinter().startNewLine().print(e.getClass() + " error: " + e.getMessage());
+            }
+        }
+    }
 }
