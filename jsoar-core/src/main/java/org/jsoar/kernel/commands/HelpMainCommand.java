@@ -10,6 +10,7 @@ import picocli.CommandLine.Parameters;
 
 /**
  * This is the implementation of the "help" command.
+ * The class name contains the word "main" so it doesn't interfere with picocli's HelpCommand class.
  * @author austin.brehob
  */
 public class HelpMainCommand implements SoarCommand
@@ -33,7 +34,7 @@ public class HelpMainCommand implements SoarCommand
     @Command(name="help", description="Displays help information about the specified command")
     static public class Help implements Runnable
     {
-        private Agent agent;
+        private final Agent agent;
         
         public Help(Agent agent)
         {
@@ -41,7 +42,7 @@ public class HelpMainCommand implements SoarCommand
         }
         
         @Parameters(description="The command to display information for")
-        String command = null;
+        private String command = null;
         
         @Override
         public void run()
