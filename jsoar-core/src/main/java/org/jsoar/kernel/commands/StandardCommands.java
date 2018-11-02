@@ -65,7 +65,7 @@ public class StandardCommands
         
         interp.addCommand("decide", new DecideCommand(agent));
         
-        interp.addCommand("help", new HelpCommand());
+        interp.addCommand("help", new HelpMainCommand(agent));
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("timers", new TimersCommand());
