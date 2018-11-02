@@ -198,12 +198,23 @@ public class CommandEntryPanel extends JPanel implements Disposable
         completionsList.getActionMap().put("complete_selected",completeSelectedAction);
         editorComponent.getActionMap().put("down_complete", selectDownAction);
         editorComponent.getActionMap().put("up_complete", selectUpAction);
+        editorComponent.getActionMap().put("show_completions", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                if (!completionsShowing) {
+                    int position = editorComponent.getCaretPosition();
+                    updateCompletions(field.getEditor().getItem().toString(), position);
+                }
+            }
+        });
 
 
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,KeyEvent.CTRL_DOWN_MASK),"up_complete");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,KeyEvent.CTRL_DOWN_MASK),"down_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"up_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"down_complete");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke('\t'),"complete_selected");
-
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"show_completions");
         completionsList.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), "complete_selected");
 
         completionsList.addMouseListener(new MouseAdapter()
