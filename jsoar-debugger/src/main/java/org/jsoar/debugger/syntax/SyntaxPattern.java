@@ -100,7 +100,7 @@ public class SyntaxPattern {
      */
     public void expandMacros(JSoarDebugger debugger)
     {
-        logger.debug("expanding "+regex);
+//        logger.debug("expanding "+regex);
         expandedRegex = regex;
         if (regex.contains("%aliases%")) {
             StringBuilder aliasesStr = new StringBuilder();

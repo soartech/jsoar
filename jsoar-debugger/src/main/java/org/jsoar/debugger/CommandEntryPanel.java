@@ -6,8 +6,7 @@
 package org.jsoar.debugger;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -15,13 +14,10 @@ import java.util.prefs.Preferences;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.Element;
 
-import com.sun.xml.internal.fastinfoset.stax.events.CharactersEvent;
 import org.jdesktop.swingx.*;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.util.SwingTools;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommand;
 import picocli.CommandLine;
@@ -38,12 +34,64 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel model = new DefaultComboBoxModel();
     private final JXComboBox field = new JXComboBox(model);
-    private final JWindow completions = new JWindow();
+    private final JWindow completions;
     private final JXPanel help = new JXPanel();
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
+    private final AbstractAction selectUpAction = new AbstractAction()
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if (completionsShowing) {
+                int selectedIndex = completionsList.getSelectedIndex();
+                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize() - 1) {
+                    selectedIndex = 0;
+                } else {
+                    selectedIndex = selectedIndex - 1;
+                }
+                selectCompletion(selectedIndex);
+            }
+        }
+    };
+    private final AbstractAction selectDownAction = new AbstractAction()
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if (completionsShowing) {
+                int selectedIndex = completionsList.getSelectedIndex();
+                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize() - 1) {
+                    selectedIndex = 0;
+                } else {
+                    selectedIndex = selectedIndex + 1;
+                }
+                selectCompletion(selectedIndex);
+            }
+        }
+    };
+    private final AbstractAction completeSelectedAction = new AbstractAction()
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if (completionsShowing) {
+                int selectedIndex = completionsList.getSelectedIndex();
+                if (selectedIndex == -1 && completionsList.getModel().getSize() > 1) {
+                    completionsList.setSelectedIndex(0);
+                    completionsList.requestFocus();
+                } else {
+                    if (selectedIndex < 0 || selectedIndex > completionsList.getModel().getSize()) {
+                        selectedIndex = 0;
+                    }
+                    useCompletion(selectedIndex);
+                }
+            }
+        }
+    };
     private Popup tooltipPopup;
+    private final JScrollPane completionsScrollPane = new JScrollPane();
 
     /**
      * Construct the panel with the given debugger
@@ -70,18 +118,23 @@ public class CommandEntryPanel extends JPanel implements Disposable
         });
         field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
 //        AutoCompleteDecorator.decorate(field);
-        completionsList.setCellRenderer(new ListCellRenderer<String>()
+        /*completionsList.setCellRenderer(new ListCellRenderer<String>()
         {
             @Override
             public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus)
             {
                 return new JLabel(value);
             }
-        });
+        });*/
 //        completions.setUndecorated(true);
+        completions = new JWindow(debugger.frame);
         completions.setOpacity(0.8f);
         completions.setVisible(false);
-        completions.add(new ScrollPane().add(completionsList));
+        completions.setFocusable(true);
+        completions.setAutoRequestFocus(false);
+        completions.setFocusableWindowState(true);
+        completionsScrollPane.setViewportView(completionsList);
+        completions.add(completionsScrollPane);
         completions.pack();
 
 
@@ -117,7 +170,56 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         });
 
-        SwingTools.addSelectAllOnFocus(field);
+        //close the completions if we click out of the editor or the list
+        editorComponent.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                super.focusLost(e);
+                if (e.getOppositeComponent() != completions && e.getOppositeComponent() != completionsList) {
+                    hideCompletions();
+                }
+            }
+        });
+        completions.addFocusListener(new FocusAdapter()
+        {
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                super.focusLost(e);
+                if (e.getOppositeComponent() != editorComponent) {
+                    hideCompletions();
+                }
+            }
+        });
+
+        editorComponent.getActionMap().put("complete_selected", completeSelectedAction);
+        completionsList.getActionMap().put("complete_selected",completeSelectedAction);
+        editorComponent.getActionMap().put("down_complete", selectDownAction);
+        editorComponent.getActionMap().put("up_complete", selectUpAction);
+
+
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,KeyEvent.CTRL_DOWN_MASK),"up_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,KeyEvent.CTRL_DOWN_MASK),"down_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke('\t'),"complete_selected");
+
+        completionsList.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), "complete_selected");
+
+        completionsList.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                JList list = (JList)e.getSource();
+                if (e.getClickCount() == 2) {
+                    int selectedIndex = list.locationToIndex(e.getPoint());
+                    useCompletion(selectedIndex);
+                }
+            }
+        });
+
+//        SwingTools.addSelectAllOnFocus(field);
 
         final String rawhistory = getPrefs().get("history", "").replace((char) 0, (char) 0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
         final String[] history = rawhistory.split(String.valueOf((char) 0x1F)); // split on "unit separator" character (used to use null, but that's no longer supported in preference values in Java 9+)
@@ -129,8 +231,34 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
+    public void useCompletion(int selectedIndex)
+    {
+        if (selectedIndex >= 0 && selectedIndex < completionsList.getModel().getSize()) {
+            String completion = completionsList.getModel().getElementAt(selectedIndex);
+            field.getEditor().setItem(completion);
+            field.getEditor().getEditorComponent().requestFocus();
+        }
+    }
+
+    public void selectCompletion(int selectedIndex)
+    {
+        completionsList.setSelectedIndex(selectedIndex);
+        completionsList.ensureIndexIsVisible(selectedIndex);
+        String command = completionsList.getSelectedValue();
+        CommandLine commandLine = findCommand(command);
+        if (commandLine == null){
+            if (tooltipPopup != null){
+                tooltipPopup.hide();
+                tooltipPopup = null;
+            }
+        } else {
+            showHelpTooltip(commandLine);
+        }
+    }
+
     private void updateCompletions(String command, int cursorPosition)
     {
+        command = command.trim();
         if (!command.isEmpty()) {
 //            updateCompletions(command);
 //                    field.getEditor().getEditorComponent().
@@ -175,28 +303,15 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 try {
                     completions.setVisible(true);
                     completionsList.setListData(commands);
+                    completionsScrollPane.doLayout();
                     Point location = field.getLocationOnScreen();
                     int yLoc = location.y+field.getHeight();
                     completions.setBounds(location.x, yLoc, 200, 100);
                     completions.toFront();
                     completionsList.setToolTipText("");
                     completionsShowing = true;
-                    JToolTip toolTip = new JToolTip();
-                    String help = getHelp(commandLine);
 
-                    if (tooltipPopup != null) {
-                        tooltipPopup.hide();
-                        tooltipPopup = null;
-                    }
-
-                    if (help != null && !help.isEmpty()) {
-                        toolTip.setTipText(help);
-                        PopupFactory popupFactory = PopupFactory.getSharedInstance();
-                        int xLoc = completions.getX() + completions.getWidth();
-
-                        tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
-                        tooltipPopup.show();
-                    }
+                    showHelpTooltip(commandLine);
                 } catch (Exception e) {
 
                 }
@@ -210,10 +325,31 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
+    private void showHelpTooltip(CommandLine commandLine)
+    {
+        int yLoc = completions.getY();
+        int xLoc = completions.getX() + completions.getWidth();
+
+        JToolTip toolTip = new JToolTip();
+        String help = getHelp(commandLine);
+
+        if (tooltipPopup != null) {
+            tooltipPopup.hide();
+            tooltipPopup = null;
+        }
+
+        if (help != null && !help.isEmpty()) {
+            toolTip.setTipText(help);
+            PopupFactory popupFactory = PopupFactory.getSharedInstance();
+            tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
+            tooltipPopup.show();
+        }
+    }
+
     private CommandLine findCommand(String substring)
     {
-        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
-
+        substring = substring.trim();
+        if (!substring.isEmpty() && debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
             DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
             String[] parts = substring.split(" ");
             SoarCommand cmd = interpreter.getCommand(parts[0]);
@@ -225,13 +361,10 @@ public class CommandEntryPanel extends JPanel implements Disposable
                     command = command.getSubcommands().get(parts[part]);
                 }
                 return command;
-
             }
         }
         return null;
     }
-
-
 
 
     private void hideCompletions()
@@ -341,18 +474,18 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
             String[] parts = input.split(" ");
             int argIndex = 0;
-            int positionInArg = cursorPosition;
+            int positionInArg = 0;
             //figure out argIndex
-            for (String part: parts){
-
-                if (positionInArg < part.length()) {
-                    break;
-                } else {
+            for (int i = 1; i < input.length(); i++){
+                char c = input.charAt(i);
+                char prev = input.charAt(i-1);
+                if (c == ' ' &&  prev != ' '){
                     argIndex++;
-                    positionInArg-=part.length()+1;
+                    positionInArg = 0;
+                } else if (c != ' '){
+                    positionInArg++;
                 }
             }
-            positionInArg+=1;//offset by 1 because we want the cursor after the character
 
             ArrayList<CharSequence> longResults = new ArrayList<>();
             System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);

@@ -106,7 +106,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
-    private JFrame frame;
+    JFrame frame;
     private CControl docking;
     private StatusBar status;
     
