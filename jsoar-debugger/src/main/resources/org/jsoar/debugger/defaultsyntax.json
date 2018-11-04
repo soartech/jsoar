@@ -1,290 +1,235 @@
 {
   "componentStyles" : {
-    "phase" : {
-      "styleType" : null,
+    "background highlights (base 2)" : {
+      "styleType" : "background highlights (base 2)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.93333334, 0.9098039, 0.8352941, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "magenta" : {
+      "styleType" : "magenta",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.827451, 0.21176471, 0.50980395, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "green" : {
+      "styleType" : "green",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.52156866, 0.6, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "comments / secondary content (base 1)" : {
+      "styleType" : "comments / secondary content (base 1)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.5764706, 0.6313726, 0.6313726, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "yellow" : {
+      "styleType" : "yellow",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.70980394, 0.5372549, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "violet" : {
+      "styleType" : "violet",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.42352942, 0.44313726, 0.76862746, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "optional emphasized content (base 01)" : {
+      "styleType" : "optional emphasized content (base 01)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.34509805, 0.43137255, 0.45882353, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "cyan" : {
+      "styleType" : "cyan",
       "bold" : true,
       "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
+      "foregroundRgb" : [ 0.16470589, 0.6313726, 0.59607846, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
-    "decision type: impasse" : {
-      "styleType" : "decision type: impasse",
+    "orange" : {
+      "styleType" : "orange",
       "bold" : false,
       "underline" : false,
       "strikethrough" : false,
-      "italic" : true,
+      "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 1.0, 0.6, 0.4, 1.0 ],
+      "foregroundRgb" : [ 0.79607844, 0.29411766, 0.08627451, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
-    "dc number" : {
-      "styleType" : null,
+    "red" : {
+      "styleType" : "red",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.8627451, 0.19607843, 0.18431373, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "blue" : {
+      "styleType" : "blue",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.14901961, 0.54509807, 0.8235294, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "body text (base 00)" : {
+      "styleType" : "body text (base 00)",
       "bold" : true,
       "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.8, 0.8, 1.0 ],
+      "foregroundRgb" : [ 0.39607844, 0.48235294, 0.5137255, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
-    "operator name" : {
-      "styleType" : "operator name",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : true,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "rule firing" : {
-      "styleType" : "rule firing",
+    "background (base 3)" : {
+      "styleType" : "background (base 3)",
       "bold" : false,
       "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "bold" : {
-      "styleType" : "bold",
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "disjunct" : {
-      "styleType" : "disjunct",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : true,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "wm remove" : {
-      "styleType" : "wm remove",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.4, 0.4, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "subphase" : {
-      "styleType" : "subphase",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.2, 0.6, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "command" : {
-      "styleType" : "command",
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.49803922, 0.0, 0.33333334, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "decision type: operator selected" : {
-      "styleType" : null,
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.4, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "errors/warnings" : {
-      "styleType" : "errors/warnings",
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 1.0, 0.2, 0.2, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "rule retraction" : {
-      "styleType" : "rule retraction",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "rule arrow" : {
-      "styleType" : "rule arrow",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 0.98039216, 0.8039216, 1.0 ]
-    },
-    "wm add" : {
-      "styleType" : "wm add",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.4, 0.4, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "function" : {
-      "styleType" : "function",
-      "bold" : true,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 1.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "impasse type" : {
-      "styleType" : "impasse type",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : true,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.8, 0.6, 0.0, 1.0 ],
-      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
-    },
-    "soar variable" : {
-      "styleType" : "soar variable",
-      "bold" : false,
-      "underline" : false,
-      "strikethrough" : false,
-      "italic" : false,
-      "fontSize" : 0,
-      "enabled" : true,
-      "foregroundRgb" : [ 0.0, 0.0, 0.7529412, 1.0 ],
+      "foregroundRgb" : [ 0.99215686, 0.9647059, 0.8901961, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     }
   },
   "syntaxPatterns" : [ {
     "comment" : "phase header",
     "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
-    "components" : [ "phase" ],
+    "components" : [ "optional emphasized content (base 01)" ],
     "enabled" : true
   }, {
     "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
     "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
-    "components" : [ "dc number", "decision type: operator selected", "operator name" ],
+    "components" : [ "optional emphasized content (base 01)", "blue", "blue" ],
     "enabled" : true
   }, {
     "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
     "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
-    "components" : [ "dc number", "decision type: impasse", "impasse type" ],
+    "components" : [ "optional emphasized content (base 01)", "orange", "orange" ],
     "enabled" : true
   }, {
     "comment" : "commands and aliases",
     "regex" : "(?m)^\\b(%commands%|%aliases%)\\b(.*?)$",
-    "components" : [ "command", "command" ],
+    "components" : [ "magenta", "magenta" ],
     "enabled" : true
   }, {
     "comment" : "highlight messages that are warnings and errors",
     "regex" : "((?:Warn|Error|Ignor)(?:.*))",
-    "components" : [ "errors/warnings" ],
+    "components" : [ "red" ],
     "enabled" : true
   }, {
     "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
     "regex" : "(---.*\\((?:IE|PE)\\).*---)",
-    "components" : [ "subphase" ],
+    "components" : [ "optional emphasized content (base 01)" ],
     "enabled" : true
   }, {
     "comment" : "Rule firings",
     "regex" : "(Firing\\ .*)",
-    "components" : [ "rule firing" ],
+    "components" : [ "cyan" ],
     "enabled" : true
   }, {
     "comment" : "Rule retraction",
     "regex" : "(Retracting\\ .*)",
-    "components" : [ "rule retraction" ],
+    "components" : [ "magenta" ],
     "enabled" : true
   }, {
     "comment" : "WM add",
     "regex" : "(=>WM:\\ .*)",
-    "components" : [ "wm add" ],
+    "components" : [ "blue" ],
     "enabled" : true
   }, {
     "comment" : "WM remove",
     "regex" : "(<=WM:\\ .*)",
-    "components" : [ "wm remove" ],
+    "components" : [ "orange" ],
     "enabled" : true
   }, {
     "comment" : "rule excise",
     "regex" : "(#+)",
-    "components" : [ "errors/warnings" ],
+    "components" : [ "red" ],
     "enabled" : true
   }, {
     "comment" : "unmatched condition in matches command output",
     "regex" : "(>>>>)",
-    "components" : [ "errors/warnings" ],
+    "components" : [ "red" ],
     "enabled" : true
   }, {
     "comment" : "matches command total matches found",
     "regex" : "([0-9]+ complete matches.)",
-    "components" : [ "bold" ],
+    "components" : [ "green" ],
     "enabled" : true
   }, {
     "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
     "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
-    "components" : [ "soar variable" ],
+    "components" : [ "blue" ],
     "enabled" : true
   }, {
     "comment" : "rule arrow",
     "regex" : "(-->)",
-    "components" : [ "rule arrow" ],
+    "components" : [ "yellow" ],
     "enabled" : true
   }, {
     "comment" : "rule disjunction",
     "regex" : "(<<.+?>>)",
-    "components" : [ "disjunct" ],
+    "components" : [ "cyan" ],
     "enabled" : true
   }, {
     "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\"), but not after a digit which would be for a selected operator or impasse",
     "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
-    "components" : [ "function" ],
+    "components" : [ "blue" ],
     "enabled" : true
   } ],
-  "foregroundRgb" : [ 0.2, 0.2, 0.2, 1.0 ],
-  "backgroundRgb" : [ 0.99215686, 0.9647059, 0.8901961, 1.0 ]
+  "foregroundRgb" : [ 0.38431373, 0.38431373, 0.38431373, 1.0 ],
+  "backgroundRgb" : [ 1.0, 1.0, 0.84313726, 1.0 ]
 }
