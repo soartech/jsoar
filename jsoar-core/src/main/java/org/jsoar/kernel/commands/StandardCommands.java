@@ -89,6 +89,7 @@ public class StandardCommands
         interp.addCommand("wm", new WMActivationCommand(agent));
         interp.addCommand("debug", new DebugCommand(agent));
         interp.addCommand("run", new RunCommand(agent));
+        interp.addCommand("trace", new TraceCommand(agent));
         
         SoarCommands.registerCustomCommands(interp, agent);
     }
