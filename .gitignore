@@ -36,3 +36,4 @@ target/
 .gradle/
 jsoar-core/.idea/
 jsoar-core/local.properties
+jsoar-core/src/main/jniLibs/armeabi/libsqlitejdbc.so

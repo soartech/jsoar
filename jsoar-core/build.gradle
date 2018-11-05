@@ -94,7 +94,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
 
-task copyLibs(type: Copy) {
+task copyLibsArm(type: Copy) {
     from zipTree(configurations.nativeLibs.singleFile)
     include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
     eachFile{
@@ -103,7 +103,30 @@ task copyLibs(type: Copy) {
     into "src/main/jniLibs/armeabi"
     includeEmptyDirs = false
 }
-preBuild.dependsOn(copyLibs)
+//This isn't a valid library for this architecture
+task copyLibsx86(type: Copy) {
+    from zipTree(configurations.nativeLibs.singleFile)
+    include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
+    eachFile{
+        path = name
+    }
+    into "src/main/jniLibs/x86"
+    includeEmptyDirs = false
+}
+//This isn't a valid library for this architecture
+task copyLibsx86_64(type: Copy) {
+    from zipTree(configurations.nativeLibs.singleFile)
+    include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
+    eachFile{
+        path = name
+    }
+    into "src/main/jniLibs/x86_64"
+    includeEmptyDirs = false
+}
+
+preBuild.dependsOn(copyLibsArm)
+//preBuild.dependsOn(copyLibsx86)
+//preBuild.dependsOn(copyLibsx86_64)
 
 uploadArchives {
     repositories {
