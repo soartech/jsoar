@@ -33,6 +33,28 @@
       "foregroundRgb" : [ 0.52156866, 0.6, 0.0, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
+    "bold body text (base 00)" : {
+      "styleType" : "bold body text (base 00)",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.39607844, 0.48235294, 0.5137255, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "red bold" : {
+      "styleType" : "red bold",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.8627451, 0.19607843, 0.18431373, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
     "comments / secondary content (base 1)" : {
       "styleType" : "comments / secondary content (base 1)",
       "bold" : false,
@@ -121,15 +143,15 @@
       "foregroundRgb" : [ 0.14901961, 0.54509807, 0.8235294, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
-    "body text (base 00)" : {
-      "styleType" : "body text (base 00)",
+    "bold orange" : {
+      "styleType" : "bold orange",
       "bold" : true,
       "underline" : false,
       "strikethrough" : false,
       "italic" : false,
       "fontSize" : 0,
       "enabled" : true,
-      "foregroundRgb" : [ 0.39607844, 0.48235294, 0.5137255, 1.0 ],
+      "foregroundRgb" : [ 0.79607844, 0.29411766, 0.08627451, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     },
     "background (base 3)" : {
@@ -142,22 +164,28 @@
       "enabled" : true,
       "foregroundRgb" : [ 0.99215686, 0.9647059, 0.8901961, 1.0 ],
       "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "bold blue" : {
+      "styleType" : "bold blue",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.14901961, 0.54509807, 0.8235294, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
     }
   },
   "syntaxPatterns" : [ {
-    "comment" : "phase header",
-    "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
-    "components" : [ "optional emphasized content (base 01)" ],
+    "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
+    "regex" : "(---.*\\((?:IE|PE)\\).*---)",
+    "components" : [ "bold body text (base 00)" ],
     "enabled" : true
   }, {
-    "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
-    "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
-    "components" : [ "optional emphasized content (base 01)", "blue", "blue" ],
-    "enabled" : true
-  }, {
-    "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
-    "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
-    "components" : [ "optional emphasized content (base 01)", "orange", "orange" ],
+    "comment" : "attributes; e.g.\n^foo\n^|foo bar|",
+    "regex" : "((?:\\^\\|.+?\\|)|(?:\\^.+?))\\s",
+    "components" : [ "yellow" ],
     "enabled" : true
   }, {
     "comment" : "commands and aliases",
@@ -165,44 +193,19 @@
     "components" : [ "magenta", "magenta" ],
     "enabled" : true
   }, {
+    "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
+    "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
+    "components" : [ "bold body text (base 00)", "orange", "bold orange" ],
+    "enabled" : true
+  }, {
+    "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
+    "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
+    "components" : [ "bold body text (base 00)", "blue", "bold blue" ],
+    "enabled" : true
+  }, {
     "comment" : "highlight messages that are warnings and errors",
-    "regex" : "((?:Warn|Error|Ignor)(?:.*))",
-    "components" : [ "red" ],
-    "enabled" : true
-  }, {
-    "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
-    "regex" : "(---.*\\((?:IE|PE)\\).*---)",
-    "components" : [ "optional emphasized content (base 01)" ],
-    "enabled" : true
-  }, {
-    "comment" : "Rule firings",
-    "regex" : "(Firing\\ .*)",
-    "components" : [ "cyan" ],
-    "enabled" : true
-  }, {
-    "comment" : "Rule retraction",
-    "regex" : "(Retracting\\ .*)",
-    "components" : [ "magenta" ],
-    "enabled" : true
-  }, {
-    "comment" : "WM add",
-    "regex" : "(=>WM:\\ .*)",
-    "components" : [ "blue" ],
-    "enabled" : true
-  }, {
-    "comment" : "WM remove",
-    "regex" : "(<=WM:\\ .*)",
-    "components" : [ "orange" ],
-    "enabled" : true
-  }, {
-    "comment" : "rule excise",
-    "regex" : "(#+)",
-    "components" : [ "red" ],
-    "enabled" : true
-  }, {
-    "comment" : "unmatched condition in matches command output",
-    "regex" : "(>>>>)",
-    "components" : [ "red" ],
+    "regex" : "((?:Warn|Error|Ignor|\\[ERROR|\\[WARN)(?:.*))",
+    "components" : [ "red bold" ],
     "enabled" : true
   }, {
     "comment" : "matches command total matches found",
@@ -210,9 +213,14 @@
     "components" : [ "green" ],
     "enabled" : true
   }, {
-    "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
-    "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
-    "components" : [ "blue" ],
+    "comment" : "non-variable constant after an opening paren (e.g., RHS function or \"state\"), but not after a digit which would be for a selected operator or impasse, or a space which could be a wm print",
+    "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
+    "components" : [ "bold blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "phase header",
+    "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
+    "components" : [ "bold body text (base 00)" ],
     "enabled" : true
   }, {
     "comment" : "rule arrow",
@@ -225,9 +233,44 @@
     "components" : [ "cyan" ],
     "enabled" : true
   }, {
-    "comment" : "a non-variable constant after an opening paren (e.g., RHS function or \"state\"), but not after a digit which would be for a selected operator or impasse",
-    "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
+    "comment" : "rule excise",
+    "regex" : "(#+)",
+    "components" : [ "red" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule firings",
+    "regex" : "(Firing\\ .*)",
+    "components" : [ "cyan" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule retraction",
+    "regex" : "(Retracting\\ .*)",
+    "components" : [ "magenta" ],
+    "enabled" : true
+  }, {
+    "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
+    "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
     "components" : [ "blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "unmatched condition in matches command output",
+    "regex" : "(>>>>)",
+    "components" : [ "red" ],
+    "enabled" : true
+  }, {
+    "comment" : "values that come after attributes. Note the beginning of this pattern is the same as the attribute pattern.",
+    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:.+?))(?:\\s|\\))",
+    "components" : [ "violet" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM add",
+    "regex" : "(=>WM:\\ .*)",
+    "components" : [ "blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM remove",
+    "regex" : "(<=WM:\\ .*)",
+    "components" : [ "orange" ],
     "enabled" : true
   } ],
   "foregroundRgb" : [ 0.38431373, 0.38431373, 0.38431373, 1.0 ],
