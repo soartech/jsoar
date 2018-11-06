@@ -1,7 +1,6 @@
 package org.jsoar.debugger.syntax.ui;
 
 import org.jdesktop.swingx.JXColorSelectionButton;
-import org.jdesktop.swingx.renderer.JRendererCheckBox;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
@@ -14,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+@SuppressWarnings("serial")
 public class TextStyleComponent extends JPanel {
 
     private final JButton btnDelete;
@@ -96,6 +96,7 @@ public class TextStyleComponent extends JPanel {
         this.add(new JLabel("Foreground"),constraints);
 
         final JXColorSelectionButton btnForeground = new JXColorSelectionButton(style.getForeground());
+        btnForeground.getChooser().setColor(style.getForeground());
         constraints.gridx=3;
         constraints.gridy=1;
         constraints.anchor=GridBagConstraints.CENTER;
@@ -107,6 +108,7 @@ public class TextStyleComponent extends JPanel {
         this.add(new JLabel("Background"),constraints);
 
         final JXColorSelectionButton btnBackground = new JXColorSelectionButton(style.getBackground());
+        btnBackground.getChooser().setColor(style.getBackground());
         constraints.gridx=3;
         constraints.gridy=3;
         constraints.anchor=GridBagConstraints.CENTER;
@@ -142,6 +144,7 @@ public class TextStyleComponent extends JPanel {
                 style.setBackground(btnBackground.getChooser().getColor());
             }
         };
+        
         btnForeground.getChooser().getSelectionModel().addChangeListener(colorChangeListener);
         btnBackground.getChooser().getSelectionModel().addChangeListener(colorChangeListener);
 

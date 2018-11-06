@@ -12,13 +12,10 @@ import org.jsoar.debugger.syntax.TextStyle;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class SyntaxConfigurator {
@@ -44,7 +41,9 @@ public class SyntaxConfigurator {
         frame.setBounds(100, 100, 1600, 1000);
 
         btnBackgroundColorDefault = new JXColorSelectionButton(settings.getBackground());
+        btnBackgroundColorDefault.getChooser().setColor(settings.getBackground());
         btnForegroundColorDefault = new JXColorSelectionButton(settings.getForeground());
+        btnForegroundColorDefault.getChooser().setColor(settings.getForeground());
         Dimension size = new Dimension(32, 32);
         btnForegroundColorDefault.setPreferredSize(size);
         btnBackgroundColorDefault.setPreferredSize(size);
