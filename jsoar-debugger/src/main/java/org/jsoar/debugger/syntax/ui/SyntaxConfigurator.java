@@ -16,6 +16,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class SyntaxConfigurator {
@@ -83,6 +85,7 @@ public class SyntaxConfigurator {
         syntaxList = new JPanel();
         syntaxList.setLayout(new VerticalLayout());
         LinkedList<SyntaxPattern> syntaxPatterns = settings.getSyntaxPatterns();
+        Collections.sort(syntaxPatterns, (p1, p2) -> p1.getComment().compareToIgnoreCase(p2.getComment()));
         for (final SyntaxPattern pattern : syntaxPatterns) {
             final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, settings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
@@ -113,7 +116,9 @@ public class SyntaxConfigurator {
 
         styleList = new JPanel();
         styleList.setLayout(new VerticalLayout());
-        for (final String key : settings.getComponentStyles().keySet()) {
+        java.util.List<String> sortedKeys = new ArrayList<>(settings.getComponentStyles().keySet());
+        Collections.sort(sortedKeys, String.CASE_INSENSITIVE_ORDER);
+        for (final String key : sortedKeys) {
             TextStyle style = settings.getComponentStyles().get(key);
             addStyleComponent(key, style);
         }
