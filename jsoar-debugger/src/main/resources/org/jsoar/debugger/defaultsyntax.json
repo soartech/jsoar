@@ -213,14 +213,14 @@
     "components" : [ "green" ],
     "enabled" : true
   }, {
-    "comment" : "non-variable constant after an opening paren (e.g., RHS function or \"state\"), but not after a digit which would be for a selected operator or impasse, or a space which could be a wm print",
-    "regex" : "[^\\d] \\(([^<]+?)[^\\w-]",
-    "components" : [ "bold blue" ],
-    "enabled" : true
-  }, {
     "comment" : "phase header",
     "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
     "components" : [ "bold body text (base 00)" ],
+    "enabled" : true
+  }, {
+    "comment" : "RHS function after an open paren",
+    "regex" : "\\((%rhsfuncs%)",
+    "components" : [ "bold blue" ],
     "enabled" : true
   }, {
     "comment" : "rule arrow",
@@ -271,6 +271,11 @@
     "comment" : "WM remove",
     "regex" : "(<=WM:\\ .*)",
     "components" : [ "orange" ],
+    "enabled" : true
+  }, {
+    "comment" : "state keyword in rule",
+    "regex" : "\\((state) <",
+    "components" : [ "bold blue" ],
     "enabled" : true
   } ],
   "foregroundRgb" : [ 0.38431373, 0.38431373, 0.38431373, 1.0 ],
