@@ -22,6 +22,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
+import javax.swing.text.IconView;
 
 import org.jdesktop.swingx.JXFrame;
 import org.jsoar.debugger.actions.AboutAction;
@@ -146,9 +147,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 if (e.isControlDown()){
 
                     if (e.getWheelRotation() < 0) {
-                        SwingTools.setFontScale(4.0f/3.0f);
+                        setFontScale(4.0f/3.0f, parentFrame.getComponents());
                     } else if (e.getWheelRotation() > 0) {
-                        SwingTools.setFontScale(.75f);
+                        setFontScale(.75f, parentFrame.getComponents());
                     }
                     parentFrame.repaint();
                 }
@@ -276,6 +277,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
         readDefaultLayout();
         
         update(false);
+    }
+
+    private void setFontScale(float scaleFactor, Component[] components)
+    {
+        for(Component c: components){
+            if (c instanceof  Container){
+                setFontScale(scaleFactor,((Container) c).getComponents());
+            }
+            c.setFont(c.getFont().deriveFont(c.getFont().getSize()*scaleFactor));
+        }
     }
 
     private void readDefaultLayout()
