@@ -40,6 +40,11 @@ public class DecideCommand implements SoarCommand
         return "";
     }
 
+    @Override
+    public Object getCommand()
+    {
+        return new Decide(agent);
+    }
 
     @Command(name="decide", description="Commands and settings related to "
             + "the selection of operators during the Soar decision process",

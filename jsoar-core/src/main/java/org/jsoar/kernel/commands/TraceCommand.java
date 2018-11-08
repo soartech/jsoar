@@ -35,7 +35,12 @@ public class TraceCommand implements SoarCommand
         return "";
     }
 
-    
+    @Override
+    public Object getCommand()
+    {
+        return new TraceC(agent,trace);
+    }
+
     @Command(name="trace", description="Control the run-time tracing of Soar",
             subcommands={HelpCommand.class})
     static public class TraceC implements Runnable

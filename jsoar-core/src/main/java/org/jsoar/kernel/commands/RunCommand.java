@@ -32,6 +32,12 @@ public class RunCommand implements SoarCommand
     }
 
     @Override
+    public Object getCommand()
+    {
+        return new Run(agent, tAgent);
+    }
+
+    @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
         // The agent is set here instead of in the constructor because the

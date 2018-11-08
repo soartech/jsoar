@@ -30,7 +30,12 @@ public class HelpMainCommand implements SoarCommand
         return "";
     }
 
-    
+    @Override
+    public Object getCommand()
+    {
+        return new Help(agent);
+    }
+
     @Command(name="help", description="Displays help information about the specified command")
     static public class Help implements Runnable
     {
