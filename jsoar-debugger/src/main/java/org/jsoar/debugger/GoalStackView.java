@@ -49,7 +49,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
 
     public GoalStackView(JSoarDebugger debugger)
     {
-        super("goalStack", "Goals");
+        super("goalStack", "State Stack");
         
         this.debugger = debugger;
         
