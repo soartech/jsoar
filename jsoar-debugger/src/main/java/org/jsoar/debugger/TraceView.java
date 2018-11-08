@@ -683,6 +683,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         Color backgroundColor = patterns.getBackground();
         outputWindow.setBackground(backgroundColor);
+        outputWindow.setSelectionColor(patterns.getSelection());
         UIDefaults defaults = new UIDefaults();
         defaults.put("TextPane[Enabled].backgroundPainter", backgroundColor);
 

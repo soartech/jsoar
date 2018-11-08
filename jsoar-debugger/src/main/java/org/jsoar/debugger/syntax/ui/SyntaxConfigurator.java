@@ -12,13 +12,12 @@ import org.jsoar.debugger.syntax.TextStyle;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class SyntaxConfigurator {
@@ -32,6 +31,7 @@ public class SyntaxConfigurator {
     private final JXButton btnReloadDefaults = new JXButton("Reload Default Styles");
     private final JXColorSelectionButton btnBackgroundColorDefault;
     private final JXColorSelectionButton btnForegroundColorDefault;
+    private final JXColorSelectionButton btnSelectionColorDefault;
     private JPanel syntaxList;
     private JPanel styleList;
 
@@ -44,14 +44,21 @@ public class SyntaxConfigurator {
         frame.setBounds(100, 100, 1600, 1000);
 
         btnBackgroundColorDefault = new JXColorSelectionButton(settings.getBackground());
+        btnBackgroundColorDefault.getChooser().setColor(settings.getBackground());
         btnForegroundColorDefault = new JXColorSelectionButton(settings.getForeground());
+        btnForegroundColorDefault.getChooser().setColor(settings.getForeground());
+        btnSelectionColorDefault = new JXColorSelectionButton(settings.getSelection());
+        btnSelectionColorDefault.getChooser().setColor(settings.getSelection());
         Dimension size = new Dimension(32, 32);
         btnForegroundColorDefault.setPreferredSize(size);
-        btnBackgroundColorDefault.setPreferredSize(size);
-        btnBackgroundColorDefault.setMinimumSize(size);
         btnForegroundColorDefault.setMinimumSize(size);
         btnForegroundColorDefault.setMaximumSize(size);
+        btnBackgroundColorDefault.setPreferredSize(size);
+        btnBackgroundColorDefault.setMinimumSize(size);
         btnBackgroundColorDefault.setMaximumSize(size);
+        btnSelectionColorDefault.setPreferredSize(size);
+        btnSelectionColorDefault.setMinimumSize(size);
+        btnSelectionColorDefault.setMaximumSize(size);
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
@@ -65,6 +72,9 @@ public class SyntaxConfigurator {
         bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         bottomPanel.add(new JLabel("Window Background Color"));
         bottomPanel.add(btnBackgroundColorDefault);
+        bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        bottomPanel.add(new JLabel("Selection Color"));
+        bottomPanel.add(btnSelectionColorDefault);
         bottomPanel.add(Box.createHorizontalGlue());
         bottomPanel.add(btnOk);
         bottomPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -84,6 +94,7 @@ public class SyntaxConfigurator {
         syntaxList = new JPanel();
         syntaxList.setLayout(new VerticalLayout());
         LinkedList<SyntaxPattern> syntaxPatterns = settings.getSyntaxPatterns();
+        Collections.sort(syntaxPatterns, (p1, p2) -> p1.getComment().compareToIgnoreCase(p2.getComment()));
         for (final SyntaxPattern pattern : syntaxPatterns) {
             final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, settings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
@@ -114,7 +125,9 @@ public class SyntaxConfigurator {
 
         styleList = new JPanel();
         styleList.setLayout(new VerticalLayout());
-        for (final String key : settings.getComponentStyles().keySet()) {
+        java.util.List<String> sortedKeys = new ArrayList<>(settings.getComponentStyles().keySet());
+        Collections.sort(sortedKeys, String.CASE_INSENSITIVE_ORDER);
+        for (final String key : sortedKeys) {
             TextStyle style = settings.getComponentStyles().get(key);
             addStyleComponent(key, style);
         }
@@ -184,6 +197,7 @@ public class SyntaxConfigurator {
                     syntaxSettings = parent.reloadSyntaxDefaults();
                     syntaxList.removeAll();
                     LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
+                    Collections.sort(syntaxPatterns, (p1, p2) -> p1.getComment().compareToIgnoreCase(p2.getComment()));
                     for (final SyntaxPattern pattern : syntaxPatterns) {
                         final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
                         final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
@@ -207,7 +221,9 @@ public class SyntaxConfigurator {
 
                     styleList.removeAll();
                     styleList.setLayout(new VerticalLayout());
-                    for (final String key : settings.getComponentStyles().keySet()) {
+                    java.util.List<String> sortedKeys = new ArrayList<>(settings.getComponentStyles().keySet());
+                    Collections.sort(sortedKeys, String.CASE_INSENSITIVE_ORDER);
+                    for (final String key : sortedKeys) {
                         TextStyle style = settings.getComponentStyles().get(key);
                         addStyleComponent(key, style);
                     }
@@ -248,10 +264,12 @@ public class SyntaxConfigurator {
             public void stateChanged(ChangeEvent e) {
                 settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
                 settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
+                settings.setSelection(btnSelectionColorDefault.getChooser().getColor());
             }
         };
         btnBackgroundColorDefault.addChangeListener(colorChangeListener);
         btnForegroundColorDefault.addChangeListener(colorChangeListener);
+        btnSelectionColorDefault.addChangeListener(colorChangeListener);
     }
 
     public void addStyleComponent(String newStyleName, final TextStyle textStyle) {

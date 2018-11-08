@@ -7,6 +7,7 @@ import com.google.re2j.Pattern;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class SyntaxPattern {
@@ -176,6 +178,30 @@ public class SyntaxPattern {
             }
             expandedRegex = expandedRegex.replaceAll("%commands%", Matcher.quoteReplacement(commandsStr.toString()));
         }
+        if(regex.contains("%rhsfuncs%")) {
+            StringBuilder rhsFuncsString = new StringBuilder();
+            List<String> rhsFuncs = debugger.getAgent().getRhsFunctions().getHandlers().stream().map(RhsFunctionHandler::getName).collect(Collectors.toList());
+            
+            // sort by length, so longer sequences are matched on in the regex first
+            Collections.sort(rhsFuncs, (s1, s2) -> s2.length() - s1.length());
+            
+            for(Iterator<String> iterator = rhsFuncs.iterator(); iterator.hasNext();) {
+                String rhsFunc = escapeRegexSpecialChars(iterator.next());
+                rhsFuncsString.append(rhsFunc);
+                if(iterator.hasNext())
+                    rhsFuncsString.append("|");
+            }
+            expandedRegex = expandedRegex.replaceAll("%rhsfuncs%", Matcher.quoteReplacement(rhsFuncsString.toString()));
+        }
+    }
+    
+    private final String regexSpecialChars = "[\\^$.|?*+(){}";
+    private String escapeRegexSpecialChars(String s) {
+        String result = s;
+        for(char c : regexSpecialChars.toCharArray()) {
+            result = result.replace(String.valueOf(c), "\\" + c);
+        }
+        return result;
     }
 }
 

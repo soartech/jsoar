@@ -1,16 +1,9 @@
 package org.jsoar.debugger.syntax;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.util.commands.DefaultInterpreter;
-import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.text.SimpleAttributeSet;
 import java.awt.*;
@@ -22,6 +15,7 @@ public class SyntaxSettings {
     public LinkedList<SyntaxPattern> syntaxPatterns = new LinkedList<>();
     private Color foreground;
     private Color background;
+    private Color selection;
 
     public SyntaxSettings() {
 
@@ -152,6 +146,15 @@ public class SyntaxSettings {
         this.background = background;
     }
 
+    @JsonIgnore
+    public Color getSelection() {
+        return selection;
+    }
+
+    public void setSelection(Color selection) {
+        this.selection = selection;
+    }
+    
     public void setForegroundRgb(float[] components) {
         foreground = new Color(components[0], components[1], components[2], components[3]);
     }
@@ -166,5 +169,13 @@ public class SyntaxSettings {
 
     public float[] getBackgroundRgb() {
         return background.getRGBComponents(null);
+    }
+    
+    public void setSelectionRgb(float[] components) {
+        selection = new Color(components[0], components[1], components[2], components[3]);
+    }
+
+    public float[] getSelectionRgb() {
+        return selection.getRGBComponents(null);
     }
 }
