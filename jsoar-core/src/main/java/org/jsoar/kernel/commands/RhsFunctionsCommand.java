@@ -30,19 +30,19 @@ public class RhsFunctionsCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new RhsFunctions(agent), args);
-
+        Utils.parseAndRun(agent, new RhsFunctionsC(agent), args);
+        
         return "";
     }
 
 
     @Command(name="rhs-functions", description="Prints a list of all RHS functions",
             subcommands={HelpCommand.class})
-    static public class RhsFunctions implements Runnable
+    static public class RhsFunctionsC implements Runnable
     {
         private Agent agent;
-
-        public RhsFunctions(Agent agent)
+        
+        public RhsFunctionsC(Agent agent)
         {
             this.agent = agent;
         }
@@ -74,6 +74,6 @@ public class RhsFunctionsCommand implements SoarCommand
     }
     @Override
     public Object getCommand() {
-        return new RhsFunctions(agent);
+        return new RhsFunctionsC(agent);
     }
 }
