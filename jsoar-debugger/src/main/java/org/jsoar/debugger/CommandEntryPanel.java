@@ -17,6 +17,7 @@ import javax.swing.event.DocumentListener;
 
 import org.jdesktop.swingx.*;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommand;
@@ -360,13 +361,20 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private CommandLine findCommand(String substring)
     {
         substring = substring.trim();
-        if (!substring.isEmpty() && debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
-            DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
+        if (!substring.isEmpty() ) {
+            SoarCommand cmd = null;
             String[] parts = substring.split(" ");
-            SoarCommand cmd = interpreter.getCommand(parts[0]);
+            if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
+                DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
+                cmd = interpreter.getCommand(parts[0]);
+            } else if (debugger.getAgent().getInterpreter() instanceof SoarTclInterface) {
+                SoarTclInterface interpreter = (SoarTclInterface) debugger.getAgent().getInterpreter();
+                try {
+                    cmd = interpreter.getCommand(parts[0], null);
+                } catch (SoarException ignored){}
+            }
             if (cmd != null && cmd.getCommand() != null) {
                 CommandLine command = new CommandLine(cmd.getCommand());
-
                 int part = 1;
                 while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
                     command = command.getSubcommands().get(parts[part]);
@@ -481,7 +489,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private String[] complete(CommandLine commandLine, String input, int cursorPosition)
     {
-        if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter && commandLine != null) {
+        if (commandLine != null) {
 
             String[] parts = input.split(" ");
             int argIndex = 0;
