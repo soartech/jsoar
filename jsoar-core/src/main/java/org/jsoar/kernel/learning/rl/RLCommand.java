@@ -51,7 +51,13 @@ public class RLCommand implements SoarCommand
     {
         this.agent = (Agent) context;
     }
-    
+
+    @Override
+    public Object getCommand()
+    {
+        return new RLC(agent);
+    }
+
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {

@@ -58,7 +58,13 @@ public class EpmemCommand implements SoarCommand
     {
         this.agent = (Agent) context;
     }
-    
+
+    @Override
+    public Object getCommand()
+    {
+        return new EpmemC(agent);
+    }
+
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
