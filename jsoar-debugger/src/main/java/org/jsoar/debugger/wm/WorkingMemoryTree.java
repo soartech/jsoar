@@ -101,8 +101,7 @@ public class WorkingMemoryTree extends JComponent
     {
         setLayout(null);
         
-        Font tmpFont = Font.decode("Arial-BOLD-11");
-        font = tmpFont.deriveFont(tmpFont.getSize()* JSoarDebugger.getFontScale());
+        font = Font.decode("Arial-BOLD-11");
         rootFont = font.deriveFont(font.getSize() * 1.5f);
         rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
 
