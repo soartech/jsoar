@@ -5,24 +5,19 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
-import java.util.prefs.Preferences;
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.JXPanel;
+import org.jsoar.util.commands.SoarCommandCompletion;
+import picocli.CommandLine;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import org.jdesktop.swingx.*;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.util.commands.DefaultInterpreter;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandCompletion;
-import picocli.CommandLine;
+import javax.swing.text.BadLocationException;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Collections;
+import java.util.prefs.Preferences;
 
 /**
  * A panel with a command entry field and history.
@@ -37,7 +32,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private final DefaultComboBoxModel model = new DefaultComboBoxModel();
     private final JXComboBox field = new JXComboBox(model);
     private final JWindow completions;
-    private final JXPanel help = new JXPanel();
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
@@ -119,16 +113,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         });
         field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
-//        AutoCompleteDecorator.decorate(field);
-        /*completionsList.setCellRenderer(new ListCellRenderer<String>()
-        {
-            @Override
-            public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected, boolean cellHasFocus)
-            {
-                return new JLabel(value);
-            }
-        });*/
-//        completions.setUndecorated(true);
+
         completions = new JWindow(debugger.frame);
         completions.setOpacity(0.8f);
         completions.setVisible(false);
@@ -161,15 +146,11 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void removeUpdate(DocumentEvent e)
             {
-                //fixme - backspace seems to be inconsistent on what position and offset are
-                /*
-                int position = editorComponent.getCaretPosition();
-                //fix position with editor removals
-                if ( position > e.getOffset()){
-                    position -= e.getLength();
+                try {
+                    String text = e.getDocument().getText(0, e.getDocument().getLength());
+                    updateCompletions(text,text.length());
+                } catch (BadLocationException ignored) {
                 }
-                updateCompletions(field.getEditor().getItem().toString(),position);
-                */
             }
 
             @Override
