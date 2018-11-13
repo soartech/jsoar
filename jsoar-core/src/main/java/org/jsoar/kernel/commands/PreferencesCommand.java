@@ -1,13 +1,6 @@
-/*
- * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
- *
- * Created on Jun 21, 2009
- */
 package org.jsoar.kernel.commands;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -21,134 +14,161 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "preferences" command.
- * 
- * <p>cli_preferences.cpp
- * <p>sml_KernelHelpers.cpp:soar_ecPrintPreferences
- * 
- * @author ray
+ * This is the implementation of the "preferences" command.
+ * @author austin.brehob
  */
 public class PreferencesCommand implements SoarCommand
 {
     private final Agent agent;
-    
-    /**
-     * @param agent
-     */
+
     public PreferencesCommand(Agent agent)
     {
         this.agent = agent;
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        final PrintPreferencesCommand ppc = new PrintPreferencesCommand();
-        processArgs(args, ppc);
-        try
-        {
-            ppc.print(agent, agent.getPrinter());
-        }
-        catch (IOException e)
-        {
-            throw new SoarException(e.getMessage(), e);
-        }
-        agent.getPrinter().flush();
+        Utils.parseAndRun(agent, new PreferencesC(agent), args);
+
         return "";
     }
 
     @Override
     public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return null;
+        return new PreferencesC(agent);
     }
 
-    private void processArgs(String[] args, PrintPreferencesCommand ppc) throws SoarException
+
+    @Command(name="preferences", description="Examines details about the preferences "
+            + "that support the specified identifier and attribute",
+            subcommands={HelpCommand.class})
+    static public class PreferencesC implements Runnable
     {
-        ppc.setWmeTraceType(WmeTraceType.NONE);
-        ppc.setPrintProduction(false);
-        ppc.setObject(false);
-        
-        final Decider decider = Adaptables.adapt(agent, Decider.class);
-        ppc.setId(decider.bottom_goal);
-        final PredefinedSymbols preSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
-        ppc.setAttr(preSyms.operator_symbol);
-        
-        final List<String> nonOpts = new ArrayList<String>();
-        for(int i = 1; i < args.length; ++i)
+        private Agent agent;
+
+        public PreferencesC(Agent agent)
         {
-            final String arg = args[i];
+            this.agent = agent;
+        }
+
+        @Option(names={"-n", "-0", "--none"}, description="Prints just the preferences themselves")
+        boolean level0 = false;
+
+        @Option(names={"-N", "-1", "--names"}, description="Prints the preferences "
+                + "and the names of the productions that generated them")
+        boolean level1 = false;
+
+        @Option(names={"-t", "-2", "--timetags"}, description="Prints the information for the --names option "
+                + "above plus the timetags of the wmes matched by the LHS of the indicated productions")
+        boolean level2 = false;
+
+        @Option(names={"-w", "-3", "--wmes"}, description="Prints the information for the "
+                + "--timetags option above plus the entire WME matched on the LHS")
+        boolean level3 = false;
+
+        @Option(names={"-o", "--object"}, description="Prints the support for all "
+                + "the WMEs that comprise the object (the specified identifier)")
+        boolean object = false;
+
+        @Parameters(index="0", arity="0..1", description="Must be an existing Soar object identifier")
+        String identifier = null;
+
+        @Parameters(index="1", arity="0..1", description="Must be an "
+                + "existing attribute of the specified identifier")
+        String attribute = null;
+
+        @Override
+        public void run()
+        {
+            final PrintPreferencesCommand ppc = new PrintPreferencesCommand();
+
+            ppc.setWmeTraceType(WmeTraceType.NONE);
+            ppc.setPrintProduction(false);
+            ppc.setObject(false);
+
+            // Set default identifier and attribute
+            final Decider decider = Adaptables.adapt(agent, Decider.class);
+            ppc.setId(decider.bottom_goal);
+            final PredefinedSymbols preSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
+            ppc.setAttr(preSyms.operator_symbol);
             
-            if("-0".equals(arg) || "-n".equals(arg) || "--none".equals(arg))
+            // Determine level of output
+            if (level0)
             {
                 ppc.setWmeTraceType(WmeTraceType.NONE);
             }
-            else if("-1".equals(arg) || "-N".equals(arg) || "--names".equals(arg))
+            else if (level1)
             {
                 ppc.setWmeTraceType(WmeTraceType.NONE);
                 ppc.setPrintProduction(true);
             }
-            else if("-2".equals(arg) || "-t".equals(arg) || "--timetags".equals(arg))
+            else if (level2)
             {
                 ppc.setWmeTraceType(WmeTraceType.TIMETAG);
                 ppc.setPrintProduction(true);
             }
-            else if("-3".equals(arg) || "-w".equals(arg) || "--wmes".equals(arg))
+            else if (level3)
             {
                 ppc.setWmeTraceType(WmeTraceType.FULL);
                 ppc.setPrintProduction(true);
             }
-            else if("-o".equals(arg) || "--object".equals(arg))
+            else if (object)
             {
                 ppc.setObject(true);
             }
-            else if(arg.startsWith("-"))
+
+            if (identifier != null)
             {
-                throw new SoarException("Unknown option to " + arg);
-            }
-            else
-            {
-                nonOpts.add(arg);
-            }
-        }
-        
-        if(nonOpts.size() == 1 || nonOpts.size() == 2)
-        {
-            final String idArg = nonOpts.get(0);
-            Symbol idSym = agent.readIdentifierOrContextVariable(idArg);
-            if(idSym == null)
-            {
-                throw new SoarException("Could not find identifier '" + idArg + "'");
-            }
-            final Identifier id = idSym.asIdentifier();
-            if(id == null)
-            {
-                throw new SoarException("'" + idArg + "' is not an identifier");
-            }
-            ppc.setId(id);
-            
-            if(nonOpts.size() == 2)
-            {
-                final String attrArg = nonOpts.get(1);
-                final Symbol attr = Symbols.readAttributeFromString(agent, attrArg);
-                if(attr == null)
+                // Obtain ID from user input if possible
+                Symbol idSym = agent.readIdentifierOrContextVariable(identifier);
+                if (idSym == null)
                 {
-                    throw new SoarException("'" + attrArg + "' is not a known attribute");
+                    agent.getPrinter().startNewLine().print("Could not find identifier '" + identifier + "'");
+                    return;
                 }
-                ppc.setAttr(attr);
+                final Identifier id = idSym.asIdentifier();
+                if (id == null)
+                {
+                    agent.getPrinter().startNewLine().print("'" + identifier + "' is not an identifier");
+                    return;
+                }
+                ppc.setId(id);
+
+                // Obtain attribute from user input if possible
+                if (attribute != null)
+                {
+                    final Symbol attr = Symbols.readAttributeFromString(agent, attribute);
+                    if (attr == null)
+                    {
+                        agent.getPrinter().startNewLine().print("'" + attribute
+                                + "' is not a known attribute");
+                        return;
+                    }
+                    ppc.setAttr(attr);
+                }
+                else if (!id.isGoal())
+                {
+                    ppc.setAttr(null);
+                }
             }
-            else if(!id.isGoal())
+
+            // Print the preferences at the specified level of output
+            try
             {
-                ppc.setAttr(null);
+                ppc.print(agent, agent.getPrinter());
             }
-        }
-        else if(nonOpts.size() != 0)
-        {
-            throw new SoarException("Too many arguments, expected [id] [[^]attribute]");
+            catch (IOException e)
+            {
+                agent.getPrinter().startNewLine().print(e.getMessage());
+            }
+            agent.getPrinter().flush();
         }
     }
 }
