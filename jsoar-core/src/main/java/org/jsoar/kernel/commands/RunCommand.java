@@ -1,6 +1,7 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
@@ -18,29 +19,38 @@ import picocli.CommandLine.Parameters;
  */
 public class RunCommand implements SoarCommand
 {
+    private final AgentRunController controller;
+    private final ThreadedAgent tAgent;
     private Agent agent;
-    private ThreadedAgent tAgent;
     
-    public RunCommand(Agent agent)
+    // The "run" command can be executed by an AgentRunController, a ThreadedAgent,
+    // or an Agent, so a constructor for each is required
+    
+    public RunCommand(AgentRunController controller, ThreadedAgent tAgent)
     {
-        this.agent = agent;
+        this.controller = controller;
+        this.tAgent = tAgent;
+        this.agent = tAgent.getAgent();
     }
     
     public RunCommand(ThreadedAgent tAgent)
     {
+        this.controller = null;
         this.tAgent = tAgent;
+        this.agent = tAgent.getAgent();
+    }
+    
+    public RunCommand(Agent agent)
+    {
+        this.controller = null;
+        this.tAgent = null;
+        this.agent = agent;
     }
     
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        // The agent is set here instead of in the constructor because the
-        // Threaded Agent may not have an agent when this class is constructed
-        if (tAgent != null)
-        {
-            this.agent = tAgent.getAgent();
-        }
-        Utils.parseAndRun(agent, new Run(agent, tAgent), args);
+        Utils.parseAndRun(agent, new Run(controller, tAgent, agent), args);
         
         return "";
     }
@@ -50,13 +60,15 @@ public class RunCommand implements SoarCommand
             subcommands={HelpCommand.class})
     static public class Run implements Runnable
     {
+        private final AgentRunController controller;
+        private final ThreadedAgent tAgent;
         private Agent agent;
-        private ThreadedAgent tAgent;
         
-        public Run(Agent agent, ThreadedAgent tAgent)
+        public Run(AgentRunController controller, ThreadedAgent tAgent, Agent agent)
         {
-            this.agent = agent;
+            this.controller = controller;
             this.tAgent = tAgent;
+            this.agent = agent;
         }
         
         @Option(names={"-d", "--decision"}, description="Run Soar for <count> decision cycles")
@@ -114,7 +126,11 @@ public class RunCommand implements SoarCommand
                 count = 1;
             }
             
-            if (tAgent != null)
+            if (controller != null)
+            {
+                controller.runFor(count, type);
+            }
+            else if (tAgent != null)
             {
                 tAgent.runFor(count, type);
             }
