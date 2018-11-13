@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,13 +31,11 @@ import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.UrlTools;
-import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
-import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import picocli.CommandLine;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
@@ -44,6 +44,7 @@ import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
+import tcl.lang.cmd.InterpAliasCmd;
 
 /**
  * @author ray
@@ -321,19 +322,77 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     /*
      * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#getCommand(java.lang.String, org.jsoar.util.SourceLocation)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#findCommand(java.lang.String, org.jsoar.util.SourceLocation)
      */
     @Override
     public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
     {
-        SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter)interp.getCommand(name);
-        if (commandAdapter == null)
-        {
-            throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+        Command command = interp.getCommand(name);
+        while (command instanceof InterpAliasCmd) {
+            try {
+                command = ((InterpAliasCmd)command).getTargetCmd(interp).cmd;
+            } catch (TclException e) {
+                e.printStackTrace();
+            }
         }
-        return commandAdapter.getSoarCommand();
+        if (command instanceof SoarTclCommandAdapter) {
+            SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter) command;
+            if (commandAdapter == null) {
+                throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+            }
+            return commandAdapter.getSoarCommand();
+        } else if (command instanceof SoarCommand){
+            return (SoarCommand) command;
+        }
+        return null;
     }
-    
+
+    public CommandLine findCommand(String substring)
+    {
+        substring = substring.trim();
+        if (!substring.isEmpty()) {
+            SoarCommand cmd = null;
+            String[] parts = substring.split(" ");
+
+            try {
+                cmd = getCommand(parts[0], null);
+            } catch (SoarException ignored) {
+            }
+
+            if (cmd != null && cmd.getCommand() != null) {
+                CommandLine command = new CommandLine(cmd.getCommand());
+                int part = 1;
+                while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
+                    command = command.getSubcommands().get(parts[part]);
+                }
+                return command;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String[] getCompletionList(String command, int cursorPosition)
+    {
+
+        String[] commands = null;
+
+        try {
+            String commandsStr = eval("info commands") + " " + eval("info procs");
+            List<String> commandsList = new ArrayList<>();
+            for (String s : commandsStr.split(" ")) {
+                if (s.startsWith(command)) {
+                    commandsList.add(s);
+                }
+            }
+            commands = commandsList.toArray(new String[0]);
+        } catch (SoarException e) {
+            e.printStackTrace();
+        }
+
+        return commands;
+    }
+
     private class MySourceCommandAdapter implements SourceCommandAdapter
     {
         @Override

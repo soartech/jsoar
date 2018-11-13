@@ -32,3 +32,4 @@ jsoar-performance-testing/.settings/
 dependency-reduced-pom.xml
 target/
 jsoar-build/test.log
+/.idea/

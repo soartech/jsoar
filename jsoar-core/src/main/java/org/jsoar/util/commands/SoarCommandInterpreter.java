@@ -12,6 +12,7 @@ import java.util.Collection;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.SourceLocation;
+import picocli.CommandLine;
 
 /**
  * Interface for an object that knows how to execute Soar commands and
@@ -139,4 +140,19 @@ public interface SoarCommandInterpreter
      * Returns the current working directory of the interpreter (or null if not applicable).
      */
     String getWorkingDirectory();
+
+    /**
+     * Get the autocomplete list for an incomplete command or a command with no CommandLine
+     * @param command
+     * @return
+     */
+    String[] getCompletionList(String command, int cursorPosition);
+
+    /**
+     * Return the autocomplete list for a command with a command line
+     * @param command
+     * @return
+     */
+    CommandLine findCommand(String command);
+
 }

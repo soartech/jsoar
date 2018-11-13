@@ -21,6 +21,7 @@ import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandCompletion;
 import picocli.CommandLine;
 
 /**
@@ -138,6 +139,14 @@ public class CommandEntryPanel extends JPanel implements Disposable
         completions.add(completionsScrollPane);
         completions.pack();
 
+        final String rawhistory = getPrefs().get("history", "").replace((char) 0, (char) 0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
+        final String[] history = rawhistory.split(String.valueOf((char) 0x1F)); // split on "unit separator" character (used to use null, but that's no longer supported in preference values in Java 9+)
+        for (String s : history) {
+            final String trimmed = s.trim();
+            if (trimmed.length() > 0) {
+                model.addElement(trimmed);
+            }
+        }
 
         final JTextField editorComponent = (JTextField) field.getEditor().getEditorComponent();
         editorComponent.getDocument().addDocumentListener(new DocumentListener()
@@ -231,16 +240,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         });
 
-//        SwingTools.addSelectAllOnFocus(field);
-
-        final String rawhistory = getPrefs().get("history", "").replace((char) 0, (char) 0x1F); // in case a null string is in the history, replace it with a unit separator; this likely to come up for users upgrading from old versions of the debugger
-        final String[] history = rawhistory.split(String.valueOf((char) 0x1F)); // split on "unit separator" character (used to use null, but that's no longer supported in preference values in Java 9+)
-        for (String s : history) {
-            final String trimmed = s.trim();
-            if (trimmed.length() > 0) {
-                model.addElement(trimmed);
-            }
-        }
     }
 
     public void useCompletion(int selectedIndex)
@@ -257,7 +256,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         completionsList.setSelectedIndex(selectedIndex);
         completionsList.ensureIndexIsVisible(selectedIndex);
         String command = completionsList.getSelectedValue();
-        CommandLine commandLine = findCommand(command);
+        CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(command);
         if (commandLine == null){
             if (tooltipPopup != null){
                 tooltipPopup.hide();
@@ -271,44 +270,13 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private void updateCompletions(String command, int cursorPosition)
     {
         command = command.trim();
+        String[] commands = null;
         if (!command.isEmpty()) {
-//            updateCompletions(command);
-//                    field.getEditor().getEditorComponent().
-            CommandLine commandLine = findCommand(command);
-            String[] commands = null;
-
-            //if we don't have a full command, we can't use the picocli completion functionality
-            if (commandLine == null){
-                if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter){
-                    DefaultInterpreter interp = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
-                    List<String> commandsList = new ArrayList<>();
-                    for(String s: interp.getCommandStrings()){
-                        if (s.startsWith(command)){
-                            commandsList.add(s);
-                        }
-                    }
-                    commands = new String[commandsList.size()];
-                    commands = commandsList.toArray(commands);
-                } else if (debugger.getAgent().getInterpreter() instanceof SoarTclInterface) {
-                    SoarTclInterface interp = ((SoarTclInterface) debugger.getAgent().getInterpreter());
-                    try {
-                        String commandsStr = interp.eval("info commands") + " " + interp.eval("info procs");
-                        List<String> commandsList = new ArrayList<>();
-                        for (String s: commandsStr.split(" ")){
-                            if (s.startsWith(command)){
-                                commandsList.add(s);
-                            }
-                        }
-                        commands = new String[commandsList.size()];
-                        commands = commandsList.toArray(commands);
-                    } catch (SoarException e) {
-                        e.printStackTrace();
-                    }
-                }
+            CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(command);
+            if (commandLine == null) {
+                commands = debugger.getAgent().getInterpreter().getCompletionList(command, cursorPosition);
             } else {
-                //if we do have a full command, this will work
-                commands = complete(commandLine, command, cursorPosition);
-
+                commands = SoarCommandCompletion.complete(commandLine, command, cursorPosition);
             }
 
             if (commands != null && commands.length > 0) {
@@ -317,7 +285,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                     completionsList.setListData(commands);
                     completionsScrollPane.doLayout();
                     Point location = field.getLocationOnScreen();
-                    int yLoc = location.y+field.getHeight();
+                    int yLoc = location.y + field.getHeight();
                     completions.setBounds(location.x, yLoc, 200, 100);
                     completions.toFront();
                     completionsList.setToolTipText("");
@@ -358,32 +326,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
-    private CommandLine findCommand(String substring)
-    {
-        substring = substring.trim();
-        if (!substring.isEmpty() ) {
-            SoarCommand cmd = null;
-            String[] parts = substring.split(" ");
-            if (debugger.getAgent().getInterpreter() instanceof DefaultInterpreter) {
-                DefaultInterpreter interpreter = ((DefaultInterpreter) debugger.getAgent().getInterpreter());
-                cmd = interpreter.getCommand(parts[0]);
-            } else if (debugger.getAgent().getInterpreter() instanceof SoarTclInterface) {
-                SoarTclInterface interpreter = (SoarTclInterface) debugger.getAgent().getInterpreter();
-                try {
-                    cmd = interpreter.getCommand(parts[0], null);
-                } catch (SoarException ignored){}
-            }
-            if (cmd != null && cmd.getCommand() != null) {
-                CommandLine command = new CommandLine(cmd.getCommand());
-                int part = 1;
-                while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
-                    command = command.getSubcommands().get(parts[part]);
-                }
-                return command;
-            }
-        }
-        return null;
-    }
+
 
 
     private void hideCompletions()
@@ -487,40 +430,5 @@ public class CommandEntryPanel extends JPanel implements Disposable
         return "";
     }
 
-    private String[] complete(CommandLine commandLine, String input, int cursorPosition)
-    {
-        if (commandLine != null) {
 
-            String[] parts = input.split(" ");
-            int argIndex = 0;
-            int positionInArg = 0;
-            //figure out argIndex
-            for (int i = 1; i < input.length(); i++){
-                char c = input.charAt(i);
-                char prev = input.charAt(i-1);
-                if (c == ' ' &&  prev != ' '){
-                    argIndex++;
-                    positionInArg = 0;
-                } else if (c != ' '){
-                    positionInArg++;
-                }
-            }
-
-            ArrayList<CharSequence> longResults = new ArrayList<>();
-            System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
-            picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
-
-            for (int i = 0; i < longResults.size(); i++) {
-                longResults.set(i, input + longResults.get(i));
-            }
-
-            if (longResults.isEmpty()){
-                longResults.add(input);
-            }
-
-            return longResults.toArray(new String[0]);
-        }
-
-        return null;
-    }
 }
