@@ -30,14 +30,12 @@ public class RunCommand implements SoarCommand
     {
         this.controller = controller;
         this.tAgent = tAgent;
-        this.agent = tAgent.getAgent();
     }
     
     public RunCommand(ThreadedAgent tAgent)
     {
         this.controller = null;
         this.tAgent = tAgent;
-        this.agent = tAgent.getAgent();
     }
     
     public RunCommand(Agent agent)
@@ -50,6 +48,12 @@ public class RunCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
+        // The agent is set here instead of in the constructor because the
+        // Threaded Agent may not have an agent when this class is constructed
+        if (tAgent != null)
+        {
+            this.agent = tAgent.getAgent();
+        }
         Utils.parseAndRun(agent, new Run(controller, tAgent, agent), args);
         
         return "";
