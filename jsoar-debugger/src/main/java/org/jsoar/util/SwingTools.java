@@ -204,7 +204,7 @@ public class SwingTools {
                 resource.height = (int) (resource.height * scale);
                 defaults.put(obj, resource);
             } else {
-                System.out.println("couldn't format " + current.getClass()+": "+current);
+//                System.out.println("couldn't format " + current.getClass()+": "+current);
             }
         }
     }

@@ -26,7 +26,7 @@ import java.util.prefs.Preferences;
 public class CommandEntryPanel extends JPanel implements Disposable
 {
     private static final long serialVersionUID = 667991263123343775L;
-    private static final long COMPLETION_DELAY = 250;
+    private static final long COMPLETION_DELAY = 500;
 
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel model = new DefaultComboBoxModel();
@@ -104,15 +104,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         this.add(field, BorderLayout.CENTER);
 
         field.setEditable(true);
-        field.getEditor().addActionListener(new ActionListener()
-        {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                execute();
-            }
-        });
+        field.getEditor().addActionListener(e -> execute());
         field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
 
         completions = new JWindow(debugger.frame);
@@ -137,8 +129,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         final JTextField editorComponent = (JTextField) field.getEditor().getEditorComponent();
         editorComponent.getDocument().addDocumentListener(new DocumentListener()
         {
-            final int DELAY = 300;
-            long lastTimestamp = System.currentTimeMillis();
             @Override
             public void insertUpdate(DocumentEvent e)
             {
@@ -329,7 +319,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         int yLoc = completions.getY();
         int xLoc = completions.getX() + completions.getWidth();
 
-        JToolTip toolTip = new JToolTip();
         String help = getHelp(commandLine);
 
         if (tooltipPopup != null) {
@@ -338,6 +327,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
 
         if (help != null && !help.isEmpty()) {
+            JToolTip toolTip = new JToolTip();
             toolTip.setTipText(help);
             PopupFactory popupFactory = PopupFactory.getSharedInstance();
             tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
