@@ -6,7 +6,6 @@
 package org.jsoar.debugger;
 
 import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXPanel;
 import org.jsoar.util.commands.SoarCommandCompletion;
 import picocli.CommandLine;
 
@@ -27,6 +26,7 @@ import java.util.prefs.Preferences;
 public class CommandEntryPanel extends JPanel implements Disposable
 {
     private static final long serialVersionUID = 667991263123343775L;
+    private static final long COMPLETION_DELAY = 250;
 
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel model = new DefaultComboBoxModel();
@@ -88,6 +88,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     };
     private Popup tooltipPopup;
     private final JScrollPane completionsScrollPane = new JScrollPane();
+    private long lastInputTimestamp = System.currentTimeMillis();
 
     /**
      * Construct the panel with the given debugger
@@ -136,11 +137,15 @@ public class CommandEntryPanel extends JPanel implements Disposable
         final JTextField editorComponent = (JTextField) field.getEditor().getEditorComponent();
         editorComponent.getDocument().addDocumentListener(new DocumentListener()
         {
+            final int DELAY = 300;
+            long lastTimestamp = System.currentTimeMillis();
             @Override
             public void insertUpdate(DocumentEvent e)
             {
+
                 int position = editorComponent.getCaretPosition();
-                updateCompletions(field.getEditor().getItem().toString(),position);
+                updateCompletionsDelay(field.getEditor().getItem().toString(), position);
+
             }
 
             @Override
@@ -157,7 +162,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             public void changedUpdate(DocumentEvent e)
             {
                 int position = editorComponent.getCaretPosition();
-                updateCompletions(field.getEditor().getItem().toString(),position);
+                updateCompletionsDelay(field.getEditor().getItem().toString(),position);
             }
         });
 
@@ -258,8 +263,31 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
+    private void updateCompletionsDelay(String command, int cursorPosition){
+        if (!completionsShowing) {
+            new Thread(() ->
+            {
+                lastInputTimestamp = System.currentTimeMillis();
+                try {
+                    Thread.sleep(COMPLETION_DELAY);
+                } catch (InterruptedException ignored) {
+                }
+                long time = System.currentTimeMillis();
+                if (lastInputTimestamp + COMPLETION_DELAY <= time) {
+                    SwingUtilities.invokeLater(() ->
+                            updateCompletions(command, cursorPosition));
+                }
+            }).start();
+        } else {
+            updateCompletions(command, cursorPosition);
+        }
+    }
+
     private void updateCompletions(String command, int cursorPosition)
     {
+
+
+
         command = command.trim();
         String[] commands = null;
         if (!command.isEmpty()) {
