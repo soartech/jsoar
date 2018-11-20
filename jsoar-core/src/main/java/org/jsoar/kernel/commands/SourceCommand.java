@@ -89,7 +89,7 @@ public class SourceCommand implements SoarCommand
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
     }
     
-    /*package*/ DirStackEntry getWorkingDirectoryRaw()
+    /* package */ DirStackEntry getWorkingDirectoryRaw()
     {
         return workingDirectory;
     }
@@ -335,7 +335,7 @@ public class SourceCommand implements SoarCommand
         return FileTools.asUrl(s.substring(0, i) + "/");
     }
     
-    /*package*/ URL joinUrl(URL parent, String child)
+    /* package */ URL joinUrl(URL parent, String child)
     {
         final String s = parent.toExternalForm();
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);

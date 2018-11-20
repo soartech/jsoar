@@ -262,12 +262,10 @@ public class LoadCommand implements SoarCommand
         @ParentCommand
         Load parent; // injected by picocli
 
-        @Option(names={"-l", "--load", "-r", "--restore"}, arity="1", description="Required to load the file")
-        boolean load = false;
-        
-        @Parameters(description="File name")
+        @Option(names={"-l", "--load", "-r", "--restore"}, arity="1",
+                description="File name to load rete-net from")
         String fileName = null;
-        
+
         @Override
         public void run()
         {
