@@ -58,9 +58,9 @@ public class SourceCommand implements SoarCommand
      */
     private List<String> sourcedFiles = new ArrayList<String>();
     
-    private TopLevelState topLevelState;
-    private final SoarEventManager events;
-    private final SoarEventListener eventListener = new SoarEventListener()
+    /* package */ TopLevelState topLevelState;
+    /* package */ final SoarEventManager events;
+    /* package */ final SoarEventListener eventListener = new SoarEventListener()
     {
         @Override
         public void onEvent(SoarEvent event)
@@ -75,7 +75,7 @@ public class SourceCommand implements SoarCommand
             }
         }
     };
-    private String[] lastTopLevelCommand = null;
+    /* package */ String[] lastTopLevelCommand = null;
     
     public SourceCommand(SourceCommandAdapter interp, SoarEventManager events)
     {
@@ -407,7 +407,7 @@ public class SourceCommand implements SoarCommand
     }
     
     // This ain't pretty, but it's private and it works
-    /*package*/ static class DirStackEntry
+    /* package */ static class DirStackEntry
     {
         File file;
         URL url;
@@ -416,7 +416,7 @@ public class SourceCommand implements SoarCommand
         public DirStackEntry(URL url) { this.url = url; }
     }
     
-    private static class FileInfo
+    /* package */ static class FileInfo
     {
         final String name;
         final List<String> productionsAdded = new ArrayList<String>();
@@ -428,7 +428,7 @@ public class SourceCommand implements SoarCommand
         }
     }
     
-    private static class TopLevelState
+    /* package */ static class TopLevelState
     {
         final List<FileInfo> files = new ArrayList<FileInfo>();
         int totalProductionsAdded = 0;

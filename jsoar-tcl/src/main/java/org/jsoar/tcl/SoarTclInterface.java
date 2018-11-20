@@ -18,10 +18,12 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.LoadCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.ReteNetCommand;
+import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
@@ -139,6 +141,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand, agent));
         addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
+        
+        addCommand("load", new LoadCommand(sourceCommand, agent));
+        addCommand("save", new SaveCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
