@@ -260,6 +260,10 @@ public class Consistency
             if (DEBUG_CONSISTENCY_CHECK)
                 context.getPrinter().print("    No change Impasse: Returning TRUE\n");
             return true;
+        
+        default:
+            // do nothing
+            break;
         }
 
         context.getPrinter().warn("\n   After switch................");

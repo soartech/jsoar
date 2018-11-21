@@ -589,6 +589,9 @@ public class Rete
               case UNHASHED_MP_BNODE:
                 node.make_mp_bnode_left_unlinked();
                 break;
+              default:
+                // do nothing
+                break;
               } /* end of switch (node.node_type) */
             }
           }

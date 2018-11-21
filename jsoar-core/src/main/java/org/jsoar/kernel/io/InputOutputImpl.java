@@ -796,6 +796,10 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;
             lastOutputSet = null;
             break;
+        
+        default:
+            // do nothing
+            break;
         }
     }
 

@@ -1801,6 +1801,9 @@ public class Decider
             add_impasse_wme(id, predefined.impasse_symbol, predefined.no_change_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.none_symbol, null);
             break;
+        default:
+            // do nothing
+            break;
         }
         
         id.goalInfo.allow_bottom_up_chunks = true;
@@ -2863,6 +2866,9 @@ public class Decider
                 case IE_PRODS:
                     context.getPrinter().startNewLine().print("--- Change Working Memory (IE) ---\n");
                     // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
+                    break;
+                default:
+                    // do nothing
                     break;
                 }
                 // TODO xml_end_tag(thisAgent, kTagSubphase);
