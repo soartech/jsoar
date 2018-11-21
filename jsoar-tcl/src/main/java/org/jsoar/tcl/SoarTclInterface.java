@@ -342,9 +342,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
         if (command instanceof SoarTclCommandAdapter) {
             SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter) command;
-            if (commandAdapter == null) {
-                throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
-            }
             return commandAdapter.getSoarCommand();
         } else if (command instanceof SoarCommand){
             return (SoarCommand) command;
