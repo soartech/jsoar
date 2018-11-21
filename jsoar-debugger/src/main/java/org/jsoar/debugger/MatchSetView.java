@@ -136,7 +136,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             @Override
             public void finish(MatchSet result)
             {
-                entryList.setModel(SwingTools.addAll(new DefaultListModel(), result.getEntries()));
+                entryList.setModel(SwingTools.addAll(new DefaultListModel<MatchSetEntry>(), result.getEntries()));
                 wmeModel.setWmes(null);
                 
                 entryList.setSelectedIndex(0);
@@ -178,7 +178,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         private Font boldFont;
         
         @Override
-        public Component getListCellRendererComponent(JList list, Object value,
+        public Component getListCellRendererComponent(JList<?> list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus)
         {
             Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

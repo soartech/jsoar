@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.FileTools;
+import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -94,8 +95,10 @@ public class ProductionsResource extends BaseAgentResource
             return null;
         }
         final StringRepresentation rep = new StringRepresentation(result, MediaType.TEXT_PLAIN);
-        rep.setDownloadName(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".soar");
-        rep.setDownloadable(true);
+        if(rep.getDisposition() == null) { rep.setDisposition(new Disposition()); }
+        rep.getDisposition().setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
+        rep.getDisposition().setType(Disposition.TYPE_ATTACHMENT);
+        
         return rep;
     }
 }

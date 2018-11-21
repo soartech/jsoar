@@ -540,6 +540,7 @@ public class Production
         {
         case DECLARED_O_SUPPORT: printer.print("    :o-support\n"); break;
         case DECLARED_I_SUPPORT: printer.print("    :i-support\n"); break;
+        default: /* do nothing */ break;
         }
 
         if(interrupt)

@@ -1531,6 +1531,9 @@ public class RecognitionMemory
                     trace.startNewLine().print("--- Firing Productions (IE) For State At Depth %d ---",
                             decider.active_level);
                     break;
+                default:
+                    // do nothing
+                    break;
                 }
             }
         }

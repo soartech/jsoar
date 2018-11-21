@@ -29,12 +29,13 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private static final long COMPLETION_DELAY = 500;
 
     private final JSoarDebugger debugger;
-    private final DefaultComboBoxModel model = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
     private final JXComboBox field = new JXComboBox(model);
     private final JWindow completions;
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
+    @SuppressWarnings("serial")
     private final AbstractAction selectUpAction = new AbstractAction()
     {
         @Override
@@ -51,6 +52,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
+    @SuppressWarnings("serial")
     private final AbstractAction selectDownAction = new AbstractAction()
     {
         @Override
@@ -67,6 +69,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
+    @SuppressWarnings("serial")
     private final AbstractAction completeSelectedAction = new AbstractAction()
     {
         @Override
@@ -95,6 +98,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
      *
      * @param debugger
      */
+    @SuppressWarnings("serial")
     public CommandEntryPanel(JSoarDebugger debugger)
     {
         super(new BorderLayout());
@@ -218,14 +222,14 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                JList list = (JList)e.getSource();
+                JList<?> list = (JList<?>)e.getSource();
                 if (e.getClickCount() == 2) {
                     int selectedIndex = list.locationToIndex(e.getPoint());
                     useCompletion(selectedIndex);
                 }
             }
         });
-
+        
     }
 
     public void useCompletion(int selectedIndex)
@@ -397,6 +401,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
+    @SuppressWarnings("unchecked") // unfortunately, can't parameterize JXComboBox, even though it extends a generic type
     private void addCommand(String command)
     {
         field.removeItem(command);

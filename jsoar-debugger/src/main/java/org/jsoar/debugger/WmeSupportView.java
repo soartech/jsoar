@@ -166,7 +166,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             public void finish(WmeSupportInfo sourceInfo)
             {
                 source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
-                entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
+                entryList.setModel(SwingTools.addAll(new DefaultListModel<Support>(), sourceInfo.getSupports()));
                 wmeModel.setWmes(null);
                 wmeTable.packAll();
                 entryList.setSelectedIndex(0);
@@ -182,7 +182,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         private Font boldFont;
         
         @Override
-        public Component getListCellRendererComponent(JList list, Object value,
+        public Component getListCellRendererComponent(JList<?> list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus)
         {
             Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Collections;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
@@ -16,8 +17,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.adaptables.AbstractAdaptable;
-
-import com.google.common.collect.Iterators;
 
 /**
  * A dummy implementation of the {@link Wme} interface. Basically a container
@@ -96,7 +95,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
     @Override
     public Iterator<Preference> getPreferences()
     {
-        return Iterators.emptyIterator();
+        return Collections.emptyIterator();
     }
 
     /* (non-Javadoc)

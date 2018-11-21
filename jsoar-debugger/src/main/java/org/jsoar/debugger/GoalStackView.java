@@ -34,8 +34,8 @@ import org.jsoar.runtime.CompletionHandler;
 public class GoalStackView extends AbstractAdaptableView implements Refreshable
 {
     private final JSoarDebugger debugger;
-    private final DefaultListModel model = new DefaultListModel();
-    private final JList list = new JList(model) {
+    private final DefaultListModel<Entry> model = new DefaultListModel<>();
+    private final JList<Entry> list = new JList<Entry>(model) {
         private static final long serialVersionUID = -1363240384388636598L;
 
         public String getToolTipText(MouseEvent event)
@@ -45,7 +45,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         }  
     };
     
-    private final ListSelectionProvider selectionProvider = new ListSelectionProvider(list);
+    private final ListSelectionProvider<Entry> selectionProvider = new ListSelectionProvider<>(list);
 
     public GoalStackView(JSoarDebugger debugger)
     {
@@ -155,7 +155,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     private void updateModel(List<Entry> newStack)
     {
         model.clear();
-        for(Object g : newStack)
+        for(Entry g : newStack)
         {
             model.addElement(g);
         }
@@ -182,7 +182,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
          * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
          */
         @Override
-        public Component getListCellRendererComponent(JList list, Object value,
+        public Component getListCellRendererComponent(JList<?> list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus)
         {
             final JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,

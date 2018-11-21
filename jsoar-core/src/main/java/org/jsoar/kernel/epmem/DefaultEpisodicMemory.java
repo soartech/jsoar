@@ -6343,7 +6343,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
                         value = epmem_reverse_hash( resultSet.getLong( 3 + 1 ));
                         
-                        Slot filterSlot = null;
                         boolean should_install;
                         if (filter == null)
                             should_install = true;
@@ -7103,7 +7102,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     LinkedList<EpisodicMemoryIdPair> p = epmem_id_replacement.get(w.epmem_id);
                     p.addFirst(new EpisodicMemoryIdPair(w.value.asIdentifier().epmem_id, w.epmem_id));
-                    epmem_id_replacement.remove(p);
+                    epmem_id_replacement.remove(w.epmem_id);
                 }
             }
           

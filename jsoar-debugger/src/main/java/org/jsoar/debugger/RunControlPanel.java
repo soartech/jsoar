@@ -18,6 +18,7 @@ import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.StopAction;
+import org.jsoar.kernel.RunType;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -29,7 +30,7 @@ public class RunControlPanel extends JPanel
     private static final long serialVersionUID = 4339204720269679671L;
 
     private JTextField countField;
-    private JComboBox stepTypeCombo;
+    private JComboBox<RunType> stepTypeCombo;
     
     public RunControlPanel(Adaptable debuggerIn)
     {

@@ -122,6 +122,9 @@ public class Instantiation implements Traceable
                 // this should be a problem in jsoar, so I'm just printing the WME. Yay.
                 formatter.format(" %s", wme);
                 break;
+            default:
+                // do nothing
+                break;
             }
         }
     }

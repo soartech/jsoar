@@ -1,25 +1,37 @@
 package org.jsoar.debugger.syntax.ui;
 
-import com.google.re2j.Pattern;
-import com.google.re2j.PatternSyntaxException;
-import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXTable;
-import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.debugger.syntax.SyntaxPattern;
-import org.jsoar.debugger.syntax.SyntaxSettings;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Set;
 
+import org.jdesktop.swingx.JXTable;
+import org.jsoar.debugger.JSoarDebugger;
+import org.jsoar.debugger.syntax.SyntaxPattern;
+
+import com.google.re2j.Pattern;
+import com.google.re2j.PatternSyntaxException;
+
+@SuppressWarnings("serial")
 public class SyntaxPatternComponent extends JPanel {
+    @SuppressWarnings("unused")
     private Set<String> styleNames;
     private final SyntaxPattern pattern;
     private JSoarDebugger debugger;
@@ -135,7 +147,7 @@ public class SyntaxPatternComponent extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 SyntaxPattern testSyntax = new SyntaxPattern();
                 testSyntax.setRegex(txtRegex.getText());
-                testSyntax.expandMacros(debugger);
+                testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);
                 String text = testSyntax.getExpandedRegex();
                 try {
                     Pattern p = Pattern.compile(text);

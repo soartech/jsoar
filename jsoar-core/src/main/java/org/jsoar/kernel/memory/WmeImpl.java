@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Collections;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
@@ -20,8 +21,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.adaptables.AbstractAdaptable;
-
-import com.google.common.collect.Iterators;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -329,7 +328,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public Iterator<Wme> getChildren()
     {
         Identifier valueAsId = value.asIdentifier();
-        return valueAsId != null ? valueAsId.getWmes() : Iterators.<Wme>emptyIterator();
+        return valueAsId != null ? valueAsId.getWmes() : Collections.emptyIterator();
     }
 
     /* (non-Javadoc)

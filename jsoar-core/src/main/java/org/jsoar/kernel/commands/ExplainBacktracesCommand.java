@@ -1,6 +1,5 @@
 package org.jsoar.kernel.commands;
 
-import org.apache.commons.math3.analysis.function.Exp;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Explain;

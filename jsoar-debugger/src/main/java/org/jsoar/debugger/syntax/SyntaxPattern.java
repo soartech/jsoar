@@ -22,6 +22,7 @@ public class SyntaxPattern {
     private String comment ="";
     private String regex;
     private List<String> components;
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(SyntaxConfigurator.class);
     private boolean enabled = true;
     private String expandedRegex;

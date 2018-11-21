@@ -7,7 +7,6 @@ package org.jsoar.soarunit.ui;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;

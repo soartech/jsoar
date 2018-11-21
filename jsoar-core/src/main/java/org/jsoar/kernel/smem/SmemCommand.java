@@ -14,7 +14,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.Utils;
-import org.jsoar.kernel.commands.RunCommand.Run;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;

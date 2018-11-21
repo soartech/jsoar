@@ -75,6 +75,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
         private volatile boolean flushing = false;
+        @SuppressWarnings("unused")
         private volatile boolean printing = false;
         
         @Override
@@ -499,6 +500,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         debugger.getAgent().execute(call, null);
     }
     
+    @SuppressWarnings("serial")
     private void showPopupMenu(MouseEvent e)
     {
         final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
