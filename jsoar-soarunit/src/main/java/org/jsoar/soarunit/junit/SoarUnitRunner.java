@@ -2,6 +2,7 @@ package org.jsoar.soarunit.junit;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
@@ -83,7 +84,7 @@ public class SoarUnitRunner extends Runner
         final TestRunner testRunner = new TestRunner(agentFactory, out, exec);
         for (FrameworkMethod method : annotatedMethods)
         {
-            Description testCaseDescription = Description.createSuiteDescription(method.getName(), null);
+            Description testCaseDescription = Description.createSuiteDescription(method.getName(), (Annotation[])null);
             rootDescription.addChild(testCaseDescription);
             SoarUnitTestFile testFile = method.getAnnotation(SoarUnitTestFile.class);
             for(URL url : getResources(testFile.url()))
