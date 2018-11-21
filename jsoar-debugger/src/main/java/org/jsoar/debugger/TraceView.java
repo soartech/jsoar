@@ -499,6 +499,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         debugger.getAgent().execute(call, null);
     }
     
+    @SuppressWarnings("serial")
     private void showPopupMenu(MouseEvent e)
     {
         final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());

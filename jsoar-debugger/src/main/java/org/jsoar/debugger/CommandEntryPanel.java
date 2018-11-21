@@ -35,6 +35,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
+    @SuppressWarnings("serial")
     private final AbstractAction selectUpAction = new AbstractAction()
     {
         @Override
@@ -51,6 +52,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
+    @SuppressWarnings("serial")
     private final AbstractAction selectDownAction = new AbstractAction()
     {
         @Override
@@ -67,6 +69,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
+    @SuppressWarnings("serial")
     private final AbstractAction completeSelectedAction = new AbstractAction()
     {
         @Override
@@ -95,6 +98,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
      *
      * @param debugger
      */
+    @SuppressWarnings("serial")
     public CommandEntryPanel(JSoarDebugger debugger)
     {
         super(new BorderLayout());

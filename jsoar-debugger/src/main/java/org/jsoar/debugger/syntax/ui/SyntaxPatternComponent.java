@@ -29,6 +29,7 @@ import org.jsoar.debugger.syntax.SyntaxPattern;
 import com.google.re2j.Pattern;
 import com.google.re2j.PatternSyntaxException;
 
+@SuppressWarnings("serial")
 public class SyntaxPatternComponent extends JPanel {
     private Set<String> styleNames;
     private final SyntaxPattern pattern;

@@ -123,6 +123,7 @@ public class SoarUnitRunner extends Runner
                                 {
                                     runNotifications.add(runNotifierExec.submit(new Callable<Void>()
                                     {
+                                        @SuppressWarnings("serial")
                                         @Override
                                         public Void call() throws Exception
                                         {
