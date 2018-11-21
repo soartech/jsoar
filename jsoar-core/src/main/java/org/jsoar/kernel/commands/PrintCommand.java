@@ -47,6 +47,8 @@ public class PrintCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
+        // 'this' is passed to the Print class to provide access to
+        // PrintCommand's variables and functions
         Utils.parseAndRun(agent, new Print(agent, this), args);
         
         return "";

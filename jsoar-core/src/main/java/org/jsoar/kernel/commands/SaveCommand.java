@@ -76,10 +76,7 @@ public class SaveCommand implements SoarCommand
         @ParentCommand
         Save parent; // injected by picocli
 
-        @Option(names={"-s", "--save"}, description="Required to save the file")
-        boolean save = false;
-        
-        @Parameters(description="File name")
+        @Option(names={"-s", "--save"}, arity="1", description="File name to save rete-net to")
         String fileName = null;
         
         @Override

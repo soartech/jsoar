@@ -56,6 +56,7 @@ public class EpmemCommand implements SoarCommand
 
     public EpmemCommand(Adaptable context)
     {
+        // TODO: There's probably a better way to get the agent from the context...
         this.agent = (Agent) context;
     }
 
