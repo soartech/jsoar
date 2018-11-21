@@ -7102,7 +7102,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     LinkedList<EpisodicMemoryIdPair> p = epmem_id_replacement.get(w.epmem_id);
                     p.addFirst(new EpisodicMemoryIdPair(w.value.asIdentifier().epmem_id, w.epmem_id));
-                    epmem_id_replacement.remove(p);
+                    epmem_id_replacement.remove(w.epmem_id);
                 }
             }
           
