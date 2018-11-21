@@ -98,10 +98,14 @@ public class DecisionCycle
     private EnumPropertyProvider<Phase> stopPhase = new EnumPropertyProvider<Phase>(SoarProperties.STOP_PHASE);
     
     int e_cycles_this_d_cycle;
+    @SuppressWarnings("unused")
     private int run_phase_count;
+    @SuppressWarnings("unused")
     private int run_elaboration_count;
+    @SuppressWarnings("unused")
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
+    @SuppressWarnings("unused")
     private int run_generated_output_count;
     public LongPropertyProvider d_cycle_count = new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
     private LongPropertyProvider decision_phases_count = new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);

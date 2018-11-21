@@ -31,6 +31,7 @@ import com.google.re2j.PatternSyntaxException;
 
 @SuppressWarnings("serial")
 public class SyntaxPatternComponent extends JPanel {
+    @SuppressWarnings("unused")
     private Set<String> styleNames;
     private final SyntaxPattern pattern;
     private JSoarDebugger debugger;
@@ -146,7 +147,7 @@ public class SyntaxPatternComponent extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 SyntaxPattern testSyntax = new SyntaxPattern();
                 testSyntax.setRegex(txtRegex.getText());
-                testSyntax.expandMacros(debugger);
+                testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);
                 String text = testSyntax.getExpandedRegex();
                 try {
                     Pattern p = Pattern.compile(text);

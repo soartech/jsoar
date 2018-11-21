@@ -6343,7 +6343,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
                         value = epmem_reverse_hash( resultSet.getLong( 3 + 1 ));
                         
-                        Slot filterSlot = null;
                         boolean should_install;
                         if (filter == null)
                             should_install = true;

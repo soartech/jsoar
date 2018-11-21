@@ -78,9 +78,7 @@ public class SoarUnitRunner extends Runner
             POOL_SIZE = 1;
         }
 
-        List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
         List<FrameworkMethod> annotatedMethods = testClass.getAnnotatedMethods(SoarUnitTestFile.class);
-        final AtomicInteger index = new AtomicInteger(0);
         this.rootDescription = Description.createSuiteDescription(clazz);
         final TestRunner testRunner = new TestRunner(agentFactory, out, exec);
         for (FrameworkMethod method : annotatedMethods)

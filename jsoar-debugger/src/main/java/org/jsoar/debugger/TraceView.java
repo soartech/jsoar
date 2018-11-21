@@ -75,6 +75,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
         private volatile boolean flushing = false;
+        @SuppressWarnings("unused")
         private volatile boolean printing = false;
         
         @Override

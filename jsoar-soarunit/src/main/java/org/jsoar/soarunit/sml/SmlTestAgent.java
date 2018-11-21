@@ -287,12 +287,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count",this.getCycleCount());
     }
     
-    private void initializeRhsFunctions()
-    {
-        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
-        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
-    }
-
     private void loadTestCode(Test test) throws SoarException
     {
         try {
