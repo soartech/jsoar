@@ -53,7 +53,7 @@ public class SyntaxPatternComponent extends JPanel {
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        constraints.gridwidth=2;
+        constraints.gridwidth=3;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         txtRegex.setColumns(45);
@@ -74,6 +74,12 @@ public class SyntaxPatternComponent extends JPanel {
         chkEnabled.setSelected(pattern.isEnabled());
         this.add(chkEnabled, constraints);
 
+        final JCheckBox chkImportant = new JCheckBox("Always Instant?");
+        constraints.gridx = 2;
+        constraints.gridy = 2;
+        constraints.anchor = GridBagConstraints.LINE_START;
+        chkEnabled.setSelected(pattern.isImportant());
+        this.add(chkImportant, constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -83,7 +89,7 @@ public class SyntaxPatternComponent extends JPanel {
 
         //comment
         constraints = new GridBagConstraints();
-        constraints.gridx = 2;
+        constraints.gridx = 3;
         constraints.gridy = 0;
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(new JLabel("Comment"), constraints);
@@ -91,7 +97,7 @@ public class SyntaxPatternComponent extends JPanel {
         //syntax pattern comment
         final JTextArea txtComment = new JTextArea(pattern.getComment());
         constraints = new GridBagConstraints();
-        constraints.gridx = 2;
+        constraints.gridx = 3;
         constraints.gridy = 1;
         constraints.gridheight = 3;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -104,7 +110,7 @@ public class SyntaxPatternComponent extends JPanel {
 
         //capture groups
         constraints = new GridBagConstraints();
-        constraints.gridx = 3;
+        constraints.gridx = 4;
         constraints.gridy = 0;
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(new JLabel("Capture Groups"), constraints);
@@ -113,11 +119,11 @@ public class SyntaxPatternComponent extends JPanel {
         //combo box column
         resetStyleNames(styleNames);
         constraints = new GridBagConstraints();
-        constraints.gridx = 3;
+        constraints.gridx = 4;
         constraints.gridy = 1;
         constraints.gridheight = 3;
         constraints.fill = GridBagConstraints.BOTH;
-        tblCaptureGroups.packAll();
+//        tblCaptureGroups.packAll();
         JPanel jPanel = new JPanel(new BorderLayout());
         jPanel.add(tblCaptureGroups, BorderLayout.CENTER);
         jPanel.add(tblCaptureGroups.getTableHeader(), BorderLayout.NORTH);
@@ -158,6 +164,15 @@ public class SyntaxPatternComponent extends JPanel {
                 pattern.setEnabled(chkEnabled.isSelected());
             }
         });
+        chkImportant.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                pattern.setImportant(chkImportant.isSelected());
+            }
+        });
+
         txtComment.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -180,8 +195,10 @@ public class SyntaxPatternComponent extends JPanel {
     public void resetStyleNames(Set<String> styleNames) {
         TableColumn styleColumn = tblCaptureGroups.getColumnModel().getColumn(1);
 
-        JXComboBox comboBox = new JXComboBox();
-
+        JComboBox<String> comboBox = new JComboBox<>();
+        comboBox.addPopupMenuListener(new ExpandingWidthComboBoxListener(true,false));
+//        comboBox.setPrototypeDisplayValue("Use this for width because we need a fixed width");//will use this string to set max width of the combo box
+        comboBox.setMaximumSize( comboBox.getPreferredSize() );
         for (String name : styleNames) {
             comboBox.addItem(name);
         }

@@ -189,7 +189,7 @@ public class ParseSelectedText
 	protected final static int kCurrToken = 1 ;
 	protected final static int kNextToken = 2 ;
 	protected String[] m_Tokens = new String[3] ;
-	protected final char[] kWhiteSpaceChars = new char[] { ' ', '\n', '\r', ')', '(', '{', '}' } ;
+	protected final char[] kWhiteSpaceChars = new char[] { '|', '\n', '\r', ')', '(', '{', '}' } ;
 
 	// The raw values
 	protected String 	m_FullText ;

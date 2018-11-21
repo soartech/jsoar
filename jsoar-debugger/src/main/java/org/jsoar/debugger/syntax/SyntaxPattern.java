@@ -25,6 +25,7 @@ public class SyntaxPattern {
     private static final Logger logger = LoggerFactory.getLogger(SyntaxConfigurator.class);
     private boolean enabled = true;
     private String expandedRegex;
+    private boolean important;
 
     public SyntaxPattern() {
         components = new LinkedList<>();
@@ -202,6 +203,16 @@ public class SyntaxPattern {
             result = result.replace(String.valueOf(c), "\\" + c);
         }
         return result;
+    }
+
+    public boolean isImportant()
+    {
+        return important;
+    }
+
+    public void setImportant(boolean important)
+    {
+        this.important = important;
     }
 }
 

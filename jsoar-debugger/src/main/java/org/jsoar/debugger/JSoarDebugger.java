@@ -141,17 +141,44 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private void initialize(final JXFrame parentFrame, ThreadedAgent proxy)
     {
         logger.info("Initializing debugger for agent '" + proxy + "'");
-        parentFrame.addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                if (e.isControlDown()){
+        final float scaleUpFactor = 4.0f / 3.0f;
+        final float scaleDownFactor = .75f;
+        parentFrame.addMouseWheelListener(e ->
+        {
+            if (e.isControlDown()){
+                float scaleFactor = 1.0f;
+                if (e.getWheelRotation() < 0) {
+                    scaleFactor = scaleUpFactor;
+                } else if (e.getWheelRotation() > 0) {
+                    scaleFactor = scaleDownFactor;
+                }
+                fontScale = fontScale * scaleFactor;
+                setFontScale(scaleFactor, parentFrame.getComponents());
+                SwingTools.setFontScale(scaleFactor);
+                parentFrame.repaint();
+            }
+        });
 
-                    if (e.getWheelRotation() < 0) {
-                        setFontScale(4.0f/3.0f, parentFrame.getComponents());
-                    } else if (e.getWheelRotation() > 0) {
-                        setFontScale(.75f, parentFrame.getComponents());
+        parentFrame.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.isControlDown()) {
+                    float scaleFactor = 1.0f;
+                    if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_EQUALS){
+                        scaleFactor = scaleUpFactor;
+                    } else if (e.getKeyCode() == KeyEvent.VK_MINUS){
+                        scaleFactor = scaleDownFactor;
+                    } else {
+                        super.keyPressed(e);
                     }
+                    fontScale = fontScale * scaleFactor;
+                    setFontScale(scaleFactor, parentFrame.getComponents());
+                    SwingTools.setFontScale(scaleFactor);
                     parentFrame.repaint();
+                } else {
+                    super.keyPressed(e);
                 }
             }
         });
@@ -279,8 +306,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         update(false);
     }
 
-    private void setFontScale(float scaleFactor, Component[] components)
+    public static void setFontScale(float scaleFactor, Component[] components)
     {
+//        SwingTools.setFontScale(scaleFactor);
+
         for(Component c: components){
             if (c instanceof  Container){
                 setFontScale(scaleFactor,((Container) c).getComponents());
