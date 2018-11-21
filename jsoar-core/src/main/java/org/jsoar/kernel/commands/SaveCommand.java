@@ -15,7 +15,6 @@ import org.jsoar.util.commands.SoarCommandContext;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 /**
