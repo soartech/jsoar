@@ -171,7 +171,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
     @Override
     public void popupMenuWillBecomeVisible(PopupMenuEvent e)
     {
-        JComboBox comboBox = (JComboBox)e.getSource();
+        JComboBox<?> comboBox = (JComboBox<?>)e.getSource();
 
         if (comboBox.getItemCount() == 0) return;
 
@@ -223,7 +223,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
      */
     protected void popupWider(BasicComboPopup popup)
     {
-        JList list = popup.getList();
+        JList<?> list = popup.getList();
 
         //  Determine the maximimum width to use:
         //  a) determine the popup preferred width
@@ -299,7 +299,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
      */
     protected JScrollPane getScrollPane(BasicComboPopup popup)
     {
-        JList list = popup.getList();
+        JList<?> list = popup.getList();
         Container c = SwingUtilities.getAncestorOfClass(JScrollPane.class, list);
 
         return (JScrollPane)c;
@@ -312,7 +312,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
     protected int getScrollBarWidth(BasicComboPopup popup, JScrollPane scrollPane)
     {
         int scrollBarWidth = 0;
-        JComboBox comboBox = (JComboBox)popup.getInvoker();
+        JComboBox<?> comboBox = (JComboBox<?>)popup.getInvoker();
 
         if (comboBox.getItemCount() > comboBox.getMaximumRowCount())
         {
@@ -329,7 +329,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
      */
     protected boolean horizontalScrollBarWillBeVisible(BasicComboPopup popup, JScrollPane scrollPane)
     {
-        JList list = popup.getList();
+        JList<?> list = popup.getList();
         int scrollBarWidth = getScrollBarWidth(popup, scrollPane);
         int popupWidth = list.getPreferredSize().width + scrollBarWidth;
 

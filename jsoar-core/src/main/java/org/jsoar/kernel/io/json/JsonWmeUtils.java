@@ -214,7 +214,6 @@ public class JsonWmeUtils
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static JSONObject parse(Identifier root){
         return parse(root, false);
     }

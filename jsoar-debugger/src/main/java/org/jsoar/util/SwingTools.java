@@ -65,8 +65,8 @@ public class SwingTools {
      * @param items the items to add
      * @return the list model
      */
-    public static DefaultListModel addAll(DefaultListModel model, Collection<?> items) {
-        for (Object o : items) {
+    public static <T> DefaultListModel<T> addAll(DefaultListModel<T> model, Collection<T> items) {
+        for (T o : items) {
             model.addElement(o);
         }
         return model;
@@ -168,7 +168,7 @@ public class SwingTools {
         });
     }
 
-    public static void addSelectAllOnFocus(final JComboBox combo) {
+    public static void addSelectAllOnFocus(final JComboBox<?> combo) {
         addSelectAllOnFocus((JTextComponent) combo.getEditor().getEditorComponent());
     }
 
@@ -183,7 +183,7 @@ public class SwingTools {
 
     public static void setFontScale(float scale) {
         UIDefaults defaults = UIManager.getLookAndFeel().getDefaults();
-        Enumeration newKeys = defaults.keys();
+        Enumeration<Object> newKeys = defaults.keys();
 
         while (newKeys.hasMoreElements()) {
             Object obj = newKeys.nextElement();

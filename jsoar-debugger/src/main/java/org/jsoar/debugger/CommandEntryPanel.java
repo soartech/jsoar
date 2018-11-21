@@ -29,7 +29,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private static final long COMPLETION_DELAY = 500;
 
     private final JSoarDebugger debugger;
-    private final DefaultComboBoxModel model = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
     private final JXComboBox field = new JXComboBox(model);
     private final JWindow completions;
 
@@ -218,14 +218,14 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                JList list = (JList)e.getSource();
+                JList<?> list = (JList<?>)e.getSource();
                 if (e.getClickCount() == 2) {
                     int selectedIndex = list.locationToIndex(e.getPoint());
                     useCompletion(selectedIndex);
                 }
             }
         });
-
+        
     }
 
     public void useCompletion(int selectedIndex)
@@ -397,6 +397,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
+    @SuppressWarnings("unchecked") // unfortunately, can't parameterize JXComboBox, even though it extends a generic type
     private void addCommand(String command)
     {
         field.removeItem(command);

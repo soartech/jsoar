@@ -56,7 +56,7 @@ public class SoarUnitRunner extends Runner
     private final Collection<ListenableFuture<Void>> runNotifications = Collections.synchronizedCollection(Lists.<ListenableFuture<Void>>newArrayList());
     private final List<String> sourceIncludes = Lists.newArrayList();
 
-    public SoarUnitRunner(Class clazz) throws IOException, SoarException
+    public SoarUnitRunner(Class<?> clazz) throws IOException, SoarException
     {
         this.testClass = new TestClass(clazz);
         if (testClass.getAnnotation(SoarInterpreter.class) != null)

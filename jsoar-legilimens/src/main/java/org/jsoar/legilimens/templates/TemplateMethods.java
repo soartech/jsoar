@@ -29,7 +29,6 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("rawtypes")
 		@Override
         public Object exec(List args) throws TemplateModelException
         {
@@ -43,7 +42,6 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("rawtypes")
 		@Override
         public Object exec(List args) throws TemplateModelException
         {
@@ -66,7 +64,6 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("rawtypes")
 		@Override
         public Object exec(List args) throws TemplateModelException
         {
