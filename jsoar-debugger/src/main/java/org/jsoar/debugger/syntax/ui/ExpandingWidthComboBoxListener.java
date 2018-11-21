@@ -23,7 +23,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
     private JScrollPane scrollPane;
 
     /**
-     *  Convenience constructore to allow the display of a horizontal scrollbar
+     *  Convenience constructor to allow the display of a horizontal scrollbar
      *  when required.
      */
     public ExpandingWidthComboBoxListener()
