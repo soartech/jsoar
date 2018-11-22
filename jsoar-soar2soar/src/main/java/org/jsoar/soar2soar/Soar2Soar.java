@@ -108,7 +108,7 @@ public class Soar2Soar
     private void doRunCommand(AgentRunController controller, String line) throws SoarException
     {
         final String args[] = line.split("\\s+", 0);
-        final RunCommand runCommand = new RunCommand(controller, ea.getAgent());
+        final RunCommand runCommand = new RunCommand(controller);
         runCommand.execute(/* TODO SoarCommandContext */ DefaultSoarCommandContext.empty(), args);
     }
 

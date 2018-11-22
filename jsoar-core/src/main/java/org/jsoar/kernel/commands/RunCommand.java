@@ -1,17 +1,18 @@
 package org.jsoar.kernel.commands;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "run" command.
@@ -20,49 +21,25 @@ import picocli.CommandLine.Parameters;
 public class RunCommand implements SoarCommand
 {
     private final AgentRunController controller;
-    private final ThreadedAgent tAgent;
-    private Agent agent;
     
-    // The "run" command can be executed by an AgentRunController, a ThreadedAgent,
-    // or an Agent, so a constructor for each is required
-    
-    public RunCommand(AgentRunController controller, ThreadedAgent tAgent)
+    public RunCommand(AgentRunController controller)
     {
         this.controller = controller;
-        this.tAgent = tAgent;
-    }
-    
-    public RunCommand(ThreadedAgent tAgent)
-    {
-        this.controller = null;
-        this.tAgent = tAgent;
-    }
-    
-    public RunCommand(Agent agent)
-    {
-        this.controller = null;
-        this.tAgent = null;
-        this.agent = agent;
     }
     
     @Override
     public Object getCommand()
     {
-        return new Run(controller, tAgent, agent);
+        return new Run(controller);
     }
     
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        // The agent is set here instead of in the constructor because the
-        // Threaded Agent may not have an agent when this class is constructed
-        if (tAgent != null)
-        {
-            this.agent = tAgent.getAgent();
-        }
-        Utils.parseAndRun(agent, new Run(controller, tAgent, agent), args);
-        
-        return "";
+        // because we just have a RunController, not an agent, we capture the result in a string and return it
+        // something futher up will print the result to the trace
+        final String result = Utils.parseAndRun(new Run(controller), args);
+        return result;
     }
 
     
@@ -71,15 +48,14 @@ public class RunCommand implements SoarCommand
     static public class Run implements Runnable
     {
         private final AgentRunController controller;
-        private final ThreadedAgent tAgent;
-        private Agent agent;
         
-        public Run(AgentRunController controller, ThreadedAgent tAgent, Agent agent)
+        public Run(AgentRunController controller)
         {
             this.controller = controller;
-            this.tAgent = tAgent;
-            this.agent = agent;
         }
+        
+        @Spec
+        CommandSpec spec;
         
         @Option(names={"-d", "--decision"}, description="Run Soar for <count> decision cycles")
         boolean runDecision = false;
@@ -104,6 +80,8 @@ public class RunCommand implements SoarCommand
         @Override
         public void run()
         {
+            validateArgs();
+            
             RunType type = null;
 
             if (runDecision)
@@ -136,17 +114,20 @@ public class RunCommand implements SoarCommand
                 count = 1;
             }
             
-            if (controller != null)
-            {
-                controller.runFor(count, type);
+            controller.runFor(count, type);
+        }
+        
+        void validateArgs() {
+            // check that if a runtype is provided, only one is provided
+            if(runDecision || runElaboration || runPhase || runForever || runOutput) {
+                if(!(runDecision ^ runElaboration ^ runPhase ^ runForever ^ runOutput)) {
+                    throw new ParameterException(spec.commandLine(), "Multiple run types specified");
+                }
             }
-            else if (tAgent != null)
-            {
-                tAgent.runFor(count, type);
-            }
-            else
-            {
-                agent.runFor(count, type);
+            
+            // if specified, count must be positive
+            if(count != null && count <= 0) {
+                throw new ParameterException(spec.commandLine(), "Expected count larger than 0 for run command, got " + count);
             }
         }
     }
