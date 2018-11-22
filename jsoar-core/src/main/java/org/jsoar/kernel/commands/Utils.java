@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.output.WriterOutputStream;
 import org.jsoar.kernel.Agent;
@@ -34,7 +35,7 @@ public class Utils
         parseAndRun(command, args, ps);
     }
     
-    public static void parseAndRun(Object command, String[] args, PrintStream ps) {
+    public static List<Object> parseAndRun(Object command, String[] args, PrintStream ps) {
         
         CommandLine commandLine = new CommandLine(command);
         
@@ -46,7 +47,7 @@ public class Utils
             commandLine.setUnmatchedOptionsArePositionalParams(true);
         }
         
-        commandLine.parseWithHandlers(
+        return commandLine.parseWithHandlers(
                 new RunLast().useOut(ps),
                 CommandLine.defaultExceptionHandler().useErr(ps),
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
@@ -55,7 +56,10 @@ public class Utils
     public static String parseAndRun(Object command, String[] args) throws SoarException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
-            parseAndRun(command, args, ps);
+            List<Object> results = parseAndRun(command, args, ps);
+            for(Object o : results) {
+                ps.print(o.toString());
+            }
         }
         catch (UnsupportedEncodingException e)
         {
