@@ -406,11 +406,13 @@ public class PrintCommand implements SoarCommand
         return true;
     }
     
-    public void setDefaultDepth(int depth)
+    public void setDefaultDepth(int depth) throws SoarException
     {
         if (checkDepth(depth))
         {
             defaultDepth = depth;
+        } else {
+            throw new SoarException("depth must be greater than 0");
         }
     }
     
