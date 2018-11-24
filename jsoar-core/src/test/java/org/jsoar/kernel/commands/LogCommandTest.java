@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
@@ -108,6 +107,7 @@ public class LogCommandTest
 		LogManager logManager = agent.getLogManager();
 		LogCommand logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
 		
+		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "enable"});
 		assertTrue(logManager.isStrict());
 		
@@ -119,51 +119,27 @@ public class LogCommandTest
 		testSet.add("test-logger");
 		assertTrue(logManager.getLoggerNames().equals(testSet));
 		
-		boolean success = false;
-		try
-		{
-			logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger2", "error", "test-string"});
-		}
-		catch (SoarException e)
-		{
-			success = true;
-		}
-		finally
-		{
-			assertTrue(success);
-		}
+		StringWriter sw = new StringWriter();
+		agent.getPrinter().pushWriter(sw);
+		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger2", "error", "test-string"});
+		agent.getPrinter().popWriter();
+		assertTrue(sw.toString().contains("does not exist"));
 		
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger2"});
 		testSet.add("test-logger2");
 		assertTrue(logManager.getLoggerNames().equals(testSet));
 		
-		success = true;
-		try
-		{
-			logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger2", "error", "test-string"});
-		}
-		catch (SoarException e)
-		{
-			success = false;
-		}
-		finally
-		{
-			assertTrue(success);
-		}
+		sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger2", "error", "test-string"});
+		agent.getPrinter().popWriter();
+		assertFalse(sw.toString().contains("does not exist"));
 		
-		success = false;
-		try
-		{
-			logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
-		}
-		catch (SoarException e)
-		{
-			success = true;
-		}
-		finally
-		{
-			assertTrue(success);
-		}
+		sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
+		agent.getPrinter().popWriter();
+		assertTrue(sw.toString().contains("already exists"));
 	}
 	
 	@Test
@@ -202,25 +178,21 @@ public class LogCommandTest
 		
 		logManager.setStrict(false);
 		
+		StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "info", "test-string"});
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "debug", "test-string"});
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "warn", "test-string"});
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "error", "test-string"});
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "trace", "test-string"});
+		agent.getPrinter().popWriter();
+		assertFalse(sw.toString().contains("Unknown log-level value"));
 		
-		boolean success = false;
-		try
-		{
-			logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "unknown", "test-string"});
-		}
-		catch (SoarException e)
-		{
-			success = true;
-		}
-		finally
-		{
-			assertTrue(success);
-		}
+		sw = new StringWriter();
+		agent.getPrinter().pushWriter(sw);
+		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "test-logger", "unknown", "test-string"});
+		agent.getPrinter().popWriter();
+		assertTrue(sw.toString().contains("Unknown log-level value"));
 	}
 	
 	@Test
@@ -231,21 +203,17 @@ public class LogCommandTest
 		
 		logManager.setStrict(false);
 		
+		StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
 		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "info", "test-string"});
-		
-		boolean success = false;
-		try
-		{
-			logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "unknown", "test-string"});
-		}
-		catch (SoarException e)
-		{
-			success = true;
-		}
-		finally
-		{
-			assertTrue(success);
-		}
+		agent.getPrinter().popWriter();
+        assertFalse(sw.toString().contains("Unknown log-level value"));
+        
+        sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+		logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "unknown", "test-string"});
+		agent.getPrinter().popWriter();
+        assertTrue(sw.toString().contains("Unknown log-level value"));
 	}
 	
 	@Test

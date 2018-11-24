@@ -78,10 +78,10 @@ public class LogCommand implements SoarCommand
         @Option(names={"-a", "--add"}, description="Adds a logger with the given name")
         String logToAdd = null;
 
-        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables logging")
+        @Option(names={"on", "-e", "--on", "--enable", "--yes"}, description="Enables logging")
         boolean enable = false;
 
-        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables logging")
+        @Option(names={"off", "-d", "--off", "--disable", "--no"}, description="Disables logging")
         boolean disable = false;
 
         @Option(names={"-s", "--strict"}, description="Enables or disables logging strictness")
