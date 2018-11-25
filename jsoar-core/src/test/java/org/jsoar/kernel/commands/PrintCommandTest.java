@@ -109,14 +109,10 @@ public class PrintCommandTest
         outputWriter.getBuffer().setLength(0);
     }
 
-    @Test
+    @Test(expected = SoarException.class)
     public void testVarprintNotImplemented() throws SoarException
     {
-        StringWriter sw = new StringWriter();
-        agent.getPrinter().pushWriter(sw);
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" });
-        agent.getPrinter().popWriter();
-        assertTrue(sw.toString().contains("not implemented"));
     }
 
     @Test
