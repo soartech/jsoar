@@ -25,8 +25,11 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "log" command.
@@ -66,6 +69,9 @@ public class LogCommand implements SoarCommand
         private final SoarCommandInterpreter interpreter;
         private final SoarCommandContext context;
         private static String sourceLocationSeparator = ".";
+        
+        @Spec
+        private CommandSpec spec; // injected by picocli
 
         public Log(Agent agent, SoarCommandInterpreter interpreter, SoarCommandContext context)
         {
@@ -122,8 +128,7 @@ public class LogCommand implements SoarCommand
                 }
                 catch (LoggerException e)
                 {
-                    agent.getPrinter().startNewLine().print(e.getMessage());
-                    return;
+                    throw new ParameterException(spec.commandLine(), e.getMessage(), e);
                 }
 
                 agent.getPrinter().startNewLine().print("Added logger: " + logToAdd);
@@ -228,7 +233,7 @@ public class LogCommand implements SoarCommand
                 }
                 else
                 {
-                    agent.getPrinter().startNewLine().print("Expected one argument: on | off");
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | off");
                 }
             }
             else if (abbreviate != null)
@@ -251,7 +256,7 @@ public class LogCommand implements SoarCommand
                 }
                 else
                 {
-                    agent.getPrinter().startNewLine().print("Expected one argument: on | off");
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | off");
                 }
             }
             // log --echo on/simple/off
@@ -265,8 +270,7 @@ public class LogCommand implements SoarCommand
                 }
                 catch (IllegalArgumentException e)
                 {
-                    agent.getPrinter().startNewLine().print("Expected one argument: on | simple | off");
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | simple | off", e);
                 }
 
                 logManager.setEchoMode(echoMode);
@@ -283,8 +287,7 @@ public class LogCommand implements SoarCommand
                 }
                 catch (IllegalArgumentException e)
                 {
-                    agent.getPrinter().startNewLine().print("Expected one argument: disk | stack | none");
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: disk | stack | none", e);
                 }
 
                 logManager.setSourceLocationMethod(sourceLocationMethod);
@@ -301,9 +304,8 @@ public class LogCommand implements SoarCommand
                 }
                 catch (IllegalArgumentException e)
                 {
-                    agent.getPrinter().startNewLine().print("Expected one argument: "
-                            + "trace | debug | info | warn | error");
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: "
+                            + "trace | debug | info | warn | error", e);
                 }
 
                 logManager.setLogLevel(logLevel);
@@ -323,8 +325,7 @@ public class LogCommand implements SoarCommand
 
                 if (params.length == 1)
                 {
-                    agent.getPrinter().startNewLine().print("Unknown command: " + params[0]);
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Unknown command: " + params[0]);
                 }
 
                 try
@@ -348,6 +349,7 @@ public class LogCommand implements SoarCommand
                             }
                             catch (LoggerException e)
                             {
+                                throw new ParameterException(spec.commandLine(), e.getMessage(), e);
                             }
                         }
                     }
@@ -371,8 +373,7 @@ public class LogCommand implements SoarCommand
                     }
                     catch (IllegalArgumentException ee)
                     {
-                        agent.getPrinter().startNewLine().print("Unknown log-level value: " + params[1]);
-                        return;
+                        throw new ParameterException(spec.commandLine(), "Unknown log-level value: " + params[1], ee);
                     }
 
                     parameters = Arrays.asList(Arrays.copyOfRange(params, 2, params.length));
@@ -385,7 +386,7 @@ public class LogCommand implements SoarCommand
                 }
                 catch (LoggerException e)
                 {
-                    agent.getPrinter().startNewLine().print(e.getMessage());
+                    throw new ParameterException(spec.commandLine(), e.getMessage(), e);
                 }
             }
         }
