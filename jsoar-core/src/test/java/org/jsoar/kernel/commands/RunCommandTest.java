@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-// TODO: Update this test so it works again
 public class RunCommandTest
 {
     private MockRunControl mock;
@@ -57,39 +56,34 @@ public class RunCommandTest
         this.command = new RunCommand(mock);
     }
     
-    @Test
-    public void testErrorOnNonNumericCount() throws Exception
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionOnNonNumericCount() throws Exception
     {
-        String result = execute("run", "-d", "xyz");
-        assertTrue(result.contains("Usage:")); // when there's a problem, help prints, which starts with Usage:
+        execute("run", "-d", "xyz");
     }
     
-    @Test
-    public void testErrorOnZeroCount() throws Exception
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionOnZeroCount() throws Exception
     {
-        String result = execute("run", "-e", "0");
-        assertTrue(result.contains("Usage:")); // when there's a problem, help prints, which starts with Usage:
+        execute("run", "-e", "0");
     }
     
-    @Test
-    public void testErrorNegativeCount() throws Exception
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionNegativeCount() throws Exception
     {
-        String result = execute("run", "-e", "-10");
-        assertTrue(result.contains("Usage:")); // when there's a problem, help prints, which starts with Usage:
+        execute("run", "-e", "-10");
     }
     
-    @Test
-    public void testErrorWhenMultipleCountsGiven() throws Exception
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionWhenMultipleCountsGiven() throws Exception
     {
-        String result = execute("run", "5", "-e", "10");
-        assertTrue(result.contains("Usage:")); // when there's a problem, help prints, which starts with Usage:
+        execute("run", "5", "-e", "10");
     }
     
-    @Test
-    public void testErrorWhenMultipleRunTypesGiven() throws Exception
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionWhenMultipleRunTypesGiven() throws Exception
     {
-        String result = execute("run", "-d", "-e");
-        assertTrue(result.contains("Usage:")); // when there's a problem, help prints, which starts with Usage:
+        execute("run", "-d", "-e");
     }
     
     @Test
@@ -208,11 +202,11 @@ public class RunCommandTest
     
     ////////////////////////////////////////////////////////////////////////
     
-    private String execute(String... args) throws SoarException
+    private void execute(String... args) throws SoarException
     {
         mock.count = -1;
         mock.runType = null;
-        return command.execute(DefaultSoarCommandContext.empty(), args);
+        command.execute(DefaultSoarCommandContext.empty(), args);
     }
     private void verify(long count, RunType runType)
     {
