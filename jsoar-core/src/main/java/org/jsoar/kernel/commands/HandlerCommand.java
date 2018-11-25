@@ -1,5 +1,7 @@
 package org.jsoar.kernel.commands;
 
+import java.util.concurrent.Callable;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -27,9 +29,7 @@ public class HandlerCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new Handler(agent), args);
-
-        return "";
+        return Utils.parseAndRun(new Handler(agent), args);
     }
     @Override
     public Object getCommand() {
@@ -38,7 +38,7 @@ public class HandlerCommand implements SoarCommand
 
     @Command(name="handler", description="Prints, enables, or disables RHS functions",
             subcommands={HelpCommand.class})
-    static public class Handler implements Runnable
+    static public class Handler implements Callable<String>
     {
         private Agent agent;
 
@@ -56,19 +56,19 @@ public class HandlerCommand implements SoarCommand
         String functionToDisable = null;
 
         @Override
-        public void run()
+        public String call()
         {
             RhsFunctionManager rhsFunctionManager = agent.getRhsFunctions();
 
             if (functionToEnable != null)
             {
                 rhsFunctionManager.enableHandler(functionToEnable);
-                agent.getPrinter().startNewLine().print("RHS function enabled: " + functionToEnable);
+                return "RHS function enabled: " + functionToEnable;
             }
             else if (functionToDisable != null)
             {
                 rhsFunctionManager.disableHandler(functionToDisable);
-                agent.getPrinter().startNewLine().print("RHS function disabled: " + functionToDisable);
+                return "RHS function disabled: " + functionToDisable;
             }
             else
             {
@@ -77,7 +77,7 @@ public class HandlerCommand implements SoarCommand
                 {
                     result += handler.getName() + "\n";
                 }
-                agent.getPrinter().startNewLine().print(result);
+                return result;
             }
         }
     }
