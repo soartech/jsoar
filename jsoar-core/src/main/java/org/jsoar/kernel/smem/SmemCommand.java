@@ -45,8 +45,12 @@ import com.google.common.base.Joiner;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.ExecutionException;
 
 /**
  * This is the implementation of the "smem" command.
@@ -109,6 +113,9 @@ public class SmemCommand implements SoarCommand
         private final DefaultSemanticMemory smem;
         private Lexer lexer;
         
+        @Spec
+        private CommandSpec spec; // injected by picocli
+        
         public SmemC(Agent agent, DefaultSemanticMemory smem, Lexer lexer)
         {
             this.agent = agent;
@@ -168,60 +175,59 @@ public class SmemCommand implements SoarCommand
         {
             if (conceptsToAdd != null)
             {
-                agent.getPrinter().startNewLine().print(doAdd(conceptsToAdd));
+                agent.getPrinter().print(doAdd(conceptsToAdd));
             }
             else if (backupFileName != null)
             {
-                agent.getPrinter().startNewLine().print(doBackup(backupFileName));
+                agent.getPrinter().print(doBackup(backupFileName));
             }
             else if (commitData)
             {
-                agent.getPrinter().startNewLine().print(doCommit());
+                agent.getPrinter().print(doCommit());
             }
             else if (getParam != null)
             {
-                agent.getPrinter().startNewLine().print(doGet(getParam));
+                agent.getPrinter().print(doGet(getParam));
             }
             else if (initialize)
             {
-                agent.getPrinter().startNewLine().print(doInit());
+                agent.getPrinter().print(doInit());
             }
             else if (getLastCue)
             {
-                agent.getPrinter().startNewLine().print(doLastCue());
+                agent.getPrinter().print(doLastCue());
             }
             else if (printContents)
             {
-                agent.getPrinter().startNewLine().print(doPrint(param, printDepth));
+                agent.getPrinter().print(doPrint(param, printDepth));
             }
             else if (sqlStatement != null)
             {
-                agent.getPrinter().startNewLine().print(doSql(sqlStatement));
+                agent.getPrinter().print(doSql(sqlStatement));
             }
             else if (setParam != null)
             {
                 if (param == null)
                 {
-                    agent.getPrinter().startNewLine().print("Error: no parameter value provided");
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Error: no parameter value provided");
                 }
-                agent.getPrinter().startNewLine().print(doSet(setParam, param));
+                agent.getPrinter().print(doSet(setParam, param));
             }
             else if (printStats)
             {
-                agent.getPrinter().startNewLine().print(doStats(param));
+                agent.getPrinter().print(doStats(param));
             }
             else if (printTimers)
             {
-                agent.getPrinter().startNewLine().print(doTimers(param));
+                agent.getPrinter().print(doTimers(param));
             }
             else if (printVisualization)
             {
-                agent.getPrinter().startNewLine().print(doViz(param));
+                agent.getPrinter().print(doViz(param));
             }
             else
             {
-                agent.getPrinter().startNewLine().print(doSmem());
+                agent.getPrinter().print(doSmem());
             }
         }
         
@@ -260,14 +266,12 @@ public class SmemCommand implements SoarCommand
             }
             catch (SQLException e)
             {
-                agent.getPrinter().startNewLine().print(e.getMessage());
-                return "";
+                throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
             }
 
             if (!success)
             {
-                agent.getPrinter().startNewLine().print(err.value);
-                return "";
+                throw new ExecutionException(spec.commandLine(), err.value);
             }
 
             return "SMem| Database backed up to " + dbFile;
@@ -324,8 +328,7 @@ public class SmemCommand implements SoarCommand
                 }
                 else
                 {
-                    agent.getPrinter().startNewLine().print("Unknown parameter '" + getParam + "'");
-                    return "";
+                    throw new ParameterException(spec.commandLine(), "Unknown parameter '" + getParam + "'");
                 }
             }
             return smem.getParams().getProperties().get(key).toString();
@@ -429,9 +432,7 @@ public class SmemCommand implements SoarCommand
                     }
                     else
                     {
-                        agent.getPrinter().startNewLine().print("Expected identifier, got '" +
-                                lexer.getCurrentLexeme() + "'");
-                        return "";
+                        throw new ParameterException(spec.commandLine(), "Expected identifier, got '" + lexer.getCurrentLexeme() + "'");
                     }
 
                     // restore original value
@@ -444,14 +445,12 @@ public class SmemCommand implements SoarCommand
             }
             catch (SoarException e)
             {
-                agent.getPrinter().startNewLine().print(e.getMessage());
-                return "";
+                throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
             }
 
             if (viz.length() == 0)
             {
-                agent.getPrinter().startNewLine().print("SMem| Semantic memory is empty.");
-                return "";
+                throw new ExecutionException(spec.commandLine(), "SMem| Semantic memory is empty.");
             }
 
             pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
@@ -594,20 +593,18 @@ public class SmemCommand implements SoarCommand
                     }
                     else
                     {
-                        agent.getPrinter().startNewLine().print("Invalid value "
-                                + "for SMem database parameter");
+                        throw new ParameterException(spec.commandLine(), "Invalid value for SMem database parameter");
                     }
                 }
                 else
                 {
-                    agent.getPrinter().startNewLine().print("Unknown smem "
-                            + "parameter '" + setParam + "'");
+                    throw new ParameterException(spec.commandLine(), "Unknown smem parameter '" + setParam + "'");
                 }
             }
             // this is thrown by the enums if a bad value is passed in
             catch (IllegalArgumentException e) 
             {
-                agent.getPrinter().startNewLine().print("Invalid value.");
+                throw new ParameterException(spec.commandLine(), "Invalid value.", e);
             }
             
             return "";
@@ -675,8 +672,7 @@ public class SmemCommand implements SoarCommand
                 }
                 catch (SQLException e)
                 {
-                    agent.getPrinter().startNewLine().print(e.getMessage());
-                    return "";
+                    throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
                 }
                 finally
                 {
@@ -686,8 +682,7 @@ public class SmemCommand implements SoarCommand
                     }
                     catch (SQLException e)
                     {
-                        agent.getPrinter().startNewLine().print(e.getMessage());
-                        return "";
+                        throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
                     }
                 }
                 
@@ -709,8 +704,7 @@ public class SmemCommand implements SoarCommand
                         smem.getParams().getProperties(), statToPrint);
                 if (key == null)
                 {
-                    agent.getPrinter().startNewLine().print("Unknown stat '" + statToPrint + "'");
-                    return "";
+                    throw new ParameterException(spec.commandLine(), "Unknown stat '" + statToPrint + "'");
                 }
                 pw.printf(PrintHelper.generateItem(key + ":",
                         smem.getParams().getProperties().get(key).toString(), 40));
@@ -722,7 +716,7 @@ public class SmemCommand implements SoarCommand
 
         private String doTimers(String timerToPrint)
         {
-            return "This command has not been implemented in JSoar.";
+            throw new ExecutionException(spec.commandLine(), "This command has not been implemented in JSoar.");
         }
 
         private String doViz(String arg)
@@ -737,14 +731,13 @@ public class SmemCommand implements SoarCommand
                 }
                 catch (SoarException e)
                 {
-                    agent.getPrinter().startNewLine().print(e.getMessage());
-                    return "";
+                    throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
                 }
                 pw.flush();
                 return sw.toString();
             }
             // TODO SMEM Commands: --viz with args
-            return "smem --viz with args has not been implemented in JSoar.";
+            throw new ExecutionException(spec.commandLine(), "smem --viz with args has not been implemented in JSoar.");
         }
 
         private String doSmem()

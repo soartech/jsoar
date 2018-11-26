@@ -15,7 +15,13 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.DebugCommand.Debug;
 
 import picocli.CommandLine;
+import picocli.CommandLine.ExecutionException;
+import picocli.CommandLine.Help;
+import picocli.CommandLine.IExceptionHandler2;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunLast;
+import picocli.CommandLine.UnmatchedArgumentException;
 
 public class Utils
 {
@@ -27,15 +33,16 @@ public class Utils
      * @param agent SoarAgent executing the command
      * @param command An Object, should be annotated with picocli's @Command annotation
      * @param args The args as received by a SoarCommand's execute method (i.e., the 0th arg should be the string for the command itself)
+     * @throws SoarException 
      */
-    public static void parseAndRun(Agent agent, Object command, String[] args) {
+    public static void parseAndRun(Agent agent, Object command, String[] args) throws SoarException {
         OutputStream os = new WriterOutputStream(agent.getPrinter().getWriter(), Charset.defaultCharset(), 1024, true);
         PrintStream ps = new PrintStream(os);
         
         parseAndRun(command, args, ps);
     }
     
-    public static List<Object> parseAndRun(Object command, String[] args, PrintStream ps) {
+    public static List<Object> parseAndRun(Object command, String[] args, PrintStream ps) throws SoarException {
         
         CommandLine commandLine = new CommandLine(command);
         
@@ -47,10 +54,15 @@ public class Utils
             commandLine.setUnmatchedOptionsArePositionalParams(true);
         }
         
-        return commandLine.parseWithHandlers(
-                new RunLast().useOut(ps),
-                CommandLine.defaultExceptionHandler().useErr(ps),
-                Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
+        try {
+            return commandLine.parseWithHandlers(
+                    new RunLast().useOut(ps),
+                    new ExceptionHandler(),
+                    Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
+        }
+        catch(Exception e) {
+            throw new SoarException(e.getMessage(), e); // rethrow all exceptions as SoarExceptions
+        }
     }
     
     public static String parseAndRun(Object command, String[] args) throws SoarException {
@@ -58,7 +70,7 @@ public class Utils
         try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
             List<Object> results = parseAndRun(command, args, ps);
             for(Object o : results) {
-                ps.print(o.toString());
+                if(o != null) ps.print(o.toString());
             }
         }
         catch (UnsupportedEncodingException e)
@@ -67,5 +79,45 @@ public class Utils
         }
         final String result = new String(baos.toByteArray(), StandardCharsets.UTF_8);
         return result;
+    }
+    
+    /**
+     * This throws all exceptions, so we can catch them above and re-throw as SoarExceptions
+     * @author bob.marinier
+     *
+     */
+    protected static class ExceptionHandler implements IExceptionHandler2<List<Object>> {
+
+        /**
+         * For parameter exceptions, throw a new exception that includes the help text (which will get printed elsewhere)
+         */
+        @Override
+        public List<Object> handleParseException(ParameterException ex, String[] args)
+        {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
+            
+                ps.println(ex.getMessage());
+                if (!UnmatchedArgumentException.printSuggestions(ex, ps)) {
+                    ex.getCommandLine().usage(ps, Help.Ansi.AUTO);
+                }
+                final String result = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+                throw new RuntimeException(result, ex);
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * For execution exceptions, just rethrow without printing help
+         */
+        @Override
+        public List<Object> handleExecutionException(ExecutionException ex,
+                ParseResult parseResult)
+        {
+            throw ex;
+        } 
     }
 }

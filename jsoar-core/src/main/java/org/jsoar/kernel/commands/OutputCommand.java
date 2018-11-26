@@ -14,9 +14,12 @@ import org.jsoar.util.TeeWriter;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "output" command.
@@ -158,6 +161,9 @@ public final class OutputCommand implements SoarCommand
         @ParentCommand
         Output parent; // injected by picocli
         
+        @Spec
+        CommandSpec spec; // injected by picocli
+        
         @Parameters(index="0", arity="0..1", description="New print depth")
         Integer printDepth = null;
         
@@ -172,7 +178,11 @@ public final class OutputCommand implements SoarCommand
             else
             {
                 int depth = Integer.valueOf(printDepth);
-                parent.printCommand.setDefaultDepth(depth);
+                try {
+                    parent.printCommand.setDefaultDepth(depth);
+                } catch(SoarException e) {
+                    throw new ParameterException(spec.commandLine(), e.getMessage(), e);
+                }
                 parent.agent.getPrinter().startNewLine().print("print-depth is now " + depth);
             }
         }

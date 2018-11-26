@@ -2,6 +2,8 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.StringWriter;
+
 import org.junit.Test;
 
 
@@ -14,7 +16,11 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
         
         agent.runFor(100, RunType.DECISIONS);
         
-        String actualResultSMem = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String actualResultSMem = sw.toString();
         
         String expectedResultSMem = "========================================\n" +
                                     "            Semantic Memory             \n" +
@@ -26,9 +32,13 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                     "(@F17 ^complete |true| ^number 7 ^factor @F18 [+7.0])\n" +
                                     "(@F18 ^value 7 ^multiplicity 1 [+8.0])\n";
                 
-        assertTrue("Unexpected output from SMem!", actualResultSMem.equals(expectedResultSMem));
+        assertTrue("Unexpected output from SMem!\n" + actualResultSMem, actualResultSMem.equals(expectedResultSMem));
         
-        String actualResultEpMem = agent.getInterpreter().eval("epmem --print 97");
+        StringWriter sw2 = new StringWriter();
+        agent.getPrinter().pushWriter(sw2);
+        agent.getInterpreter().eval("epmem --print 97");
+        agent.getPrinter().popWriter();
+        String actualResultEpMem = sw2.toString();
         
         String expectedResultEpMem = "(<id0> ^counter 7 ^factorization-object @F17 ^has-factorization-object true ^has-factorization-object-complete true ^io <id1> ^name Factorization ^needs-factorization true ^number-to-factor 7 ^number-to-factor-int 7 ^operator* <id3> <id7> ^reward-link <id2> ^superstate nil ^type state)\n" +
                                      "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
@@ -37,6 +47,6 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                      "(@F17 ^complete true ^factor @F18 ^number 7)\n" +
                                      "(@F18 ^multiplicity 1 ^value 7)\n";
         
-        assertTrue("Unexpected output from EpMem!", actualResultEpMem.equals(expectedResultEpMem));
+        assertTrue("Unexpected output from EpMem!\n" + actualResultEpMem, actualResultEpMem.equals(expectedResultEpMem));
     }
 }

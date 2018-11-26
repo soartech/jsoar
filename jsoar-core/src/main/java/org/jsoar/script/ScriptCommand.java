@@ -3,12 +3,12 @@ package org.jsoar.script;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.Utils;
 import org.jsoar.util.adaptables.Adaptable;
@@ -23,8 +23,11 @@ import com.google.common.base.Joiner;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "script" command.
@@ -36,7 +39,7 @@ public class ScriptCommand implements SoarCommand
     private static final Map<String, ScriptEngineState> engines =
             new HashMap<String, ScriptEngineState>();
     private static ScriptEngineManager manager;
-    private final Agent agent;
+    private final Adaptable context;
 
     public static class Provider implements SoarCommandProvider
     {
@@ -49,34 +52,34 @@ public class ScriptCommand implements SoarCommand
 
     public ScriptCommand(Adaptable context)
     {
-        this.agent = (Agent) context;
+        this.context = context;
     }
 
     @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new Script(agent, logger, engines), args);
-
-        return "";
+        return Utils.parseAndRun(new Script(context, logger, engines), args);
     }
 
 
     @Override
     public Object getCommand() {
-        return new Script(agent,logger,engines);
+        return new Script(context,logger,engines);
     }
 
     @Command(name="script", description="Runs Javascript, Python, or Ruby code",
             subcommands={HelpCommand.class})
-    static public class Script implements Runnable
+    static public class Script implements Callable<String>
     {
+        @Spec
+        private CommandSpec spec; // injected by picocli
         private final Logger logger;
         private final Map<String, ScriptEngineState> engines;
-        private Agent agent;
+        private Adaptable context;
 
-        public Script(Agent agent, Logger logger, Map<String, ScriptEngineState> engines)
+        public Script(Adaptable context, Logger logger, Map<String, ScriptEngineState> engines)
         {
-            this.agent = agent;
+            this.context = context;
             this.logger = logger;
             this.engines = engines;
         }
@@ -91,21 +94,20 @@ public class ScriptCommand implements SoarCommand
         String[] engineNameAndCode = null;
 
         @Override
-        public void run()
+        public String call()
         {
             if (engineNameAndCode == null)
             {
                 // script --dispose OR script --reset
                 if (dispose || reset)
                 {
-                    agent.getPrinter().startNewLine().print("Error: engine name missing");
+                    throw new ParameterException(spec.commandLine(), "Error: engine name missing");
                 }
                 // script
                 else
                 {
-                    agent.getPrinter().startNewLine().print(engines.toString());
+                    return engines.toString();
                 }
-                return;
             }
 
             try
@@ -115,8 +117,7 @@ public class ScriptCommand implements SoarCommand
                 // script --dispose <engineName>
                 if (dispose)
                 {
-                    agent.getPrinter().startNewLine().print(disposeEngine(engineName));
-                    return;
+                    return disposeEngine(engineName);
                 }
 
                 ScriptEngineState state;
@@ -129,19 +130,20 @@ public class ScriptCommand implements SoarCommand
                     Object result = state.eval(Joiner.on(' ').join(code));
                     if (result != null)
                     {
-                        agent.getPrinter().startNewLine().print(result.toString());
+                        return result.toString();
                     }
                 }
                 // script (--reset) <engineName>
                 else
                 {
-                    agent.getPrinter().startNewLine().print(state.toString());
+                    return state.toString();
                 }
             }
             catch (SoarException e)
             {
-                agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
+                throw new ParameterException(spec.commandLine(), e.getMessage(), e);
             }
+            return "";
         }
 
         private synchronized ScriptEngineManager getEngineManager()
@@ -190,10 +192,10 @@ public class ScriptCommand implements SoarCommand
                 final ScriptEngineFactory f = engine.getFactory();
                 logger.info(String.format("Loaded '%s' script engine for %s: "
                         + "%s version %s, %s version %s",
-                        name, agent, f.getEngineName(), f.getEngineVersion(),
+                        name, context, f.getEngineName(), f.getEngineVersion(),
                         f.getLanguageName(), f.getLanguageVersion()));
 
-                engines.put(name, state = new ScriptEngineState(agent, name, engine));
+                engines.put(name, state = new ScriptEngineState(context, name, engine));
             }
 
             return state;

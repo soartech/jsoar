@@ -25,8 +25,11 @@ import com.google.common.base.Joiner;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "print" command.
@@ -63,6 +66,9 @@ public class PrintCommand implements SoarCommand
     {
         private Agent agent;
         private PrintCommand pc;
+        
+        @Spec
+        private CommandSpec spec;
         
         public Print(Agent agent, PrintCommand pc)
         {
@@ -129,7 +135,7 @@ public class PrintCommand implements SoarCommand
         @Option(names={"-u", "--user"}, description="Print the names of all user productions currently loaded")
         boolean printUserProds = false;
         
-        @Option(names={"-v", "--varprint"}, description="Print identifiers enclosed in angle brackets")
+        @Option(names={"-v", "--varprint"}, description="Print identifiers enclosed in angle brackets (not yet supported)")
         boolean printVars = false;
         
         @Parameters(description="A symbol, pattern, timetag, or production name")
@@ -211,8 +217,7 @@ public class PrintCommand implements SoarCommand
 
             if (printVars)
             {
-                agent.getPrinter().print("--varprint not implemented yet");
-                return;
+                throw new ParameterException(spec.commandLine(), "--varprint not implemented yet");
             }
 
             // New in Soar 8.6.3: if no args or options given, print all prods
@@ -406,11 +411,13 @@ public class PrintCommand implements SoarCommand
         return true;
     }
     
-    public void setDefaultDepth(int depth)
+    public void setDefaultDepth(int depth) throws SoarException
     {
         if (checkDepth(depth))
         {
             defaultDepth = depth;
+        } else {
+            throw new SoarException("depth must be greater than 0");
         }
     }
     
