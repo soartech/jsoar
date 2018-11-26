@@ -259,7 +259,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+5.0])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency: Invalid Activation Values", result.equals(expected));
     
@@ -296,7 +300,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+3.0])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery: Invalid Activation Values", result.equals(expected));
     
@@ -333,7 +341,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+2.0])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency: Invalid Activation Values", result.equals(expected));
     
@@ -455,7 +467,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [+0.0])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
@@ -509,7 +525,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [-0.693])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
@@ -563,7 +583,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                           "(@X1 ^name |foo| ^location @L1 [+0.109])\n" +
                           "(@X2 ^name |foo| ^location @L2 [+0.144])\n";
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values", checkActivationValues(result, lowEndExpectations, highEndExpectations));
     
@@ -672,7 +696,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("smem --set append-database on");
         agent.getInterpreter().eval("smem --init");
         
-        String actualResult = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String actualResult = sw.toString();
         
         String expectedResult = "========================================\n" +
                                 "            Semantic Memory             \n" +
@@ -695,7 +723,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         agent.runFor(2, RunType.DECISIONS);
         
-        String result = agent.getInterpreter().eval("smem --print");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("smem --print");
+        agent.getPrinter().popWriter();
+        String result = sw.toString();
         
         String[] split = result.split("\\s+");
         
@@ -791,7 +823,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                 throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
             }
             
-            String result = a.getAgent().getInterpreter().eval("smem");
+            StringWriter sw = new StringWriter();
+            a.getPrinter().pushWriter(sw);
+            a.getAgent().getInterpreter().eval("smem");
+            a.getPrinter().popWriter();
+            String result = sw.toString();
             
             if (!result.contains("native"))
             {
