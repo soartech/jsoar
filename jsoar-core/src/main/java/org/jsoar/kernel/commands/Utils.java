@@ -88,6 +88,9 @@ public class Utils
      */
     protected static class ExceptionHandler implements IExceptionHandler2<List<Object>> {
 
+        /**
+         * For parameter exceptions, throw a new exception that includes the help text (which will get printed elsewhere)
+         */
         @Override
         public List<Object> handleParseException(ParameterException ex, String[] args)
         {
@@ -107,6 +110,9 @@ public class Utils
             }
         }
 
+        /**
+         * For execution exceptions, just rethrow without printing help
+         */
         @Override
         public List<Object> handleExecutionException(ExecutionException ex,
                 ParseResult parseResult)
