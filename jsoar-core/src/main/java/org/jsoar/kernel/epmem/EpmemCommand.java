@@ -34,8 +34,12 @@ import org.jsoar.util.properties.PropertyManager;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.ExecutionException;
+import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "epmem" command.
@@ -83,6 +87,9 @@ public class EpmemCommand implements SoarCommand
         private final DefaultEpisodicMemory epmem;
         private final SymbolFactoryImpl symbols;
         
+        @Spec
+        private CommandSpec spec; // injected by picocli
+        
         public EpmemC(Agent agent)
         {
             this.agent = agent;
@@ -122,38 +129,37 @@ public class EpmemCommand implements SoarCommand
             {
                 if (param == null)
                 {
-                    agent.getPrinter().startNewLine().print("Error: no parameter value provided");
-                    return;
+                    throw new ParameterException(spec.commandLine(), "Error: no parameter value provided");
                 }
-                agent.getPrinter().startNewLine().print(doSet(setParam, param));
+                agent.getPrinter().print(doSet(setParam, param));
             }
             else if (getParam != null)
             {
-                agent.getPrinter().startNewLine().print(doGet(getParam));
+                agent.getPrinter().print(doGet(getParam));
             }
             else if (printStats)
             {
-                agent.getPrinter().startNewLine().print(doStats(param));
+                agent.getPrinter().print(doStats(param));
             }
             else if (printEpisode != null)
             {
-                agent.getPrinter().startNewLine().print(doPrintEpisode(printEpisode));
+                agent.getPrinter().print(doPrintEpisode(printEpisode));
             }
             else if (reinit)
             {
-                agent.getPrinter().startNewLine().print(doReinit());
+                agent.getPrinter().print(doReinit());
             }
             else if (backupFileName != null)
             {
-                agent.getPrinter().startNewLine().print(doBackup(backupFileName));
+                agent.getPrinter().print(doBackup(backupFileName));
             }
             else if (knowledgeToAdd != null)
             {
-                agent.getPrinter().startNewLine().print(doAdd(knowledgeToAdd));
+                agent.getPrinter().print(doAdd(knowledgeToAdd));
             }
             else
             {
-                agent.getPrinter().startNewLine().print(doEpmem());
+                agent.getPrinter().print(doEpmem());
             }
         }
         
@@ -278,7 +284,7 @@ public class EpmemCommand implements SoarCommand
                     }
                     else
                     {
-                        agent.getPrinter().startNewLine().print("Invalid value for EpMem database parameter");
+                        throw new ParameterException(spec.commandLine(), "Invalid value for EpMem database parameter");
                     }
                 }
                 else
@@ -288,7 +294,7 @@ public class EpmemCommand implements SoarCommand
             }
             catch (IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
             {
-                agent.getPrinter().startNewLine().print("Invalid value.");
+                throw new ParameterException(spec.commandLine(), "Invalid value.", e);
             }
 
             return "";
@@ -322,8 +328,7 @@ public class EpmemCommand implements SoarCommand
                 }
                 else
                 {
-                    agent.getPrinter().startNewLine().print("Unknown parameter '" + paramToGet + "'");
-                    return "";
+                    throw new ParameterException(spec.commandLine(), "Unknown parameter '" + paramToGet + "'");
                 }
             }
             return epmem.getParams().getProperties().get(key).toString();
@@ -524,7 +529,7 @@ public class EpmemCommand implements SoarCommand
             }
             catch (NumberFormatException e)
             {
-                return "Error: parameter provided is not an integer";
+                throw new ParameterException(spec.commandLine(), "Error: parameter provided is not an integer", e);
             }
             return epmem.epmem_print_episode(episodeID);
         }
@@ -555,14 +560,12 @@ public class EpmemCommand implements SoarCommand
             }
             catch (SQLException e)
             {
-                agent.getPrinter().startNewLine().print(e.getMessage());
-                return "";
+                throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
             }
 
             if (!success)
             {
-                agent.getPrinter().startNewLine().print("Error: " + err.value);
-                return "";
+                throw new ExecutionException(spec.commandLine(), "Error: " + err.value);
             }
 
             return "EpMem| Database backed up to " + dbFile;
