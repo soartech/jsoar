@@ -346,7 +346,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         } else if (command instanceof SoarCommand){
             return (SoarCommand) command;
         }
-        return null;
+        throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
     }
 
     public CommandLine findCommand(String substring)
