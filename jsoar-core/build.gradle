@@ -92,15 +92,59 @@ dependencies {
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }
 
-task copyLibsArm(type: Copy) {
+// NOTE: armeabi stores libraries compatible with ARMv5 and ARMv6.
+// v5/v6 CPUs are only found on some preeeetty old Android devices,
+// and are not supported by the as of now latest NDK release (r17).
+//
+// To specifically target ARMv7 (aka the majority of Android devices),
+// the libraries are expected to be in armeabi-v7a.
+//
+// HOWEVER, since ARMv7 is backwards compatible with v5/v6 binaries,
+// it will fallback to loading from armeabi, but only if there is no
+// armeabi-v7a directory.  If, for example, you turn on Android
+// Studio's advanced profiling in a run configuration, it'll slap
+// armeabi and armeabi-v7a libraries into your APK, and eventually
+// trigger a hair pulling "can't find the library that's clearly
+// in the APK" exception.
+//
+// So in other words, if you copy the JDBC-Sqlite library only to
+// armaebi and run on a v7 CPU, it'll work as epxected... until a v7
+// library is copied to armeabi-v7a, when it'll mysteriously break.
+//
+// Now I'm 95% certain JDBC-Sqlite's android-arm library is v7 only,
+// and the probability that JSoar will ever be installed to a v5/v6
+// device is laughably small, but to maximize compatibility, copy the
+// library to both directories.
+//
+// (That said, this being RISC and fixed instruction length, hopefully
+// said v5/v6 CPU would immediately detect a bad instruction.  May the
+// odds be ever in your favor).
+//
+// Also for future reference: v8 specific builds are arm64-v8a and
+// are 64-bit only.  There are v8 CPUs running in 32-bit mode, but
+// I guess you are limited to v7 user code on them.  The actual name
+// for the architecture is AArch64.  At some point JDBC-Sqlite will
+// include a 64-bit Android build and we will need to copy it in.
+task copyLibsARM(type: Copy) {
     from zipTree(configurations.nativeLibs.singleFile)
     include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
     eachFile{
         path = name
     }
     into "src/main/jniLibs/armeabi"
+    includeEmptyDirs = false
+}
+
+task copyLibsARMv7(type: Copy) {
+    from zipTree(configurations.nativeLibs.singleFile)
+    include 'org/sqlite/native/Linux/android-arm/libsqlitejdbc.so'
+    eachFile{
+        path = name
+    }
+    into "src/main/jniLibs/armeabi-v7a"
     includeEmptyDirs = false
 }
 //This isn't a valid library for this architecture
@@ -124,7 +168,8 @@ task copyLibsx86_64(type: Copy) {
     includeEmptyDirs = false
 }
 
-preBuild.dependsOn(copyLibsArm)
+preBuild.dependsOn(copyLibsARM)
+preBuild.dependsOn(copyLibsARMv7)
 //preBuild.dependsOn(copyLibsx86)
 //preBuild.dependsOn(copyLibsx86_64)
 
