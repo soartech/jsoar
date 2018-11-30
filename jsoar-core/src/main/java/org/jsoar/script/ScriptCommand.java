@@ -36,8 +36,7 @@ import picocli.CommandLine.Spec;
 public class ScriptCommand implements SoarCommand
 {
     private static final Logger logger = LoggerFactory.getLogger(ScriptCommand.class);
-    private static final Map<String, ScriptEngineState> engines =
-            new HashMap<String, ScriptEngineState>();
+    private static final Map<String, ScriptEngineState> engines = new HashMap<>();
     private static ScriptEngineManager manager;
     private final Adaptable context;
 
@@ -58,13 +57,13 @@ public class ScriptCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
-        return Utils.parseAndRun(new Script(context, logger, engines), args);
+        return Utils.parseAndRun(new Script(context, engines), args);
     }
 
 
     @Override
     public Object getCommand() {
-        return new Script(context,logger,engines);
+        return new Script(context, engines);
     }
 
     @Command(name="script", description="Runs Javascript, Python, or Ruby code",
@@ -73,14 +72,12 @@ public class ScriptCommand implements SoarCommand
     {
         @Spec
         private CommandSpec spec; // injected by picocli
-        private final Logger logger;
         private final Map<String, ScriptEngineState> engines;
         private Adaptable context;
 
-        public Script(Adaptable context, Logger logger, Map<String, ScriptEngineState> engines)
+        public Script(Adaptable context, Map<String, ScriptEngineState> engines)
         {
             this.context = context;
-            this.logger = logger;
             this.engines = engines;
         }
 
