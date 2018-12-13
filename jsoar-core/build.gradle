@@ -33,6 +33,9 @@ android {
     lintOptions{
         abortOnError false
     }
+    adbOptions {
+        timeOutInMs 15 * 60 * 1000  // 15 minutes
+    }
 }
 
 repositories {
