@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="runSpinnerEntries">
+        <item>Decisions</item>
+        <item>Elaborations</item>
+        <item>Forever</item>
+        <item>Phases</item>
+        <item>Modifications of Output</item>
+    </string-array>
+</resources>

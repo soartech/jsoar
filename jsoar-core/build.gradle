@@ -16,11 +16,11 @@ android {
         config {
         }
     }
-    compileSdkVersion 22
+    compileSdkVersion 26
     buildToolsVersion "27.0.3"
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 22
+        minSdkVersion 22
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
@@ -90,7 +90,8 @@ dependencies {
     implementation 'org.slf4j:jcl-over-slf4j:1.7.5'
     implementation 'org.apache.commons:commons-math3:3.2'
     implementation 'com.google.guava:guava:16.0.1'
-    implementation 'com.android.support:appcompat-v7:22.2.0'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:support-fragment:26.1.0'
     implementation 'org.codehaus:jtcl:2.4.0'
     implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
@@ -114,7 +115,7 @@ dependencies {
 // in the APK" exception.
 //
 // So in other words, if you copy the JDBC-Sqlite library only to
-// armaebi and run on a v7 CPU, it'll work as epxected... until a v7
+// armaebi and run on a v7 CPU, it'll work as expected... until a v7
 // library is copied to armeabi-v7a, when it'll mysteriously break.
 //
 // Now I'm 95% certain JDBC-Sqlite's android-arm library is v7 only,

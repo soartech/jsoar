@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="commandHint">Soar Command</string>
+    <string name="runlabel">Run</string>
+    <string name="defaultRunCycles">1</string>
+    <string name="execLabel">Exec</string>
+    <string name="clearLogLabel">Clear Log</string>
+</resources>
