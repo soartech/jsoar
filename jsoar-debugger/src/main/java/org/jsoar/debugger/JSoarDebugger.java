@@ -37,6 +37,8 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
+import bibliothek.gui.dock.common.*;
+import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXFrame;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
@@ -55,6 +57,9 @@ import org.jsoar.debugger.actions.StopAction;
 import org.jsoar.debugger.actions.UrlAction;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.stopcommand.StopCommandAction;
+import org.jsoar.debugger.stopcommand.StopCommandView;
+import org.jsoar.debugger.stopcommand.StopCommandViewFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.DebuggerProvider.CloseAction;
@@ -82,7 +87,6 @@ import org.jsoar.util.properties.PropertyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.event.CFocusListener;
 import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.menu.CLayoutChoiceMenuPiece;
@@ -124,11 +128,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private CControl docking;
     private StatusBar status;
     
-    private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
+    private final List<CDockable> views = new ArrayList<>();
     
     private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
     private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
     private static float fontScale = 1.0f;
+    private StopCommandViewFactory factory;
 
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
@@ -240,10 +245,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
         initActions();
         
         this.add(status = new StatusBar(proxy), BorderLayout.SOUTH);
-        
+
+        factory = new StopCommandViewFactory(this);
+        factory.setDefaultLocation(docking.getDefaultLocation());
+
+        docking.addMultipleDockableFactory("stop-command-factory", factory);
         initViews();
         initMenuBar();
         initToolbar();
+
+
         
         // Track the agent name in the title bar
         saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>() {
@@ -384,7 +395,25 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new GoalStackView(this));
         addView(new GdsView(this));
         addView(new WorkingMemoryView(this));
+
+
+
     }
+    private <T extends MultipleCDockable> T addView(T view)
+    {
+        return addView(view, true);
+    }
+    private <T extends MultipleCDockable> T addView(T view, boolean visible)
+    {
+        views.add(view);
+        docking.addDockable(view);
+        if(visible)
+        {
+            view.setVisible(true);
+        }
+        return view;
+    }
+
     private <T extends AbstractAdaptableView> T addView(T view)
     {
         return addView(view, true);
@@ -488,6 +517,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new AboutAction(actionManager);
         new EditProductionAction(actionManager);
         new RestoreLayoutAction(actionManager);
+        new StopCommandAction(actionManager,this);
     }
     
     private void initMenuBar()
@@ -518,7 +548,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         // L&F is cute, but for some reason, switching L&F breaks the trace command box
         // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
-        
+
+
         viewMenu.add(new SeparatingMenuPiece(
                 new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )),
                 true, true, false));
@@ -526,7 +557,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
                 new CLayoutChoiceMenuPiece( docking, false ));
         viewMenu.add(layoutMenu);
-        
         new ViewSelectionMenu( docking, viewMenu.getMenu());
         
         /*
@@ -560,6 +590,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.add(new StepAction(actionManager, "1 Decision", RunType.DECISIONS, "ctrl shift D"));
         runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
+        runMenu.addSeparator();
+        runMenu.add(actionManager.getAction(StopCommandAction.class));
         bar.add(runMenu);
         
         final JMenu toolsMenu = new JMenu("Tools");
@@ -573,7 +605,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
-        
+
         frame.setJMenuBar(bar);
     }
     
@@ -583,7 +615,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         bar.setFloatable(false);
         
         bar.add(new RunControlPanel(this));
-        
         add(bar, BorderLayout.NORTH);
     }
     
@@ -820,5 +851,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     public String toString()
     {
         return frame.getTitle();
+    }
+
+    public void addStopCommandView()
+    {
+        factory.setDefaultLocation(views.get(0).getBaseLocation());
+        addView(new StopCommandView(factory, this));
     }
 }
