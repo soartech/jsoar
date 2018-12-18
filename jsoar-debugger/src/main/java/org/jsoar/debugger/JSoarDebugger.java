@@ -28,17 +28,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import bibliothek.gui.dock.common.*;
-import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXFrame;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
@@ -66,7 +58,6 @@ import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -518,7 +509,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new AboutAction(actionManager);
         new EditProductionAction(actionManager);
         new RestoreLayoutAction(actionManager);
-        new StopCommandAction(actionManager,this);
+        new StopCommandAction(actionManager);
     }
     
     private void initMenuBar()
@@ -776,24 +767,23 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         });
         
-        debugger.agent.execute(new Callable<Void>() {
-            public Void call() 
+        debugger.agent.execute(() ->
+        {
+            for(String arg : args)
             {
-                for(String arg : args)
+                try
                 {
-                    try
-                    {
-                        SoarCommands.source(debugger.getAgent().getInterpreter(), arg);
-                    }
-                    catch (SoarException e)
-                    {
-                        logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
-                        debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
-                    }
+                    SoarCommands.source(debugger.getAgent().getInterpreter(), arg);
                 }
-                debugger.getAgent().getPrinter().flush();
-                return null;
-            } }, debugger.newUpdateCompleter(false));
+                catch (SoarException e)
+                {
+                    logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
+                    debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
+                }
+            }
+            debugger.getAgent().getPrinter().flush();
+            return null;
+        }, debugger.newUpdateCompleter(false));
         return debugger;
     }
 
@@ -857,5 +847,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         factory.setDefaultLocation(views.get(0).getBaseLocation());
         addView(new StopCommandView(factory, this));
+
     }
 }

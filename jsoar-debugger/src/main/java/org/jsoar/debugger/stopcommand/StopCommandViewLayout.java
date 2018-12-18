@@ -22,7 +22,7 @@ public class StopCommandViewLayout implements MultipleCDockableLayout
     }
 
     /**
-     * Gets the command of the pvd that is shown.
+     * Gets the command of the stop command panel that is shown.
      * @return the command
      */
     public String getCommand() {

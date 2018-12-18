@@ -11,12 +11,10 @@ import java.awt.event.ActionEvent;
 
 public class StopCommandAction extends AbstractDebuggerAction
 {
-    private final JSoarDebugger debugger;
 
-    public StopCommandAction(ActionManager manager, JSoarDebugger debuggerIn)
+    public StopCommandAction(ActionManager manager)
     {
         super(manager, "Stop Command");
-        this.debugger = debuggerIn;
     }
 
     /* (non-Javadoc)
@@ -33,7 +31,6 @@ public class StopCommandAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent e)
     {
-
-        debugger.addStopCommandView();
+        getApplication().addStopCommandView();
     }
 }

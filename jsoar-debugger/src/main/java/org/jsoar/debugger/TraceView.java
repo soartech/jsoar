@@ -10,6 +10,7 @@ import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.syntax.*;
+import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
@@ -56,7 +57,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private int limitTolerance = 0;
     private boolean scrollLock = true;
 
-    private AttributeSet defaultAttributes = new SimpleAttributeSet();
     private final JTextPane outputWindow = new JTextPane() {
         private static final long serialVersionUID = 5161494134278464101L;
 
@@ -101,7 +101,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                         buffer.setLength(0);
                         printing = true;
                         flushing = false;  //moving this here makes it not forget strings, but causes it to block again
-                        final TreeSet<StyleOffset> styles = patterns.getForAll(str, debugger);
+                        final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(str, debugger);
                         System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
@@ -111,7 +111,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                     outputWindow.setDocument(new DefaultStyledDocument());
                                     if (styles.isEmpty()) {
                                         //no matches, just print the text
-                                        styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, defaultAttributes);
+                                        styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, highlighter.getDefaultAttributes());
                                     } else {
                                         int index = 0;
                                         //FIXME - this is SLOW!!!!
@@ -123,7 +123,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                             }
 
                                             //the stuff between the match
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, start), defaultAttributes);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, start), highlighter.getDefaultAttributes());
 
                                             //the matched stuff
                                             styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(start, end), offset.style);
@@ -131,7 +131,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                                         }
                                         if (index < str.length()) {
                                             //trailing text after all matches
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), defaultAttributes);
+                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), highlighter.getDefaultAttributes());
                                         }
                                     }
 //                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
@@ -179,7 +179,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
                             try {
                                 String str = buffer.toString();
-                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, str, defaultAttributes);
+                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, str, highlighter.getDefaultAttributes());
 //                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n", defaultAttributes);
                             } catch (BadLocationException e) {
                                 e.printStackTrace();
@@ -200,19 +200,17 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
                 //delayed syntax highlighting
                 lastFlush = System.currentTimeMillis();
-                new Thread() {
-                    @Override
-                    public void run() {
-                        final long pauseInterval=200;
-                        try {
-                            sleep(pauseInterval);
-                        } catch (InterruptedException ignored) {
-                        }
-                        if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
-                            reformatText();
-                        }
+                new Thread(() ->
+                {
+                    final long pauseInterval=200;
+                    try {
+                        Thread.sleep(pauseInterval);
+                    } catch (InterruptedException ignored) {
                     }
-                }.start();
+                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
+                        reformatText();
+                    }
+                }).start();
             }
 
         }
@@ -224,6 +222,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     };
     private boolean coloredOutput = true;
+    private Highlighter highlighter;
 
     private void trimOutput(Document document) {
         if (limit > 0) {
@@ -238,7 +237,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     }
 
-    private SyntaxSettings patterns;
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -249,11 +247,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         setLimit(getPreferences().getInt("limit", -1));
         coloredOutput = getPreferences().getBoolean("coloredOutput", true);
         scrollLock = getPreferences().getBoolean("scrollLock", true);
+        setDefaultTextStyle();
+
         reloadSyntax();
 
         //todo - re-implement word wrap
         //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
-        setDefaultTextStyle();
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) 
@@ -543,7 +542,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.insert(new AbstractAction("Edit Syntax Highlighting") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SyntaxConfigurator(patterns,TraceView.this, debugger).go();
+                new SyntaxConfigurator(highlighter.getPatterns(),TraceView.this, debugger).go();
             }
         },0);
 
@@ -624,97 +623,29 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     }
 
     public void saveSyntax() {
-        Prefs.storeSyntax(patterns);
+        highlighter.save();
         reformatText();
     }
 
     public void reformatText() {
-        try {
-            final String str = styledDocument.getText(0, styledDocument.getLength());
-
-            final long time = System.currentTimeMillis();
-            final TreeSet<StyleOffset> styles = patterns.getForAll(str, debugger);
-
-
-            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    int caretPosition = outputWindow.getCaretPosition();
-                    final long time = System.currentTimeMillis();
-                    try {
-                        setDefaultTextStyle();
-                        if (styles.isEmpty()) {
-                            return;
-                        } else {
-                            outputWindow.setDocument(new DefaultStyledDocument());
-                            Position startPosition = styledDocument.getStartPosition();
-                            //reset default text color and size
-                            styledDocument.replace(0,str.length(),str,defaultAttributes);
-                            int index = 0;
-                            for (StyleOffset offset : styles) {
-                                int start = offset.start;
-                                int end = offset.end;
-                                //don't apply any matches that start before the end of our last match, or that have length 0
-                                if (start >= end || start < index) {
-                                    continue;
-                                }
-                                //the matched stuff
-                                int offsetStart = startPosition.getOffset() + start;
-                                int offsetEnd = startPosition.getOffset() + (end - start);
-//                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
-
-                                styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
-                                index = end;
-                            }
-                            outputWindow.setDocument(styledDocument);
-                        }
-
-                    } catch (BadLocationException e) {
-                        e.printStackTrace();
-                    }
-                    outputWindow.setCaretPosition(caretPosition);
-                    System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-                }
-
-            });
-        } catch (BadLocationException ignored) {
-        }
+        highlighter.formatText(outputWindow);
     }
 
     public void setDefaultTextStyle()
     {
-        Color backgroundColor = patterns.getBackground();
-        outputWindow.setBackground(backgroundColor);
-        outputWindow.setSelectionColor(patterns.getSelection());
-        UIDefaults defaults = new UIDefaults();
-        defaults.put("TextPane[Enabled].backgroundPainter", backgroundColor);
-
-        outputWindow.putClientProperty("Nimbus.Overrides", defaults);
-        outputWindow.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-        outputWindow.setBackground(backgroundColor);
-        Color defaultTextColor = patterns.getForeground();
-        outputWindow.setForeground(defaultTextColor);
-        defaultAttributes = StyleContext.getDefaultStyleContext().addAttribute(defaultAttributes,StyleConstants.Foreground,defaultTextColor);
-//        reformatText();
+        highlighter = Highlighter.getInstance(debugger);
+        highlighter.setDefaultTextStyle(outputWindow);
     }
 
     public SyntaxSettings reloadSyntaxDefaults(){
-        patterns = Prefs.loadDefaultSyntax();
-        patterns.expandAllMacros(debugger);
+        SyntaxSettings patterns = highlighter.reloadSyntaxDefaults();
+
         setDefaultTextStyle();
         return patterns;
     }
 
     public void reloadSyntax() {
-        patterns = Prefs.loadSyntax();
-//        patterns.addAll(Prefs.loadSyntax());
-
-        if (patterns == null) {
-            patterns = Prefs.loadDefaultSyntax();
-            Prefs.storeSyntax(patterns);
-        }
-        setDefaultTextStyle();
-        patterns.expandAllMacros(debugger);
+        highlighter.reloadSyntax();
     }
 
     private class Provider implements SelectionProvider

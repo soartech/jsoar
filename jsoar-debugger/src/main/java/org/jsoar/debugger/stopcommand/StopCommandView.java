@@ -8,6 +8,7 @@ import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.Refreshable;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.util.events.SoarEvent;
@@ -16,23 +17,33 @@ import org.jsoar.util.events.SoarEventListener;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.io.StringWriter;
+
+import static java.awt.GridBagConstraints.FIRST_LINE_START;
+import static java.awt.GridBagConstraints.LINE_END;
+import static java.awt.GridBagConstraints.LINE_START;
 
 public class StopCommandView extends DefaultMultipleCDockable implements SelectionListener, Refreshable, Disposable, SoarEventListener
 {
 
     private static final long COMMAND_DELAY_MILLIS = 800;
     private final JSoarDebugger debugger;
+    private final Highlighter highlighter;
     private JXTextField txtCommand = new JXTextField("");
-    private JXTextArea txtResult = new JXTextArea("");
+    private JTextPane txtResult = new JTextPane();
     private long lastInputTimestamp = System.currentTimeMillis();
     private static final Object lock = new Object();
+    private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
 
     public StopCommandView(MultipleCDockableFactory factory, JSoarDebugger debuggerIn)
     {
         super(factory, "Stop Command View");
         this.debugger = debuggerIn;
+
+        highlighter = Highlighter.getInstance(debugger);
+
 
         setResizeLocked(false);
         setCloseable(true);
@@ -40,9 +51,12 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
 
         debugger.getAgent().getAgent().getEvents().addListener(StopEvent.class,this);
-        JPanel p = new JPanel(new BorderLayout());
-        txtResult.setLineWrap(true);
+        JPanel p = new JPanel();
+        p.setLayout(new BorderLayout(2,2));
+        GridBagConstraints c = new GridBagConstraints();
+//        txtResult.setLineWrap(true);
         txtResult.setEditable(false);
+        txtResult.setStyledDocument(styledDocument);
         txtCommand.getDocument().addDocumentListener(new DocumentListener()
         {
             @Override
@@ -63,13 +77,15 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
                 updateCommand(e);
             }
         });
+        highlighter.setDefaultTextStyle(txtResult);
+
 
 
         p.add(txtCommand, BorderLayout.NORTH);
         p.add(txtResult, BorderLayout.CENTER);
 
 
-        this.getContentPane().add(p);
+        getContentPane().add(new JScrollPane(p));
     }
 
     private void updateCommand(DocumentEvent e)
@@ -140,9 +156,10 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
                     debugger.getAgent().getPrinter().popWriter();//stop redirecting output to us
 
-                    txtResult.setText(result);
+                    result += writer.getBuffer().toString();
+                    txtResult.setText(result.trim());
+                    highlighter.formatText(txtResult);
 
-                    txtResult.append(writer.getBuffer().toString());
                     System.out.println("stopcommand " + command + " done!");
                 }
             } catch (SoarException | InterruptedException e) {
@@ -158,4 +175,6 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         setTitleText("On Stop: "+txtCommand.getText());
         runStopCommand();
     }
+
+
 }
