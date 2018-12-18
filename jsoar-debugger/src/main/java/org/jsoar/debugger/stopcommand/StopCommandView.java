@@ -151,4 +151,11 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
             }
         }
     }
+
+    public void setCommand(String command)
+    {
+        txtCommand.setText(command);
+        setTitleText("On Stop: "+txtCommand.getText());
+        runStopCommand();
+    }
 }

@@ -10,42 +10,42 @@ import java.io.IOException;
 
 public class StopCommandViewLayout implements MultipleCDockableLayout
 {
-    /** the name of the pvd */
-    private String name;
+    /** the command of the stop command view */
+    private String command;
 
     /**
-     * Sets the name of the pvd that is shown.
-     * @param name the name of the pvd
+     * Sets the command of the stop command view that is shown.
+     * @param command the command of the pvd
      */
-    public void setName( String name ) {
-        this.name = name;
+    public void setCommand( String command ) {
+        this.command = command;
     }
 
     /**
-     * Gets the name of the pvd that is shown.
-     * @return the name
+     * Gets the command of the pvd that is shown.
+     * @return the command
      */
-    public String getName() {
-        return name;
+    public String getCommand() {
+        return command;
     }
 
     public void readStream( DataInputStream in ) throws IOException
     {
         //do nothing. this method is for binary layout files
-//            name = in.readUTF();
+//            command = in.readUTF();
     }
 
     public void readXML(XElement element ) {
-        name = element.getString();
+        command = element.getString();
     }
 
     public void writeStream( DataOutputStream out ) throws IOException
     {
         //do nothing. this method is for binary layout files
-//            out.writeUTF( name );
+//            out.writeUTF( command );
     }
 
     public void writeXML( XElement element ) {
-        element.setString( name );
+        element.setString( command );
     }
 }

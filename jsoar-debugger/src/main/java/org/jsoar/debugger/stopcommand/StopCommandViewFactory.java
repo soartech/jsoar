@@ -31,17 +31,18 @@ public class StopCommandViewFactory implements MultipleCDockableFactory<StopComm
     @Override
     public boolean match(StopCommandView dockable, StopCommandViewLayout layout)
     {
-        String name = dockable.getCurrentCommand();
-        return name.equals(layout.getName());
+        String command = dockable.getCurrentCommand();
+        return command.equals(layout.getCommand());
     }
 
     @Override
     public StopCommandView read(StopCommandViewLayout layout)
     {
-        String name = layout.getName();
+        String command = layout.getCommand();
 
         StopCommandView frame = new StopCommandView(this, debugger);
-        frame.setLocation(defaultLocation);
+        frame.setCommand(command);
+//        frame.setLocation(defaultLocation);
 
         return frame;
     }
@@ -51,7 +52,7 @@ public class StopCommandViewFactory implements MultipleCDockableFactory<StopComm
     public StopCommandViewLayout write(StopCommandView dockable)
     {
         StopCommandViewLayout layout = new StopCommandViewLayout();
-        layout.setName(dockable.getTitleText());
+        layout.setCommand(dockable.getCurrentCommand());
         return layout;
     }
 }
