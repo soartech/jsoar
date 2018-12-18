@@ -5,31 +5,12 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.ForwardingList;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.jdesktop.swingx.prompt.PromptSupport;
+import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
@@ -39,8 +20,18 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ForwardingList;
+import javax.swing.*;
+import javax.swing.text.DefaultStyledDocument;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * @author ray
@@ -54,7 +45,8 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
     
     private final Adaptable debugger;
     private final ThreadedAgent agent;
-    private final JTextArea textArea = new JTextArea(DEFAULT_CONTENTS);
+    private final DefaultStyledDocument styledDocument = new DefaultStyledDocument();
+    private final JTextPane textArea = new JTextPane(styledDocument);
     private final JXLabel status = new JXLabel("Ready");
     private final AbstractAction loadAction = new AbstractAction("Load [Ctrl-Return]") {
 
@@ -84,17 +76,20 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             }
             return model.getProductions();
         }};
-    
-    public ProductionEditView(Adaptable debugger)
+    private final Highlighter highlighter;
+
+    public ProductionEditView(JSoarDebugger debugger)
     {
         super("productionEditor", "Production Editor");
         
         this.debugger = debugger;
         this.agent = Adaptables.adapt(debugger, ThreadedAgent.class);
-
+        textArea.setText(DEFAULT_CONTENTS);
         JPanel p = new JPanel(new BorderLayout());
         SwingTools.addUndoSupport(textArea);
+        highlighter = Highlighter.getInstance(debugger);
         textArea.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
+        highlighter.setDefaultTextStyle(textArea);
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         JPanel north = new JPanel(new BorderLayout());
@@ -102,13 +97,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         final JTextField productionField = new JTextField();
         PromptSupport.setPrompt("Enter production name here and hit enter", productionField);
         // Edit the production when they hit enter
-        productionField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                editProduction(productionField.getText().trim());
-            }});
+        productionField.addActionListener(e -> editProduction(productionField.getText().trim()));
         north.add(productionField, BorderLayout.CENTER);
         
         // Set up auto completion...
@@ -158,27 +147,23 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
      */
     public void editProduction(final String name)
     {
-        final Callable<String> call = new Callable<String>() {
-
-            public String call() throws Exception
+        final Callable<String> call = () ->
+        {
+            final Production p = agent.getProductions().getProduction(name);
+            if(p != null)
             {
-                final Production p = agent.getProductions().getProduction(name);
-                if(p != null)
-                {
-                    StringWriter s = new StringWriter();
-                    s.append("# " + p.getLocation() + "\n");
-                    p.print(new Printer(s), false);
-                    return s.toString();
-                }
-                return "";
-            }};
-        final CompletionHandler<String> finish = new CompletionHandler<String>() {
-            @Override
-            public void finish(String result)
-            {
-                textArea.setText(result);
-                status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
+                StringWriter s = new StringWriter();
+                s.append("# " + p.getLocation() + "\n");
+                p.print(new Printer(s), false);
+                return s.toString();
             }
+            return "";
+        };
+        final CompletionHandler<String> finish = result ->
+        {
+            textArea.setText(result);
+            status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
+            highlighter.formatText(textArea);
         };
         setVisible(true);
         toFront();
@@ -193,23 +178,20 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             return;
         }
         
-        final Callable<String> call = new Callable<String>() {
-
-            @Override
-            public String call()
+        final Callable<String> call = () ->
+        {
+            try
             {
-                try
-                {
-                    agent.getInterpreter().eval(contents);
-                    agent.getPrinter().flush();
-                    return "Loaded";
-                }
-                catch (SoarException e)
-                {
-                    logger.error(e.getMessage(), e);
-                    return "ERROR: " + e.getMessage();
-                }
-            }};
+                agent.getInterpreter().eval(contents);
+                agent.getPrinter().flush();
+                return "Loaded";
+            }
+            catch (SoarException e)
+            {
+                logger.error(e.getMessage(), e);
+                return "ERROR: " + e.getMessage();
+            }
+        };
         final CompletionHandler<String> finish = new CompletionHandler<String>() {
 
             @Override
