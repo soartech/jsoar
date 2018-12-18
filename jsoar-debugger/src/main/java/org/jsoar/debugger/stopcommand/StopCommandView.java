@@ -1,10 +1,11 @@
 package org.jsoar.debugger.stopcommand;
 
 import bibliothek.gui.dock.common.*;
+import org.jdesktop.swingx.JXTextArea;
+import org.jdesktop.swingx.JXTextField;
 import org.jsoar.debugger.Disposable;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.Refreshable;
-import org.jsoar.debugger.TableFilterPanel;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.SoarException;
@@ -13,24 +14,55 @@ import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.StringWriter;
 
 public class StopCommandView extends DefaultMultipleCDockable implements SelectionListener, Refreshable, Disposable, SoarEventListener
 {
 
+    private static final long COMMAND_DELAY_MILLIS = 800;
     private final JSoarDebugger debugger;
-    private JTextField txtCommand = new JTextField("");
-    private JTextArea txtResult = new JTextArea("");
+    private JXTextField txtCommand = new JXTextField("");
+    private JXTextArea txtResult = new JXTextArea("");
+    private long lastInputTimestamp = System.currentTimeMillis();
+    private static final Object lock = new Object();
+
     public StopCommandView(MultipleCDockableFactory factory, JSoarDebugger debuggerIn)
     {
         super(factory, "Stop Command View");
         this.debugger = debuggerIn;
 
+        setResizeLocked(false);
+        setCloseable(true);
+        setExternalizable(true);
+
+
         debugger.getAgent().getAgent().getEvents().addListener(StopEvent.class,this);
         JPanel p = new JPanel(new BorderLayout());
         txtResult.setLineWrap(true);
         txtResult.setEditable(false);
+        txtCommand.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                updateCommand(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                updateCommand(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+                updateCommand(e);
+            }
+        });
 
 
         p.add(txtCommand, BorderLayout.NORTH);
@@ -38,6 +70,23 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
 
         this.getContentPane().add(p);
+    }
+
+    private void updateCommand(DocumentEvent e)
+    {
+        new Thread(() ->
+        {
+            lastInputTimestamp = System.currentTimeMillis();
+            try {
+                Thread.sleep(COMMAND_DELAY_MILLIS);
+            } catch (InterruptedException ignored) {
+            }
+            long time = System.currentTimeMillis();
+            if (lastInputTimestamp + COMMAND_DELAY_MILLIS <= time) {
+                setTitleText("On Stop: "+txtCommand.getText());
+                runStopCommand();
+            }
+        }).start();
     }
 
     @Override
@@ -49,7 +98,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     @Override
     public void refresh(boolean afterInitSoar)
     {
-
+        runStopCommand();
     }
 
     @Override
@@ -66,21 +115,38 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     @Override
     public void onEvent(SoarEvent event)
     {
-        System.out.println("event!");
         if (event instanceof StopEvent){
+            runStopCommand();
+        }
+    }
+
+    public void runStopCommand()
+    {
+        String command = txtCommand.getText();
+        if (!command.trim().isEmpty()) {
             try {
-                String command = txtCommand.getText();
-                StringWriter writer = new StringWriter();
+                synchronized (lock) {
+                    System.out.println("stopcommand " + command + " running...");
 
-                debugger.getAgent().getPrinter().pushWriter(writer); //redirect output
-                String result = debugger.getAgent().getAgent().getInterpreter().eval(command);
+                    //most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
+                    StringWriter writer = new StringWriter();
 
-                debugger.getAgent().getPrinter().popWriter();//pop our writer so output goes back to the window
+                    debugger.getAgent().getPrinter().pushWriter(writer); //redirect output to us
 
-                txtResult.setText(result);
+                    String result = debugger.getAgent().getAgent().getInterpreter().eval(command);
 
-                txtResult.append(writer.getBuffer().toString());
-            } catch (SoarException e) {
+                    Thread.sleep(30); //need to pause because otherwise we get some fun race conditions for slower commands and multiple windows
+                    //may need to increase pause duration based on how long some commands take to run
+
+                    debugger.getAgent().getPrinter().popWriter();//stop redirecting output to us
+
+                    txtResult.setText(result);
+
+                    txtResult.append(writer.getBuffer().toString());
+                    System.out.println("stopcommand " + command + " done!");
+                }
+            } catch (SoarException | InterruptedException e) {
+                System.out.println("stopcommand " + command + " error!");
                 txtResult.setText(e.getMessage()); //print the error if there was one
             }
         }

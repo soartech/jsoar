@@ -66,6 +66,7 @@ import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -548,7 +549,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         // L&F is cute, but for some reason, switching L&F breaks the trace command box
         // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
-
+        viewMenu.getMenu().addSeparator();
+        viewMenu.getMenu().add(actionManager.getAction(StopCommandAction.class));
 
         viewMenu.add(new SeparatingMenuPiece(
                 new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )),
@@ -590,8 +592,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.add(new StepAction(actionManager, "1 Decision", RunType.DECISIONS, "ctrl shift D"));
         runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
-        runMenu.addSeparator();
-        runMenu.add(actionManager.getAction(StopCommandAction.class));
         bar.add(runMenu);
         
         final JMenu toolsMenu = new JMenu("Tools");
