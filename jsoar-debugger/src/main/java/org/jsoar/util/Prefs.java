@@ -14,6 +14,7 @@ public class Prefs extends AbstractPreferences {
 
     private static final String PREFS_FILENAME = "jsoar.properties";
     private static final String SYNTAX_FILENAME = "syntax.json";
+    private static final String LAYOUT_FILENAME = "layout.xml";
     private static final String PREFS_PATH = System.getProperty("user.home") + "/.jsoar";
 
     private final TreeMap<String, String> root;
@@ -252,5 +253,19 @@ public class Prefs extends AbstractPreferences {
 
         }
         return new SyntaxSettings();
+    }
+
+    public static File getLayoutFile() throws IOException
+    {
+        boolean success = true;
+        File file = new File(PREFS_PATH);
+        if (!file.exists()) {
+            success = file.mkdir();
+        }
+        file = new File(file, LAYOUT_FILENAME);
+        if (!file.exists()) {
+            success &= file.createNewFile();
+        }
+        return file;
     }
 }

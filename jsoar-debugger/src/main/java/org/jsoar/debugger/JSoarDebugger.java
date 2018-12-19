@@ -63,6 +63,7 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.Prefs;
 import org.jsoar.util.PrefsFactory;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -474,6 +475,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 logger.error(e.getMessage(), e);
             }
+            try {
+                Prefs.getLayoutFile().deleteOnExit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         
         final Object closeAction = providerProperties.get(DebuggerProvider.CLOSE_ACTION);
@@ -494,9 +500,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
     public void restoreLayout()
     {
+        try {
+            docking.readXML(Prefs.getLayoutFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // TODO: Implement layout storage in a way that doesn't suck.
     }
-    
+
     private void initActions()
     {
         new ExitAction(actionManager);
@@ -549,18 +560,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
                 new CLayoutChoiceMenuPiece( docking, false ));
+        layoutMenu.getMenu().add(actionManager.getAction(RestoreLayoutAction.class));
         viewMenu.add(layoutMenu);
-        new ViewSelectionMenu( docking, viewMenu.getMenu());
-        
-        /*
-        viewMenu.getMenu().add(new AbstractAction("Write")
+
+
+        viewMenu.getMenu().add(new AbstractAction("Save Layout to File")
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 try
                 {
-                    docking.writeXML(new File("../jsoar-debugger/src/main/resources/org/jsoar/debugger/layout.xml"));
+                    docking.writeXML(Prefs.getLayoutFile());
                 }
                 catch (IOException e1)
                 {
@@ -569,7 +580,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
             }
         });
-        */
+        new ViewSelectionMenu( docking, viewMenu.getMenu());
+
         
         bar.add(viewMenu.getMenu());
         
