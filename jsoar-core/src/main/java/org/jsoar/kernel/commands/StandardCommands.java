@@ -48,7 +48,6 @@ public class StandardCommands
         
         final PrintCommand printCommand = new PrintCommand(agent);
         interp.addCommand("print", printCommand);
-        interp.addCommand("default-wme-depth", new DefaultWmeDepthCommand(printCommand));
         
         interp.addCommand("firing-counts", new FiringCountsCommand(agent));
         interp.addCommand("excise", new ExciseCommand(agent));
