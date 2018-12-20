@@ -41,7 +41,6 @@ public class StandardCommands
         interp.addCommand("save-backtraces", new SaveBacktracesCommand(agent));
         interp.addCommand("explain-backtraces", new ExplainBacktracesCommand(agent));
         interp.addCommand("echo", new EchoCommand(agent));
-        interp.addCommand("clog", new CLogCommand(agent));
         interp.addCommand("watch", new WatchCommand(agent.getTrace()));
         interp.addCommand("pwatch", new PWatchCommand(agent.getProductions()));
         interp.addCommand("pbreak", new ProductionBreakCommand(agent.getProductions()));
