@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,6 +72,21 @@ public class DebuggerFragment extends Fragment
       public void onClick(View view)
       {
         onClickClearLog(view);
+      }
+    });
+
+    AutoCompleteTextView inputTextView = (AutoCompleteTextView)getView().findViewById(R.id.inputTextView);
+    inputTextView.setOnEditorActionListener(new TextView.OnEditorActionListener()
+    {
+      @Override
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+      {
+        if (actionId == EditorInfo.IME_ACTION_DONE)
+        {
+          onClickExec(getView().findViewById(R.id.execButton));
+          return true;
+        }
+        return false;
       }
     });
     attachAgent();
@@ -164,7 +181,7 @@ public class DebuggerFragment extends Fragment
     }
     String command = ((AutoCompleteTextView) getView().findViewById(R.id.inputTextView)).getText().toString();
     Log.i(TAG, "Exec'ing " + command);
-    addToOutput("> " + command + "\n");
+    addToOutput("\n> " + command);
     try
     {
       agent.getInterpreter().eval(command);
@@ -172,7 +189,7 @@ public class DebuggerFragment extends Fragment
     catch (SoarException e)
     {
       Log.w(TAG, "Unable to execute '" + command + "'", e);
-      addToOutput("ERROR: " + e.getLocalizedMessage() + "\n");
+      addToOutput("\nERROR: " + e.getLocalizedMessage());
     }
   }
 
