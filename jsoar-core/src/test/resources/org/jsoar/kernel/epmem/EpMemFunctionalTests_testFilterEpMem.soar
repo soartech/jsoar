@@ -1,4 +1,4 @@
-excise --all
+production excise --all
 epmem --reinit
 init-soar
 

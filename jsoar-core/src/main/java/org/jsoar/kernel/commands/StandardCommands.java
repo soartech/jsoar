@@ -50,7 +50,6 @@ public class StandardCommands
         interp.addCommand("print", printCommand);
         
         interp.addCommand("firing-counts", new FiringCountsCommand(agent));
-        interp.addCommand("excise", new ExciseCommand(agent));
         interp.addCommand("init-soar", new InitSoarCommand(agent));
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("memories", new MemoriesCommand(agent));
