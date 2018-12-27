@@ -5,12 +5,13 @@
  */
 package org.jsoar.util;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -23,6 +24,13 @@ public class IncrementalSearch implements DocumentListener, ActionListener
 
     protected Matcher matcher;
 
+    private boolean useRegex = false;
+    private boolean matchCase = false;
+    private ArrayList<Match> matches = new ArrayList<>();
+    private int currentMatch = -1;
+    private Color highlightColor = Color.DARK_GRAY;
+
+
     public IncrementalSearch(JTextComponent comp)
     {
         this.content = (JEditorPane) comp;
@@ -31,17 +39,32 @@ public class IncrementalSearch implements DocumentListener, ActionListener
     /* DocumentListener implementation */
     public void insertUpdate(DocumentEvent evt)
     {
-        runNewSearch(evt.getDocument());
+        Document query_doc = evt.getDocument();
+        try {
+            runNewSearch(query_doc.getText(0, query_doc.getLength()));
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeUpdate(DocumentEvent evt)
     {
-        runNewSearch(evt.getDocument());
+        Document query_doc = evt.getDocument();
+        try {
+            runNewSearch(query_doc.getText(0, query_doc.getLength()));
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void changedUpdate(DocumentEvent evt)
     {
-        runNewSearch(evt.getDocument());
+        Document query_doc = evt.getDocument();
+        try {
+            runNewSearch(query_doc.getText(0, query_doc.getLength()));
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     /* ActionListener implementation */
@@ -50,99 +73,185 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         continueSearch();
     }
 
-    private void runNewSearch(Document query_doc)
+    public void runNewSearch(String query)
     {
-        try
-        {
-            final String query = query_doc.getText(0, query_doc.getLength());
-            if(query.length() > 0)
-            {
-                final Pattern pattern = Pattern.compile(query);
+        try {
+
+            if (query.length() > 0) {
+                matches.clear();
+                currentMatch = -1;
+
                 final Document content_doc = content.getDocument();
                 String body = content_doc.getText(0, content_doc.getLength());
-                matcher = pattern.matcher(body);
-            }
-            else
-            {
+                if (useRegex) {
+                    final Pattern pattern = Pattern.compile(query);
+                    matcher = pattern.matcher(body);
+                    findAllMatches();
+                } else {
+                    matcher = null;
+                    if (!matchCase) {
+                        body = body.toLowerCase();
+                        query = query.toLowerCase();
+                    }
+                    findAllStringMatches(query, body);
+                }
+                continueSearch();
+            } else {
+                onNoMatch();
                 matcher = null;
             }
-
-            highlightAll();
-
-
-            continueSearch();
-        }
-        catch (PatternSyntaxException ex)
-        {
-            matcher = null;
-            onError();
-        }
-        catch (BadLocationException e)
-        {
+        } catch (BadLocationException e) {
             onError();
         }
     }
 
-    private void highlightAll() {
+    private void findAllStringMatches(String query, String body)
+    {
+        Highlighter h = content.getHighlighter();
+
+        LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
+        h.removeAllHighlights();
+
+        int i = 0;
+        while (i < body.length() + query.length()) {
+            int start = body.indexOf(query, i);
+            int end = start + query.length();
+            if (start < 0 || end > body.length()) {
+                break;
+            }
+            try {
+                Object highlight = h.addHighlight(start, end, painter);
+                matches.add(new Match(start,end,highlight));
+                i = end;
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+    }
+
+    private void findAllMatches()
+    {
+
         if (matcher != null) {
 
             Highlighter h = content.getHighlighter();
-            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.red);
+            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
             h.removeAllHighlights();
-//            h.install(content);
             while (matcher.find()) {
                 try {
-
-                    h.addHighlight(matcher.start(),matcher.end(), painter);
+                    Object highlight = h.addHighlight(matcher.start(), matcher.end(), painter);
+                    matches.add(new Match(matcher.start(), matcher.end(), highlight));
                 } catch (BadLocationException e) {
                     e.printStackTrace();
                 }
             }
-
+        } else {
+            onError();
         }
     }
 
-    protected void onError() {}
-    
-    protected void onNoMatch() {}
-    
-    protected void onMatch() {}
-
-    private void continueSearch()
+    protected void onError()
     {
-        if (matcher != null)
-        {
-            if (matcher.find())
-            {
-                handleMatch();
+    }
+
+    protected void onNoMatch()
+    {
+    }
+
+    protected void onMatch(int match, int total)
+    {
+    }
+
+    protected void continueSearch()
+    {
+        if (!matches.isEmpty()) {
+            resetHighlight();
+
+            currentMatch++;
+            if (currentMatch >= matches.size()) {
+                currentMatch = 0;
             }
-            else
-            {
-                // wrap search
-                matcher.reset();
-                if (matcher.find())
-                {
-                    handleMatch();
-                }
-                else
-                {
-                    onNoMatch();
-                }
-            }
-        }
-        else
-        {
+            handleMatch();
+        } else {
             onNoMatch();
         }
     }
-    
+    public void findPrev()
+    {
+        if (!matches.isEmpty()) {
+            resetHighlight();
+            currentMatch--;
+            if (currentMatch < 0) {
+                currentMatch = matches.size() - 1;
+            }
+            handleMatch();
+        } else {
+            onNoMatch();
+        }
+    }
+
+
     private void handleMatch()
     {
-        content.getCaret().setDot(matcher.start());
-        content.getCaret().moveDot(matcher.end());
+        Match match = matches.get(currentMatch);
+        content.getCaret().setDot(match.start);
+        content.getCaret().moveDot(match.end);
         content.getCaret().setSelectionVisible(true);
+        Highlighter h = content.getHighlighter();
+        LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor);
+        try {
+            h.removeHighlight(match.highlight);
+            match.highlight = h.addHighlight(match.start, match.end, painter);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
+        onMatch(currentMatch, matches.size());
+    }
 
 
-        onMatch();
+    private void resetHighlight()
+    {
+        if (currentMatch >= 0 && currentMatch < matches.size()) {
+            Match match = matches.get(currentMatch);
+            Highlighter h = content.getHighlighter();
+            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
+            try {
+                h.removeHighlight(match.highlight);
+                match.highlight = h.addHighlight(match.start, match.end, painter);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void setMatchCase(boolean selected)
+    {
+        matchCase = selected;
+    }
+
+    public void setUseRegex(boolean selected)
+    {
+        useRegex = selected;
+    }
+
+    public void setHighlightColor(Color color)
+    {
+        highlightColor = color;
+    }
+
+    private class Match
+    {
+        public Object highlight;
+        int start;
+        int end;
+
+        public Match(int start, int end, Object highlight)
+        {
+            this.start = start;
+            this.end = end;
+            this.highlight = highlight;
+        }
     }
 }
