@@ -1,12 +1,11 @@
 package org.jsoar.debugger.stopcommand;
 
-import bibliothek.gui.dock.common.MultipleCDockableLayout;
-import bibliothek.gui.dock.themes.basic.BasicDockableDisplayerDecorator;
-import bibliothek.util.xml.XElement;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import bibliothek.gui.dock.common.MultipleCDockableLayout;
+import bibliothek.util.xml.XElement;
 
 public class StopCommandViewLayout implements MultipleCDockableLayout
 {

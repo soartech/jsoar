@@ -8,11 +8,11 @@ package org.jsoar.util.commands;
 import java.io.File;
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.SourceLocation;
+
 import picocli.CommandLine;
 
 /**

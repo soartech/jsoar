@@ -1,11 +1,9 @@
 package org.jsoar.debugger.stopcommand;
 
-import bibliothek.gui.dock.common.*;
-import bibliothek.gui.dock.common.intern.CControlAccess;
-import bibliothek.gui.dock.common.intern.CommonMultipleDockableFactory;
 import org.jsoar.debugger.JSoarDebugger;
 
-import java.util.Map;
+import bibliothek.gui.dock.common.CLocation;
+import bibliothek.gui.dock.common.MultipleCDockableFactory;
 
 public class StopCommandViewFactory implements MultipleCDockableFactory<StopCommandView, StopCommandViewLayout>
 {
@@ -16,6 +14,7 @@ public class StopCommandViewFactory implements MultipleCDockableFactory<StopComm
         this.debugger = debuggerIn;
     }
 
+    @SuppressWarnings("unused")
     private CLocation defaultLocation;
 
     @Override

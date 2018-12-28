@@ -5,12 +5,42 @@
  */
 package org.jsoar.debugger;
 
-import bibliothek.gui.dock.common.action.CButton;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.Callable;
+
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.Position;
+
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
-import org.jsoar.debugger.syntax.*;
 import org.jsoar.debugger.syntax.Highlighter;
+import org.jsoar.debugger.syntax.StyleOffset;
+import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
@@ -22,22 +52,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
-import org.jsoar.util.Prefs;
 
-import javax.swing.*;
-import javax.swing.text.*;
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.*;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
-import java.util.concurrent.Callable;
+import bibliothek.gui.dock.common.action.CButton;
 
 /**
  * @author ray

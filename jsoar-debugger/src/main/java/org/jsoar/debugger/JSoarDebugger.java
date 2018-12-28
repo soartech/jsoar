@@ -23,14 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
-import bibliothek.gui.dock.common.*;
 import org.jdesktop.swingx.JXFrame;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
@@ -80,6 +85,8 @@ import org.jsoar.util.properties.PropertyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bibliothek.gui.dock.common.CControl;
+import bibliothek.gui.dock.common.MultipleCDockable;
 import bibliothek.gui.dock.common.event.CFocusListener;
 import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.menu.CLayoutChoiceMenuPiece;
@@ -523,6 +530,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new StopCommandAction(actionManager);
     }
 
+    @SuppressWarnings("serial")
     private void initMenuBar()
     {
         final JMenuBar bar = new JMenuBar();

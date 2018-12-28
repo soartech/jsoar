@@ -1,7 +1,15 @@
 package org.jsoar.debugger.stopcommand;
 
-import bibliothek.gui.dock.common.*;
-import org.jdesktop.swingx.JXTextArea;
+import java.awt.BorderLayout;
+import java.io.StringWriter;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultStyledDocument;
+
 import org.jdesktop.swingx.JXTextField;
 import org.jsoar.debugger.Disposable;
 import org.jsoar.debugger.JSoarDebugger;
@@ -14,16 +22,8 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultStyledDocument;
-import java.awt.*;
-import java.io.StringWriter;
-
-import static java.awt.GridBagConstraints.FIRST_LINE_START;
-import static java.awt.GridBagConstraints.LINE_END;
-import static java.awt.GridBagConstraints.LINE_START;
+import bibliothek.gui.dock.common.DefaultMultipleCDockable;
+import bibliothek.gui.dock.common.MultipleCDockableFactory;
 
 public class StopCommandView extends DefaultMultipleCDockable implements SelectionListener, Refreshable, Disposable, SoarEventListener
 {
@@ -37,7 +37,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     private static final Object lock = new Object();
     private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
 
-    public StopCommandView(MultipleCDockableFactory factory, JSoarDebugger debuggerIn)
+    public StopCommandView(MultipleCDockableFactory<?,?> factory, JSoarDebugger debuggerIn)
     {
         super(factory, "Stop Command View");
         this.debugger = debuggerIn;
@@ -53,7 +53,6 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         debugger.getAgent().getAgent().getEvents().addListener(StopEvent.class,this);
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout(2,2));
-        GridBagConstraints c = new GridBagConstraints();
 //        txtResult.setLineWrap(true);
         txtResult.setEditable(false);
         txtResult.setStyledDocument(styledDocument);
