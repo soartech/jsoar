@@ -5,7 +5,7 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -14,8 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import javafx.scene.layout.Background;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.rete.PartialMatches;
@@ -32,12 +34,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
 {
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
+    private final Highlighter highlighter;
     private JTextPane textArea = new JTextPane();
-    
+
     public PartialMatchesView(JSoarDebugger debugger)
     {
         super("partialmatches", "Partial Matches");
-        
+
         this.agent = debugger.getAgent();
         this.selectionManager = debugger.getSelectionManager();
         
@@ -51,6 +54,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
 
         this.selectionManager.addListener(this);
         selectionChanged(selectionManager);
+        highlighter = Highlighter.getInstance(debugger);
     }
 
     /* (non-Javadoc)
@@ -97,6 +101,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 {
                     textArea.setText(result);
                     textArea.setCaretPosition(0);
+
                 }
             }
             
@@ -119,6 +124,10 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         final StringBuilder b = new StringBuilder();
         b.append("<html>");
+        Color background = highlighter.getPatterns().getBackground();
+        b.append("<body bgcolor='")
+         .append(String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue()))
+         .append("'>");
         int count = 0;
         for(Object o : selection)
         {
@@ -148,7 +157,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             b.append("<br>");
         }
         
-        b.append("</html>");
+        b.append("</body></html>");
         return count != 0 ? b.toString() : null;
     }
 

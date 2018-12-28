@@ -13,10 +13,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
@@ -33,8 +30,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -105,6 +104,7 @@ public class WorkingMemoryTree extends JComponent
         rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
 
         this.model = new Model(agent, getTreeLock());
+        this.backgroundColor = Highlighter.getInstance(null).getPatterns().getBackground();
 
         setFont(font);
         setBackground(backgroundColor);
@@ -127,6 +127,13 @@ public class WorkingMemoryTree extends JComponent
                 {
                     WorkingMemoryTree.this.mouseDragged(e);
                 }
+            }
+        });
+        addMouseWheelListener(e ->
+        {
+            synchronized (model.lock)
+            {
+                WorkingMemoryTree.this.mouseScrolled(e);
             }
         });
         addMouseListener(new MouseAdapter(){
@@ -157,6 +164,8 @@ public class WorkingMemoryTree extends JComponent
                     WorkingMemoryTree.this.mouseReleased(e);
                 }
             }
+
+
         });
     }
     
@@ -587,7 +596,22 @@ public class WorkingMemoryTree extends JComponent
         
         return bounds;
     }
-    
+
+    private void mouseScrolled(MouseWheelEvent e)
+    {
+        final int dy = getRowHeight() * -e.getWheelRotation();
+        offset.y = Math.min(0, offset.y + dy);
+        final int totalHeight = model.rows.size() * getRowHeight();
+        if (totalHeight < getHeight()) {
+            offset.y = 0;
+        }
+        if (totalHeight > getHeight() && offset.y + totalHeight < getHeight()) {
+            offset.y = getHeight() - totalHeight;
+        }
+
+        repaint();
+    }
+
     private void mousePressed(MouseEvent e)
     {
         lastMouseDragPoint = e.getPoint();

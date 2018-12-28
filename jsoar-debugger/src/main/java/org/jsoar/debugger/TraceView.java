@@ -31,10 +31,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -52,7 +49,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private final Provider selectionProvider = new Provider();
 
     private final IncrementalSearchPanel searchPanel;
-    
+
     private int limit = -1;
     private int limitTolerance = 0;
     private boolean scrollLock = true;
@@ -77,7 +74,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         private volatile boolean flushing = false;
         @SuppressWarnings("unused")
         private volatile boolean printing = false;
-        
+
         @Override
         public void close() throws IOException
         {
@@ -242,12 +239,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         super("trace", "Trace");
         this.debugger = debuggerIn;
-        
+
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         setLimit(getPreferences().getInt("limit", -1));
         coloredOutput = getPreferences().getBoolean("coloredOutput", true);
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         setDefaultTextStyle();
+
+
 
         reloadSyntax();
 
@@ -255,7 +254,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
         outputWindow.addMouseListener(new MouseAdapter() {
 
-            public void mousePressed(MouseEvent e) 
+            public void mousePressed(MouseEvent e)
             {
                 if(e.isPopupTrigger())
                 {
@@ -286,15 +285,15 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setDocument(styledDocument);
 
         final JSoarVersion version = JSoarVersion.getInstance();
-        outputWindow.setText("JSoar " + version + "\n" + 
-                             "http://jsoar.googlecode.com\n" + 
+        outputWindow.setText("JSoar " + version + "\n" +
+                             "http://jsoar.googlecode.com\n" +
                              "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
                              "\n" +
                              "Right-click for trace options (or use watch command)\n" +
                              "Double-click identifiers, wmes, and rule names to drill down\n" +
                              "You can paste code (ctrl+v) directly into this window.\n");
 
-        
+
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
 
 
@@ -302,21 +301,22 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         trace.disableAll();
         trace.setEnabled(Category.LOADING, true);
         trace.setWatchLevel(1);
-        
+
         final JPanel p = new JPanel(new BorderLayout());
+
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
-        
+
         final JPanel bottom = new JPanel(new BorderLayout());
-        
+
         commandPanel = new CommandEntryPanel(debugger);
         bottom.add(commandPanel, BorderLayout.CENTER);
-        
-        searchPanel = new IncrementalSearchPanel(outputWindow);
+
+        searchPanel = new IncrementalSearchPanel(outputWindow, debugger);
         searchPanel.setSearchText(getPreferences().get("search", ""));
-        
+
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
-                
+
         addAction(new CButton("Clear", Images.CLEAR) {
             @Override
             protected void action()
@@ -324,17 +324,19 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 clear();
             }
         });
-        
+
+
         getContentPane().add(p);
+
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     public void dispose()
     {
         commandPanel.dispose();
-        
+
         final Printer printer = debugger.getAgent().getPrinter();
         while(outputWriter != printer.popWriter())
         {
@@ -393,12 +395,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             outputWindow.setText("");
         }
     }
-    
+
     /**
-     * Set the limit on the number of characters saved in the trace. When 
+     * Set the limit on the number of characters saved in the trace. When
      * {@code limit +20%} is reached, the beginning 20% of the trace buffer
      * will be removed.
-     * 
+     *
      * @param limit the limit, in number of characters, or {@code -1} for no limit
      */
     public void setLimit(int limit)
@@ -413,7 +415,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }
         }
     }
-    
+
     private SelectedObject getObjectAtPoint(Point p)
     {
         int offset = outputWindow.viewToModel(p);
@@ -426,7 +428,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         return object;
     }
-    
+
     private void updateSelectionFromMouseEvent(MouseEvent e)
     {
         final SelectedObject object = getObjectAtPoint(e.getPoint());
@@ -450,7 +452,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }};
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
     }
-    
+
     private void handleObjectAction(MouseEvent e)
     {
         final SelectedObject object = getObjectAtPoint(e.getPoint());
@@ -489,7 +491,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 {
                     command = null;
                 }
-                
+
                 if(command != null)
                 {
                     debugger.getAgent().getInterpreter().eval(command);
@@ -498,14 +500,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }};
         debugger.getAgent().execute(call, null);
     }
-    
+
     @SuppressWarnings("serial")
     private void showPopupMenu(MouseEvent e)
     {
         final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
-        
+
         menu.populateMenu();
-        
+
         menu.insertSeparator(0);
 
         // Add trace limit action
@@ -518,7 +520,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 askForTraceLimit();
             }}, 0);
-        
+
         // Add Wrap text action
         final JCheckBoxMenuItem scrollLockItem = new JCheckBoxMenuItem("Scroll lock", scrollLock);
         scrollLockItem.addActionListener(new ActionListener() {
@@ -557,7 +559,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 outputWindow.setLineWrap(!outputWindow.getLineWrap());
             }});
         menu.insert(wrapTextItem, 0);*/
-        
+
         // Add clear action
         menu.insert(new AbstractAction("Clear") {
 
@@ -568,9 +570,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 clear();
             }}, 0);
-        
-        
-        
+
+
+
         final int offset = outputWindow.viewToModel(e.getPoint());
         if(offset >= 0)
         {
@@ -582,11 +584,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 object.fillMenu(debugger, menu);
             }
         }
-        
+
         // Show the menu
         menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
     }
-    
+
     private void askForTraceLimit()
     {
         final String result = JOptionPane.showInputDialog(outputWindow, "Trace limit in characters (-1 for no limit)", limit);
@@ -652,7 +654,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         SelectionManager manager;
         List<Object> selection = new ArrayList<Object>();
-        
+
         public void setSelection(Object o)
         {
             selection.clear();
@@ -665,7 +667,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 manager.fireSelectionChanged();
             }
         }
-        
+
         /* (non-Javadoc)
          * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
          */
@@ -701,6 +703,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             return selection;
         }
-        
+
     }
 }
