@@ -36,6 +36,7 @@ public class TclCmdTest
     @Before
     public void setUp() throws Exception
     {
+        System.setProperty("jsoar.agent.interpreter", "tcl");
         this.agent = new Agent(false);
         ifc = SoarTclInterface.findOrCreate(agent);
         this.agent.getPrinter().pushWriter(outputWriter = new StringWriter());
@@ -52,7 +53,6 @@ public class TclCmdTest
     {
         if (this.agent != null)
         {
-            SoarTclInterface.dispose(ifc);
             ifc = null;
             this.agent.dispose();
             this.agent = null;

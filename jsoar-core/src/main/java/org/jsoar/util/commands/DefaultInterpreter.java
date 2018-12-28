@@ -86,6 +86,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         command.add(name);
         return getSoarCommand(ByRef.create(new ParsedCommand(srcLoc, command)));
     }
+    
+    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException
+    {
+        final List<String> command = new ArrayList<String>();
+        command.add(name);
+        return resolveAliases(new ParsedCommand(srcLoc, command));
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#getName()

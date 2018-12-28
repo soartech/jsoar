@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,16 @@ import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.UrlTools;
-import org.jsoar.util.commands.*;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
+import org.jsoar.util.commands.ParsedCommand;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
 
 import picocli.CommandLine;
 import tcl.lang.Command;
@@ -43,9 +51,6 @@ import tcl.lang.Interp;
 import tcl.lang.TCL;
 import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
-
-import com.google.common.collect.MapMaker;
-import com.google.common.io.ByteStreams;
 import tcl.lang.cmd.InterpAliasCmd;
 
 /**
@@ -445,5 +450,32 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             return SoarTclInterface.this.eval(code);
         }
+    }
+
+    @Override
+    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
+            throws SoarException
+    {
+        List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
+        try {
+            interp.eval("interp alias {} " + args.get(0));
+        } catch (TclException e) {
+            logger.error("Tcl exception", e);
+        }
+        
+        
+        String result = interp.getResult().toString();
+        
+        // there is no alias, so just return the original args
+        if(result.length() == 0)
+        {
+            return new ParsedCommand(srcLoc, args);
+        }
+        
+        // there is an alias, so split it and add the original args to it
+        List<String> aliasArgs = new ArrayList<>(Arrays.asList(interp.getResult().toString().split("\\s")));
+        aliasArgs.addAll(args.subList(1, args.size()));
+        
+        return new ParsedCommand(srcLoc, aliasArgs);
     }
 }

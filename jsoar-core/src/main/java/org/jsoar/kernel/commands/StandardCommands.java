@@ -49,7 +49,6 @@ public class StandardCommands
         final PrintCommand printCommand = new PrintCommand(agent);
         interp.addCommand("print", printCommand);
         
-        interp.addCommand("firing-counts", new FiringCountsCommand(agent));
         interp.addCommand("init-soar", new InitSoarCommand(agent));
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("memories", new MemoriesCommand(agent));

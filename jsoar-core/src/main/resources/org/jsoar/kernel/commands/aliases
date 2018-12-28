@@ -8,7 +8,8 @@ alias ctf command-to-file
 alias set-default-depth default-wme-depth
 alias ex excise
 alias eb explain-backtraces
-alias fc firing-counts
+alias fc production firing-counts
+alias firing-counts production firing-counts
 alias gds_print gds-print
 alias h help
 alias man help
