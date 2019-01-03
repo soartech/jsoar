@@ -28,7 +28,6 @@ public class StandardCommands
     public static void addToInterpreter(Agent agent, SoarCommandInterpreter interp)
     {
         interp.addCommand("sp", new SpCommand(agent));
-        interp.addCommand("multi-attributes", new MultiAttrCommand(agent));
         interp.addCommand("stats", new StatsCommand(agent));
         interp.addCommand("srand", new SrandCommand(agent));
         interp.addCommand("waitsnc", new WaitSncCommand(agent));

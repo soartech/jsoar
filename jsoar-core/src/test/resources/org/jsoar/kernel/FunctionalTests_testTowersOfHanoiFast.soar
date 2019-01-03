@@ -32,12 +32,12 @@
 
 
 ### These declaration help Soar reorder the conditions of the rules
-multi-attributes operator 2
-multi-attributes disk 7
-multi-attributes peg 4
-multi-attributes holds 10
-#multi-attributes upper-disk 
-multi-attributes clear 3
+production optimize-attribute operator 2
+production optimize-attribute disk 7
+production optimize-attribute peg 4
+production optimize-attribute holds 10
+#production optimize-attribute upper-disk 
+production optimize-attribute clear 3
 
 #chunk --off
 

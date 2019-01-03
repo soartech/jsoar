@@ -1,8 +1,8 @@
-multi-attributes ontop 3
+production optimize-attribute ontop 3
 
-multi-attributes clear 3
+production optimize-attribute clear 3
 
-multi-attributes objects 4
+production optimize-attribute objects 4
 
 #chunk --off
 

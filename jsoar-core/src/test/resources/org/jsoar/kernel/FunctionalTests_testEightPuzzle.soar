@@ -826,9 +826,9 @@ sp {evaluate-operator*elaborate*state*remove*untried-tied-operator
    (<s> ^untried-tied-operator <o> -)
 }
 
-multi-attributes binding 10
+production optimize-attribute binding 10
 
-multi-attributes operator 4
+production optimize-attribute operator 4
 
 sp {eight*detect*state*success
    (state <s> ^problem-space.name eight-puzzle

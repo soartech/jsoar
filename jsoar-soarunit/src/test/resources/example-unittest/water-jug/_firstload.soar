@@ -2,4 +2,4 @@
 chunk --off
 
 # this helps Soar reorder conditions so matching is more efficient 
-multi-attributes jug 3
+production optimize-attribute jug 3

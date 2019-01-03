@@ -1,6 +1,6 @@
 chunk --off
 
-multi-attributes jug 3
+production optimize-attribute jug 3
 
 sp {water-jug*elaborate*empty
    (state <s> ^name water-jug
