@@ -1,5 +1,5 @@
 
-waitsnc --on
+soar wait-snc --on
 
 sp {first
 (state <s> ^superstate nil ^io.input-link <il>)

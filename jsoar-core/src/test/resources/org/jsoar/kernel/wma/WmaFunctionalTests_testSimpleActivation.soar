@@ -1,6 +1,6 @@
 # this test runs until one of the wmes decays enough to get removed from wm
 
-waitsnc --on
+soar wait-snc --on
 wma --set activation off
 wma --set petrov-approx on
 wma --set forgetting on

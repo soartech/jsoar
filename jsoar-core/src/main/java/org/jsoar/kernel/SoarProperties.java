@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.runtime.ThreadedAgent;
