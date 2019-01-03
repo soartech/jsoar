@@ -4,7 +4,7 @@ soar init
 
 epmem --set learning on
 epmem --set trigger none
-watch --epmem
+trace --epmem
 
 ##############################################################
 # Sub-state support

@@ -4,8 +4,8 @@ soar init
 #excise --chunks
 
 chunk --on
-watch --backtracing
-watch --learning 2
+trace --backtracing
+trace --learning 2
 save-backtraces --enable
 #rete -l /Users/mazzin/Soar/SoarSandbox/case9b
 

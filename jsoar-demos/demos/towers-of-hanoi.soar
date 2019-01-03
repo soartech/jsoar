@@ -10,7 +10,7 @@ production optimize-attribute upper-disk 2
 production optimize-attribute clear 2
 
 chunk --off
-watch 0
+trace --level 0
 
 sp {towers-of-hanoi*object*disk*elaborate*state*upper-disk
    "If not(above(x,disk)), then upper-disk(disk)."

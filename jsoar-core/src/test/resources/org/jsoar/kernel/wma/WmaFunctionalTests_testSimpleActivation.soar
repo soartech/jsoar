@@ -5,7 +5,7 @@ wma --set activation off
 wma --set petrov-approx on
 wma --set forgetting on
 wma --set activation on
-w --wma
+trace --wma
 
 
 sp "propose*o-from-a

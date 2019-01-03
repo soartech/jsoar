@@ -1,6 +1,6 @@
 # code written by Nate Derbinsky
 
-watch 0
+trace --level 0
 
 smem --set learning on
 

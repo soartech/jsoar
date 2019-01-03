@@ -4,7 +4,7 @@ epmem --set balance 0
 
 wma --set activation on
 
-watch --epmem
+trace --epmem
 
 ### initialize
 sp {propose*init

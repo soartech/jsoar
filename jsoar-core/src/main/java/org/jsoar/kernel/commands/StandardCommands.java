@@ -32,7 +32,6 @@ public class StandardCommands
         interp.addCommand("save-backtraces", new SaveBacktracesCommand(agent));
         interp.addCommand("explain-backtraces", new ExplainBacktracesCommand(agent));
         interp.addCommand("echo", new EchoCommand(agent));
-        interp.addCommand("watch", new WatchCommand(agent.getTrace()));
         interp.addCommand("rhs-functions", new RhsFunctionsCommand(agent));
         
         final PrintCommand printCommand = new PrintCommand(agent);

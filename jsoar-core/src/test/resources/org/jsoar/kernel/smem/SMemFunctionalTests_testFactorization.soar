@@ -21,7 +21,7 @@ sp {complete
    (halt)
 }
 
-watch 0
+trace --level 0
 # This file contains elaborations to check the first 20 factors.
 
 ##########################################
