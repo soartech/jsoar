@@ -18,7 +18,7 @@ epmem --set learning on
 # Not implemented yet
 watch --epmem
 
-timers --off
+soar timers --off
 
 #
 # Infrastructure productions that mark states with operator names
