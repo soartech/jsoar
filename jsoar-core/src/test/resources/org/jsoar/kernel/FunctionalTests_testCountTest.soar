@@ -37,7 +37,7 @@ sp {count-test*apply*count-test1
                (- <c> 1))
 }
 
-max-elaborations 10000
+soar max-elaborations 10000
 
 sp {count-test*propose*count-test2
    (state <s> ^name count-test
@@ -60,7 +60,7 @@ sp {count-test*apply*count-test2
                (- <count> 1))
 }
 
-max-elaborations 10000
+soar max-elaborations 10000
 
 sp {count-test*propose*count-test3
    (state <s> ^name count-test
@@ -439,5 +439,5 @@ sp {count-test*apply*test-complete
    (<ct> ^test-complete true)
 }
 
-max-elaborations 1000000
+soar max-elaborations 1000000
 

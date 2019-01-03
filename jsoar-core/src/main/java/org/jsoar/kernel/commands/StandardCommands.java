@@ -31,7 +31,6 @@ public class StandardCommands
         interp.addCommand("multi-attributes", new MultiAttrCommand(agent));
         interp.addCommand("stats", new StatsCommand(agent));
         interp.addCommand("srand", new SrandCommand(agent));
-        interp.addCommand("max-elaborations", new MaxElaborationsCommand(agent));
         interp.addCommand("waitsnc", new WaitSncCommand(agent));
         interp.addCommand("warnings", new WarningsCommand(agent));
         interp.addCommand("verbose", new VerboseCommand(agent));
