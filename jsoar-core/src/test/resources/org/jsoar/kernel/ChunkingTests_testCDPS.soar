@@ -3,7 +3,7 @@ soar init
 #excise --all
 #excise --chunks
 
-learn --on
+chunk --on
 watch --backtracing
 watch --learning 2
 save-backtraces --enable

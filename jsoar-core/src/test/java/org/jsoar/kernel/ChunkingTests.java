@@ -54,7 +54,7 @@ public class ChunkingTests extends FunctionalTestHarness
     @Test(timeout=10000)
     public void testChunks2WithLearning() throws Exception
     {
-        agent.getInterpreter().eval("learn --on");
+        agent.getInterpreter().eval("chunk --on");
         runTest("testChunks2", -1);
     }
         

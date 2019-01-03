@@ -7,7 +7,7 @@
 # In the revised waterfall model, change*substate will fire in parallel with change*top-state, since
 # the effects cannot possibly conflict.
 
-learn --off
+chunk --off
 
 sp {propose*test
 (state <s> ^superstate nil

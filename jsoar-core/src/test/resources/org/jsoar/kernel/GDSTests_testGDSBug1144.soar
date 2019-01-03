@@ -1,4 +1,4 @@
-learn --on
+chunk --on
 #watch 5
 #watch -b
 #watch -L fullprint

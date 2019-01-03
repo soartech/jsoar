@@ -11,7 +11,7 @@
 #   1 :  (state <S1> ^operator <O1>) Ground : (S1 ^operator O2)
 #   2 :  (<O1> ^name sub-goal) Ground : (O2 ^name sub-goal)
 
-learn --on
+chunk --on
 save-backtraces --on
 
 sp {propose*init
