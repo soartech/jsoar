@@ -57,7 +57,6 @@ public class StandardCommands
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("timers", new TimersCommand());
         interp.addCommand("version", new VersionCommand(agent));
-        interp.addCommand("set-stop-phase", new SetStopPhaseCommand(agent.getProperties()));
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
         interp.addCommand("time", new TimeCommand(agent));
