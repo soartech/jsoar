@@ -45,7 +45,6 @@ public class StandardCommands
         
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("edit-production", new EditProductionCommand(agent));
-        interp.addCommand("production-find", new ProductionFindCommand(agent));
         
         interp.addCommand("set-parser", new SetParserCommand(agent));
         interp.addCommand("properties", new PropertiesCommand(agent));
