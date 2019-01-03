@@ -46,7 +46,6 @@ public class StandardCommands
         interp.addCommand("print", printCommand);
         
         interp.addCommand("preferences", new PreferencesCommand(agent));
-        interp.addCommand("memories", new MemoriesCommand(agent));
         interp.addCommand("edit-production", new EditProductionCommand(agent));
         interp.addCommand("production-find", new ProductionFindCommand(agent));
         
