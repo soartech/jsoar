@@ -1,4 +1,4 @@
-srand 1234
+decide srand 1234
 soar init
 #excise --all
 #excise --chunks

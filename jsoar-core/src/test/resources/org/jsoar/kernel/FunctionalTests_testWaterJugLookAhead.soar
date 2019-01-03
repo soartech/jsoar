@@ -1,4 +1,4 @@
-srand 1
+decide srand 1
 
 production optimize-attribute jug 3
 production optimize-attribute superstate-set 20

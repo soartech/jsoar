@@ -29,7 +29,6 @@ public class StandardCommands
     {
         interp.addCommand("sp", new SpCommand(agent));
         interp.addCommand("stats", new StatsCommand(agent));
-        interp.addCommand("srand", new SrandCommand(agent));
         interp.addCommand("waitsnc", new WaitSncCommand(agent));
         interp.addCommand("warnings", new WarningsCommand(agent));
         interp.addCommand("verbose", new VerboseCommand(agent));
