@@ -57,8 +57,6 @@ public class StandardCommands
         interp.addCommand("version", new VersionCommand(agent));
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
-        interp.addCommand("time", new TimeCommand(agent));
-        
         interp.addCommand("log", new LogCommand(agent, interp));
         
         interp.addCommand("handler", new HandlerCommand(agent));
