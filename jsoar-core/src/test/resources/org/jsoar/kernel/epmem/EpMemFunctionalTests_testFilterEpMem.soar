@@ -1,6 +1,6 @@
 production excise --all
 epmem --reinit
-init-soar
+soar init
 
 epmem --set learning on
 epmem --set trigger none

@@ -1,5 +1,5 @@
 srand 1234
-init-soar
+soar init
 #excise --all
 #excise --chunks
 

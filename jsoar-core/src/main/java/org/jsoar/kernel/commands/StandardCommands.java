@@ -35,7 +35,6 @@ public class StandardCommands
         interp.addCommand("max-elaborations", new MaxElaborationsCommand(agent));
         interp.addCommand("matches", new MatchesCommand(agent));
         interp.addCommand("waitsnc", new WaitSncCommand(agent));
-        interp.addCommand("init-soar", new InitSoarCommand(agent));
         interp.addCommand("warnings", new WarningsCommand(agent));
         interp.addCommand("verbose", new VerboseCommand(agent));
         interp.addCommand("save-backtraces", new SaveBacktracesCommand(agent));
@@ -49,7 +48,6 @@ public class StandardCommands
         final PrintCommand printCommand = new PrintCommand(agent);
         interp.addCommand("print", printCommand);
         
-        interp.addCommand("init-soar", new InitSoarCommand(agent));
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("memories", new MemoriesCommand(agent));
         interp.addCommand("edit-production", new EditProductionCommand(agent));
