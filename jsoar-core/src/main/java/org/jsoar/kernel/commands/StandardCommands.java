@@ -37,7 +37,6 @@ public class StandardCommands
         interp.addCommand("explain-backtraces", new ExplainBacktracesCommand(agent));
         interp.addCommand("echo", new EchoCommand(agent));
         interp.addCommand("watch", new WatchCommand(agent.getTrace()));
-        interp.addCommand("pwatch", new PWatchCommand(agent.getProductions()));
         interp.addCommand("rhs-functions", new RhsFunctionsCommand(agent));
         
         final PrintCommand printCommand = new PrintCommand(agent);
@@ -45,6 +44,7 @@ public class StandardCommands
         
         interp.addCommand("preferences", new PreferencesCommand(agent));
         interp.addCommand("edit-production", new EditProductionCommand(agent));
+
         
         interp.addCommand("set-parser", new SetParserCommand(agent));
         interp.addCommand("properties", new PropertiesCommand(agent));
@@ -68,7 +68,6 @@ public class StandardCommands
         
         interp.addCommand("soar", new SoarSettingsCommand(agent));
         interp.addCommand("output", new OutputCommand(agent, printCommand));
-        interp.addCommand("production-watch", new ProductionWatchCommand(agent));
         interp.addCommand("production", new ProductionCommand(agent));
         interp.addCommand("chunk", new ChunkCommand(agent));
         interp.addCommand("wm", new WMActivationCommand(agent));
