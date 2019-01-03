@@ -54,9 +54,9 @@ public class ProductionCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new ProductionC(agent), args);
+        final String result = Utils.parseAndRun(new ProductionC(agent), args);
         
-        return "";
+        return result;
     }
 
     @Override
@@ -152,7 +152,7 @@ public class ProductionCommand implements SoarCommand
             }
             else
             {
-                parent.agent.getPrinter().startNewLine().print(Joiner.on('\n').join(collectAndSortRuleNames()));
+                parent.agent.getPrinter().print(Joiner.on('\n').join(collectAndSortRuleNames()));
             }
         }
         
