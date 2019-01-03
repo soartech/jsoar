@@ -47,7 +47,6 @@ public class StandardCommands
         
         interp.addCommand("set-parser", new SetParserCommand(agent));
         interp.addCommand("properties", new PropertiesCommand(agent));
-        interp.addCommand("symbols", new SymbolsCommand(agent));
         
         interp.addCommand("decide", new DecideCommand(agent));
         
