@@ -69,8 +69,6 @@ public class StandardCommands
         interp.addCommand("set-stop-phase", new SetStopPhaseCommand(agent.getProperties()));
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
-        interp.addCommand("gds-print", new GdsPrintCommand(agent));
-        
         interp.addCommand("time", new TimeCommand(agent));
         
         interp.addCommand("log", new LogCommand(agent, interp));
