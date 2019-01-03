@@ -25,7 +25,6 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.commands.RunCommand;
 import org.jsoar.kernel.commands.SoarSettingsCommand;
-import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StartEvent;
 import org.jsoar.kernel.events.StopEvent;
@@ -102,7 +101,6 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
     private final RunCommand runCommand = new RunCommand(this);
-    private final StopCommand stopCommand = new StopCommand(this);
     private final SoarSettingsCommand soarCommand = new SoarSettingsCommand(this);
 
     /**
@@ -223,7 +221,6 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
 
         final SoarCommandInterpreter interp = agent.getInterpreter();
         interp.addCommand("run", runCommand);
-        interp.addCommand("stop-soar", stopCommand);
         interp.addCommand("soar", soarCommand);
     }
     
