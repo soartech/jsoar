@@ -1,8 +1,8 @@
-learn --on
-#watch 5
-#watch -b
-#watch -L fullprint
-#verbose -e
+chunk --on
+#trace --level 5
+#trace -b
+#trace -L fullprint
+#trace -A
 
 ## condense.pl: extracting from file cc.soar
 

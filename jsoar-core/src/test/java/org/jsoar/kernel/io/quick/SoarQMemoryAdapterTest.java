@@ -148,7 +148,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     
     @Test public void testDetach() throws Exception
     {
-        ifc.eval("waitsnc --on");
+        ifc.eval("soar wait-snc --on");
         
         QMemory qmem = DefaultQMemory.create();
         SoarQMemoryAdapter adapter = SoarQMemoryAdapter.attach(agent, qmem);

@@ -30,6 +30,7 @@ public class IncrementalSearchPanel extends JPanel
     private final JButton btnNext;
     private JWindow addonWindow;
     private final JPanel addonPanel;
+    @SuppressWarnings("unused")
     private boolean addonShowing = false;
     private final JLabel lblMatches;
 

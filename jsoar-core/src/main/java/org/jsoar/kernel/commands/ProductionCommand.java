@@ -54,9 +54,9 @@ public class ProductionCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new ProductionC(agent), args);
+        final String result = Utils.parseAndRun(new ProductionC(agent), args);
         
-        return "";
+        return result;
     }
 
     @Override
@@ -73,7 +73,8 @@ public class ProductionCommand implements SoarCommand
                          ProductionCommand.FiringCounts.class,
                          ProductionCommand.Matches.class,
                          ProductionCommand.MemoryUsage.class,
-                         ProductionCommand.OptimizeAttribute.class})
+                         ProductionCommand.OptimizeAttribute.class,
+                         ProductionCommand.Watch.class})
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -152,7 +153,7 @@ public class ProductionCommand implements SoarCommand
             }
             else
             {
-                parent.agent.getPrinter().startNewLine().print(Joiner.on('\n').join(collectAndSortRuleNames()));
+                parent.agent.getPrinter().print(Joiner.on('\n').join(collectAndSortRuleNames()));
             }
         }
         
@@ -791,6 +792,81 @@ public class ProductionCommand implements SoarCommand
             final StringSymbol attr = parent.agent.getSymbols().createString(attribute);
             final int cost = Integer.valueOf(degree);
             parent.agent.getMultiAttributes().setCost(attr, cost);
+        }
+    }
+    
+    @Command(name="watch", description="Alters the set of watched productions",
+            subcommands={HelpCommand.class})
+    static public class Watch implements Runnable
+    {
+        @ParentCommand
+        ProductionC parent; // injected by picocli
+        
+        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables watching of given productions")
+        List<String> productionsToEnable = null;
+        
+        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables watching of given productions")
+        List<String> productionsToDisable = null;
+
+        @Override
+        public void run()
+        {
+            if (productionsToEnable == null && productionsToDisable == null)
+            {
+                List<String> tracedRuleNames = collectAndSortTracedRuleNames();
+                if (tracedRuleNames.size() == 0)
+                {
+                    parent.agent.getPrinter().startNewLine().print("No watched productions found.");
+                }
+                else
+                {
+                    parent.agent.getPrinter().print(Joiner.on('\n').join(collectAndSortTracedRuleNames()));
+                }
+            }
+            if (productionsToEnable != null)
+            {
+                for (String name : productionsToEnable)
+                {
+                    final Production p = parent.agent.getProductions().getProduction(name);
+                    if (p != null)
+                    {
+                        p.setTraceFirings(true);
+                    }
+                    else
+                    {
+                        parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
+                    }
+                }
+            }
+            if (productionsToDisable != null)
+            {
+                for (String name : productionsToDisable)
+                {
+                    final Production p = parent.agent.getProductions().getProduction(name);
+                    if (p != null)
+                    {
+                        p.setTraceFirings(false);
+                    }
+                    else
+                    {
+                        parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
+                    }
+                }
+            }
+        }
+        
+        private List<String> collectAndSortTracedRuleNames()
+        {
+            final List<String> result = new ArrayList<String>();
+            for(Production p : parent.agent.getProductions().getProductions(null))
+            {
+                if(p.isTraceFirings())
+                {
+                    result.add(p.getName());
+                }
+            }
+            Collections.sort(result);
+            return result;
         }
     }
 }

@@ -12,6 +12,7 @@ import java.util.Collection;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.SourceLocation;
+
 import picocli.CommandLine;
 
 /**
@@ -52,6 +53,15 @@ public interface SoarCommandInterpreter
      * @throws SoarException 
      */
     SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException;
+    
+    /**
+     * Gets the parsed command for a string, after alias resolution
+     * @param name
+     * @param srcLoc
+     * @return
+     * @throws SoarException
+     */
+    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException;
     
     /**
      * Return a list of files that have been sourced by this object.

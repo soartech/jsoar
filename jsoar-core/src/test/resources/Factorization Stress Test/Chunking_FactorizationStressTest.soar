@@ -3,6 +3,6 @@
 epmem --set learning off
 smem --set learning off
 
-learn --on
+chunk --on
 
 source FactorizationStressTest.soar

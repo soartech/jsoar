@@ -3,14 +3,14 @@
 # change the number of pegs or disks here, you must modify the code below.
 load-plugin org.jsoar.demos.toh.TowersOfHanoi 3 11
 
-multi-attributes disk 7
-multi-attributes peg 3
-multi-attributes holds 8
-multi-attributes upper-disk 2
-multi-attributes clear 2
+production optimize-attribute disk 7
+production optimize-attribute peg 3
+production optimize-attribute holds 8
+production optimize-attribute upper-disk 2
+production optimize-attribute clear 2
 
-learn --off
-watch 0
+chunk --off
+trace --level 0
 
 sp {towers-of-hanoi*object*disk*elaborate*state*upper-disk
    "If not(above(x,disk)), then upper-disk(disk)."

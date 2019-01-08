@@ -257,6 +257,7 @@ public class Prefs extends AbstractPreferences {
 
     public static File getLayoutFile() throws IOException
     {
+        @SuppressWarnings("unused")
         boolean success = true;
         File file = new File(PREFS_PATH);
         if (!file.exists()) {

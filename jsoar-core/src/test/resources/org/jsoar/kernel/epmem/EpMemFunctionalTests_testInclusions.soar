@@ -1,7 +1,7 @@
 epmem --set learning on
 epmem --set trigger none
 epmem --set inclusions bar
-watch --epmem
+trace --epmem
 
 sp {propose*init
    (state <s> ^superstate nil

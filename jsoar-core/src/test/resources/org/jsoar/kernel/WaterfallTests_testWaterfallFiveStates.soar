@@ -8,7 +8,7 @@
 # S4: 
 # S5: P7-4->S1 P8-4->S2 P9-4->S3 P10-1->S4 P11-1->S5
 
-learn --off
+chunk --off
 
 # create s2
 sp {propose*test1

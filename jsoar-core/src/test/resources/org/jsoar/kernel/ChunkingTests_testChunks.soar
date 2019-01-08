@@ -34,7 +34,7 @@
 # again. With justifications/chunking, the result is o-supported and thus the "onc" operator will
 # not get proposed again.
 
-learn --on
+chunk --on
 
 sp {propose*onc-operator
 (state <s> ^superstate nil

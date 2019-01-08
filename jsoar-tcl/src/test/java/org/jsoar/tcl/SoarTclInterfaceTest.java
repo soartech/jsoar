@@ -66,13 +66,13 @@ public class SoarTclInterfaceTest
     @Test
     public void testSrandCommand() throws Exception
     {
-        ifc.eval("srand 98765");
+        ifc.eval("decide srand 98765");
         List<Integer> firstInts = new ArrayList<Integer>();
         for(int i = 0; i < 1000; ++i)
         {
             firstInts.add(ifc.getAgent().getRandom().nextInt());
         }
-        ifc.eval("srand 98765");
+        ifc.eval("decide srand 98765");
         List<Integer> secondInts = new ArrayList<Integer>();
         for(int i = 0; i < 1000; ++i)
         {

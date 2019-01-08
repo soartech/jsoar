@@ -8,6 +8,8 @@ package org.jsoar.kernel.commands;
 
 import static org.junit.Assert.*;
 
+import java.io.StringWriter;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.junit.After;
@@ -38,9 +40,9 @@ public class ProductionWatchCommandTest
         
         final Production p = agent.getProductions().getProduction("b");
         assertFalse(p.isTraceFirings());
-        agent.getInterpreter().eval("pwatch --on b");
+        agent.getInterpreter().eval("production watch --on b");
         assertTrue(p.isTraceFirings());
-        agent.getInterpreter().eval("pwatch --off b");
+        agent.getInterpreter().eval("production watch --off b");
         assertFalse(p.isTraceFirings());
     }
     
@@ -48,10 +50,14 @@ public class ProductionWatchCommandTest
     public void testCanListTracedRules() throws Exception
     {
         loadRules();
-        agent.getInterpreter().eval("pwatch --on b");
-        agent.getInterpreter().eval("pwatch --on c");
-        final String result = agent.getInterpreter().eval("pwatch");
-        assertEquals("b\nc", result);
+        agent.getInterpreter().eval("production watch --on b");
+        agent.getInterpreter().eval("production watch --on c");
+        
+        final StringWriter result = new StringWriter();
+        agent.getPrinter().pushWriter(result);
+        agent.getInterpreter().eval("production watch");
+        agent.getPrinter().popWriter();
+        assertEquals("b\nc", result.toString());
     }
     
     private void loadRules() throws Exception

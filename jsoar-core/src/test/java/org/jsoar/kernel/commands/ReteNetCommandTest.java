@@ -151,10 +151,10 @@ public class ReteNetCommandTest
     {
         funTests.runTestSetup(testName);
         funTests.agent.getRandom().setSeed(randSeed);
-        funTests.agent.getInterpreter().eval("rete-net -s test.jrete");
+        funTests.agent.getInterpreter().eval("save rete-net -s test.jrete");
         funTests.installRHS(funTests.agent);
         funTests.runTestExecute(testName, expectedDecisions);
-        revivedAgent.getInterpreter().eval("rete-net -l test.jrete");
+        revivedAgent.getInterpreter().eval("load rete-net -l test.jrete");
         funTests.installRHS(revivedAgent);
         revivedAgent.getRandom().setSeed(randSeed);
         funTests.agent = revivedAgent;

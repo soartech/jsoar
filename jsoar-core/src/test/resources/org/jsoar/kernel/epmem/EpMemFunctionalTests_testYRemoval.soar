@@ -1,4 +1,4 @@
-watch 1
+trace --level 1
 epmem --set learning on
 epmem --set trigger dc
 epmem --set phase output

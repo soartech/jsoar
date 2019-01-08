@@ -1,6 +1,6 @@
 epmem --set trigger dc
 epmem --set learning on
-watch --epmem
+trace --epmem
 
 ### initialize
 sp {propose*init

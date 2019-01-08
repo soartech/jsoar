@@ -6,12 +6,11 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.io.StringWriter;
-
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
@@ -21,16 +20,17 @@ import org.junit.Test;
 /**
  * @author ray
  */
-public class WatchCommandTest
+public class TraceCommandTest
 {
     private Trace trace;
-    private WatchCommand watch;
+    private TraceCommand traceCommand;
 
     @Before
     public void setUp() throws Exception
     {
-        this.trace = new Trace(new Printer(new StringWriter()));
-        this.watch = new WatchCommand(trace);
+        Agent agent = new Agent();
+        this.trace = agent.getTrace();
+        this.traceCommand = new TraceCommand(agent);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class WatchCommandTest
     @Test
     public void testVerbose() throws SoarException
     {
-        verifyOption(Category.VERBOSE, "verbose");
+        verifyOption(Category.VERBOSE, "assertions", "A");
     }
     @Test
     public void testWorkingMemory() throws SoarException
@@ -150,7 +150,7 @@ public class WatchCommandTest
     private void verifyWatchLevel(int level, String... args) throws SoarException
     {
         trace.disableAll();
-        watch.execute(DefaultSoarCommandContext.empty(), args);
+        traceCommand.execute(DefaultSoarCommandContext.empty(), args);
         for(Category c : Category.values())
         {
             if(c.isWatchable() && c.isActiveInWatchLevel(level))
@@ -169,15 +169,15 @@ public class WatchCommandTest
     private void verifyOption(Category c, String longOpt, String shortOpt) throws SoarException
     {
         assertFalse(trace.isEnabled(c));
-        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "-" + shortOpt });
+        traceCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "trace", "-" + shortOpt });
         assertTrue(trace.isEnabled(c));
-        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "-" + shortOpt, "remove" });
+        traceCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "trace", "-" + shortOpt, "remove" });
         assertFalse(trace.isEnabled(c));
         
         // Now with the long version
-        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "--" + longOpt });
+        traceCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "trace", "--" + longOpt });
         assertTrue(trace.isEnabled(c));
-        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "--" + longOpt, "0" });
+        traceCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "trace", "--" + longOpt, "0" });
         assertFalse(trace.isEnabled(c));
     }
 }

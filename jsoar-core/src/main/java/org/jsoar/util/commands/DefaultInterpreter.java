@@ -24,7 +24,6 @@ import org.jsoar.kernel.commands.LoadCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
-import org.jsoar.kernel.commands.ReteNetCommand;
 import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
@@ -48,7 +47,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
     private final SourceCommand sourceCommand;
-    private final ReteNetCommand reteNetCommand;
+    private final LoadCommand loadCommand;
+    private final SaveCommand saveCommand;
     
     public DefaultInterpreter(Agent agent)
     {
@@ -58,10 +58,9 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
         
-        addCommand("load", new LoadCommand(sourceCommand, agent));
-        addCommand("save", new SaveCommand(sourceCommand, agent));
+        addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
+        addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
@@ -85,6 +84,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         final List<String> command = new ArrayList<String>();
         command.add(name);
         return getSoarCommand(ByRef.create(new ParsedCommand(srcLoc, command)));
+    }
+    
+    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException
+    {
+        final List<String> command = new ArrayList<String>();
+        command.add(name);
+        return resolveAliases(new ParsedCommand(srcLoc, command));
     }
 
     /* (non-Javadoc)
@@ -138,7 +144,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(File file) throws SoarException
     {
-        reteNetCommand.load(file.getAbsolutePath());
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
     }
     
     /*
@@ -148,7 +154,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(URL url) throws SoarException
     {
-        reteNetCommand.load(url.toExternalForm());
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { url.toExternalForm() });
     }
     
     /*
@@ -158,7 +164,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void saveRete(File file) throws SoarException
     {
-        reteNetCommand.save(file.getPath());
+        saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
     }   
     
     @Override

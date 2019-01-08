@@ -14,9 +14,12 @@ import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoice
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.PetrovApproxChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.TimerLevels;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.ExecutionTimer;
@@ -33,13 +36,25 @@ import picocli.CommandLine.ParentCommand;
  */
 public class WMActivationCommand implements SoarCommand
 {
+    public static class Provider implements SoarCommandProvider
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.jsoar.util.commands.SoarCommandInterpreter)
+         */
+        @Override
+        public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
+        {
+            interp.addCommand("wm", new WMActivationCommand(context));
+        }
+    }
+    
     private final DefaultWorkingMemoryActivation wma;
     private final Rete rete;
     private Agent agent;
     
-    public WMActivationCommand(Agent agent)
+    public WMActivationCommand(Adaptable context)
     {
-        this.agent = agent;
+        this.agent = (Agent)context;
         this.wma = Adaptables.require(getClass(), agent, DefaultWorkingMemoryActivation.class);
         this.rete = Adaptables.adapt(agent, Rete.class);
     }

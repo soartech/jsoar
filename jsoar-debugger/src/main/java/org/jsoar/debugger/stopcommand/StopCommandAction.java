@@ -1,14 +1,11 @@
 package org.jsoar.debugger.stopcommand;
 
-import org.jsoar.debugger.AboutDialog;
-import org.jsoar.debugger.JSoarDebugger;
+import java.awt.event.ActionEvent;
+
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.actions.ActionManager;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-
+@SuppressWarnings("serial")
 public class StopCommandAction extends AbstractDebuggerAction
 {
 
