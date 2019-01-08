@@ -3,7 +3,7 @@ epmem --set learning on
 epmem --set balance 0
 trace --epmem
 
-wma --set activation on
+wm activation --set activation on
 
 epmem --set phase selection
 

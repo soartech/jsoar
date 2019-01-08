@@ -1,5 +1,5 @@
 org.jsoar.kernel.smem.SmemCommand$Provider
 org.jsoar.kernel.epmem.EpmemCommand$Provider
 org.jsoar.script.ScriptCommand$Provider
-org.jsoar.kernel.wma.DefaultWorkingMemoryActivationCommand$Provider
+org.jsoar.kernel.wma.WMActivationCommand$Provider
 org.jsoar.kernel.learning.rl.RLCommand$Provider

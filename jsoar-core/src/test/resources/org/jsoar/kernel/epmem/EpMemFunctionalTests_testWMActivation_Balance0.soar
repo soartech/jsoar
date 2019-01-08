@@ -2,7 +2,7 @@ epmem --set trigger dc
 epmem --set learning on
 epmem --set balance 0
 
-wma --set activation on
+wm activation --set activation on
 
 trace --epmem
 
