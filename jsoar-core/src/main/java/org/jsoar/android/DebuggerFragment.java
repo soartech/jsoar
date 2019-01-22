@@ -2,7 +2,9 @@ package org.jsoar.android;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import android.support.v4.app.Fragment;
@@ -39,6 +42,8 @@ public class DebuggerFragment extends Fragment
   {
     super.onViewCreated(view, savedInstanceState);
     output = (TextView) getView().findViewById(R.id.logOutput);
+    lockScroll = (Switch) getView().findViewById(R.id.lockScrollSwitch);
+    scrollView = (NestedScrollView) getView().findViewById(R.id.nestedScrollView);
     // So apparently you can't define the click listeners in XML for fragments
     // (This was a known problem in at least 2011)
     getView().findViewById(R.id.runButton).setOnClickListener(new View.OnClickListener()
@@ -75,7 +80,7 @@ public class DebuggerFragment extends Fragment
       }
     });
 
-    AutoCompleteTextView inputTextView = (AutoCompleteTextView)getView().findViewById(R.id.inputTextView);
+    AutoCompleteTextView inputTextView = (AutoCompleteTextView) getView().findViewById(R.id.inputTextView);
     inputTextView.setOnEditorActionListener(new TextView.OnEditorActionListener()
     {
       @Override
@@ -100,6 +105,8 @@ public class DebuggerFragment extends Fragment
     agent = null;
     writer = null;
     output = null;
+    lockScroll = null;
+    scrollView = null;
   }
 
   public void onClickRun(View v)
@@ -264,6 +271,16 @@ public class DebuggerFragment extends Fragment
       public void run()
       {
         output.append(message);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            if (lockScroll.isChecked())
+              scrollView.fullScroll(View.FOCUS_DOWN);
+          }
+        }, 100);
       }
     });
   }
@@ -301,6 +318,8 @@ public class DebuggerFragment extends Fragment
   }
 
   private static final String TAG = "DebuggerFragment";
+  private NestedScrollView scrollView;
+  private Switch lockScroll;
   private TextView output;
   private Writer writer;
   private ThreadedAgent agent;

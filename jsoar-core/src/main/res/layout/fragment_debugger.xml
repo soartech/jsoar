@@ -5,6 +5,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="fill"
     tools:context="org.jsoar.android.DebuggerFragment">
 
     <TextView
@@ -57,19 +58,20 @@
         android:id="@+id/stopButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
         android:clickable="false"
         android:focusable="false"
         android:scaleType="fitCenter"
         android:src="@drawable/stop"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/runButton"
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_marginBottom="8dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/inputTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/runCycles">
@@ -77,7 +79,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:gravity="bottom"
             android:orientation="vertical">
 
             <TextView
@@ -92,32 +94,43 @@
         android:id="@+id/inputTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:hint="@string/commandHint"
         android:imeOptions="actionDone"
         android:singleLine="true"
+        app:layout_constraintBottom_toTopOf="@+id/clearLogButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nestedScrollView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/execButton"
         android:layout_width="60dp"
         android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
         android:enabled="false"
         android:text="@string/execLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputTextView" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/clearLogButton"
         android:layout_width="100dp"
         android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         android:text="@string/clearLogLabel"
-        app:layout_constraintStart_toEndOf="@+id/execButton"
-        app:layout_constraintTop_toBottomOf="@+id/inputTextView" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/execButton" />
+
+    <Switch
+        android:id="@+id/lockScrollSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp"
+        android:checked="true"
+        android:showText="false"
+        android:text="@string/lockScroll"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/clearLogButton"
+        tools:checked="true" />
 
 </android.support.constraint.ConstraintLayout>

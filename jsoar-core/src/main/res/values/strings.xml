@@ -5,4 +5,5 @@
     <string name="defaultRunCycles">1</string>
     <string name="execLabel">Exec</string>
     <string name="clearLogLabel">Clear Log</string>
+    <string name="lockScroll">Scroll on Output</string>
 </resources>
