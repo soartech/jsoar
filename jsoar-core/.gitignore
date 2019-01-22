@@ -6,3 +6,5 @@ project
 .classpath
 backup.sqlite
 /.gradle/
+# These are copied in automagically by Gradle
+src/main/jniLibs/
