@@ -21,13 +21,16 @@ public class SoarCommandCompletion
             int argIndex = 0;
             int positionInArg = 0;
             //figure out argIndex
-            for (int i = 1; i < input.length(); i++){
+            for (int i = 0; i < input.length(); i++){
                 char c = input.charAt(i);
-                char prev = input.charAt(i-1);
-                if (c == ' ' &&  prev != ' '){
-                    argIndex++;
-                    positionInArg = 0;
-                } else if (c != ' '){
+                if (i != 0) {
+                    char prev = input.charAt(i-1);
+                    if (c == ' ' && prev != ' ') {
+                        argIndex++;
+                        positionInArg = 0;
+                    }
+                } 
+                if (c != ' ') {
                     positionInArg++;
                 }
             }

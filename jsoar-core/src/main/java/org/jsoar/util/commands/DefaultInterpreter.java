@@ -183,6 +183,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
                 commandsList.add(s);
             }
         }
+        for (String s : getAliasStrings()) {
+            if (s.startsWith(command)) {
+                commandsList.add(s);
+            }
+        }
         commands = new String[commandsList.size()];
         commands = commandsList.toArray(commands);
 
