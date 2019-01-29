@@ -76,7 +76,6 @@ alias topd pwd
 alias un alias -r
 alias unalias alias -r
 alias verbose trace -A
-alias version soar version
 alias w trace
 alias waitsnc soar wait-snc
 alias warnings output warnings
