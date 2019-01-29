@@ -209,7 +209,7 @@ public class SmemCommand implements SoarCommand
             {
                 if (param == null)
                 {
-                    throw new ParameterException(spec.commandLine(), "Error: no parameter value provided");
+                    throw new ParameterException(spec.commandLine(), "No parameter value provided");
                 }
                 agent.getPrinter().print(doSet(setParam, param));
             }

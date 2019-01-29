@@ -112,7 +112,7 @@ public class EpmemCommand implements SoarCommand
         @Option(names={"-r", "--reinit"}, description="Re-initializes episodic memory")
         boolean reinit = false;
         
-        @Option(names={"-b", "--backup"}, arity="0..*", description="Creates a backup of the episodic database on disk")
+        @Option(names={"-b", "--backup"}, arity="1..*", description="Creates a backup of the episodic database on disk")
         String[] backupFileName = null;
         
         @Option(names={"-a", "--add"}, description="Adds knowledge to episodic memory")
@@ -129,7 +129,7 @@ public class EpmemCommand implements SoarCommand
             {
                 if (param == null)
                 {
-                    throw new ParameterException(spec.commandLine(), "Error: no parameter value provided");
+                    throw new ParameterException(spec.commandLine(), "No parameter value provided");
                 }
                 agent.getPrinter().print(doSet(setParam, param));
             }
@@ -529,7 +529,7 @@ public class EpmemCommand implements SoarCommand
             }
             catch (NumberFormatException e)
             {
-                throw new ParameterException(spec.commandLine(), "Error: parameter provided is not an integer", e);
+                throw new ParameterException(spec.commandLine(), "Parameter provided is not an integer", e);
             }
             return epmem.epmem_print_episode(episodeID);
         }
@@ -565,7 +565,7 @@ public class EpmemCommand implements SoarCommand
 
             if (!success)
             {
-                throw new ExecutionException(spec.commandLine(), "Error: " + err.value);
+                throw new ExecutionException(spec.commandLine(), err.value);
             }
 
             return "EpMem| Database backed up to " + dbFile;
