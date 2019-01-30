@@ -16,7 +16,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -34,7 +40,6 @@ import org.jsoar.util.StringTools;
 import org.jsoar.util.UrlTools;
 
 import com.google.common.base.Joiner;
-import picocli.CommandLine;
 
 /**
  * Default implementation of {@link SoarCommandInterpreter}.
@@ -192,26 +197,6 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         commands = commandsList.toArray(commands);
 
         return commands;
-    }
-
-
-    public CommandLine findCommand(String substring)
-    {
-        substring = substring.trim();
-        if (!substring.isEmpty() ) {
-            SoarCommand cmd = null;
-            String[] parts = substring.split(" ");
-                cmd = getCommand(parts[0]);
-            if (cmd != null && cmd.getCommand() != null) {
-                CommandLine command = new CommandLine(cmd.getCommand());
-                int part = 1;
-                while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
-                    command = command.getSubcommands().get(parts[part]);
-                }
-                return command;
-            }
-        }
-        return null;
     }
 
     @Override

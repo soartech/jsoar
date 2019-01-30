@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
 
-import picocli.CommandLine;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
@@ -351,30 +350,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
             return (SoarCommand) command;
         }
         throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
-    }
-
-    public CommandLine findCommand(String substring)
-    {
-        substring = substring.trim();
-        if (!substring.isEmpty()) {
-            SoarCommand cmd = null;
-            String[] parts = substring.split(" ");
-
-            try {
-                cmd = getCommand(parts[0], null);
-            } catch (SoarException ignored) {
-            }
-
-            if (cmd != null && cmd.getCommand() != null) {
-                CommandLine command = new CommandLine(cmd.getCommand());
-                int part = 1;
-                while (part < parts.length && command.getSubcommands().containsKey(parts[part])) {
-                    command = command.getSubcommands().get(parts[part]);
-                }
-                return command;
-            }
-        }
-        return null;
     }
 
     @Override

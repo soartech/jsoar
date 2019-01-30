@@ -7,7 +7,9 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -163,6 +165,48 @@ public interface SoarCommandInterpreter
      * @param command
      * @return
      */
-    CommandLine findCommand(String command);
+    default CommandLine findCommand(String command)
+    {
+        command = command.trim();
+        if (!command.isEmpty()) {
+            String[] parts = command.split(" ");
+            ParsedCommand parsedCommand = null;
+            try
+            {
+                // this will expand aliases if needed
+                parsedCommand = getParsedCommand(parts[0], null);
+                // then add the remaining arguments from the original string
+                if(parts.length > 1) {
+                    parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
+                }
+            }
+            catch (SoarException e)
+            {
+                // an exception probably means the original string didn't contain a valid command/alias
+                return null;
+            }
+            
+            SoarCommand cmd;
+            try
+            {
+                cmd = getCommand(parsedCommand.getArgs().get(0), null);
+            }
+            catch (SoarException e)
+            {
+                return null;
+            }
+            if (cmd != null && cmd.getCommand() != null) {
+                CommandLine commandLine = new CommandLine(cmd.getCommand());
+                int part = 0;
+                List<String> args = parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size());
+                
+                while (part < args.size() && commandLine.getSubcommands().containsKey(args.get(part))) {
+                    commandLine = commandLine.getSubcommands().get(args.get(part));
+                }
+                return commandLine;
+            }
+        }
+        return null;
+    }
 
 }
