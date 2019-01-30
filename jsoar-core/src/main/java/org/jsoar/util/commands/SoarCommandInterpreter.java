@@ -7,7 +7,9 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -61,7 +63,7 @@ public interface SoarCommandInterpreter
      * @return
      * @throws SoarException
      */
-    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException;
+    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
     /**
      * Return a list of files that have been sourced by this object.
@@ -163,6 +165,41 @@ public interface SoarCommandInterpreter
      * @param command
      * @return
      */
-    CommandLine findCommand(String command);
+    default CommandLine findCommand(String command)
+    {
+        command = command.trim();
+        if (!command.isEmpty()) {
+            String[] parts = command.split(" ");
+            ParsedCommand parsedCommand = null;
+            // this will expand aliases if needed
+            parsedCommand = getParsedCommand(parts[0], null);
+            // then add the remaining arguments from the original string
+            if(parts.length > 1) {
+                parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
+            }
+            
+            SoarCommand cmd;
+            try
+            {
+                cmd = getCommand(parsedCommand.getArgs().get(0), null);
+            }
+            catch (SoarException e)
+            {
+                // an exception here means the command isn't valid
+                return null;
+            }
+            if (cmd != null && cmd.getCommand() != null) {
+                CommandLine commandLine = new CommandLine(cmd.getCommand());
+                int part = 0;
+                List<String> args = parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size());
+                
+                while (part < args.size() && commandLine.getSubcommands().containsKey(args.get(part))) {
+                    commandLine = commandLine.getSubcommands().get(args.get(part));
+                }
+                return commandLine;
+            }
+        }
+        return null;
+    }
 
 }
