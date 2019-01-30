@@ -3,21 +3,14 @@
 
 alias ? help
 alias a alias
-alias add-wme wm add
-alias aw wm add
 alias chdir cd
 alias clog output log
-alias command-to-file output command-to-file
-alias ctf output command-to-file
 alias d run -d
 alias default-wme-depth output print-depth
-alias dir ls
 alias e run -e
-alias echo-commands output echo-commands
 alias eb explain-backtraces
 alias ex production excise
 alias excise production excise
-alias exit quit
 alias fc production firing-counts
 alias firing-counts production firing-counts
 alias gds_print print --gds
@@ -30,7 +23,8 @@ alias is soar init
 alias init-soar soar init
 alias internal-symbols debug internal-symbols
 alias interrupt soar stop
-alias l learn
+alias l chunk
+alias learn chunk
 alias m production matches
 alias man help
 alias matches production matches
@@ -51,10 +45,8 @@ alias predict decide predict
 alias pw production watch
 alias pwatch production watch
 alias r run
-alias remove-wme wm remove
-alias rete-net load rete-network
-alias rn load rete-network
-alias rw wm remove
+alias rete-net load rete-net --load
+alias rn load rete-net --load
 alias s run 1
 alias select decide select
 alias set-default-depth output print-depth
@@ -64,7 +56,6 @@ alias source load file
 alias srand decide srand
 alias ss soar stop
 alias st stats
-alias start start-system
 alias step run -d
 alias stop soar stop
 alias stop-soar soar stop
@@ -73,8 +64,6 @@ alias symbols debug internal-symbols
 alias time debug time
 alias timers soar timers
 alias topd pwd
-alias un alias -r
-alias unalias alias -r
 alias verbose trace -A
 alias w trace
 alias waitsnc soar wait-snc
@@ -92,8 +81,6 @@ alias qget qmemory --get
 alias qset qmemory --set
 alias qrm  qmemory --remove
 alias qclear qmemory --clear
-
-alias internal-symbols symbols
 
 # script command aliases
 alias js script javascript
