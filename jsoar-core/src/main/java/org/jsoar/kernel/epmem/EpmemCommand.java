@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -325,6 +327,40 @@ public class EpmemCommand implements SoarCommand
                     {
                         return "file";
                     }
+                }
+                else if (paramToGet.equals("exclusions"))
+                {
+                    String exclusionStringList = "";
+                    
+                    Set<SymbolImpl> exclusions = epmem.getParams().exclusions;
+                    Iterator<SymbolImpl> it = exclusions.iterator();
+                    while (it.hasNext())
+                    {
+                        exclusionStringList += it.next().toString();
+                        if (it.hasNext())
+                        {
+                            exclusionStringList += ", ";
+                        }
+                    }
+                    
+                    return exclusionStringList;
+                }
+                else if (paramToGet.equals("inclusions"))
+                {
+                    String inclusionStringList = "";
+                    
+                    Set<SymbolImpl> inclusions = epmem.getParams().inclusions;
+                    Iterator<SymbolImpl> it = inclusions.iterator();
+                    while (it.hasNext())
+                    {
+                        inclusionStringList += it.next().toString();
+                        if (it.hasNext())
+                        {
+                            inclusionStringList += ", ";
+                        }
+                    }
+                    
+                    return inclusionStringList;
                 }
                 else
                 {

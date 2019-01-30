@@ -141,10 +141,10 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.none).build();
     final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
     
-    static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph_match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
+    static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph-match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
     final EnumPropertyProvider<GraphMatchChoices> graph_match = new EnumPropertyProvider<GraphMatchChoices>(GRAPH_MATCH);
     
-    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("gm_ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.undefined).build();
+    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("graph-match-ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.undefined).build();
     final EnumPropertyProvider<GmOrderingChoices> gm_ordering = new EnumPropertyProvider<GmOrderingChoices>(GM_ORDERING);
     
     private final PropertyManager properties;
@@ -158,6 +158,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(PATH, path);
 
         properties.setProvider(LAZY_COMMIT, lazy_commit);
+        properties.setProvider(PAGE_SIZE, page_size);
         properties.setProvider(CACHE_SIZE, cache_size);
         properties.setProvider(OPTIMIZATION, optimization);
         
