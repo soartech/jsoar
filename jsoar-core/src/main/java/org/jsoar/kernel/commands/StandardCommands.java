@@ -49,7 +49,6 @@ public class StandardCommands
         interp.addCommand("help", new HelpMainCommand(agent));
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
-        interp.addCommand("version", new VersionCommand(agent));
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
         interp.addCommand("log", new LogCommand(agent, interp));

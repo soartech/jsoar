@@ -72,6 +72,7 @@ alias watch trace
 alias wma wm activation
 alias wmes print --depth 1 --internal
 alias varprint print -v -d 100
+alias version soar version
 
 
 alias edit edit-production

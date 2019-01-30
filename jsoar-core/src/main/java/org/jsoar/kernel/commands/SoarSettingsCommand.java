@@ -1,6 +1,7 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
@@ -62,7 +63,8 @@ public class SoarSettingsCommand implements SoarCommand
                          SoarSettingsCommand.Stop.class,
                          SoarSettingsCommand.StopPhase.class,
                          SoarSettingsCommand.Timers.class,
-                         SoarSettingsCommand.WaitSNC.class})
+                         SoarSettingsCommand.WaitSNC.class,
+                         SoarSettingsCommand.Version.class})
     static public class Soar implements Runnable
     {
         private Agent agent;
@@ -254,6 +256,22 @@ public class SoarSettingsCommand implements SoarCommand
                 parent.agent.getPrinter().print("Soar will now impasse "
                         + "when a state doesn't change.");
             }
+        }
+    }
+    
+    @Command(name="version", description="Prints the version of Soar to the screen",
+            subcommands={HelpCommand.class})
+    static public class Version implements Runnable
+    {
+        @ParentCommand
+        Soar parent; // injected by picocli
+        
+        @Override
+        public void run()
+        {
+            final JSoarVersion v = JSoarVersion.getInstance();
+            parent.agent.getPrinter().startNewLine().print(String.format("%s%nBuilt on: %s%nBuilt by: %s",
+                    v.getVersion(), v.getBuildDate(), v.getBuiltBy()));
         }
     }
 }
