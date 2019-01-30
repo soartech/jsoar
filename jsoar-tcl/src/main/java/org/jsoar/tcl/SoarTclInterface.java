@@ -428,7 +428,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
 
     @Override
     public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
-            throws SoarException
     {
         List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
         try {

@@ -63,7 +63,7 @@ public interface SoarCommandInterpreter
      * @return
      * @throws SoarException
      */
-    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException;
+    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
     /**
      * Return a list of files that have been sourced by this object.
@@ -171,19 +171,11 @@ public interface SoarCommandInterpreter
         if (!command.isEmpty()) {
             String[] parts = command.split(" ");
             ParsedCommand parsedCommand = null;
-            try
-            {
-                // this will expand aliases if needed
-                parsedCommand = getParsedCommand(parts[0], null);
-                // then add the remaining arguments from the original string
-                if(parts.length > 1) {
-                    parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
-                }
-            }
-            catch (SoarException e)
-            {
-                // an exception probably means the original string didn't contain a valid command/alias
-                return null;
+            // this will expand aliases if needed
+            parsedCommand = getParsedCommand(parts[0], null);
+            // then add the remaining arguments from the original string
+            if(parts.length > 1) {
+                parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
             }
             
             SoarCommand cmd;
@@ -193,6 +185,7 @@ public interface SoarCommandInterpreter
             }
             catch (SoarException e)
             {
+                // an exception here means the command isn't valid
                 return null;
             }
             if (cmd != null && cmd.getCommand() != null) {

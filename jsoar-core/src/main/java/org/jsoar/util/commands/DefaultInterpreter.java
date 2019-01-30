@@ -91,7 +91,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return getSoarCommand(ByRef.create(new ParsedCommand(srcLoc, command)));
     }
     
-    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) throws SoarException
+    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
     {
         final List<String> command = new ArrayList<String>();
         command.add(name);
