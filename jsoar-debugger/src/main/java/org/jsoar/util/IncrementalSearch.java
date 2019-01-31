@@ -104,6 +104,11 @@ public class IncrementalSearch implements DocumentListener, ActionListener
             onError();
         }
     }
+    
+    protected void removeTextHighlights()
+    {
+        content.getHighlighter().removeAllHighlights();
+    }
 
     private void findAllStringMatches(String query, String body)
     {
