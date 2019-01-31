@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -73,6 +74,7 @@ import org.jsoar.util.PrefsFactory;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
@@ -611,8 +613,23 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         final JMenu helpMenu = new JMenu("Help");
         helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
-        helpMenu.add(new UrlAction(actionManager, "Command Help", resources.getString("help.url.all")));
         helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", resources.getString("csoar.site.url")));
+        helpMenu.add(new AbstractAction("Command Help") {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                //getAgent().execute(() -> getAgent().getAgent().getInterpreter().eval("help"), null);
+                
+                Callable<Void> callable = () -> {
+                    SoarCommand cmd = getAgent().getAgent().getInterpreter().getCommand("help", null);
+                    cmd.execute(null, new String[] {"help"});
+                    getAgent().getAgent().getPrinter().flush();
+                    return null;
+                };
+                getAgent().execute(callable , null);
+                
+            }});
         helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
