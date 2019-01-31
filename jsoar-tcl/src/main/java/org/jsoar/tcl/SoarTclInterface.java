@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -448,5 +449,21 @@ public class SoarTclInterface implements SoarCommandInterpreter
         aliasArgs.addAll(args.subList(1, args.size()));
         
         return new ParsedCommand(srcLoc, aliasArgs);
+    }
+
+    @Override
+    public List<String> getCommandStrings() throws SoarException
+    {
+        String[] commandNames = this.eval("info commands").split("\\s");
+        List<String> soarCommandNames = new ArrayList<>();
+        
+        for(String commandName : commandNames) {
+            Command command = interp.getCommand(commandName);
+            if (command instanceof SoarTclCommandAdapter || command instanceof SoarCommand) {
+                soarCommandNames.add(commandName);
+            } // else ignore (e.g., aliases, tcl commands)
+        }
+        Collections.sort(soarCommandNames);
+        return soarCommandNames;
     }
 }

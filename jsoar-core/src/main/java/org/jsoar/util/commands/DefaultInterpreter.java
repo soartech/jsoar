@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -205,9 +206,6 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return sourceCommand.getSourcedFiles();
     }
 
-    public Set<String> getCommandStrings() {
-        return commands.keySet();
-    }
     public Set<String> getAliasStrings() {
         return aliases.keySet();
     }
@@ -423,6 +421,14 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         {
             return DefaultInterpreter.this.eval(code);
         }
+    }
+    
+    @Override
+    public List<String> getCommandStrings()
+    {
+        List<String> commandList = new ArrayList<>(this.commands.keySet());
+        Collections.sort(commandList);
+        return commandList;
     }
 
 }

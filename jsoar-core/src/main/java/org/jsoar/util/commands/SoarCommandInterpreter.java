@@ -201,5 +201,12 @@ public interface SoarCommandInterpreter
         }
         return null;
     }
+    
+    /**
+     * Returns a sorted list of the names of all the registered SoarCommands
+     * This is not intended to report aliases or interpreter-specific commands (e.g., Tcl commands)
+     * @return
+     */
+    public List<String> getCommandStrings() throws SoarException;
 
 }
