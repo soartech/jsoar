@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -30,9 +31,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.Position;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
@@ -52,6 +56,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import bibliothek.gui.dock.common.action.CButton;
 
@@ -60,6 +66,8 @@ import bibliothek.gui.dock.common.action.CButton;
  */
 public class TraceView extends AbstractAdaptableView implements Disposable
 {
+    private static final Logger logger = LoggerFactory.getLogger(TraceView.class);
+	
     private final JSoarDebugger debugger;
     private final CommandEntryPanel commandPanel;
     private final Provider selectionProvider = new Provider();
@@ -81,99 +89,102 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             executePastedInput();
         }
     };
-
-    private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
+    
+    private BatchStyledDocument styledDocument = new BatchStyledDocument();
+    private static final char[] EOL_ARRAY = { '\n' };
     private final Writer outputWriter = new Writer()
     {
         private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
         private volatile boolean flushing = false;
-        @SuppressWarnings("unused")
-        private volatile boolean printing = false;
+        //@SuppressWarnings("unused")
+        //private volatile boolean printing = false;
 
         @Override
         public void close() throws IOException
         {
         }
-
-        synchronized public void flushNew() throws IOException {
-            // If there's already a runnable headed for the UI thread, don't send another
-            if(flushing) { return; }
-
-            // Send a runnable over to the UI thread to take the current buffer contents
-            // and put them in the trace window.
-            flushing = true;
-            //make regex groups
-            new Thread() {
-                @Override
-                public void run() {
-                    synchronized (outputWriter) // synchronized on outer.this like the flush() method
-                    {
-                        final long time = System.currentTimeMillis();
-                        final String str = buffer.toString();
-                        buffer.setLength(0);
-                        printing = true;
-                        flushing = false;  //moving this here makes it not forget strings, but causes it to block again
-                        final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(str, debugger);
-                        System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                final long time = System.currentTimeMillis();
-                                try {
-                                    //put in a blank document while we make changes because it's a little faster
-                                    outputWindow.setDocument(new DefaultStyledDocument());
-                                    if (styles.isEmpty()) {
-                                        //no matches, just print the text
-                                        styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str, highlighter.getDefaultAttributes());
-                                    } else {
-                                        int index = 0;
-                                        //FIXME - this is SLOW!!!!
-                                        for (StyleOffset offset : styles) {
-                                            int start = offset.start;
-                                            int end = offset.end;
-                                            if (start >= end || start < index) {
-                                                continue;
-                                            }
-
-                                            //the stuff between the match
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index, start), highlighter.getDefaultAttributes());
-
-                                            //the matched stuff
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(start, end), offset.style);
-                                            index = end;
-                                        }
-                                        if (index < str.length()) {
-                                            //trailing text after all matches
-                                            styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, str.substring(index), highlighter.getDefaultAttributes());
-                                        }
-                                    }
-//                                    styledDocument.insertString(styledDocument.getEndPosition().getOffset()-1, "\r\n", defaultAttributes);
-
-                                    trimOutput(styledDocument);
-                                    outputWindow.setDocument(styledDocument);
-                                } catch (BadLocationException e) {
-                                    e.printStackTrace();
-                                }
-                                printing = false;
-
-                                if (scrollLock) {
-                                    // Scroll to the end
-                                    outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
-                                }
-
-                                System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+        
+        private final ConcurrentLinkedQueue<String> inputs = new ConcurrentLinkedQueue<>(); 
+        private final Thread formatterThread = new Thread() {
+        	public void run() {
+        		final ArrayList<ElementSpec> elements = new ArrayList<>();
+        		while(!Thread.interrupted()) {
+        			String string = inputs.poll();
+        			if(string == null) {continue;}
+        			final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(string, debugger);
+    				if (styles.isEmpty()) {
+                        //no matches, just print the text
+                        elements.add(new ElementSpec(highlighter.getDefaultAttributes(), ElementSpec.ContentType, string.toCharArray(), 0, string.length()));
+                    } else {
+                        int index = 0;
+                        //FIXME - this is SLOW!!!!
+                        for (StyleOffset offset : styles) {
+                            int start = offset.start;
+                            int end = offset.end;
+                            if (start >= end || start < index) {
+                            	System.out.println("hit");
+                                continue;
                             }
-                        });
-                    }
-                }
-            }.start();
-        }
 
+                            //the stuff between the match
+                            elements.add(
+                            		new ElementSpec(
+                            				highlighter.getDefaultAttributes(), 
+                            				ElementSpec.ContentType, 
+                            				string.substring(index, start).toCharArray(),
+                            				0,
+                            				start - index));
+                            //the matched stuff
+                            elements.add(
+                            		new ElementSpec(
+                            				offset.style, 
+                            				ElementSpec.ContentType, 
+                            				string.substring(start, end).toCharArray(),
+                            				0,
+                            				end - start));
+                            index = end;
+                        }
+                        if (index < string.length()) {
+                            //trailing text after all matches
+                            elements.add(
+                            		new ElementSpec(
+                            				highlighter.getDefaultAttributes(), 
+                            				ElementSpec.ContentType, 
+                            				string.substring(index).toCharArray(),
+                            				0,
+                            				string.length() - index));
+                        }
+                    }
+    		        elements.add(new ElementSpec(null, ElementSpec.EndTagType));
+    		        elements.add(new ElementSpec(highlighter.getDefaultAttributes(), ElementSpec.StartTagType));
+    				if(inputs.isEmpty() || elements.size() > 1000) {
+	    				if(scrollLock) {
+	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow);
+	    				}else {
+	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]));
+	    				}
+	    				elements.clear();
+    				}
+        		}
+        		logger.error("Printer formatting thread has died.");
+        	}
+        };
+        //Instance initializer 
+        {formatterThread.start();}
+        
         @Override
         synchronized public void flush() throws IOException
         {
             if (coloredOutput) {
-                flushNew();
+            	synchronized (outputWriter) // synchronized on outer.this like the flush() method
+                {
+            		String input = buffer.toString();
+            		for(String splitInput: input.split("[\\r\\n]+")) {
+            			inputs.offer(splitInput);
+            		}
+            		buffer.setLength(0);
+                }
             } else {
                 // If there's already a runnable headed for the UI thread, don't send another
                 if (flushing) {
@@ -211,19 +222,20 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 });
 
 
-                //delayed syntax highlighting
-                lastFlush = System.currentTimeMillis();
-                new Thread(() ->
-                {
-                    final long pauseInterval=200;
-                    try {
-                        Thread.sleep(pauseInterval);
-                    } catch (InterruptedException ignored) {
-                    }
-                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
-                        reformatText();
-                    }
-                }).start();
+                //Why are we running syntanx highlighting if it's turned off? -ACN
+//                //delayed syntax highlighting
+//                lastFlush = System.currentTimeMillis();
+//                new Thread(() ->
+//                {
+//                    final long pauseInterval=200;
+//                    try {
+//                        Thread.sleep(pauseInterval);
+//                    } catch (InterruptedException ignored) {
+//                    }
+//                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
+//                        reformatText();
+//                    }
+//                }).start();
             }
 
         }
