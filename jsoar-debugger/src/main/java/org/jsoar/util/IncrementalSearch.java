@@ -109,7 +109,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
     {
         Highlighter h = content.getHighlighter();
 
-        LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
+        LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.brighter());
         h.removeAllHighlights();
 
         int i = 0;
@@ -136,7 +136,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         if (matcher != null) {
 
             Highlighter h = content.getHighlighter();
-            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
+            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.brighter());
             h.removeAllHighlights();
             while (matcher.find()) {
                 try {
@@ -216,7 +216,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         if (currentMatch >= 0 && currentMatch < matches.size()) {
             Match match = matches.get(currentMatch);
             Highlighter h = content.getHighlighter();
-            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.darker());
+            LayeredHighlighter.LayerPainter painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor.brighter());
             try {
                 h.removeHighlight(match.highlight);
                 match.highlight = h.addHighlight(match.start, match.end, painter);
