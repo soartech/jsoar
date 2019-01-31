@@ -301,7 +301,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         return sourceCommand.getWorkingDirectory();
     }
     
-    public String eval(String command) throws SoarException
+    public synchronized String eval(String command) throws SoarException
     {        
     	// Convert CRLFs (Windows line delimiters) to LFs.
         // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
@@ -430,14 +430,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
     public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
     {
         List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
+        String result = "";
         try {
-            interp.eval("interp alias {} " + args.get(0));
-        } catch (TclException e) {
+            result = eval("interp alias {} " + args.get(0));
+        } catch (Exception e) {
             logger.error("Tcl exception", e);
         }
-        
-        
-        String result = interp.getResult().toString();
         
         // there is no alias, so just return the original args
         if(result.length() == 0)
@@ -446,7 +444,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
         
         // there is an alias, so split it and add the original args to it
-        List<String> aliasArgs = new ArrayList<>(Arrays.asList(interp.getResult().toString().split("\\s")));
+        List<String> aliasArgs = new ArrayList<>(Arrays.asList(result.split("\\s")));
         aliasArgs.addAll(args.subList(1, args.size()));
         
         return new ParsedCommand(srcLoc, aliasArgs);
