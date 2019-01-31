@@ -611,8 +611,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         final JMenu helpMenu = new JMenu("Help");
         helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
-        helpMenu.add(new UrlAction(actionManager, "MSoar Home Page", resources.getString("msoar.site.url")));
         helpMenu.add(new UrlAction(actionManager, "Command Help", resources.getString("help.url.all")));
+        helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", resources.getString("csoar.site.url")));
         helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
