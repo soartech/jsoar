@@ -12,7 +12,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.2.1</version>
                 <configuration />
                 <executions>
                     <execution>
@@ -35,7 +35,7 @@
     <properties>
         <jackson-2-version>2.9.6</jackson-2-version>
     </properties>
-
+    
     <dependencies>
         <dependency>
             <groupId>org.tros</groupId>
