@@ -32,7 +32,6 @@
                         <configuration>
                             <show>private</show>
                             <doclint>none</doclint>
-                            <additionalparam>-html4</additionalparam>
                             <!-- if you don't want javadoc errors to fail the build, uncomment this
                             <failOnError>false</failOnError>
                             -->
