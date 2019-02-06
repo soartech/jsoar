@@ -1,8 +1,6 @@
-# Note: This is a Maven fork of JSoar
-
 JSoar is a pure Java implementation of the Soar kernel. See [https://github.com/soartech/jsoar/](https://github.com/soartech/jsoar/wiki) for more information.
 
-See `jsoar-build/readme.txt` for build instructions
+Note that the maven branch is now the main branch. The master branch is no longer maintained.
 
 ## Coding Conventions ##
 
@@ -15,6 +13,16 @@ The basic rules are:
 * 4 spaces of indentation
 * Opening braces on their own line
 
+# Maven Build #
+
+Builds are performed from the root directory.
+
+* To just do a build, run `mvn package`
+* To do a build and install, which includes generating javadocs, run `mvn install`
+* To just build javadocs, run `mvn javadoc:aggregate`
+
+Jars will end up in the target directories of the various projects (and in your local .m2 cache, if you install). Javadocs will end up in the top-level target/site directory.
+
 # Maven Releases #
 
 TODO: Consolidate build instructions.
@@ -25,7 +33,7 @@ To create a release using the Maven Release plugin:
 	* Does `git pull` prompt you for a username or password? If so, you need to change that.
 	* This is not technically required but if you type your password wrong, below, it will cancel the entire process.
 * Make sure everything is fully merged and all commits are pushed.
-* Check out `maven` or `smem-maven` (`smem-maven` may go away some day)
+* Check out `maven`
 * Run the release plugin: 
     * `mvn clean release:clean release:prepare release:perform deploy`
 
