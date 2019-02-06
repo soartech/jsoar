@@ -127,7 +127,7 @@ public class AgentTraceBuffer
     /**
      * Returns a range of the agent's trace from the given offset.
      * 
-     * @param since the desired starting offset in the trace
+     * @param start since the desired starting offset in the trace
      * @param max the maximum number of characters to return, or -1 for
      *      no limit.
      * @return the range of characters

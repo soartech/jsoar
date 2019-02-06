@@ -1028,11 +1028,6 @@ public class Decider
      * 
      * <p>decide.cpp:840:run_preference_semantics
      * 
-     * @param s
-     * @param result_candidates
-     * @param consistency (defaulted to false in CSoar)
-     * @param predict  (defaulted to false in CSoar)
-     * @return
      */
     public ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates)
     {
@@ -1751,18 +1746,12 @@ public class Decider
 
     /**
      * This creates a new impasse, returning its identifier. The caller is
-     * responsible for filling in either id->isa_impasse or id->isa_goal, and
+     * responsible for filling in either {@code id->isa_impasse} or {@code id->isa_goal}, and
      * all the extra stuff for goal identifiers.
      * 
      * decide.cpp:1241:create_new_impasse
      * 
-     * @param goalInfo
-     * @param object
-     * @param attr
-     * @param impasse_type
-     * @param level
-     *            Goal stack level
-     * @return
+     * @param level Goal stack level
      */
     private IdentifierImpl create_new_impasse(SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type, int level)
     {
@@ -1846,9 +1835,6 @@ public class Decider
      * 
      * <p>decide.cpp:1350:make_fake_preference_for_goal_item
      * 
-     * @param goal
-     * @param cand
-     * @return
      */
     private Preference make_fake_preference_for_goal_item(IdentifierImpl goal, Preference cand)
     {
@@ -2270,8 +2256,6 @@ public class Decider
      * 
      * <p>decide.cpp:1791:context_slot_is_decidable
      * 
-     * @param s
-     * @return
      */
     private boolean context_slot_is_decidable(Slot s)
     {
@@ -2595,10 +2579,7 @@ public class Decider
      * 
      * <p>decide.cpp:2092:decide_context_slot
      * 
-     * @param goal
-     * @param s
      * @param predict (defaulted to false in CSoar)
-     * @return
      */
     private boolean decide_context_slot(IdentifierImpl goal, Slot s, boolean predict /*= false*/)
     {

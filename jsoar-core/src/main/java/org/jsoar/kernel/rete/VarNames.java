@@ -42,7 +42,7 @@ import org.jsoar.kernel.symbols.Variable;
  *  to symbols, etc.  Deallocate_node_varnames() deallocates a whole
  *  chain of node_varnames structures, scanning up the net, etc.
  *
- *  <p>jsoar: We store either a Variable or LinkedList<Variable> as a Java Object. The
+ *  <p>jsoar: We store either a {@code Variable} or {@code LinkedList<Variable>} as a Java Object. The
  *         original bit twiddling methods have been converted to use these types
  *         with the appropriate casts and instanceof calls.
  *         

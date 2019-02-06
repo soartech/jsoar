@@ -21,7 +21,7 @@ public class PrinterTest
 {
 
     /**
-     * Test method for {@link org.jsoar.kernel.tracing.Printer#pushWriter(java.io.Writer, boolean)}.
+     * Test method for {@link org.jsoar.kernel.tracing.Printer#pushWriter(java.io.Writer)}.
      */
     @Test
     public void testPushWriter()

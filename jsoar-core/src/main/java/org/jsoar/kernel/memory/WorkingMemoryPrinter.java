@@ -238,10 +238,6 @@ public class WorkingMemoryPrinter
  * 
  * <p>
  * sml_KernelHelpers.cpp:290:mark_depths_augs_of_id
- * 
- * @param id
- * @param depth
- * @param tc
  */
 private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, Marker tc) 
 {

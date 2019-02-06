@@ -301,8 +301,6 @@ public class Preference implements Formattable
      * 
      * prefmem.cpp:141:possibly_deallocate_preference_and_clones
      * 
-     * @param pref
-     * @return
      */
     boolean possibly_deallocate_preference_and_clones(Preference pref, RecognitionMemory recMemory)
     {

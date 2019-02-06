@@ -50,13 +50,6 @@ public class DefaultQMemory implements QMemory
         return create(id, "", new DefaultQMemory(), 0);
     }
     
-    /**
-     * 
-     * @param id
-     * @param path
-     * @param struct
-     * @return
-     */
     private static QMemory create(Identifier id, String path, DefaultQMemory struct, int depth)
     {
         Arguments.checkNotNull(id, "id");
@@ -150,11 +143,6 @@ public class DefaultQMemory implements QMemory
         return new HashSet<String>(memory.keySet());
     }
     
-    /**
-     * @param prefix
-     * @param strip
-     * @return
-     */
     synchronized Set<String> getPaths(String prefix, boolean strip)
     {
         Set<String> paths = new HashSet<String>();

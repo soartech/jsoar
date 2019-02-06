@@ -369,9 +369,9 @@ import org.jsoar.util.markers.Marker;
     }
 
     /**
-     * Finds or creates a node for the given single condition <cond>, which
+     * Finds or creates a node for the given single condition {@code <cond>}, which
      * must be a simple positive condition.  The node is made a child of the
-     * given <parent> node.  Variables for earlier conditions should be bound
+     * given {@code <parent>} node.  Variables for earlier conditions should be bound
      * densely before this routine is called.  The routine returns a pointer 
      * to the (newly-created or shared) node.
      * 
@@ -515,9 +515,9 @@ import org.jsoar.util.markers.Marker;
     }  
 
     /**
-     * Finds or creates a node for the given single condition <cond>, which
+     * Finds or creates a node for the given single condition {@code <cond>}, which
      * must be a simple negative (not ncc) condition.  The node is made a
-     * child of the given <parent> node.  Variables for earlier conditions 
+     * child of the given {@code <parent>} node.  Variables for earlier conditions 
      * should be bound densely before this routine is called.  The routine 
      * returns a pointer to the (newly-created or shared) node.
      * 
@@ -591,19 +591,19 @@ import org.jsoar.util.markers.Marker;
     
     /**
      * This routine builds or shares the Rete network for the conditions in 
-     * the given <cond_list>.  <Depth_of_first_cond> tells the depth of the 
-     * first condition/node; <parent> gives the parent node under which the
+     * the given {@code <cond_list>}.  {@code <Depth_of_first_cond>} tells the depth of the 
+     * first condition/node; {@code <parent>} gives the parent node under which the
      * network should be built or shared.
 
      * <p>Three "dest" parameters may be used for returing results from this
-     * routine.  If <dest_bottom_node> is given as non-NIL, this routine
+     * routine.  If {@code <dest_bottom_node>} is given as non-NIL, this routine
      * fills it in with a pointer to the lowermost node in the resulting
-     * network.  If <dest_bottom_depth> is non-NIL, this routine fills it
-     * in with the depth of the lowermost node.  If <dest_vars_bound> is
+     * network.  If {@code <dest_bottom_depth>} is non-NIL, this routine fills it
+     * in with the depth of the lowermost node.  If {@code <dest_vars_bound>} is
      * non_NIL, this routine fills it in with a list of variables bound
-     * in the given <cond_list>, and does not pop the bindings for those
+     * in the given {@code <cond_list>}, and does not pop the bindings for those
      * variables, in which case the caller is responsible for popping theose
-     * bindings.  If <dest_vars_bound> is given as NIL, then this routine
+     * bindings.  If {@code <dest_vars_bound>} is given as NIL, then this routine
      * pops the bindings, and the caller does not have to do the cleanup.
      * 
      * <p>rete.cpp:3257:build_network_for_condition_list
@@ -701,10 +701,10 @@ import org.jsoar.util.markers.Marker;
     /**
      * After we've built the network for a production, we go through its 
      * RHS and replace all the variables with reteloc's and unboundvar indices.
-     * For each variable <v> on the RHS, if <v> is bound on the LHS, then
+     * For each variable {@code <v>} on the RHS, if {@code <v>} is bound on the LHS, then
      * we replace RHS references to it with a specification of where its
      * LHS binding can be found, e.g., "the value field four levels up".
-     * Each RHS variable <v> not bound on the LHS is replaced with an index,
+     * Each RHS variable {@code <v>} not bound on the LHS is replaced with an index,
      * e.g., "unbound varible number 6".  As we're doing this, we keep track
      * of the names of all the unbound variables.
      *

@@ -215,8 +215,6 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:180:rl_valid_template
      * (9.3.0)
-     * @param prod
-     * @return
      */
     static boolean rl_valid_template( Production prod )
     {
@@ -250,8 +248,6 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:207:rl_valid_rule
      * (9.3.0)
-     * @param prod
-     * @return
      */
     private static boolean rl_valid_rule( Production prod )
     {
@@ -276,8 +272,6 @@ public class ReinforcementLearning
     /**
      * misc.cpp:24;is_natural_number
      * 
-     * @param s
-     * @return
      */
     private static boolean is_natural_number(String s)
     {
@@ -298,8 +292,6 @@ public class ReinforcementLearning
      * 
      * (9.3.0)
      * 
-     * @param prod_name
-     * @return
      */
     private static int rl_get_template_id( String prod_name )
     {
@@ -348,7 +340,6 @@ public class ReinforcementLearning
      * 
      * reinforcement_learning.cpp:269:rl_update_template_tracking
      * 9.3.0
-     * @param rule_name
      */
     private void rl_update_template_tracking(String rule_name )
     {
@@ -363,7 +354,6 @@ public class ReinforcementLearning
      * 
      * reinforcement_learning.cpp:278:rl_next_template_id
      * 9.3.0
-     * @return
      */
     private int rl_next_template_id( )
     {
@@ -385,9 +375,6 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:289:rl_get_symbol_constant
      * 9.3.0
      * 
-     * @param p_sym
-     * @param i_sym
-     * @param constants
      */
     private static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
     {
@@ -401,9 +388,6 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:297:rl_get_test_constant
      * 9.3.0
      * 
-     * @param p_test
-     * @param i_test
-     * @param constants
      */
     private static void rl_get_test_constant( Test p_test, Test i_test, Map<SymbolImpl, SymbolImpl> constants )
     {
@@ -464,9 +448,6 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:351:rl_get_template_constants
      * 9.3.0
      * 
-     * @param p_conds
-     * @param i_conds
-     * @param constants
      */
     private void rl_get_template_constants( Condition p_conds, Condition i_conds, Map<SymbolImpl, SymbolImpl> constants )
     {
@@ -497,9 +478,6 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:375:rl_build_template_instantiation
      * 9.3.0
      * 
-     * @param my_template_instance
-     * @param tok
-     * @param w
      * @return the new name of the template
      */
     public SymbolImpl rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
@@ -627,11 +605,6 @@ public class ReinforcementLearning
      * <p>reinforcement_learning.cpp:495:rl_make_simple_action
      * (9.3.0)
      * 
-     * @param id_sym
-     * @param attr_sym
-     * @param val_sym
-     * @param ref_sym
-     * @return
      */
     private MakeAction rl_make_simple_action( IdentifierImpl id_sym, SymbolImpl attr_sym, SymbolImpl val_sym, SymbolImpl ref_sym )
     {
@@ -656,7 +629,6 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:531:rl_add_goal_or_impasse_tests_to_conds
      * 
      * (9.3.0)
-     * @param all_conds
      */
     private void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
     {
@@ -688,7 +660,6 @@ public class ReinforcementLearning
      * 
      * should not create reward/value slots if they do not exist - PL 8/21/2013
      * 
-     * @param goal
      */
     public void rl_tabulate_reward_value_for_goal(IdentifierImpl goal )
     {
@@ -1067,7 +1038,6 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
      * <p>reinforcement_learning.cpp:850:rl_perform_update
      * (9.3.0)
      * 
-     * @param goal
      */
     public static void rl_watkins_clear(IdentifierImpl goal )
     {
@@ -1080,7 +1050,6 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
      * 
      * <p>production.cpp:1507:make_production
      * 
-     * @param p
      */
     public void addProduction(Production p)
     {
@@ -1156,9 +1125,6 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
      * Looks for the named parameter in the given documentation string
      * and returns it's value.  Returns NaN if not found.
      * 
-     * @param name
-     * @param doc
-     * @return
      */
     private double getDocParam(String name, String doc) {
 		String search_term = name + "=";

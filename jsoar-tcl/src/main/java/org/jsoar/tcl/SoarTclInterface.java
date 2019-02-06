@@ -72,7 +72,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
      * with {@link Agent#getInterpreter()}.
      * 
      * @param agent the agent
-     * @return the Tcl interface, or {@code} if none is associated with the agent.
+     * @return the Tcl interface, or {@code null} if none is associated with the agent.
      */
     public static SoarTclInterface find(Agent agent)
     {

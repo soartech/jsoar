@@ -37,8 +37,6 @@ public class ExplainChunk
      * 
      * <p>explain.cpp:284:find_ground
      * 
-     * @param number
-     * @return
      */
     Condition find_ground(final Printer printer, int number)
     {
@@ -60,7 +58,6 @@ public class ExplainChunk
     /**
      * <p>explain.cpp:305:explain_trace_chunk
      * 
-     * @param printer
      */
     void explain_trace_chunk(final Printer printer)
     {

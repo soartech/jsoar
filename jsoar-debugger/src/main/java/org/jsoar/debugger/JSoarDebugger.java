@@ -683,7 +683,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
     /**
      * Attach a new debugger window to the given threaded agent. This function
-     * <b>must<b/> be called from the Swing event thread!
+     * <b>must</b> be called from the Swing event thread!
      *
      * @param proxy an <b>initialized</b> threaded agent to attach to
      * @return the debugger

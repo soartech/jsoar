@@ -61,7 +61,6 @@ public interface SoarCommandInterpreter
      * @param name
      * @param srcLoc
      * @return
-     * @throws SoarException
      */
     ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
@@ -125,9 +124,8 @@ public interface SoarCommandInterpreter
      * <p> Note that the working directory is not changed while loading the rete file
      * because additional files cannot be loaded during a rete deserialization.
      * 
-     * @param any the file to load a rete from
+     * @param file any the file to load a rete from
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(File file) throws SoarException;
     
@@ -139,7 +137,6 @@ public interface SoarCommandInterpreter
      * 
      * @param url the URL.
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(URL url) throws SoarException;
     

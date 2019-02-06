@@ -23,9 +23,6 @@ public class TestRhsFunction implements RhsFunctionInterface
         return testFunction;
     }
     
-    /**
-     * @param name
-     */
     public TestRhsFunction()
     {
     }

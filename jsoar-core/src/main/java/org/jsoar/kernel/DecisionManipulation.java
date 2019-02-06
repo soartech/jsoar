@@ -63,7 +63,6 @@ public class DecisionManipulation
     /**
      * decision_manipulation.cpp:48:select_get_operator
      * 
-     * @return
      */
     public String select_get_operator(  )
     {
@@ -76,9 +75,6 @@ public class DecisionManipulation
     /**
      * decision_manipulation.cpp:59:select_force
      * 
-     * @param candidates
-     * @param reinit
-     * @return
      */
     Preference select_force(Preference candidates, boolean reinit )
     {
@@ -136,7 +132,6 @@ public class DecisionManipulation
     /**
      * decision_manipulation.cpp:123:predict_srand_restore_snapshot
      * 
-     * @param clear_snapshot
      */
     void predict_srand_restore_snapshot( boolean clear_snapshot )
     {
@@ -150,7 +145,6 @@ public class DecisionManipulation
     /**
      * decision_manipulation.cpp:135:predict_set
      * 
-     * @param prediction
      */
     void predict_set( String prediction)
     {
@@ -159,8 +153,6 @@ public class DecisionManipulation
 
     /**
      * decision_manipulation.cpp:143:predict_get
-     * 
-     * @return
      */
     public String predict_get()
     {

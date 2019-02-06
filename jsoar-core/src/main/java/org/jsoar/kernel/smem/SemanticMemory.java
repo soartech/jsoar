@@ -70,7 +70,7 @@ public interface SemanticMemory extends LongTermIdentifierSource
     void smem_go(boolean store_only);
     
     /**
-     * smem_stats->reset()
+     * {@code smem_stats->reset()}
      */
     void resetStatistics();
     

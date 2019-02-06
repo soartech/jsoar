@@ -13,10 +13,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests for the <pre>rete-net</pre> command.
+ * Tests for the <pre>load rete-net --load</pre> command.
  * 
  * @author charles.newton
- * @see org.jsoar.kernel.commands.ReteNetCommand
+ * @see org.jsoar.kernel.commands.LoadCommand.ReteNet
  */
 public class ReteNetCommandTest
 {

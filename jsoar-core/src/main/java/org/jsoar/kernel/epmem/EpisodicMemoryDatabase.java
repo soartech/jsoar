@@ -250,9 +250,6 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
      * Similar to what column_type is doing in soar_module except this is operating directly on the type
      * instead of the column itself. This might be a confusingly bad idea to change what the parameter means here.
      * TODO EPMEM document this hack
-     * 
-     * @param col
-     * @return
      */
     value_type column_type(int jdbcColumnType)
     {

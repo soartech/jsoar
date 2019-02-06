@@ -41,7 +41,6 @@ public abstract class AbstractSoarDatabase
      * 
      * @param driver the driver name
      * @param db the database connection
-     * @throws SoarException
      */
     public AbstractSoarDatabase(String driver, Connection db)
     {

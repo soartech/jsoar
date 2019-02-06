@@ -81,9 +81,6 @@ class NodeVarNames
     /**
      * rete.cpp:2611:make_nvn_for_posneg_cond
      * 
-     * @param cond
-     * @param parent_nvn
-     * @return
      */
     static NodeVarNames make_nvn_for_posneg_cond(ThreeFieldCondition cond, NodeVarNames parent_nvn)
     {
@@ -115,9 +112,6 @@ class NodeVarNames
     /**
      * rete.cpp:2642:get_nvn_for_condition_list
      * 
-     * @param cond_list
-     * @param parent_nvn
-     * @return
      */
     static NodeVarNames get_nvn_for_condition_list(Condition cond_list, NodeVarNames parent_nvn)
     {

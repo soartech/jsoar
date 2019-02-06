@@ -100,7 +100,6 @@ public class SyntaxPattern {
     /**
      * Expand %commands% and %aliases% into regex code
      * @param debugger A debugger instance, needed to get the interpreter instance
-     * @return an expanded string
      */
     public void expandMacros(JSoarDebugger debugger)
     {

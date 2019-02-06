@@ -32,14 +32,14 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
  * <p><b>cmd</b> only accepts the names of built-in Soar commands (like print), not
  * RHS functions (see <b>exec</b>: {@link ExecRhsFunction}).
  * 
- * For example, the following will print the object bound to &lt;s&gt; with a depth of 2:
+ * For example, the following will print the object bound to {@code <s>} with a depth of 2:
  * 
  * <pre>
  * {@code
  * sp {
  *     ...
  *     -->
- *     (write (cmd print -d 2 &lt;s&gt;)) }
+ *     (write (cmd print -d 2 <s>)) }
  * }
  * </pre>
  * 

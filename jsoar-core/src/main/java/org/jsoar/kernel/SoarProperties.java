@@ -37,7 +37,7 @@ public class SoarProperties
      * 
      * <p>agent.h:740:waitsnc
      * @see Decider
-     * @see WaitSncCommand
+     * @see org.jsoar.kernel.commands.SoarSettingsCommand.WaitSNC
      */
     public static final PropertyKey<Boolean> WAITSNC = PropertyKey.builder("waitsnc", Boolean.class).defaultValue(false).build();
     
