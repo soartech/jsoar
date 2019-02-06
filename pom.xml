@@ -32,6 +32,7 @@
                         <configuration>
                             <show>private</show>
                             <doclint>none</doclint>
+                            <source>8</source>
                             <!-- if you don't want javadoc errors to fail the build, uncomment this
                             <failOnError>false</failOnError>
                             -->
