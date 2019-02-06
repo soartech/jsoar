@@ -32,6 +32,9 @@
                         <configuration>
                             <show>private</show>
                             <additionalparam>-Xdoclint:none</additionalparam>
+                            <!-- if you don't want javadoc errors to fail the build, uncomment this
+                            <failOnError>false</failOnError>
+                            -->
                         </configuration>
                             <executions>
                               <execution>
@@ -39,10 +42,9 @@
                                 <goals>
                                   <goal>aggregate</goal>
                                 </goals>
-                                <phase>site</phase>
+                                <phase>install</phase>
                                 <configuration>
                                   <!-- Specific configuration for the aggregate report -->
-                                  ...
                                 </configuration>
                               </execution>
                             </executions>
