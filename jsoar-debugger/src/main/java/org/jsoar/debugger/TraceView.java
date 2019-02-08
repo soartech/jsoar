@@ -173,7 +173,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         @Override
         synchronized public void flush() throws IOException
         {
-            if (coloredOutput) {
+            if (colorImmediately) {
             	synchronized (outputWriter) // synchronized on outer.this like the flush() method
                 {
             		String input = buffer.toString();
@@ -218,21 +218,19 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                     }
                 });
 
-
-                //Why are we running syntanx highlighting if it's turned off? -ACN
-//                //delayed syntax highlighting
-//                lastFlush = System.currentTimeMillis();
-//                new Thread(() ->
-//                {
-//                    final long pauseInterval=200;
-//                    try {
-//                        Thread.sleep(pauseInterval);
-//                    } catch (InterruptedException ignored) {
-//                    }
-//                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
-//                        reformatText();
-//                    }
-//                }).start();
+                //delayed syntax highlighting
+                lastFlush = System.currentTimeMillis();
+                new Thread(() ->
+                {
+                    final long pauseInterval=200;
+                    try {
+                        Thread.sleep(pauseInterval);
+                    } catch (InterruptedException ignored) {
+                    }
+                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
+                        reformatText();
+                    }
+                }).start();
             }
 
         }
@@ -243,7 +241,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
-    private boolean coloredOutput = true;
+    private boolean colorImmediately = true;
     private Highlighter highlighter;
 
     private void trimOutput(Document document) {
@@ -267,7 +265,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         setLimit(getPreferences().getInt("limit", -1));
-        coloredOutput = getPreferences().getBoolean("coloredOutput", true);
+        colorImmediately = getPreferences().getBoolean("coloredOutput", true);
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         setDefaultTextStyle();
 
@@ -372,7 +370,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         getPreferences().put("search", searchPanel.getSearchText());
         getPreferences().putInt("limit", limit);
         getPreferences().putBoolean("scrollLock", scrollLock);
-        getPreferences().putBoolean("coloredOutput", coloredOutput);
+        getPreferences().putBoolean("coloredOutput", colorImmediately);
     }
 
     /* (non-Javadoc)
@@ -557,11 +555,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }});
         menu.insert(scrollLockItem, 0);
 
-        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", coloredOutput);
+        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", colorImmediately);
         colorItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                coloredOutput = !coloredOutput;
+                colorImmediately = !colorImmediately;
             }
         });
         menu.insert(colorItem,0);

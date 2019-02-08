@@ -38,7 +38,6 @@ public class BatchStyledDocument extends DefaultStyledDocument{
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
