@@ -31,12 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.DefaultStyledDocument.ElementSpec;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.text.Position;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
@@ -160,9 +157,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     		        elements.add(new ElementSpec(highlighter.getDefaultAttributes(), ElementSpec.StartTagType));
     				if(inputs.isEmpty() || elements.size() > 1000) {
 	    				if(scrollLock) {
-	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow);
+	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow, true);
 	    				}else {
-	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]));
+	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow);
 	    				}
 	    				elements.clear();
     				}
