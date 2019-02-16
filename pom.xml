@@ -37,18 +37,37 @@
                             <failOnError>false</failOnError>
                             -->
                         </configuration>
-                            <executions>
-                              <execution>
-                                <id>aggregate</id>
-                                <goals>
-                                  <goal>aggregate</goal>
-                                </goals>
-                                <phase>install</phase>
-                                <configuration>
-                                  <!-- Specific configuration for the aggregate report -->
-                                </configuration>
-                              </execution>
-                            </executions>
+                        <executions>
+                          <execution>
+                            <id>aggregate</id>
+                            <goals>
+                              <goal>aggregate</goal>
+                            </goals>
+                            <phase>install</phase>
+                            <configuration>
+                              <!-- Specific configuration for the aggregate report -->
+                            </configuration>
+                          </execution>
+                          <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                              <goal>jar</goal>
+                            </goals>
+                          </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-source-plugin</artifactId>
+                      <version>3.0.1</version>
+                      <executions>
+                        <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                            <goal>jar</goal>
+                          </goals>
+                        </execution>
+                      </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
