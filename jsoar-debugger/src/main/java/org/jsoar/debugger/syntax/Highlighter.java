@@ -88,8 +88,8 @@ public class Highlighter
 
 
             System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
                     int caretPosition = outputWindow.getCaretPosition();
                     try {
                         setDefaultTextStyle(outputWindow);
@@ -124,9 +124,9 @@ public class Highlighter
                     }
                     outputWindow.setCaretPosition(caretPosition);
                     //System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-                }
-
-            });
+//                }
+//
+//            });
         } catch (BadLocationException ignored) {
         }
     }

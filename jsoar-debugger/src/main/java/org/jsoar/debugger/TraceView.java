@@ -86,8 +86,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             executePastedInput();
         }
     };
-    
-    private BatchStyledDocument styledDocument = new BatchStyledDocument();
+
+    private Highlighter highlighter;
+    private final BatchStyledDocument styledDocument;
     private static final char[] EOL_ARRAY = { '\n' };
     private final Writer outputWriter = new Writer()
     {
@@ -102,73 +103,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
         }
         
-        private final ConcurrentLinkedQueue<String> inputs = new ConcurrentLinkedQueue<>(); 
-        private final Thread formatterThread = new Thread() {
-        	public void run() {
-        		final ArrayList<ElementSpec> elements = new ArrayList<>();
-        		while(!Thread.interrupted()) {
-        			String string = inputs.poll();
-        			if(string == null) {continue;}
-        			final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(string, debugger);
-    				if (styles.isEmpty()) {
-                        //no matches, just print the text
-                        elements.add(new ElementSpec(highlighter.getDefaultAttributes(), ElementSpec.ContentType, string.toCharArray(), 0, string.length()));
-                    } else {
-                        int index = 0;
-                        //FIXME - this is SLOW!!!!
-                        for (StyleOffset offset : styles) {
-                            int start = offset.start;
-                            int end = offset.end;
-                            if (start >= end || start < index) {
-                            	System.out.println("hit");
-                                continue;
-                            }
-
-                            //the stuff between the match
-                            elements.add(
-                            		new ElementSpec(
-                            				highlighter.getDefaultAttributes(), 
-                            				ElementSpec.ContentType, 
-                            				string.substring(index, start).toCharArray(),
-                            				0,
-                            				start - index));
-                            //the matched stuff
-                            elements.add(
-                            		new ElementSpec(
-                            				offset.style, 
-                            				ElementSpec.ContentType, 
-                            				string.substring(start, end).toCharArray(),
-                            				0,
-                            				end - start));
-                            index = end;
-                        }
-                        if (index < string.length()) {
-                            //trailing text after all matches
-                            elements.add(
-                            		new ElementSpec(
-                            				highlighter.getDefaultAttributes(), 
-                            				ElementSpec.ContentType, 
-                            				string.substring(index).toCharArray(),
-                            				0,
-                            				string.length() - index));
-                        }
-                    }
-    		        elements.add(new ElementSpec(null, ElementSpec.EndTagType));
-    		        elements.add(new ElementSpec(highlighter.getDefaultAttributes(), ElementSpec.StartTagType));
-    				if(inputs.isEmpty() || elements.size() > 1000) {
-	    				if(scrollLock) {
-	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow, true);
-	    				}else {
-	    					styledDocument.takeBatchUpdate(elements.toArray(new ElementSpec[0]), outputWindow);
-	    				}
-	    				elements.clear();
-    				}
-        		}
-        		logger.error("Printer formatting thread has died.");
-        	}
-        };
-        //Instance initializer 
-        {formatterThread.start();}
+        private final ConcurrentLinkedQueue<String> inputs = new ConcurrentLinkedQueue<>();
         
         @Override
         synchronized public void flush() throws IOException
@@ -177,9 +112,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             	synchronized (outputWriter) // synchronized on outer.this like the flush() method
                 {
             		String input = buffer.toString();
-            		for(String splitInput: input.split("[\\r\\n]+")) {
-            			inputs.offer(splitInput);
-            		}
+//            		for(String splitInput: input.split("[\\r\\n]+")) {
+//            			inputs.offer(splitInput);
+            			styledDocument.takeDelayedBatchUpdate(buffer.toString(), outputWindow, scrollLock);
+//            		}
             		buffer.setLength(0);
                 }
             } else {
@@ -219,18 +155,22 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 });
 
                 //delayed syntax highlighting
-                lastFlush = System.currentTimeMillis();
-                new Thread(() ->
-                {
-                    final long pauseInterval=200;
-                    try {
-                        Thread.sleep(pauseInterval);
-                    } catch (InterruptedException ignored) {
-                    }
-                    if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
-                        reformatText();
-                    }
-                }).start();
+				lastFlush = System.currentTimeMillis();
+				Thread lateHighlightThread = new Thread() {
+					public void run() {
+						setDaemon(true);
+						final long pauseInterval = 200;
+						try {
+							Thread.sleep(pauseInterval);
+						} catch (InterruptedException ignored) {
+						}
+						if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
+							reformatText();
+						}
+					}
+				};
+				lateHighlightThread.setDaemon(true);
+				lateHighlightThread.start();
             }
 
         }
@@ -242,7 +182,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     };
     private boolean colorImmediately = true;
-    private Highlighter highlighter;
 
     private void trimOutput(Document document) {
         if (limit > 0) {
@@ -263,6 +202,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         super("trace", "Trace");
         this.debugger = debuggerIn;
 
+        highlighter = Highlighter.getInstance(debugger);
+        styledDocument = new BatchStyledDocument(highlighter, debugger);
+        
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         setLimit(getPreferences().getInt("limit", -1));
         colorImmediately = getPreferences().getBoolean("coloredOutput", true);
@@ -317,7 +259,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "You can paste code (ctrl+v) directly into this window.\n");
 
 
-        debugger.getAgent().getPrinter().pushWriter(outputWriter);
+        debugger.getAgent().getPrinter().addPersistentWriter(outputWriter);
 
 
         final Trace trace = debugger.getAgent().getTrace();
@@ -361,9 +303,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         commandPanel.dispose();
 
         final Printer printer = debugger.getAgent().getPrinter();
-        while(outputWriter != printer.popWriter())
-        {
-        }
+        printer.removePersistentWriter(outputWriter);
 
         //todo - reimplement line wrap
 //        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
