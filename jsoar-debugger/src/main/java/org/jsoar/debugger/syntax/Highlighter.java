@@ -91,7 +91,6 @@ public class Highlighter
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     int caretPosition = outputWindow.getCaretPosition();
-                    final long time = System.currentTimeMillis();
                     try {
                         setDefaultTextStyle(outputWindow);
                         if (styles.isEmpty()) {
@@ -124,7 +123,7 @@ public class Highlighter
                         e.printStackTrace();
                     }
                     outputWindow.setCaretPosition(caretPosition);
-                    System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+                    //System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
                 }
 
             });

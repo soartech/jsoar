@@ -36,7 +36,7 @@ public class SoarCommandCompletion
             }
 
             ArrayList<CharSequence> longResults = new ArrayList<>();
-            System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
+            //System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
             picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
 
             for (int i = 0; i < longResults.size(); i++) {
