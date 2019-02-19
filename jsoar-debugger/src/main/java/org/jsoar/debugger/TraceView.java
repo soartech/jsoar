@@ -158,7 +158,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 				lastFlush = System.currentTimeMillis();
 				Thread lateHighlightThread = new Thread() {
 					public void run() {
-						setDaemon(true);
 						final long pauseInterval = 200;
 						try {
 							Thread.sleep(pauseInterval);
