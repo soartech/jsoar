@@ -87,7 +87,7 @@ public class Highlighter
             final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(str, debugger);
 
 
-            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
+//            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
 //            SwingUtilities.invokeLater(new Runnable() {
 //                public void run() {
                     int caretPosition = outputWindow.getCaretPosition();
