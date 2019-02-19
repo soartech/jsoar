@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -108,7 +109,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         @Override
         synchronized public void flush() throws IOException
         {
-            if (colorImmediately) {
+            if (colorImmediately.get()) {
             	synchronized (outputWriter) // synchronized on outer.this like the flush() method
                 {
             		String input = buffer.toString();
@@ -163,8 +164,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 							Thread.sleep(pauseInterval);
 						} catch (InterruptedException ignored) {
 						}
-						if (System.currentTimeMillis() - lastFlush >= pauseInterval) {
-							reformatText();
+						if (!colorImmediately.get() && System.currentTimeMillis() - lastFlush >= pauseInterval) {
+							synchronized (colorLock) {
+								reformatText();
+							}
 						}
 					}
 				};
@@ -180,7 +183,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
-    private boolean colorImmediately = true;
+    private AtomicBoolean colorImmediately = new AtomicBoolean(true);
+    public final Object colorLock = new Object(); 
 
     private void trimOutput(Document document) {
         if (limit > 0) {
@@ -202,11 +206,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
 
         highlighter = Highlighter.getInstance(debugger);
-        styledDocument = new BatchStyledDocument(highlighter, debugger);
+        styledDocument = new BatchStyledDocument(highlighter, debugger, colorImmediately, colorLock);
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         setLimit(getPreferences().getInt("limit", -1));
-        colorImmediately = getPreferences().getBoolean("coloredOutput", true);
+        colorImmediately = new AtomicBoolean(getPreferences().getBoolean("coloredOutput", true));
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         setDefaultTextStyle();
 
@@ -309,7 +313,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         getPreferences().put("search", searchPanel.getSearchText());
         getPreferences().putInt("limit", limit);
         getPreferences().putBoolean("scrollLock", scrollLock);
-        getPreferences().putBoolean("coloredOutput", colorImmediately);
+        getPreferences().putBoolean("coloredOutput", colorImmediately.get());
     }
 
     /* (non-Javadoc)
@@ -494,11 +498,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }});
         menu.insert(scrollLockItem, 0);
 
-        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", colorImmediately);
+        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", colorImmediately.get());
         colorItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                colorImmediately = !colorImmediately;
+            	//Technically this isn't atomic, but if it's changing faster that this we have bigger problems
+                colorImmediately.set(!colorImmediately.get());
             }
         });
         menu.insert(colorItem,0);
