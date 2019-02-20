@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
@@ -95,7 +96,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
-        private volatile boolean flushing = false;
+//        private volatile boolean flushing = false;
         //@SuppressWarnings("unused")
         //private volatile boolean printing = false;
 
@@ -106,6 +107,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         private final ConcurrentLinkedQueue<String> inputs = new ConcurrentLinkedQueue<>();
         
+        private final Semaphore uiThreadLock = new Semaphore(1);
         @Override
         synchronized public void flush() throws IOException
         {
@@ -120,37 +122,41 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             		buffer.setLength(0);
                 }
             } else {
-                // If there's already a runnable headed for the UI thread, don't send another
-                if (flushing) {
-                    return;
-                }
-
-                // Send a runnable over to the UI thread to take the current buffer contents
-                // and put them in the trace window.
-                flushing = true;
-
-                SwingUtilities.invokeLater(new Runnable() {
+            	while(true) {
+	            	if(uiThreadLock.tryAcquire()) {
+						break;
+					}else {
+						return;
+					}
+            	}
+            	SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         synchronized (outputWriter) // synchronized on outer.this like the flush() method
                         {
-                            Position endPosition = outputWindow.getDocument().getEndPosition();
+							try {
+								Position endPosition = outputWindow.getDocument().getEndPosition();
 
-                            try {
-                                String str = buffer.toString();
-                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, str, highlighter.getDefaultAttributes());
-//                                outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n", defaultAttributes);
-                            } catch (BadLocationException e) {
-                                e.printStackTrace();
-                            }
-                            buffer.setLength(0);
-                            flushing = false;
+								try {
+									String str = buffer.toString();
+									outputWindow.getDocument().insertString(endPosition.getOffset() - 1, str,
+											highlighter.getDefaultAttributes());
+									// outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n",
+									// defaultAttributes);
+								} catch (BadLocationException e) {
+									e.printStackTrace();
+								}
+								buffer.setLength(0);
 
-                            trimOutput(outputWindow.getDocument());
+								trimOutput(outputWindow.getDocument());
 
-                            if (scrollLock) {
-                                // Scroll to the end
-                                outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
-                            }
+								if (scrollLock) {
+									// Scroll to the end
+									outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+								}
+							} finally {
+								uiThreadLock.release();
+							}
+                            
                         }
                     }
                 });

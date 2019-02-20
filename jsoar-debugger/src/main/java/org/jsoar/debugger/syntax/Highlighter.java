@@ -90,39 +90,34 @@ public class Highlighter
 //            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
 //            SwingUtilities.invokeLater(new Runnable() {
 //                public void run() {
-                    int caretPosition = outputWindow.getCaretPosition();
-                    try {
-                        setDefaultTextStyle(outputWindow);
-                        if (styles.isEmpty()) {
-                            return;
-                        } else {
-                            outputWindow.setDocument(new DefaultStyledDocument());
-                            Position startPosition = styledDocument.getStartPosition();
-                            //reset default text color and size
-                            styledDocument.replace(0,str.length(),str,highlighter.getDefaultAttributes());
-                            int index = 0;
-                            for (StyleOffset offset : styles) {
-                                int start = offset.start;
-                                int end = offset.end;
-                                //don't apply any matches that start before the end of our last match, or that have length 0
-                                if (start >= end || start < index) {
-                                    continue;
-                                }
-                                //the matched stuff
-                                int offsetStart = startPosition.getOffset() + start;
-                                int offsetEnd = startPosition.getOffset() + (end - start);
+                    //int caretPosition = outputWindow.getCaretPosition();
+                    setDefaultTextStyle(outputWindow);
+					if (styles.isEmpty()) {
+					    return;
+					} else {
+					    //outputWindow.setDocument(new DefaultStyledDocument());
+					    Position startPosition = styledDocument.getStartPosition();
+					    //reset default text color and size
+					    //styledDocument.replace(0,str.length(),str,highlighter.getDefaultAttributes());
+					    int index = 0;
+					    for (StyleOffset offset : styles) {
+					        int start = offset.start;
+					        int end = offset.end;
+					        //don't apply any matches that start before the end of our last match, or that have length 0
+					        if (start >= end || start < index) {
+					            continue;
+					        }
+					        //the matched stuff
+					        int offsetStart = startPosition.getOffset() + start;
+					        int offsetEnd = startPosition.getOffset() + (end - start);
 //                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
 
-                                styledDocument.replace(offsetStart, offsetEnd, str.substring(start, end), offset.style);
-                                index = end;
-                            }
-                            outputWindow.setDocument(styledDocument);
-                        }
-
-                    } catch (BadLocationException e) {
-                        e.printStackTrace();
-                    }
-                    outputWindow.setCaretPosition(caretPosition);
+					        styledDocument.setCharacterAttributes(offsetStart, offsetEnd, offset.style, true);
+					        index = end;
+					    }
+					    //outputWindow.setDocument(styledDocument);
+					}
+                    //outputWindow.setCaretPosition(caretPosition);
                     //System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
 //                }
 //
