@@ -190,7 +190,7 @@ public class Printer
     
     public Formatter asFormatter()
     {
-        return new Formatter(this.printWriter);
+        return new Formatter(this.getWriter());
     }
     
     public Printer startNewLine()
