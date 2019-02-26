@@ -190,7 +190,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     };
     private AtomicBoolean colorImmediately = new AtomicBoolean(true);
-    public final Object colorLock = new Object(); 
+    private final Object colorLock = new Object(); 
 
     private void trimOutput(Document document) {
         if (limit > 0) {
