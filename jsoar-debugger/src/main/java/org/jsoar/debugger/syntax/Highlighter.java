@@ -83,7 +83,7 @@ public class Highlighter
         try {
             final String str = styledDocument.getText(0, styledDocument.getLength());
 
-            final long time = System.currentTimeMillis();
+//            final long time = System.currentTimeMillis();
             final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(str, debugger);
 
 
