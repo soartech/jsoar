@@ -43,6 +43,9 @@ public class Printer
     
     private boolean printWarnings = true;
     private boolean atStartOfLine = true;
+    
+    private TeeWriter teeWriter = null;
+    
     private final Writer startOfLineDetector = new Writer() {
 
         @Override
@@ -100,7 +103,10 @@ public class Printer
     {
         // Wrap in tee to ensure that persistent writers are still called when
         // this writer is used.
-        return new TeeWriter(internalWriter, persistentWriters);
+    	if(teeWriter == null) {
+    		teeWriter = new TeeWriter(internalWriter, persistentWriters);
+    	}
+        return teeWriter;
     }
     
     /**
@@ -119,6 +125,7 @@ public class Printer
         
         this.internalWriter = writer != null ? writer : new NullWriter();
         this.printWriter = asPrintWriter(internalWriter);
+        teeWriter = null;
     }
     
     private PrintWriter asPrintWriter(Writer writer)
@@ -145,6 +152,8 @@ public class Printer
         this.internalWriter = e.internal;
         this.printWriter = e.wrapped;
         
+        teeWriter = null;
+        
         return oldInternal;
     }
     
@@ -157,6 +166,7 @@ public class Printer
     public void addPersistentWriter(Writer writer)
     {
         this.persistentWriters.addWriter(writer);
+        teeWriter = null;
     }
     
     /**
@@ -167,6 +177,7 @@ public class Printer
     public void removePersistentWriter(Writer writer)
     {
         this.persistentWriters.removeWriter(writer);
+        teeWriter = null;
     }
     
     public Printer print(String output)
@@ -283,9 +294,9 @@ public class Printer
      */
     public Printer spaces(int n)
     {
+    	int c = Math.min(n, SPACES.length);
         while(n > 0)
         {
-            int c = Math.min(n, SPACES.length);
             printWriter.write(SPACES, 0, c);
             persistentPrintWriter.write(SPACES, 0, c);
             n -= c;
