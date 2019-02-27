@@ -1,8 +1,29 @@
 JSoar is a pure Java implementation of the Soar kernel. See [https://github.com/soartech/jsoar/](https://github.com/soartech/jsoar/wiki) for more information.
 
+## Obtaining JSoar ##
+
+Pre-built releases are available on github: https://github.com/soartech/jsoar/releases
+
+To add a dependency on JSoar using Maven, use the following:
+```
+<dependency>
+  <groupId>com.soartech.jsoar</groupId>
+  <artifactId>jsoar</artifactId>
+  <version>4.0</version>
+</dependency>
+```
+To add a dependency using Gradle:
+dependencies {
+  compile 'com.soartech.jsoar:jsoar:4.0'
+}
+
+## Developer info ##
+
 Note that the maven branch is now the main branch. The master branch is no longer maintained.
 
-## Coding Conventions ##
+There is also an Android branch, which maintains an Android-compatible version.
+
+### Coding Conventions ###
 
 The coding conventions for the JSoar codebase are stored as Eclipse formatter rules in `eclipse-formatter.xml`. To import:
 
@@ -13,7 +34,7 @@ The basic rules are:
 * 4 spaces of indentation
 * Opening braces on their own line
 
-# Maven Build #
+### Maven Build ###
 
 Builds are performed from the root directory.
 
@@ -23,7 +44,7 @@ Builds are performed from the root directory.
 
 Jars will end up in the target directories of the various projects (and in your local .m2 cache, if you install). Javadocs will end up in the top-level target/site directory.
 
-# Maven Releases #
+### Maven Releases ###
 
 TODO: Consolidate build instructions.
 
@@ -49,6 +70,4 @@ Some notes:
 * `deploy` deploys the new snapshot, which is pretty much identical to the artifact just built
 
 # Acknowledgements / History
-JSoar was originally envisioned and implemented by Dave Ray (and indeed, the 
-vast majority of the code is still Dave's). JSoar started out on Google Code in
-SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
+JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
