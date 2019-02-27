@@ -5,9 +5,6 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.List;
-
-import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.markers.Marker;
