@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>jsoar quick help</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+<style type="text/css">
+.highlight  { background: #ffffff; }
+.highlight .c { color: #999988; font-style: italic } /* Comment */
+.highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+.highlight .k { font-weight: bold } /* Keyword */
+.highlight .o { font-weight: bold } /* Operator */
+.highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+.highlight .c1 { color: #999988; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+.highlight .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #aa0000 } /* Generic.Error */
+.highlight .gh { color: #999999 } /* Generic.Heading */
+.highlight .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+.highlight .gi .x { color: #000000; background-color: #aaffaa } /* Generic.Inserted.Specific */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #555555 } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #aaaaaa } /* Generic.Subheading */
+.highlight .gt { color: #aa0000 } /* Generic.Traceback */
+.highlight .kc { font-weight: bold } /* Keyword.Constant */
+.highlight .kd { font-weight: bold } /* Keyword.Declaration */
+.highlight .kp { font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #009999 } /* Literal.Number */
+.highlight .s { color: #d14 } /* Literal.String */
+.highlight .na { color: #008080 } /* Name.Attribute */
+.highlight .nb { color: #0086B3 } /* Name.Builtin */
+.highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
+.highlight .no { color: #008080 } /* Name.Constant */
+.highlight .ni { color: #800080 } /* Name.Entity */
+.highlight .ne { color: #990000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #990000; font-weight: bold } /* Name.Function */
+.highlight .nn { color: #555555 } /* Name.Namespace */
+.highlight .nt { color: #000080 } /* Name.Tag */
+.highlight .nv { color: #008080 } /* Name.Variable */
+.highlight .ow { font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mf { color: #009999 } /* Literal.Number.Float */
+.highlight .mh { color: #009999 } /* Literal.Number.Hex */
+.highlight .mi { color: #009999 } /* Literal.Number.Integer */
+.highlight .mo { color: #009999 } /* Literal.Number.Oct */
+.highlight .sb { color: #d14 } /* Literal.String.Backtick */
+.highlight .sc { color: #d14 } /* Literal.String.Char */
+.highlight .sd { color: #d14 } /* Literal.String.Doc */
+.highlight .s2 { color: #d14 } /* Literal.String.Double */
+.highlight .se { color: #d14 } /* Literal.String.Escape */
+.highlight .sh { color: #d14 } /* Literal.String.Heredoc */
+.highlight .si { color: #d14 } /* Literal.String.Interpol */
+.highlight .sx { color: #d14 } /* Literal.String.Other */
+.highlight .sr { color: #009926 } /* Literal.String.Regex */
+.highlight .s1 { color: #d14 } /* Literal.String.Single */
+.highlight .ss { color: #990073 } /* Literal.String.Symbol */
+.highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #008080 } /* Name.Variable.Class */
+.highlight .vg { color: #008080 } /* Name.Variable.Global */
+.highlight .vi { color: #008080 } /* Name.Variable.Instance */
+.highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+.pl-c {
+    color: #969896;
+}
+
+.pl-c1,.pl-mdh,.pl-mm,.pl-mp,.pl-mr,.pl-s1 .pl-v,.pl-s3,.pl-sc,.pl-sv {
+    color: #0086b3;
+}
+
+.pl-e,.pl-en {
+    color: #795da3;
+}
+
+.pl-s1 .pl-s2,.pl-smi,.pl-smp,.pl-stj,.pl-vo,.pl-vpf {
+    color: #333;
+}
+
+.pl-ent {
+    color: #63a35c;
+}
+
+.pl-k,.pl-s,.pl-st {
+    color: #a71d5d;
+}
+
+.pl-pds,.pl-s1,.pl-s1 .pl-pse .pl-s2,.pl-sr,.pl-sr .pl-cce,.pl-sr .pl-sra,.pl-sr .pl-sre,.pl-src,.pl-v {
+    color: #df5000;
+}
+
+.pl-id {
+    color: #b52a1d;
+}
+
+.pl-ii {
+    background-color: #b52a1d;
+    color: #f8f8f8;
+}
+
+.pl-sr .pl-cce {
+    color: #63a35c;
+    font-weight: bold;
+}
+
+.pl-ml {
+    color: #693a17;
+}
+
+.pl-mh,.pl-mh .pl-en,.pl-ms {
+    color: #1d3e81;
+    font-weight: bold;
+}
+
+.pl-mq {
+    color: #008080;
+}
+
+.pl-mi {
+    color: #333;
+    font-style: italic;
+}
+
+.pl-mb {
+    color: #333;
+    font-weight: bold;
+}
+
+.pl-md,.pl-mdhf {
+    background-color: #ffecec;
+    color: #bd2c00;
+}
+
+.pl-mdht,.pl-mi1 {
+    background-color: #eaffea;
+    color: #55a532;
+}
+
+.pl-mdr {
+    color: #795da3;
+    font-weight: bold;
+}
+
+.pl-mo {
+    color: #1d3e81;
+}
+.task-list {
+padding-left:10px;
+margin-bottom:0;
+}
+
+.task-list li {
+    margin-left: 20px;
+}
+
+.task-list-item {
+list-style-type:none;
+padding-left:10px;
+}
+
+.task-list-item label {
+font-weight:400;
+}
+
+.task-list-item.enabled label {
+cursor:pointer;
+}
+
+.task-list-item+.task-list-item {
+margin-top:3px;
+}
+
+.task-list-item-checkbox {
+display:inline-block;
+margin-left:-20px;
+margin-right:3px;
+vertical-align:1px;
+}
+</style>
+</head>
+<body>
+<h1 id="jsoar-quick-help">JSoar Quick Help</h1>
+<p>This document is intended as a quick reference, most useful to new Soar users.</p>
+<h2 id="common-debugging-commands">Common Debugging Commands</h2>
+<p>Many of the commands follow a parent command / sub command structure, with options and arguments following. In many cases, there are aliases for common combinations. Most commands abd subcommands include a help subcommand that describes the command. Here is a summary of some of the most useful commands; most of what&#39;s here also applies to CSoar:</p>
+<ul>
+<li><code>help</code> : With no args, lists all the commands. Optionally takes the name of a command and prints its help. Note that most commands have a help subcommand, and most subcommands have help sub-subcommands.<ul>
+<li>Examples <code>help</code>, <code>help soar</code>, <code>soar help</code>, <code>soar init help</code></li></ul>
+</li><li><code>print</code> : Given the name of a rule, prints the rule. Given an identifier, prints the working memory structure rooted in that identifier. Can also take patterns.<ul>
+<li>Examples:<ul>
+<li><code>print my*rule</code></li><li><code>print s1</code> : note that identifiers are not case sensitive</li><li><code>print s1 --depth 3 --tree</code> : print to a specified depth in a tree format</li><li><code>print (* ^input-link *)</code> : print identifiers that have an input-link attribute. Any pattern may be specified, with <code>*</code> for wildcards. Note this will print all the children of the identifier(s), not just the ones that match the pattern. To get only the ones that match the pattern, add the <code>--exact</code> option. Also see the WME Search panel below for a graphical way to execute this command.</li></ul>
+</li><li>Alias: <code>p</code></li></ul>
+</li><li><code>run</code> : Runs Soar for the specified number of steps in the specified units<ul>
+<li>Examples:<ul>
+<li><code>run -d</code> : run one decision</li><li><code>run 12 -e</code> : run 12 smallest steps</li></ul>
+</li><li>Aliases: <code>step</code> = <code>run -d</code></li></ul>
+</li><li><code>soar stop</code> : Stop the Soar agent at the next stop point<ul>
+<li>Alias: <code>stop</code></li></ul>
+</li><li><code>soar init</code> : Reinitialize the Soar agent (i.e., clear working memory, reset stats, but do not change production memory)<ul>
+<li>Alias: <code>init</code></li></ul>
+</li><li><code>trace</code> : Set the verbosity of the trace output when Soar is running. Default levels 0-5 correspond to common combinations of settings. Default is level 1.<ul>
+<li>Examples:<ul>
+<li><code>trace 0</code> : Minimal output</li><li><code>trace 5</code> : Very verbose output</li><li><code>trace --wmes</code> : Print when WMEs are added to or removed from working memory</li></ul>
+</li><li>Alias: <code>watch</code></li></ul>
+</li><li><code>production matches</code> : Print whether a rule matches, and how many times. If a rule doesn&#39;t match, shows the first failing condition. Also shows number of partial matches, which is useful for performance tuning.<ul>
+<li>Examples:<ul>
+<li><code>matches my*rule</code></li></ul>
+</li><li>Alias: <code>matches</code></li></ul>
+</li><li><code>production firing-counts</code> : Prints the number of times each rule has fired, or a specific rule (if specified), or the top n rules, if given a numeric argument.<ul>
+<li>Examples:<ul>
+<li><code>production firing-counts</code> : Shows the number of times every rule has fired.</li><li><code>production firing-counts my*rule</code> : Shows the number of times my*rule has fired.</li><li><code>production firing-counts 10</code> : Shows the number of times the 10 most-fired rules have fired.</li></ul>
+</li><li>Aliases: <code>firing-counts</code>, <code>fc</code></li></ul>
+</li><li><code>preferences</code> : Shows whether a WME has i-support or o-support and, if an operator, preferences and selection probabilities. Can also show which rule(s) created a WME.<ul>
+<li>Examples:<ul>
+<li><code>preferences</code> : Shows operator preferences for bottom-most state</li><li><code>preferences s1</code> : Shows operator preferences for state S1</li><li><code>preferences s1 ^foo --names</code> : Shows which rules created the WMEs rooted in s1 ^foo</li></ul>
+</li><li>Alias: <code>pref</code></li></ul>
+</li><li><code>alias</code> : Add a command alias, or list existing aliases. An alias is executed as if it were the command it represents. Note that while there are a number of default aliases, any new aliases added are not automatically saved anywhere. It is recommended that new aliases be added to your Soar code directly so they are automatically defined when your agent is loaded. Note that aliases cannot currently be removed once defined, but they may be replaced.<ul>
+<li>Examples:<ul>
+<li><code>alias</code> : Lists existing command aliases.</li><li><code>alias foo print s1</code> : Creates (or replaces) an alias, <code>foo</code>, for the command <code>print s1</code>.</li></ul>
+</li></ul>
+</li></ul>
+<h2 id="debugger-tips">Debugger Tips</h2>
+<h3 id="changing-the-zoom">Changing the Zoom</h3>
+<ul>
+<li>The default scale for JDK8 can be very tiny on high resolution displays.</li><li>The default scale for JDK9+ is much better on high resolution displays.</li><li>The default can be changed at startup time by setting this property on the command line: <code>-DfontScale=&lt;scale&gt;</code> where 1.0 is the default, and higher numbers are larger.</li><li>The scale can be dynamically changed at runtime via <code>Ctrl+scrollwheel</code>. Note that this is imperfect, but may be good enough in many cases.</li></ul>
+<h3 id="change-the-panels">Change the Panels</h3>
+<ul>
+<li>There are many panels available for displaying various information, and not all are shown by default.</li><li>Additional panels can be found under the <code>View</code> menu.</li><li>The Working Memory panel gives a graphical tree view of working memory. Scroll by dragging the empty space in the panel.</li><li>The WME Search panel allows you to specify a pattern to look for, and lists matching WMEs. Note that this can also be achieved via the <code>print --exact</code> command (see the example under the <code>print</code> command above).</li><li>The Stop Command panel allows you to specify a command to execute when Soar stops (e.g., to print some location in working memory). You can create multiple of these.</li><li>Note that the panels can be re-arranged, and layouts may be saved/loaded (see the <code>View</code> -&gt; <code>Layout</code> menu).</li></ul>
+<h2 id="other-resources">Other Resources</h2>
+<ul>
+<li>JSoar wiki: <a href="https://github.com/soartech/jsoar/wiki">https://github.com/soartech/jsoar/wiki</a></li><li>Soar Manual<ul>
+<li>Included with the CSoar release</li><li>Can be downloaded from this page: <a href="https://soar.eecs.umich.edu/articles/articles">https://soar.eecs.umich.edu/articles/articles</a></li></ul>
+</li><li>Soar help: soar-help@lists.sourceforge.net</li></ul>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

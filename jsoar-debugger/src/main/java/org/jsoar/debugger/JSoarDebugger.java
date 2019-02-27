@@ -630,6 +630,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 getAgent().execute(callable , null);
                 
             }});
+        helpMenu.add(new UrlAction(actionManager, "Quick Help", JSoarDebugger.class.getResource("/org/jsoar/debugger/jsoar quick help.html").toString()));
         helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
