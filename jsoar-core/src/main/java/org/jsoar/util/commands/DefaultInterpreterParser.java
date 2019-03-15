@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.exceptions.SoarInterpreterException;
+import org.jsoar.kernel.exceptions.SoarParserException;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 
@@ -149,7 +151,8 @@ public class DefaultInterpreterParser
                     c = parseEscapeSequence(reader);
                     if(c == -1)
                     {
-                        throw error(reader, "Unexpected end of file");
+                        throw new SoarParserException("Unexpected end of file", startOfCommand);
+                        //throw error(reader, "Unexpected end of file");
                     }
                 default:
                     result.append((char) c);
@@ -157,7 +160,8 @@ public class DefaultInterpreterParser
             }
             if(c == -1)
             {
-                throw error(reader, "Unexpected end of input. Unmatched quote.");
+                throw new SoarParserException("Unexpected end of input. Unmatched quote.", startOfCommand);
+                //throw error(reader, "Unexpected end of input. Unmatched quote.");
             }
         }
         else if(c == '{')
@@ -182,7 +186,8 @@ public class DefaultInterpreterParser
             }
             if(braces > 0)
             {
-                throw error(reader, "Unexpected end of input. Unmatched opening brace");
+                throw new SoarParserException("Unexpected end of input. Unmatched opening brace", startOfCommand);
+                //throw error(reader, "Unexpected end of input. Unmatched opening brace");
             }
         }
         else
@@ -216,7 +221,7 @@ public class DefaultInterpreterParser
     
     private SoarException error(ParserBuffer reader, String message)
     {
-        return new SoarException(reader.getLocation() + ": " + message);
+        return new SoarInterpreterException(reader.getLocation() + ": " + message);
     }
     
     private int read(ParserBuffer reader) throws IOException

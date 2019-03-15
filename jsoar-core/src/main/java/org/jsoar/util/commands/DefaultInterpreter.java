@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.exceptions.SoarInterpreterException;
 import org.jsoar.kernel.commands.LoadCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
@@ -268,7 +269,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
         else
         {
-            throw new SoarException(parsedCommand.value.getLocation() + ": Unknown command '" + parsedCommand.value.getArgs().get(0) + "'");
+            throw new SoarInterpreterException(parsedCommand.value.getLocation() + ": Unknown command '" + parsedCommand.value.getArgs().get(0) + "'",
+                    parsedCommand);
         }
     }
     
