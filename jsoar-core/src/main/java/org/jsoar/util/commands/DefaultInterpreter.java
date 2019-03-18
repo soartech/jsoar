@@ -7,7 +7,6 @@ package org.jsoar.util.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -395,9 +394,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         {
             try
             {
-                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
+
+                String code = getReaderContents(new BufferedReader(new FileReader(file)));
+                code = fixLineEndings(code);
+                evalAndClose(new StringReader(code), file.getAbsolutePath());
+//                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
             }
-            catch (FileNotFoundException e)
+            catch (IOException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
@@ -409,8 +412,10 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             try
             {   
                 url = UrlTools.normalize(url);
-                
-                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
+                String code = getReaderContents(new BufferedReader(new InputStreamReader(url.openStream())));
+                code = fixLineEndings(code);
+                evalAndClose(new StringReader(code), url.toExternalForm());
+//                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
             }
             catch (IOException | URISyntaxException e)
             {
@@ -421,7 +426,27 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         @Override
         public String eval(String code) throws SoarException
         {
+            code = fixLineEndings(code);
             return DefaultInterpreter.this.eval(code);
+        }
+
+        // returns string of all contents in reader
+        private String getReaderContents(Reader reader) throws IOException {
+            StringBuilder builder = new StringBuilder();
+            int ch;
+
+            while ((ch = reader.read()) != -1) {
+                builder.append((char)ch);
+            }
+
+            return builder.toString();
+        }
+
+        // Replaces windows "\r\n" and old mac line "\r" endings with unix "\n"
+        private String fixLineEndings(String code) {
+            code = code.replaceAll("\r\n", "\n");
+            code = code.replaceAll("\r", "\n");
+            return code;
         }
     }
     
