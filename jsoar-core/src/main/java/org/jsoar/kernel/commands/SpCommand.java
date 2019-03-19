@@ -2,6 +2,7 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.exceptions.SoftTclInterpreterException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.commands.SoarCommand;
@@ -63,15 +64,11 @@ public class SpCommand implements SoarCommand
                     agent.getProductions().loadProduction(production, context.getSourceLocation());
                     agent.getPrinter().print("*");
                 }
-                catch (ReordererException e)
+                catch (ReordererException | ParserException e)
                 {
                     agent.getPrinter().startNewLine().print(
                             context.getSourceLocation() + ":" + e.getMessage());
-                }
-                catch (ParserException e)
-                {
-                    agent.getPrinter().startNewLine().print(
-                            context.getSourceLocation() + ":" + e.getMessage());
+                    agent.getInterpreter().getExceptionsManager().addException(new SoftTclInterpreterException(e.getMessage(), context, production));
                 }
             }
         }

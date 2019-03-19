@@ -55,9 +55,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final SourceCommand sourceCommand;
     private final LoadCommand loadCommand;
     private final SaveCommand saveCommand;
+    private SoarTclExceptionsManager exceptionsManager;
     
     public DefaultInterpreter(Agent agent)
     {
+        this.exceptionsManager = new SoarTclExceptionsManager();
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
@@ -394,7 +396,6 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         {
             try
             {
-
                 String code = getReaderContents(new BufferedReader(new FileReader(file)));
                 code = fixLineEndings(code);
                 evalAndClose(new StringReader(code), file.getAbsolutePath());
@@ -458,4 +459,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return commandList;
     }
 
+    @Override
+    public SoarTclExceptionsManager getExceptionsManager() {
+        return exceptionsManager;
+    }
 }

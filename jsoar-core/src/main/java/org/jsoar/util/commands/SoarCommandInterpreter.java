@@ -206,4 +206,12 @@ public interface SoarCommandInterpreter
      */
     public List<String> getCommandStrings() throws SoarException;
 
+    /**
+     * Returns the interpreter's SoarTclExceptionsManager
+     * This is intended to be used by the language server to provide context/info
+     * for "soft" exceptions that are caught and logged but not "reported" to IDEs
+     * @return
+     */
+    public SoarTclExceptionsManager getExceptionsManager();
+
 }
