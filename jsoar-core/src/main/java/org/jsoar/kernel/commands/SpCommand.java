@@ -2,12 +2,12 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.exceptions.SoftTclInterpreterException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import org.jsoar.util.commands.SoarTclExceptionsManager;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Parameters;
@@ -63,12 +63,14 @@ public class SpCommand implements SoarCommand
                 {
                     agent.getProductions().loadProduction(production, context.getSourceLocation());
                     agent.getPrinter().print("*");
+                    SoarTclExceptionsManager exceptionsManager = agent.getInterpreter().getExceptionsManager();
+                    agent.getPrinter().getWarningsAndClear().forEach(warning -> exceptionsManager.addException(warning, context, production));
                 }
                 catch (ReordererException | ParserException e)
                 {
                     agent.getPrinter().startNewLine().print(
                             context.getSourceLocation() + ":" + e.getMessage());
-                    agent.getInterpreter().getExceptionsManager().addException(new SoftTclInterpreterException(e.getMessage(), context, production));
+                    agent.getInterpreter().getExceptionsManager().addException(e, context, production);
                 }
             }
         }

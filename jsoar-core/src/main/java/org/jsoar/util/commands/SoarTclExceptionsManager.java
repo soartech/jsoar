@@ -13,6 +13,14 @@ public class SoarTclExceptionsManager {
         exceptions = new ArrayList<>();
     }
 
+    public void addException(Exception e, SoarCommandContext context, String production) {
+        addException(new SoftTclInterpreterException(e.getMessage(), context, production));
+    }
+
+    public void addException(String msg, SoarCommandContext context, String production) {
+        addException(new SoftTclInterpreterException(msg, context, production));
+    }
+
     public void addException(SoftTclInterpreterException ex) {
         exceptions.add(ex);
     }
