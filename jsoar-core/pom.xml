@@ -23,9 +23,13 @@
 
     <dependencies>
         <dependency>
+            <!--
+                NOTE: This is used in soarbeans, though I suspect it wouldn't outrageous to replace the offending
+                code with pure Java reflection API calls, if this were desired.
+            -->
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.8.3</version>
+            <version>1.9.3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
@@ -41,7 +45,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -58,6 +62,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>4.3.2.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
