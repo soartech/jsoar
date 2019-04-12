@@ -87,7 +87,7 @@ dependencies {
     implementation ('com.googlecode.json-simple:json-simple:1.1.1'){
         exclude module: 'hamcrest-core'
     }
-    implementation 'org.slf4j:jcl-over-slf4j:1.7.5'
+    implementation 'org.slf4j:jcl-over-slf4j:1.7.26'
     implementation 'org.apache.commons:commons-math3:3.2'
     implementation 'com.google.guava:guava:16.0.1'
     implementation 'com.android.support:appcompat-v7:26.1.0'
