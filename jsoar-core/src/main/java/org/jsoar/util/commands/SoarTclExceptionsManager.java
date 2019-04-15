@@ -28,4 +28,8 @@ public class SoarTclExceptionsManager {
     public List<SoftTclInterpreterException> getExceptions() {
         return exceptions;
     }
+
+    public void clearExceptions() {
+        exceptions.clear();
+    }
 }
