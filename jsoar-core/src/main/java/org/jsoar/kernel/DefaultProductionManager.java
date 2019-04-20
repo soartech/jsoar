@@ -70,7 +70,7 @@ public class DefaultProductionManager implements ProductionManager
     }
     private Map<String, Production> productionsByName = new HashMap<String, Production>();
 
-    DefaultProductionManager(Agent context)
+    public DefaultProductionManager(Agent context)
     {
         this.context = context;
     }
