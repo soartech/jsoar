@@ -75,7 +75,7 @@ public class DefaultProductionManager implements ProductionManager
         this.context = context;
     }
     
-    void initialize()
+    public void initialize()
     {
         this.syms = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
@@ -85,7 +85,7 @@ public class DefaultProductionManager implements ProductionManager
     /**
      * <p>init_soar.cpp:297:reset_statistics
      */
-    void resetStatistics()
+    public void resetStatistics()
     {
         // reset_production_firing_counts(thisAgent);
         for (Production p : this.productionsByName.values())
