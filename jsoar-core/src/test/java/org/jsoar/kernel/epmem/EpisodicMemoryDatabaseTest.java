@@ -91,7 +91,7 @@ public class EpisodicMemoryDatabaseTest
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range",
            
-            "sqlite_sequence", // created automatically for AUTOINCREMENT,
+            //"sqlite_sequence", // created automatically for AUTOINCREMENT,
             "versions"
         ));
         
