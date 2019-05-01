@@ -10,7 +10,11 @@ import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.jsoar.util.JdbcTools;
@@ -91,15 +95,22 @@ public class SemanticMemoryDatabaseTest
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
-        final Set<String> tables = new HashSet<String>();
-        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"INDEX"});
+final Set<String> indexes = new HashSet<String>();
+        
+        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
         while(rs.next())
         {
-            tables.add(rs.getString("TABLE_NAME").toLowerCase());
+        	String tableName = rs.getString("TABLE_NAME");
+        	System.out.println(tableName);
+            final ResultSet rsIndexes = db.getMetaData().getIndexInfo(null, null, tableName, false, false);
+            while(rsIndexes.next())
+            {
+            	indexes.add(rsIndexes.getString("INDEX_NAME").toLowerCase());
+            }
         }
         
         // Here's the tables we expect
-        final String[] expectedTables = new String[] {
+        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(new String[] {
             SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
             SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
             SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",
@@ -111,13 +122,20 @@ public class SemanticMemoryDatabaseTest
             SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
             SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
             "sqlite_autoindex_versions_1",
-        };
+        }));
         
-        for(String expected : expectedTables)
+        for(Iterator<String> it = expectedTables.iterator();it.hasNext();)
         {
-            assertTrue("Missing expected index '" + expected + "'", tables.contains(expected));
+            String expected = it.next();
+            
+            assertTrue("Missing expected index '" + expected + "'", indexes.contains(expected));
+            
+            indexes.remove(expected);
+            it.remove();
         }
-        assertEquals(expectedTables.length, tables.size());
+        
+        assertTrue("Unexpected indices: '" + ((indexes.isEmpty())?"":indexes.iterator().next()) + "'", indexes.isEmpty());
+        assertTrue("Not Found indices: '" + ((expectedTables.isEmpty())?"":expectedTables.get(0)) + "'", expectedTables.isEmpty());
     }
 
     @Test

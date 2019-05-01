@@ -620,8 +620,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             while (rs.next())
             {
-                // if ( temp_q->column_type( 0 ) != soar_module::null_t )
-                if (db.column_type(rs.getMetaData().getColumnType(0 + 1)) != EpisodicMemoryDatabase.value_type.null_t)
+            	/*
+                 * The original port from CSoar did this.  In the original version of Xerial this would return
+                 * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
+                 * column.  The column is not nullable and should be a character value, so we are assuming that
+                 * any 0s are what used to be nulls. --ACN
+                 *  
+                 if ( temp_q->column_type( 0 ) != soar_module::null_t )
+                 */
+                if (rs.getInt(0 + 1) != 0)
                 {
                     // std::vector<bool>::size_type num_ids =
                     // temp_q->column_int( 0 );
@@ -7140,11 +7147,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         child_n_id = result.getLong( 2 + 1 );
                         
                         temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
-                        
+                        /*
+                         * The original port from CSoar did this.  In the original version of Xerial this would return
+                         * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
+                         * column.  The column is not nullable and should be a character value, so we are assuming that
+                         * any 0s are what used to be nulls. --ACN
+                         *  
                         val_is_short_term = 
                                 ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
                                         == EpisodicMemoryDatabase.value_type.null_t );
-    
+    					*/
+                        val_is_short_term = ( result.getLong(3 + 1) == 0 );
+                        
                         if ( val_is_short_term )
                         {
                             temp_s2 = _epmem_print_sti( child_n_id );
