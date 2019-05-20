@@ -281,7 +281,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
             a.getPrinter().popWriter();
             String result = sw.toString();
             
-            if (!result.contains("native"))
+            if (!result.contains("Native"))
             {
                 throw new AssertionError("Non Native Driver!");
             }

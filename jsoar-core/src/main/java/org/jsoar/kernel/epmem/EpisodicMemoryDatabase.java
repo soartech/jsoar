@@ -244,40 +244,6 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         getFilterMap().put("@PREFIX@", EPMEM_SCHEMA);
     }
     
-    /**
-     * soardb.h:460:column_type
-     * 
-     * Similar to what column_type is doing in soar_module except this is operating directly on the type
-     * instead of the column itself. This might be a confusingly bad idea to change what the parameter means here.
-     * TODO EPMEM document this hack
-     */
-    value_type column_type(int jdbcColumnType)
-    {
-        value_type return_val = EpisodicMemoryDatabase.value_type.null_t;
-
-        switch (jdbcColumnType)
-        {
-        // TODO EPMEM Not sure which is valid here
-        case java.sql.Types.BIGINT:
-        case java.sql.Types.SMALLINT:
-        case java.sql.Types.TINYINT:
-        case java.sql.Types.INTEGER:
-            return_val = EpisodicMemoryDatabase.value_type.int_t;
-            break;
-
-        case java.sql.Types.DOUBLE:
-        case java.sql.Types.FLOAT:
-            return_val = EpisodicMemoryDatabase.value_type.double_t;
-            break;
-
-        case java.sql.Types.VARCHAR:
-            return_val = EpisodicMemoryDatabase.value_type.text_t;
-            break;
-        }
-
-        return return_val;
-    }
-    
     public void dropEpmemTables() throws SQLException{
         drop_epmem_nodes.execute();
         drop_epmem_episodes.execute();
