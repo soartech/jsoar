@@ -12,6 +12,7 @@ import org.jsoar.legilimens.RestletTools;
 import org.jsoar.legilimens.trace.AgentTraceBuffer;
 import org.jsoar.legilimens.trace.TraceRange;
 import org.jsoar.util.FileTools;
+import org.restlet.data.Disposition;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -64,8 +65,9 @@ public class TraceResource extends BaseAgentResource
             final TraceRange traceRange = getTraceRange(state);
             
             final StringRepresentation rep = new StringRepresentation(CharBuffer.wrap(traceRange.getData(), 0, traceRange.getLength()));
-            rep.setDownloadName(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
-            rep.setDownloadable(true);
+            Disposition disp = new Disposition();
+            disp.setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
+            rep.setDisposition(disp);
             
             RestletTools.setResponseHeader(getResponse(), "X-trace-start", traceRange.getStart());
             RestletTools.setResponseHeader(getResponse(), "X-trace-end", traceRange.getEnd());

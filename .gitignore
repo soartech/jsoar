@@ -31,3 +31,4 @@ jsoar-performance-testing/.settings/
 *.iml
 dependency-reduced-pom.xml
 target/
+*.trace
