@@ -6,7 +6,9 @@
 package org.jsoar.legilimens;
 
 import org.restlet.Response;
-import org.restlet.data.Form;
+import org.restlet.data.Header;
+import org.restlet.engine.header.HeaderConstants;
+import org.restlet.util.Series;
 
 /**
  * @author ray
@@ -14,14 +16,16 @@ import org.restlet.data.Form;
 public class RestletTools
 {
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void setResponseHeader(Response response, String name, Object value)
     {
-        Form responseHeaders = (Form) response.getAttributes().get("org.restlet.http.headers");  
+        Series<Header> responseHeaders = (Series<Header>) 
+                response.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
         if (responseHeaders == null)  
         {  
-            responseHeaders = new Form();  
-            response.getAttributes().put("org.restlet.http.headers", responseHeaders);  
+            responseHeaders = new Series(Header.class);
+            response.getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, responseHeaders);  
         }  
-        responseHeaders.add(name, value.toString());  
+        responseHeaders.add(new Header(name, value.toString()));  
     }
 }

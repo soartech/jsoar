@@ -95,7 +95,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
     @Override
     public Iterator<Preference> getPreferences()
     {
-        return Collections.emptyIterator();
+        return Collections.<Preference>emptyIterator();
     }
 
     /* (non-Javadoc)

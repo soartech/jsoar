@@ -336,7 +336,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public Iterator<Wme> getChildren()
     {
         Identifier valueAsId = value.asIdentifier();
-        return valueAsId != null ? valueAsId.getWmes() : Collections.emptyIterator();
+        return valueAsId != null ? valueAsId.getWmes() : Collections.<Wme>emptyIterator();
     }
 
     /* (non-Javadoc)
