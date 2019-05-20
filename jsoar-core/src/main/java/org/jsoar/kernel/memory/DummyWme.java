@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Collections;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
@@ -96,7 +97,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
     @Override
     public Iterator<Preference> getPreferences()
     {
-        return Iterators.emptyIterator();
+        return Collections.<Preference>emptyIterator();
     }
 
     /* (non-Javadoc)
