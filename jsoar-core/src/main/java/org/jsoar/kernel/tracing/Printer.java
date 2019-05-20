@@ -302,9 +302,9 @@ public class Printer
      */
     public Printer spaces(int n)
     {
-    	int c = Math.min(n, SPACES.length);
         while(n > 0)
         {
+            int c = Math.min(n, SPACES.length);
             printWriter.write(SPACES, 0, c);
             persistentPrintWriter.write(SPACES, 0, c);
             n -= c;
