@@ -21,6 +21,8 @@ import java.util.Properties;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.JdbcTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
@@ -36,12 +38,13 @@ public abstract class AbstractSoarDatabase
     private final Properties statements = new Properties();
     private final Map<String, String> filterMap = new HashMap<String, String>();
     
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSoarDatabase.class);
+    
     /**
      * Construct a new database instance.
      * 
      * @param driver the driver name
      * @param db the database connection
-     * @throws SoarException
      */
     public AbstractSoarDatabase(String driver, Connection db)
     {
@@ -104,6 +107,9 @@ public abstract class AbstractSoarDatabase
         try
         {
             JdbcTools.executeSqlBatch(getConnection(), is, getDriver());
+        }
+        catch(Exception e) {
+        	logger.error("Failed to created database", e);
         }
         finally
         {

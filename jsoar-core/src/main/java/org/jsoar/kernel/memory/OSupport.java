@@ -176,7 +176,6 @@ public class OSupport
      * <p>osupport.cpp:267:calculate_support_for_instantiation_preferences
      * 
      * @param inst
-     * @param top_goal
      */
     public void calculate_support_for_instantiation_preferences(Instantiation inst)
     {

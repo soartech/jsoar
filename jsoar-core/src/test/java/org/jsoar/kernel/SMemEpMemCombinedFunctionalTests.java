@@ -5,10 +5,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.StringWriter;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
 {
+	private static final Logger logger = LoggerFactory.getLogger(SMemEpMemCombinedFunctionalTests.class);
+	
     @Test
     public void smemEpMemFactorizationCombinationTest() throws Exception
     {
@@ -47,6 +51,7 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                      "(@F17 ^complete true ^factor @F18 ^number 7)\n" +
                                      "(@F18 ^multiplicity 1 ^value 7)\n";
         
+        logger.info("Epmem test actual result: " + actualResultEpMem);
         assertTrue("Unexpected output from EpMem!\n" + actualResultEpMem, actualResultEpMem.equals(expectedResultEpMem));
     }
 }

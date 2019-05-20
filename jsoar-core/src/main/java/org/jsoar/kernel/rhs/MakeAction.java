@@ -15,8 +15,8 @@ import org.jsoar.util.markers.Marker;
 public class MakeAction extends Action
 {
     /**
-     * TODO Looking at the usage of this field in the kernel, it seems like it
-     * should always be RhsSymbol value, but {@link ReteBuilder#fixup_rhs_value_variable_references}
+     * TODO Looking at the usage of this field in the kernel, it seems like it 
+     * should always be RhsSymbol value, but {@code org.jsoar.kernel.rete.ReteBuilder#fixup_rhs_value_variable_references(Rete, RhsValue, int, List, Marker)}
      * seems like it can return a {@link ReteLocation} and I'm getting that in a simple
      * unit test, so...
      */

@@ -23,7 +23,7 @@ import com.google.common.base.Joiner;
  * 
  * <p>For example:
  * <pre>
- * (javascript |println("| <value> |")|)
+ * {@code (javascript |println("| <value> |")|)}
  * </pre>
  * 
  * @author ray

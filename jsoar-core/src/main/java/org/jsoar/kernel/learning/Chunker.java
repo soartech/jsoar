@@ -352,8 +352,6 @@ public class Chunker
      * 
      * <p>chunk.cpp:144:get_results_for_instantiation
      * 
-     * @param inst
-     * @return
      */
     private Preference get_results_for_instantiation(Instantiation inst)
     {
@@ -474,8 +472,6 @@ public class Chunker
      * 
      * <p>chunk.cpp:251:copy_and_variablize_result_list
      * 
-     * @param pref
-     * @return
      */
     private MakeAction copy_and_variablize_result_list(Preference pref, boolean variablize)
     {
@@ -652,9 +648,6 @@ public class Chunker
      * 
      * <p>chunk.cpp:512:get_nots_for_instantiated_conditions
      * 
-     * @param instantiations_with_nots
-     * @param tc_of_grounds
-     * @return
      */
     private NotStruct get_nots_for_instantiated_conditions(LinkedList<Instantiation> instantiations_with_nots,
             Marker tc_of_grounds)
@@ -803,8 +796,8 @@ public class Chunker
      * <p>Okay, so the obvious way is to have each variablized condition (VCond)
      * point to the corresponding instantiated condition (ICond). Then after
      * reordering the VConds, we'd scan through the VConds and say
-     *    VCond->Icond->next = VCond->next->Icond 
-     *    VCond->Icond->prev = VCond->prev->Icond 
+     *    {@code VCond->Icond->next = VCond->next->Icond
+     *    VCond->Icond->prev = VCond->prev->Icond}
      * (with some extra checks for the first and last VCond in the list).
      * 
      * <p>The problem with this is that it takes an extra 4 bytes per condition,
@@ -870,7 +863,7 @@ public class Chunker
      * When we build the initial instantiation of the new chunk, we have to fill
      * in preferences_generated with *copies* of all the result preferences.
      * These copies are clones of the results. This routine makes these clones
-     * and fills in chunk_inst->preferences_generated.
+     * and fills in {@code chunk_inst->preferences_generated}.
      * 
      * <p>chunk.cpp:726:make_clones_of_results
      * 
@@ -900,10 +893,6 @@ public class Chunker
     
     /**
      * chunk.cpp:762:find_impasse_wme_value
-     * 
-     * @param id
-     * @param attr
-     * @return
      */
     private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr)
     {
@@ -917,8 +906,6 @@ public class Chunker
      * 
      * <p>chunk.cpp:770:generate_chunk_name_sym_constant
      * 
-     * @param inst
-     * @return
      */
     private String generate_chunk_name_sym_constant(Instantiation inst)
     {
@@ -1045,8 +1032,6 @@ public class Chunker
     /**
      * <p>chunk.cpp:903:chunk_instantiation
      * 
-     * @param inst
-     * @return
      */
     boolean should_variablize(Instantiation inst)
     {
@@ -1121,7 +1106,8 @@ public class Chunker
      * <p>chunk.cpp:973:chunk_instantiation
      * 
      * @param inst
-     * @param allow_variablization
+     * @param dont_variablize
+     * @param custom_inst_list
      */
     public void chunk_instantiation(Instantiation inst, boolean dont_variablize, ByRef<Instantiation> custom_inst_list)
     {

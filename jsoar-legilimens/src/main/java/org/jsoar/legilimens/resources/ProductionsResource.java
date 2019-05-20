@@ -96,7 +96,7 @@ public class ProductionsResource extends BaseAgentResource
         }
         final StringRepresentation rep = new StringRepresentation(result, MediaType.TEXT_PLAIN);
         if(rep.getDisposition() == null) { rep.setDisposition(new Disposition()); }
-        rep.getDisposition().setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
+        rep.getDisposition().setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".soar");
         rep.getDisposition().setType(Disposition.TYPE_ATTACHMENT);
         
         return rep;

@@ -69,8 +69,10 @@ public class Utils
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
             List<Object> results = parseAndRun(command, args, ps);
-            for(Object o : results) {
-                if(o != null) ps.print(o.toString());
+            if(results != null) {
+                for(Object o : results) {
+                    if(o != null) ps.print(o.toString());
+                }
             }
         }
         catch (UnsupportedEncodingException e)

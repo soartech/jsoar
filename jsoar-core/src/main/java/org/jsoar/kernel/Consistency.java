@@ -68,9 +68,6 @@ public class Consistency
      * 
      * consistency.cpp:116:decision_consistent_with_current_preferences
      * 
-     * @param goal
-     * @param s
-     * @return
      */
     private boolean decision_consistent_with_current_preferences(IdentifierImpl goal, Slot s)
     {
@@ -305,8 +302,6 @@ public class Consistency
      * 
      * consistency.cpp:326:check_context_slot_decisions
      * 
-     * @param level
-     * @return
      */
     private boolean check_context_slot_decisions(int level)
     {
@@ -373,8 +368,6 @@ public class Consistency
     /**
      * consistency.cpp:378:i_activity_at_goal
      * 
-     * @param goal
-     * @return
      */
     private boolean i_activity_at_goal(IdentifierImpl goal)
     {
@@ -397,8 +390,6 @@ public class Consistency
      *
      * consistency.cpp:400:minor_quiescence_at_goal
      * 
-     * @param goal
-     * @return
      */
     private boolean minor_quiescence_at_goal(IdentifierImpl goal)
     {
@@ -416,7 +407,7 @@ public class Consistency
      * <p>We have to start at the top of the goal stack and go down because *any*
      * goal in the goal stack could be active (and we want to highest one).
      * However, we terminate as soon as a goal with assertions or retractions is
-     * found. Propose cares only about ms_i_assertions & retractions *
+     * found. Propose cares only about ms_i_assertions and retractions *
      * 
      * consistency.cpp:420:highest_active_goal_propose
      * 
@@ -522,8 +513,6 @@ public class Consistency
      * activity at the active_level has been determined.
      * 
      * consistency.cpp::active_production_type_at_goal
-     * @param goal
-     * @return
      */
     private SavedFiringType active_production_type_at_goal(IdentifierImpl goal)
     {
@@ -538,8 +527,6 @@ public class Consistency
      * 
      * consistency.cpp:516:goal_stack_consistent_through_goal
      * 
-     * @param goal
-     * @return
      */
     private boolean goal_stack_consistent_through_goal(IdentifierImpl goal)
     {

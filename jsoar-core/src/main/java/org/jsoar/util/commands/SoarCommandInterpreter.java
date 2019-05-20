@@ -61,7 +61,6 @@ public interface SoarCommandInterpreter
      * @param name
      * @param srcLoc
      * @return
-     * @throws SoarException
      */
     ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
@@ -125,9 +124,8 @@ public interface SoarCommandInterpreter
      * <p> Note that the working directory is not changed while loading the rete file
      * because additional files cannot be loaded during a rete deserialization.
      * 
-     * @param any the file to load a rete from
+     * @param file any the file to load a rete from
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(File file) throws SoarException;
     
@@ -139,7 +137,6 @@ public interface SoarCommandInterpreter
      * 
      * @param url the URL.
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(URL url) throws SoarException;
     
@@ -201,5 +198,20 @@ public interface SoarCommandInterpreter
         }
         return null;
     }
+    
+    /**
+     * Returns a sorted list of the names of all the registered SoarCommands
+     * This is not intended to report aliases or interpreter-specific commands (e.g., Tcl commands)
+     * @return
+     */
+    public List<String> getCommandStrings() throws SoarException;
+
+    /**
+     * Returns the interpreter's SoarTclExceptionsManager
+     * This is intended to be used by the language server to provide context/info
+     * for "soft" exceptions that are caught and logged but not "reported" to IDEs
+     * @return
+     */
+    public SoarTclExceptionsManager getExceptionsManager();
 
 }

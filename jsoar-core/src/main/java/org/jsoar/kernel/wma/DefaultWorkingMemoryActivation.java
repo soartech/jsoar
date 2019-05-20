@@ -344,8 +344,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:306:wma_history_next
-     * @param current
-     * @return
      */
     private int wma_history_next( final int current )
     {
@@ -354,8 +352,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:311:wma_history_prev
-     * @param current
-     * @return
      */
     private int wma_history_prev( final int current )
     {
@@ -364,8 +360,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:316:wma_should_have_decay_element
-     * @param w
-     * @return
      */
     private boolean wma_should_have_decay_element( final Wme w )
     {
@@ -377,8 +371,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:321:wma_pow
-     * @param cycle_diff
-     * @return
      */
     private double wma_pow( final long cycle_diff )
     {
@@ -394,9 +386,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
     /**
      * wma.cpp:333:wma_sum_history
-     * @param history
-     * @param current_cycle
-     * @return
      */
     private double wma_sum_history( final wma_history history, final long current_cycle )
     {
@@ -443,10 +432,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
     /**
      * wma.cpp:376:wma_calculate_decay_activation
-     * @param decay_el
-     * @param current_cycle
-     * @param log_result
-     * @return
      */
     private double wma_calculate_decay_activation( final wma_decay_element decay_el, final long current_cycle, final boolean log_result )
     {
@@ -478,8 +463,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:404:wma_calculate_initial_boost
-     * @param w
-     * @return
      */
     private long wma_calculate_initial_boost( final Wme w )
     {
@@ -689,7 +672,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:647:wma_deactivate_element
-     * @param w
      * @param temp_el : jsoar: adding this param to avoid looking it up again (the caller already looks it up)
      */
     private void wma_deactivate_element( final Wme w, final wma_decay_element temp_el )
@@ -743,8 +725,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:732:wma_forgetting_add_to_p_queue
-     * @param decay_el
-     * @param new_cycle
      */
     private void wma_forgetting_add_to_p_queue( final wma_decay_element decay_el, final long new_cycle )
     {
@@ -770,7 +750,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:759:wma_forgetting_remove_from_p_queue
-     * @param decay_el
      */
     private void wma_forgetting_remove_from_p_queue( final wma_decay_element decay_el )
     {
@@ -900,8 +879,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
     /**
      * wma.cpp:890:wma_forgetting_forget_wme
-     * @param w
-     * @return
      */
     private boolean wma_forgetting_forget_wme( final Wme w )
     {   
@@ -935,7 +912,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:920:wma_forgetting_update_p_queue
-     * @return
      */
     private boolean wma_forgetting_update_p_queue()
     {
@@ -1032,7 +1008,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:1022:wma_forgetting_naive_sweep
-     * @return
      */
     private boolean wma_forgetting_naive_sweep()
     {

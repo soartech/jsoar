@@ -8,8 +8,6 @@ package org.jsoar.legilimens;
 import java.io.IOException;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.legilimens.resources.AgentResource;
 import org.jsoar.legilimens.resources.AgentsResource;
 import org.jsoar.legilimens.resources.CommandsResource;
@@ -30,6 +28,8 @@ import org.restlet.Restlet;
 import org.restlet.data.LocalReference;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import freemarker.template.Configuration;
 
@@ -40,7 +40,7 @@ public class LegilimensApplication extends Application
 {
     private static final Logger logger = LoggerFactory.getLogger(LegilimensApplication.class);
 
-    private final Configuration fmc = new Configuration();
+    private final Configuration fmc = new Configuration(Configuration.VERSION_2_3_28);
     private final SoarEventListener attachListener = new SoarEventListener()
     {
         @Override

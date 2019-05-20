@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -454,7 +453,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
      * 
-     * @throws SoarException
      */
     void epmem_init_db() throws SoarException
     {
@@ -488,8 +486,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
      * 
-     * @param readonly
-     * @throws SoarException
      */
     void epmem_init_db(boolean readonly /* = false */) throws SoarException
     {
@@ -516,10 +512,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * <p>
      * episodic_memory.cpp:1496:epmem_init_db
-     * 
-     * @throws SQLException
-     * @throws IOException
-     * @throws SoarException
      * 
      */
     private void applyDatabasePerformanceOptions() throws SQLException, SoarException, IOException
@@ -628,8 +620,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             while (rs.next())
             {
-                // if ( temp_q->column_type( 0 ) != soar_module::null_t )
-                if (db.column_type(rs.getMetaData().getColumnType(0 + 1)) != EpisodicMemoryDatabase.value_type.null_t)
+            	/*
+                 * The original port from CSoar did this.  In the original version of Xerial this would return
+                 * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
+                 * column.  The column is not nullable and should be a character value, so we are assuming that
+                 * any 0s are what used to be nulls. --ACN
+                 *  
+                 if ( temp_q->column_type( 0 ) != soar_module::null_t )
+                 */
+                if (rs.getInt(0 + 1) != 0)
                 {
                     // std::vector<bool>::size_type num_ids =
                     // temp_q->column_int( 0 );
@@ -659,9 +658,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
      * 
-     * @param readonly
-     * @throws SoarException
-     * @throws URISyntaxException 
      */
     private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException
     {
@@ -1115,10 +1111,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      epmem_rit_state *rit_state 
      * )
      * 
-     * @param lower
-     * @param uppper
+     * @param upper
      * The C has an *int64_t here, but were just going to return it in the java
-     * @param rit_state
      * @return EpmemRitForkNodeResult In the C, there is a pass by reference int, 
      * so Java will simulate that with a return class.
      */
@@ -1180,10 +1174,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * <p>
      * episodic_memory.cpp:984:epmem_get_variable
      * 
-     * @param variable_id
-     * @param variable_value
-     * @return
-     * @throws SQLException
      */
     boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
     {
@@ -1214,10 +1204,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * <p>
      * episodic_memory.cpp:1007:epmem_set_variable
-     * 
-     * @param variable_id
-     * @param variable_value
-     * @throws SQLException
      */
     void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
     {
@@ -1479,7 +1465,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * <p>
      * episodic_memory.cpp:2473:epmem_new_episode( agent *my_agent )
      * 
-     * @throws SQLException
      */
     private void epmem_new_episode() throws SQLException
     {
@@ -1783,9 +1768,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * This routine gets all wmes rooted at an id.
      * 
      * <p>episodic_memory.cpp:870:epmem_wme_list *epmem_get_augs_of_id( Symbol * id, tc_number tc )
-     * @param sym
-     * @param tc
-     * @return
      */
     private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl sym, Marker tc)
     {
@@ -1853,7 +1835,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     		 3. value unknown in phase one/two (if anything is left, unconstrained assignment)
     	
      ******************************************************************************
-     * episodic_memory.cpp:2454:inline void _epmem_store_level( agent* my_agent,
+     * episodic_memory.cpp:2454:{@code inline void _epmem_store_level( agent* my_agent,
 			                        std::queue< Symbol* >& parent_syms,
 			                        std::queue< epmem_node_id >& parent_ids,
 			                        tc_number tc,
@@ -1864,19 +1846,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 			                        std::map< wme*, epmem_id_reservation* >& id_reservations,
 			                        std::set< Symbol* >& new_identifiers,
 			                        std::queue< epmem_node_id >& epmem_node,
-			                        std::queue< epmem_node_id >& epmem_edge )
+			                        std::queue< epmem_node_id >& epmem_edge )}
      * 
-     * @param parent_syms
-     * @param parent_ids
-     * @param tc
-     * @param wmes
-     * @param parent_id
-     * @param time_counter
-     * @param id_reservations
-     * @param new_identifiers
-     * @param epmem_node
-     * @param epmem_edge
-     * @throws SQLException 
      */
     void _epmem_store_level( 
             Queue<SymbolImpl> parent_syms, 
@@ -2534,9 +2505,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * <p>episodic_memory.cpp:2031:inline void _epmem_promote_id( agent* my_agent, Symbol* id, epmem_time_id t )
-     * @param id
-     * @param t
-     * @throws SQLException 
      */
     void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
     {
@@ -3159,8 +3127,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Implements the Soar-EpMem API
      * 
      * <p>episodic_memory.cpp:5238:void epmem_respond_to_cmd( agent *my_agent )
-     * @throws SoarException 
-     * @throws SQLException 
      */
     private void epmem_respond_to_cmd(boolean created_new_memory) throws SoarException, SQLException
     {
@@ -3466,15 +3432,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * <p>
-     * episodic_memory.cpp:992:inline void epmem_process_buffered_wmes( agent*
+     * episodic_memory.cpp:992:{@code inline void epmem_process_buffered_wmes( agent*
      * my_agent, Symbol* state, soar_module::wme_set& cue_wmes,
      * soar_module::symbol_triple_list& meta_wmes,
-     * soar_module::symbol_triple_list& retrieval_wmes )
+     * soar_module::symbol_triple_list& retrieval_wmes )}
      * 
-     * @param state
-     * @param cue_wmes
-     * @param meta_wmes
-     * @param retrieval_wmes
      */
     private void epmem_process_buffered_wmes(
             IdentifierImpl state, 
@@ -3488,14 +3450,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * <p>
-     * episodic_memory.cpp:912:inline void _epmem_process_buffered_wme_list(
+     * episodic_memory.cpp:912:{@code inline void _epmem_process_buffered_wme_list(
      * agent* my_agent, Symbol* state, soar_module::wme_set& cue_wmes,
-     * soar_module::symbol_triple_list& my_list, epmem_wme_stack* epmem_wmes )
-     * 
-     * @param state
-     * @param cue_wmes
-     * @param retrieval_wmes
-     * @param epmem_wmes
+     * soar_module::symbol_triple_list& my_list, epmem_wme_stack* epmem_wmes )}
      */
     private void _epmem_process_buffered_wme_list(
             IdentifierImpl state, 
@@ -3572,8 +3529,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * Call epmem_process_query with level = 3 (default in C++)
-     * @throws SQLException 
-     * @throws SoarException 
      */
     private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, SymbolImpl filter, List<Long> prohibit, long before, 
             long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException, SoarException
@@ -3634,8 +3589,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         /**
          * Create a copy of this EpmemTriple object
-         * @param triple
-         * @return
          */
         public EpmemTriple copyEpmemTriple()
         {
@@ -3822,7 +3775,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     /**
      * <p>
-     * episodic_memory.cpp:3869:void 
+     * episodic_memory.cpp:3869:{@code void 
      * epmem_process_query(
      *      agent *my_agent, 
      *      Symbol *state, 
@@ -3836,20 +3789,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      soar_module::symbol_triple_list& meta_wmes, 
      *      soar_module::symbol_triple_list& retrieval_wmes, 
      *      int level=3
-     *  )
+     *  )}
      * 
-     * @param state
-     * @param query
-     * @param neg_query
-     * @param prohibit
-     * @param before
-     * @param after
-     * @param currents
-     * @param cue_wmes
-     * @param meta_wmes
-     * @param retrieval_wmes
-     * @throws SQLException 
-     * @throws SoarException 
      */
     private void epmem_process_query(
             IdentifierImpl state, 
@@ -4844,20 +4785,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory:3756
      * 
-     * bool epmem_graph_match(
+     * {@code bool epmem_graph_match(
      *      epmem_literal_deque::iterator& dnf_iter, 
      *      epmem_literal_deque::iterator& iter_end, 
      *      epmem_literal_node_pair_map& bindings, 
      *      epmem_node_symbol_map bound_nodes[], 
      *      agent* my_agent, 
      *      int depth = 0
-     *  )
-     * 
-     * @param gm_ordering
-     * @param best_bindings
-     * @param bound_nodes
-     * @param i
-     * @return
+     *  )}
      */
     private boolean epmem_graph_match(
             LinkedList<EpmemLiteral> dnf_array,
@@ -5001,22 +4936,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
-     * bool epmem_unsatisfy_literal(
+     * {@code bool epmem_unsatisfy_literal(
      *      epmem_literal* literal, 
      *      epmem_node_id parent, 
      *      epmem_node_id child, 
      *      double& current_score, 
      *      long int& current_cardinality, 
      *      epmem_symbol_node_pair_int_map& symbol_node_count
-     *   )
-     * 
-     * @param lit_iter
-     * @param q0
-     * @param q1
-     * @param current_score
-     * @param current_cardinality
-     * @param symbol_node_count
-     * @return
+     *   )}
      */
     private boolean epmem_unsatisfy_literal(
             EpmemLiteral literal, 
@@ -5091,7 +5018,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
-     * bool epmem_satisfy_literal(
+     * {@code bool epmem_satisfy_literal(
      *      epmem_literal* literal,     
      *      epmem_node_id parent, 
      *      epmem_node_id child, 
@@ -5099,17 +5026,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      long int& current_cardinality, 
      *      epmem_symbol_node_pair_int_map& symbol_node_count, 
      *      epmem_triple_uedge_map uedge_caches[], 
-     *      epmem_symbol_int_map& symbol_num_incoming) {
+     *      epmem_symbol_int_map& symbol_num_incoming)}
      * 
-     * @param literal
-     * @param parent
-     * @param child
-     * @param current_score
-     * @param current_cardinality
-     * @param symbol_node_count
-     * @param uedge_caches
-     * @param symbol_num_incoming
-     * @return
      */
     private boolean epmem_satisfy_literal(
             EpmemLiteral literal, 
@@ -5201,7 +5119,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * episodic_memory.cpp:3539
-     * bool epmem_register_pedges(
+     * {@code bool epmem_register_pedges(
      *      epmem_node_id parent, 
      *      epmem_literal* literal, 
      *      epmem_pedge_pq& pedge_pq, 
@@ -5209,15 +5127,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      epmem_triple_pedge_map pedge_caches[], 
      *      epmem_triple_uedge_map uedge_caches[], 
      *      agent* my_agent
-     *   )
-     * 
-     * @param q1
-     * @param child_iter
-     * @param pedge_pq
-     * @param after
-     * @param pedge_caches
-     * @param uedge_caches
-     * @return
+     *   )}
      */
         
     private boolean epmem_register_pedges(long parent, EpmemLiteral literal,
@@ -5317,9 +5227,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory.cpp:3318
      * 
-     * void epmem_print_retrieval_state(epmem_wme_literal_map& literals, 
+     * {@code void epmem_print_retrieval_state(epmem_wme_literal_map& literals, 
      *                                  epmem_triple_pedge_map pedge_caches[], 
-     *                                  epmem_triple_uedge_map uedge_caches[]) {
+     *                                  epmem_triple_uedge_map uedge_caches[])} 
      *   
      */
     private String epmem_print_retrieval_state(Map<WmeImpl,EpmemLiteral> literals, 
@@ -5482,7 +5392,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * episodic_memory.cpp:3431
-     * epmem_literal* epmem_build_dnf(
+     * {@code epmem_literal* epmem_build_dnf(
      *      wme* cue_wme, 
      *      epmem_wme_literal_map& literal_cache, 
      *      epmem_literal_set& leaf_literals, 
@@ -5492,7 +5402,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      int query_type, std::set<Symbol*>& visiting, 
      *      soar_module::wme_set& cue_wmes, 
      *      agent* my_agent
-     *  )
+     *  )}
      */
     private EpmemLiteral epmem_build_dnf(
             WmeImpl cue_wme,
@@ -5640,14 +5550,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * <p>
-     * episodic_memory.cpp:998:inline void epmem_buffer_add_wme(
+     * episodic_memory.cpp:998:{@code inline void epmem_buffer_add_wme(
      * soar_module::symbol_triple_list& my_list, Symbol* id, Symbol* attr,
-     * Symbol* value )
+     * Symbol* value )}
      * 
-     * @param my_list
-     * @param id
-     * @param attr
-     * @param value
      */
     private void epmem_buffer_add_wme(
             List<SymbolTriple> my_list, 
@@ -5665,16 +5571,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
-     * episodic_memory.cpp:3199:epmem_time_id epmem_previous_episode( 
-     *      agent *my_agent, epmem_time_id memory_id )
+     * episodic_memory.cpp:3199:{@code epmem_time_id epmem_previous_episode( 
+     *      agent *my_agent, epmem_time_id memory_id )}
      *      
      * Returns the last valid temporal id.  This is really
      * only an issue if you implement episode dynamics like
      * forgetting.
-     * 
-     * @param last_memory
-     * @return
-     * @throws SQLException 
      */
     private long epmem_previous_episode(long memory_id)
     {
@@ -5724,9 +5626,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Returns the next valid temporal id.  This is really
      * only an issue if you implement episode dynamics like
      * forgetting.
-     *                  
-     * @param last_memory
-     * @return
      */
     private long epmem_next_episode(long memory_id)
     {
@@ -5772,12 +5671,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * This is being used to emulate the default parameter in C
      * 
-     * @param state
-     * @param memory_id
-     * @param meta_wmes
-     * @param retrieval_wmes
-     * @throws SQLException 
-     * @throws SoarException 
      */
     private void epmem_install_memory(
             IdentifierImpl state, 
@@ -5791,7 +5684,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     /**
-     * This is used to emulate std::pair<Symbol, bool>
+     * This is used to emulate {@code std::pair<Symbol, bool>}
      * 
      * @author ACNickles
      *
@@ -5834,20 +5727,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * episodic_memory.cpp: 2847:
-     * void epmem_install_memory( 
+     * {@code void epmem_install_memory( 
      *      agent *my_agent, 
      *      Symbol *state, 
      *      epmem_time_id memory_id, 
      *      soar_module::symbol_triple_list& meta_wmes, 
      *      soar_module::symbol_triple_list& retrieval_wmes, 
-     *      epmem_id_mapping *id_record = NULL )
+     *      epmem_id_mapping *id_record = NULL )}
      * 
-     * @param state
-     * @param retrieve
-     * @param meta_wmes
-     * @param retrieval_wmes
-     * @throws SQLException 
-     * @throws SoarException 
      */
     private void epmem_install_memory(
             IdentifierImpl state, 
@@ -6465,10 +6352,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * episodic_memory.cpp: 1121:
-     * void epmem_rit_clear_left_right( agent *my_agent )
+     * {@code void epmem_rit_clear_left_right( agent *my_agent )}
      * 
      * Clears the left/right relations populated during prep
-     * @throws SQLException 
      */
     private void epmem_rit_clear_left_right() throws SQLException
     {
@@ -6478,7 +6364,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * episodic_memory.cpp: 2779:
-     * inline void _epmem_install_id_wme( 
+     * {@code inline void _epmem_install_id_wme( 
      *      agent* my_agent, 
      *      Symbol* parent, 
      *      Symbol* attr, 
@@ -6489,8 +6375,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      uint64_t val_num, 
      *      epmem_id_mapping* id_record, 
      *      soar_module::symbol_triple_list& retrieval_wmes 
-     *    )
-     * @throws SoarException 
+     *    )}
      * 
      */
     private void _epmem_install_id_wme(
@@ -6602,7 +6487,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *    )
      * 
      * Implements the computational components of the RIT
-     * @throws SQLException 
      */
     private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state) throws SQLException
     {
@@ -6701,7 +6585,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory.cpp: 1144:
      * void epmem_rit_add_right( agent *my_agent, epmem_time_id id )
-     * @throws SQLException 
      */
     private void epmem_rit_add_right(long id) throws SQLException{
         //my_agent->epmem_stmts_common->rit_add_right->bind_int( 1, id );
@@ -6715,7 +6598,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * void epmem_rit_add_left( agent *my_agent, epmem_time_id min, epmem_time_id max )
      * 
      * Adds a range to the left relation
-     * @throws SQLException 
      */
     private void epmem_rit_add_left(long min, long max) throws SQLException
     {
@@ -6731,9 +6613,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * episodic_memory.cpp: 2760:
      * bool epmem_valid_episode( agent *my_agent, epmem_time_id memory_id )
      * 
-     * @param memory_id
      * @return Returns true if the temporal id is valid
-     * @throws SQLException 
      */
     private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id) throws SQLException
     {
@@ -6756,7 +6636,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * <p>
      * episodic_memory.cpp:5063:
-     * void inline _epmem_respond_to_cmd_parse( 
+     * {@code void inline _epmem_respond_to_cmd_parse( 
      *      agent*
      *      my_agent, 
      *      epmem_wme_list* cmds, 
@@ -6772,21 +6652,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      epmem_time_id& after, 
      *      epmem_symbol_set& currents, 
      *      soar_module::wme_set& cue_wmes 
-     *  )
+     *  )}
      * 
-     * @param cmds
-     * @param good_cue
-     * @param path
-     * @param retrieve
-     * @param next
-     * @param previous
-     * @param query
-     * @param neg_query
-     * @param prohibit
-     * @param before
-     * @param after
-     * @param currents
-     * @param cue_wmes
      */
     private void _epmem_respond_to_cmd_parse(
             List<WmeImpl> cmds, 
@@ -7004,7 +6871,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Removes any WMEs produced by EpMem resulting from a command
      * 
      * <p>episodic_memory.cpp:1449:void epmem_clear_result( agent *my_agent, Symbol *state )
-     * @param state
      */
     private void epmem_clear_result(IdentifierImpl state)
     {
@@ -7227,8 +7093,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *  and I don't want to wrap 2/3 of the function in a try catch, so there is 
      *  a wrapped version of this with the original C function name that can catch 
      *  the exceptions.
-     * @throws SoarException 
-     * @throws SQLException 
      */
     String epmem_print_episode_ex( long /*epmem_time_id*/ memory_id) throws SoarException, SQLException
     {
@@ -7283,11 +7147,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         child_n_id = result.getLong( 2 + 1 );
                         
                         temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
-                        
+                        /*
+                         * The original port from CSoar did this.  In the original version of Xerial this would return
+                         * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
+                         * column.  The column is not nullable and should be a character value, so we are assuming that
+                         * any 0s are what used to be nulls. --ACN
+                         *  
                         val_is_short_term = 
                                 ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
                                         == EpisodicMemoryDatabase.value_type.null_t );
-    
+    					*/
+                        val_is_short_term = ( result.getLong(3 + 1) == 0 );
+                        
                         if ( val_is_short_term )
                         {
                             temp_s2 = _epmem_print_sti( child_n_id );

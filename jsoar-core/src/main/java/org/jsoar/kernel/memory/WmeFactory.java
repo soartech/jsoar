@@ -13,7 +13,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
  * Interface use by objects that need to construct WMEs such as a 
  * RHS function or input generator
  * 
- * @param T the return type of {@link #addWme(Identifier, Symbol, Symbol)}.
+ * @param <T> the return type of {@link #addWme(Identifier, Symbol, Symbol)}.
  *      Typically {@code Void}, {@code Wme}, or {@code InputWme}
  * @author ray
  */

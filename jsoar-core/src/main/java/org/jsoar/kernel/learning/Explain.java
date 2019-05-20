@@ -46,9 +46,6 @@ public class Explain
      */
     private BooleanPropertyProvider enabled = new BooleanPropertyProvider(SoarProperties.EXPLAIN);
     
-    /**
-     * @param agent
-     */
     public Explain(Agent agent)
     {
         this.context = agent;
@@ -74,11 +71,6 @@ public class Explain
     /**
      * <p>explain.cpp:155:explain_add_temp_to_backtrace_list
      * 
-     * @param temp
-     * @param grounds
-     * @param pots
-     * @param locals
-     * @param negateds
      */
     public void explain_add_temp_to_backtrace_list(Backtrace temp, LinkedList<Condition> grounds,
             LinkedList<Condition> pots, LinkedList<Condition> locals, LinkedList<Condition> negateds)
@@ -109,7 +101,6 @@ public class Explain
      * 
      * <p>explain.cpp:190:explain_add_temp_to_chunk_list
      * 
-     * @param temp
      */
     public void explain_add_temp_to_chunk_list(ExplainChunk temp)
     {
@@ -143,9 +134,6 @@ public class Explain
      * 
      * <p>explain.cpp:263:find_chunk
      * 
-     * @param chunk
-     * @param name
-     * @return
      */
     private ExplainChunk find_chunk(ExplainChunk chunk, String name)
     {
@@ -166,7 +154,6 @@ public class Explain
     /**
      * <p>explain.cpp:337:explain_trace_named_chunk
      * 
-     * @param chunk_name
      */
     public void explain_trace_named_chunk(String chunk_name)
     {
@@ -183,9 +170,6 @@ public class Explain
      * 
      * <p>explain.cpp:371:explain_trace
      * 
-     * @param chunk_name
-     * @param prod_list
-     * @param ground
      */
     public void explain_trace(String chunk_name, Backtrace prod_list, Condition ground)
     {
@@ -271,8 +255,6 @@ public class Explain
      * 
      * <p>explain.cpp:455:Explain why the numbered condition appears in the given chunk.
      * 
-     * @param chunk_name
-     * @param cond_number
      */
     public void explain_chunk(String chunk_name, int cond_number)
     {
@@ -293,7 +275,6 @@ public class Explain
      * 
      * <p>explain.cpp:476:explain_cond_list
      * 
-     * @param chunk_name
      */
     public void explain_cond_list(String chunk_name)
     {

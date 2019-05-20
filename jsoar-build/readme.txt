@@ -1,3 +1,5 @@
+THIS FILE IS OBSOLETE
+
 This folder is the JSoar "build" project. It includes common ANT
 scripts along with additional resources that go into a release
 distribution. Once you have ANT installed and JAVA_HOME set, just

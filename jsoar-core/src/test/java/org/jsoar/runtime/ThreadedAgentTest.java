@@ -194,7 +194,7 @@ public class ThreadedAgentTest
      * threaded agents at a time. It is also fishing for exception causing
      * concurrency problems.
      */
-    @Test(timeout = 15000)
+    @Test(timeout = 20000)
     public void testMultipleAgents() throws Exception
     {
         final int numAgents = 100;

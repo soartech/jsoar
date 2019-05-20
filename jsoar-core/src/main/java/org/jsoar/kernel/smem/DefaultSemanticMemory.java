@@ -338,10 +338,6 @@ public class DefaultSemanticMemory implements SemanticMemory
 
     /**
      * semantic_memory.cpp:481:smem_get_direct_augs_of_id
-     * 
-     * @param sym
-     * @param tc
-     * @return
      */
     private List<WmeImpl> smem_get_direct_augs_of_id(SymbolImpl sym, Marker tc /*
                                                                                 * =
@@ -399,8 +395,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * semantic_memory.cpp:481:smem_symbol_is_constant
      * 
-     * @param sym
-     * @return
      */
     private static boolean smem_symbol_is_constant(Symbol sym)
     {
@@ -528,12 +522,6 @@ public class DefaultSemanticMemory implements SemanticMemory
 
     /**
      * semantic_memory.cpp:589:_smem_add_wme
-     * 
-     * @param state
-     * @param id
-     * @param attr
-     * @param value
-     * @param meta
      */
     void _smem_process_buffered_wme_list(IdentifierImpl state, Set<WmeImpl> cue_wmes, List<SymbolTriple> my_list, boolean meta)
     {
@@ -634,10 +622,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:682:smem_variable_get
      * 
-     * @param variable_id
-     * @param variable_value
-     * @return
-     * @throws SQLException
      */
     private boolean smem_variable_get(smem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
     {
@@ -668,9 +652,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * 
      * semantic_memory.cpp:705:smem_variable_set
      * 
-     * @param variable_id
-     * @param variable_value
-     * @throws SQLException
      */
     private void smem_variable_set(smem_variable_key variable_id, long variable_value) throws SQLException
     {
@@ -687,9 +668,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * 
      * semantic_memory.cpp:705:smem_variable_set
      * 
-     * @param variable_id
-     * @param variable_value
-     * @throws SQLException
      */
     private void smem_variable_create(smem_variable_key variable_id, long variable_value) throws SQLException
     {
@@ -704,9 +682,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * semantic_memory.cpp:735:smem_temporal_hash
      * 
-     * @param sym
-     * @return
-     * @throws SQLException
      */
     private/* smem_hash_id */long smem_temporal_hash(SymbolImpl sym) throws SQLException
     {
@@ -719,10 +694,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:735:smem_temporal_hash
      * 
-     * @param sym
-     * @param add_on_fail
-     * @return
-     * @throws SQLException
      */
     private/* smem_hash_id */long smem_temporal_hash(SymbolImpl sym, boolean add_on_fail /*
                                                                                           * =
@@ -932,11 +903,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * big number that should never come up naturally and if it does, satisfies
      * thresholding behavior).
      * 
-     * @param lti
-     * @param add_access
-     * @param num_edges
-     * @throws SoarException
-     * @throws SQLException
      */
     double smem_lti_activate(long lti, boolean add_access, long num_edges) throws SQLException
     {
@@ -1134,8 +1100,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:794:_smem_lti_from_test
      * 
-     * @param t
-     * @param valid_ltis
      */
     private static void _smem_lti_from_test(Test t, Set<IdentifierImpl> valid_ltis)
     {
@@ -1173,8 +1137,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:823:_smem_lti_from_rhs_value
      * 
-     * @param rv
-     * @param valid_ltis
      */
     private static void _smem_lti_from_rhs_value(RhsValue rv, Set<IdentifierImpl> valid_ltis)
     {
@@ -1346,10 +1308,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1011:smem_lti_add_id
      * 
-     * @param name_letter
-     * @param name_number
-     * @return
-     * @throws SQLException
      */
     long /* smem_lti_id */smem_lti_add_id(char name_letter, long name_number) throws SQLException
     {
@@ -1380,10 +1338,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1031:smem_lti_soar_add
      * 
-     * @param s
-     * @return
-     * @throws SoarException
-     * @throws SQLException
      */
     private/* smem_lti_id */long smem_lti_soar_add(SymbolImpl s) throws SoarException, SQLException
     {
@@ -1491,8 +1445,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1128:smem_disconnect_chunk
      * 
-     * @param parent_id
-     * @throws SQLException
      */
     void smem_disconnect_chunk(/* smem_lti_id */long lti_id) throws SQLException
     {
@@ -1573,9 +1525,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1617:smem_store_chunk
      * 
-     * @param lti_id
-     * @param children
-     * @throws SQLException
      */
     void smem_store_chunk(/* smem_lti_id */long lti_id, Map<SymbolImpl, List<Object>> children) throws SQLException
     {
@@ -1586,9 +1535,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1617:smem_store_chunk
      * 
-     * @param lti_id
-     * @param children
-     * @throws SQLException
      */
     void smem_store_chunk(/* smem_lti_id */long lti_id, Map<SymbolImpl, List<Object>> children, boolean remove_old_children) throws SQLException
     {
@@ -1659,11 +1605,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1187:smem_store_chunk
      * 
-     * @param lti_id
-     * @param children
-     * @param remove_old_children
-     * @param print_id
-     * @throws SQLException
      */
     void smem_store_chunk(/* smem_lti_id */long lti_id, Map<SymbolImpl, List<Object>> children, boolean remove_old_children /*
                                                                                                                              * =
@@ -2053,9 +1994,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1387:smem_soar_store
      * 
-     * @param id
-     * @throws SQLException
-     * @throws SoarException
      */
     void smem_soar_store(IdentifierImpl id) throws SQLException, SoarException
     {
@@ -2066,10 +2004,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1387:smem_soar_store
      * 
-     * @param id
-     * @param store_type
-     * @throws SQLException
-     * @throws SoarException
      */
     void smem_soar_store(IdentifierImpl id, smem_storage_type store_type) throws SQLException, SoarException
     {
@@ -2080,11 +2014,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1387:smem_soar_store
      * 
-     * @param id
-     * @param store_type
-     * @param tc
-     * @throws SQLException
-     * @throws SoarException
      */
     void smem_soar_store(IdentifierImpl id, smem_storage_type store_type /*
                                                                           * =
@@ -2186,10 +2115,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>
      * semantic_memory.cpp:1494:smem_install_memory
-     * 
-     * @param state
-     * @param parent_id
-     * @throws SQLException
      */
     void smem_install_memory(IdentifierImpl state, long /* smem_lti_id */lti_id, IdentifierImpl lti, boolean activate_lti, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException
     {
@@ -2328,13 +2253,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>
      * semantic_memory.cpp:2145:_smem_process_cue_wme
-     * 
-     * @param state
-     * @param query
-     * @param prohibit
-     * @param query_level
-     * @return
-     * @throws SQLException
      */
     boolean _smem_process_cue_wme(WmeImpl w, boolean pos_cue, PriorityQueue<WeightedCueElement> weighted_pq, MathQuery mathQuery) throws SQLException
     {
@@ -2588,17 +2506,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>
      * semantic_memory.cpp:2246:smem_process_query
-     * 
-     * @param state
-     * @param query
-     * @param negquery
-     * @param prohibit
-     * @param cue_wmes
-     * @param meta_wmes
-     * @param retrieval_wmes
-     * @param query_level
-     * @return
-     * @throws SQLException
      */
     long /* smem_lti_id */smem_process_query(IdentifierImpl state, IdentifierImpl query, IdentifierImpl negquery, IdentifierImpl mathQuery, Set<Long> /* smem_lti_set */prohibit, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes,
             smem_query_levels query_level) throws SQLException
@@ -2993,8 +2900,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>
      * semantic_memory.cpp:1892:smem_clear_result
-     * 
-     * @param state
      */
     void smem_clear_result(IdentifierImpl state)
     {
@@ -3060,10 +2965,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * 
      * <p>
      * semantic_memory.cpp:1952:smem_init_db
-     * 
-     * @throws SoarException
-     * @throws SQLException
-     * @throws IOException
      */
     void smem_init_db() throws SoarException, SQLException, IOException
     {
@@ -3080,10 +2981,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1952:smem_init_db
      * 
-     * @param readonly
-     * @throws SoarException
-     * @throws SQLException
-     * @throws IOException
      */
     void smem_init_db(boolean readonly /* = false */) throws SoarException, SQLException, IOException
     {
@@ -3245,9 +3142,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:1952:smem_init_db
      * 
-     * @throws SQLException
-     * @throws SoarException
-     * @throws IOException
      */
     private void applyDatabasePerformanceOptions() throws SQLException, SoarException, IOException
     {
@@ -3440,8 +3334,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2217:smem_parse_lti_name
      * 
-     * @param lexeme
-     * @return
      */
     static ParsedLtiName smem_parse_lti_name(Lexeme lexeme)
     {
@@ -3459,9 +3351,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2243:smem_parse_constant_attr
      * 
-     * @param syms
-     * @param lexeme
-     * @return
      */
     static SymbolImpl smem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme)
     {
@@ -3491,11 +3380,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2263:smem_parse_chunk
      * 
-     * @param lexer
-     * @param chunks
-     * @param newbies
-     * @return
-     * @throws IOException
      */
     static boolean smem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, smem_chunk_lti> chunks, Set<smem_chunk_lti> newbies) throws IOException
     {
@@ -3753,9 +3637,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2564:smem_parse_chunks
      * 
-     * @param chunkString
-     * @return
-     * @throws SoarException
      */
     boolean smem_parse_chunks(String chunkString) throws SoarException
     {
@@ -3777,11 +3658,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2564:smem_parse_chunks
      * 
-     * @param chunkString
-     * @return
-     * @throws SoarException
-     * @throws IOException
-     * @throws SQLException
      */
     private boolean smem_parse_chunks_safe(String chunkString) throws SoarException, IOException, SQLException
     {
@@ -3921,9 +3797,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:2702:smem_respond_to_cmd
      * 
-     * @param store_only
-     * @throws SQLException
-     * @throws SoarException
      */
     void smem_respond_to_cmd(boolean store_only) throws SQLException, SoarException
     {
@@ -4369,9 +4242,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:3042:smem_visualize_store
      * 
-     * @param return_val
-     * @throws SoarException
-     * @throws SQLException
      */
     void smem_visualize_store(PrintWriter return_val) throws SoarException
     {
@@ -4389,9 +4259,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:3042:smem_visualize_store
      * 
-     * @param return_val
-     * @throws SoarException
-     * @throws SQLException
      */
     private void smem_visualize_store_safe(PrintWriter return_val) throws SoarException, SQLException
     {
@@ -4646,10 +4513,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:3277:smem_visualize_lti
      * 
-     * @param lti_id
-     * @param depth
-     * @param return_val
-     * @throws SQLException
      */
     void smem_visualize_lti(long /* smem_lti_id */lti_id, int depth, PrintWriter return_val) throws SoarException
     {
@@ -4667,10 +4530,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      * <p>
      * semantic_memory.cpp:3277:smem_visualize_lti
      * 
-     * @param lti_id
-     * @param depth
-     * @param return_val
-     * @throws SQLException
      */
     private void smem_visualize_lti_safe(long /* smem_lti_id */lti_id, int depth, PrintWriter return_val) throws SQLException
     {

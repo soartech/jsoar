@@ -34,9 +34,6 @@ public class RobotAgent
     
     private final QMemory memory = DefaultQMemory.create();
     
-    /**
-     * @param robot
-     */
     public RobotAgent()
     {
         logger.info("Creating robot agent " + this);

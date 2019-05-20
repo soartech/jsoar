@@ -40,9 +40,6 @@ public class ChunkCondition
 
     /**
      * chunk.cpp:338:make_chunk_cond_for_condition
-     * 
-     * @param cond
-     * @return
      */
     static ChunkCondition make_chunk_cond_for_condition(Condition cond)
     {

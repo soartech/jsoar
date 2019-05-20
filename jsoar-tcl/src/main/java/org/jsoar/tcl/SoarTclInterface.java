@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -29,6 +30,7 @@ import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.kernel.exceptions.TclInterpreterException;
 import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
@@ -38,6 +40,7 @@ import org.jsoar.util.commands.ParsedCommand;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarTclExceptionsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +66,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
     private SoarCommandContext context = DefaultSoarCommandContext.empty();
+
+    private SoarTclExceptionsManager exceptionsManager;
     
     /**
      * Find the SoarTclInterface for the given agent.
@@ -71,7 +76,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
      * with {@link Agent#getInterpreter()}.
      * 
      * @param agent the agent
-     * @return the Tcl interface, or {@code} if none is associated with the agent.
+     * @return the Tcl interface, or {@code null} if none is associated with the agent.
      */
     public static SoarTclInterface find(Agent agent)
     {
@@ -135,6 +140,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         this.agent = agent;
         this.cmdRhsFunction = new CmdRhsFunction(this, agent);
+        this.exceptionsManager = new SoarTclExceptionsManager();
         
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
@@ -254,6 +260,10 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         return agent;
     }
+
+    public SoarTclExceptionsManager getTclContext() {
+        return this.exceptionsManager;
+    }
     
     public void source(File file) throws SoarException
     {
@@ -315,7 +325,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
         catch (TclException e)
         {
-            throw new SoarException(interp.getResult().toString());
+            throw new TclInterpreterException(interp.getResult().toString());
+//            throw new SoarException(interp.getResult().toString());
         }
     }
 
@@ -448,5 +459,26 @@ public class SoarTclInterface implements SoarCommandInterpreter
         aliasArgs.addAll(args.subList(1, args.size()));
         
         return new ParsedCommand(srcLoc, aliasArgs);
+    }
+
+    @Override
+    public List<String> getCommandStrings() throws SoarException
+    {
+        String[] commandNames = this.eval("info commands").split("\\s");
+        List<String> soarCommandNames = new ArrayList<>();
+        
+        for(String commandName : commandNames) {
+            Command command = interp.getCommand(commandName);
+            if (command instanceof SoarTclCommandAdapter || command instanceof SoarCommand) {
+                soarCommandNames.add(commandName);
+            } // else ignore (e.g., aliases, tcl commands)
+        }
+        Collections.sort(soarCommandNames);
+        return soarCommandNames;
+    }
+
+    @Override
+    public SoarTclExceptionsManager getExceptionsManager() {
+        return exceptionsManager;
     }
 }

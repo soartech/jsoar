@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
@@ -18,7 +20,7 @@ public class ConcatTest extends JSoarTest
 {
 
     /**
-     * Test method for {@link org.jsoar.kernel.rhs.functions.Concat#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)}.
+     * Test method for {@link org.jsoar.kernel.rhs.functions.Concat#execute(RhsFunctionContext, List)}.
      */
     @Test
     public void testExecute() throws Exception

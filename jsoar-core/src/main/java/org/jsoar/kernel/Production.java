@@ -330,16 +330,23 @@ public class Production
 
     /**
      * Print partial match information for this production to the given printer
+     * Does not show betanode ids
      * 
      * @param printer The printer to print to
      * @param wtt The WME trace level
-     * @param showNodeIds Whether to show the betanode ids (useful to see what nodes are being shared in the rete)
      */
     public void printPartialMatches(Printer printer, WmeTraceType wtt)
     {
         printPartialMatches(printer, wtt, false);
     }
     
+    /**
+     * Print partial match information for this production to the given printer
+     * 
+     * @param printer The printer to print to
+     * @param wtt The WME trace level
+     * @param showNodeIds Whether to show the betanode ids (useful to see what nodes are being shared in the rete)
+     */
     public void printPartialMatches(Printer printer, WmeTraceType wtt, boolean showNodeIds)
     {
         if(rete == null)

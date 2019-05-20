@@ -61,6 +61,8 @@ public class IncrementalSearchPanel extends JPanel
             {
                 searchField.setBackground(normalBackground);
                 lblMatches.setText("No Matches");
+                
+                removeTextHighlights();
             }
 
         };

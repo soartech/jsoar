@@ -464,21 +464,21 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      * <h3>Top-state link changes:</h3>
      * 
      * <pre>
-     * For wme addition: (top-state ^link-attr anything) 
+     * For wme addition: {@code (top-state ^link-attr anything)} 
      *  create new output_link structure; mark it "new" For wme
-     * removal: (top-state ^link-attr anything) 
+     * removal: {@code (top-state ^link-attr anything)}
      *  mark the output_link "removed"
      * </pre>
      * 
      * <h3>TC of existing link changes:</h3>
      * 
      * <pre>
-     * For wme addition or removal: (<id> ^att constant): 
+     * For wme addition or removal: {@code (<id> ^att constant)}: 
      *  for each link in associated_output_links(id), 
      *  mark link "modified but same tc" (unless it's already marked some other more serious way)
      * </pre>
      * <pre>
-     * For wme addition or removal: (<id> ^att <id2>): 
+     * For wme addition or removal: {@code (<id> ^att <id2>)}: 
      *  for each link in associated_output_links(id), 
      *  mark link "modified" (unless it's already marked some other more serious way)
      * </pre>
@@ -598,8 +598,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      * <p>Remove_output_link_tc_info() and calculate_output_link_tc_info() are the main routines here.
      * 
      * <p>io.cpp:548:remove_output_link_tc_info
-     * 
-     * @param ol
      */
     private void remove_output_link_tc_info()
     {
@@ -645,8 +643,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     /**
      * 
      * io.cpp:606:calculate_output_link_tc_info
-     * 
-     * @param ol
      */
     private void calculate_output_link_tc_info()
     {
@@ -672,9 +668,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
 
     /**
      * io.cpp:638:get_io_wmes_for_output_link
-     * 
-     * @param ol
-     * @return
      */
     private Set<Wme> get_io_wmes_for_output_link()
     {

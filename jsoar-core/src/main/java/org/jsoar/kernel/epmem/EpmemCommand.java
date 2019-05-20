@@ -33,6 +33,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
+import org.sqlite.SQLiteJDBCLoader;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -393,14 +394,17 @@ public class EpmemCommand implements SoarCommand
                 EpisodicMemoryDatabase db = epmem.getDatabase();
                 if (db != null)
                 {
-                    nativeOrPure = db.getConnection().getMetaData().getDriverVersion();
+                    nativeOrPure = 
+                    		((SQLiteJDBCLoader.isNativeMode())?"Native":"Pure Java") +
+                    		" - " +
+                    		db.getConnection().getMetaData().getDriverVersion();
                 }
                 else
                 {
                     nativeOrPure = "Not connected to database";
                 }
             }
-            catch (SQLException e)
+            catch (Exception e)
             {
                 agent.getPrinter().startNewLine().print(e.getMessage());
                 return "";

@@ -28,7 +28,7 @@ public class XmlToWmeTools
     /**
      * Add an XML document to the input link using {@link DefaultWmeToXml} as a converter.
      * 
-     * <p>This is a convenience version of {@link #addXmlInput(InputOutput, XmlToWme, Element, String)}
+     * <p>This is a convenience version of {@link #addXmlInput(InputOutput, Node, XmlToWme, String)}
      * equivalent to: {@code addXmlInput(io, converter, root, null)}.
      * 
      * @param io the io interface
@@ -44,7 +44,7 @@ public class XmlToWmeTools
     /**
      * Add an XML document to the input link using {@link DefaultWmeToXml} as a converter.
      * 
-     * <p>This is a convenience version of {@link #addXmlInput(InputWme, XmlToWme, Element, String)}
+     * <p>This is a convenience version of {@link #addXmlInput(InputWme, Node, XmlToWme, String)}
      * equivalent to: {@code addXmlInput(parent, converter, root, null)}.
      * 
      * @param parent the parent {@link InputWme} that the XML will be added under
@@ -60,7 +60,7 @@ public class XmlToWmeTools
     /**
      * Add an XML document to the input link.
      * 
-     * <p>This is a convenience version of {@link #addXmlInput(InputOutput, XmlToWme, Element, String)}
+     * <p>This is a convenience version of {@link #addXmlInput(InputOutput, Node, XmlToWme, String)}
      * equivalent to: {@code addXmlInput(io, converter, root, null)}.
      * 
      * @param io the io interface
@@ -77,7 +77,7 @@ public class XmlToWmeTools
     /**
      * Add an XML document to the input link.
      * 
-     * <p>This is a convenience version of {@link #addXmlInput(InputWme, XmlToWme, Element, String)}
+     * <p>This is a convenience version of {@link #addXmlInput(InputWme, Node, XmlToWme, String)}
      * equivalent to: {@code addXmlInput(parent, converter, root, null)}.
      * 
      * @param parent the parent {@link InputWme} that the XML will be added under

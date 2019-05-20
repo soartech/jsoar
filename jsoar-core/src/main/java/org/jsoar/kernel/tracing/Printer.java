@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.jsoar.util.NullWriter;
@@ -65,7 +67,8 @@ public class Printer
     };
     
     private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
-    
+
+    private List<String> warnings;
     
     /**
      * @return a default printer that prints to standard output
@@ -87,6 +90,8 @@ public class Printer
         this.printWriter = new PrintWriter(internalWriter, true);
         
         addPersistentWriter(startOfLineDetector);
+
+        warnings = new ArrayList<>();
     }
     
     /**
@@ -227,6 +232,7 @@ public class Printer
         {
             print(message);
         }
+        warnings.add(message);
         return this;
     }
 
@@ -236,6 +242,8 @@ public class Printer
         {
             print(format, args);
         }
+
+        warnings.add(String.format(format, args));
         return this;
     }
 
@@ -302,6 +310,12 @@ public class Printer
             n -= c;
         }
         return this;
+    }
+
+    public List<String> getWarningsAndClear() {
+        List<String> copy = new ArrayList<>(warnings);
+        warnings.clear();
+        return copy;
     }
     
     private static class StackEntry

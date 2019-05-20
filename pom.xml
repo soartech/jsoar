@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soartech</groupId>
     <artifactId>jsoar</artifactId>
-    <version>0.14.10-SNAPSHOT</version>
+    <version>4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <scm>
@@ -28,14 +28,51 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
                         <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <show>private</show>
+                            <doclint>none</doclint>
+                            <source>8</source>
+                            <!-- if you don't want javadoc errors to fail the build, uncomment this
+                            <failOnError>false</failOnError>
+                            -->
                         </configuration>
+                        <executions>
+                          <execution>
+                            <id>aggregate</id>
+                            <goals>
+                              <goal>aggregate</goal>
+                            </goals>
+                            <phase>install</phase>
+                            <configuration>
+                              <!-- Specific configuration for the aggregate report -->
+                            </configuration>
+                          </execution>
+                          <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                              <goal>jar</goal>
+                            </goals>
+                          </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-source-plugin</artifactId>
+                      <version>3.0.1</version>
+                      <executions>
+                        <execution>
+                          <id>attach-sources</id>
+                          <goals>
+                            <goal>jar</goal>
+                          </goals>
+                        </execution>
+                      </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-shade-plugin</artifactId>
-                        <version>2.4.3</version>
+                        <version>3.2.1</version>
                         <configuration />
                         <executions>
                             <execution>
@@ -49,6 +86,16 @@
                                             <exclude>jsoar-ruby:*</exclude>
                                         </excludes>
                                     </artifactSet>
+                                    <filters>
+                                        <filter>
+                                            <artifact>*:*</artifact>
+                                            <excludes>
+                                                <exclude>META-INF/*.SF</exclude>
+                                                <exclude>META-INF/*.DSA</exclude>
+                                                <exclude>META-INF/*.RSA</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
                                 </configuration>
                             </execution>
                         </executions>
@@ -86,17 +133,17 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>27.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.26</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
+            <version>1.2.3</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
