@@ -4,6 +4,8 @@ import org.jsoar.kernel.SoarException;
 
 public class TclInterpreterException extends SoarException {
 
+    private static final long serialVersionUID = -6893950269471061294L;
+
     public TclInterpreterException(String message) {
         super(message);
     }

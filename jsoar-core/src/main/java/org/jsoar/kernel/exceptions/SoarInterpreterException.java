@@ -8,6 +8,7 @@ import org.jsoar.util.commands.ParsedCommand;
 
 public class SoarInterpreterException extends SoarException {
 
+    private static final long serialVersionUID = 7681071169683948896L;
     private ByRef<ParsedCommand> parsedCommand;
 
     /**

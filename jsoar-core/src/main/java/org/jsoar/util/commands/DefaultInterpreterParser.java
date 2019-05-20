@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.exceptions.SoarInterpreterException;
 import org.jsoar.kernel.exceptions.SoarParserException;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
@@ -217,11 +216,6 @@ public class DefaultInterpreterParser
         case 'b': c = '\b'; break;
         }
         return c;
-    }
-    
-    private SoarException error(ParserBuffer reader, String message)
-    {
-        return new SoarInterpreterException(reader.getLocation() + ": " + message);
     }
     
     private int read(ParserBuffer reader) throws IOException
