@@ -33,7 +33,7 @@
         </plugins>
     </build>
     <properties>
-        <jackson-2-version>2.9.6</jackson-2-version>
+        <jackson-2-version>2.9.9</jackson-2-version>
     </properties>
     
     <dependencies>
