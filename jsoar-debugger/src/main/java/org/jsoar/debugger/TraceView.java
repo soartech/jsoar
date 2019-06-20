@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -275,7 +276,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         final JPanel p = new JPanel(new BorderLayout());
 
-        p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(outputWindow);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        p.add(scrollPane, BorderLayout.CENTER);
 
         final JPanel bottom = new JPanel(new BorderLayout());
 
