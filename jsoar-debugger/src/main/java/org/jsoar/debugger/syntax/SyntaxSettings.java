@@ -16,6 +16,8 @@ public class SyntaxSettings {
     private Color foreground;
     private Color background;
     private Color selection;
+    
+    private Map<String,Pattern> patternMap = new HashMap<>();
 
     public SyntaxSettings() {
 
@@ -35,7 +37,7 @@ public class SyntaxSettings {
         String regex = syntax.getExpandedRegex();
         List<String> components = syntax.getComponents();
         try {
-            Pattern pattern = Pattern.compile(regex);
+            Pattern pattern = retrievePattern(regex);
             Matcher m = pattern.matcher(input);
             while (m.find()) {
                 int groupCount = m.groupCount();
@@ -79,6 +81,18 @@ public class SyntaxSettings {
         return matches;
     }
 
+    /**
+     * Handles caching compiled patterns. Compiling regex's to patterns over and over is expensive
+     */
+    private Pattern retrievePattern(String regex)
+    {
+        Pattern retval = this.patternMap.get(regex);
+        if ( retval == null ) {
+            retval = Pattern.compile(regex);
+            this.patternMap.put(regex, retval);
+        }
+        return retval;
+    }
 
     /**
      * Generate a TreeSet (which will be iterated through in sorted order) of this syntax across the input string
@@ -88,6 +102,10 @@ public class SyntaxSettings {
      */
     public TreeSet<StyleOffset> getForAll(String str, JSoarDebugger debugger) {
         TreeSet<StyleOffset> offsets = new TreeSet<>();
+//        if ( str.isEmpty() || str.isBlank() ) {
+//            return offsets;
+//        }
+        
         for (SyntaxPattern pattern : syntaxPatterns) {
             if (pattern.isEnabled()) {
                 offsets.addAll(matchAll(str, pattern, componentStyles, debugger));
