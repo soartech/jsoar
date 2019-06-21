@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A writer that simultaneously writes to one or more writers.
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class TeeWriter extends Writer
 {
-    private final List<Writer> writers = new ArrayList<Writer>();
+    private final List<Writer> writers = new CopyOnWriteArrayList<Writer>();
     
     /**
      * Construct a new TeeWriter
