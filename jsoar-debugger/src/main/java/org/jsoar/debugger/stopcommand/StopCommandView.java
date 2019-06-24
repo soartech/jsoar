@@ -157,7 +157,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
                     result += writer.getBuffer().toString();
                     txtResult.setText(result.trim());
-                    highlighter.formatText(txtResult);
+                    //highlighter.formatText(txtResult);
 
                     System.out.println("stopcommand " + command + " done!");
                 }
