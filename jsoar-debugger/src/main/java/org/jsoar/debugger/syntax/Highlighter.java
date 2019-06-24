@@ -1,12 +1,16 @@
 package org.jsoar.debugger.syntax;
 
+import java.awt.Color;
+
+import javax.swing.JTextPane;
+import javax.swing.UIDefaults;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.util.Prefs;
-
-import javax.swing.*;
-import javax.swing.text.*;
-import java.awt.*;
-import java.util.TreeSet;
 
 
 public class Highlighter
@@ -75,54 +79,5 @@ public class Highlighter
     public void save()
     {
         Prefs.storeSyntax(patterns);
-    }
-
-    public void formatText(JTextPane outputWindow)
-    {
-        DefaultStyledDocument styledDocument = (DefaultStyledDocument) outputWindow.getStyledDocument();
-        try {
-            final String str = styledDocument.getText(0, styledDocument.getLength());
-
-//            final long time = System.currentTimeMillis();
-            final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(str, debugger);
-
-
-//            System.out.println("Processing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-//            SwingUtilities.invokeLater(new Runnable() {
-//                public void run() {
-                    //int caretPosition = outputWindow.getCaretPosition();
-                    setDefaultTextStyle(outputWindow);
-					if (styles.isEmpty()) {
-					    return;
-					} else {
-					    //outputWindow.setDocument(new DefaultStyledDocument());
-					    Position startPosition = styledDocument.getStartPosition();
-					    //reset default text color and size
-					    //styledDocument.replace(0,str.length(),str,highlighter.getDefaultAttributes());
-					    int index = 0;
-					    for (StyleOffset offset : styles) {
-					        int start = offset.start;
-					        int end = offset.end;
-					        //don't apply any matches that start before the end of our last match, or that have length 0
-					        if (start >= end || start < index) {
-					            continue;
-					        }
-					        //the matched stuff
-					        int offsetStart = startPosition.getOffset() + start;
-					        int offsetEnd = startPosition.getOffset() + (end - start);
-//                                System.out.println("Replacing between " + offsetStart + " and " + offsetEnd + " for string " + str.substring(start, end));
-
-					        styledDocument.setCharacterAttributes(offsetStart, offsetEnd, offset.style, true);
-					        index = end;
-					    }
-					    //outputWindow.setDocument(styledDocument);
-					}
-                    //outputWindow.setCaretPosition(caretPosition);
-                    //System.out.println("Printing buffer with size " + str.length() + " took " + (System.currentTimeMillis() - time));
-//                }
-//
-//            });
-        } catch (BadLocationException ignored) {
-        }
     }
 }
