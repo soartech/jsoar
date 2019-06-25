@@ -18,11 +18,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
@@ -33,9 +32,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Position;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -89,96 +85,61 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private Highlighter highlighter;
     private final BatchStyledDocument styledDocument;
-    private static final char[] EOL_ARRAY = { '\n' };
     private final Writer outputWriter = new Writer()
     {
-        private long lastFlush;
         private StringBuilder buffer = new StringBuilder();
-//        private volatile boolean flushing = false;
-        //@SuppressWarnings("unused")
-        //private volatile boolean printing = false;
 
         @Override
         public void close() throws IOException
         {
         }
         
-        private final ConcurrentLinkedQueue<String> inputs = new ConcurrentLinkedQueue<>();
-        
-        private final Semaphore uiThreadLock = new Semaphore(1);
         @Override
         synchronized public void flush() throws IOException
         {
-            if (colorImmediately.get()) {
-            	synchronized (outputWriter) // synchronized on outer.this like the flush() method
-                {
-            		String input = buffer.toString();
-//            		for(String splitInput: input.split("[\\r\\n]+")) {
-//            			inputs.offer(splitInput);
-            			styledDocument.takeDelayedBatchUpdate(buffer.toString(), outputWindow, scrollLock);
-//            		}
-            		buffer.setLength(0);
+            synchronized (outputWriter) // synchronized on outer.this like the flush() method
+            {
+                String input = buffer.toString();
+                if (colorImmediately.get()) {
+                    styledDocument.takeBatchUpdate(input);
+                } else {
+                    styledDocument.takeDelayedBatchUpdate(input);
                 }
-            } else {
-            	while(true) {
-	            	if(uiThreadLock.tryAcquire()) {
-						break;
-					}else {
-						return;
-					}
-            	}
-            	SwingUtilities.invokeLater(new Runnable() {
+                buffer.setLength(0);
+                
+                styledDocument.trim(limit, limitTolerance);
+                
+                // Handling scroll lock setting
+                Runnable runnable = new Runnable() {
+                    @Override
                     public void run() {
-                        synchronized (outputWriter) // synchronized on outer.this like the flush() method
-                        {
-							try {
-								Position endPosition = outputWindow.getDocument().getEndPosition();
-
-								try {
-									String str = buffer.toString();
-									outputWindow.getDocument().insertString(endPosition.getOffset() - 1, str,
-											highlighter.getDefaultAttributes());
-									// outputWindow.getDocument().insertString(endPosition.getOffset()-1, "\r\n",
-									// defaultAttributes);
-								} catch (BadLocationException e) {
-									e.printStackTrace();
-								}
-								buffer.setLength(0);
-
-								trimOutput(outputWindow.getDocument());
-
-								if (scrollLock) {
-									// Scroll to the end
-									outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
-								}
-							} finally {
-								uiThreadLock.release();
-							}
-                            
+                        if (scrollLock) {
+                            // Scroll to the end
+                            int length = outputWindow.getDocument().getLength();
+                            if ( length > 0 )
+                            {
+                                outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                            }
                         }
                     }
-                });
+                };
+                
+                //On close, this gets purged from the EDT which will cause a deadlock. -ACN
+                if (SwingUtilities.isEventDispatchThread()) {
+                    runnable.run();
+                } else {
+                    try {
+                        SwingUtilities.invokeAndWait(runnable);
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        //Probably means we're shutting down
+                        logger.info("Interrupted while attempting to scroll to the end for text |{}| which may happen on shutdown", input);
+                        Thread.currentThread().interrupt();
+                    }
+                }
 
-                //delayed syntax highlighting
-				lastFlush = System.currentTimeMillis();
-				Thread lateHighlightThread = new Thread() {
-					public void run() {
-						final long pauseInterval = 200;
-						try {
-							Thread.sleep(pauseInterval);
-						} catch (InterruptedException ignored) {
-						}
-						if (!colorImmediately.get() && System.currentTimeMillis() - lastFlush >= pauseInterval) {
-							synchronized (colorLock) {
-								reformatText();
-							}
-						}
-					}
-				};
-				lateHighlightThread.setDaemon(true);
-				lateHighlightThread.start();
             }
-
         }
 
         @Override
@@ -188,21 +149,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     };
     private AtomicBoolean colorImmediately = new AtomicBoolean(true);
-    private final Object colorLock = new Object(); 
-
-    private void trimOutput(Document document) {
-        if (limit > 0) {
-            final int length = document.getLength();
-            if (length > limit + limitTolerance) {
-                try {
-                    // Trim the trace back down to limit
-                    document.remove(0, length - limit);
-                } catch (BadLocationException e) {
-                }
-            }
-        }
-    }
-
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -210,15 +156,13 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
 
         highlighter = Highlighter.getInstance(debugger);
-        styledDocument = new BatchStyledDocument(highlighter, debugger, colorImmediately, colorLock);
+        styledDocument = new BatchStyledDocument(highlighter, debugger);
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
         setLimit(getPreferences().getInt("limit", -1));
         colorImmediately = new AtomicBoolean(getPreferences().getBoolean("coloredOutput", true));
         scrollLock = getPreferences().getBoolean("scrollLock", true);
         setDefaultTextStyle();
-
-
 
         reloadSyntax();
 
@@ -604,7 +548,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     }
 
     public void reformatText() {
-        highlighter.formatText(outputWindow);
+        this.styledDocument.reformatText();
     }
 
     public void setDefaultTextStyle()
