@@ -175,6 +175,14 @@ public class SourceCommand implements SoarCommand
         {
             try
             {
+                // jtcl has built-in support for "resource:", which looks to be the same as "classpath:"
+                // in tcl we replace the native source command with this one, so this "patch" provides compatibility
+                // compatibility is needed because jtcl internally uses source with "resource:", e.g., as part of the "package require" command
+                if(fileString.startsWith("resource:"))
+                {
+                    fileString = fileString.replaceFirst("resource:", "classpath:");
+                }
+                
                 url = UrlTools.lookupClassPathURL(fileString);
             } catch (IOException e) {
                 throw new SoarException(e);
