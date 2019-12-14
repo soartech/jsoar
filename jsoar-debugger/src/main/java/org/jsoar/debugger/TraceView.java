@@ -25,9 +25,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
@@ -59,6 +62,12 @@ import bibliothek.gui.dock.common.action.CButton;
  */
 public class TraceView extends AbstractAdaptableView implements Disposable
 {
+    private static final String HIGHLIGHT_IMMEDIATELY = "highlightImmediately";
+    private static final String ENABLE_HIGHLIGHTING = "enableHighlighting";
+    private static final String SCROLL_LOCK = "scrollLock";
+    private static final String LIMIT = "limit";
+    private static final String SEARCH = "search";
+
     private static final Logger logger = LoggerFactory.getLogger(TraceView.class);
 	
     private final JSoarDebugger debugger;
@@ -100,10 +109,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             synchronized (outputWriter) // synchronized on outer.this like the flush() method
             {
                 String input = buffer.toString();
-                if (colorImmediately.get()) {
-                    styledDocument.takeBatchUpdate(input);
+                if (highlightImmediately.get()) {
+                    styledDocument.takeBatchUpdate(input, enableHighlighting.get());
                 } else {
-                    styledDocument.takeDelayedBatchUpdate(input);
+                    styledDocument.takeDelayedBatchUpdate(input, enableHighlighting.get());
                 }
                 buffer.setLength(0);
                 
@@ -148,7 +157,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
-    private AtomicBoolean colorImmediately = new AtomicBoolean(true);
+    
+    // Flags for syntax highlighting
+    private AtomicBoolean enableHighlighting = new AtomicBoolean(true);
+    private AtomicBoolean highlightImmediately = new AtomicBoolean(true);
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -159,15 +171,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         styledDocument = new BatchStyledDocument(highlighter, debugger);
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
-        setLimit(getPreferences().getInt("limit", -1));
-        colorImmediately = new AtomicBoolean(getPreferences().getBoolean("coloredOutput", true));
-        scrollLock = getPreferences().getBoolean("scrollLock", true);
+        setLimit(getPreferences().getInt(LIMIT, -1));
+        enableHighlighting = new AtomicBoolean(getPreferences().getBoolean(ENABLE_HIGHLIGHTING, true));
+        highlightImmediately = new AtomicBoolean(getPreferences().getBoolean(HIGHLIGHT_IMMEDIATELY, true));
+        scrollLock = getPreferences().getBoolean(SCROLL_LOCK, true);
         setDefaultTextStyle();
 
         reloadSyntax();
 
-        //todo - re-implement word wrap
-        //        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e)
@@ -231,7 +242,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         bottom.add(commandPanel, BorderLayout.CENTER);
 
         searchPanel = new IncrementalSearchPanel(outputWindow, debugger);
-        searchPanel.setSearchText(getPreferences().get("search", ""));
+        searchPanel.setSearchText(getPreferences().get(SEARCH, ""));
 
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
@@ -261,10 +272,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         //todo - reimplement line wrap
 //        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
-        getPreferences().put("search", searchPanel.getSearchText());
-        getPreferences().putInt("limit", limit);
-        getPreferences().putBoolean("scrollLock", scrollLock);
-        getPreferences().putBoolean("coloredOutput", colorImmediately.get());
+        getPreferences().put(SEARCH, searchPanel.getSearchText());
+        getPreferences().putInt(LIMIT, limit);
+        getPreferences().putBoolean(SCROLL_LOCK, scrollLock);
+        getPreferences().putBoolean(ENABLE_HIGHLIGHTING, enableHighlighting.get());
+        getPreferences().putBoolean(HIGHLIGHT_IMMEDIATELY, highlightImmediately.get());
     }
 
     /* (non-Javadoc)
@@ -438,7 +450,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 askForTraceLimit();
             }}, 0);
 
-        // Add Wrap text action
         final JCheckBoxMenuItem scrollLockItem = new JCheckBoxMenuItem("Scroll lock", scrollLock);
         scrollLockItem.addActionListener(new ActionListener() {
 
@@ -447,17 +458,69 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 scrollLock = !scrollLock;
             }});
+        
         menu.insert(scrollLockItem, 0);
+        
+        // Adding various coloring options to a sub menu
+        final JMenu highlightingMenu = new JMenu("Syntax Highlighting");
+        
+        ButtonGroup buttonGroup = new ButtonGroup();
+        JRadioButtonMenuItem noHLItem = new JRadioButtonMenuItem("No Highlighting");
+        noHLItem.addActionListener(new ActionListener() {
 
-        final JCheckBoxMenuItem colorItem = new JCheckBoxMenuItem("Color Output Immediately (slow)", colorImmediately.get());
-        colorItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-            	//Technically this isn't atomic, but if it's changing faster that this we have bigger problems
-                colorImmediately.set(!colorImmediately.get());
+            public void actionPerformed(ActionEvent e)
+            {
+                enableHighlighting.set(false);
+                noHLItem.setSelected(true);
             }
+            
         });
-        menu.insert(colorItem,0);
+        JRadioButtonMenuItem immediateHLItem = new JRadioButtonMenuItem("Highlight Immediately");
+        immediateHLItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                enableHighlighting.set(true);
+                highlightImmediately.set(true);
+                immediateHLItem.setSelected(true);
+            }
+            
+        });
+        JRadioButtonMenuItem delayedHLItem = new JRadioButtonMenuItem("Highlight In Separate Thread");
+        delayedHLItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                enableHighlighting.set(true);
+                highlightImmediately.set(false);
+                delayedHLItem.setSelected(true);
+            }
+            
+        });
+        
+        highlightingMenu.add(noHLItem);
+        highlightingMenu.add(immediateHLItem);
+        highlightingMenu.add(delayedHLItem);
+        buttonGroup.add(noHLItem);
+        buttonGroup.add(immediateHLItem);
+        buttonGroup.add(delayedHLItem);
+        
+        // Setting highlight control state initially
+        if ( enableHighlighting.get() )
+        {
+            if (highlightImmediately.get() ) {
+                immediateHLItem.setSelected(true);
+            } else {
+                delayedHLItem.setSelected(true);
+            }
+        } else {
+            noHLItem.setSelected(true);
+        }
+        
+        menu.insert(highlightingMenu, 0);
 
         menu.insert(new AbstractAction("Edit Syntax Highlighting") {
             @Override
@@ -465,18 +528,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 new SyntaxConfigurator(highlighter.getPatterns(),TraceView.this, debugger).go();
             }
         },0);
-
-        // Add Wrap text action
-        //todo - reimplement line wrap
-        /*final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
-        wrapTextItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                outputWindow.setLineWrap(!outputWindow.getLineWrap());
-            }});
-        menu.insert(wrapTextItem, 0);*/
 
         // Add clear action
         menu.insert(new AbstractAction("Clear") {

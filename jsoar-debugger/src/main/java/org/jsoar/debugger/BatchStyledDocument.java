@@ -56,7 +56,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
                     continue;
                 }
 
-                processNewText(newText);
+                highlightNewText(newText);
             }
             throw new RuntimeException("Highlighting thread has died");
         }
@@ -68,7 +68,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
         
     }
 
-    public void takeDelayedBatchUpdate(String text) {
+    public void takeDelayedBatchUpdate(String text, boolean highlightText) {
         try {
             writeLock();
             int offset = getEndPosition().getOffset();
@@ -76,9 +76,11 @@ public class BatchStyledDocument extends DefaultStyledDocument {
             // This function is protected and gets it's own writelocks but they are cheap if you already have them
             insertString(offset, text, highlighter.getDefaultAttributes());
             // This needs to be between writelocks to keep the offset correct
-            boolean result = newTexts.offer(new NewText(offset, text));
-            if ( !result ) {
-                logger.error("This should never block so you should never see this message!");
+            if ( highlightText ) {
+                boolean result = newTexts.offer(new NewText(offset, text));
+                if ( !result ) {
+                    logger.error("This should never block so you should never see this message!");
+                }
             }
         } catch (BadLocationException e) {
             BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", getEndPosition(), getLength(), e);
@@ -87,7 +89,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
         }
     }
 
-    public void takeBatchUpdate(String text)
+    public void takeBatchUpdate(String text, boolean highlightText)
     {
         writeLock();
         int offset = getEndPosition().getOffset();
@@ -97,7 +99,9 @@ public class BatchStyledDocument extends DefaultStyledDocument {
             // This function is protected and gets it's own writelocks but they are cheap if you already have them
             insertString(offset, text, highlighter.getDefaultAttributes());
             // This needs to be between writelocks to keep the offset correct
-            processNewText(new NewText(offset, text));
+            if ( highlightText ) {
+                highlightNewText(new NewText(offset, text));
+            }
         } catch (BadLocationException e) {
             BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", offset, getEndPosition(), getLength(), e);
         } finally {
@@ -105,7 +109,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
         }
     }
     
-    private void processNewText(NewText newText)
+    private void highlightNewText(NewText newText)
     {
         //logger.info("DHT received new text |{}|", newText.text);
         final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(newText.text, debugger);
