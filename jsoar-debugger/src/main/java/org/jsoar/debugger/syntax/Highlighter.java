@@ -26,7 +26,6 @@ public class Highlighter
         reloadSyntax();
     }
 
-
     public static Highlighter getInstance(JSoarDebugger debugger){
         if (highlighter == null){
             highlighter = new Highlighter(debugger);
