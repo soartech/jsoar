@@ -41,16 +41,18 @@ public class SyntaxSettings {
             Matcher m = pattern.matcher(input);
             while (m.find()) {
                 int groupCount = m.groupCount();
+                
+                // Why are there two loops here (they look identical, the for version should work for the groupCount == 1 case)
                 if (groupCount == 1) {
                     int start = m.start(1);
                     int end = m.end(1);
                     if (components.isEmpty()) {
-                        matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
+                        matches.add(new StyleOffset(start, end, SimpleAttributeSet.EMPTY));
                     } else {
                         String type = components.get(0);
                         TextStyle style = styles.get(type);
                         if (style == null || !style.isEnabled()) {
-                            matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
+                            matches.add(new StyleOffset(start, end, SimpleAttributeSet.EMPTY));
                         } else {
                             matches.add(new StyleOffset(start, end, style.getAttributes()));
                         }
@@ -60,12 +62,12 @@ public class SyntaxSettings {
                         int start = m.start(i);
                         int end = m.end(i);
                         if (components.size() < i) {
-                            matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
+                            matches.add(new StyleOffset(start, end, SimpleAttributeSet.EMPTY));
                         } else {
                             String type = components.get(i - 1);
                             TextStyle style = styles.get(type);
                             if (style == null) {
-                                matches.add(new StyleOffset(start, end, new SimpleAttributeSet()));
+                                matches.add(new StyleOffset(start, end, SimpleAttributeSet.EMPTY));
                             } else {
                                 matches.add(new StyleOffset(start, end, style.getAttributes()));
                             }

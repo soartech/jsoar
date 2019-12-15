@@ -127,7 +127,16 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             int length = outputWindow.getDocument().getLength();
                             if ( length > 0 )
                             {
-                                outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                                // The design of the StyledDocument synchronization is weird
+                                // they provide the Position class which should be safe to use
+                                // from other threads but then all the interface method's take
+                                // bare integers which sounds like you are just asking for trouble
+                                try {
+                                    styledDocument.documentWriteLock();
+                                    outputWindow.setCaretPosition(styledDocument.getLength());
+                                } finally {
+                                    styledDocument.documentWriteUnlock();
+                                }
                             }
                         }
                     }

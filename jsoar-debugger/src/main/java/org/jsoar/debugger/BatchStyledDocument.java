@@ -56,7 +56,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
                     continue;
                 }
 
-                highlightNewText(newText);
+                highlightNewText(newText.offset, newText.text);
             }
             throw new RuntimeException("Highlighting thread has died");
         }
@@ -100,7 +100,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
             insertString(offset, text, highlighter.getDefaultAttributes());
             // This needs to be between writelocks to keep the offset correct
             if ( highlightText ) {
-                highlightNewText(new NewText(offset, text));
+                highlightNewText(offset, text);
             }
         } catch (BadLocationException e) {
             BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", offset, getEndPosition(), getLength(), e);
@@ -109,23 +109,23 @@ public class BatchStyledDocument extends DefaultStyledDocument {
         }
     }
     
-    private void highlightNewText(NewText newText)
+    private void highlightNewText(int offset, String text)
     {
         //logger.info("DHT received new text |{}|", newText.text);
-        final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(newText.text, debugger);
+        final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(text, debugger);
         if ( !styles.isEmpty( )) {
             int index = 0;
             // FIXME - this is SLOW!!!!
-            for (StyleOffset offset : styles) {
-                int start = offset.start;
-                int end = offset.end;
+            for (StyleOffset styleOffset : styles) {
+                int start = styleOffset.start;
+                int end = styleOffset.end;
                 if (start >= end || start < index) {
                     // At the moment I'm not sure if this is an error or something else...
                     continue;
                 }
 
-                self.setCharacterAttributes(newText.offset + index + start - index, end - start,
-                        offset.style, true);
+                self.setCharacterAttributes(offset + index + start - index, end - start,
+                        styleOffset.style, true);
 
                 index = end;
             }
@@ -147,5 +147,14 @@ public class BatchStyledDocument extends DefaultStyledDocument {
             }
             writeUnlock();
         }
+    }
+    
+    // Exposing write lock functionality (seems to improve the performance of the caret position setting code
+    public void documentWriteLock() {
+        this.writeLock();
+    }
+    
+    public void documentWriteUnlock() {
+        this.writeUnlock();
     }
 }
