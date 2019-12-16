@@ -369,18 +369,18 @@ public class SoarTclInterface implements SoarCommandInterpreter
 
         String[] commands = null;
 
-        try {
-            String commandsStr = eval("info commands") + " " + eval("info procs");
-            List<String> commandsList = new ArrayList<>();
-            for (String s : commandsStr.split(" ")) {
-                if (s.startsWith(command)) {
-                    commandsList.add(s);
-                }
-            }
-            commands = commandsList.toArray(new String[0]);
-        } catch (SoarException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            String commandsStr = eval("info commands") + " " + eval("info procs");
+//            List<String> commandsList = new ArrayList<>();
+//            for (String s : commandsStr.split(" ")) {
+//                if (s.startsWith(command)) {
+//                    commandsList.add(s);
+//                }
+//            }
+//            commands = commandsList.toArray(new String[0]);
+//        } catch (SoarException e) {
+//            e.printStackTrace();
+//        }
 
         return commands;
     }
@@ -442,11 +442,13 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
         String result = "";
-        try {
-            result = eval("interp alias {} " + args.get(0));
-        } catch (Exception e) {
-            logger.error("Tcl exception", e);
-        }
+//        try {
+//            // TODO: We can't rely on the interpreter here since it may be
+//            // busy running a command (like run -f)
+//            result = eval("interp alias {} " + args.get(0));
+//        } catch (Exception e) {
+//            logger.error("Tcl exception", e);
+//        }
         
         // there is no alias, so just return the original args
         if(result.length() == 0)
