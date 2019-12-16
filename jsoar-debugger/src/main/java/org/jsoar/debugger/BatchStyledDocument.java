@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Position;
 
 import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.debugger.syntax.StyleOffset;
@@ -27,10 +28,10 @@ public class BatchStyledDocument extends DefaultStyledDocument {
     }
 
     private final class NewText {
-        public final int offset;
+        public final Position offset;
         public final String text;
 
-        public NewText(int offset, String text) {
+        public NewText(Position offset, String text) {
             this.offset = offset;
             this.text = text;
         }
@@ -56,7 +57,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
                     continue;
                 }
 
-                highlightNewText(newText.offset, newText.text);
+                highlightNewText(newText);
             }
             throw new RuntimeException("Highlighting thread has died");
         }
@@ -69,23 +70,29 @@ public class BatchStyledDocument extends DefaultStyledDocument {
     }
 
     public void takeDelayedBatchUpdate(String text, boolean highlightText) {
+        NewText newText = null;
         try {
             writeLock();
-            int offset = getEndPosition().getOffset();
-            offset--;
+            Position endPos = getEndPosition();
+            int offset = endPos.getOffset() - 1;
+            Position offsetPos = createPosition(offset-1);
             // This function is protected and gets it's own writelocks but they are cheap if you already have them
             insertString(offset, text, highlighter.getDefaultAttributes());
             // This needs to be between writelocks to keep the offset correct
             if ( highlightText ) {
-                boolean result = newTexts.offer(new NewText(offset, text));
-                if ( !result ) {
-                    logger.error("This should never block so you should never see this message!");
-                }
+                newText = new  NewText(offsetPos, text);
             }
         } catch (BadLocationException e) {
             BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", getEndPosition(), getLength(), e);
         } finally {
             writeUnlock();
+        }
+        
+        if ( newText != null ) {
+            boolean result = newTexts.offer(newText);
+            if ( !result ) {
+                logger.error("This should never block so you should never see this message!");
+            }
         }
     }
 
@@ -109,6 +116,32 @@ public class BatchStyledDocument extends DefaultStyledDocument {
         }
     }
     
+    private void highlightNewText(NewText newText)
+    {
+        //logger.info("DHT received new text |{}|", newText.text);
+        final TreeSet<StyleOffset> styles = highlighter.getPatterns().getForAll(newText.text, debugger);
+        if ( !styles.isEmpty( )) {
+            int index = 0;
+            // FIXME - this is SLOW!!!!
+            for (StyleOffset styleOffset : styles) {
+                int start = styleOffset.start;
+                int end = styleOffset.end;
+                if (start >= end || start < index) {
+                    // At the moment I'm not sure if this is an error or something else...
+                    continue;
+                }
+
+                writeLock();
+                int offset = newText.offset.getOffset()+1;
+                self.setCharacterAttributes(offset + index + start - index, end - start,
+                        styleOffset.style, true);
+                writeUnlock();
+
+                index = end;
+            }
+        }
+    };
+
     private void highlightNewText(int offset, String text)
     {
         //logger.info("DHT received new text |{}|", newText.text);
