@@ -28,7 +28,7 @@ public class RhsSymbolValue extends AbstractRhsValue
     /**
      * Construct a RHS symbol value. <b>This should only be used by
      * {@link SymbolImpl}! If you want one of these, get it through
-     * {@link SymbolImpl#toRhsValue()}.
+     * {@link SymbolImpl#toRhsValue()}.</b>
      * 
      * @param sym the symbol
      */

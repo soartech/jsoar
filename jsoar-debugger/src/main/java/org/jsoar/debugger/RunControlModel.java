@@ -37,7 +37,7 @@ public class RunControlModel implements Disposable
             throw new RuntimeException(e);
         }
     }
-    private ComboBoxModel runType = new DefaultComboBoxModel(RunType.values());
+    private ComboBoxModel<RunType> runType = new DefaultComboBoxModel<>(RunType.values());
     
     public RunControlModel()
     {
@@ -95,9 +95,9 @@ public class RunControlModel implements Disposable
         return text;
     }
     
-    public JComboBox createTypeCombo()
+    public JComboBox<RunType> createTypeCombo()
     {
-        final JComboBox cb = new JComboBox(runType);
+        final JComboBox<RunType> cb = new JComboBox<>(runType);
         cb.setSelectedItem(getType());
         return cb;
     }
@@ -115,7 +115,7 @@ public class RunControlModel implements Disposable
 
     private Preferences getPrefs()
     {
-        return JSoarDebugger.PREFERENCES.node("run");
+        return JSoarDebugger.getPreferences().node("run");
     }
     
 }

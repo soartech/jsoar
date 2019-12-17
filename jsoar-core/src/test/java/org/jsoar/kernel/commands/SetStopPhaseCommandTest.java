@@ -6,12 +6,13 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
@@ -23,114 +24,59 @@ import org.junit.Test;
 public class SetStopPhaseCommandTest
 {
     private PropertyManager props;
-    private SetStopPhaseCommand command;
+    private SoarSettingsCommand command;
     
     @Before
     public void setUp() throws Exception
     {
-        props = new PropertyManager();
-        command = new SetStopPhaseCommand(props);
+        Agent agent = new Agent();
+        props = agent.getProperties();
+        command = new SoarSettingsCommand(agent);
     }
     
     @Test(expected=SoarException.class)
     public void testThrowsExceptionOnUnknownOption() throws Exception
     {
-        verify(null, "--unknown");
+        verify(null, "unknown");
     }
     
     // input -> propose -> decision -> apply -> output
     
     @Test
-    public void testSetToBeforeInput() throws Exception
-    {
-        props.set(SoarProperties.STOP_PHASE, Phase.OUTPUT); // since input is default
-        verify(Phase.INPUT, "-i");
-        verify(Phase.INPUT, "-B", "-i");
-        verify(Phase.INPUT, "--before", "--input");
-        verify(Phase.INPUT, "--input", "-B");
-    }
-    
-    @Test
     public void testSetToAfterInput() throws Exception
     {
-        verify(Phase.PROPOSE, "-A", "-i");
-        verify(Phase.PROPOSE, "--after", "--input");
-        verify(Phase.PROPOSE, "--input", "-A");
-    }
-    
-    @Test
-    public void testSetToBeforePropose() throws Exception
-    {
-        verify(Phase.PROPOSE, "-p");
-        verify(Phase.PROPOSE, "-B", "-p");
-        verify(Phase.PROPOSE, "--before", "--proposal");
-        verify(Phase.PROPOSE, "--proposal", "-B");
+        verify(Phase.INPUT, "input");
     }
     
     @Test
     public void testSetToAfterPropose() throws Exception
     {
-        verify(Phase.DECISION, "-A", "-p");
-        verify(Phase.DECISION, "--after", "--proposal");
-        verify(Phase.DECISION, "--proposal", "-A");
+        verify(Phase.PROPOSE, "proposal");
     }
     
     @Test
-    public void testSetToBeforeDecision() throws Exception
+    public void testSetToDecision() throws Exception
     {
-        verify(Phase.DECISION, "-d");
-        verify(Phase.DECISION, "-B", "-d");
-        verify(Phase.DECISION, "--before", "--decision");
-        verify(Phase.DECISION, "--decision", "-B");
+        verify(Phase.DECISION, "decide");
     }
     
     @Test
-    public void testSetToAfterDecision() throws Exception
+    public void testSetToApply() throws Exception
     {
-        verify(Phase.APPLY, "-A", "-d");
-        verify(Phase.APPLY, "--after", "--decision");
-        verify(Phase.APPLY, "--decision", "-A");
+        verify(Phase.APPLY, "apply");
     }
     
     @Test
-    public void testSetToBeforeApply() throws Exception
+    public void testSetToOutput() throws Exception
     {
-        verify(Phase.APPLY, "-a");
-        verify(Phase.APPLY, "-B", "-a");
-        verify(Phase.APPLY, "--before", "--apply");
-        verify(Phase.APPLY, "--apply", "-B");
-    }
-    
-    @Test
-    public void testSetToAfterApply() throws Exception
-    {
-        verify(Phase.OUTPUT, "-A", "-a");
-        verify(Phase.OUTPUT, "--after", "--apply");
-        verify(Phase.OUTPUT, "--apply", "-A");
-    }
-    
-    @Test
-    public void testSetToBeforeOutput() throws Exception
-    {
-        verify(Phase.OUTPUT, "-o");
-        verify(Phase.OUTPUT, "-B","-o");
-        verify(Phase.OUTPUT, "--before", "--output");
-        verify(Phase.OUTPUT, "--output", "-B");
-    }
-    
-    @Test
-    public void testSetToAfterOutput() throws Exception
-    {
-        props.set(SoarProperties.STOP_PHASE, Phase.OUTPUT); // since input is default
-        verify(Phase.INPUT, "-A", "-o");
-        verify(Phase.INPUT, "--after", "--output");
-        verify(Phase.INPUT, "--output", "-A");
+        verify(Phase.OUTPUT, "output");
     }
     
     private void verify(Phase expectedPhase, String ... args) throws SoarException
     {
         final List<String> argsList = new ArrayList<String>(Arrays.asList(args));
-        argsList.add(0, "set-stop-phase");
+        argsList.add(0, "soar");
+        argsList.add(1, "stop-phase");
         command.execute(DefaultSoarCommandContext.empty(), argsList.toArray(new String[] {}));
         assertSame(expectedPhase, props.get(SoarProperties.STOP_PHASE));
     }

@@ -589,6 +589,9 @@ public class Rete
               case UNHASHED_MP_BNODE:
                 node.make_mp_bnode_left_unlinked();
                 break;
+              default:
+                // do nothing
+                break;
               } /* end of switch (node.node_type) */
             }
           }
@@ -858,8 +861,6 @@ public class Rete
      * join nodes.
      * 
      * <p>rete.cpp:1765:update_node_with_matches_from_above
-     * 
-     * @param node
      */
     void update_node_with_matches_from_above(ReteNode child)
     {
@@ -1053,9 +1054,6 @@ public class Rete
      * statement was easier, faster, and simpler than emulating function
      * pointers with Java interfaces.
      * 
-     * @param node
-     * @param tok
-     * @param w
      */
     private void executeRightAddition(ReteNode node, WmeImpl w)
     {
@@ -2201,8 +2199,8 @@ public class Rete
 
     /**
      * When we build the instantiated conditions for a production being fired,
-     * we also record all the "<>" tests between pairs of identifiers. (This
-     * information is used during chunking.) This procedure looks for any such <>
+     * we also record all the "{@code <>}" tests between pairs of identifiers. (This
+     * information is used during chunking.) This procedure looks for any such {@code <>}
      * tests in the given Rete test list (from the "other tests" at a Rete
      * node), and adds records of them to the global variable
      * nots_found_in_production. "Right_wme" is the wme that matched the current
@@ -2283,7 +2281,7 @@ public class Rete
      * the conditions corresponding to the given rete node ("node") and all its
      * ancestors, up to the given "cutoff" node. The given node_varnames
      * structure "nvn", if non-NIL, should be the node_varnames corresponding to
-     * "node". <tok,w> (if they are non-NIL) specifies the token/wme pair that
+     * "node". {@code <tok,w>} (if they are non-NIL) specifies the token/wme pair that
      * emerged from "node" -- these are used only when firing, not when
      * reconstructing. "conds_for_cutoff_and_up" should be the lowermost cond in
      * the already-constructed chain of conditions for the "cutoff" node and

@@ -549,7 +549,6 @@ public class ReteNetReader
      * <p>rete.cpp:6690:reteload_symbol_table
      * 
      * @param dis
-     * @return
      * @throws IOException 
      * @throws SoarException 
      * @see ReteNetWriter#writeAllSymbols

@@ -60,7 +60,7 @@ public class PropertiesResource extends BaseAgentResource
          */
         public String getValue()
         {
-            return value.toString();
+            return value != null ? value.toString() : "null";
         }
         
         

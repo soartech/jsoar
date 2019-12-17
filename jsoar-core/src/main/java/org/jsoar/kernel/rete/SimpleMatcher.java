@@ -38,7 +38,7 @@ import org.jsoar.kernel.tracing.Trace;
  * Possible enhancements
  * increase efficiency of wme removals
  *   approach 1: return timetag of new wme for use in efficient wme removal (requires user to create structure to store timetags)
- *   approach 2: keep map of wme -> wmeImpl, so can directly look up wme to remove (requires user keep reference to original wmes around)
+ *   approach 2: keep map of wme to wmeImpl, so can directly look up wme to remove (requires user keep reference to original wmes around)
  *   approach 3: return new wme copy for use in efficient wme removal (requires user to create structure to store new wmes)
  * allow user to register rete listener (so can be directly notified of production matches). 
  * change isMatching to numMatches. Requires adding code to listener to increment/decrement counter on match/unmatch. (Possibly more efficient than getting PartialMatches structure)

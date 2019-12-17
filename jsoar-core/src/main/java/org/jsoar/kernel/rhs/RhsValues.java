@@ -19,7 +19,7 @@ public class RhsValues
      * When we print a production (but not when we fire one), we have to
      * reconstruct the RHS actions. This is because many of the variables in the
      * RHS have been replaced by references to Rete locations (i.e., rather than
-     * specifying <v>, we specify "value field 3 levels up" or "the 7th RHS
+     * specifying {@code <v>}, we specify "value field 3 levels up" or "the 7th RHS
      * unbound variable". The routines below copy rhs_value's and actions, and
      * substitute variable names for such references. For RHS unbound variables,
      * we gensym new variable names.

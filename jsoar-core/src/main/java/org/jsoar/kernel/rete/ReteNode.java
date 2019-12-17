@@ -721,9 +721,9 @@ public class ReteNode
      *
      * <p>Does not handle the following tasks:
      * <ul>
-     *   <li>filling in p_node->b.p.parents_nvn or discarding chunk variable names 
-     *   <li>filling in stuff on new_prod (except does fill in new_prod->p_node)
-     *   <li>using update_node_with_matches_from_above (p_node) or handling
+     *   <li>filling in {@code p_node->b.p.parents_nvn} or discarding chunk variable names 
+     *   <li>filling in stuff on new_prod (except does fill in {@code new_prod->p_node})
+     *   <li>using {@code update_node_with_matches_from_above (p_node)} or handling
      *     an initial refracted instantiation
      * </ul>
      * <p>rete.cpp:2163:make_new_production_node

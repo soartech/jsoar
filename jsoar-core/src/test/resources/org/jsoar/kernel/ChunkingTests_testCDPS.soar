@@ -1,11 +1,11 @@
-srand 1234
-init-soar
+decide srand 1234
+soar init
 #excise --all
 #excise --chunks
 
-learn --on
-watch --backtracing
-watch --learning 2
+chunk --on
+trace --backtracing
+trace --learning 2
 save-backtraces --enable
 #rete -l /Users/mazzin/Soar/SoarSandbox/case9b
 
@@ -25,30 +25,30 @@ save-backtraces --enable
 #            ^numerics <bn1>
 #            ^random-numerics 1 2)
 
-multi-attributes acceptable-test 23
-multi-attributes prohibit-test 23
-multi-attributes require-test 23
-multi-attributes reject-test 23
-multi-attributes better-test 23
-multi-attributes best-test 23
-multi-attributes worst-test 23
-multi-attributes uindifferent-test 23
-multi-attributes bindifferent-test 23
-multi-attributes nindifferent-test 23
-multi-attributes tests 10
-multi-attributes numbers 23
-multi-attributes numerics 3
-multi-attributes worse 3
-multi-attributes betters 23
-multi-attributes binary-indifferents 3
-multi-attributes random-numerics 3
-multi-attributes unary-indifferents 23
-multi-attributes worsts 23
-multi-attributes bests 23
-multi-attributes requires 3
-multi-attributes rejects 3
-multi-attributes prohibits 3
-multi-attributes random-numerics 23
+production optimize-attribute acceptable-test 23
+production optimize-attribute prohibit-test 23
+production optimize-attribute require-test 23
+production optimize-attribute reject-test 23
+production optimize-attribute better-test 23
+production optimize-attribute best-test 23
+production optimize-attribute worst-test 23
+production optimize-attribute uindifferent-test 23
+production optimize-attribute bindifferent-test 23
+production optimize-attribute nindifferent-test 23
+production optimize-attribute tests 10
+production optimize-attribute numbers 23
+production optimize-attribute numerics 3
+production optimize-attribute worse 3
+production optimize-attribute betters 23
+production optimize-attribute binary-indifferents 3
+production optimize-attribute random-numerics 3
+production optimize-attribute unary-indifferents 23
+production optimize-attribute worsts 23
+production optimize-attribute bests 23
+production optimize-attribute requires 3
+production optimize-attribute rejects 3
+production optimize-attribute prohibits 3
+production optimize-attribute random-numerics 23
 
 sp {init-superstate
    (state <s> ^superstate nil)

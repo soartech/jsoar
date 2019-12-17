@@ -1,4 +1,4 @@
-waitsnc --on
+soar wait-snc --on
 
 sp {doOutputCommand
     (state <s> ^superstate nil ^io.input-link <il> ^io.output-link <ol>)

@@ -25,7 +25,7 @@ public class PerformanceTimer
     
     /**
      * @param args
-     * @throws SoarTclException 
+     * @throws Exception 
      */
     public static void main(String[] args) throws Exception
     {
@@ -78,8 +78,6 @@ public class PerformanceTimer
     }
 
     /**
-     * @param args
-     * @throws SoarTclException
      * @throws SoarException 
      */
     private static void doRun(String[] args) throws SoarException

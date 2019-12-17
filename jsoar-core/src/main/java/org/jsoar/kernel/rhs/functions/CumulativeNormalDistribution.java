@@ -16,7 +16,6 @@ import org.jsoar.kernel.symbols.Symbol;
  * <ul>
  * <li> {@code (cndf 0.0) returns 0.5}
  * <li> {@code (cndf 1.0) returns approximately 0.8413}
- * </pre>
  * </ul>
  * 
  * @author chris.kawatsu

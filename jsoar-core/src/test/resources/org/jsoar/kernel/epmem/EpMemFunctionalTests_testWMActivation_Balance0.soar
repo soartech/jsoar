@@ -2,9 +2,9 @@ epmem --set trigger dc
 epmem --set learning on
 epmem --set balance 0
 
-wma --set activation on
+wm activation --set activation on
 
-watch --epmem
+trace --epmem
 
 ### initialize
 sp {propose*init

@@ -246,7 +246,7 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<Double> BASE_DECAY = key("base-decay", Double.class).defaultValue(0.5).build();
     final DoublePropertyProvider base_decay = new DoublePropertyProvider(BASE_DECAY);
     
-    static final PropertyKey<BaseUpdateChoices> BASE_UPDATE = key("base-update", BaseUpdateChoices.class).defaultValue(BaseUpdateChoices.stable).build();
+    static final PropertyKey<BaseUpdateChoices> BASE_UPDATE = key("base-update-policy", BaseUpdateChoices.class).defaultValue(BaseUpdateChoices.stable).build();
     final EnumPropertyProvider<BaseUpdateChoices> base_update = new EnumPropertyProvider<BaseUpdateChoices>(BASE_UPDATE);
     
     static final PropertyKey<SetWrapperLong> BASE_INCREMENTAL_THRESHES = key("base-incremental-threshes", SetWrapperLong.class).defaultValue(new SetWrapperLong()).build();

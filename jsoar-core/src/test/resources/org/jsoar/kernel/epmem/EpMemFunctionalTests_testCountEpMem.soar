@@ -13,12 +13,11 @@ epmem --set learning on
 # What are these productions doing?
 #
 
-#watch 0
+#trace --level 0
 
-# Not implemented yet
-watch --epmem
+trace --epmem
 
-timers --off
+soar timers --off
 
 #
 # Infrastructure productions that mark states with operator names

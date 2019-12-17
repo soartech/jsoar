@@ -8,6 +8,7 @@ package org.jsoar.kernel.epmem;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +217,11 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("epmem --set append-database on");
         agent.getInterpreter().eval("epmem --reinit");
         
-        String actualResult = agent.getInterpreter().eval("epmem --print 4");
+        StringWriter sw = new StringWriter();
+        agent.getPrinter().pushWriter(sw);
+        agent.getInterpreter().eval("epmem --print 4");
+        agent.getPrinter().popWriter();
+        String actualResult = sw.toString();
         
         String expectedResult = "(<id0> ^counter 2 ^io <id1> ^name Factorization ^needs-factorization true ^number-to-factor 2 ^number-to-factor-int 2 ^operator <id2> ^operator* <id2> ^reward-link <id3> ^superstate nil ^type state ^using-epmem true)\n" +
                                 "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
@@ -270,9 +275,13 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                 throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
             }
             
-            String result = a.getAgent().getInterpreter().eval("epmem");
+            StringWriter sw = new StringWriter();
+            a.getPrinter().pushWriter(sw);
+            a.getAgent().getInterpreter().eval("epmem");
+            a.getPrinter().popWriter();
+            String result = sw.toString();
             
-            if (!result.contains("native"))
+            if (!result.contains("Native"))
             {
                 throw new AssertionError("Non Native Driver!");
             }

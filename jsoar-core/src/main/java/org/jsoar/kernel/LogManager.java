@@ -180,7 +180,7 @@ public class LogManager {
     	if (logger == null)
     	{
     		if (strict)
-    			throw new LoggerException("Logger [" + loggerName + "] does not exists (strict mode enabled).");
+    			throw new LoggerException("Logger [" + loggerName + "] does not exist (strict mode enabled).");
     		logger = LoggerFactory.getLogger(loggerName);
     		loggers.put(loggerName, logger);
     	}

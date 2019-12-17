@@ -6,7 +6,7 @@
 #epmem --set exclusions epmem
 epmem --set trigger dc
 epmem --set learning on
-watch --epmem
+trace --epmem
 
 sp {propose*initialize-epmem-rand
    (state <s> ^superstate nil

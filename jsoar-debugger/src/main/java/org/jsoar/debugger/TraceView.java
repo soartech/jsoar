@@ -18,22 +18,30 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.syntax.Highlighter;
+import org.jsoar.debugger.syntax.SyntaxSettings;
+import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
@@ -44,6 +52,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import bibliothek.gui.dock.common.action.CButton;
 
@@ -52,17 +62,28 @@ import bibliothek.gui.dock.common.action.CButton;
  */
 public class TraceView extends AbstractAdaptableView implements Disposable
 {
+    private static final String HIGHLIGHT_IMMEDIATELY = "highlightImmediately";
+    private static final String ENABLE_HIGHLIGHTING = "enableHighlighting";
+    private static final String SCROLL_LOCK = "scrollLock";
+    private static final String LIMIT = "limit";
+    private static final String SEARCH = "search";
+
+    private static final Logger logger = LoggerFactory.getLogger(TraceView.class);
+	
     private final JSoarDebugger debugger;
     private final CommandEntryPanel commandPanel;
     private final Provider selectionProvider = new Provider();
 
     private final IncrementalSearchPanel searchPanel;
-    
+
+    // Variables related to the triming limit along with a lock object for syncing between threads
+    private Object limitLock = new Object();
     private int limit = -1;
     private int limitTolerance = 0;
-    private boolean scrollLock = true;
     
-    private final JTextArea outputWindow = new JTextArea() {
+    private boolean scrollLock = true;
+
+    private final JTextPane outputWindow = new JTextPane() {
         private static final long serialVersionUID = 5161494134278464101L;
 
         /* (non-Javadoc)
@@ -73,57 +94,75 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             executePastedInput();
         }
     };
-    
+
+    private Highlighter highlighter;
+    private final BatchStyledDocument styledDocument;
     private final Writer outputWriter = new Writer()
     {
         private StringBuilder buffer = new StringBuilder();
-        private boolean flushing = false;
-        
+
         @Override
         public void close() throws IOException
         {
         }
-
+        
         @Override
         synchronized public void flush() throws IOException
         {
-            // If there's already a runnable headed for the UI thread, don't send another
-            if(flushing) { return; }
-            
-            // Send a runnable over to the UI thread to take the current buffer contents
-            // and put them in the trace window.
-            flushing = true;
-            
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    synchronized(outputWriter) // synchronized on outer.this like the flush() method
-                    {
-                        outputWindow.append(buffer.toString());
-                        buffer.setLength(0);
-                        flushing = false;
-                        
-                        if(limit > 0)
-                        {
-                            final int length = outputWindow.getDocument().getLength();
-                            if(length > limit + limitTolerance)
+            synchronized (outputWriter) // synchronized on outer.this like the flush() method
+            {
+                String input = buffer.toString();
+                if (highlightImmediately.get()) {
+                    styledDocument.takeBatchUpdate(input, enableHighlighting.get());
+                } else {
+                    styledDocument.takeDelayedBatchUpdate(input, enableHighlighting.get());
+                }
+                buffer.setLength(0);
+                
+                synchronized (limitLock) {
+                    styledDocument.trim(limit, limitTolerance);
+                }
+                
+                // Handling scroll lock setting
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (scrollLock) {
+                            // Scroll to the end
+                            int length = outputWindow.getDocument().getLength();
+                            if ( length > 0 )
                             {
-                                try
-                                {
-                                    // Trim the trace back down to limit
-                                    outputWindow.getDocument().remove(0, length - limit);
+                                // The design of the StyledDocument synchronization is weird
+                                // they provide the Position class which should be safe to use
+                                // from other threads but then all the interface method's take
+                                // bare integers which sounds like you are just asking for trouble
+                                try {
+                                    styledDocument.documentWriteLock();
+                                    outputWindow.setCaretPosition(styledDocument.getLength());
+                                } finally {
+                                    styledDocument.documentWriteUnlock();
                                 }
-                                catch (BadLocationException e) {}
                             }
                         }
-                        
-                        if(scrollLock)
-                        {
-                            // Scroll to the end
-                            outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
-                        }
+                    }
+                };
+                
+                //On close, this gets purged from the EDT which will cause a deadlock. -ACN
+                if (SwingUtilities.isEventDispatchThread()) {
+                    runnable.run();
+                } else {
+                    try {
+                        SwingUtilities.invokeAndWait(runnable);
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        //Probably means we're shutting down
+                        logger.info("Interrupted while attempting to scroll to the end for text |{}| which may happen on shutdown", input);
+                        Thread.currentThread().interrupt();
                     }
                 }
-            });
+
+            }
         }
 
         @Override
@@ -132,17 +171,31 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             buffer.append(cbuf, off, len);
         }
     };
+    
+    // Flags for syntax highlighting
+    private AtomicBoolean enableHighlighting = new AtomicBoolean(true);
+    private AtomicBoolean highlightImmediately = new AtomicBoolean(true);
 
     public TraceView(JSoarDebugger debuggerIn)
     {
         super("trace", "Trace");
         this.debugger = debuggerIn;
+
+        highlighter = Highlighter.getInstance(debugger);
+        styledDocument = new BatchStyledDocument(highlighter, debugger);
         
-        outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
+        outputWindow.setFont(new Font("Monospaced", Font.PLAIN, (int) (12 * JSoarDebugger.getFontScale())));
+        setLimit(getPreferences().getInt(LIMIT, -1));
+        enableHighlighting = new AtomicBoolean(getPreferences().getBoolean(ENABLE_HIGHLIGHTING, true));
+        highlightImmediately = new AtomicBoolean(getPreferences().getBoolean(HIGHLIGHT_IMMEDIATELY, true));
+        scrollLock = getPreferences().getBoolean(SCROLL_LOCK, true);
+        setDefaultTextStyle();
+
+        reloadSyntax();
+
         outputWindow.addMouseListener(new MouseAdapter() {
 
-            public void mousePressed(MouseEvent e) 
+            public void mousePressed(MouseEvent e)
             {
                 if(e.isPopupTrigger())
                 {
@@ -170,68 +223,74 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
             }});
         outputWindow.setEditable(false);
-        
+        outputWindow.setDocument(styledDocument);
+
         final JSoarVersion version = JSoarVersion.getInstance();
-        outputWindow.setText("JSoar " + version + "\n" + 
-                             "http://jsoar.googlecode.com\n" + 
+        outputWindow.setText("JSoar " + version + "\n" +
+                             "http://jsoar.googlecode.com\n" +
                              "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
                              "\n" +
                              "Right-click for trace options (or use watch command)\n" +
                              "Double-click identifiers, wmes, and rule names to drill down\n" +
                              "You can paste code (ctrl+v) directly into this window.\n");
-        
-        setLimit(getPreferences().getInt("limit", -1));
-        scrollLock = getPreferences().getBoolean("scrollLock", true);
-        
-        debugger.getAgent().getPrinter().pushWriter(outputWriter);
-        
+
+
+        debugger.getAgent().getPrinter().addPersistentWriter(outputWriter);
+
+
         final Trace trace = debugger.getAgent().getTrace();
         trace.disableAll();
         trace.setEnabled(Category.LOADING, true);
         trace.setWatchLevel(1);
-        
+
         final JPanel p = new JPanel(new BorderLayout());
-        p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
-        
+
+        JScrollPane scrollPane = new JScrollPane(outputWindow);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        p.add(scrollPane, BorderLayout.CENTER);
+
         final JPanel bottom = new JPanel(new BorderLayout());
-        
+
         commandPanel = new CommandEntryPanel(debugger);
         bottom.add(commandPanel, BorderLayout.CENTER);
-        
-        searchPanel = new IncrementalSearchPanel(outputWindow);
-        searchPanel.setSearchText(getPreferences().get("search", ""));
-        
+
+        searchPanel = new IncrementalSearchPanel(outputWindow, debugger);
+        searchPanel.setSearchText(getPreferences().get(SEARCH, ""));
+
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
-                
+
         addAction(new CButton("Clear", Images.CLEAR) {
-            
             @Override
             protected void action()
             {
                 clear();
             }
         });
-        
+
+
         getContentPane().add(p);
+
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     public void dispose()
     {
         commandPanel.dispose();
-        
+
         final Printer printer = debugger.getAgent().getPrinter();
-        while(outputWriter != printer.popWriter())
-        {
-        }
-        
-        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
-        getPreferences().put("search", searchPanel.getSearchText());
-        getPreferences().putInt("limit", limit);
-        getPreferences().putBoolean("scrollLock", scrollLock);
+        printer.removePersistentWriter(outputWriter);
+
+        //todo - reimplement line wrap
+//        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
+        getPreferences().put(SEARCH, searchPanel.getSearchText());
+        getPreferences().putInt(LIMIT, limit);
+        getPreferences().putBoolean(SCROLL_LOCK, scrollLock);
+        getPreferences().putBoolean(ENABLE_HIGHLIGHTING, enableHighlighting.get());
+        getPreferences().putBoolean(HIGHLIGHT_IMMEDIATELY, highlightImmediately.get());
     }
 
     /* (non-Javadoc)
@@ -279,18 +338,18 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             outputWindow.setText("");
         }
     }
-    
+
     /**
-     * Set the limit on the number of characters saved in the trace. When 
+     * Set the limit on the number of characters saved in the trace. When
      * {@code limit +20%} is reached, the beginning 20% of the trace buffer
      * will be removed.
-     * 
+     *
      * @param limit the limit, in number of characters, or {@code -1} for no limit
      */
     public void setLimit(int limit)
     {
         // output limit code above is synchronized on the outputWriter
-        synchronized(outputWriter)
+        synchronized(limitLock)
         {
             this.limit = limit;
             if(this.limit > 0)
@@ -299,7 +358,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }
         }
     }
-    
+
     private SelectedObject getObjectAtPoint(Point p)
     {
         int offset = outputWindow.viewToModel(p);
@@ -312,7 +371,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
         return object;
     }
-    
+
     private void updateSelectionFromMouseEvent(MouseEvent e)
     {
         final SelectedObject object = getObjectAtPoint(e.getPoint());
@@ -336,7 +395,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }};
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
     }
-    
+
     private void handleObjectAction(MouseEvent e)
     {
         final SelectedObject object = getObjectAtPoint(e.getPoint());
@@ -375,7 +434,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 {
                     command = null;
                 }
-                
+
                 if(command != null)
                 {
                     debugger.getAgent().getInterpreter().eval(command);
@@ -384,13 +443,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }};
         debugger.getAgent().execute(call, null);
     }
-    
+
+    @SuppressWarnings("serial")
     private void showPopupMenu(MouseEvent e)
     {
         final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
-        
+
         menu.populateMenu();
-        
+
         menu.insertSeparator(0);
 
         // Add trace limit action
@@ -403,8 +463,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 askForTraceLimit();
             }}, 0);
-        
-        // Add Wrap text action
+
         final JCheckBoxMenuItem scrollLockItem = new JCheckBoxMenuItem("Scroll lock", scrollLock);
         scrollLockItem.addActionListener(new ActionListener() {
 
@@ -413,19 +472,77 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 scrollLock = !scrollLock;
             }});
+        
         menu.insert(scrollLockItem, 0);
         
-        // Add Wrap text action
-        final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
-        wrapTextItem.addActionListener(new ActionListener() {
+        // Adding various coloring options to a sub menu
+        final JMenu highlightingMenu = new JMenu("Syntax Highlighting");
+        
+        ButtonGroup buttonGroup = new ButtonGroup();
+        JRadioButtonMenuItem noHLItem = new JRadioButtonMenuItem("No Highlighting");
+        noHLItem.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                outputWindow.setLineWrap(!outputWindow.getLineWrap());
-            }});
-        menu.insert(wrapTextItem, 0);
+                enableHighlighting.set(false);
+                noHLItem.setSelected(true);
+            }
+            
+        });
+        JRadioButtonMenuItem immediateHLItem = new JRadioButtonMenuItem("Highlight Immediately");
+        immediateHLItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                enableHighlighting.set(true);
+                highlightImmediately.set(true);
+                immediateHLItem.setSelected(true);
+            }
+            
+        });
+        JRadioButtonMenuItem delayedHLItem = new JRadioButtonMenuItem("Highlight In Separate Thread");
+        delayedHLItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                enableHighlighting.set(true);
+                highlightImmediately.set(false);
+                delayedHLItem.setSelected(true);
+            }
+            
+        });
         
+        highlightingMenu.add(noHLItem);
+        highlightingMenu.add(immediateHLItem);
+        highlightingMenu.add(delayedHLItem);
+        buttonGroup.add(noHLItem);
+        buttonGroup.add(immediateHLItem);
+        buttonGroup.add(delayedHLItem);
+        
+        // Setting highlight control state initially
+        if ( enableHighlighting.get() )
+        {
+            if (highlightImmediately.get() ) {
+                immediateHLItem.setSelected(true);
+            } else {
+                delayedHLItem.setSelected(true);
+            }
+        } else {
+            noHLItem.setSelected(true);
+        }
+        
+        menu.insert(highlightingMenu, 0);
+
+        menu.insert(new AbstractAction("Edit Syntax Highlighting") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new SyntaxConfigurator(highlighter.getPatterns(),TraceView.this, debugger).go();
+            }
+        },0);
+
         // Add clear action
         menu.insert(new AbstractAction("Clear") {
 
@@ -436,9 +553,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 clear();
             }}, 0);
-        
-        
-        
+
+
+
         final int offset = outputWindow.viewToModel(e.getPoint());
         if(offset >= 0)
         {
@@ -450,11 +567,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 object.fillMenu(debugger, menu);
             }
         }
-        
+
         // Show the menu
         menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
     }
-    
+
     private void askForTraceLimit()
     {
         final String result = JOptionPane.showInputDialog(outputWindow, "Trace limit in characters (-1 for no limit)", limit);
@@ -483,22 +600,44 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 final String text = (String) t.getTransferData(DataFlavor.stringFlavor);
                 debugger.getAgent().execute(new CommandLineRunnable(debugger, text), null);
             }
-            catch (UnsupportedFlavorException e)
-            {
-                // Do nothing
-            }
-            catch (IOException e)
+            catch (UnsupportedFlavorException | IOException ignored)
             {
                 // Do nothing
             }
         }
     }
-    
+
+    public void saveSyntax() {
+        highlighter.save();
+        reformatText();
+    }
+
+    public void reformatText() {
+        this.styledDocument.reformatText();
+    }
+
+    public void setDefaultTextStyle()
+    {
+        highlighter = Highlighter.getInstance(debugger);
+        highlighter.setDefaultTextStyle(outputWindow);
+    }
+
+    public SyntaxSettings reloadSyntaxDefaults(){
+        SyntaxSettings patterns = highlighter.reloadSyntaxDefaults();
+
+        setDefaultTextStyle();
+        return patterns;
+    }
+
+    public void reloadSyntax() {
+        highlighter.reloadSyntax();
+    }
+
     private class Provider implements SelectionProvider
     {
         SelectionManager manager;
         List<Object> selection = new ArrayList<Object>();
-        
+
         public void setSelection(Object o)
         {
             selection.clear();
@@ -511,7 +650,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 manager.fireSelectionChanged();
             }
         }
-        
+
         /* (non-Javadoc)
          * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
          */
@@ -547,6 +686,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             return selection;
         }
-        
+
     }
 }

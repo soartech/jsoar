@@ -1,49 +1,79 @@
 # Default command aliases for jsoar
 # Core/CLI/src/cli_Aliases.cpp
 
-alias a alias
-alias aw add-wme
-alias chdir cd
-alias ctf command-to-file
-alias set-default-depth default-wme-depth
-alias ex excise
-alias eb explain-backtraces
-alias fc firing-counts
-alias gds_print gds-print
-alias h help
-alias man help
 alias ? help
-alias inds indifferent-selection
-alias init init-soar
-alias is init-soar
-alias l learn
-alias dir ls
+alias a alias
+alias chdir cd
+alias clog output log
+alias d run -d
+alias default-wme-depth output print-depth
+alias e run -e
+alias eb explain-backtraces
+alias ex production excise
+alias excise production excise
+alias fc production firing-counts
+alias firing-counts production firing-counts
+alias gds_print print --gds
+alias gds-print print --gds
+alias h help
+alias indifferent-selection decide indifferent-selection
+alias inds decide indifferent-selection
+alias init soar init
+alias is soar init
+alias init-soar soar init
+alias internal-symbols debug internal-symbols
+alias interrupt soar stop
+alias l chunk
+alias learn chunk
+alias m production matches
+alias man help
+alias matches production matches
+alias max-elaborations soar max-elaborations
+alias memories production memory-usage
+alias multi-attributes production optimize-attribute
+alias numeric-indifferent-mode decide numeric-indifferent-mode
 alias p print
 alias pc print --chunks
+alias pf production-find
 alias pr preferences
 alias pref preferences
+alias production-find production find
 alias ps print --stack
-alias topd pwd
-alias pw pwatch
-alias pb pbreak
-alias exit quit
-alias step run -d
-alias d run -d
-alias e run -e
-alias rw remove-wme
-alias rn rete-net
-alias sn soarnews
+alias pb production break
+alias pbreak production break
+alias predict decide predict
+alias pw production watch
+alias pwatch production watch
+alias r run
+alias rete-net load rete-net --load
+alias rn load rete-net --load
+alias s run 1
+alias select decide select
+alias set-default-depth output print-depth
+alias set-stop-phase soar stop-phase
+alias soarnews soar
+alias source load file
+alias srand decide srand
+alias ss soar stop
 alias st stats
-alias start start-system
-alias stop stop-soar
-alias ss stop-soar
-alias interrupt stop-soar
+alias step run -d
+alias stop soar stop
+alias stop-soar soar stop
 alias support preferences --object
-alias un unalias
-alias w watch
-alias wmes print -i
+alias symbols debug internal-symbols
+alias time debug time
+alias timers soar timers
+alias topd pwd
+alias verbose trace -A
+alias w trace
+alias waitsnc soar wait-snc
+alias warnings output warnings
+alias watch trace
+alias wma wm activation
+alias wmes print --depth 1 --internal
 alias varprint print -v -d 100
-alias pf production-find
+alias version soar version
+
 
 alias edit edit-production
 
@@ -52,8 +82,6 @@ alias qget qmemory --get
 alias qset qmemory --set
 alias qrm  qmemory --remove
 alias qclear qmemory --clear
-
-alias internal-symbols symbols
 
 # script command aliases
 alias js script javascript

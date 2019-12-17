@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
- *
- */
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
@@ -9,44 +5,74 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
-/**
- * Implementation of the "echo" command.
- * 
- * @author ray
- */
-public final class EchoCommand implements SoarCommand
-{
-    private final Agent agent;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
+/**
+ * This is the implementation of the "echo" command.
+ * @author austin.brehob
+ */
+public class EchoCommand implements SoarCommand
+{
+    private Agent agent;
+    
     public EchoCommand(Agent agent)
     {
         this.agent = agent;
     }
+    
+    @Override
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
+    {
+        Utils.parseAndRun(agent, new Echo(agent), args);
+        
+        return "";
+    }
 
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public Object getCommand() {
+        return new Echo(agent);
+    }
+
+    @Command(name="echo", description="Outputs the given string",
+            subcommands={HelpCommand.class})
+    static public class Echo implements Runnable
     {
-        boolean noNewLine = false;
-        agent.getPrinter().startNewLine();
-        for(int i = 1; i < args.length; ++i)
+        private Agent agent;
+        
+        public Echo(Agent agent)
         {
-            final String argString = args[i].toString();
-            if("--nonewline".equals(argString))
-            {
-                noNewLine = true;
-            }
-            else
-            {
-            	if (i != 1)
-            		agent.getPrinter().print(" ");
-                agent.getPrinter().print(argString);
-            }
+            this.agent = agent;
         }
-        if(!noNewLine)
+        
+        @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
+        boolean noNewline = false;
+        
+        @Parameters(description="The string to output")
+        String[] outputString = null;
+
+        @Override
+        public void run()
         {
-            agent.getPrinter().print("\n");
+            if (outputString != null)
+            {
+                for (int i = 0; i < outputString.length; i++)
+                {
+                    if (i != 0)
+                    {
+                        agent.getPrinter().print(" ");
+                    }
+                    agent.getPrinter().print(outputString[i]);
+                }
+            }
+            
+            if (!noNewline)
+            {
+                agent.getPrinter().print("\n");
+            }
+            agent.getPrinter().flush();
         }
-        agent.getPrinter().flush();
-        return "";
     }
 }

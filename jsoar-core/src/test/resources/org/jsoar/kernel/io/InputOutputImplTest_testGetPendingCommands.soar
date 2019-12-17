@@ -1,4 +1,4 @@
-waitsnc --on
+soar wait-snc --on
 
 sp {first
     :o-support

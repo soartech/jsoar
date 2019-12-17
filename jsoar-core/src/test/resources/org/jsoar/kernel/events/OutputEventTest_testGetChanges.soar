@@ -1,4 +1,4 @@
-watch 1
+trace --level 1
 # changes.soar
 # changes output-link each cycle to test change detection in soar
 # first cycle puts this on the output-link:

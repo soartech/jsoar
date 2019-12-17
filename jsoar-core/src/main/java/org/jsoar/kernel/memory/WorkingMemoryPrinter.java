@@ -99,7 +99,8 @@ public class WorkingMemoryPrinter
                     }
                     else
                     {
-                        for(Wme w : objects.get(id))
+                        // note: this looks like it's doing a strange thing (i.e., it will print the same things multiple times), but that is in fact the csoar behavior
+                        for(@SuppressWarnings("unused") Wme w : objects.get(id))
                         {
                             do_print_for_identifier((IdentifierImpl)id.asIdentifier());
                         }
@@ -237,10 +238,6 @@ public class WorkingMemoryPrinter
  * 
  * <p>
  * sml_KernelHelpers.cpp:290:mark_depths_augs_of_id
- * 
- * @param id
- * @param depth
- * @param tc
  */
 private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, Marker tc) 
 {

@@ -284,8 +284,8 @@ public class RecognitionMemory
 
     /**
      * Given an instantiation, this routines looks at the instantiated
-     * conditions to find its match goal. It fills in inst->match_goal and
-     * inst->match_goal_level. If there is a match goal, match_goal is set to
+     * conditions to find its match goal. It fills in {@code inst->match_goal} and
+     * {@code inst->match_goal_level}. If there is a match goal, match_goal is set to
      * point to the goal identifier. If no goal was matched, match_goal is set
      * to NIL and match_goal_level is set to ATTRIBUTE_IMPASSE_LEVEL.
      * 
@@ -581,7 +581,6 @@ public class RecognitionMemory
      * 
      * @param inst
      * @param need_to_do_support_calculations
-     * @param top_goal
      */
     public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations)
     {
@@ -677,10 +676,6 @@ public class RecognitionMemory
      * 
      * <p>recmem.cpp:548:create_instantiation
      * 
-     * @param prod
-     * @param tok
-     * @param w
-     * @param top_goal
      */
     private void create_instantiation(Production prod, Token tok, WmeImpl w)
     {
@@ -1206,7 +1201,7 @@ public class RecognitionMemory
      * 
      * <p>recmem.cpp:891:assert_new_preferences
      * 
-     * @bufdeallo Buffered preferences to deallocate after inner elaboration loop.
+     * bufdeallo Buffered preferences to deallocate after inner elaboration loop.
      */
     private void assert_new_preferences(List<Preference> bufdeallo)
     {
@@ -1530,6 +1525,9 @@ public class RecognitionMemory
                 case IE_PRODS:
                     trace.startNewLine().print("--- Firing Productions (IE) For State At Depth %d ---",
                             decider.active_level);
+                    break;
+                default:
+                    // do nothing
                     break;
                 }
             }

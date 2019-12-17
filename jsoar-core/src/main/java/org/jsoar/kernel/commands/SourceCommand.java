@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -58,9 +57,9 @@ public class SourceCommand implements SoarCommand
      */
     private List<String> sourcedFiles = new ArrayList<String>();
     
-    private TopLevelState topLevelState;
-    private final SoarEventManager events;
-    private final SoarEventListener eventListener = new SoarEventListener()
+    /* package */ TopLevelState topLevelState;
+    /* package */ final SoarEventManager events;
+    /* package */ final SoarEventListener eventListener = new SoarEventListener()
     {
         @Override
         public void onEvent(SoarEvent event)
@@ -75,7 +74,7 @@ public class SourceCommand implements SoarCommand
             }
         }
     };
-    private String[] lastTopLevelCommand = null;
+    /* package */ String[] lastTopLevelCommand = null;
     
     public SourceCommand(SourceCommandAdapter interp, SoarEventManager events)
     {
@@ -83,13 +82,17 @@ public class SourceCommand implements SoarCommand
         this.events = events;
         fileStack.push("");
     }
-    
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return null;
+    }
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
     }
     
-    /*package*/ DirStackEntry getWorkingDirectoryRaw()
+    /* package */ DirStackEntry getWorkingDirectoryRaw()
     {
         return workingDirectory;
     }
@@ -172,6 +175,14 @@ public class SourceCommand implements SoarCommand
         {
             try
             {
+                // jtcl has built-in support for "resource:", which looks to be the same as "classpath:"
+                // in tcl we replace the native source command with this one, so this "patch" provides compatibility
+                // compatibility is needed because jtcl internally uses source with "resource:", e.g., as part of the "package require" command
+                if(fileString.startsWith("resource:"))
+                {
+                    fileString = fileString.replaceFirst("resource:", "classpath:");
+                }
+                
                 url = UrlTools.lookupClassPathURL(fileString);
             } catch (IOException e) {
                 throw new SoarException(e);
@@ -335,7 +346,7 @@ public class SourceCommand implements SoarCommand
         return FileTools.asUrl(s.substring(0, i) + "/");
     }
     
-    /*package*/ URL joinUrl(URL parent, String child)
+    /* package */ URL joinUrl(URL parent, String child)
     {
         final String s = parent.toExternalForm();
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
@@ -407,7 +418,7 @@ public class SourceCommand implements SoarCommand
     }
     
     // This ain't pretty, but it's private and it works
-    /*package*/ static class DirStackEntry
+    /* package */ static class DirStackEntry
     {
         File file;
         URL url;
@@ -416,7 +427,7 @@ public class SourceCommand implements SoarCommand
         public DirStackEntry(URL url) { this.url = url; }
     }
     
-    private static class FileInfo
+    /* package */ static class FileInfo
     {
         final String name;
         final List<String> productionsAdded = new ArrayList<String>();
@@ -428,7 +439,7 @@ public class SourceCommand implements SoarCommand
         }
     }
     
-    private static class TopLevelState
+    /* package */ static class TopLevelState
     {
         final List<FileInfo> files = new ArrayList<FileInfo>();
         int totalProductionsAdded = 0;

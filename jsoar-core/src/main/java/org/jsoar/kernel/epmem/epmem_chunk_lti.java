@@ -31,7 +31,7 @@ class epmem_chunk_lti
 
     /**
      * Map from attributes to slot values. The list is comprised of
-     * {@link SymbolImpl} for constants and {@link smem_chunk_lti} for
+     * {@link SymbolImpl} for constants and {@code org.jsoar.kernel.smem.smem_chunk_lti} for
      * identifiers. This mechanism was chosen to reduce memory usage.
      * 
      * <p>Original type: smem_slot_map

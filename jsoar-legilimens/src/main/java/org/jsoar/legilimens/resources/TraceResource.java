@@ -65,9 +65,10 @@ public class TraceResource extends BaseAgentResource
             final TraceRange traceRange = getTraceRange(state);
             
             final StringRepresentation rep = new StringRepresentation(CharBuffer.wrap(traceRange.getData(), 0, traceRange.getLength()));
-            Disposition disp = new Disposition();
-            disp.setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
-            rep.setDisposition(disp);
+            
+            if(rep.getDisposition() == null) { rep.setDisposition(new Disposition()); }
+            rep.getDisposition().setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".log");
+            rep.getDisposition().setType(Disposition.TYPE_ATTACHMENT);
             
             RestletTools.setResponseHeader(getResponse(), "X-trace-start", traceRange.getStart());
             RestletTools.setResponseHeader(getResponse(), "X-trace-end", traceRange.getEnd());

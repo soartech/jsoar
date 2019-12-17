@@ -3,6 +3,7 @@ package org.jsoar.kernel.commands;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -14,444 +15,500 @@ import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.LogManager.LoggerException;
 import org.jsoar.kernel.LogManager.SourceLocationMethod;
-import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
-import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
-import com.google.common.collect.Lists;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.ParameterException;
 
 /**
- * Implementation of the "log" command.
- * @author adam.sypniewski
+ * This is the implementation of the "log" command.
+ * @author austin.brehob
  */
-public class LogCommand implements SoarCommand {
-	
+public class LogCommand implements SoarCommand
+{
     private final Agent agent;
-	private final LogManager logManager;
-	private final SoarCommandInterpreter soarCommandInterpreter;
-    private final OptionProcessor<Options> options = OptionProcessor.create();
-    private static String sourceLocationSeparator = ".";
-    
-    private enum Options
-    {
-        add,
-        on, enable, yes,
-        off, disable, no,
-        strict,
-        echo,
-        init,
-        collapse,
-        level,
-        source,
-        abbreviate
-    }
-    
-    public LogCommand(Agent agent, SoarCommandInterpreter soarCommandInterpreter)
+    private SoarCommandInterpreter interpreter;
+
+    public LogCommand(Agent agent, SoarCommandInterpreter interpreter)
     {
         this.agent = agent;
-        this.logManager = agent.getLogManager();
-        this.soarCommandInterpreter = soarCommandInterpreter;
-        
-        options
-        	.newOption(Options.add)
-        	.newOption(Options.on)
-        		.newOption(Options.enable).shortOption('b')
-        		.newOption(Options.yes)
-        	.newOption(Options.off).shortOption('z')
-        		.newOption(Options.disable)
-        		.newOption(Options.no)
-        	.newOption(Options.strict).shortOption('k')
-        	.newOption(Options.echo)
-        	.newOption(Options.init)
-        	.newOption(Options.collapse)
-        	.newOption(Options.level)
-        	.newOption(Options.source).shortOption('s')
-        	.newOption(Options.abbreviate).shortOption('v')
-        	.done();
+        this.interpreter = interpreter;
     }
 
-	@Override
-	public String execute(SoarCommandContext context, String[] args) throws SoarException
-	{
-		List<String> nonOpts = options.process(Lists.newArrayList(args));
-				
-		if (options.has(Options.add))
-		{
-			if (nonOpts.size() == 1)
-			{
-				String loggerName = nonOpts.get(0);
-				try
-				{
-					logManager.addLogger(loggerName);
-				}
-				catch (LoggerException e)
-				{
-					throw new SoarException(e.getMessage(), e);
-				}
-				return "Added logger: " + loggerName;
-			}
-			else if (nonOpts.isEmpty())
-				throw new SoarException("Too few arguments. Expected a logger name.");
-			else
-				throw new SoarException("Too many arguments. Expected only a logger name.");
-		}
-		else if (options.has(Options.on) || options.has(Options.enable) || options.has(Options.yes))
-		{
-			if (nonOpts.isEmpty())
-			{
-				if (logManager.isActive())
-					return "Logger already enabled.";
-				else
-				{
-					logManager.setActive(true);
-					return "Logging enabled.";
-				}
-			}
-			else if (nonOpts.size() == 1)
-			{
-				try
-				{
-					logManager.enableLogger(nonOpts.get(0));
-				}
-				catch (LoggerException e)
-				{
-					throw new SoarException(e.getMessage(), e);
-				}
-				return "Logger [" + nonOpts.get(0) + "] enabled.";
-			}
-			else
-				throw new SoarException("Too many arguments. Expected: a log to enable or no argument (to enable logging altogether).");
-		}
-		else if (options.has(Options.off) || options.has(Options.disable) || options.has(Options.no))
-		{
-			if (nonOpts.isEmpty())
-			{
-				if (!logManager.isActive())
-					return "Logger already disabled.";
-				else
-				{
-					logManager.setActive(false);
-					return "Logging disabled.";
-				}
-			}
-			else if (nonOpts.size() == 1)
-			{
-				try
-				{
-					logManager.disableLogger(nonOpts.get(0));
-				}
-				catch (LoggerException e)
-				{
-					throw new SoarException(e.getMessage(), e);
-				}
-				return "Logger [" + nonOpts.get(0) + "] disabled.";
-			}
-			else
-				throw new SoarException("Too many arguments. Expected: a log to disable or no argument (to disable logging altogether).");
-		}
-		else if (options.has(Options.init))
-		{
-			logManager.init();
-			return "Logger init.";
-		}
-		else if (options.has(Options.strict))
-		{
-			if (nonOpts.size() != 1)
-				throw new SoarException("Expected one argument: yes | enable | on | no | disable | off");
-			
-			String mode = nonOpts.get(0);
-			if (mode.toLowerCase().equalsIgnoreCase("yes") || mode.toLowerCase().equalsIgnoreCase("enable") || mode.toLowerCase().equalsIgnoreCase("on"))
-			{
-				if (logManager.isStrict())
-					return "Logger already in strict mode.";
-				else
-				{
-					logManager.setStrict(true);
-					return "Logger set to strict mode.";
-				}
-			}
-			else if (mode.toLowerCase().equalsIgnoreCase("no") || mode.toLowerCase().equalsIgnoreCase("disable") || mode.toLowerCase().equalsIgnoreCase("off"))
-			{
-				if (!logManager.isStrict())
-					return "Logger already in non-strict mode.";
-				else
-				{
-					logManager.setStrict(false);
-					return "Logger set to non-strict mode.";
-				}
-			}
-			else
-				throw new SoarException("Expected one argument: yes | no");
-		}
-		else if (options.has(Options.abbreviate))
+    @Override
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
+    {
+        Utils.parseAndRun(agent, new Log(agent, interpreter, context), args);
+
+        return "";
+    }
+
+    @Override
+    public Object getCommand()
+    {
+        return new Log(agent,interpreter,null);
+    }
+
+    @Command(name="log", description="Adjusts logging settings",
+            subcommands={HelpCommand.class})
+    static public class Log implements Runnable
+    {
+        private final Agent agent;
+        private final LogManager logManager;
+        private final SoarCommandInterpreter interpreter;
+        private final SoarCommandContext context;
+        private static String sourceLocationSeparator = ".";
+        
+        @Spec
+        private CommandSpec spec; // injected by picocli
+
+        public Log(Agent agent, SoarCommandInterpreter interpreter, SoarCommandContext context)
         {
-            if (nonOpts.size() != 1)
-                throw new SoarException("Expected one argument: yes | enable | on | no | disable | off");
-            
-            String mode = nonOpts.get(0);
-            if (mode.toLowerCase().equalsIgnoreCase("yes") || mode.toLowerCase().equalsIgnoreCase("enable") || mode.toLowerCase().equalsIgnoreCase("on"))
-            {
-                logManager.setAbbreviate(true);
-                return "Logger using abbreviated paths.";
-            }
-            else if (mode.toLowerCase().equalsIgnoreCase("no") || mode.toLowerCase().equalsIgnoreCase("disable") || mode.toLowerCase().equalsIgnoreCase("off"))
-            {
-                logManager.setAbbreviate(false);
-                return "Logger using full paths.";
-            }
-            else
-                throw new SoarException("Expected one argument: yes | no");
+            this.agent = agent;
+            this.logManager = agent.getLogManager();
+            this.interpreter = interpreter;
+            this.context = context;
         }
-		else if (options.has(Options.echo))
-		{
-			if (nonOpts.size() != 1)
-				throw new SoarException("Expected one argument: off | simple | on");
-			
-			EchoMode echoMode;
-			try
-			{
-				echoMode = EchoMode.fromString(nonOpts.get(0));
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new SoarException("Unknown echo-mode value: " + nonOpts.get(0));
-			}
-			logManager.setEchoMode(echoMode);
-			
-			return "Logger echo mode set to: " + echoMode.toString();
-		}
-		else if (options.has(Options.source))
+
+        @Option(names={"-a", "--add"}, description="Adds a logger with the given name")
+        String logToAdd = null;
+
+        @Option(names={"on", "-e", "--on", "--enable", "--yes"}, description="Enables logging")
+        boolean enable = false;
+
+        @Option(names={"off", "-d", "--off", "--disable", "--no"}, description="Disables logging")
+        boolean disable = false;
+
+        @Option(names={"-s", "--strict"}, description="Enables or disables logging strictness")
+        String strict = null;
+
+        @Option(names={"-E", "--echo"}, description="Sets logger echo mode to on, simple, or off")
+        String echo = null;
+
+        @Option(names={"-i", "--init"}, description="Re-initializes log manager")
+        boolean init = false;
+
+        @Option(names={"-c", "--collapse"}, description="Specifies collapsed logging")
+        boolean collapse = false;
+
+        @Option(names={"-l", "--level"}, description="Sets the logging level to "
+                + "trace, debug, info, warn, or error")
+        String level = null;
+
+        @Option(names={"-S", "--source"}, description="Sets the logging source to disk, stack, or none")
+        String source = null;
+
+        @Option(names={"-A", "--abbreviate"}, description="Enables or disables logging abbreviation")
+        String abbreviate = null;
+
+        @Parameters(description="The logger to enable/disable or send a message to, "
+                + "the log level, and/or the message to log")
+        String[] params = null;
+
+        @Override
+        public void run()
         {
-            if (nonOpts.size() != 1)
-                throw new SoarException("Expected one argument: disk | stack | none");
-            
-            SourceLocationMethod sourceLocationMethod;
-            try
+            // log --add <loggerName>
+            if (logToAdd != null)
             {
-                sourceLocationMethod = SourceLocationMethod.fromString(nonOpts.get(0));
-            }
-            catch (IllegalArgumentException e)
-            {
-                throw new SoarException("Unknown source location method value: " + nonOpts.get(0));
-            }
-            logManager.setSourceLocationMethod(sourceLocationMethod);
-            
-            return "Logger source location method set to: " + sourceLocationMethod.toString();
-        }
-		else if (options.has(Options.level))
-		{
-			if (nonOpts.size() != 1)
-				throw new SoarException("Expected one argument: trace | debug | info | warn | error");
-			
-			LogLevel logLevel;
-			try
-			{
-				logLevel = LogLevel.fromString(nonOpts.get(0));
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new SoarException("Unknown echo-mode value: " + nonOpts.get(0));
-			}
-			logManager.setLogLevel(logLevel);
-			
-			return "Logger level set to: " + logLevel.toString();
-		}
-		else if (nonOpts.isEmpty())
-		{
-			return logManager.getLoggerStatus();
-		}
-		else
-		{
-			if (nonOpts.size() < 2)
-				throw new SoarException("Too few argugments. Expected: log [LOGGER-NAME] {INFO | DEBUG | WARN | ERROR} MESSAGE...");
-			
-			boolean collapse = options.has(Options.collapse);
-			
-			String loggerName;
-			LogLevel logLevel;
-			List<String> parameters;
-			
-			try
-			{
-			    // Did the user omit the LOGGER-NAME?
-			    // If so, the first argument will by the log level.
-			    // So let's try to cast the first argument to a log level.
-				logLevel = LogManager.LogLevel.fromString(nonOpts.get(0));
-				
-				// The user omitted LOGGER-NAME (we know because we just properly parsed the log level).
-				loggerName = getSourceLocation(context, logManager.getAbbreviate(), logManager.getSourceLocationMethod());
-				if (loggerName != null)
+                try
                 {
-                    // Prevent strict mode from biting us.
-                    if (!logManager.hasLogger(loggerName))
-                    {
-                        try {
-                            logManager.addLogger(loggerName);
-                        } catch (LoggerException e) {
-                            //
-                        }
-                    }
+                    logManager.addLogger(logToAdd);
+                }
+                catch (LoggerException e)
+                {
+                    throw new ParameterException(spec.commandLine(), e.getMessage(), e);
                 }
 
-				if (loggerName == null)
-				    loggerName = "default";
-				
-				parameters = nonOpts.subList(1, nonOpts.size());
-			}
-			catch (IllegalArgumentException e)
-			{
-			    // The user specified LOGGER-NAME.
-			    loggerName = nonOpts.get(0);
-			    
-				try
-				{
-				    // Make sure that the log-level is valid.
-					logLevel = LogManager.LogLevel.fromString(nonOpts.get(1));
-				}
-				catch (IllegalArgumentException ee)
-				{
-					throw new SoarException("Unknown log-level value: " + nonOpts.get(1));
-				}
-				
-				parameters = nonOpts.subList(2, nonOpts.size());
-			}
+                agent.getPrinter().startNewLine().print("Added logger: " + logToAdd);
+            }
+            else if (enable)
+            {
+                // log --enable
+                if (params == null)
+                {
+                    if (logManager.isActive())
+                    {
+                        agent.getPrinter().startNewLine().print("Logging already enabled.");
+                    }
+                    else
+                    {
+                        logManager.setActive(true);
+                        agent.getPrinter().startNewLine().print("Logging enabled.");
+                    }
+                }
+                // log --enable <loggerName>
+                else
+                {
+                    try
+                    {
+                        logManager.enableLogger(params[0]);
+                    }
+                    catch (LoggerException e)
+                    {
+                        agent.getPrinter().startNewLine().print(e.getMessage());
+                        return;
+                    }
+                    agent.getPrinter().startNewLine().print("Logger [" + params[0] + "] enabled.");
+                }
+            }
+            else if (disable)
+            {
+                // log --disable
+                if (params == null)
+                {
+                    if (!logManager.isActive())
+                    {
+                        agent.getPrinter().startNewLine().print("Logging already disabled.");
+                    }
+                    else
+                    {
+                        logManager.setActive(false);
+                        agent.getPrinter().startNewLine().print("Logging disabled.");
+                    }
+                }
+                // log --disable <loggerName>
+                else
+                {
+                    try
+                    {
+                        logManager.disableLogger(params[0]);
+                    }
+                    catch (LoggerException e)
+                    {
+                        agent.getPrinter().startNewLine().print(e.getMessage());
+                        return;
+                    }
+                    agent.getPrinter().startNewLine().print("Logger [" + params[0] + "] disabled.");
+                }
+            }
+            // log --init
+            else if (init)
+            {
+                logManager.init();
+                agent.getPrinter().startNewLine().print("Log manager re-initialized.");
+            }
+            else if (strict != null)
+            {
+                // log --strict enable
+                if (strict.toLowerCase().equalsIgnoreCase("yes") ||
+                        strict.toLowerCase().equalsIgnoreCase("enable") ||
+                        strict.toLowerCase().equalsIgnoreCase("on"))
+                {
+                    if (logManager.isStrict())
+                    {
+                        agent.getPrinter().startNewLine().print("Logger already in strict mode.");
+                    }
+                    else
+                    {
+                        logManager.setStrict(true);
+                        agent.getPrinter().startNewLine().print("Logger set to strict mode.");
+                    }
+                }
+                // log --strict disable
+                else if (strict.toLowerCase().equalsIgnoreCase("no") ||
+                        strict.toLowerCase().equalsIgnoreCase("disable") ||
+                        strict.toLowerCase().equalsIgnoreCase("off"))
+                {
+                    if (!logManager.isStrict())
+                    {
+                        agent.getPrinter().startNewLine().print("Logger already in non-strict mode.");
+                    }
+                    else
+                    {
+                        logManager.setStrict(false);
+                        agent.getPrinter().startNewLine().print("Logger set to non-strict mode.");
+                    }
+                }
+                else
+                {
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | off");
+                }
+            }
+            else if (abbreviate != null)
+            {
+                // log --abbreviate enable
+                if (abbreviate.toLowerCase().equalsIgnoreCase("yes") ||
+                        abbreviate.toLowerCase().equalsIgnoreCase("enable") ||
+                        abbreviate.toLowerCase().equalsIgnoreCase("on"))
+                {
+                    logManager.setAbbreviate(true);
+                    agent.getPrinter().startNewLine().print("Logger using abbreviated paths.");
+                }
+                // log --abbreviate disable
+                else if (abbreviate.toLowerCase().equalsIgnoreCase("no") ||
+                        abbreviate.toLowerCase().equalsIgnoreCase("disable") ||
+                        abbreviate.toLowerCase().equalsIgnoreCase("off"))
+                {
+                    logManager.setAbbreviate(false);
+                    agent.getPrinter().startNewLine().print("Logger using full paths.");
+                }
+                else
+                {
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | off");
+                }
+            }
+            // log --echo on/simple/off
+            else if (echo != null)
+            {
+                EchoMode echoMode;
 
-			// Log the message.
-			try
-			{
-				logManager.log(loggerName, logLevel, parameters, collapse);
-			}
-			catch (LoggerException e)
-			{
-				throw new SoarException(e.getMessage(), e);
-			}
-			
-			return "";
-		}
-	}
-	
-	public String getSourceLocation(SoarCommandContext context, boolean abbreviate, SourceLocationMethod sourceLocationMethod)
-	{
-	    if (sourceLocationMethod.equals(SourceLocationMethod.stack))
-	        return getGoalStackLocation(abbreviate);
-	    else if (sourceLocationMethod.equals(SourceLocationMethod.disk))
-	        return getSourceFileLocation(context, abbreviate);
-	    else
-	        return null;
-	}
-	
-	public String getGoalStackLocation(boolean abbreviate)
-	{
-	    final StringBuffer location = new StringBuffer();
-	    
-	    Iterator<Goal> it = agent.getGoalStack().iterator();
-	    if (it.hasNext())
-	    {
-	        // location.append(getOperatorNameFromGoal(it.next()));
-	        String thisGoal = getOperatorNameFromGoal(it.next());
-	        if (!abbreviate || !it.hasNext())
-	            location.append(thisGoal);
-	        else
-	            location.append(thisGoal.charAt(0));
-	        while (it.hasNext())
-	        {
-	            location.append(LogCommand.sourceLocationSeparator);
-	            //location.append(getOperatorNameFromGoal(it.next()));
-	            thisGoal = getOperatorNameFromGoal(it.next());
-	            if (!abbreviate || !it.hasNext())
-	                location.append(thisGoal);
-	            else
-	                location.append(thisGoal.charAt(0));
-	        }
-	    }
-	    
-	    return location.toString();
-	}
-	
-	public String getSourceFileLocation(SoarCommandContext context, boolean abbreviate)
-    {
-	    SourceLocation sourceLocation = context.getSourceLocation();
-        if (sourceLocation != DefaultSourceLocation.UNKNOWN)
-        {
-            String fileName = sourceLocation.getFile();
-            if (fileName != null && !fileName.isEmpty())
-                return collapseFileName(fileName, soarCommandInterpreter.getWorkingDirectory(), abbreviate);
+                try
+                {
+                    echoMode = EchoMode.fromString(echo);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: on | simple | off", e);
+                }
+
+                logManager.setEchoMode(echoMode);
+                agent.getPrinter().startNewLine().print("Logger echo mode set to: " + echoMode.toString());
+            }
+            // log --source disk/stack/none
+            else if (source != null)
+            {
+                SourceLocationMethod sourceLocationMethod = null;
+
+                try
+                {
+                    sourceLocationMethod = SourceLocationMethod.fromString(source);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: disk | stack | none", e);
+                }
+
+                logManager.setSourceLocationMethod(sourceLocationMethod);
+                agent.getPrinter().startNewLine().print("Logger source location "
+                        + "method set to: " + sourceLocationMethod.toString());
+            }
+            // log --level trace/debug/info/warn/error
+            else if (level != null)
+            {
+                LogLevel logLevel;
+                try
+                {
+                    logLevel = LogLevel.fromString(level);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    throw new ParameterException(spec.commandLine(), "Expected one argument: "
+                            + "trace | debug | info | warn | error", e);
+                }
+
+                logManager.setLogLevel(logLevel);
+                agent.getPrinter().startNewLine().print("Logger level set to: " + logLevel.toString());
+            }
+            // log
+            else if (params == null)
+            {
+                agent.getPrinter().startNewLine().print(logManager.getLoggerStatus());
+            }
+            // log <loggerName> <loggingLevel> <[message]>
+            else
+            {
+                String loggerName;
+                LogLevel logLevel;
+                List<String> parameters;
+
+                if (params.length == 1)
+                {
+                    throw new ParameterException(spec.commandLine(), "Unknown command: " + params[0]);
+                }
+
+                try
+                {
+                    // Did the user omit the LOGGER-NAME?
+                    // If so, the first argument will by the log level.
+                    // So let's try to cast the first argument to a log level.
+                    logLevel = LogManager.LogLevel.fromString(params[0]);
+
+                    // The user omitted LOGGER-NAME (we know because we just properly parsed the log level).
+                    loggerName = getSourceLocation(context, logManager.getAbbreviate(),
+                            logManager.getSourceLocationMethod());
+                    if (loggerName != null)
+                    {
+                        // Prevent strict mode from biting us.
+                        if (!logManager.hasLogger(loggerName))
+                        {
+                            try
+                            {
+                                logManager.addLogger(loggerName);
+                            }
+                            catch (LoggerException e)
+                            {
+                                throw new ParameterException(spec.commandLine(), e.getMessage(), e);
+                            }
+                        }
+                    }
+
+                    if (loggerName == null)
+                    {
+                        loggerName = "default";
+                    }
+
+                    parameters = Arrays.asList(Arrays.copyOfRange(params, 1, params.length));
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // The user specified LOGGER-NAME.
+                    loggerName = params[0];
+
+                    try
+                    {
+                        // Make sure that the log-level is valid.
+                        logLevel = LogManager.LogLevel.fromString(params[1]);
+                    }
+                    catch (IllegalArgumentException ee)
+                    {
+                        throw new ParameterException(spec.commandLine(), "Unknown log-level value: " + params[1], ee);
+                    }
+
+                    parameters = Arrays.asList(Arrays.copyOfRange(params, 2, params.length));
+                }
+
+                // Log the message.
+                try
+                {
+                    logManager.log(loggerName, logLevel, parameters, collapse);
+                }
+                catch (LoggerException e)
+                {
+                    throw new ParameterException(spec.commandLine(), e.getMessage(), e);
+                }
+            }
         }
-        return null;
+
+        public String getSourceLocation(SoarCommandContext context, boolean abbreviate, SourceLocationMethod sourceLocationMethod)
+        {
+            if (sourceLocationMethod.equals(SourceLocationMethod.stack))
+                return getGoalStackLocation(abbreviate);
+            else if (sourceLocationMethod.equals(SourceLocationMethod.disk))
+                return getSourceFileLocation(context, abbreviate);
+            else
+                return null;
+        }
+
+        public String getGoalStackLocation(boolean abbreviate)
+        {
+            final StringBuffer location = new StringBuffer();
+
+            Iterator<Goal> it = agent.getGoalStack().iterator();
+            if (it.hasNext())
+            {
+                // location.append(getOperatorNameFromGoal(it.next()));
+                String thisGoal = getOperatorNameFromGoal(it.next());
+                if (!abbreviate || !it.hasNext())
+                    location.append(thisGoal);
+                else
+                    location.append(thisGoal.charAt(0));
+                while (it.hasNext())
+                {
+                    location.append(sourceLocationSeparator);
+                    //location.append(getOperatorNameFromGoal(it.next()));
+                    thisGoal = getOperatorNameFromGoal(it.next());
+                    if (!abbreviate || !it.hasNext())
+                        location.append(thisGoal);
+                    else
+                        location.append(thisGoal.charAt(0));
+                }
+            }
+
+            return location.toString();
+        }
+
+        public String getSourceFileLocation(SoarCommandContext context, boolean abbreviate)
+        {
+            SourceLocation sourceLocation = context.getSourceLocation();
+            if (sourceLocation != DefaultSourceLocation.UNKNOWN)
+            {
+                String fileName = sourceLocation.getFile();
+                if (fileName != null && !fileName.isEmpty())
+                    return collapseFileName(fileName, interpreter.getWorkingDirectory(), abbreviate);
+            }
+            return null;
+        }
+
+        private static String getOperatorNameFromGoal(Goal g)
+        {
+            Symbol opName = g.getOperatorName();
+            return opName == null ? "?" : opName.toString();
+        }
+
+        public static List<String> uberSplit(String file) throws IOException
+        {
+            List<String> result = new ArrayList<String>();
+
+            File f = new File(file).getCanonicalFile();
+
+            result.add(f.getName());
+            f = f.getParentFile();
+            while (f != null)
+            {
+                String n = f.getName();
+                if (!n.isEmpty())
+                    result.add(f.getName());
+                f = f.getParentFile();
+            }
+
+            Collections.reverse(result);
+
+            return result;
+        }
+
+        public static String collapseFileName(String file, String cwd, boolean abbreviate)
+        {
+            String[] cwdParts;
+            String[] fileParts;
+
+            try
+            {
+                cwdParts = uberSplit(cwd).toArray(new String[0]);
+                fileParts = uberSplit(file).toArray(new String[0]);
+            }
+            catch (IOException e)
+            {
+                return null;
+            }
+
+            int minLength = Math.min(cwdParts.length, fileParts.length);
+
+            int marker;
+            for (marker = 0; marker < minLength; ++marker)
+            {
+                if (!cwdParts[marker].equals(fileParts[marker]))
+                    break;
+            }
+
+            String result = "";
+
+            int diff = cwdParts.length - marker;
+            if (diff > 0)
+                result += "^" + diff + sourceLocationSeparator;
+
+            for (int i = marker; i < fileParts.length - 1; ++i)
+            {
+                if (abbreviate)
+                    result += fileParts[i].charAt(0);
+                else
+                    result += fileParts[i];
+                result += sourceLocationSeparator;
+            }
+            result += fileParts[fileParts.length-1];
+
+            return result;
+        }
     }
-	
-	private static String getOperatorNameFromGoal(Goal g)
-    {
-        Symbol opName = g.getOperatorName();
-        return opName == null ? "?" : opName.toString();
-    }
-	
-	public static List<String> uberSplit(String file) throws IOException
-	{	    
-	    List<String> result = new ArrayList<String>();
-	    
-	    File f = new File(file).getCanonicalFile();
-	    
-	    result.add(f.getName());
-	    f = f.getParentFile();
-	    while (f != null)
-	    {
-	        String n = f.getName();
-	        if (!n.isEmpty())
-	            result.add(f.getName());
-	        f = f.getParentFile();
-	    }
-	    
-	    Collections.reverse(result);
-	    
-	    return result;
-	}
-	
-	public static String collapseFileName(String file, String cwd, boolean abbreviate)
-	{
-	    String[] cwdParts;
-	    String[] fileParts;
-	    
-	    try
-	    {
-	        cwdParts = uberSplit(cwd).toArray(new String[0]);
-	        fileParts = uberSplit(file).toArray(new String[0]);
-	    }
-	    catch (IOException e)
-	    {
-	        return null;
-	    }
-        
-        int minLength = Math.min(cwdParts.length, fileParts.length);
-	    
-	    int marker;
-	    for (marker = 0; marker < minLength; ++marker)
-	    {
-	        if (!cwdParts[marker].equals(fileParts[marker]))
-	            break;
-	    }
-	    
-	    String result = "";
-	    
-	    int diff = cwdParts.length - marker;
-	    if (diff > 0)
-	        result += "^" + diff + sourceLocationSeparator;
-	    
-	    for (int i = marker; i < fileParts.length - 1; ++i)
-	    {
-	        if (abbreviate)
-	            result += fileParts[i].charAt(0);
-	        else
-	            result += fileParts[i];
-	        result += sourceLocationSeparator;
-	    }
-	    result += fileParts[fileParts.length-1];
-	    	    
-	    return result;
-	}
 }

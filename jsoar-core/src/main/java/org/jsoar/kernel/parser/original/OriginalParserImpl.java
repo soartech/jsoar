@@ -53,7 +53,7 @@ import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 
 /**
-   <h3>Grammar for left hand sides of productions
+   <h3>Grammar for left hand sides of productions</h3>
    
     <p><pre>{@code
     <lhs> ::= <cond>+
@@ -75,7 +75,7 @@ import org.jsoar.util.SourceLocation;
     <constant> ::= sym_constant | int_constant | float_constant
     }</pre>
     
-  <h3>Grammar for right hand sides of productions
+  <h3>Grammar for right hand sides of productions</h3>
    <p><pre>{@code
    <rhs> ::= <rhs_action>*
    <rhs_action> ::= ( variable <attr_value_make>+ ) | <function_call>
@@ -164,7 +164,6 @@ class OriginalParserImpl
      * If the current lexeme has the given type, just consume it and ignore it.
      * 
      * @param type type of lexeme to ignore
-     * @throws IOException
      */
     private void consume(LexemeType type) throws IOException
     {
@@ -204,9 +203,6 @@ class OriginalParserImpl
     /**
      * parser.cpp:make_symbol_for_current_lexeme
      * 
-     * @param idLti
-     * @return
-     * @throws ParserException
      */
     private SymbolImpl make_symbol_for_current_lexeme (boolean idLti) throws ParserException 
     {
@@ -236,7 +232,6 @@ class OriginalParserImpl
      * Extracted duplicate code from parse_rhs_action and make_symbol_from_current_lexeme()
      * 
      * @return a LTI for the current lexeme which must be of type LexemeType.IDENTIFIER. 
-     * @throws ParserException
      */
     private IdentifierImpl getLongTermIdForCurrentLexeme() throws ParserException
     {
@@ -267,7 +262,6 @@ class OriginalParserImpl
      * parser.cpp:1800:parse_lti
      * 
      * @return true if the current lexeme is an LTI
-     * @throws IOException
      */
     private boolean parse_lti() throws IOException {
         switch(currentType()) {
@@ -309,8 +303,6 @@ class OriginalParserImpl
      * Creates and returns a test for equality with a newly generated
      * placeholder variable.
      * 
-     * @param first_letter
-     * @return
      */
     private Test make_placeholder_test(char first_letter)
     {
@@ -332,18 +324,16 @@ class OriginalParserImpl
      * When done parsing the production, we go back and substitute "real"
      * variables for all the placeholders. This is done by walking all the LHS
      * conditions and destructively modifying any tests involving placeholders.
-     * The placeholder-->real mapping is maintained on each placeholder symbol:
-     * placeholder->var.current_binding_value is the corresponding "real"
+     * The placeholder--{@literal >}real mapping is maintained on each placeholder symbol:
+     * {@code placeholder->var.current_binding_value} is the corresponding "real"
      * variable, or null if no such "real" variable has been created yet.
      * 
      * <p>To use this, first call reset_variable_generator (lhs, rhs) with the lhs
      * and rhs of the production just parsed; then call
-     * substitute_for_placeholders_in_condition_list (lhs).
+     * {@code substitute_for_placeholders_in_condition_list (lhs)}.
      * 
      * <p>parser.cpp::substitute_for_placeholders_in_symbol
      * 
-     * @param sym
-     * @return
      */
     private SymbolImpl substitute_for_placeholders_in_symbol(SymbolImpl sym)
     {
@@ -415,7 +405,6 @@ class OriginalParserImpl
     /**
      * parser.cpp::substitute_for_placeholders_in_condition_list
      * 
-     * @param cond
      */
     private void substitute_for_placeholders_in_condition_list(Condition cond)
     {
@@ -439,7 +428,6 @@ class OriginalParserImpl
     /**
      * parser.cpp::substitute_for_placeholders_in_action_list
      * 
-     * @param a
      */
     private void substitute_for_placeholders_in_action_list(Action a)
     {
@@ -482,8 +470,6 @@ class OriginalParserImpl
      * </pre>
      * 
      * @return A relational test
-     * @throws IOException
-     * @throws ParserException
      */
     Test parse_relational_test() throws IOException, ParserException
     {
@@ -548,8 +534,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_disjunction_test
      * 
      * @return a new disjunction test
-     * @throws IOException
-     * @throws ParserException
      */
     DisjunctionTest parse_disjunction_test() throws IOException, ParserException
     {
@@ -583,8 +567,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_simple_test
      * 
      * @return a new simple test
-     * @throws IOException
-     * @throws ParserException
      */
     Test parse_simple_test() throws IOException, ParserException
     {
@@ -606,8 +588,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_test
      * 
      * @return a new test
-     * @throws IOException
-     * @throws ParserException
      */
     Test parse_test() throws IOException, ParserException
     {
@@ -647,8 +627,6 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::fill_in_id_tests
      * 
-     * @param conds
-     * @param t
      */
     private void fill_in_id_tests(Condition conds, Test t)
     {
@@ -710,8 +688,6 @@ class OriginalParserImpl
     /**
      * <p>parser.cpp::fill_in_attr_tests
      * 
-     * @param conds
-     * @param t
      */
     private void fill_in_attr_tests(Condition conds, Test t)
     {
@@ -778,7 +754,6 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp:568:negate_condition_list
      * 
-     * @param conds
      * @return new negated condition list
      */
     private Condition negate_condition_list(Condition conds)
@@ -823,10 +798,6 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_value_test_star
      * 
-     * @param first_letter
-     * @return
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_value_test_star(char first_letter) throws IOException, ParserException
     {
@@ -896,7 +867,7 @@ class OriginalParserImpl
     }
 
     /**
-     * This routine parses <attr_value_tests>, given as input the id_test already read.
+     * This routine parses {@code <attr_value_tests>}, given as input the id_test already read.
      * 
      * <pre>{@code
      * <attr_value_tests> ::= [-] ^ <attr_test> [.<attr_test>]* <value_test>*
@@ -906,8 +877,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_attr_value_tests
      * 
      * @return new condition
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_attr_value_tests() throws IOException, ParserException
     {
@@ -1014,10 +983,7 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_head_of_conds_for_one_id
      * 
-     * @param first_letter_if_no_id_given
      * @return a new test
-     * @throws IOException
-     * @throws ParserException
      */
     private Test parse_head_of_conds_for_one_id(char first_letter_if_no_id_given) throws IOException, ParserException
     {
@@ -1098,8 +1064,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_tail_of_conds_for_one_id
      * 
      * @return new condition
-     * @throws IOException
-     * @throws ParserException
      */
     private Condition parse_tail_of_conds_for_one_id() throws IOException, ParserException
     {
@@ -1161,11 +1125,7 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_conds_for_one_id
      * 
-     * @param first_letter_if_no_id_given
-     * @param dest_id_test
      * @return list of conditions
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_conds_for_one_id(char first_letter_if_no_id_given, ByRef<Test> dest_id_test)
             throws IOException, ParserException
@@ -1201,9 +1161,6 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_cond
      * 
-     * @return
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_cond() throws IOException, ParserException
     {
@@ -1246,8 +1203,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_cond_plus
      * 
      * @return list of conditions
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_cond_plus() throws IOException, ParserException
     {
@@ -1283,8 +1238,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_lhs
      * 
      * @return condition list
-     * @throws IOException
-     * @throws ParserException
      */
     Condition parse_lhs() throws IOException, ParserException
     {
@@ -1304,10 +1257,7 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_function_call_after_lparen
      * 
-     * @param is_stand_alone_action
      * @return a rhs value
-     * @throws IOException
-     * @throws ParserException
      */
     RhsFunctionCall parse_function_call_after_lparen(boolean is_stand_alone_action) throws IOException,
             ParserException
@@ -1390,9 +1340,6 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_rhs_value
      * 
-     * @return
-     * @throws IOException
-     * @throws ParserException
      */
     RhsValue parse_rhs_value() throws IOException, ParserException
     {
@@ -1443,7 +1390,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_preference_specifier_without_referent
      * 
      * @return preferenct type
-     * @throws IOException
      */
     PreferenceType parse_preference_specifier_without_referent() throws IOException
     {
@@ -1539,12 +1485,7 @@ class OriginalParserImpl
      *     
      * <p>parser.cpp::parse_preferences
      * 
-     * @param id
-     * @param attr
-     * @param value
      * @return an action list
-     * @throws IOException
-     * @throws ParserException
      */
     Action parse_preferences(SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException
     {
@@ -1627,12 +1568,7 @@ class OriginalParserImpl
      *                 
      * <p>parser.cpp::parse_preferences_soar8_non_operator
      * 
-     * @param id
-     * @param attr
-     * @param value
      * @return action
-     * @throws IOException
-     * @throws ParserException
      */
     Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException 
     {
@@ -1716,7 +1652,7 @@ class OriginalParserImpl
     }
 
     /**
-     * Given the id already read, this routine parses an <attr_value_make>.
+     * Given the id already read, this routine parses an {@code <attr_value_make>}.
      * It builds and returns an action list for these RHS make's.  It
      * returns null if any error occurred.
      * 
@@ -1727,10 +1663,7 @@ class OriginalParserImpl
      * 
      * <p>parser.cpp::parse_attr_value_make
      * 
-     * @param id
      * @return make action
-     * @throws IOException
-     * @throws ParserException
      */
     Action parse_attr_value_make (SymbolImpl id) throws IOException, ParserException 
     {
@@ -1834,8 +1767,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_rhs_action
      * 
      * @return a new action
-     * @throws IOException
-     * @throws ParserException
      */
     Action parse_rhs_action() throws IOException, ParserException
     {
@@ -1889,9 +1820,6 @@ class OriginalParserImpl
      * 
      * <p>{@code <rhs> ::= <rhs_action>*}
      * 
-     * @return
-     * @throws IOException
-     * @throws ParserException
      */
     Action parse_rhs() throws IOException, ParserException
     {
@@ -1942,8 +1870,6 @@ class OriginalParserImpl
      * <p>parser.cpp::parse_production
      * 
      * @return new production, never <code>null</code>
-     * @throws IOException
-     * @throws ParserException
      */
     public Production parseProduction() throws IOException, ParserException
     {
@@ -2054,8 +1980,6 @@ class OriginalParserImpl
      * 
      * <p>This routine destructively reverses an action list.
      * 
-     * @param a
-     * @return
      */
     private static Action destructively_reverse_action_list(Action a)
     {

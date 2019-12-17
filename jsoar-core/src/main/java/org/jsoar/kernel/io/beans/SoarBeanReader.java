@@ -61,10 +61,10 @@ import com.google.common.collect.Iterators;
  * <pre>
  * {@code
  * sp {testBean
- *    state <s> ^superstate nil ^io.output-link &lt;ol>)
+ *    state <s> ^superstate nil ^io.output-link <ol>)
  * -->
- *    (<ol> ^person &lt;p>)
- *    (<p> ^name |Don Lockwood| ^age 41 ^address &lt;a>)
+ *    (<ol> ^person <p>)
+ *    (<p> ^name |Don Lockwood| ^age 41 ^address <a>)
  *    (<a> ^street |123 Main| ^city |Hollywood| ^state |CA| ^zip 90221)
  * }
  * }</pre>

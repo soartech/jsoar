@@ -119,7 +119,7 @@ public class UrlTools
      */
     public static boolean isClassPath(String url)
     {
-        return url.startsWith("classpath:");
+        return url.startsWith("classpath:") || url.startsWith("resource:");
     }
 
     /**

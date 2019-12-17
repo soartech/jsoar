@@ -91,13 +91,10 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
      * added to the builder as an empty string, provided the tag contains no
      * attributes.
      * 
-     * @param nodeList
-     *            - the list of nodes
-     * 
-     * @param builder
-     *            - the JSoar builder
+     * @param nodeList - the list of nodes
+     * @param builder - the JSoar builder
      */
-    abstract void getXmlTree(NodeList nodelList, WmeBuilder<?> builder);
+    abstract void getXmlTree(NodeList nodeList, WmeBuilder<?> builder);
 
     /**
      * Add the attributes contained in the <code>NamedNodeMap</code> to the

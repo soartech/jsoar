@@ -1,10 +1,29 @@
-# Note: This is a Maven fork of JSoar
-
 JSoar is a pure Java implementation of the Soar kernel. See [https://github.com/soartech/jsoar/](https://github.com/soartech/jsoar/wiki) for more information.
 
-See `jsoar-build/readme.txt` for build instructions
+## Obtaining JSoar ##
 
-## Coding Conventions ##
+Pre-built releases are available on github: https://github.com/soartech/jsoar/releases
+
+To add a dependency on JSoar using Maven, use the following:
+```
+<dependency>
+  <groupId>com.soartech.jsoar</groupId>
+  <artifactId>jsoar</artifactId>
+  <version>4.0</version>
+</dependency>
+```
+To add a dependency using Gradle:
+dependencies {
+  compile 'com.soartech.jsoar:jsoar:4.0'
+}
+
+## Developer info ##
+
+Note that the maven branch is now the main branch. The master branch is no longer maintained.
+
+There is also an Android branch, which maintains an Android-compatible version.
+
+### Coding Conventions ###
 
 The coding conventions for the JSoar codebase are stored as Eclipse formatter rules in `eclipse-formatter.xml`. To import:
 
@@ -15,7 +34,17 @@ The basic rules are:
 * 4 spaces of indentation
 * Opening braces on their own line
 
-# Maven Releases #
+### Maven Build ###
+
+Builds are performed from the root directory.
+
+* To just do a build, run `mvn package`
+* To do a build and install, which includes generating javadocs, run `mvn install`
+* To just build javadocs, run `mvn javadoc:aggregate`
+
+Jars will end up in the target directories of the various projects (and in your local .m2 cache, if you install). Javadocs will end up in the top-level target/site directory.
+
+### Maven Releases ###
 
 TODO: Consolidate build instructions.
 
@@ -25,7 +54,7 @@ To create a release using the Maven Release plugin:
 	* Does `git pull` prompt you for a username or password? If so, you need to change that.
 	* This is not technically required but if you type your password wrong, below, it will cancel the entire process.
 * Make sure everything is fully merged and all commits are pushed.
-* Check out `maven` or `smem-maven` (`smem-maven` may go away some day)
+* Check out `maven`
 * Run the release plugin: 
     * `mvn clean release:clean release:prepare release:perform deploy`
 
@@ -41,6 +70,4 @@ Some notes:
 * `deploy` deploys the new snapshot, which is pretty much identical to the artifact just built
 
 # Acknowledgements / History
-JSoar was originally envisioned and implemented by Dave Ray (and indeed, the 
-vast majority of the code is still Dave's). JSoar started out on Google Code in
-SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
+JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.

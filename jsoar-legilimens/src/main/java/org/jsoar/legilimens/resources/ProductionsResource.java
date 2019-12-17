@@ -95,9 +95,10 @@ public class ProductionsResource extends BaseAgentResource
             return null;
         }
         final StringRepresentation rep = new StringRepresentation(result, MediaType.TEXT_PLAIN);
-        Disposition disp = new Disposition();
-        disp.setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".soar");
-        rep.setDisposition(disp);
+        if(rep.getDisposition() == null) { rep.setDisposition(new Disposition()); }
+        rep.getDisposition().setFilename(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".soar");
+        rep.getDisposition().setType(Disposition.TYPE_ATTACHMENT);
+        
         return rep;
     }
 }

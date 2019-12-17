@@ -91,7 +91,7 @@ public class EpisodicMemoryDatabaseTest
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_point",
             EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_identifier_range",
            
-            "sqlite_sequence", // created automatically for AUTOINCREMENT,
+            //"sqlite_sequence", // created automatically for AUTOINCREMENT,
             "versions"
         ));
         
@@ -109,12 +109,20 @@ public class EpisodicMemoryDatabaseTest
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
         
-        final List<String> tables = new ArrayList<String>();
-        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"INDEX"});
+        final Set<String> indexes = new HashSet<String>();
+        
+        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
         while(rs.next())
         {
-            tables.add(rs.getString("TABLE_NAME").toLowerCase());
+        	String tableName = rs.getString("TABLE_NAME");
+        	System.out.println(tableName);
+            final ResultSet rsIndexes = db.getMetaData().getIndexInfo(null, null, tableName, false, false);
+            while(rsIndexes.next())
+            {
+            	indexes.add(rsIndexes.getString("INDEX_NAME").toLowerCase());
+            }
         }
+        
         
         // Here's the tables we expect
         /*
@@ -154,13 +162,13 @@ public class EpisodicMemoryDatabaseTest
         {
             String expected = it.next();
             
-            assertTrue("Missing expected index '" + expected + "'", tables.contains(expected));
+            assertTrue("Missing expected index '" + expected + "'", indexes.contains(expected));
             
-            tables.remove(expected);
+            indexes.remove(expected);
             it.remove();
         }
         
-        assertTrue("Unexpected indices: '" + ((tables.isEmpty())?"":tables.get(0)) + "'", tables.isEmpty());
+        assertTrue("Unexpected indices: '" + ((indexes.isEmpty())?"":indexes.iterator().next()) + "'", indexes.isEmpty());
         assertTrue("Not Found indices: '" + ((expectedTables.isEmpty())?"":expectedTables.get(0)) + "'", expectedTables.isEmpty());
     }
 

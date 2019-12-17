@@ -7,11 +7,15 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.SourceLocation;
+
+import picocli.CommandLine;
 
 /**
  * Interface for an object that knows how to execute Soar commands and
@@ -51,6 +55,14 @@ public interface SoarCommandInterpreter
      * @throws SoarException 
      */
     SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException;
+    
+    /**
+     * Gets the parsed command for a string, after alias resolution
+     * @param name
+     * @param srcLoc
+     * @return
+     */
+    ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
     /**
      * Return a list of files that have been sourced by this object.
@@ -112,9 +124,8 @@ public interface SoarCommandInterpreter
      * <p> Note that the working directory is not changed while loading the rete file
      * because additional files cannot be loaded during a rete deserialization.
      * 
-     * @param any the file to load a rete from
+     * @param file any the file to load a rete from
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(File file) throws SoarException;
     
@@ -126,7 +137,6 @@ public interface SoarCommandInterpreter
      * 
      * @param url the URL.
      * @throws SoarException
-     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
      */
     void loadRete(URL url) throws SoarException;
     
@@ -139,4 +149,69 @@ public interface SoarCommandInterpreter
      * Returns the current working directory of the interpreter (or null if not applicable).
      */
     String getWorkingDirectory();
+
+    /**
+     * Get the autocomplete list for an incomplete command or a command with no CommandLine
+     * @param command
+     * @return
+     */
+    String[] getCompletionList(String command, int cursorPosition);
+
+    /**
+     * Return the autocomplete list for a command with a command line
+     * @param command
+     * @return
+     */
+    default CommandLine findCommand(String command)
+    {
+        command = command.trim();
+        if (!command.isEmpty()) {
+            String[] parts = command.split(" ");
+            ParsedCommand parsedCommand = null;
+            // this will expand aliases if needed
+            parsedCommand = getParsedCommand(parts[0], null);
+            // then add the remaining arguments from the original string
+            if(parts.length > 1) {
+                parsedCommand.getArgs().addAll(Arrays.asList(parts).subList(1, parts.length));
+            }
+            
+            SoarCommand cmd;
+            try
+            {
+                cmd = getCommand(parsedCommand.getArgs().get(0), null);
+            }
+            catch (SoarException e)
+            {
+                // an exception here means the command isn't valid
+                return null;
+            }
+            if (cmd != null && cmd.getCommand() != null) {
+                CommandLine commandLine = new CommandLine(cmd.getCommand());
+                int part = 0;
+                List<String> args = parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size());
+                
+                while (part < args.size() && commandLine.getSubcommands().containsKey(args.get(part))) {
+                    commandLine = commandLine.getSubcommands().get(args.get(part));
+                }
+                return commandLine;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a sorted list of the names of all the registered SoarCommands
+     * This is not intended to report aliases or interpreter-specific commands (e.g., Tcl commands)
+     * @return
+     */
+    public List<String> getCommandStrings() throws SoarException;
+
+    /**
+     * Returns the interpreter's SoarTclExceptionsManager
+     * This is intended to be used by the language server to provide context/info
+     * for "soft" exceptions that are caught and logged but not "reported" to IDEs
+     * @return
+     */
+    public SoarExceptionsManager getExceptionsManager();
+
 }

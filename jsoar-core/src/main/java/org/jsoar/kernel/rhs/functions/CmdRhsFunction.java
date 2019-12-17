@@ -15,6 +15,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
+import org.jsoar.util.commands.ParsedCommand;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -31,14 +32,14 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
  * <p><b>cmd</b> only accepts the names of built-in Soar commands (like print), not
  * RHS functions (see <b>exec</b>: {@link ExecRhsFunction}).
  * 
- * For example, the following will print the object bound to &lt;s&gt; with a depth of 2:
+ * For example, the following will print the object bound to {@code <s>} with a depth of 2:
  * 
  * <pre>
  * {@code
  * sp {
  *     ...
  *     -->
- *     (write (cmd print -d 2 &lt;s&gt;)) }
+ *     (write (cmd print -d 2 <s>)) }
  * }
  * </pre>
  * 
@@ -71,7 +72,13 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             List<String> commandArgs = mapSymbolListToStringList(arguments);
             
             SourceLocation srcLoc = context.getProductionBeingFired().getLocation();
-            SoarCommand command = this.interp.getCommand(commandName, srcLoc);
+            ParsedCommand parsedCommand = this.interp.getParsedCommand(commandName, srcLoc);
+            
+            // get the parsed command, which includes any args that are part of an alias, and add the remaining args
+            SoarCommand command = this.interp.getCommand(parsedCommand.getArgs().get(0), srcLoc);
+            List<String> fullCommandArgs = parsedCommand.getArgs();
+            fullCommandArgs.addAll(commandArgs.subList(1, commandArgs.size()));
+            
             final SoarCommandContext commandContext = new DefaultSoarCommandContext(srcLoc);
             
             // we are using a string writer to intercept whatever printing happens so that the example (write (crlf) (print <s> -d 2))
@@ -81,7 +88,7 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             Printer printer = this.agent.getPrinter();
             StringWriter stringWriter = new StringWriter();
             printer.pushWriter(stringWriter);
-            String result = command.execute(commandContext, commandArgs.toArray(new String[commandArgs.size()]));
+            String result = command.execute(commandContext, fullCommandArgs.toArray(new String[fullCommandArgs.size()]));
             printer.popWriter();
             result = stringWriter.toString() + result;
             return context.getSymbols().createString(result);

@@ -148,8 +148,8 @@ public class Variable extends SymbolImpl
     }
     
     /**
-     * This routine takes a list of variables; for each item <v> on the
-     * list, it pops a binding of <v>.  It also deallocates the list.
+     * This routine takes a list of variables; for each item {@code <v>} on the
+     * list, it pops a binding of {@code <v>}.  It also deallocates the list.
      * This is often used for un-binding a group of variables which got
      * bound in some procedure.
      * 

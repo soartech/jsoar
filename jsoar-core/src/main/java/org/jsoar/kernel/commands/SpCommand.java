@@ -1,9 +1,4 @@
-/*
- * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
- */
 package org.jsoar.kernel.commands;
-
-import java.util.Arrays;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -12,14 +7,18 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import org.jsoar.util.commands.SoarExceptionsManager;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "sp" command.
- * 
- * @author ray
+ * This is the implementation of the "sp" command.
+ * @author austin.brehob
  */
-public final class SpCommand implements SoarCommand
+public class SpCommand implements SoarCommand
 {
-    private final Agent agent;
+    private Agent agent;
 
     public SpCommand(Agent agent)
     {
@@ -27,30 +26,57 @@ public final class SpCommand implements SoarCommand
     }
 
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 2)
-        {
-            // TODO illegal argument
-            throw new SoarException(String.format("%s: Expected %s body, got %s", 
-                                        commandContext.getSourceLocation(), 
-                                        args[0], 
-                                        Arrays.asList(args)));
-        }
+        Utils.parseAndRun(agent, new Sp(agent, context), args);
         
-        try
+        return "";
+    }
+
+
+    @Command(name="sp", description="Define a Soar production",
+            subcommands={HelpCommand.class})
+    static public class Sp implements Runnable
+    {
+        private Agent agent;
+        private SoarCommandContext context;
+
+        public Sp(Agent agent, SoarCommandContext context)
         {
-            agent.getProductions().loadProduction(args[1], commandContext.getSourceLocation());
-            agent.getPrinter().print("*");
-            return "";
+            this.agent = agent;
+            this.context = context;
         }
-        catch (ReordererException e)
+
+        @Parameters(description="A Soar production")
+        String production = null;
+
+        @Override
+        public void run()
         {
-            throw new SoarException(commandContext.getSourceLocation() + ":" + e.getMessage());
+            if (production == null)
+            {
+                agent.getPrinter().startNewLine().print("Use this command to define a Soar production");
+            }
+            else
+            {
+                try
+                {
+                    agent.getProductions().loadProduction(production, context.getSourceLocation());
+                    agent.getPrinter().print("*");
+                    SoarExceptionsManager exceptionsManager = agent.getInterpreter().getExceptionsManager();
+                    agent.getPrinter().getWarningsAndClear().forEach(warning -> exceptionsManager.addException(warning, context, production));
+                }
+                catch (ReordererException | ParserException e)
+                {
+                    agent.getPrinter().startNewLine().print(
+                            context.getSourceLocation() + ":" + e.getMessage());
+                    agent.getInterpreter().getExceptionsManager().addException(e, context, production);
+                }
+            }
         }
-        catch (ParserException e)
-        {
-            throw new SoarException(commandContext.getSourceLocation() + ":" + e.getMessage());
-        }
+    }
+    @Override
+    public Object getCommand() {
+        return new Sp(agent,null);
     }
 }

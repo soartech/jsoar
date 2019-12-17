@@ -160,9 +160,6 @@ public class ConditionReorderer
      * 
      * reorder.cpp:398:restore_and_deallocate_saved_tests
      * 
-     * @param value
-     * @param tc
-     * @param saved_tests
      */
     private void restore_and_deallocate_saved_tests(Condition conds_list, Marker tc, SavedTest tests_to_restore)
     {
@@ -207,12 +204,6 @@ public class ConditionReorderer
     /**
      * 
      * reorder.cpp:339
-     * 
-     * @param id_test
-     * @param b
-     * @param tc
-     * @param tests_to_restore
-     * @return
      */
     private SavedTest restore_saved_tests_to_test(ByRef<Test> t, boolean is_id_field, Marker bound_vars_tc_number,
             SavedTest tests_to_restore, boolean neg)
@@ -285,9 +276,6 @@ public class ConditionReorderer
      * 
      * reorder.cpp:53
      * 
-     * @param referent
-     * @param bound_vars_tc_number
-     * @return
      */
     private static boolean symbol_is_constant_or_marked_variable(SymbolImpl referent, Marker bound_vars_tc_number)
     {
@@ -299,11 +287,6 @@ public class ConditionReorderer
      * 
      * reorder.cpp:828:reorder_simplified_conditions
      * 
-     * @param top_of_conds
-     * @param bottom_of_conds
-     * @param roots
-     * @param tc
-     * @param reorder_nccs
      */
     private void reorder_simplified_conditions(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
             ListHead<Variable> roots, Marker bound_vars_tc_number, boolean reorder_nccs)
@@ -476,9 +459,6 @@ public class ConditionReorderer
 
     /**
      * production.cpp:503:canonical_test
-     * 
-     * @param t
-     * @return
      */
     private int canonical_test(Test t)
     {
@@ -506,10 +486,6 @@ public class ConditionReorderer
      * Extensive discussion in reorder.cpp
      * 
      * <p>reorder.cpp:536
-     * 
-     * @param c1
-     * @param c2
-     * @return
      */
     private boolean canonical_cond_greater(Condition c1, Condition c2)
     {
@@ -534,11 +510,6 @@ public class ConditionReorderer
      * 
      * <p>reorder.cpp:787:find_lowest_cost_lookahead
      * 
-     * @param candidates
-     * @param chosen
-     * @param tc
-     * @param root_vars_not_bound_yet
-     * @return
      */
     private int find_lowest_cost_lookahead(Condition candidates, Condition chosen, Marker tc,
             ListHead<Variable> root_vars_not_bound_yet)
@@ -573,11 +544,6 @@ public class ConditionReorderer
      * "root_vars_not_bound_yet" should be the set of other root variables.
      * 
      * <p>reorder.cpp:716:cost_of_adding_condition
-     * 
-     * @param cond
-     * @param bound_vars_tc_number
-     * @param roots
-     * @return
      */
     private int cost_of_adding_condition(Condition cond, Marker tc, ListHead<Variable> root_vars_not_bound_yet)
     {
@@ -666,11 +632,6 @@ public class ConditionReorderer
      * TC, PLUS any variables in the list "extra_vars."
      * 
      * <p>reorder.cpp:669:test_covered_by_bound_vars
-     * 
-     * @param id_test
-     * @param tc
-     * @param root_vars_not_bound_yet
-     * @return
      */
     private boolean test_covered_by_bound_vars(Test t, Marker tc, ListHead<Variable> extra_vars)
     {
@@ -708,8 +669,6 @@ public class ConditionReorderer
      * 
      * reorder.cpp:303
      * 
-     * @param conds_list
-     * @return
      */
     private SavedTest simplify_condition_list(Condition conds_list)
     {
@@ -739,9 +698,6 @@ public class ConditionReorderer
     /**
      * reorder.cpp:223
      * 
-     * @param t
-     * @param old_sts
-     * @return
      */
     private SavedTest simplify_test(ByRef<Test> t, SavedTest old_sts)
     {
@@ -1005,10 +961,10 @@ public class ConditionReorderer
 		there failed.
 	
 		Example bad production:
-		sp {test
+		{@code sp {test
 		    (state <s> ^superstate nil -^foo {<> <bar>})
 	    -->
-		}
+		}}
      * 
      * @param cond_list
      * @param tc

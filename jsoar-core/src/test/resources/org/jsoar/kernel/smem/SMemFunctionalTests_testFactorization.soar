@@ -3,7 +3,7 @@
 epmem --set learning off
 smem --set learning on
 
-learn --off
+chunk --off
 
 sp {elaboration*enable-smem
    (state <s> ^name)
@@ -21,7 +21,7 @@ sp {complete
    (halt)
 }
 
-watch 0
+trace --level 0
 # This file contains elaborations to check the first 20 factors.
 
 ##########################################

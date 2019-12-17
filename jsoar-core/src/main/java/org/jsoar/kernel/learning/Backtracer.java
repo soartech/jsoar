@@ -38,8 +38,8 @@ import org.jsoar.util.markers.Marker;
  * have a bt.wme_ on them.
  * 
  * <p>In order to avoid backtracing through the same instantiation twice, we mark
- * each instantiation as we BT it, by setting inst->backtrace_number =
- * backtrace_number (this is a global variable which gets incremented each time
+ * each instantiation as we BT it, by setting {@code inst->backtrace_number =
+ * backtrace_number} (this is a global variable which gets incremented each time
  * we build a chunk).
  * 
  * <p>Locals, grounds, and positive potentials are kept on lists (see the global
@@ -48,8 +48,8 @@ import org.jsoar.util.markers.Marker;
  * condition so we can quickly determine whether a given condition is already in
  * a given set. The "grounds_tc", "potentials_tc", "locals_tc", and
  * "chunker_bt_pref" fields on wme's are used for this. Wmes are marked as "in
- * the grounds" by setting wme->grounds_tc = grounds_tc. For potentials and
- * locals, we also must set wme->chunker_bt_pref: if the same wme was tested by
+ * the grounds" by setting {@code wme->grounds_tc = grounds_tc}. For potentials and
+ * locals, we also must set {@code wme->chunker_bt_pref}: if the same wme was tested by
  * two instantiations created at different times--times at which the wme was
  * supported by two different preferences--then we really need to BT through
  * *both* preferences. Marking the wmes with just "locals_tc" or "potentials_tc"
@@ -562,8 +562,6 @@ public class Backtracer
      * 
      * <p>backtrace.cpp:610:trace_ungrounded_potentials
      * 
-     * @param grounds_level
-     * @return
      */
     boolean trace_ungrounded_potentials(int grounds_level, ByRef<Boolean> reliable)
     {

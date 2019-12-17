@@ -1,16 +1,25 @@
 package org.jsoar.soarunit.junit;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+
 import org.apache.commons.io.FilenameUtils;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.soarunit.*;
+import org.jsoar.soarunit.Test;
+import org.jsoar.soarunit.TestAgent;
+import org.jsoar.soarunit.TestCase;
+import org.jsoar.soarunit.TestResult;
+import org.jsoar.soarunit.TestRunner;
 import org.jsoar.soarunit.jsoar.JSoarTestAgent;
 import org.jsoar.soarunit.jsoar.JSoarTestAgentFactory;
 import org.jsoar.util.commands.SoarCommands;
@@ -23,15 +32,14 @@ import org.junit.runners.model.TestClass;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 public class SoarUnitRunner extends Runner
 {
@@ -47,7 +55,7 @@ public class SoarUnitRunner extends Runner
     private final Collection<ListenableFuture<Void>> runNotifications = Collections.synchronizedCollection(Lists.<ListenableFuture<Void>>newArrayList());
     private final List<String> sourceIncludes = Lists.newArrayList();
 
-    public SoarUnitRunner(Class clazz) throws IOException, SoarException
+    public SoarUnitRunner(Class<?> clazz) throws IOException, SoarException
     {
         this.testClass = new TestClass(clazz);
         if (testClass.getAnnotation(SoarInterpreter.class) != null)
@@ -69,14 +77,12 @@ public class SoarUnitRunner extends Runner
             POOL_SIZE = 1;
         }
 
-        List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
         List<FrameworkMethod> annotatedMethods = testClass.getAnnotatedMethods(SoarUnitTestFile.class);
-        final AtomicInteger index = new AtomicInteger(0);
         this.rootDescription = Description.createSuiteDescription(clazz);
         final TestRunner testRunner = new TestRunner(agentFactory, out, exec);
         for (FrameworkMethod method : annotatedMethods)
         {
-            Description testCaseDescription = Description.createSuiteDescription(method.getName(), null);
+            Description testCaseDescription = Description.createSuiteDescription(method.getName(), (Annotation[])null);
             rootDescription.addChild(testCaseDescription);
             SoarUnitTestFile testFile = method.getAnnotation(SoarUnitTestFile.class);
             for(URL url : getResources(testFile.url()))
@@ -114,6 +120,7 @@ public class SoarUnitRunner extends Runner
                                 {
                                     runNotifications.add(runNotifierExec.submit(new Callable<Void>()
                                     {
+                                        @SuppressWarnings("serial")
                                         @Override
                                         public Void call() throws Exception
                                         {

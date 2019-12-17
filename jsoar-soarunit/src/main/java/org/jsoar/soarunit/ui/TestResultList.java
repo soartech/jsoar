@@ -38,8 +38,8 @@ public class TestResultList extends JPanel
     private static final long serialVersionUID = -2037972910107529427L;
     
     private final TestAgentFactory agentFactory;
-    private final DefaultListModel model = new DefaultListModel();
-    private final JList list = new JList(model);
+    private final DefaultListModel<TestResultProxy> model = new DefaultListModel<>();
+    private final JList<TestResultProxy> list = new JList<>(model);
     private final JTextArea output = new JTextArea();
 
     public TestResultList(TestAgentFactory agentFactory)
@@ -196,7 +196,7 @@ public class TestResultList extends JPanel
          * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
          */
         @Override
-        public Component getListCellRendererComponent(JList list, Object value,
+        public Component getListCellRendererComponent(JList<?> list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus)
         {
             final JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,

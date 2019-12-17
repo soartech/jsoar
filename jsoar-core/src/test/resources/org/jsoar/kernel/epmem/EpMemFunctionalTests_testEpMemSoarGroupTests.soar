@@ -7,7 +7,7 @@ epmem --set graph-match-ordering dfs
 
 epmem --set exclusions tests
 
-watch --epmem
+trace --epmem
 
 wma --set activation on
 

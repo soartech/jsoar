@@ -4,7 +4,7 @@ epmem --set balance 0
 
 epmem --set phase selection
 
-watch --epmem
+trace --epmem
 
 ### initialize
 sp {propose*init

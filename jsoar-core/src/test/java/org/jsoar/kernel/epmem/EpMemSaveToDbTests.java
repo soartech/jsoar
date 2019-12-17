@@ -65,7 +65,6 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             rs.next();
             value = rs.getLong("variable_value");
             assertTrue("variable_id "+id+" is "+value+", expected "+expectedVals.get(id), value == (long)expectedVals.get(id));
-            expectedVals.remove((Integer)id);
         }
     }
     

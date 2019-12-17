@@ -7,7 +7,6 @@ package org.jsoar.util.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,17 +17,21 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.exceptions.SoarInterpreterException;
+import org.jsoar.kernel.commands.LoadCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
-import org.jsoar.kernel.commands.ReteNetCommand;
+import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
@@ -50,17 +53,22 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
     private final SourceCommand sourceCommand;
-    private final ReteNetCommand reteNetCommand;
+    private final LoadCommand loadCommand;
+    private final SaveCommand saveCommand;
+    private SoarExceptionsManager exceptionsManager;
     
     public DefaultInterpreter(Agent agent)
     {
+        this.exceptionsManager = new SoarExceptionsManager();
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
-        addCommand("pushd", new PushdCommand(sourceCommand));
-        addCommand("popd", new PopdCommand(sourceCommand));
+        addCommand("pushd", new PushdCommand(sourceCommand, agent));
+        addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
+        
+        addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
+        addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
@@ -84,6 +92,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         final List<String> command = new ArrayList<String>();
         command.add(name);
         return getSoarCommand(ByRef.create(new ParsedCommand(srcLoc, command)));
+    }
+    
+    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
+    {
+        final List<String> command = new ArrayList<String>();
+        command.add(name);
+        return resolveAliases(new ParsedCommand(srcLoc, command));
     }
 
     /* (non-Javadoc)
@@ -137,7 +152,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(File file) throws SoarException
     {
-        reteNetCommand.load(file.getAbsolutePath());
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
     }
     
     /*
@@ -147,7 +162,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(URL url) throws SoarException
     {
-        reteNetCommand.load(url.toExternalForm());
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { url.toExternalForm() });
     }
     
     /*
@@ -157,7 +172,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void saveRete(File file) throws SoarException
     {
-        reteNetCommand.save(file.getPath());
+        saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
     }   
     
     @Override
@@ -165,11 +180,36 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     {
         return sourceCommand.getWorkingDirectory();
     }
-    
+
+    @Override
+    public String[] getCompletionList(String command, int cursorPosition)
+    {
+        String[] commands = null;
+        List<String> commandsList = new ArrayList<>();
+        for (String s : getCommandStrings()) {
+            if (s.startsWith(command)) {
+                commandsList.add(s);
+            }
+        }
+        for (String s : getAliasStrings()) {
+            if (s.startsWith(command)) {
+                commandsList.add(s);
+            }
+        }
+        commands = new String[commandsList.size()];
+        commands = commandsList.toArray(commands);
+
+        return commands;
+    }
+
     @Override
     public Collection<String> getSourcedFiles() 
     {
         return sourceCommand.getSourcedFiles();
+    }
+
+    public Set<String> getAliasStrings() {
+        return aliases.keySet();
     }
 
     private String evalAndClose(Reader reader, String context) throws SoarException
@@ -230,7 +270,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
         else
         {
-            throw new SoarException(parsedCommand.value.getLocation() + ": Unknown command '" + parsedCommand.value.getArgs().get(0) + "'");
+            throw new SoarInterpreterException(parsedCommand.value.getLocation() + ": Unknown command '" + parsedCommand.value.getArgs().get(0) + "'",
+                    parsedCommand);
         }
     }
     
@@ -297,7 +338,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             return new ParsedCommand(parsedCommand.getLocation(), result);
         }
     }
-    
+
+    public SoarCommand getCommand(String s) {
+        return commands.get(s);
+    }
+
     private class AliasCommand implements SoarCommand
     {
         private String aliasToString(String name, List<String> args)
@@ -338,6 +383,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
                 return aliasToString(args[1], aliasArgs);
             }
         }
+        @Override
+        public Object getCommand() {
+            //todo - when implementing picocli, return the runnable
+            return null;
+        }
     }
     private class MySourceCommandAdapter implements SourceCommandAdapter
     {
@@ -346,9 +396,12 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         {
             try
             {
-                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
+                String code = getReaderContents(new BufferedReader(new FileReader(file)));
+                code = fixLineEndings(code);
+                evalAndClose(new StringReader(code), file.getAbsolutePath());
+//                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
             }
-            catch (FileNotFoundException e)
+            catch (IOException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
@@ -360,8 +413,10 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             try
             {   
                 url = UrlTools.normalize(url);
-                
-                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
+                String code = getReaderContents(new BufferedReader(new InputStreamReader(url.openStream())));
+                code = fixLineEndings(code);
+                evalAndClose(new StringReader(code), url.toExternalForm());
+//                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
             }
             catch (IOException | URISyntaxException e)
             {
@@ -372,8 +427,40 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         @Override
         public String eval(String code) throws SoarException
         {
+            code = fixLineEndings(code);
             return DefaultInterpreter.this.eval(code);
         }
+
+        // returns string of all contents in reader
+        private String getReaderContents(Reader reader) throws IOException {
+            StringBuilder builder = new StringBuilder();
+            int ch;
+
+            while ((ch = reader.read()) != -1) {
+                builder.append((char)ch);
+            }
+
+            return builder.toString();
+        }
+
+        // Replaces windows "\r\n" and old mac line "\r" endings with unix "\n"
+        private String fixLineEndings(String code) {
+            code = code.replaceAll("\r\n", "\n");
+            code = code.replaceAll("\r", "\n");
+            return code;
+        }
+    }
+    
+    @Override
+    public List<String> getCommandStrings()
+    {
+        List<String> commandList = new ArrayList<>(this.commands.keySet());
+        Collections.sort(commandList);
+        return commandList;
     }
 
+    @Override
+    public SoarExceptionsManager getExceptionsManager() {
+        return exceptionsManager;
+    }
 }

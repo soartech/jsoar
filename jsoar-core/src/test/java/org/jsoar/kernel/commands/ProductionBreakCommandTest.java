@@ -6,7 +6,11 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -38,9 +42,9 @@ public class ProductionBreakCommandTest
         
         final Production p = agent.getProductions().getProduction("b");
         assertFalse(p.isBreakpointEnabled());
-        agent.getInterpreter().eval("pbreak --on b");
+        agent.getInterpreter().eval("production break --set b");
         assertTrue(p.isBreakpointEnabled());
-        agent.getInterpreter().eval("pbreak --off b");
+        agent.getInterpreter().eval("production break --clear b");
         assertFalse(p.isBreakpointEnabled());
     }
     
@@ -48,10 +52,13 @@ public class ProductionBreakCommandTest
     public void testCanListTracedRules() throws Exception
     {
         loadRules();
-        agent.getInterpreter().eval("pbreak --on b");
-        agent.getInterpreter().eval("pbreak --on c");
-        final String result = agent.getInterpreter().eval("pbreak");
-        assertEquals("b\nc", result);
+        agent.getInterpreter().eval("production break --set b");
+        agent.getInterpreter().eval("production break --set c");
+        StringWriter result = new StringWriter();
+        agent.getPrinter().pushWriter(result);
+        agent.getInterpreter().eval("production break");
+        agent.getPrinter().popWriter();
+        assertEquals("b\nc", result.toString());
     }
     
     private void loadRules() throws Exception

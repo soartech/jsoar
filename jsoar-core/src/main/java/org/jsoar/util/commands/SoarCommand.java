@@ -28,4 +28,10 @@ public interface SoarCommand
      * @throws SoarException
      */
     String execute(SoarCommandContext context, String[] args) throws SoarException;
+
+    /**
+     * For the new picocli commands, return the annotated command Object, which will be used for autocomplete processing
+     * @return picocli annotated Object
+     */
+    Object getCommand();
 }

@@ -1,0 +1,284 @@
+{
+  "componentStyles" : {
+    "background highlights (base 2)" : {
+      "styleType" : "background highlights (base 2)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.93333334, 0.9098039, 0.8352941, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "magenta" : {
+      "styleType" : "magenta",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.827451, 0.21176471, 0.50980395, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "green" : {
+      "styleType" : "green",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.52156866, 0.6, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "bold body text (base 00)" : {
+      "styleType" : "bold body text (base 00)",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.39607844, 0.48235294, 0.5137255, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "red bold" : {
+      "styleType" : "red bold",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.8627451, 0.19607843, 0.18431373, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "comments / secondary content (base 1)" : {
+      "styleType" : "comments / secondary content (base 1)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.5764706, 0.6313726, 0.6313726, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "yellow" : {
+      "styleType" : "yellow",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.70980394, 0.5372549, 0.0, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "violet" : {
+      "styleType" : "violet",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.42352942, 0.44313726, 0.76862746, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "optional emphasized content (base 01)" : {
+      "styleType" : "optional emphasized content (base 01)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.34509805, 0.43137255, 0.45882353, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "cyan" : {
+      "styleType" : "cyan",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.16470589, 0.6313726, 0.59607846, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "orange" : {
+      "styleType" : "orange",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.79607844, 0.29411766, 0.08627451, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "red" : {
+      "styleType" : "red",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.8627451, 0.19607843, 0.18431373, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "blue" : {
+      "styleType" : "blue",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.14901961, 0.54509807, 0.8235294, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "bold orange" : {
+      "styleType" : "bold orange",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.79607844, 0.29411766, 0.08627451, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "background (base 3)" : {
+      "styleType" : "background (base 3)",
+      "bold" : false,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.99215686, 0.9647059, 0.8901961, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    },
+    "bold blue" : {
+      "styleType" : "bold blue",
+      "bold" : true,
+      "underline" : false,
+      "strikethrough" : false,
+      "italic" : false,
+      "fontSize" : 0,
+      "enabled" : true,
+      "foregroundRgb" : [ 0.14901961, 0.54509807, 0.8235294, 1.0 ],
+      "backgroundRgb" : [ 1.0, 1.0, 1.0, 0.0 ]
+    }
+  },
+  "syntaxPatterns" : [ {
+    "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
+    "regex" : "(---.*\\((?:IE|PE)\\).*---)",
+    "components" : [ "bold body text (base 00)" ],
+    "enabled" : true
+  }, {
+    "comment" : "attributes; e.g.\n^foo\n^|foo bar|",
+    "regex" : "((?:\\^\\|.+?\\|)|(?:\\^.+?))\\s",
+    "components" : [ "yellow" ],
+    "enabled" : true
+  }, {
+    "comment" : "commands and aliases",
+    "regex" : "(?m)^\\b(%commands%|%aliases%)\\b(.*?)$",
+    "components" : [ "magenta", "magenta" ],
+    "enabled" : true
+  }, {
+    "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
+    "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
+    "components" : [ "bold body text (base 00)", "orange", "bold orange" ],
+    "enabled" : true
+  }, {
+    "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
+    "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
+    "components" : [ "bold body text (base 00)", "blue", "bold blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "highlight messages that are warnings and errors",
+    "regex" : "((?:Warn|Error|Ignor|\\[ERROR|\\[WARN)(?:.*))",
+    "components" : [ "red bold" ],
+    "enabled" : true
+  }, {
+    "comment" : "matches command total matches found",
+    "regex" : "([0-9]+ complete matches.)",
+    "components" : [ "green" ],
+    "enabled" : true
+  }, {
+    "comment" : "phase header",
+    "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
+    "components" : [ "bold body text (base 00)" ],
+    "enabled" : true
+  }, {
+    "comment" : "RHS function after an open paren",
+    "regex" : "\\((%rhsfuncs%)",
+    "components" : [ "bold blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule arrow",
+    "regex" : "(-->)",
+    "components" : [ "yellow" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule disjunction",
+    "regex" : "(<<.+?>>)",
+    "components" : [ "cyan" ],
+    "enabled" : true
+  }, {
+    "comment" : "rule excise",
+    "regex" : "(#+)",
+    "components" : [ "red" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule firings",
+    "regex" : "(Firing\\ .*)",
+    "components" : [ "cyan" ],
+    "enabled" : true
+  }, {
+    "comment" : "Rule retraction",
+    "regex" : "(Retracting\\ .*)",
+    "components" : [ "magenta" ],
+    "enabled" : true
+  }, {
+    "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
+    "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
+    "components" : [ "blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "unmatched condition in matches command output",
+    "regex" : "(>>>>)",
+    "components" : [ "red" ],
+    "enabled" : true
+  }, {
+    "comment" : "values that come after attributes. Note the beginning of this pattern is the same as the attribute pattern.",
+    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:.+?))(?:\\s|\\))",
+    "components" : [ "violet" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM add",
+    "regex" : "(=>WM:\\ .*)",
+    "components" : [ "blue" ],
+    "enabled" : true
+  }, {
+    "comment" : "WM remove",
+    "regex" : "(<=WM:\\ .*)",
+    "components" : [ "orange" ],
+    "enabled" : true
+  }, {
+    "comment" : "state keyword in rule",
+    "regex" : "\\((state) <",
+    "components" : [ "bold blue" ],
+    "enabled" : true
+  } ],
+  "foregroundRgb" : [ 0.38431373, 0.38431373, 0.38431373, 1.0 ],
+  "backgroundRgb" : [ 1.0, 1.0, 0.84313726, 1.0 ],
+  "selectionRgb" : [ 0.5137255, 0.5803922, 0.5882353, 1.0 ]
+}

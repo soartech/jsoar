@@ -3,7 +3,7 @@
 epmem --set learning on
 smem --set learning on
 
-learn --off
+chunk --off
 
 sp {elaboration*original-number-to-factor-mod-two
    (state <s> ^original-number-to-factor <n>)
@@ -33,7 +33,7 @@ sp {complete
    (halt)
 }
 
-watch 0
+trace --level 0
 # This file contains elaborations to check the first 20 factors.
 
 ##########################################

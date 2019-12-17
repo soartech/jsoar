@@ -22,8 +22,6 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 
-import com.google.common.collect.Iterators;
-
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
  * 
@@ -66,7 +64,7 @@ import com.google.common.collect.Iterators;
       <li>grounds_tc, potentials_tc, locals_tc:  used by the chunker to indicate
          whether this wme is in the grounds, potentials, and/or locals sets
 
-      <li>chunker_bt_pref: used by the chunker; set to cond->bt.trace when
+      <li>chunker_bt_pref: used by the chunker; set to {@code cond->bt.trace} when
          a wme is added to either the potentials or locals set
 
       <li>These are the additions to the WME structure that will be used
@@ -143,6 +141,19 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public WorkingMemoryActivation wma;
     
     /**
+     * 
+     * @param id
+     * @param attr
+     * @param value
+     * @param acceptable
+     * @param timetag
+     */
+    public WmeImpl(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag)
+    {
+        this(id, attr, value, acceptable, timetag, null);
+    }
+    
+    /**
      * @param id
      * @param attr
      * @param value
@@ -150,11 +161,6 @@ public class WmeImpl extends AbstractAdaptable implements Wme
      * @param timetag
      * @param wma this is optional; null value ok (but for real Soar agent, it won't be null)
      */
-    public WmeImpl(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag)
-    {
-        this(id, attr, value, acceptable, timetag, null);
-    }
-    
     public WmeImpl(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag, WorkingMemoryActivation wma)
     {
         this.id = id;

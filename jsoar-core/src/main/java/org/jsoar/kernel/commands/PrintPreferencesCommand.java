@@ -275,10 +275,6 @@ public class PrintPreferencesCommand
      * 
      * <p>sml_KernelHelpers.cpp:794:print_preference_and_source
      * 
-     * @param agnt
-     * @param printer
-     * @param pref
-     * @param selection_probability
      * @throws IOException
      */
     private void print_preference_and_source(Agent agnt, Printer printer, Preference pref) throws IOException

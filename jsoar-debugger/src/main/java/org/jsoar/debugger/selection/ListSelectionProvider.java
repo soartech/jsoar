@@ -17,16 +17,16 @@ import javax.swing.event.ListSelectionListener;
  * 
  * @author ray
  */
-public class ListSelectionProvider implements SelectionProvider, ListSelectionListener
+public class ListSelectionProvider<T> implements SelectionProvider, ListSelectionListener
 {
-    private final JList list;
+    private final JList<T> list;
     private SelectionManager manager;
     
     /**
      * Construct a selection provider for a particular list
      * @param list the list to connect to
      */
-    public ListSelectionProvider(JList list)
+    public ListSelectionProvider(JList<T> list)
     {
         this.list = list;
         

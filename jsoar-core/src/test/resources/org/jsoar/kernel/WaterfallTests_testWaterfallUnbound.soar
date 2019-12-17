@@ -3,7 +3,7 @@
 # Same as other TestWaterfall except that substate change contains an unbound variable.
 # This variable should not consume a variable name.
 
-learn --off
+chunk --off
 
 sp {propose*test
 (state <s> ^superstate nil

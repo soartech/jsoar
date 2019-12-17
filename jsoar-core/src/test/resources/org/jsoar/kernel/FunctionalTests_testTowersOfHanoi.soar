@@ -4,17 +4,17 @@
 #
 # See FunctionalTests.testTowersOfHanoi()
 
-multi-attributes disk 7
+production optimize-attribute disk 7
 
-multi-attributes peg 3
+production optimize-attribute peg 3
 
-multi-attributes holds 8
+production optimize-attribute holds 8
 
-multi-attributes upper-disk 2
+production optimize-attribute upper-disk 2
 
-multi-attributes clear 2
+production optimize-attribute clear 2
 
-#learn --off
+#chunk --off
 
 sp {towers-of-hanoi*object*disk*elaborate*state*larger
    "If size-of(i) > size-of(j), then larger(i,j)."

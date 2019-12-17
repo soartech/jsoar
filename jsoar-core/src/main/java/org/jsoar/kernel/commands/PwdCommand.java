@@ -1,46 +1,53 @@
-/*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
- *
- * Created on Oct 30, 2008
- */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+
 /**
- * Implementation of the "pwd" command.
- * 
- * @author ray
+ * This is the implementation of the "pwd" command.
+ * @author austin.brehob
  */
 public class PwdCommand implements SoarCommand
 {
     private final SourceCommand sourceCommand;
     
-    /**
-     * @param sourceCommand
-     */
     public PwdCommand(SourceCommand sourceCommand)
     {
         this.sourceCommand = sourceCommand;
     }
-
-
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
+    
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 1)
+        String result = Utils.parseAndRun(new Pwd(sourceCommand), args);
+        return result;
+    }
+    @Override
+    public Object getCommand() {
+
+        return new Pwd(sourceCommand);
+    }
+    
+    @Command(name="pwd", description="Prints the working directory to the screen", subcommands={HelpCommand.class})
+    static public class Pwd implements Callable<String>
+    {
+        private final SourceCommand sourceCommand;
+        
+        public Pwd(SourceCommand sourceCommand)
         {
-            throw new SoarException("Expected 0 args, got " + Arrays.asList(args));
+            this.sourceCommand = sourceCommand;
         }
         
-        return sourceCommand.getWorkingDirectory().replace('\\', '/');
+        @Override
+        public String call()
+        {
+            return sourceCommand.getWorkingDirectory().replace('\\', '/');
+        }
     }
-
 }

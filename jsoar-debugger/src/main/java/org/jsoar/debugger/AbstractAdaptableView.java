@@ -74,6 +74,6 @@ public abstract class AbstractAdaptableView extends DefaultSingleCDockable imple
     
     public Preferences getPreferences()
     {
-        return JSoarDebugger.PREFERENCES.node("views/" + this.getUniqueId());
+        return JSoarDebugger.getPreferences().node("views/" + this.getUniqueId());
     }
 }

@@ -18,8 +18,6 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 
-import com.google.common.collect.Iterators;
-
 /**
  * A dummy implementation of the {@link Wme} interface. Basically a container
  * for a triple.

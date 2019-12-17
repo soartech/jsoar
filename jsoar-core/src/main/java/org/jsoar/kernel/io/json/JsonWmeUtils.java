@@ -214,7 +214,6 @@ public class JsonWmeUtils
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static JSONObject parse(Identifier root){
         return parse(root, false);
     }
@@ -292,8 +291,6 @@ public class JsonWmeUtils
     /**
      * Get the set of identifiers which should be treated as json arrays.
      *
-     * @param id
-     * @return
      */
     private static Set<String> getJsonArrayAttributes(Identifier id)
     {

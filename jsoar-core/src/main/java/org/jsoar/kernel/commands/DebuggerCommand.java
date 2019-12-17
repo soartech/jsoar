@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2010 Dave Ray <daveray@gmail.com>
- *
- * Created on June 9, 2010
- */
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
@@ -10,10 +5,12 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+
 /**
- * A command that opens the agent's debugger
- * 
- * @author ray
+ * This is the implementation of the "debugger" command.
+ * @author austin.brehob
  */
 public class DebuggerCommand implements SoarCommand
 {
@@ -24,14 +21,41 @@ public class DebuggerCommand implements SoarCommand
         this.agent = agent;
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        this.agent.openDebugger();
+        Utils.parseAndRun(agent, new Debugger(agent), args);
+
         return "";
+    }
+
+    @Override
+    public Object getCommand() {
+        return new Debugger(agent);
+    }
+    @Command(name="debugger", description="Opens the agent's debugger",
+            subcommands={HelpCommand.class})
+    static public class Debugger implements Runnable
+    {
+        private Agent agent;
+
+        public Debugger(Agent agent)
+        {
+            this.agent = agent;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                agent.openDebugger();
+            }
+            catch (SoarException e)
+            {
+                agent.getPrinter().startNewLine().print(e.getMessage());
+            }
+        }
     }
 
 }

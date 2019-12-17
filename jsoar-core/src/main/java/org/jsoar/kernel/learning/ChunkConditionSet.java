@@ -43,8 +43,6 @@ public class ChunkConditionSet
      * 
      * <p>chunk.cpp:356:add_to_chunk_cond_set
      * 
-     * @param new_cc
-     * @return
      */
     boolean add_to_chunk_cond_set(ChunkCondition new_cc)
     {

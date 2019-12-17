@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
- */
 package org.jsoar.kernel.commands;
 
 import java.awt.Desktop;
@@ -15,12 +12,15 @@ import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "edit-production" command.
- * 
- * @author ray
+ * This is the implementation of the "edit-production" command.
+ * @author austin.brehob
  */
-public final class EditProductionCommand implements SoarCommand
+public class EditProductionCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -30,37 +30,73 @@ public final class EditProductionCommand implements SoarCommand
     }
 
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length != 2)
+        Utils.parseAndRun(agent, new EditProduction(agent), args);
+
+        return "";
+    }
+
+
+    @Command(name="edit-production", description="Opens the given production in a text editor",
+            subcommands={HelpCommand.class})
+    static public class EditProduction implements Runnable
+    {
+        private Agent agent;
+
+        public EditProduction(Agent agent)
         {
-            throw new SoarException("Expected single production name argument");
+            this.agent = agent;
         }
-        final String name = args[1];
-        final Production p = agent.getProductions().getProduction(name);
-        if(p == null)
+
+        @Parameters(index="0", description="The production to edit")
+        private String prodName = null;
+
+        @Override
+        public void run()
         {
-            throw new SoarException("No production named '" + name + "'");
+            if (prodName == null)
+            {
+                agent.getPrinter().startNewLine().print("Expected single production name argument");
+                return;
+            }
+
+            final Production p = agent.getProductions().getProduction(prodName);
+            if (p == null)
+            {
+                agent.getPrinter().startNewLine().print("No production named '" + prodName + "'");
+                return;
+            }
+
+            // Search for the file's location
+            final SourceLocation location = p.getLocation();
+            final String file = location.getFile();
+            if (file == null || file.length() == 0)
+            {
+                agent.getPrinter().startNewLine().print("Don't know source "
+                        + "location of production '" + prodName + "'");
+                return;
+            }
+            if (FileTools.asUrl(file) != null)
+            {
+                agent.getPrinter().startNewLine().print("Don't know how to "
+                        + "edit productions loaded from URLs: " + file);
+                return;
+            }
+
+            // Open the file in a text editor (if possible)
+            try
+            {
+                Desktop.getDesktop().edit(new File(file));
+            }
+            catch (IOException e)
+            {
+                agent.getPrinter().startNewLine().print("Failed to edit '" + file + "': " + e);
+            }
         }
-        final SourceLocation location = p.getLocation();
-        final String file = location.getFile();
-        if(file == null || file.length() == 0)
-        {
-            throw new SoarException("Don't know source location of production '" + name + "'");
-        }
-        if(FileTools.asUrl(file) != null)
-        {
-            throw new SoarException("Don't know how to edit productions loaded from URLs: " + file);
-        }
-        
-        try
-        {
-            Desktop.getDesktop().edit(new File(file));
-        }
-        catch (IOException e)
-        {
-            throw new SoarException("Failed to edit '" + file + "': " + e);
-        }
-        return file;
+    }
+    @Override
+    public Object getCommand() {
+        return new EditProduction(agent);
     }
 }

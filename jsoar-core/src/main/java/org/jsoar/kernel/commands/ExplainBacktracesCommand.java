@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2010 Dave Ray <daveray@gmail.com>
- *
- * Created on Jun 11, 2010
- */
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
@@ -12,10 +7,14 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+
 /**
- * Implementation of the "explain-backtraces" command.
- * 
- * @author ray
+ * This is the implementation of the "explain-backtraces" command.
+ * @author austin.brehob
  */
 public class ExplainBacktracesCommand implements SoarCommand
 {
@@ -26,141 +25,87 @@ public class ExplainBacktracesCommand implements SoarCommand
         this.agent = agent;
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
     @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        final Options options = processArgs(args);
-        
-        final Explain explain = Adaptables.adapt(agent, Explain.class);
-        if(explain == null)
-        {
-            throw new SoarException("Internal error: Could not find Explain object in agent!");
-        }
-        if(options.production == null)
-        {
-            explain.explain_list_chunks();
-        }
-        else if(options.full)
-        {
-            explain.explain_trace_named_chunk(options.production);
-        }
-        else if(options.condition == -1)
-        {
-            explain.explain_cond_list(options.production);
-        }
-        else
-        {
-            explain.explain_chunk(options.production, options.condition);
-        }
+        Utils.parseAndRun(agent, new ExplainBacktraces(agent), args);
+
         return "";
     }
+    @Override
+    public Object getCommand() {
+        //todo - when implementing picocli, return the runnable
+        return new ExplainBacktraces(agent);
+    }
 
-    static Options processArgs(String[] args) throws SoarException
+    @Command(name="explain-backtraces", description="Allows you to explore how rules were learned",
+            subcommands={HelpCommand.class})
+    static public class ExplainBacktraces implements Runnable
     {
-        boolean full = false;
-        int condition = -1;
-        int i = 1;
-        for(; i < args.length; ++i)
+        private Agent agent;
+
+        public ExplainBacktraces(Agent agent)
         {
-            final String arg = args[i];
-            if("-f".equals(arg) || "--full".equals(arg))
+            this.agent = agent;
+        }
+
+        @Option(names={"-c", "--condition"}, description="Explain why condition "
+                + "number n is in the chunk or justification")
+        Integer chunkNum = null;
+
+        @Option(names={"-f", "--full"}, description="Print the full backtrace for the named production")
+        boolean printFull = false;
+
+        @Parameters(arity="0..1", description="List all conditions "
+                + "and grounds for the chunk or justification")
+        String prodName = null;
+
+        @Override
+        public void run()
+        {
+            int condition = -1;
+
+            // Obtain value of chunk/justification number if possible
+            if (chunkNum != null)
             {
-                full = true;
-            }
-            else if("-c".equals(arg) || "--condition".equals(arg))
-            {
-                if(i + 1 == args.length)
-                {
-                    throw new SoarException("Expected numeric argument for " + arg + " option.");
-                }
                 try
                 {
-                    condition = Integer.valueOf(args[i+1]);
+                    condition = Integer.valueOf(chunkNum);
                 }
-                catch(NumberFormatException e)
+                catch (NumberFormatException e)
                 {
-                    throw new SoarException("Expected numeric argument for " + arg + " option, got " + args[i+1]);
+                    agent.getPrinter().startNewLine().print("Expected numeric argument "
+                            + "for --condition option, got " + chunkNum);
+                    return;
                 }
-                i++; // skip number
             }
-            else if(arg.startsWith("-"))
+
+            // Obtain agent's Explain object if possible
+            final Explain explain = Adaptables.adapt(agent, Explain.class);
+            if (explain == null)
             {
-                throw new SoarException("Unsupported option " + arg + ".");
+                agent.getPrinter().startNewLine().print("Internal error: "
+                        + "Could not find Explain object in agent!");
+                return;
+            }
+
+            // Print explanation
+            if (prodName == null)
+            {
+                explain.explain_list_chunks();
+            }
+            else if (printFull)
+            {
+                explain.explain_trace_named_chunk(prodName);
+            }
+            else if (condition == -1)
+            {
+                explain.explain_cond_list(prodName);
             }
             else
             {
-                break;
+                explain.explain_chunk(prodName, condition);
             }
         }
-        final String production = i < args.length ? args[i] : null;
-        
-        final Options options = new Options(full, condition, production);
-        return options;
     }
-    
-    static class Options
-    {
-        public final boolean full;
-        public final int condition;
-        public final String production;
-        
-        public Options(boolean full, int condition, String production)
-        {
-            this.full = full;
-            this.condition = condition;
-            this.production = production;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + condition;
-            result = prime * result + (full ? 1231 : 1237);
-            result = prime * result
-                    + ((production == null) ? 0 : production.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Options other = (Options) obj;
-            if (condition != other.condition)
-                return false;
-            if (full != other.full)
-                return false;
-            if (production == null)
-            {
-                if (other.production != null)
-                    return false;
-            }
-            else if (!production.equals(other.production))
-                return false;
-            return true;
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
-        @Override
-        public String toString()
-        {
-            return "Options [condition=" + condition + ", full=" + full
-                    + ", production=" + production + "]";
-        }
-        
-        
-    }
-
 }

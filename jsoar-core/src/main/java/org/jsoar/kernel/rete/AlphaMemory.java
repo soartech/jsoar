@@ -63,8 +63,6 @@ public class AlphaMemory extends HashTableItem
     /**
      * rete.cpp:1358:wme_matches_alpha_mem
      * 
-     * @param w
-     * @return
      */
     boolean wme_matches_alpha_mem(WmeImpl w)
     {
@@ -77,11 +75,6 @@ public class AlphaMemory extends HashTableItem
     /**
      * rete.cpp:1372:alpha_hash_value
      * 
-     * @param i
-     * @param a
-     * @param v
-     * @param num_bits
-     * @return
      */
     static int alpha_hash_value(SymbolImpl i, SymbolImpl a, SymbolImpl v, int num_bits)
     {
