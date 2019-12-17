@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -68,6 +70,10 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private SoarCommandContext context = DefaultSoarCommandContext.empty();
 
     private SoarTclExceptionsManager exceptionsManager;
+    
+    // Making these volatile since we're always just swapping in entirely new copies
+    private volatile HashMap<String, String> aliasMap = new HashMap<>();
+    private volatile ArrayList<String> commandList = new ArrayList<>();
     
     /**
      * Find the SoarTclInterface for the given agent.
@@ -171,6 +177,55 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
+    private void updateTCLInfo() {
+        try
+        {
+            updateTCLAliases();           
+            updateTCLProcsAndCommands();
+        }
+        catch (SoarException e)
+        {
+            logger.error("Unable to retreive alias information", e);
+            return;
+        }
+    }
+
+    private void updateTCLProcsAndCommands() throws SoarException
+    {
+        ArrayList<String> curCommands = new ArrayList<>();
+        String result = this.eval("info commands");
+        logger.info("Commands\n\n{}", result);
+        String[] cmds = result.split("\\s+");
+        Collections.addAll(curCommands, cmds);
+        
+        result = this.eval("info procs");
+        logger.info("Procs\n{}", result);
+        String[] procs = result.split("\\s+");
+        Collections.addAll(curCommands, procs);
+        this.commandList = curCommands;
+    }
+
+    private void updateTCLAliases() throws SoarException
+    {
+        String result = this.eval("alias");
+        String[] lines = result.split("\\R+");
+        HashMap<String,String> curAliases = new HashMap<>();
+        for (String line : lines) {
+            String[] args = line.split("->");
+            if (args.length == 2) {
+                String alias = args[0].trim();
+                String cmd = args[1].trim().replace("{", "").replace("}", "");
+                logger.debug("args = {} -> {}", alias, cmd);
+                curAliases.put(alias, cmd);
+            }
+            else
+            {
+                logger.error("Unable to parse alias = {}", line);
+            }
+        }
+        this.aliasMap = curAliases;
+    }
+    
     /**
      * Jacl only puts system properties in the <code>env</code> array. Let's add
      * environment variables as well..
@@ -268,11 +323,13 @@ public class SoarTclInterface implements SoarCommandInterpreter
     public void source(File file) throws SoarException
     {
         sourceCommand.source(file.getPath());
+        updateTCLInfo();
     }
     
     public void source(URL url) throws SoarException
     {
         sourceCommand.source(url.toExternalForm());
+        updateTCLInfo();
     }
     
     /*
@@ -366,23 +423,15 @@ public class SoarTclInterface implements SoarCommandInterpreter
     @Override
     public String[] getCompletionList(String command, int cursorPosition)
     {
-
-        String[] commands = null;
-
-//        try {
-//            String commandsStr = eval("info commands") + " " + eval("info procs");
-//            List<String> commandsList = new ArrayList<>();
-//            for (String s : commandsStr.split(" ")) {
-//                if (s.startsWith(command)) {
-//                    commandsList.add(s);
-//                }
-//            }
-//            commands = commandsList.toArray(new String[0]);
-//        } catch (SoarException e) {
-//            e.printStackTrace();
-//        }
-
-        return commands;
+        List<String> commandsList = new ArrayList<>();
+        for (String s : this.commandList)
+        {
+            if (s.startsWith(command))
+            {
+                commandsList.add(s);
+            }
+        }
+        return commandsList.toArray(new String[0]);
     }
 
     private class MySourceCommandAdapter implements SourceCommandAdapter
@@ -441,23 +490,16 @@ public class SoarTclInterface implements SoarCommandInterpreter
     public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
     {
         List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
-        String result = "";
-//        try {
-//            // TODO: We can't rely on the interpreter here since it may be
-//            // busy running a command (like run -f)
-//            result = eval("interp alias {} " + args.get(0));
-//        } catch (Exception e) {
-//            logger.error("Tcl exception", e);
-//        }
+        String aliasCmd = this.aliasMap.get(args.get(0));
         
         // there is no alias, so just return the original args
-        if(result.length() == 0)
+        if(aliasCmd == null)
         {
             return new ParsedCommand(srcLoc, args);
         }
         
         // there is an alias, so split it and add the original args to it
-        List<String> aliasArgs = new ArrayList<>(Arrays.asList(result.split("\\s")));
+        List<String> aliasArgs = new ArrayList<>(Arrays.asList(aliasCmd.split("\\s")));
         aliasArgs.addAll(args.subList(1, args.size()));
         
         return new ParsedCommand(srcLoc, aliasArgs);
