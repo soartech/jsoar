@@ -76,8 +76,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private final IncrementalSearchPanel searchPanel;
 
+    // Variables related to the triming limit along with a lock object for syncing between threads
+    private Object limitLock = new Object();
     private int limit = -1;
     private int limitTolerance = 0;
+    
     private boolean scrollLock = true;
 
     private final JTextPane outputWindow = new JTextPane() {
@@ -116,7 +119,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
                 buffer.setLength(0);
                 
-                styledDocument.trim(limit, limitTolerance);
+                synchronized (limitLock) {
+                    styledDocument.trim(limit, limitTolerance);
+                }
                 
                 // Handling scroll lock setting
                 Runnable runnable = new Runnable() {
@@ -344,7 +349,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     public void setLimit(int limit)
     {
         // output limit code above is synchronized on the outputWriter
-        synchronized(outputWriter)
+        synchronized(limitLock)
         {
             this.limit = limit;
             if(this.limit > 0)
