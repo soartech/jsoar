@@ -160,6 +160,18 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
         addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
         
+        // rename the tcl built-in trace command to tcl-trace, to avoid a conflict with Soar's trace command
+        try
+        {
+            interp.renameCommand("trace", "tcl-trace");
+        }
+        catch (TclException e)
+        {
+            final String message = "Failed to rename tcl built-in trace command to tcl-trace: " + interp.getResult();
+            logger.error(message, e);
+            agent.getPrinter().error(message);
+        }
+        
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
         
@@ -171,7 +183,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             final String message = "Failed to load resource " + DEFAULT_TCL_CODE + 
                 ". Some commands may not work as expected: " + interp.getResult();
-            logger.error(message);
+            logger.error(message, e);
             agent.getPrinter().error(message);
         }
     }
