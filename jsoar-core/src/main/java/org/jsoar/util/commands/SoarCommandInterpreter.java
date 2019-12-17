@@ -212,6 +212,6 @@ public interface SoarCommandInterpreter
      * for "soft" exceptions that are caught and logged but not "reported" to IDEs
      * @return
      */
-    public SoarTclExceptionsManager getExceptionsManager();
+    public SoarExceptionsManager getExceptionsManager();
 
 }

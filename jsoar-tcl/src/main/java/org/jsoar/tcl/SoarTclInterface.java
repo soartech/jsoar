@@ -41,7 +41,7 @@ import org.jsoar.util.commands.ParsedCommand;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.jsoar.util.commands.SoarTclExceptionsManager;
+import org.jsoar.util.commands.SoarExceptionsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     private SoarCommandContext context = DefaultSoarCommandContext.empty();
 
-    private SoarTclExceptionsManager exceptionsManager;
+    private SoarExceptionsManager exceptionsManager;
     
     // Making these volatile since we're always just swapping in entirely new copies
     private volatile HashMap<String, String> aliasMap = new HashMap<>();
@@ -145,7 +145,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         this.agent = agent;
         this.cmdRhsFunction = new CmdRhsFunction(this, agent);
-        this.exceptionsManager = new SoarTclExceptionsManager();
+        this.exceptionsManager = new SoarExceptionsManager();
         
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
@@ -315,7 +315,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         return agent;
     }
 
-    public SoarTclExceptionsManager getTclContext() {
+    public SoarExceptionsManager getTclContext() {
         return this.exceptionsManager;
     }
     
@@ -521,7 +521,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     }
 
     @Override
-    public SoarTclExceptionsManager getExceptionsManager() {
+    public SoarExceptionsManager getExceptionsManager() {
         return exceptionsManager;
     }
 }

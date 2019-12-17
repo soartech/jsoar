@@ -7,13 +7,13 @@ import org.jsoar.util.commands.SoarCommandContext;
     Class used by soar language server for exceptions that are thrown
     during tcl execution but are caught and not propagated up
  */
-public class SoftTclInterpreterException {
+public class SoftInterpreterException {
 
     private String message;
     private SoarCommandContext commandContext;
     private String command;
 
-    public SoftTclInterpreterException(String message, SoarCommandContext commandContext, String command) {
+    public SoftInterpreterException(String message, SoarCommandContext commandContext, String command) {
         this.message = message;
         this.commandContext = commandContext;
         this.command = command;

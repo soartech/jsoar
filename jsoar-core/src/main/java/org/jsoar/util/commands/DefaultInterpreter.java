@@ -55,11 +55,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final SourceCommand sourceCommand;
     private final LoadCommand loadCommand;
     private final SaveCommand saveCommand;
-    private SoarTclExceptionsManager exceptionsManager;
+    private SoarExceptionsManager exceptionsManager;
     
     public DefaultInterpreter(Agent agent)
     {
-        this.exceptionsManager = new SoarTclExceptionsManager();
+        this.exceptionsManager = new SoarExceptionsManager();
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
@@ -460,7 +460,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     }
 
     @Override
-    public SoarTclExceptionsManager getExceptionsManager() {
+    public SoarExceptionsManager getExceptionsManager() {
         return exceptionsManager;
     }
 }
