@@ -37,17 +37,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		<dependency>
-		    <groupId>org.xerial</groupId>
-		    <artifactId>sqlite-jdbc</artifactId>
-		    <version>3.28.0</version>
-		</dependency>
-		<!-- 
-		     while jsoar doesn't use jcl (commons-logging) other dependencies do,
-		     so this makes sure logging from those get re-routed through slf4j
-		     commons-logging is excluded from other dependencies so this gets used instead
-		-->
-		<dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.28.0</version>
+        </dependency>
+        <!-- 
+             while jsoar doesn't use jcl (commons-logging) other dependencies do,
+             so this makes sure logging from those get re-routed through slf4j
+             commons-logging is excluded from other dependencies so this gets used instead
+        -->
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>1.7.29</version>
