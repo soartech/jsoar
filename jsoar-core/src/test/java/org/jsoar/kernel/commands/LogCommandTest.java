@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
+import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
@@ -267,5 +268,30 @@ public class LogCommandTest
         
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "info", "This", "is", "a", "simple", "test", "case."});
         assertTrue(Pattern.matches("^\\n\\[INFO .+?\\] default: This is a simple test case\\.$", outputWriter.toString()));
+    }
+    
+    /**
+     * This is just a performance test for when nothing should be logged. It shouldn't fail unless other tests here also fail.
+     * @throws SoarException
+     */
+    @Test
+    public void testPerformance() throws SoarException {
+        logManager.setLogLevel(LogLevel.warn);
+        
+        // warm up the jvm so we get more stable times
+        for(int i = 0; i < 500; i++)
+        {
+            logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
+        }
+        
+        long start = System.currentTimeMillis();
+        for(int i = 0; i < 10000; i++)
+        {
+            logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
+        }
+        long end = System.currentTimeMillis();
+        
+        System.out.println("Total log time: " + (end-start)/1000.0);
+        
     }
 }
