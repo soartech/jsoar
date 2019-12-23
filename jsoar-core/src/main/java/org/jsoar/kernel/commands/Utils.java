@@ -42,9 +42,25 @@ public class Utils
         parseAndRun(command, args, ps);
     }
     
+    
+    /**
+     * Executes the specified command and returns the result.
+     * A command may be a user object or a pre-initialized {@code picocli.CommandLine} object.
+     * For performance-sensitive commands that are invoked often,
+     * it is recommended to pass a pre-initialized CommandLine object instead of the user object.
+     *
+     * @param command the command to execute; this may be a user object or a pre-initialized {@code picocli.CommandLine} object
+     * @param args the command line arguments (the first arg will be removed from this list)
+     * @param ps the PrintStream to print any command output to
+     * @return the command result
+     * @throws SoarException if the user input was invalid or if a runtime exception occurred
+     *                      while executing the command business logic
+     */
     public static List<Object> parseAndRun(Object command, String[] args, PrintStream ps) throws SoarException {
         
-        CommandLine commandLine = new CommandLine(command);
+        CommandLine commandLine = command instanceof CommandLine
+                ? (CommandLine) command
+                : new CommandLine(command);
         
         // The "debug time" command takes a command as a parameter, which can contain options
         // In order to inform picocli that the options are part of the command parameter

@@ -23,6 +23,7 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
@@ -38,18 +39,21 @@ import picocli.CommandLine.ParameterException;
 public class LogCommand implements SoarCommand
 {
     private final Agent agent;
-    private SoarCommandInterpreter interpreter;
+    private Log log;
+    private CommandLine logCommand;
 
     public LogCommand(Agent agent, SoarCommandInterpreter interpreter)
     {
         this.agent = agent;
-        this.interpreter = interpreter;
+        this.log = new Log(agent, interpreter, null);
+        this.logCommand = new CommandLine(log);
     }
 
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new Log(agent, interpreter, context), args);
+        this.log.context = context;
+        Utils.parseAndRun(agent, logCommand, args);
 
         return "";
     }
@@ -57,7 +61,7 @@ public class LogCommand implements SoarCommand
     @Override
     public Object getCommand()
     {
-        return new Log(agent,interpreter,null);
+        return logCommand;
     }
 
     @Command(name="log", description="Adjusts logging settings",
@@ -67,7 +71,7 @@ public class LogCommand implements SoarCommand
         private final Agent agent;
         private final LogManager logManager;
         private final SoarCommandInterpreter interpreter;
-        private final SoarCommandContext context;
+        private SoarCommandContext context;
         private static String sourceLocationSeparator = ".";
         
         @Spec
