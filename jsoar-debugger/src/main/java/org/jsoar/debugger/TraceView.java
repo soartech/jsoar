@@ -246,7 +246,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         final JPanel p = new JPanel(new BorderLayout());
 
         JScrollPane scrollPane = new JScrollPane(outputWindow);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         p.add(scrollPane, BorderLayout.CENTER);
 
