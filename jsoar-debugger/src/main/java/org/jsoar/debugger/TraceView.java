@@ -93,6 +93,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             executePastedInput();
         }
+        
+        // ensure that we always wrap the trace text so it fits horizontally within the visible trace window
+        public boolean getScrollableTracksViewportWidth()
+        {
+            return true;
+        }
     };
 
     private Highlighter highlighter;
@@ -246,7 +252,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         final JPanel p = new JPanel(new BorderLayout());
 
         JScrollPane scrollPane = new JScrollPane(outputWindow);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         p.add(scrollPane, BorderLayout.CENTER);
 
