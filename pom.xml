@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soartech</groupId>
     <artifactId>jsoar</artifactId>
-    <version>4.0</version>
+    <version>4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>JSoar is a pure Java implementation of the Soar kernel.</description>
@@ -16,7 +16,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/soartech/jsoar.git</developerConnection>
-        <tag>jsoar-4.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
