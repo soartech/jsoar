@@ -1,21 +1,138 @@
-JSoar is a pure Java implementation of the Soar kernel. See [https://github.com/soartech/jsoar/](https://github.com/soartech/jsoar/wiki) for more information.
+JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](https://github.com/soartech/jsoar/wiki) for more information. The [User's Guide](https://github.com/soartech/jsoar/wiki/JSoarUsersGuide) is a good place to start.
 
 ## Obtaining JSoar ##
 
 Pre-built releases are available on github: https://github.com/soartech/jsoar/releases
 
-To add a dependency on JSoar using Maven, use the following:
+To add a dependency on JSoar using Maven or gradle, include the following dependencies as needed:
+
+Required:
+* Maven
 ```
 <dependency>
-  <groupId>com.soartech.jsoar</groupId>
-  <artifactId>jsoar</artifactId>
-  <version>4.0</version>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-core</artifactId>
+    <version>${jsoar.version}</version>
 </dependency>
 ```
-To add a dependency using Gradle:
+* Gradle
+```
 dependencies {
-  compile 'com.soartech.jsoar:jsoar:4.0'
+    compile 'com.soartech:jsoar:$jsoarVersion'
 }
+```
+
+[Support for Tcl in Soar code](https://github.com/soartech/jsoar/wiki/JSoarTclSupport):
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-tcl</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-tcl:$jsoarVersion'
+}
+```
+
+[JSoar debugger](https://github.com/soartech/jsoar/wiki/JSoarDebugger):
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-debugger</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-debugger:$jsoarVersion'
+}
+```
+
+[SoarUnit](https://github.com/soartech/jsoar/wiki/SoarUnit)
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-soarunit</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-soarunit:$jsoarVersion'
+}
+```
+
+[Remote Web-Based Debugging Support](https://github.com/soartech/jsoar/wiki/JSoarLegilimens)
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-legilimens</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-legilimens:$jsoarVersion'
+}
+```
+
+Ruby Support (so can use jsoar from Ruby); see [examples](https://github.com/soartech/jsoar/tree/maven/jsoar-ruby/examples)
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-ruby</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-ruby:$jsoarVersion'
+}
+```
+
+[Soar2Soar](https://derbinsky.info/public/_custom/research/misc/talks/soar2soar_soarworkshop_2010.pdf)
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-soar2soar</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-soar2soar:$jsoarVersion'
+}
+```
+
+JSoar Demos has a number of examples of using JSoar that you can look at. It probably doesn't make sense to depend on this.
+* Maven
+```
+<dependency>
+    <groupId>com.soartech</groupId>
+    <artifactId>jsoar-demos</artifactId>
+    <version>${jsoar.version}</version>
+</dependency>
+```
+* Gradle
+```
+dependencies {
+    compile 'com.soartech:jsoar-demos:$jsoarVersion'
+}
+```
 
 ## Developer info ##
 
@@ -46,28 +163,28 @@ Jars will end up in the target directories of the various projects (and in your 
 
 ### Maven Releases ###
 
-TODO: Consolidate build instructions.
-
 To create a release using the Maven Release plugin:
 
-* Make sure `git` can authenticate to the SoarTech server without interaction
-	* Does `git pull` prompt you for a username or password? If so, you need to change that.
-	* This is not technically required but if you type your password wrong, below, it will cancel the entire process.
+* Make sure you have a github account that has permission to commit to the jsoar repo.
+* Make sure you have ossrh server setup in your settings.xml with the soartech-releases account.
+
 * Make sure everything is fully merged and all commits are pushed.
-* Check out `maven`
-* Run the release plugin: 
-    * `mvn clean release:clean release:prepare release:perform deploy`
+* `mvn -Dusername=<yourGithubUsername> release:prepare -DdryRun=true`
+	* This runs through all the questions (if you're not sure, accept all the default answers), make sure everything builds, and creates temp versions of the pom files showing what changes will be made.
+* If everything looks good in the dry run:
+	* `mvn -Dusername=<yourGithubUsername> release:clean`
+		* This removes all the temp files from the dry run
+	* `mvn -Dusername=<yourGithubUsername> release:prepare`
+		* You will answer all the questions again	
+		* This will change the current poms to the release version, commit and tag that, and then change the poms to the next snapshot version and commit that. Then it will push the commits to github.
+	* `mvn -Dusername=<yourGithubUsername> release:perform`
+		* This will build everything and upload the release jars to Maven Central's staging repo. They should be accessible in Maven Central proper some time after that (nominally 20 mins, but it could take hours). There's no need to wait for things to show up on Maven Central before continuing.
+	* `mvn deploy`
+		* This will put the new snapshot on SoarTech's nexus (assuming you have the proper setup to access that, which all SoarTech employees should have).
 
-Some notes:
+If something goes wrong when running any of the `release` commands, you can try `mvn -Dusername=<yourGithubUsername> release:rollback`, which will attempt to undo the changes. This should work as long as you haven't done a `release:clean`. For more info, see the [documentation](https://maven.apache.org/maven-release/maven-release-plugin/examples/rollback-release.html).
 
-* The first `clean` is probably unnecessary
-	* Same with `release:clean`, but they don't hurt.
-* `release:prepare` pauses to interactively ask some questions. If you don't know what you're doing, the default behavior (hitting enter in response to all prompts) does the following:
-	* Removes `-SNAPSHOT` from all of the JSoar components, and updates all component dependencies (scoped to JSoar components only)
-	* Commits the changed poms, tags this with `jsoar-VERSION` which is whatever the version was minus `-SNAPSHOT`, pushes this to the repository
-	* Increments the micro and adds `-SNAPSHOT` back to everything it just removed it from, changing the poms again, committing them, and pushing the change to the repository
-* `release:perform` creates and deploys the artifacts
-* `deploy` deploys the new snapshot, which is pretty much identical to the artifact just built
+If everything is good, you can do a `mvn release:clean` to remove all the intermediate files that the release plugin created. These should definitely not be committed.
 
 # Acknowledgements / History
 JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
