@@ -13,9 +13,19 @@
             <url>https://opensource.org/licenses/BSD-3-Clause</url>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <name>Bob Marinier</name>
+            <email>bob.marinier@soartech.com</email>
+            <organization>SoarTech</organization>
+            <organizationUrl>https://soartech.com/</organizationUrl>
+        </developer>
+    </developers>
 
     <scm>
+        <connection>scm:git:https://github.com/soartech/jsoar.git</connection>
         <developerConnection>scm:git:https://github.com/soartech/jsoar.git</developerConnection>
+        <url>https://github.com/soartech/jsoar/tree/maven/</url>
         <tag>jsoar-4.0</tag>
     </scm>
 
