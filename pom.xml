@@ -176,7 +176,7 @@
     </distributionManagement>
 
     <modules>
-        <module>jsoar-build</module>
+        <!-- <module>jsoar-build</module> only needed for uber jar, which shouldn't be used anyway -->
         <module>jsoar-core</module>
         <module>jsoar-debugger</module>
         <module>jsoar-demos</module>
