@@ -86,22 +86,6 @@ dependencies {
 }
 ```
 
-Ruby Support (so can use jsoar from Ruby); see [examples](https://github.com/soartech/jsoar/tree/maven/jsoar-ruby/examples)
-* Maven
-```
-<dependency>
-    <groupId>com.soartech</groupId>
-    <artifactId>jsoar-ruby</artifactId>
-    <version>${jsoar.version}</version>
-</dependency>
-```
-* Gradle
-```
-dependencies {
-    compile 'com.soartech:jsoar-ruby:$jsoarVersion'
-}
-```
-
 [Soar2Soar](https://derbinsky.info/public/_custom/research/misc/talks/soar2soar_soarworkshop_2010.pdf)
 * Maven
 ```
@@ -187,5 +171,5 @@ If something goes wrong when running any of the `release` commands, you can try 
 
 If everything is good, you can do a `mvn release:clean` to remove all the intermediate files that the release plugin created. These should definitely not be committed.
 
-# Acknowledgements / History
+# Acknowledgments / History
 JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
