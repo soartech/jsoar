@@ -15,7 +15,7 @@
     </licenses>
 
     <scm>
-        <developerConnection>scm:git:https://git.soartech.com/git/jsoar.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/soartech/jsoar.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -163,10 +163,16 @@
             <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <!-- 
+        <repository>
             <id>soartech-releases</id>
             <name>SoarTech Releases</name>
             <url>https://nexus.soartech.com:8443/nexus/content/repositories/releases/</url>
         </repository>
+         -->
     </distributionManagement>
 
     <modules>
