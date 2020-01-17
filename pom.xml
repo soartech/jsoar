@@ -191,7 +191,7 @@
         <module>jsoar-debugger</module>
         <module>jsoar-demos</module>
         <module>jsoar-legilimens</module>
-        <module>jsoar-ruby</module>
+        <!-- <module>jsoar-ruby</module> -->
         <module>jsoar-soar2soar</module>
         <module>jsoar-soarunit</module>
         <module>jsoar-tcl</module>
