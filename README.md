@@ -178,7 +178,7 @@ To create a release using the Maven Release plugin:
 		* You will answer all the questions again	
 		* This will change the current poms to the release version, commit and tag that, and then change the poms to the next snapshot version and commit that. Then it will push the commits to github.
 	* `mvn -Dusername=<yourGithubUsername> release:perform`
-		* This will build everything and upload the release jars to Maven Central's staging repo. They should be accessible in Maven Central proper some time after that (nominally 20 mins, but it could take hours). There's no need to wait for things to show up on Maven Central before continuing.
+		* This will build everything and upload the release jars to Maven Central's staging repo. They should be accessible in Maven Central proper some time after that (if automated, which it currently is not, nominally 20 mins, but it could take hours. Otherwise the release must be done manually). There's no need to wait for things to show up on Maven Central before continuing.
 	* `mvn deploy`
 		* This will put the new snapshot on SoarTech's nexus (assuming you have the proper setup to access that, which all SoarTech employees should have).
 
