@@ -4,7 +4,7 @@ JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](htt
 
 Pre-built releases are available on github: https://github.com/soartech/jsoar/releases
 
-To add a dependency on JSoar using Maven or gradle, include the following dependencies as needed:
+To add a dependency on JSoar using Maven or gradle, include the following dependencies as needed. A typical project may include jsoar-core, jsoar-debugger, jsoar-tcl, and jsoar-soarunit.
 
 Required:
 * Maven
