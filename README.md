@@ -1,3 +1,13 @@
+[![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
+![version](https://img.shields.io/badge/jsoar-v4.0.0-blue)
+
+[![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
+[![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
+[![javadoc-jsoar-debugger](https://img.shields.io/badge/javadoc-jsoar--debugger-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-debugger) 
+[![javadoc-jsoar-soarunit](https://img.shields.io/badge/javadoc-jsoar--soarunit-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soarunit) 
+[![javadoc-jsoar-soar2soar](https://img.shields.io/badge/javadoc-jsoar--soar2soar-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soar2soar) 
+[![javadoc-jsoar-demos](https://img.shields.io/badge/javadoc-jsoar--demos-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-demos) 
+
 JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](https://github.com/soartech/jsoar/wiki) for more information. The [User's Guide](https://github.com/soartech/jsoar/wiki/JSoarUsersGuide) is a good place to start.
 
 ## Obtaining JSoar ##
@@ -6,7 +16,7 @@ Pre-built releases are available on github: https://github.com/soartech/jsoar/re
 
 To add a dependency on JSoar using Maven or gradle, include the following dependencies as needed. A typical project may include jsoar-core, jsoar-debugger, jsoar-tcl, and jsoar-soarunit.
 
-Required:
+JSoar Core (required):
 * Maven
 ```
 <dependency>
@@ -54,7 +64,7 @@ dependencies {
 }
 ```
 
-[SoarUnit](https://github.com/soartech/jsoar/wiki/SoarUnit)
+[SoarUnit](https://github.com/soartech/jsoar/wiki/SoarUnit):
 * Maven
 ```
 <dependency>
@@ -70,7 +80,7 @@ dependencies {
 }
 ```
 
-[Remote Web-Based Debugging Support](https://github.com/soartech/jsoar/wiki/JSoarLegilimens)
+[Remote Web-Based Debugging Support](https://github.com/soartech/jsoar/wiki/JSoarLegilimens):
 * Maven
 ```
 <dependency>
@@ -86,7 +96,7 @@ dependencies {
 }
 ```
 
-[Soar2Soar](https://derbinsky.info/public/_custom/research/misc/talks/soar2soar_soarworkshop_2010.pdf)
+[Soar2Soar](https://derbinsky.info/public/_custom/research/misc/talks/soar2soar_soarworkshop_2010.pdf):
 * Maven
 ```
 <dependency>
@@ -102,7 +112,7 @@ dependencies {
 }
 ```
 
-JSoar Demos has a number of examples of using JSoar that you can look at. It probably doesn't make sense to depend on this.
+JSoar Demos has a number of examples of using JSoar that you can look at; it probably doesn't make sense to depend on this:
 * Maven
 ```
 <dependency>
