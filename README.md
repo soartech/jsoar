@@ -28,7 +28,7 @@ JSoar Core (required):
 * Gradle
 ```
 dependencies {
-    compile 'com.soartech:jsoar:$jsoarVersion'
+    compile 'com.soartech:jsoar-core:$jsoarVersion'
 }
 ```
 
