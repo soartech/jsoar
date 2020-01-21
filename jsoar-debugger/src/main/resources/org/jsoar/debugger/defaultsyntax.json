@@ -181,102 +181,122 @@
     "comment" : "--- Firing Productions (IE) For State At Depth 1 ---\n--- Change Working Memory (IE) ---",
     "regex" : "(---.*\\((?:IE|PE)\\).*---)",
     "components" : [ "bold body text (base 00)" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "attributes; e.g.\n^foo\n^|foo bar|",
     "regex" : "((?:\\^\\|.+?\\|)|(?:\\^.+?))\\s",
     "components" : [ "yellow" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "commands and aliases",
     "regex" : "(?m)^\\b(%commands%|%aliases%)\\b(.*?)$",
     "components" : [ "magenta", "magenta" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "decision: impasse\ne.g.:\n1: ==>S: S3 (state no-change)\nor, if wait-snc is on:\n1: ==>S: S1",
     "regex" : "(\\d+):\\s+(==>S: S\\d+) (?:\\((.+)\\))?",
     "components" : [ "bold body text (base 00)", "orange", "bold orange" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
     "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
     "components" : [ "bold body text (base 00)", "blue", "bold blue" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "highlight messages that are warnings and errors",
     "regex" : "((?:Warn|Error|Ignor|\\[ERROR|\\[WARN)(?:.*))",
     "components" : [ "red bold" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "matches command total matches found",
     "regex" : "([0-9]+ complete matches.)",
     "components" : [ "green" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "phase header",
     "regex" : "(---\\ [a-z]+\\ phase\\ ---)",
     "components" : [ "bold body text (base 00)" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "RHS function after an open paren",
     "regex" : "\\((%rhsfuncs%)",
     "components" : [ "bold blue" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "rule arrow",
     "regex" : "(-->)",
     "components" : [ "yellow" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "rule disjunction",
     "regex" : "(<<.+?>>)",
     "components" : [ "cyan" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "rule excise",
     "regex" : "(#+)",
     "components" : [ "red" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "Rule firings",
     "regex" : "(Firing\\ .*)",
     "components" : [ "cyan" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "Rule retraction",
     "regex" : "(Retracting\\ .*)",
     "components" : [ "magenta" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "soar variables -- complex regex to avoid matching on disjuncts",
     "regex" : "[^<](<[^<]?.??[^>]>)[^>]",
     "components" : [ "blue" ],
-    "enabled" : true
-  }, {
-    "comment" : "unmatched condition in matches command output",
-    "regex" : "(>>>>)",
-    "components" : [ "red" ],
-    "enabled" : true
-  }, {
-    "comment" : "values that come after attributes. Note the beginning of this pattern is the same as the attribute pattern.",
-    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:.+?))(?:\\s|\\))",
-    "components" : [ "violet" ],
-    "enabled" : true
-  }, {
-    "comment" : "WM add",
-    "regex" : "(=>WM:\\ .*)",
-    "components" : [ "blue" ],
-    "enabled" : true
-  }, {
-    "comment" : "WM remove",
-    "regex" : "(<=WM:\\ .*)",
-    "components" : [ "orange" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
   }, {
     "comment" : "state keyword in rule",
     "regex" : "\\((state) <",
     "components" : [ "bold blue" ],
-    "enabled" : true
+    "enabled" : true,
+    "important" : false
+  }, {
+    "comment" : "unmatched condition in matches command output",
+    "regex" : "(>>>>)",
+    "components" : [ "red" ],
+    "enabled" : true,
+    "important" : false
+  }, {
+    "comment" : "values that come after attributes. Note the beginning of this pattern is the same as the attribute pattern.",
+    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:.+?))(?:\\s|\\))",
+    "components" : [ "violet" ],
+    "enabled" : true,
+    "important" : false
+  }, {
+    "comment" : "WM add",
+    "regex" : "(=>WM:\\ .*)",
+    "components" : [ "blue" ],
+    "enabled" : true,
+    "important" : false
+  }, {
+    "comment" : "WM remove",
+    "regex" : "(<=WM:\\ .*)",
+    "components" : [ "orange" ],
+    "enabled" : true,
+    "important" : false
   } ],
   "foregroundRgb" : [ 0.38431373, 0.38431373, 0.38431373, 1.0 ],
   "backgroundRgb" : [ 1.0, 1.0, 0.84313726, 1.0 ],
