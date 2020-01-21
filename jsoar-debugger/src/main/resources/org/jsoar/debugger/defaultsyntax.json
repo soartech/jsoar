@@ -203,7 +203,7 @@
     "important" : false
   }, {
     "comment" : "decision: operator selected\ne.g.: 1: O: O1 (my-operator)",
-    "regex" : "(\\d+):\\s+(O: O\\d+) \\((\\S+)\\)",
+    "regex" : "(\\d+):\\s+(O: [A-Z]\\d+) \\((\\S+)\\)",
     "components" : [ "bold body text (base 00)", "blue", "bold blue" ],
     "enabled" : true,
     "important" : false
@@ -227,7 +227,7 @@
     "important" : false
   }, {
     "comment" : "RHS function after an open paren",
-    "regex" : "\\((%rhsfuncs%)",
+    "regex" : "\\((%rhsfuncs%)\\s+",
     "components" : [ "bold blue" ],
     "enabled" : true,
     "important" : false
@@ -281,7 +281,7 @@
     "important" : false
   }, {
     "comment" : "values that come after attributes. Note the beginning of this pattern is the same as the attribute pattern.",
-    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:.+?))(?:\\s|\\))",
+    "regex" : "(?:(?:\\^\\|.+?\\|)|(?:\\^.+?))\\s+((?:\\|.+?\\|)|(?:[^(]+?))(?:\\s|\\))",
     "components" : [ "violet" ],
     "enabled" : true,
     "important" : false
