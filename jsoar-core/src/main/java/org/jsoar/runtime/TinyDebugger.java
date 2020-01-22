@@ -170,7 +170,7 @@ public class TinyDebugger extends JApplet
         trace.setFont(new Font("Monospaced", Font.PLAIN, 12));
         trace.setEditable(false);
         JSoarVersion version = JSoarVersion.getInstance();
-        trace.setText("jsoar " + version + "\nhttp://jsoar.googlecode.com\n\n");
+        trace.setText("jsoar " + version + "\nhttps://github.com/soartech/jsoar\n\n");
         tracePanel.add(new JScrollPane(trace), BorderLayout.CENTER);
         
         final JPanel promptPanel = new JPanel(new BorderLayout());
