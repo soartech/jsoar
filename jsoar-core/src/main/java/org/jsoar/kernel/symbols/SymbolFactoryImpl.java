@@ -26,8 +26,8 @@ import com.google.common.collect.MapMaker;
  * <p>Primary symbol management class. This class maintains the symbol "cache"
  * for an agent. When a symbol is created, it is cached for reuse the next
  * time a symbol with the same value is requested. We use 
- * <a href="http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ReferenceMap.html">Google Collections ReferenceMap</a>
- * to correctly manage the maps. Without this, the memory would grow larger over 
+ * <a href="https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/collect/MapMaker.html">Google Guava MapMaker</a>
+ * to make weak maps to correctly manage the symbols. Without this, the memory would grow larger over 
  * time because symbols can't be garbage collected as long as they're in the
  * cache.
  * 
