@@ -1909,10 +1909,7 @@ class OriginalParserImpl
             }
             else if (":interrupt".equals(current().string))
             {
-                printer.warn("WARNING :interrupt is not supported with the current build options...");
                 interrupt_on_match = true;
-                // xml_generate_warning(thisAgent, "WARNING :interrupt is not
-                // supported with the current build options...");
             }
             else
             {
