@@ -1,4 +1,4 @@
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;

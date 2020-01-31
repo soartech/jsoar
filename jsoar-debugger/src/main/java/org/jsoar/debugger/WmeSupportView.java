@@ -29,6 +29,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeSupportInfo;
@@ -36,7 +37,6 @@ import org.jsoar.kernel.memory.WmeSupportInfo.Support;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**

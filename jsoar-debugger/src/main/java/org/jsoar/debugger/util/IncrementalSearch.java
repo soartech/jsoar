@@ -3,7 +3,7 @@
  *
  * Created on Jul 17, 2009
  */
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;

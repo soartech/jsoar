@@ -25,7 +25,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
-import org.jsoar.util.SwingTools;
+import org.jsoar.debugger.util.SwingTools;
 
 /**
  * @author ray

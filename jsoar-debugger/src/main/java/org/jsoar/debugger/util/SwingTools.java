@@ -3,7 +3,7 @@
  *
  * Created on Dec 14, 2008
  */
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 
 import java.awt.*;

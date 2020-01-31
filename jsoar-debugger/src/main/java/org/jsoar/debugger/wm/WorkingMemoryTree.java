@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.syntax.Highlighter;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -46,7 +47,6 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.SwingTools;
 import org.jsoar.util.commands.SoarCommands;
 
 /**

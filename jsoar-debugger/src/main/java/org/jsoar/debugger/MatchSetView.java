@@ -28,6 +28,7 @@ import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
@@ -37,7 +38,6 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**

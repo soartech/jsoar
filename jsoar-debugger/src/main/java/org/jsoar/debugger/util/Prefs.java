@@ -1,4 +1,4 @@
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

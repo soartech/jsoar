@@ -27,6 +27,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
@@ -37,7 +38,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
