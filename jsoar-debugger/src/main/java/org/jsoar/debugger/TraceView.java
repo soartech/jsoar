@@ -241,7 +241,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "You can paste code (ctrl+v) directly into this window.\n");
 
 
-        debugger.getAgent().getPrinter().addPersistentWriter(outputWriter);
+        debugger.getAgent().getPrinter().pushWriter(outputWriter);
 
 
         final Trace trace = debugger.getAgent().getTrace();
