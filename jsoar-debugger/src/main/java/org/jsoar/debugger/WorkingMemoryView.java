@@ -18,10 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.debugger.wm.WorkingMemoryTree;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.util.SwingTools;
 
 /**
  * @author ray

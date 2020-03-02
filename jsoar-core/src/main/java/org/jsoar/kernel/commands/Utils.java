@@ -62,13 +62,8 @@ public class Utils
                 ? (CommandLine) command
                 : new CommandLine(command);
         
-        // The "debug time" command takes a command as a parameter, which can contain options
-        // In order to inform picocli that the options are part of the command parameter
-        // the following boolean must be set to true
-        if (command.getClass() == Debug.class)
-        {
-            commandLine.setUnmatchedOptionsArePositionalParams(true);
-        }
+        // always treat unrecognized options as params, as there are a number of commands whose params can be preceded by a dash (e.g., srand with a negative number, log with negative numbers, debug time with another command with options, etc.).  
+        commandLine.setUnmatchedOptionsArePositionalParams(true);
         
         try {
             return commandLine.parseWithHandlers(

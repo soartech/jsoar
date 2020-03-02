@@ -53,8 +53,7 @@ public class DecideCommand implements SoarCommand
                          DecideCommand.NumericIndifferentMode.class,
                          DecideCommand.Predict.class,
                          DecideCommand.Select.class,
-                         DecideCommand.SetRandomSeed.class,
-                         DecideCommand.SRand.class})
+                         DecideCommand.SetRandomSeed.class})
     static public class Decide implements Runnable
     {
         private Agent agent;
@@ -507,7 +506,7 @@ public class DecideCommand implements SoarCommand
     }
 
 
-    @Command(name="set-random-seed", description="Seeds the random number generator with the passed seed",
+    @Command(name="set-random-seed", aliases= {"srand"}, description="Seeds the random number generator with the passed seed",
             subcommands={HelpCommand.class})
     static public class SetRandomSeed implements Runnable
     {
@@ -529,31 +528,6 @@ public class DecideCommand implements SoarCommand
             parent.agent.getPrinter().startNewLine().print("Random number generator seed set to " + seed);
         }
     }
-
-
-    @Command(name="srand", description="Alias to set-random-seed",
-            subcommands={HelpCommand.class})
-    static public class SRand implements Runnable
-    {
-        @ParentCommand
-        Decide parent; // injected by picocli
-
-        @Parameters(index="0", arity="0..1", description="The seed for the random number generator")
-        private Long seed = null;
-
-        @Override
-        public void run()
-        {
-            if (seed == null)
-            {
-                seed = System.nanoTime();
-            }
-
-            parent.agent.getRandom().setSeed(seed);
-            parent.agent.getPrinter().startNewLine().print("Random number generator seed set to " + seed);
-        }
-    }
-
 
     private static String currentNumericIndifferentMode(Exploration exploration) {
         return PrintHelper.generateItem("Numeric indifference mode:",

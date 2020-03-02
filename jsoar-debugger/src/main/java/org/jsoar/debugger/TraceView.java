@@ -42,6 +42,7 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.syntax.Highlighter;
 import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
+import org.jsoar.debugger.util.IncrementalSearchPanel;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
@@ -51,7 +52,6 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.IncrementalSearchPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,7 +3,7 @@
  *
  * Created on Jul 18, 2009
  */
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.syntax.Highlighter;

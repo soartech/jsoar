@@ -33,8 +33,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.demos.robot.AsciiWorldLoader.Result;
-import org.jsoar.util.SwingTools;
 
 
 

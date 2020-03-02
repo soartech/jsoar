@@ -26,6 +26,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
+import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
@@ -33,7 +34,6 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.SwingTools;
 
 /**
  * 

@@ -3,7 +3,7 @@
  *
  * Created on Dec 7, 2008
  */
-package org.jsoar.util;
+package org.jsoar.debugger.util;
 
 import java.util.Enumeration;
 import java.util.List;

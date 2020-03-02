@@ -10,7 +10,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.util.Prefs;
+import org.jsoar.debugger.util.Prefs;
 
 
 public class Highlighter
