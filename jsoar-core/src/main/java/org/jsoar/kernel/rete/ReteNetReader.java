@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,7 +89,7 @@ public class ReteNetReader
      */
     public void read(InputStream is) throws IOException, SoarException
     {
-        DataInputStream dis = new DataInputStream(is);
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
         final String magic = dis.readUTF();
         if(!MAGIC_STRING.equals(magic))
         {

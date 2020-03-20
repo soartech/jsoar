@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,7 +94,7 @@ public class ReteNetWriter
     {
         ensureNoJustifications();
         
-        DataOutputStream dos = new DataOutputStream(os);
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(os));
         try {
             // This is only to try to get rid of any symbols that may be hanging around
             // they won't hurt the rete if they stay, just make the image bigger.
