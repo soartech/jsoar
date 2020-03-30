@@ -34,3 +34,4 @@ target/
 jsoar-build/test.log
 /.idea/
 *.trace
+jsoar-debugger/ngs-temp.txt
