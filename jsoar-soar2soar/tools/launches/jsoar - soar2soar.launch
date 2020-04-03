@@ -23,5 +23,4 @@
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="5 http://soar.googlecode.com/svn/trunk/SoarSuite/Soar2Soar/environments/blocks-world.soar http://soar.googlecode.com/svn/trunk/SoarSuite/Soar2Soar/agents/blocks-world.soar"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar-soar2soar"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1024m"/>
 </launchConfiguration>
