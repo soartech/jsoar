@@ -15,8 +15,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
 import org.jsoar.util.timing.WallclockExecutionTimeSource;
@@ -30,28 +29,13 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "debug" command.
  * @author austin.brehob
  */
-public class DebugCommand implements SoarCommand
+public class DebugCommand extends PicocliSoarCommand
 {
-    private Agent agent;
     
     public DebugCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Debug(agent));
     }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Debug(agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Debug(agent);
-    }
-
 
     @Command(name="debug", description="Contains low-level technical debugging commands",
             subcommands={HelpCommand.class,

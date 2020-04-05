@@ -1,11 +1,9 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Explain;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -16,26 +14,11 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "explain-backtraces" command.
  * @author austin.brehob
  */
-public class ExplainBacktracesCommand implements SoarCommand
+public class ExplainBacktracesCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    
     public ExplainBacktracesCommand(Agent agent)
     {
-        this.agent = agent;
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new ExplainBacktraces(agent), args);
-
-        return "";
-    }
-    @Override
-    public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return new ExplainBacktraces(agent);
+        super(agent, new ExplainBacktraces(agent));
     }
 
     @Command(name="explain-backtraces", description="Allows you to explore how rules were learned",

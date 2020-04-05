@@ -17,8 +17,7 @@ import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.rete.ReteSerializer;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
@@ -32,30 +31,14 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "load" command.
  * @author austin.brehob
  */
-public class LoadCommand implements SoarCommand
+public class LoadCommand extends PicocliSoarCommand
 {
-    private SourceCommand sourceCommand;
-    private Agent agent;
     
     public LoadCommand(SourceCommand sourceCommand, Agent agent)
     {
-        this.sourceCommand = sourceCommand;
-        this.agent = agent;
+        super(agent, new Load(sourceCommand, agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Load(sourceCommand, agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Load(sourceCommand,agent);
-    }
-
 
     @Command(name="load", description="Loads a file or rete-net",
             subcommands={HelpCommand.class,

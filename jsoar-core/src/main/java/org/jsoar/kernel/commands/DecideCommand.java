@@ -5,12 +5,10 @@ import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DecisionManipulation;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -22,28 +20,13 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "decide" command.
  * @author austin.brehob
  */
-public class DecideCommand implements SoarCommand
+public class DecideCommand extends PicocliSoarCommand
 {
     private static final int DISPLAY_COLUMNS = 55;
-    private final Agent agent;
 
     public DecideCommand(Agent agent)
     {
-        this.agent = agent;
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Decide(agent), args);
-
-        return "";
-    }
-
-    @Override
-    public Object getCommand()
-    {
-        return new Decide(agent);
+        super(agent, new Decide(agent));
     }
 
     @Command(name="decide", description="Commands and settings related to "

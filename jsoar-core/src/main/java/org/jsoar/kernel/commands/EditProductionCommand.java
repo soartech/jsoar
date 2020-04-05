@@ -6,11 +6,9 @@ import java.io.IOException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.SourceLocation;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -20,23 +18,13 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "edit-production" command.
  * @author austin.brehob
  */
-public class EditProductionCommand implements SoarCommand
+public class EditProductionCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
 
     public EditProductionCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new EditProduction(agent));
     }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new EditProduction(agent), args);
-
-        return "";
-    }
-
 
     @Command(name="edit-production", description="Opens the given production in a text editor",
             subcommands={HelpCommand.class})
@@ -95,8 +83,5 @@ public class EditProductionCommand implements SoarCommand
             }
         }
     }
-    @Override
-    public Object getCommand() {
-        return new EditProduction(agent);
-    }
+    
 }

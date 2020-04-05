@@ -8,46 +8,28 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.TeeWriter;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "output" command.
  * @author austin.brehob
  */
-public final class OutputCommand implements SoarCommand
+public final class OutputCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-    private PrintCommand printCommand;
-    private LinkedList<Writer> writerStack = new LinkedList<Writer>();
     
     public OutputCommand(Agent agent, PrintCommand printCommand)
     {
-        this.agent = agent;
-        this.printCommand = printCommand;
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Output(agent, printCommand, writerStack), args);
-        
-        return "";
-    }
-    @Override
-    public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return new Output(agent,printCommand,writerStack);
+        super(agent, new Output(agent, printCommand, new LinkedList<Writer>()));
     }
     
     @Command(name="output", description="Commands related to handling output",
