@@ -21,14 +21,12 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
-import com.google.common.base.Joiner;
-
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
@@ -200,10 +198,9 @@ public class PrintCommand implements SoarCommand
 
                 result += "************************************************************\n";
 
-                agent.getPrinter().startNewLine().print(result);
+                agent.getPrinter().print(result);
             }
             
-            agent.getPrinter().startNewLine();
             pc.depth = pc.defaultDepth;
 
             if (overrideDepth != null)
@@ -240,13 +237,12 @@ public class PrintCommand implements SoarCommand
 
             if (params != null)
             {
-                String argString = Joiner.on(' ').join(params);
+                String argString = String.join(" ", params);
 
                 // Test if the parameter(s) passed is a symbol or pattern
                 Symbol arg = agent.readIdentifierOrContextVariable(argString);
                 if (arg != null || argString.charAt(0) == '(')
                 {
-                    agent.getPrinter().startNewLine();
                     pc.wmp.setInternal(printInternalForm);
                     pc.wmp.setExact(printExactMatch);
 
@@ -276,13 +272,12 @@ public class PrintCommand implements SoarCommand
                         // TODO: Print full object, not just wme
                         if (wme.getTimetag() == tt)
                         {
-                            agent.getPrinter().startNewLine();
                             agent.getPrinter().print(wme.toString());
                             agent.getPrinter().flush();
                             return;
                         }
                     }
-                    agent.getPrinter().startNewLine().print("No wme " + tt + " in working memory.");
+                    agent.getPrinter().print("No wme " + tt + " in working memory.");
                     return;
                 }
                 catch (NumberFormatException ignored)
@@ -296,7 +291,6 @@ public class PrintCommand implements SoarCommand
                     printFullProd = true;
                 }
 
-                agent.getPrinter().startNewLine();
                 Production p = agent.getProductions().getProduction(argString);
                 if (p != null)
                 {
@@ -319,7 +313,6 @@ public class PrintCommand implements SoarCommand
                 printTemplates = true;
             }
 
-            agent.getPrinter().startNewLine();
             for (Production p : collectProductions())
             {
                 do_print_for_production(p);
@@ -405,7 +398,6 @@ public class PrintCommand implements SoarCommand
     {
         if (depth <= 0)
         {
-            agent.getPrinter().startNewLine().print("depth must be greater than 0");
             return false;
         }
         return true;
