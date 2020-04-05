@@ -1,8 +1,6 @@
 package org.jsoar.util.properties;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.jsoar.util.properties.BooleanPropertyProvider;
-import org.jsoar.util.properties.PropertyKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

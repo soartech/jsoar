@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Resources;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
