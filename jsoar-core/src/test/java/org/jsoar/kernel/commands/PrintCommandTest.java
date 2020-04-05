@@ -55,21 +55,21 @@ public class PrintCommandTest
     @Test
     public void testDefaultDepth() throws SoarException
     {
-        assertEquals(command.getDefaultDepth(), 1);
-        command.setDefaultDepth(5);
-        assertEquals(command.getDefaultDepth(), 5);
+        assertEquals(command.getCommand().getDefaultDepth(), 1);
+        command.getCommand().setDefaultDepth(5);
+        assertEquals(command.getCommand().getDefaultDepth(), 5);
     }
 
     @Test(expected = SoarException.class)
     public void testZeroDefaultDepth() throws SoarException
     {
-        command.setDefaultDepth(0);
+        command.getCommand().setDefaultDepth(0);
     }
 
     @Test(expected = SoarException.class)
     public void testNegativeDefaultDepth() throws SoarException
     {
-        command.setDefaultDepth(-1);
+        command.getCommand().setDefaultDepth(-1);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class PrintCommandTest
 
         clearBuffer();
 
-        command.setDefaultDepth(2);
+        command.getCommand().setDefaultDepth(2);
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         String b = outputWriter.toString();
         System.out.println("'" + b + "'");

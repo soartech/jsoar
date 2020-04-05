@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.PrintCommand.Print;
 import org.jsoar.util.TeeWriter;
 import org.jsoar.util.commands.PicocliSoarCommand;
 
@@ -27,7 +28,7 @@ import picocli.CommandLine.Spec;
 public final class OutputCommand extends PicocliSoarCommand
 {
     
-    public OutputCommand(Agent agent, PrintCommand printCommand)
+    public OutputCommand(Agent agent, Print printCommand)
     {
         super(agent, new Output(agent, printCommand, new LinkedList<Writer>()));
     }
@@ -40,10 +41,10 @@ public final class OutputCommand extends PicocliSoarCommand
     static public class Output implements Runnable
     {
         private Agent agent;
-        private PrintCommand printCommand;
+        private Print printCommand;
         private LinkedList<Writer> writerStack;
         
-        public Output(Agent agent, PrintCommand printCommand, LinkedList<Writer> writerStack)
+        public Output(Agent agent, Print printCommand, LinkedList<Writer> writerStack)
         {
             this.agent = agent;
             this.printCommand = printCommand;

@@ -18,8 +18,7 @@ import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -33,45 +32,33 @@ import picocli.CommandLine.Spec;
  * This is the implementation of the "print" command.
  * @author austin.brehob
  */
-public class PrintCommand implements SoarCommand
+public class PrintCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-    protected int defaultDepth = 1;
-    protected int depth = 1;
-    protected WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
-    
     public PrintCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Print(agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        // 'this' is passed to the Print class to provide access to
-        // PrintCommand's variables and functions
-        Utils.parseAndRun(agent, new Print(agent, this), args);
-        
-        return "";
+    public Print getCommand() {
+        return (Print)super.getCommand();
     }
-    @Override
-    public Object getCommand() {
-        return new Print(agent,this);
-    }
+    
+
     @Command(name="print", description="Prints data in the console window",
             subcommands={HelpCommand.class})
     static public class Print implements Runnable
     {
         private Agent agent;
-        private PrintCommand pc;
+        private int defaultDepth = 1;
+        private int depth = 1;
+        private WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
         
         @Spec
         private CommandSpec spec;
         
-        public Print(Agent agent, PrintCommand pc)
+        public Print(Agent agent)
         {
             this.agent = agent;
-            this.pc = pc;
         }
         
         @Option(names={"-a", "--all"}, defaultValue="false", description="Print the names of all productions currently loaded")
@@ -201,14 +188,14 @@ public class PrintCommand implements SoarCommand
                 agent.getPrinter().print(result);
             }
             
-            pc.depth = pc.defaultDepth;
+            depth = defaultDepth;
 
             if (overrideDepth != null)
             {
                 int newDepth = overrideDepth;
-                if (pc.checkDepth(newDepth))
+                if (checkDepth(newDepth))
                 {
-                    pc.depth = newDepth;
+                    depth = newDepth;
                 }
             }
 
@@ -243,16 +230,16 @@ public class PrintCommand implements SoarCommand
                 Symbol arg = agent.readIdentifierOrContextVariable(argString);
                 if (arg != null || argString.charAt(0) == '(')
                 {
-                    pc.wmp.setInternal(printInternalForm);
-                    pc.wmp.setExact(printExactMatch);
+                    wmp.setInternal(printInternalForm);
+                    wmp.setExact(printExactMatch);
 
                     // These are ignored if the parameters form a pattern
-                    pc.wmp.setDepth(pc.depth);
-                    pc.wmp.setTree(printInTreeForm);
+                    wmp.setDepth(depth);
+                    wmp.setTree(printInTreeForm);
 
                     try
                     {
-                        pc.wmp.print(agent, agent.getPrinter(), arg, argString);
+                        wmp.print(agent, agent.getPrinter(), arg, argString);
                     }
                     catch (Exception e)
                     {
@@ -392,29 +379,30 @@ public class PrintCommand implements SoarCommand
 
             return result;
         }
-    }
-    
-    protected boolean checkDepth(int depth)
-    {
-        if (depth <= 0)
+        
+        private boolean checkDepth(int depth)
         {
-            return false;
+            if (depth <= 0)
+            {
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
-    
-    public void setDefaultDepth(int depth) throws SoarException
-    {
-        if (checkDepth(depth))
+        
+        public void setDefaultDepth(int depth) throws SoarException
         {
-            defaultDepth = depth;
-        } else {
-            throw new SoarException("depth must be greater than 0");
+            if (checkDepth(depth))
+            {
+                defaultDepth = depth;
+            } else {
+                throw new SoarException("depth must be greater than 0");
+            }
+        }
+        
+        public int getDefaultDepth()
+        {
+            return defaultDepth;
         }
     }
     
-    public int getDefaultDepth()
-    {
-        return defaultDepth;
-    }
 }
