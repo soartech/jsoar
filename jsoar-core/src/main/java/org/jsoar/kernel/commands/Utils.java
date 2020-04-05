@@ -1,30 +1,19 @@
 package org.jsoar.kernel.commands;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.commons.io.output.WriterOutputStream;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.DebugCommand.Debug;
 
 import picocli.CommandLine;
-import picocli.CommandLine.ExecutionException;
-import picocli.CommandLine.Help;
-import picocli.CommandLine.IExceptionHandler2;
-import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
-import picocli.CommandLine.RunLast;
-import picocli.CommandLine.UnmatchedArgumentException;
 
 public class Utils
 {
+    
     /**
      * Helper method intended to connect SoarCommands to the picocli parser
      * Typically called from the SoarCommand's execute method
@@ -36,10 +25,8 @@ public class Utils
      * @throws SoarException 
      */
     public static void parseAndRun(Agent agent, Object command, String[] args) throws SoarException {
-        OutputStream os = new WriterOutputStream(agent.getPrinter().getWriter(), Charset.defaultCharset(), 1024, true);
-        PrintStream ps = new PrintStream(os);
-        
-        parseAndRun(command, args, ps);
+        PrintWriter pw = agent.getPrinter().asPrintWriter();
+        parseAndRun(command, args, pw);
     }
     
     
@@ -56,7 +43,7 @@ public class Utils
      * @throws SoarException if the user input was invalid or if a runtime exception occurred
      *                      while executing the command business logic
      */
-    public static List<Object> parseAndRun(Object command, String[] args, PrintStream ps) throws SoarException {
+    public static String parseAndRun(Object command, String[] args, PrintWriter pw) throws SoarException {
         
         CommandLine commandLine = command instanceof CommandLine
                 ? (CommandLine) command
@@ -65,33 +52,23 @@ public class Utils
         // always treat unrecognized options as params, as there are a number of commands whose params can be preceded by a dash (e.g., srand with a negative number, log with negative numbers, debug time with another command with options, etc.).  
         commandLine.setUnmatchedOptionsArePositionalParams(true);
         
-        try {
-            return commandLine.parseWithHandlers(
-                    new RunLast().useOut(ps),
-                    new ExceptionHandler(),
-                    Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
-        }
-        catch(Exception e) {
-            throw new SoarException(e.getMessage(), e); // rethrow all exceptions as SoarExceptions
-        }
+        commandLine.setOut(pw);
+        commandLine.setErr(pw);
+        ExceptionHandler handler = new ExceptionHandler();
+        commandLine.setExecutionExceptionHandler(handler);
+        int exitCode = commandLine.execute(
+                Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
+        if(exitCode != 0) throw new SoarException("Error executing command " + String.join(" ", args));
+        return commandLine.getExecutionResult();
     }
     
     public static String parseAndRun(Object command, String[] args) throws SoarException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
-            List<Object> results = parseAndRun(command, args, ps);
-            if(results != null) {
-                for(Object o : results) {
-                    if(o != null) ps.print(o.toString());
-                }
-            }
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            throw new SoarException(e);
-        }
-        final String result = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-        return result;
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        String result = parseAndRun(command, args, pw);
+        pw.print(result != null ? result : "");
+        pw.close();
+        return sw.toString();
     }
     
     /**
@@ -99,38 +76,18 @@ public class Utils
      * @author bob.marinier
      *
      */
-    protected static class ExceptionHandler implements IExceptionHandler2<List<Object>> {
-
-        /**
-         * For parameter exceptions, throw a new exception that includes the help text (which will get printed elsewhere)
-         */
-        @Override
-        public List<Object> handleParseException(ParameterException ex, String[] args)
-        {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (PrintStream ps = new PrintStream(baos, true, "UTF-8")) {
-            
-                ps.println(ex.getMessage());
-                if (!UnmatchedArgumentException.printSuggestions(ex, ps)) {
-                    ex.getCommandLine().usage(ps, Help.Ansi.AUTO);
-                }
-                final String result = new String(baos.toByteArray(), StandardCharsets.UTF_8);
-                throw new RuntimeException(result, ex);
-            }
-            catch (UnsupportedEncodingException e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
+    protected static class ExceptionHandler implements IExecutionExceptionHandler {
 
         /**
          * For execution exceptions, just rethrow without printing help
+         * @throws Exception 
          */
         @Override
-        public List<Object> handleExecutionException(ExecutionException ex,
-                ParseResult parseResult)
+        public int handleExecutionException(Exception ex,
+                CommandLine commandLine,
+                ParseResult parseResult) throws Exception
         {
-            throw ex;
+            throw new SoarException(ex);
         } 
     }
 }

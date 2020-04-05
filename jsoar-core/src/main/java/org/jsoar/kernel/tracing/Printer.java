@@ -138,6 +138,10 @@ public class Printer
         return writer instanceof PrintWriter ? (PrintWriter) writer : new PrintWriter(writer, true);
     }
     
+    public PrintWriter asPrintWriter() {
+        return this.asPrintWriter(this.getWriter());
+    }
+    
     /**
      * Pop the current writer from the writer stack. The current writer is
      * flushed and returned. The writer currently on the top of the stack
