@@ -70,20 +70,20 @@ public class LoadCommand extends PicocliSoarCommand
         @ParentCommand
         Load parent; // injected by picocli
 
-        @Option(names={"-a", "--all"}, description="Enables a summary for each file sourced")
-        boolean loadSummary = false;
+        @Option(names={"-a", "--all"}, defaultValue="false", description="Enables a summary for each file sourced")
+        boolean loadSummary;
         
-        @Option(names={"-d", "--disable"}, description="Disables all summaries")
-        boolean disableSummaries = false;
+        @Option(names={"-d", "--disable"}, defaultValue="false", description="Disables all summaries")
+        boolean disableSummaries;
         
-        @Option(names={"-r", "--reload"}, description="Reloads the last loaded file(s)")
-        boolean reload = false;
+        @Option(names={"-r", "--reload"}, defaultValue="false", description="Reloads the last loaded file(s)")
+        boolean reload;
         
-        @Option(names={"-v", "--verbose"}, description="Prints all excised production names")
-        boolean printExcised = false;
+        @Option(names={"-v", "--verbose"}, defaultValue="false", description="Prints all excised production names")
+        boolean printExcised;
         
         @Parameters(arity="0..*", description="File names")
-        String[] fileNames = null;
+        String[] fileNames;
         
         @Override
         public void run()
@@ -252,7 +252,7 @@ public class LoadCommand extends PicocliSoarCommand
 
         @Option(names={"-l", "--load", "-r", "--restore"}, arity="1",
                 description="File name to load rete-net from")
-        String fileName = null;
+        String fileName;
 
         @Override
         public void run()

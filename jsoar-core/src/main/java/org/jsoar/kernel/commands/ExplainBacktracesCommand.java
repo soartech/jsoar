@@ -34,14 +34,14 @@ public class ExplainBacktracesCommand extends PicocliSoarCommand
 
         @Option(names={"-c", "--condition"}, description="Explain why condition "
                 + "number n is in the chunk or justification")
-        Integer chunkNum = null;
+        Integer chunkNum;
 
-        @Option(names={"-f", "--full"}, description="Print the full backtrace for the named production")
-        boolean printFull = false;
+        @Option(names={"-f", "--full"}, defaultValue="false", description="Print the full backtrace for the named production")
+        boolean printFull;
 
         @Parameters(arity="0..1", description="List all conditions "
                 + "and grounds for the chunk or justification")
-        String prodName = null;
+        String prodName;
 
         @Override
         public void run()

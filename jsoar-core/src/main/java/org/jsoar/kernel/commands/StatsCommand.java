@@ -53,8 +53,8 @@ public class StatsCommand implements SoarCommand
             this.agent = agent;
         }
 
-        @Option(names={"-s", "--system"}, description="Prints system statistics")
-        boolean printSystemStats = false;
+        @Option(names={"-s", "--system"}, defaultValue="false", description="Prints system statistics")
+        boolean printSystemStats;
 
         @Override
         public void run()

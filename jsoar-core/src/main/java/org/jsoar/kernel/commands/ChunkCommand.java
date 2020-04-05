@@ -32,12 +32,14 @@ public class ChunkCommand extends PicocliSoarCommand
         }
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables chunking")
-        boolean enable = false;
+        boolean enable;
 
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false",
                 description="Disables chunking")
-        boolean disable = false;
+        boolean disable;
         
         @Override
         public void run()

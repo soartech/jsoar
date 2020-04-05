@@ -46,11 +46,11 @@ public class SaveBacktracesCommand implements SoarCommand
             this.agent = agent;
         }
 
-        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables backtrace saving")
-        boolean enable = false;
+        @Option(names={"on", "-e", "--on", "--enable"}, defaultValue="false", description="Enables backtrace saving")
+        boolean enable;
 
-        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables backtrace saving")
-        boolean disable = false;
+        @Option(names={"off", "-d", "--off", "--disable"}, defaultValue="false", description="Disables backtrace saving")
+        boolean disable;
 
         @Override
         public void run()

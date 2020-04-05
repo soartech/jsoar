@@ -76,7 +76,7 @@ public class SaveCommand implements SoarCommand
         Save parent; // injected by picocli
 
         @Option(names={"-s", "--save"}, arity="1", description="File name to save rete-net to")
-        String fileName = null;
+        String fileName;
         
         @Override
         public void run()

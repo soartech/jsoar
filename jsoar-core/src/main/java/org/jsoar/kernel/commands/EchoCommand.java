@@ -31,8 +31,8 @@ public class EchoCommand extends PicocliSoarCommand
             this.agent = agent;
         }
         
-        @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
-        boolean noNewline = false;
+        @Option(names={"-n", "--no-newline"}, defaultValue="false", description="Suppress printing of the newline character")
+        boolean noNewline;
         
         @Parameters(description="The string to output")
         String[] outputString = null;

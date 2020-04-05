@@ -38,7 +38,7 @@ public class EditProductionCommand extends PicocliSoarCommand
         }
 
         @Parameters(index="0", description="The production to edit")
-        private String prodName = null;
+        private String prodName;
 
         @Override
         public void run()

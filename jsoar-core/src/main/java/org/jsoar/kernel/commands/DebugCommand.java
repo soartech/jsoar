@@ -117,7 +117,7 @@ public class DebugCommand extends PicocliSoarCommand
         Debug parent; // injected by picocli
         
         @Parameters(description="The Soar command")
-        String[] command = null;
+        String[] command;
         
         @Override
         public void run()

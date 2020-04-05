@@ -54,19 +54,19 @@ public class QMemoryCommand implements SoarCommand
         }
 
         @Option(names={"-g", "--get"}, description="Item to retreive from qmemory")
-        String getPath = null;
+        String getPath;
 
         @Option(names={"-s", "--set"}, description="Item to set in qmemory")
-        String setPath = null;
+        String setPath;
 
         @Parameters(arity="0..1", description="New value of item")
-        String value = null;
+        String value;
 
         @Option(names={"-r", "--remove"}, description="Item to remove from qmemory")
-        String removePath = null;
+        String removePath;
 
-        @Option(names={"-c", "--clear"}, description="Clears everything from qmemory")
-        boolean clear = false;
+        @Option(names={"-c", "--clear"}, defaultValue="false", description="Clears everything from qmemory")
+        boolean clear;
 
         @Override
         public void run()

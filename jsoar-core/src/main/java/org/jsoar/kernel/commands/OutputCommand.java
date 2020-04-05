@@ -70,11 +70,11 @@ public final class OutputCommand extends PicocliSoarCommand
         @ParentCommand
         Output parent; // injected by picocli
 
-        @Option(names={"-c", "--close"}, arity="0..1", description="Closes the log file")
-        boolean close = false;
+        @Option(names={"-c", "--close"}, arity="0..1", defaultValue="false", description="Closes the log file")
+        boolean close;
         
         @Parameters(index="0", arity="0..1", description="File name")
-        String fileName = null;
+        String fileName;
         
         @Override
         public void run()
@@ -147,7 +147,7 @@ public final class OutputCommand extends PicocliSoarCommand
         CommandSpec spec; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="New print depth")
-        Integer printDepth = null;
+        Integer printDepth;
         
         @Override
         public void run()
@@ -178,11 +178,11 @@ public final class OutputCommand extends PicocliSoarCommand
         @ParentCommand
         Output parent; // injected by picocli
         
-        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables output warnings")
-        boolean enable = false;
+        @Option(names={"on", "-e", "--on", "--enable"}, defaultValue="false", description="Enables output warnings")
+        boolean enable;
         
-        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables output warnings")
-        boolean disable = false;
+        @Option(names={"off", "-d", "--off", "--disable"}, defaultValue="false", description="Disables output warnings")
+        boolean disable;
         
         @Override
         public void run()

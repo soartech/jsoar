@@ -46,7 +46,7 @@ public class SetParserCommand implements SoarCommand
         }
 
         @Parameters(description="The new parser")
-        String parser = null;
+        String parser;
 
         @Override
         public void run()

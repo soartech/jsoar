@@ -112,7 +112,7 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="The new number of maximum elaborations")
-        private Integer numElaborations = null;
+        private Integer numElaborations;
 
         @Override
         public void run()
@@ -164,7 +164,7 @@ public class SoarSettingsCommand implements SoarCommand
         
         @Parameters(index="0", arity="0..1",
                 description="Valid phases are: ${COMPLETION-CANDIDATES}")
-        private CommandPhase phase = null;
+        private CommandPhase phase;
 
         @Override
         public void run()
@@ -193,12 +193,14 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables timers")
-        boolean enable = false;
+        boolean enable;
         
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false",
                 description="Disables timers")
-        boolean disable = false;
+        boolean disable;
 
         @Override
         public void run()
@@ -229,12 +231,14 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables wait-snc")
-        boolean enable = false;
+        boolean enable;
         
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false", 
                 description="Disables wait-snc")
-        boolean disable = false;
+        boolean disable;
 
         @Override
         public void run()

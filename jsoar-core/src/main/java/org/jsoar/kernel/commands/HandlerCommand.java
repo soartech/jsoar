@@ -48,11 +48,11 @@ public class HandlerCommand extends PicocliSoarCommand
 
         @Option(names={"on", "-e", "--on", "--enable"},
                 description="Enables RHS function")
-        String functionToEnable = null;
+        String functionToEnable;
 
         @Option(names={"off", "-d", "--off", "--disable"},
                 description="Disables timers")
-        String functionToDisable = null;
+        String functionToDisable;
 
         @Override
         public String call()

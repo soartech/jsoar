@@ -74,70 +74,70 @@ public class PrintCommand implements SoarCommand
             this.pc = pc;
         }
         
-        @Option(names={"-a", "--all"}, description="Print the names of all productions currently loaded")
-        boolean printAll = false;
+        @Option(names={"-a", "--all"}, defaultValue="false", description="Print the names of all productions currently loaded")
+        boolean printAll;
         
-        @Option(names={"-c", "--chunks"}, description="Print the names of all chunks currently loaded")
-        boolean printChunks = false;
+        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Print the names of all chunks currently loaded")
+        boolean printChunks;
         
-        @Option(names={"-D", "--defaults"}, description="Print the names of "
+        @Option(names={"-D", "--defaults"}, defaultValue="false", description="Print the names of "
                 + "all default productions currently loaded")
-        boolean printDefaults = false;
+        boolean printDefaults;
         
         @Option(names={"-d", "--depth"}, description="This option overrides the default printing depth")
-        Integer overrideDepth = null;
+        Integer overrideDepth;
         
-        @Option(names={"-e", "--exact"}, description="Print only the wmes that match the pattern")
-        boolean printExactMatch = false;
+        @Option(names={"-e", "--exact"}, defaultValue="false", description="Print only the wmes that match the pattern")
+        boolean printExactMatch;
         
-        @Option(names={"-F", "--filename"}, description="Also prints the name "
+        @Option(names={"-F", "--filename"}, defaultValue="false", description="Also prints the name "
                 + "of the file that contains the production")
-        boolean printFilename = false;
+        boolean printFilename;
         
-        @Option(names={"-f", "--full"}, description="When printing productions, print "
+        @Option(names={"-f", "--full"}, defaultValue="false", description="When printing productions, print "
                 + "the whole production (default behavior for individual productions)")
-        boolean printFullProd = false;
+        boolean printFullProd;
         
-        @Option(names={"-g", "--gds"}, description="Print the Goal Dependency Set")
-        boolean printGDS = false;
+        @Option(names={"-g", "--gds"}, defaultValue="false", description="Print the Goal Dependency Set")
+        boolean printGDS;
         
-        @Option(names={"-i", "--internal"}, description="Items will be printed in their internal form")
-        boolean printInternalForm = false;
+        @Option(names={"-i", "--internal"}, defaultValue="false", description="Items will be printed in their internal form")
+        boolean printInternalForm;
         
-        @Option(names={"-j", "--justifications"}, description="Print the names of "
+        @Option(names={"-j", "--justifications"}, defaultValue="false", description="Print the names of "
                 + "all justifications currently loaded")
-        boolean printJustify = false;
+        boolean printJustify;
         
-        @Option(names={"-n", "--name"}, description="When printing productions, print only "
+        @Option(names={"-n", "--name"}, defaultValue="false", description="When printing productions, print only "
                 + "the name and not the whole production (default behavior for multiple productions")
-        boolean printOnlyName = false;
+        boolean printOnlyName;
         
-        @Option(names={"-o", "--operators"}, description="When printing the stack, print only operators")
-        boolean printOnlyOperators = false;
+        @Option(names={"-o", "--operators"}, defaultValue="false", description="When printing the stack, print only operators")
+        boolean printOnlyOperators;
         
-        @Option(names={"-r", "--rl"}, description="Print Soar-RL rules")
-        boolean printRLRules = false;
+        @Option(names={"-r", "--rl"}, defaultValue="false", description="Print Soar-RL rules")
+        boolean printRLRules;
         
-        @Option(names={"-s", "--stack"}, description="Specifies that the Soar goal stack should be printed")
-        boolean printStack = false;
+        @Option(names={"-s", "--stack"}, defaultValue="false", description="Specifies that the Soar goal stack should be printed")
+        boolean printStack;
         
-        @Option(names={"-S", "--states"}, description="When printing the stack, print only states")
-        boolean printOnlyStates = false;
+        @Option(names={"-S", "--states"}, defaultValue="false", description="When printing the stack, print only states")
+        boolean printOnlyStates;
         
-        @Option(names={"-T", "--template"}, description="Print Soar-RL templates")
-        boolean printTemplates = false;
+        @Option(names={"-T", "--template"}, defaultValue="false", description="Print Soar-RL templates")
+        boolean printTemplates;
         
-        @Option(names={"-t", "--tree"}, description="wmes will be printed in a tree form (one wme per line)")
-        boolean printInTreeForm = false;
+        @Option(names={"-t", "--tree"}, defaultValue="false", description="wmes will be printed in a tree form (one wme per line)")
+        boolean printInTreeForm;
         
-        @Option(names={"-u", "--user"}, description="Print the names of all user productions currently loaded")
-        boolean printUserProds = false;
+        @Option(names={"-u", "--user"}, defaultValue="false", description="Print the names of all user productions currently loaded")
+        boolean printUserProds;
         
-        @Option(names={"-v", "--varprint"}, description="Print identifiers enclosed in angle brackets (not yet supported)")
-        boolean printVars = false;
+        @Option(names={"-v", "--varprint"}, defaultValue="false", description="Print identifiers enclosed in angle brackets (not yet supported)")
+        boolean printVars;
         
         @Parameters(description="A symbol, pattern, timetag, or production name")
-        private String[] params = null;
+        private String[] params;
         
         
         @Override

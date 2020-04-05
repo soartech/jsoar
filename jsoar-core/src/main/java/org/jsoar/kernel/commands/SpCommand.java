@@ -48,7 +48,7 @@ public class SpCommand implements SoarCommand
         }
 
         @Parameters(description="A Soar production")
-        String production = null;
+        String production;
 
         @Override
         public void run()

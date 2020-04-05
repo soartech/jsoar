@@ -89,50 +89,50 @@ public class DecideCommand extends PicocliSoarCommand
         @ParentCommand
         Decide parent; // injected by picocli
 
-        @Option(names={"-b", "--boltzmann"}, description="Sets the exploration policy to 'boltzmann'")
-        boolean boltzmannPolicy = false;
+        @Option(names={"-b", "--boltzmann"}, defaultValue="false", description="Sets the exploration policy to 'boltzmann'")
+        boolean boltzmannPolicy;
 
-        @Option(names={"-E", "--epsilon-greedy"}, description="Sets the "
-                + "exploration policy to 'epsilon-greedy'")
-        boolean epsilonGreedyPolicy = false;
+        @Option(names={"-E", "--epsilon-greedy"}, defaultValue="false", 
+                description="Sets the exploration policy to 'epsilon-greedy'")
+        boolean epsilonGreedyPolicy;
 
-        @Option(names={"-f", "--first"}, description="Sets the exploration policy to 'first'")
-        boolean firstPolicy = false;
+        @Option(names={"-f", "--first"}, defaultValue="false", description="Sets the exploration policy to 'first'")
+        boolean firstPolicy;
 
-        @Option(names={"-l", "--last"}, description="Sets the exploration policy to 'last'")
-        boolean lastPolicy = false;
+        @Option(names={"-l", "--last"}, defaultValue="false", description="Sets the exploration policy to 'last'")
+        boolean lastPolicy;
 
-        @Option(names={"-s", "--softmax"}, description="Sets the exploration policy to 'softmax'")
-        boolean softmaxPolicy = false;
+        @Option(names={"-s", "--softmax"}, defaultValue="false",  description="Sets the exploration policy to 'softmax'")
+        boolean softmaxPolicy;
 
-        @Option(names={"-e", "--epsilon"}, description="Prints or updates the epsilon value")
-        boolean epsilon = false;
+        @Option(names={"-e", "--epsilon"}, defaultValue="false", description="Prints or updates the epsilon value")
+        boolean epsilon;
 
-        @Option(names={"-t", "--temperature"}, description="Prints or updates temperature value")
-        boolean temperature = false;
+        @Option(names={"-t", "--temperature"}, defaultValue="false", description="Prints or updates temperature value")
+        boolean temperature;
 
         @Option(names={"-p", "--reduction-policy"}, description="Prints or updates the "
                 + "reduction policy for the given parameter")
-        String reductionPolicyParam = null;
+        String reductionPolicyParam;
 
         @Option(names={"-r", "--reduction-rate"}, description="Prints or updates the "
                 + "reduction rate for the given parameter")
-        String reductionRateParam = null;
+        String reductionRateParam;
 
-        @Option(names={"-a", "--auto-reduce"}, description="Prints or toggles automatic "
-                + "policy parameter reduction")
-        boolean autoReduce = false;
+        @Option(names={"-a", "--auto-reduce"}, defaultValue="false",
+                description="Prints or toggles automatic policy parameter reduction")
+        boolean autoReduce;
 
-        @Option(names={"-S", "--stats"}, description="Prints summary of decision settings")
-        boolean printStats = false;
+        @Option(names={"-S", "--stats"}, defaultValue="false", description="Prints summary of decision settings")
+        boolean printStats;
 
         @Parameters(index="0", arity="0..1", description="New epsilon/temperature value; or exploration "
                 + "parameter reduction policy: 'linear' or 'exponential'; or toggles auto-reduce: "
                 + "'on' or 'off'")
-        private String param = null;
+        private String param;
 
         @Parameters(index="1", arity="0..1", description="New exploration parameter reduction rate")
-        private Double reductionRate = null;
+        private Double reductionRate;
 
 
         @Override
@@ -388,11 +388,11 @@ public class DecideCommand extends PicocliSoarCommand
         @ParentCommand
         Decide parent; // injected by picocli
 
-        @Option(names={"-a", "--avg"}, description="Combines multiple preference values via an average")
-        boolean average = false;
+        @Option(names={"-a", "--avg"}, defaultValue="false", description="Combines multiple preference values via an average")
+        boolean average;
 
-        @Option(names={"-s", "--sum"}, description="Combines multiple preference values via a sum")
-        boolean sum = false;
+        @Option(names={"-s", "--sum"}, defaultValue="false", description="Combines multiple preference values via a sum")
+        boolean sum;
 
         @Override
         public void run()
@@ -460,7 +460,7 @@ public class DecideCommand extends PicocliSoarCommand
         Decide parent; // injected by picocli
 
         @Parameters(index="0", arity="0..1", description="The operator's identifier")
-        private String operatorID = null;
+        private String operatorID;
 
         @Override
         public void run()
@@ -497,7 +497,7 @@ public class DecideCommand extends PicocliSoarCommand
         Decide parent; // injected by picocli
 
         @Parameters(index="0", arity="0..1", description="The seed for the random number generator")
-        private Long seed = null;
+        private Long seed;
 
         @Override
         public void run()

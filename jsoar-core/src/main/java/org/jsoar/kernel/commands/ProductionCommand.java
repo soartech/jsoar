@@ -105,17 +105,17 @@ public class ProductionCommand implements SoarCommand
         ProductionC parent; // injected by picocli
         
         @Option(names={"-c", "--clear"}, description="Clear :interrupt flag from a production")
-        String prodToClear = null;
+        String prodToClear;
         
-        @Option(names={"-p", "--print"}, description="Print which production rules "
+        @Option(names={"-p", "--print"}, defaultValue="false", description="Print which production rules "
                 + "have had their :interrupt flags set")
-        boolean printBreaks = false;
+        boolean printBreaks;
         
         @Option(names={"-s", "--set"}, description="Set interrupt flag on a production rule")
-        String prodToBreak = null;
+        String prodToBreak;
         
         @Parameters(index="0", arity="0..1", description="Production rule on which to set :interrupt flag")
-        private String prodName = null;
+        private String prodName;
         
         @Override
         public void run()
@@ -181,35 +181,35 @@ public class ProductionCommand implements SoarCommand
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-a", "--all"}, description="Remove all productions from "
+        @Option(names={"-a", "--all"}, defaultValue="false", description="Remove all productions from "
                 + "memory and perform an init-soar command")
-        boolean exciseAll = false;
+        boolean exciseAll;
         
-        @Option(names={"-c", "--chunks"}, description="Remove all chunks (learned productions) from memory")
-        boolean exciseChunks = false;
+        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Remove all chunks (learned productions) from memory")
+        boolean exciseChunks;
         
-        @Option(names={"-d", "--default"}, description="Remove all default productions from memory")
-        boolean exciseDefault = false;
+        @Option(names={"-d", "--default"}, defaultValue="false", description="Remove all default productions from memory")
+        boolean exciseDefault;
         
-        @Option(names={"-n", "--never-fired"}, description="Excise rules that have a firing count of 0")
-        boolean exciseNeverFired = false;
+        @Option(names={"-n", "--never-fired"}, defaultValue="false", description="Excise rules that have a firing count of 0")
+        boolean exciseNeverFired;
         
-        @Option(names={"-r", "--rl"}, description="Excise Soar-RL rules")
-        boolean exciseRL = false;
+        @Option(names={"-r", "--rl"}, defaultValue="false", description="Excise Soar-RL rules")
+        boolean exciseRL;
         
-        @Option(names={"-t", "--task"}, description="Remove chunks, "
+        @Option(names={"-t", "--task"}, defaultValue="false", description="Remove chunks, "
                 + "justifications, and user productions from memory")
-        boolean exciseTasks = false;
+        boolean exciseTasks;
         
-        @Option(names={"-T", "--templates"}, description="Excise Soar-RL templates")
-        boolean exciseTemplates = false;
+        @Option(names={"-T", "--templates"}, defaultValue="false", description="Excise Soar-RL templates")
+        boolean exciseTemplates;
         
-        @Option(names={"-u", "--user"}, description="Remove all user productions "
+        @Option(names={"-u", "--user"}, defaultValue="false", description="Remove all user productions "
                 + "(but not chunks or default rules) from memory")
-        boolean exciseUser = false;
+        boolean exciseUser;
         
         @Parameters(index="0", arity="0..1", description="Remove the specific production with this name")
-        private String prodName = null;
+        private String prodName;
 
         @Override
         public void run()
@@ -320,24 +320,24 @@ public class ProductionCommand implements SoarCommand
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-l", "--lhs"}, description="Match pattern only "
+        @Option(names={"-l", "--lhs"}, defaultValue="false", description="Match pattern only "
                 + "against the conditions of productions (default)")
-        boolean matchLHS = false;
+        boolean matchLHS;
         
-        @Option(names={"-r", "--rhs"}, description="Match pattern against the actions of productions")
-        boolean matchRHS = false;
+        @Option(names={"-r", "--rhs"}, defaultValue="false", description="Match pattern against the actions of productions")
+        boolean matchRHS;
         
-        @Option(names={"-c", "--chunks"}, description="Look only for chunks that match the pattern")
-        boolean matchChunks = false;
+        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Look only for chunks that match the pattern")
+        boolean matchChunks;
         
-        @Option(names={"-n", "--nochunks"}, description="Disregard chunks when looking for the pattern")
-        boolean matchNoChunks = false;
+        @Option(names={"-n", "--nochunks"}, defaultValue="false", description="Disregard chunks when looking for the pattern")
+        boolean matchNoChunks;
         
-        @Option(names={"-s", "--show-bindings"}, description="Show the bindings associated with a wildcard pattern")
-        boolean showBindings = false;
+        @Option(names={"-s", "--show-bindings"}, defaultValue="false", description="Show the bindings associated with a wildcard pattern")
+        boolean showBindings;
         
         @Parameters(arity="1", description="Any pattern that can appear in productions")
-        String[] arrPattern = null;
+        String[] arrPattern;
         
         @Override
         public void run()
@@ -423,31 +423,31 @@ public class ProductionCommand implements SoarCommand
         // TODO: Implement these options
         // In CSoar, when multiple options are provided, only productions that fit into all categories
         // are displayed along with their firing counts
-        @Option(names={"-a", "--all"}, description="Print how many times all productions fired")
-        boolean countAll = false;
+        @Option(names={"-a", "--all"}, defaultValue="false", description="Print how many times all productions fired")
+        boolean countAll;
         
-        @Option(names={"-c", "--chunks"}, description="Print how many times chunks (learned rules) fired")
-        boolean countChunks = false;
+        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Print how many times chunks (learned rules) fired")
+        boolean countChunks;
         
-        @Option(names={"-d", "--default"}, description="Print how many times default productions fired")
-        boolean countDefault = false;
+        @Option(names={"-d", "--default"}, defaultValue="false", description="Print how many times default productions fired")
+        boolean countDefault;
         
-        @Option(names={"-f", "--fired"}, description="Prints only rules that have fired")
-        boolean countFired = false;
+        @Option(names={"-f", "--fired"}, defaultValue="false", description="Prints only rules that have fired")
+        boolean countFired;
         
-        @Option(names={"-r", "--rl"}, description="Print how many times Soar-RL rules fired")
-        boolean countRL = false;
+        @Option(names={"-r", "--rl"}, defaultValue="false", description="Print how many times Soar-RL rules fired")
+        boolean countRL;
         
-        @Option(names={"-T", "--templates"}, description="Print how many times Soar-RL templates fired")
-        boolean countTemplates = false;
+        @Option(names={"-T", "--templates"}, defaultValue="false", description="Print how many times Soar-RL templates fired")
+        boolean countTemplates;
         
-        @Option(names={"-u", "--user"}, description="Print how many times user productions fired")
-        boolean countUser = false;
+        @Option(names={"-u", "--user"}, defaultValue="false", description="Print how many times user productions fired")
+        boolean countUser;
         
         @Parameters(index="0", arity="0..1", description="If an integer, list the top n productions; "
                 + "if n is 0, only the productions which haven't fired are listed. "
                 + "If not an integer, print how many times a specific production has fired.")
-        private String param = null;
+        private String param;
         
         @Override
         public void run()
@@ -559,32 +559,32 @@ public class ProductionCommand implements SoarCommand
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-c", "--counts"}, description="Same as default implementation")
-        boolean includeCounts = false;
+        @Option(names={"-c", "--counts"}, defaultValue="false", description="Same as default implementation")
+        boolean includeCounts;
         
-        @Option(names={"-n", "--names"}, description="Same as default implementation")
-        boolean includeNames = false;
+        @Option(names={"-n", "--names"}, defaultValue="false", description="Same as default implementation")
+        boolean includeNames;
         
-        @Option(names={"-t", "--timetags"}, description="Also print the "
+        @Option(names={"-t", "--timetags"}, defaultValue="false", description="Also print the "
                 + "timetags of the wmes at the first failing condition")
-        boolean includeTimetags = false;
+        boolean includeTimetags;
         
-        @Option(names={"-w", "--wmes"}, description="Also print the full wmes, not just "
+        @Option(names={"-w", "--wmes"}, defaultValue="false", description="Also print the full wmes, not just "
                 + "the timetags, at the first failing condition")
-        boolean includeWmes = false;
+        boolean includeWmes;
         
-        @Option(names={"-a", "--assertions"}, description="List only productions about to fire")
-        boolean onlyAssertions = false;
+        @Option(names={"-a", "--assertions"}, defaultValue="false", description="List only productions about to fire")
+        boolean onlyAssertions;
         
-        @Option(names={"-r", "--retractions"}, description="List only productions about to retract")
-        boolean onlyRetractions = false;
+        @Option(names={"-r", "--retractions"}, defaultValue="false", description="List only productions about to retract")
+        boolean onlyRetractions;
         
-        @Option(names={"-i", "--internal"}, description="Also print some internal "
+        @Option(names={"-i", "--internal"}, defaultValue="false", description="Also print some internal "
                 + "information when a production name is provided")
-        boolean includeInternalInfo = false;
+        boolean includeInternalInfo;
         
         @Parameters(index="0", arity="0..1", description="Print partial match information for the named production")
-        private String prodName = null;
+        private String prodName;
         
         @Override
         public void run()
@@ -645,24 +645,24 @@ public class ProductionCommand implements SoarCommand
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-c", "--chunks"}, description="Print memory usage of chunks")
-        boolean filterByChunks = false;
+        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Print memory usage of chunks")
+        boolean filterByChunks;
         
-        @Option(names={"-d", "--default"}, description="Print memory usage of default productions")
-        boolean filterByDefault = false;
+        @Option(names={"-d", "--default"}, defaultValue="false", description="Print memory usage of default productions")
+        boolean filterByDefault;
         
-        @Option(names={"-j", "--justifications"}, description="Print memory usage of justifications")
-        boolean filterByJustify = false;
+        @Option(names={"-j", "--justifications"}, defaultValue="false", description="Print memory usage of justifications")
+        boolean filterByJustify;
         
-        @Option(names={"-T", "--templates"}, description="Print how many times Soar-RL templates fired")
-        boolean filterByTemplates = false;
+        @Option(names={"-T", "--templates"}, defaultValue="false", description="Print how many times Soar-RL templates fired")
+        boolean filterByTemplates;
         
-        @Option(names={"-u", "--user"}, description="Print memory usage of user-defined productions")
-        boolean filterByUser = false;
+        @Option(names={"-u", "--user"}, defaultValue="false", description="Print memory usage of user-defined productions")
+        boolean filterByUser;
         
         @Parameters(index="0", arity="0..1", description="If an integer, list the top n productions according to "
                 + "memory usage. If not an integer, print memory usage for a specific production.")
-        private String param = null;
+        private String param;
         
         @Override
         public void run()
@@ -781,10 +781,10 @@ public class ProductionCommand implements SoarCommand
         ProductionC parent; // injected by picocli
         
         @Parameters(index="0", description="Any Soar attribute")
-        private String attribute = null;
+        private String attribute;
         
         @Parameters(index="1", description="Estimate of degree of simultaneous values for attribute")
-        private Integer degree = null;
+        private Integer degree;
         
         @Override
         public void run()
@@ -803,10 +803,10 @@ public class ProductionCommand implements SoarCommand
         ProductionC parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"}, description="Enables watching of given productions")
-        List<String> productionsToEnable = null;
+        List<String> productionsToEnable;
         
         @Option(names={"off", "-d", "--off", "--disable"}, description="Disables watching of given productions")
-        List<String> productionsToDisable = null;
+        List<String> productionsToDisable;
 
         @Override
         public void run()
