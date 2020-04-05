@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel.smem;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -16,7 +17,6 @@ import java.util.List;
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -617,14 +617,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("smem --backup backup.sqlite");
         agent.getInterpreter().eval("smem --init");
         outputWriter.getBuffer().setLength(0);
-        try
-        {
-            agent.getInterpreter().eval("smem --print");
-        }
-        catch (SoarException e)
-        {
-            assertTrue("smem --init didn't init smem!", e.getMessage().equals("SMem| Semantic memory is empty."));
-        }
+       
+        agent.getInterpreter().eval("smem --print");
+        
+        assertTrue("smem --init didn't init smem!", outputWriter.toString().equals("SMem| Semantic memory is empty."));
+        
+        outputWriter.getBuffer().setLength(0);
         
         agent.getInterpreter().eval("p");
         
@@ -669,7 +667,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         agent.getInterpreter().eval("p -d 2 @F197");
         
-        String expectedResultOfPD2F197 = "\n(@F197 ^complete true ^factor @F48 ^factor @F198 ^number 100)\n" +
+        String expectedResultOfPD2F197 = "(@F197 ^complete true ^factor @F48 ^factor @F198 ^number 100)\n" +
                                          "  (@F48 ^multiplicity 2 ^value 5)\n" +
                                          "  (@F198 ^multiplicity 2 ^value 2)\n";
         

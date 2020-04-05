@@ -451,7 +451,7 @@ public class SmemCommand implements SoarCommand
 
             if (viz.length() == 0)
             {
-                throw new ExecutionException(spec.commandLine(), "SMem| Semantic memory is empty.");
+                return "SMem| Semantic memory is empty.";
             }
 
             pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
