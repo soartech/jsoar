@@ -5,10 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
@@ -19,23 +17,18 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "properties" command.
  * @author austin.brehob
  */
-public class PropertiesCommand implements SoarCommand
+public class PropertiesCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
 
     public PropertiesCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Properties(agent));
     }
-
+    
     @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Properties(agent), args);
-
-        return "";
+    public Properties getCommand() {
+        return (Properties)super.getCommand();
     }
-
 
     @Command(name="properties", description="Displays the agent's current properties",
             subcommands={HelpCommand.class})
@@ -71,9 +64,5 @@ public class PropertiesCommand implements SoarCommand
                 p.print("%30s = %s%s\n", key.getName(), properties.get(key), key.isReadonly() ? " [RO]" : "");
             }
         }
-    }
-    @Override
-    public Object getCommand() {
-        return new Properties(agent);
     }
 }
