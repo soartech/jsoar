@@ -24,9 +24,9 @@ public class Utils
      * @param args The args as received by a SoarCommand's execute method (i.e., the 0th arg should be the string for the command itself)
      * @throws SoarException 
      */
-    public static void parseAndRun(Agent agent, Object command, String[] args) throws SoarException {
+    public static String parseAndRun(Agent agent, Object command, String[] args) throws SoarException {
         PrintWriter pw = agent.getPrinter().asPrintWriter();
-        parseAndRun(command, args, pw);
+        return parseAndRun(command, args, pw);
     }
     
     
@@ -59,7 +59,8 @@ public class Utils
         int exitCode = commandLine.execute(
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
         if(exitCode != 0) throw new SoarException("Error executing command " + String.join(" ", args));
-        return commandLine.getExecutionResult();
+        String executionResult = commandLine.getExecutionResult();
+        return executionResult == null ? "" : executionResult;
     }
     
     public static String parseAndRun(Object command, String[] args) throws SoarException {
