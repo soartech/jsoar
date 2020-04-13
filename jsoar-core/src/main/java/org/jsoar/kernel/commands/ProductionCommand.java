@@ -16,7 +16,6 @@ import org.jsoar.kernel.ProductionFinder;
 import org.jsoar.kernel.ProductionFinder.Options;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.symbols.StringSymbol;
@@ -25,8 +24,7 @@ import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
@@ -42,28 +40,18 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "production" command.
  * @author austin.brehob
  */
-public class ProductionCommand implements SoarCommand
+public class ProductionCommand extends PicocliSoarCommand
 {
-    private Agent agent;
     
     public ProductionCommand(Agent agent)
     {
-        this.agent = agent;
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        final String result = Utils.parseAndRun(new ProductionC(agent), args);
-        
-        return result;
+        super(agent, new ProductionC(agent));
     }
 
     @Override
-    public Object getCommand() {
-        return new ProductionC(agent);
+    public ProductionC getCommand() {
+        return (ProductionC)super.getCommand();
     }
-
 
     @Command(name="production", description="Commands related to altering and printing production info",
             subcommands={HelpCommand.class,
@@ -91,7 +79,8 @@ public class ProductionCommand implements SoarCommand
             agent.getPrinter().startNewLine().print(
                     "=======================================================\n" +
                     "-                     Productions                     -\n" +
-                    "=======================================================\n"
+                    "=======================================================\n" +
+                    "Not yet implemented\n"
             );
         }
     }
