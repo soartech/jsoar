@@ -5,11 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -18,23 +16,12 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "rhs-functions" command.
  * @author austin.brehob
  */
-public class RhsFunctionsCommand implements SoarCommand
+public class RhsFunctionsCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-
     public RhsFunctionsCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new RhsFunctionsC(agent));
     }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new RhsFunctionsC(agent), args);
-        
-        return "";
-    }
-
 
     @Command(name="rhs-functions", description="Prints a list of all RHS functions",
             subcommands={HelpCommand.class})
@@ -71,9 +58,5 @@ public class RhsFunctionsCommand implements SoarCommand
                         max == Integer.MAX_VALUE ? "*" : Integer.toString(max));
             }
         }
-    }
-    @Override
-    public Object getCommand() {
-        return new RhsFunctionsC(agent);
     }
 }

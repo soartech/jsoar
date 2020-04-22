@@ -5,11 +5,9 @@ import java.util.Calendar;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.properties.PropertyManager;
 
 import picocli.CommandLine.Command;
@@ -20,33 +18,19 @@ import picocli.CommandLine.Option;
  * This is the implementation of the "stats" command.
  * @author austin.brehob
  */
-public class StatsCommand implements SoarCommand
+public class StatsCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
 
     public StatsCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Stats(agent));
     }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Stats(agent), args);
-
-        return "";
-    }
-    @Override
-    public Object getCommand() {
-        return new Stats(agent);
-    }
-
 
     @Command(name="stats", description="Prints information on Soar's runtime statistics",
             subcommands={HelpCommand.class})
     static public class Stats implements Runnable
     {
-        private Agent agent;
+        private final Agent agent;
 
         public Stats(Agent agent)
         {

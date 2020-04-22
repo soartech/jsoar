@@ -1,11 +1,9 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -16,30 +14,13 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "trace" command.
  * @author austin.brehob
  */
-public class TraceCommand implements SoarCommand
+public class TraceCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    private final Trace trace;
-    
     public TraceCommand(Agent agent)
     {
-        this.agent = agent;
-        this.trace = agent.getTrace();
+        super(agent, new TraceC(agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new TraceC(agent, trace), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand()
-    {
-        return new TraceC(agent,trace);
-    }
 
     @Command(name="trace", description="Control the run-time tracing of Soar",
             subcommands={HelpCommand.class})
@@ -48,10 +29,10 @@ public class TraceCommand implements SoarCommand
         private final Agent agent;
         private final Trace trace;
         
-        public TraceC(Agent agent, Trace trace)
+        public TraceC(Agent agent)
         {
             this.agent = agent;
-            this.trace = trace;
+            this.trace = agent.getTrace();
         }
         
         @Option(names={"-N", "--none"}, defaultValue="false", description="Turns off all printing about Soar's internals")
