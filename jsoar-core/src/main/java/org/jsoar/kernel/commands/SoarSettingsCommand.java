@@ -49,7 +49,7 @@ public class SoarSettingsCommand extends PicocliSoarCommand
         public Soar(Agent agent)
         {
             this.agent = agent;
-            this.tAgent = null;
+            this.tAgent = ThreadedAgent.find(agent);
         }
         
         public Soar(ThreadedAgent tAgent)
