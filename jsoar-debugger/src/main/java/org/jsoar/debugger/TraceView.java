@@ -443,6 +443,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
                 if(command != null)
                 {
+                    debugger.getAgent().getPrinter().startNewLine();
                     debugger.getAgent().getInterpreter().eval(command);
                 }
                 return null;
