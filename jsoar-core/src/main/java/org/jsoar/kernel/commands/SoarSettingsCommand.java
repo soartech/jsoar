@@ -3,11 +3,9 @@ package org.jsoar.kernel.commands;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.Phase;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.timing.ExecutionTimers;
 
 import picocli.CommandLine.Command;
@@ -22,38 +20,16 @@ import picocli.CommandLine.ParentCommand;
  * @author bob.marinier
  * @author austin.brehob
  */
-public class SoarSettingsCommand implements SoarCommand
+public class SoarSettingsCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-    private ThreadedAgent tAgent;
-    
     public SoarSettingsCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Soar(agent));
     }
     
     public SoarSettingsCommand(ThreadedAgent tAgent)
     {
-        this.tAgent = tAgent;
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        // The agent is set here instead of in the constructor because the
-        // Threaded Agent may not have an agent when this class is constructed
-        if (tAgent != null)
-        {
-            this.agent = tAgent.getAgent();
-        }
-        Utils.parseAndRun(agent, new Soar(agent, tAgent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Soar(agent,tAgent);
+        super(tAgent.getAgent(), new Soar(tAgent));
     }
     
     @Command(name="soar", description="Commands and settings related to running Soar",
@@ -67,12 +43,18 @@ public class SoarSettingsCommand implements SoarCommand
                          SoarSettingsCommand.Version.class})
     static public class Soar implements Runnable
     {
-        private Agent agent;
-        private ThreadedAgent tAgent;
+        private final Agent agent;
+        private final ThreadedAgent tAgent;
         
-        public Soar(Agent agent, ThreadedAgent tAgent)
+        public Soar(Agent agent)
         {
             this.agent = agent;
+            this.tAgent = ThreadedAgent.find(agent);
+        }
+        
+        public Soar(ThreadedAgent tAgent)
+        {
+            this.agent = tAgent.getAgent();
             this.tAgent = tAgent;
         }
         
@@ -112,7 +94,7 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="The new number of maximum elaborations")
-        private Integer numElaborations = null;
+        private Integer numElaborations;
 
         @Override
         public void run()
@@ -164,7 +146,7 @@ public class SoarSettingsCommand implements SoarCommand
         
         @Parameters(index="0", arity="0..1",
                 description="Valid phases are: ${COMPLETION-CANDIDATES}")
-        private CommandPhase phase = null;
+        private CommandPhase phase;
 
         @Override
         public void run()
@@ -193,12 +175,14 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables timers")
-        boolean enable = false;
+        boolean enable;
         
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false",
                 description="Disables timers")
-        boolean disable = false;
+        boolean disable;
 
         @Override
         public void run()
@@ -229,12 +213,14 @@ public class SoarSettingsCommand implements SoarCommand
         Soar parent; // injected by picocli
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables wait-snc")
-        boolean enable = false;
+        boolean enable;
         
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false", 
                 description="Disables wait-snc")
-        boolean disable = false;
+        boolean disable;
 
         @Override
         public void run()

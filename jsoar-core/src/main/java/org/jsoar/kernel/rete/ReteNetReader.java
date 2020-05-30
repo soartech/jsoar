@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DefaultProductionManager;
@@ -165,122 +166,130 @@ public class ReteNetReader
      */
     private void readNodeAndChildren(DataInputStream dis, ReteNode parent) throws IOException, SoarException
     {
-        final ReteNodeType type = ReteNodeType.valueOf(dis.readUTF());
-        ReteNode New = null;
-        AlphaMemory am;
-        boolean left_unlinked_flag;
-        ReteTest other_tests;
-        Production prod;
-
-        /* 
-         * Initializing the left_hash_loc structure to flag values.
-         * It gets passed into some of the various make_new_??? functions
-         * below but is never used (hopefully) for UNHASHED node types.
-         */
-        VarLocation left_hash_loc = new VarLocation(-1, -1);
-
-        switch (type)
+        Stack<ReteNode> stack = new Stack<>();
+        stack.push(parent);
+        
+        while(stack.size() > 0)
         {
-        case MEMORY_BNODE:
-            left_hash_loc = readLeftHashLoc(dis);
-            // ... and fall through to the next case below ... 
-        case UNHASHED_MEMORY_BNODE:
-            New = ReteNode.make_new_mem_node(rete, parent, type, left_hash_loc);
-            break;
-
-        case MP_BNODE:
-            left_hash_loc = readLeftHashLoc(dis);
-            // ... and fall through to the next case below ... 
-        case UNHASHED_MP_BNODE:
-            am = alphaMemories.get(dis.readInt());
-            am.reference_count++;
-            other_tests = readTestList(dis);
-            left_unlinked_flag = dis.readBoolean();
-            New = ReteNode.make_new_mp_node(rete, parent, type, left_hash_loc, am, other_tests,
-                    left_unlinked_flag);
-            break;
-
-        case POSITIVE_BNODE:
-        case UNHASHED_POSITIVE_BNODE:
-            am = alphaMemories.get(dis.readInt());
-            am.reference_count++;
-            other_tests = readTestList(dis);
-            left_unlinked_flag = dis.readBoolean();
-            New = ReteNode.make_new_positive_node(rete, parent, type, am, other_tests,
-                    left_unlinked_flag);
-            break;
-
-        case NEGATIVE_BNODE:
-            left_hash_loc = readLeftHashLoc(dis);
-            // ... and fall through to the next case below ... 
-        case UNHASHED_NEGATIVE_BNODE:
-            am = alphaMemories.get(dis.readInt());
-            am.reference_count++;
-
-            other_tests = readTestList(dis);
-            New = ReteNode.make_new_negative_node(rete, parent, type, left_hash_loc, am,other_tests);
-            break;
-
-        case CN_PARTNER_BNODE:
+            ReteNode currentParent = stack.pop();
+            
+            final ReteNodeType type = ReteNodeType.valueOf(dis.readUTF());
+            ReteNode New = null;
+            AlphaMemory am;
+            boolean left_unlinked_flag;
+            ReteTest other_tests;
+            Production prod;
+    
+            /* 
+             * Initializing the left_hash_loc structure to flag values.
+             * It gets passed into some of the various make_new_??? functions
+             * below but is never used (hopefully) for UNHASHED node types.
+             */
+            VarLocation left_hash_loc = new VarLocation(-1, -1);
+    
+            switch (type)
+            {
+            case MEMORY_BNODE:
+                left_hash_loc = readLeftHashLoc(dis);
+                // ... and fall through to the next case below ... 
+            case UNHASHED_MEMORY_BNODE:
+                New = ReteNode.make_new_mem_node(rete, currentParent, type, left_hash_loc);
+                break;
+    
+            case MP_BNODE:
+                left_hash_loc = readLeftHashLoc(dis);
+                // ... and fall through to the next case below ... 
+            case UNHASHED_MP_BNODE:
+                am = alphaMemories.get(dis.readInt());
+                am.reference_count++;
+                other_tests = readTestList(dis);
+                left_unlinked_flag = dis.readBoolean();
+                New = ReteNode.make_new_mp_node(rete, currentParent, type, left_hash_loc, am, other_tests,
+                        left_unlinked_flag);
+                break;
+    
+            case POSITIVE_BNODE:
+            case UNHASHED_POSITIVE_BNODE:
+                am = alphaMemories.get(dis.readInt());
+                am.reference_count++;
+                other_tests = readTestList(dis);
+                left_unlinked_flag = dis.readBoolean();
+                New = ReteNode.make_new_positive_node(rete, currentParent, type, am, other_tests,
+                        left_unlinked_flag);
+                break;
+    
+            case NEGATIVE_BNODE:
+                left_hash_loc = readLeftHashLoc(dis);
+                // ... and fall through to the next case below ... 
+            case UNHASHED_NEGATIVE_BNODE:
+                am = alphaMemories.get(dis.readInt());
+                am.reference_count++;
+    
+                other_tests = readTestList(dis);
+                New = ReteNode.make_new_negative_node(rete, currentParent, type, left_hash_loc, am,other_tests);
+                break;
+    
+            case CN_PARTNER_BNODE:
+                int count = dis.readInt();
+                ReteNode ncc_top = currentParent;
+                while (count-- > 0) ncc_top = ncc_top.real_parent_node();
+                New = ReteNode.make_new_cn_node(rete, ncc_top, currentParent);
+                break;
+    
+            case P_BNODE:
+                String name = dis.readUTF();
+                String doc = dis.readUTF();
+                ProductionType prodType = ProductionType.valueOf(dis.readUTF());
+                Support declaredSupport = Support.valueOf(dis.readUTF());
+                Action actionList = readActionList(dis);
+                prod = Production.newBuilder()
+                        .name(name)
+                        .documentation(doc)
+                        .type(prodType)
+                        .support(declaredSupport)
+                        .actions(actionList)
+                        .build();
+    
+                int numUnboundVariables = dis.readInt();
+                rete.update_max_rhs_unbound_variables(numUnboundVariables);
+                List<Variable> unboundVars = new ArrayList<Variable>(numUnboundVariables);
+                for(int i = 0; i < numUnboundVariables; i++)
+                {
+                    unboundVars.add(getSymbol(dis.readInt()).asVariable());
+                }
+                prod.setRhsUnboundVariables(unboundVars);
+    
+                // Soar-RL stuff
+                rl.addProduction(prod);
+    
+                New = ReteNode.make_new_production_node(rete, currentParent, prod);
+                boolean hasNodeVariableNames = dis.readBoolean();
+                if (hasNodeVariableNames)
+                {
+                    New.b_p().parents_nvn = readNodeVarNames(dis, currentParent, symbolMap);
+                }
+                else
+                {
+                    New.b_p().parents_nvn = null;
+                }
+    
+                // --- call new node's add_left routine with all the parent's tokens --- 
+                rete.update_node_with_matches_from_above(New);
+    
+                productionManager.addProductionToNameTypeMaps(prod);
+                // --- invoke callback on the production --- 
+                context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
+                break;
+            default:
+                throw new SoarException("Unhandled ReteNodeType: " + type);
+            }
+    
+            /* --- read in the children of the node --- */
             int count = dis.readInt();
-            ReteNode ncc_top = parent;
-            while (count-- > 0) ncc_top = ncc_top.real_parent_node();
-            New = ReteNode.make_new_cn_node(rete, ncc_top, parent);
-            break;
-
-        case P_BNODE:
-            String name = dis.readUTF();
-            String doc = dis.readUTF();
-            ProductionType prodType = ProductionType.valueOf(dis.readUTF());
-            Support declaredSupport = Support.valueOf(dis.readUTF());
-            Action actionList = readActionList(dis);
-            prod = Production.newBuilder()
-                    .name(name)
-                    .documentation(doc)
-                    .type(prodType)
-                    .support(declaredSupport)
-                    .actions(actionList)
-                    .build();
-
-            int numUnboundVariables = dis.readInt();
-            rete.update_max_rhs_unbound_variables(numUnboundVariables);
-            List<Variable> unboundVars = new ArrayList<Variable>(numUnboundVariables);
-            for(int i = 0; i < numUnboundVariables; i++)
+            while (count-- > 0) 
             {
-                unboundVars.add(getSymbol(dis.readInt()).asVariable());
+                stack.push(New);
             }
-            prod.setRhsUnboundVariables(unboundVars);
-
-            // Soar-RL stuff
-            rl.addProduction(prod);
-
-            New = ReteNode.make_new_production_node(rete, parent, prod);
-            boolean hasNodeVariableNames = dis.readBoolean();
-            if (hasNodeVariableNames)
-            {
-                New.b_p().parents_nvn = readNodeVarNames(dis, parent, symbolMap);
-            }
-            else
-            {
-                New.b_p().parents_nvn = null;
-            }
-
-            // --- call new node's add_left routine with all the parent's tokens --- 
-            rete.update_node_with_matches_from_above(New);
-
-            productionManager.addProductionToNameTypeMaps(prod);
-            // --- invoke callback on the production --- 
-            context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
-            break;
-        default:
-            throw new SoarException("Unhandled ReteNodeType: " + type);
-        }
-
-        /* --- read in the children of the node --- */
-        int count = dis.readInt();
-        while (count-- > 0) 
-        {
-            readNodeAndChildren(dis, New);
         }
     }
 

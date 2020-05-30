@@ -17,8 +17,7 @@ import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.rete.ReteSerializer;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
@@ -32,30 +31,14 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "load" command.
  * @author austin.brehob
  */
-public class LoadCommand implements SoarCommand
+public class LoadCommand extends PicocliSoarCommand
 {
-    private SourceCommand sourceCommand;
-    private Agent agent;
     
     public LoadCommand(SourceCommand sourceCommand, Agent agent)
     {
-        this.sourceCommand = sourceCommand;
-        this.agent = agent;
+        super(agent, new Load(sourceCommand, agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Load(sourceCommand, agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Load(sourceCommand,agent);
-    }
-
 
     @Command(name="load", description="Loads a file or rete-net",
             subcommands={HelpCommand.class,
@@ -87,20 +70,20 @@ public class LoadCommand implements SoarCommand
         @ParentCommand
         Load parent; // injected by picocli
 
-        @Option(names={"-a", "--all"}, description="Enables a summary for each file sourced")
-        boolean loadSummary = false;
+        @Option(names={"-a", "--all"}, defaultValue="false", description="Enables a summary for each file sourced")
+        boolean loadSummary;
         
-        @Option(names={"-d", "--disable"}, description="Disables all summaries")
-        boolean disableSummaries = false;
+        @Option(names={"-d", "--disable"}, defaultValue="false", description="Disables all summaries")
+        boolean disableSummaries;
         
-        @Option(names={"-r", "--reload"}, description="Reloads the last loaded file(s)")
-        boolean reload = false;
+        @Option(names={"-r", "--reload"}, defaultValue="false", description="Reloads the last loaded file(s)")
+        boolean reload;
         
-        @Option(names={"-v", "--verbose"}, description="Prints all excised production names")
-        boolean printExcised = false;
+        @Option(names={"-v", "--verbose"}, defaultValue="false", description="Prints all excised production names")
+        boolean printExcised;
         
         @Parameters(arity="0..*", description="File names")
-        String[] fileNames = null;
+        String[] fileNames;
         
         @Override
         public void run()
@@ -269,7 +252,7 @@ public class LoadCommand implements SoarCommand
 
         @Option(names={"-l", "--load", "-r", "--restore"}, arity="1",
                 description="File name to load rete-net from")
-        String fileName = null;
+        String fileName;
 
         @Override
         public void run()

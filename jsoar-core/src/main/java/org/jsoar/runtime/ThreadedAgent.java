@@ -101,7 +101,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
     private final RunCommand runCommand = new RunCommand(this);
-    private final SoarSettingsCommand soarCommand = new SoarSettingsCommand(this);
+    private final SoarSettingsCommand soarCommand;
 
     /**
      * Create a new threaded agent with a generated name.
@@ -219,6 +219,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         waitManager.attach(this);
         waitFunction.attach(waitManager);
 
+        this.soarCommand = new SoarSettingsCommand(this);
         final SoarCommandInterpreter interp = agent.getInterpreter();
         interp.addCommand("run", runCommand);
         interp.addCommand("soar", soarCommand);

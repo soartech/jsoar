@@ -4,10 +4,10 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
-
 import org.jsoar.util.commands.SoarExceptionsManager;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Parameters;
@@ -16,21 +16,19 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "sp" command.
  * @author austin.brehob
  */
-public class SpCommand implements SoarCommand
+public class SpCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-
     public SpCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Sp(agent));
     }
 
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        Utils.parseAndRun(agent, new Sp(agent, context), args);
-        
-        return "";
+        final Sp sp = ((Sp)this.picocliCommand);
+        sp.context = context;
+        return super.execute(context, args);
     }
 
 
@@ -38,9 +36,15 @@ public class SpCommand implements SoarCommand
             subcommands={HelpCommand.class})
     static public class Sp implements Runnable
     {
-        private Agent agent;
+        private final Agent agent;
         private SoarCommandContext context;
 
+        public Sp(Agent agent)
+        {
+            this.agent = agent;
+            this.context = null;
+        }
+        
         public Sp(Agent agent, SoarCommandContext context)
         {
             this.agent = agent;
@@ -48,7 +52,7 @@ public class SpCommand implements SoarCommand
         }
 
         @Parameters(description="A Soar production")
-        String production = null;
+        String production;
 
         @Override
         public void run()

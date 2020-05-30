@@ -5,12 +5,11 @@
  */
 package org.jsoar.kernel.tracing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
 
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.junit.Before;
 import org.junit.Test;

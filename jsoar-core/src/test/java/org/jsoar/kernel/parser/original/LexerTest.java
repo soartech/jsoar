@@ -5,15 +5,14 @@
  */
 package org.jsoar.kernel.parser.original;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 
 import org.jsoar.kernel.parser.PossibleSymbolTypes;
-import org.jsoar.kernel.parser.original.Lexeme;
-import org.jsoar.kernel.parser.original.LexemeType;
-import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 

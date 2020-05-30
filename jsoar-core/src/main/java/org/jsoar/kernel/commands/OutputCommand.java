@@ -8,46 +8,29 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.kernel.commands.PrintCommand.Print;
 import org.jsoar.util.TeeWriter;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "output" command.
  * @author austin.brehob
  */
-public final class OutputCommand implements SoarCommand
+public final class OutputCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-    private PrintCommand printCommand;
-    private LinkedList<Writer> writerStack = new LinkedList<Writer>();
     
-    public OutputCommand(Agent agent, PrintCommand printCommand)
+    public OutputCommand(Agent agent, Print printCommand)
     {
-        this.agent = agent;
-        this.printCommand = printCommand;
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Output(agent, printCommand, writerStack), args);
-        
-        return "";
-    }
-    @Override
-    public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return new Output(agent,printCommand,writerStack);
+        super(agent, new Output(agent, printCommand, new LinkedList<Writer>()));
     }
     
     @Command(name="output", description="Commands related to handling output",
@@ -58,10 +41,10 @@ public final class OutputCommand implements SoarCommand
     static public class Output implements Runnable
     {
         private Agent agent;
-        private PrintCommand printCommand;
+        private Print printCommand;
         private LinkedList<Writer> writerStack;
         
-        public Output(Agent agent, PrintCommand printCommand, LinkedList<Writer> writerStack)
+        public Output(Agent agent, Print printCommand, LinkedList<Writer> writerStack)
         {
             this.agent = agent;
             this.printCommand = printCommand;
@@ -88,11 +71,11 @@ public final class OutputCommand implements SoarCommand
         @ParentCommand
         Output parent; // injected by picocli
 
-        @Option(names={"-c", "--close"}, arity="0..1", description="Closes the log file")
-        boolean close = false;
+        @Option(names={"-c", "--close"}, arity="0..1", defaultValue="false", description="Closes the log file")
+        boolean close;
         
         @Parameters(index="0", arity="0..1", description="File name")
-        String fileName = null;
+        String fileName;
         
         @Override
         public void run()
@@ -165,7 +148,7 @@ public final class OutputCommand implements SoarCommand
         CommandSpec spec; // injected by picocli
         
         @Parameters(index="0", arity="0..1", description="New print depth")
-        Integer printDepth = null;
+        Integer printDepth;
         
         @Override
         public void run()
@@ -196,11 +179,11 @@ public final class OutputCommand implements SoarCommand
         @ParentCommand
         Output parent; // injected by picocli
         
-        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables output warnings")
-        boolean enable = false;
+        @Option(names={"on", "-e", "--on", "--enable"}, defaultValue="false", description="Enables output warnings")
+        boolean enable;
         
-        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables output warnings")
-        boolean disable = false;
+        @Option(names={"off", "-d", "--off", "--disable"}, defaultValue="false", description="Disables output warnings")
+        boolean disable;
         
         @Override
         public void run()

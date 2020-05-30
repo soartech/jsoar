@@ -1,9 +1,7 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -14,26 +12,12 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "echo" command.
  * @author austin.brehob
  */
-public class EchoCommand implements SoarCommand
+public class EchoCommand extends PicocliSoarCommand
 {
-    private Agent agent;
-    
+
     public EchoCommand(Agent agent)
     {
-        this.agent = agent;
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Echo(agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Echo(agent);
+        super(agent, new Echo(agent));
     }
 
     @Command(name="echo", description="Outputs the given string",
@@ -47,8 +31,8 @@ public class EchoCommand implements SoarCommand
             this.agent = agent;
         }
         
-        @Option(names={"-n", "--no-newline"}, description="Suppress printing of the newline character")
-        boolean noNewline = false;
+        @Option(names={"-n", "--no-newline"}, defaultValue="false", description="Suppress printing of the newline character")
+        boolean noNewline;
         
         @Parameters(description="The string to output")
         String[] outputString = null;

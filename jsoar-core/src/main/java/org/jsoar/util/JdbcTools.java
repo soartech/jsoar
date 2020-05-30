@@ -86,9 +86,7 @@ public class JdbcTools
      */
     public static void executeSql(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
-        try
-        {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        try(final BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line = reader.readLine();
             while(line != null)
             {
@@ -98,14 +96,9 @@ public class JdbcTools
                     line = filterLine(driverFilter, line);
                     if(line != null)
                     {
-                        final Statement s = db.createStatement();
-                        try
+                        try(final Statement s = db.createStatement())
                         {
                             s.execute(line);
-                        }
-                        finally
-                        {
-                            s.close();
                         }
                     }
                 }
@@ -116,10 +109,6 @@ public class JdbcTools
         catch (SQLException e)
         {
             throw new SoarException("Sql error: " + e.getMessage(), e);
-        }
-        finally
-        {
-            is.close();
         }
     }    
     /**
@@ -135,44 +124,31 @@ public class JdbcTools
      */
     public static void executeSqlBatch(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
-        try
-        {
-            final Statement s = db.createStatement();
-            try
+        try(final Statement s = db.createStatement(); final BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line = reader.readLine();
+            while(line != null)
             {
-                final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                String line = reader.readLine();
-                while(line != null)
+                line = line.trim();
+                if(!line.isEmpty() && !line.startsWith("#"))
                 {
-                    line = line.trim();
-                    if(!line.isEmpty() && !line.startsWith("#"))
+                    line = filterLine(driverFilter, line);
+                    if(line != null)
                     {
-                        line = filterLine(driverFilter, line);
-                        if(line != null)
-                        {
-                            s.addBatch(line);
-                        }
+                        s.addBatch(line);
                     }
-                    
-                    line = reader.readLine();
                 }
-                db.setAutoCommit(false);
-                s.executeBatch();
-                db.setAutoCommit(true);
+                
+                line = reader.readLine();
             }
-            finally
-            {
-                s.close();
-            }
+            db.setAutoCommit(false);
+            s.executeBatch();
+            db.setAutoCommit(true);
         }
         catch (SQLException e)
         {
             throw new SoarException("Sql error: " + e.getMessage(), e);
         }
-        finally
-        {
-            is.close();
-        }
+
     }
     
     /**
@@ -185,8 +161,8 @@ public class JdbcTools
     public static long insertAndGetRowId(PreparedStatement s) throws SQLException
     {
         s.executeUpdate();
-        final ResultSet keySet = s.getGeneratedKeys();
-        try
+        
+        try(final ResultSet keySet = s.getGeneratedKeys())
         {
             if(keySet.next())
             {
@@ -196,10 +172,6 @@ public class JdbcTools
             {
                 throw new IllegalStateException("getGeneratedKeys() returned empty result set for '" + s + "'");
             }
-        }
-        finally
-        {
-            keySet.close();
         }
     }
     
@@ -212,14 +184,9 @@ public class JdbcTools
      */
     public static boolean queryHasResults(PreparedStatement s) throws SQLException
     {
-        final ResultSet rs = s.executeQuery();
-        try
+        try(final ResultSet rs = s.executeQuery())
         {
             return rs.next();
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
@@ -233,8 +200,7 @@ public class JdbcTools
      */
     public static boolean tableExists(Connection db, String table) throws SQLException
     {
-        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
-        try
+        try(final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"}))
         {
             while(rs.next())
             {
@@ -244,10 +210,6 @@ public class JdbcTools
                 }
             }
             return false;
-        }
-        finally
-        {
-            rs.close();
         }
     }
     

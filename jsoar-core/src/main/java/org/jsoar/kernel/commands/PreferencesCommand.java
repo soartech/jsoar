@@ -5,14 +5,12 @@ import java.io.IOException;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -23,26 +21,12 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "preferences" command.
  * @author austin.brehob
  */
-public class PreferencesCommand implements SoarCommand
+public class PreferencesCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
 
     public PreferencesCommand(Agent agent)
     {
-        this.agent = agent;
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new PreferencesC(agent), args);
-
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new PreferencesC(agent);
+        super(agent, new PreferencesC(agent));
     }
 
 
@@ -58,31 +42,31 @@ public class PreferencesCommand implements SoarCommand
             this.agent = agent;
         }
 
-        @Option(names={"-n", "-0", "--none"}, description="Prints just the preferences themselves")
-        boolean level0 = false;
+        @Option(names={"-n", "-0", "--none"}, defaultValue="false", description="Prints just the preferences themselves")
+        boolean level0;
 
-        @Option(names={"-N", "-1", "--names"}, description="Prints the preferences "
+        @Option(names={"-N", "-1", "--names"}, defaultValue="false", description="Prints the preferences "
                 + "and the names of the productions that generated them")
-        boolean level1 = false;
+        boolean level1;
 
-        @Option(names={"-t", "-2", "--timetags"}, description="Prints the information for the --names option "
+        @Option(names={"-t", "-2", "--timetags"}, defaultValue="false", description="Prints the information for the --names option "
                 + "above plus the timetags of the wmes matched by the LHS of the indicated productions")
-        boolean level2 = false;
+        boolean level2;
 
-        @Option(names={"-w", "-3", "--wmes"}, description="Prints the information for the "
+        @Option(names={"-w", "-3", "--wmes"}, defaultValue="false", description="Prints the information for the "
                 + "--timetags option above plus the entire WME matched on the LHS")
-        boolean level3 = false;
+        boolean level3;
 
-        @Option(names={"-o", "--object"}, description="Prints the support for all "
+        @Option(names={"-o", "--object"}, defaultValue="false", description="Prints the support for all "
                 + "the WMEs that comprise the object (the specified identifier)")
-        boolean object = false;
+        boolean object;
 
         @Parameters(index="0", arity="0..1", description="Must be an existing Soar object identifier")
-        String identifier = null;
+        String identifier;
 
         @Parameters(index="1", arity="0..1", description="Must be an "
                 + "existing attribute of the specified identifier")
-        String attribute = null;
+        String attribute;
 
         @Override
         public void run()

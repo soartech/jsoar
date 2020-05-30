@@ -13,7 +13,6 @@ import java.util.Arrays;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.Utils;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
@@ -34,8 +33,7 @@ import org.jsoar.util.JdbcTools;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
@@ -45,66 +43,36 @@ import org.sqlite.SQLiteJDBCLoader;
 import com.google.common.base.Joiner;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.ExecutionException;
 
 /**
  * This is the implementation of the "smem" command.
  * @author austin.brehob
  */
-public class SmemCommand implements SoarCommand
+public class SmemCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    private final DefaultSemanticMemory smem;
-    private Lexer lexer;
-    
     public static class Provider implements SoarCommandProvider
     {
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("smem", new SmemCommand(context));
+            Agent agent = (Agent)context.getAdapter(Agent.class);
+            DefaultSemanticMemory smem = Adaptables.require(getClass(), context, DefaultSemanticMemory.class);
+            interp.addCommand("smem", new SmemCommand(agent, smem));
         }
     }
 
-    public SmemCommand(Adaptable context)
+    public SmemCommand(Agent agent, DefaultSemanticMemory smem)
     {
-        // TODO: There's probably a better way to get the agent from the context...
-        this.agent = (Agent) context;
-        
-        this.smem = Adaptables.require(getClass(), context, DefaultSemanticMemory.class);
-        try
-        {
-            this.lexer = new Lexer(new Printer(new PrintWriter(System.out)), new StringReader(""));
-        }
-        catch (IOException e)
-        {
-            System.out.print(e.getMessage());
-            e.printStackTrace();
-            this.lexer = null;
-        }
-    }
-    
-    @Override
-    public Object getCommand()
-    {
-        return new SmemC(agent, smem, lexer);
-    }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new SmemC(agent, smem, lexer), args);
-        
-        return "";
+        super(agent, new SmemC(agent, smem));
     }
 
-    
     @Command(name="smem", description="Controls the behavior of "
             + "and displays information about semantic memory",
             subcommands={HelpCommand.class})
@@ -117,11 +85,18 @@ public class SmemCommand implements SoarCommand
         @Spec
         private CommandSpec spec; // injected by picocli
         
-        public SmemC(Agent agent, DefaultSemanticMemory smem, Lexer lexer)
+        public SmemC(Agent agent, DefaultSemanticMemory smem)
         {
             this.agent = agent;
             this.smem = smem;
-            this.lexer = lexer;
+            try
+            {
+                this.lexer = new Lexer(new Printer(new PrintWriter(System.out)), new StringReader(""));
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException("SmemCommand failed to create Lexer", e);
+            }
         }
         
         @Option(names={"-a", "--add"}, description="Adds concepts to semantic memory")
@@ -451,7 +426,7 @@ public class SmemCommand implements SoarCommand
 
             if (viz.length() == 0)
             {
-                throw new ExecutionException(spec.commandLine(), "SMem| Semantic memory is empty.");
+                return "SMem| Semantic memory is empty.";
             }
 
             pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));

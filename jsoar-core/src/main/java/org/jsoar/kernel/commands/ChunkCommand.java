@@ -1,10 +1,8 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -14,27 +12,14 @@ import picocli.CommandLine.Option;
  * This is the implementation of the "chunk" command.
  * @author austin.brehob
  */
-public class ChunkCommand implements SoarCommand
+public class ChunkCommand extends PicocliSoarCommand
 {
-    private Agent agent;
     
     public ChunkCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Chunk(agent));
     }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Chunk(agent), args);
-        
-        return "";
-    }
-    @Override
-    public Object getCommand() {
-
-        return new Chunk(agent);
-    }
+    
     @Command(name="chunk", description="Prints or adjusts Soar's ability to learn new rules",
             subcommands={HelpCommand.class})
     static public class Chunk implements Runnable
@@ -47,12 +32,14 @@ public class ChunkCommand implements SoarCommand
         }
         
         @Option(names={"on", "-e", "--on", "--enable"},
+                defaultValue="false",
                 description="Enables chunking")
-        boolean enable = false;
+        boolean enable;
 
         @Option(names={"off", "-d", "--off", "--disable"},
+                defaultValue="false",
                 description="Disables chunking")
-        boolean disable = false;
+        boolean disable;
         
         @Override
         public void run()

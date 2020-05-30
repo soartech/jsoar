@@ -279,13 +279,13 @@ public class LogCommandTest
         logManager.setLogLevel(LogLevel.warn);
         
         // warm up the jvm so we get more stable times
-        for(int i = 0; i < 500; i++)
+        for(int i = 0; i < 1000; i++)
         {
             logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
         }
         
         long start = System.currentTimeMillis();
-        for(int i = 0; i < 10000; i++)
+        for(int i = 0; i < 100000; i++)
         {
             logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
         }

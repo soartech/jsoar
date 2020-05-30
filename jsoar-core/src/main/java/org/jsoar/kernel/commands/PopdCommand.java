@@ -2,8 +2,7 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -12,30 +11,14 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "popd" command.
  * @author austin.brehob
  */
-public class PopdCommand implements SoarCommand
+public class PopdCommand extends PicocliSoarCommand
 {
-    private final SourceCommand sourceCommand;
-    private Agent agent;
     
     public PopdCommand(SourceCommand sourceCommand, Agent agent)
     {
-        this.sourceCommand = sourceCommand;
-        this.agent = agent;
+        super(agent, new Popd(sourceCommand,agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Popd(sourceCommand, agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Popd(sourceCommand,agent);
-    }
-
     @Command(name="popd", description="Pops the top working directory off the stack and sets "
             + "the current working directory to it", subcommands={HelpCommand.class})
     static public class Popd implements Runnable

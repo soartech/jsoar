@@ -414,7 +414,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private String getHelp(CommandLine commandLine)
     {
         if (commandLine != null) {
-            CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), new CommandLine.Help.ColorScheme());
+            CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), commandLine.getColorScheme());
             StringBuilder helpBuilder = new StringBuilder()
                     .append("<html>")
                     .append("<b>Usage:</b>")

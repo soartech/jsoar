@@ -2,8 +2,7 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -12,27 +11,14 @@ import picocli.CommandLine.HelpCommand;
  * This is the implementation of the "debugger" command.
  * @author austin.brehob
  */
-public class DebuggerCommand implements SoarCommand
+public class DebuggerCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
     
     public DebuggerCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Debugger(agent));
     }
 
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Debugger(agent), args);
-
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Debugger(agent);
-    }
     @Command(name="debugger", description="Opens the agent's debugger",
             subcommands={HelpCommand.class})
     static public class Debugger implements Runnable

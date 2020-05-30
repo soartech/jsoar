@@ -6,7 +6,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
-import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
@@ -17,13 +17,12 @@ import picocli.CommandLine.Option;
  * This is the implementation of the "handler" command.
  * @author austin.brehob
  */
-public class HandlerCommand implements SoarCommand
+public class HandlerCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
     
     public HandlerCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new Handler(agent));
     }
 
     @Override
@@ -49,11 +48,11 @@ public class HandlerCommand implements SoarCommand
 
         @Option(names={"on", "-e", "--on", "--enable"},
                 description="Enables RHS function")
-        String functionToEnable = null;
+        String functionToEnable;
 
         @Option(names={"off", "-d", "--off", "--disable"},
                 description="Disables timers")
-        String functionToDisable = null;
+        String functionToDisable;
 
         @Override
         public String call()

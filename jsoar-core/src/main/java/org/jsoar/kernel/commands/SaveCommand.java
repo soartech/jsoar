@@ -9,8 +9,7 @@ import java.util.zip.GZIPOutputStream;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rete.ReteSerializer;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -21,31 +20,13 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "save rete-net" command.
  * @author austin.brehob
  */
-public class SaveCommand implements SoarCommand
+public class SaveCommand extends PicocliSoarCommand
 {
-    private SourceCommand sourceCommand;
-    private Agent agent;
-    
     public SaveCommand(SourceCommand sourceCommand, Agent agent)
     {
-        this.sourceCommand = sourceCommand;
-        this.agent = agent;
+        super(agent, new Save(sourceCommand, agent));
     }
     
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Save(sourceCommand, agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new Save(sourceCommand,agent);
-    }
-
-
     @Command(name="save", description="Saves a rete-net",
             subcommands={HelpCommand.class,
                          ReteNet.class})
@@ -76,7 +57,7 @@ public class SaveCommand implements SoarCommand
         Save parent; // injected by picocli
 
         @Option(names={"-s", "--save"}, arity="1", description="File name to save rete-net to")
-        String fileName = null;
+        String fileName;
         
         @Override
         public void run()

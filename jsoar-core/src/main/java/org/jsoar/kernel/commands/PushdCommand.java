@@ -2,8 +2,7 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -13,27 +12,17 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "pushd" command.
  * @author austin.brehob
  */
-public class PushdCommand implements SoarCommand
+public class PushdCommand extends PicocliSoarCommand
 {
-    private final SourceCommand sourceCommand;
-    private Agent agent;
     
     public PushdCommand(SourceCommand sourceCommand, Agent agent)
     {
-        this.sourceCommand = sourceCommand;
-        this.agent = agent;
+        super(agent, new Pushd(sourceCommand,agent));
     }
     
     @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new Pushd(sourceCommand, agent), args);
-        
-        return "";
-    }
-    @Override
     public Object getCommand() {
-        return new Pushd(sourceCommand,agent);
+        return (Pushd)super.getCommand();
     }
     
     @Command(name="pushd", description="Saves the current working directory on a stack",

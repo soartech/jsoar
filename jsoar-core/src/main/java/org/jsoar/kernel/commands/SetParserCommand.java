@@ -3,10 +3,8 @@ package org.jsoar.kernel.commands;
 import java.lang.reflect.InvocationTargetException;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.Parser;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -16,23 +14,12 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "set-parser" command.
  * @author austin.brehob
  */
-public class SetParserCommand implements SoarCommand
+public class SetParserCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    
     public SetParserCommand(Agent agent)
     {
-        this.agent = agent;
+        super(agent, new SetParser(agent));
     }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new SetParser(agent), args);
-
-        return "";
-    }
-
 
     @Command(name="set-parser", description="Sets the current parser",
             subcommands={HelpCommand.class})
@@ -46,7 +33,7 @@ public class SetParserCommand implements SoarCommand
         }
 
         @Parameters(description="The new parser")
-        String parser = null;
+        String parser;
 
         @Override
         public void run()
@@ -70,9 +57,5 @@ public class SetParserCommand implements SoarCommand
                 agent.getPrinter().startNewLine().print(e.getClass() + " error: " + e.getMessage());
             }
         }
-    }
-    @Override
-    public Object getCommand() {
-        return new SetParser(agent);
     }
 }

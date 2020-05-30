@@ -19,49 +19,36 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
-import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.ParameterException;
 
 /**
  * This is the implementation of the "log" command.
  * @author austin.brehob
  */
-public class LogCommand implements SoarCommand
+public class LogCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    private Log log;
-    private CommandLine logCommand;
-
+    
     public LogCommand(Agent agent, SoarCommandInterpreter interpreter)
     {
-        this.agent = agent;
-        this.log = new Log(agent, interpreter, null);
-        this.logCommand = new CommandLine(log);
+        super(agent, new Log(agent, interpreter, null));
     }
-
+    
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        this.log.context = context;
-        Utils.parseAndRun(agent, logCommand, args);
-
-        return "";
-    }
-
-    @Override
-    public Object getCommand()
-    {
-        return logCommand;
+        final Log log = ((Log)this.picocliCommand);
+        log.context = context;
+        return super.execute(context, args);
     }
 
     @Command(name="log", description="Adjusts logging settings",
@@ -86,40 +73,41 @@ public class LogCommand implements SoarCommand
         }
 
         @Option(names={"-a", "--add"}, description="Adds a logger with the given name")
-        String logToAdd = null;
+        String logToAdd;
 
-        @Option(names={"on", "-e", "--on", "--enable", "--yes"}, description="Enables logging")
-        boolean enable = false;
+        @Option(names={"on", "-e", "--on", "--enable", "--yes"}, defaultValue="false", description="Enables logging")
+        boolean enable;
 
-        @Option(names={"off", "-d", "--off", "--disable", "--no"}, description="Disables logging")
-        boolean disable = false;
+        @Option(names={"off", "-d", "--off", "--disable", "--no"}, defaultValue="false", description="Disables logging")
+        boolean disable;
 
         @Option(names={"-s", "--strict"}, description="Enables or disables logging strictness")
-        String strict = null;
+        String strict;
 
         @Option(names={"-E", "--echo"}, description="Sets logger echo mode to on, simple, or off")
-        String echo = null;
+        String echo;
 
-        @Option(names={"-i", "--init"}, description="Re-initializes log manager")
-        boolean init = false;
+        @Option(names={"-i", "--init"}, defaultValue="false", description="Re-initializes log manager")
+        boolean init;
 
-        @Option(names={"-c", "--collapse"}, description="Specifies collapsed logging")
-        boolean collapse = false;
+        @Option(names={"-c", "--collapse"}, defaultValue="false", description="Specifies collapsed logging")
+        boolean collapse;
 
         @Option(names={"-l", "--level"}, description="Sets the logging level to "
                 + "trace, debug, info, warn, or error")
-        String level = null;
+        String level;
 
         @Option(names={"-S", "--source"}, description="Sets the logging source to disk, stack, or none")
-        String source = null;
+        String source;
 
         @Option(names={"-A", "--abbreviate"}, description="Enables or disables logging abbreviation")
-        String abbreviate = null;
+        String abbreviate;
 
         @Parameters(description="The logger to enable/disable or send a message to, "
                 + "the log level, and/or the message to log")
-        String[] params = null;
+        String[] params;
 
+        
         @Override
         public void run()
         {
@@ -515,4 +503,5 @@ public class LogCommand implements SoarCommand
             return result;
         }
     }
+
 }

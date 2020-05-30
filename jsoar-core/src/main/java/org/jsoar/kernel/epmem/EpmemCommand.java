@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.Utils;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Force;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
@@ -27,8 +26,7 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.PrintHelper;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
@@ -36,51 +34,34 @@ import org.jsoar.util.properties.PropertyManager;
 import org.sqlite.SQLiteJDBCLoader;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.ExecutionException;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "epmem" command.
  * @author austin.brehob
  */
-public class EpmemCommand implements SoarCommand
+public class EpmemCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
     
     public static class Provider implements SoarCommandProvider
     {
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("epmem", new EpmemCommand(context));
+            interp.addCommand("epmem", new EpmemCommand((Agent) context.getAdapter(Agent.class)));
         }
     }
 
-    public EpmemCommand(Adaptable context)
+    public EpmemCommand(Agent agent)
     {
-        // TODO: There's probably a better way to get the agent from the context...
-        this.agent = (Agent) context;
+        super(agent, new EpmemC(agent));
     }
-
-    @Override
-    public Object getCommand()
-    {
-        return new EpmemC(agent);
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new EpmemC(agent), args);
-        
-        return "";
-    }
-
     
     @Command(name="epmem", description="Controls the behavior of episodic memory",
             subcommands={HelpCommand.class})

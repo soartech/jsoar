@@ -1,12 +1,10 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -17,29 +15,13 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "qmemory" command.
  * @author austin.brehob
  */
-public class QMemoryCommand implements SoarCommand
+public class QMemoryCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    private final SoarQMemoryAdapter adapter;
-
     public QMemoryCommand(Agent agent)
     {
-        this.agent = agent;
-        this.adapter = SoarQMemoryAdapter.attach(agent, DefaultQMemory.create());
+        super(agent, new QMemoryC(agent, SoarQMemoryAdapter.attach(agent, DefaultQMemory.create())));
     }
-    @Override
-    public Object getCommand() {
-        return new QMemoryC(agent,adapter);
-    }
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new QMemoryC(agent, adapter), args);
-
-        return "";
-    }
-
-
+    
     @Command(name="qmemory", description="Stores and retrieves items from qmemory",
             subcommands={HelpCommand.class})
     static public class QMemoryC implements Runnable
@@ -54,19 +36,19 @@ public class QMemoryCommand implements SoarCommand
         }
 
         @Option(names={"-g", "--get"}, description="Item to retreive from qmemory")
-        String getPath = null;
+        String getPath;
 
         @Option(names={"-s", "--set"}, description="Item to set in qmemory")
-        String setPath = null;
+        String setPath;
 
         @Parameters(arity="0..1", description="New value of item")
-        String value = null;
+        String value;
 
         @Option(names={"-r", "--remove"}, description="Item to remove from qmemory")
-        String removePath = null;
+        String removePath;
 
-        @Option(names={"-c", "--clear"}, description="Clears everything from qmemory")
-        boolean clear = false;
+        @Option(names={"-c", "--clear"}, defaultValue="false", description="Clears everything from qmemory")
+        boolean clear;
 
         @Override
         public void run()
