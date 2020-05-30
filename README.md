@@ -161,6 +161,7 @@ To create a release using the Maven Release plugin:
 
 * Make sure you have a github account that has permission to commit to the jsoar repo.
 * Make sure you have ossrh server setup in your settings.xml with the soartech-releases account.
+* To build using the poms as-is, you should use a Java 8 JDK. More recent JDKs will work, but without additional changes to the poms, they may not produce jar files that can be linked with Java 8 applications.
 
 * Make sure everything is fully merged and all commits are pushed.
 * `mvn -Dusername=<yourGithubUsername> release:prepare -DdryRun=true`
@@ -180,6 +181,8 @@ To create a release using the Maven Release plugin:
 If something goes wrong when running any of the `release` commands, you can try `mvn -Dusername=<yourGithubUsername> release:rollback`, which will attempt to undo the changes. This should work as long as you haven't done a `release:clean`. For more info, see the [documentation](https://maven.apache.org/maven-release/maven-release-plugin/examples/rollback-release.html).
 
 If everything is good, you can do a `mvn release:clean` to remove all the intermediate files that the release plugin created. These should definitely not be committed.
+
+Don't forget to update the version badge at the top of the readme.
 
 # Acknowledgments / History
 JSoar was originally envisioned and implemented by Dave Ray (and indeed, the vast majority of the code is still Dave's). JSoar started out on Google Code in SVN, was converted to Mercurial and then Git, and then moved to [Dave's github site](https://github.com/daveray/). Today JSoar is primarily maintained by Soar Technology, Inc.
