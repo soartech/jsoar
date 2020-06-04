@@ -40,7 +40,7 @@ sp {apply*check-100
         ^multiplicity 2)
 -->
    (<fo> ^correct true)
-   (write |100 is correct!| (crlf))
+   (write (crlf) |100 is correct!| (crlf))
 }
 
 sp {complete
@@ -50,8 +50,8 @@ sp {complete
          ^complete true
          ^correct)
 -->
-   (write |Finished Factorization Stress Test!|)
+   (write (crlf) |Finished Factorization Stress Test!|)
    (halt)
 }
 
-trace --level 0
+trace --level 1

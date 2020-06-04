@@ -6,7 +6,7 @@ sp {wrong-answer
    (<fo> ^checked
         -^correct)
 -->
-   (write |Wrong Answer! | <fo>)
+   (write (crlf) |Wrong Answer! | <fo>)
    (halt)
 }
 
@@ -61,7 +61,7 @@ sp {apply*check-2
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |2 is correct!|)
+   (write (crlf) |2 is correct!|)
 }
 
 ##########################################
@@ -87,7 +87,7 @@ sp {apply*check-3
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |3 is correct!|)
+   (write (crlf) |3 is correct!|)
 }
 
 ##########################################
@@ -113,7 +113,7 @@ sp {apply*check-4
         ^multiplicity 2)
 -->
    (<fo> ^correct true)
-   (write |4 is correct!|)
+   (write (crlf) |4 is correct!|)
 }
 
 ##########################################
@@ -139,7 +139,7 @@ sp {apply*check-5
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |5 is correct!|)
+   (write (crlf) |5 is correct!|)
 }
 
 ##########################################
@@ -168,7 +168,7 @@ sp {apply*check-6
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |6 is correct!|)
+   (write (crlf) |6 is correct!|)
 }
 
 ##########################################
@@ -194,7 +194,7 @@ sp {apply*check-7
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |7 is correct!|)
+   (write (crlf) |7 is correct!|)
 }
 
 ##########################################
@@ -220,7 +220,7 @@ sp {apply*check-8
         ^multiplicity 3)
 -->
    (<fo> ^correct true)
-   (write |8 is correct!|)
+   (write (crlf) |8 is correct!|)
 }
 
 ##########################################
@@ -246,7 +246,7 @@ sp {apply*check-9
         ^multiplicity 2)
 -->
    (<fo> ^correct true)
-   (write |9 is correct!|)
+   (write (crlf) |9 is correct!|)
 }
 
 ##########################################
@@ -275,7 +275,7 @@ sp {apply*check-10
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |10 is correct!|)
+   (write (crlf) |10 is correct!|)
 }
 
 ##########################################
@@ -301,7 +301,7 @@ sp {apply*check-11
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |11 is correct!|)
+   (write (crlf) |11 is correct!|)
 }
 
 ##########################################
@@ -330,7 +330,7 @@ sp {apply*check-12
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |12 is correct!|)
+   (write (crlf) |12 is correct!|)
 }
 
 ##########################################
@@ -356,7 +356,7 @@ sp {apply*check-13
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |13 is correct!|)
+   (write (crlf) |13 is correct!|)
 }
 
 ##########################################
@@ -385,7 +385,7 @@ sp {apply*check-14
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |14 is correct!|)
+   (write (crlf) |14 is correct!|)
 }
 
 ##########################################
@@ -414,7 +414,7 @@ sp {apply*check-15
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |15 is correct!|)
+   (write (crlf) |15 is correct!|)
 }
 
 ##########################################
@@ -440,7 +440,7 @@ sp {apply*check-16
         ^multiplicity 4)
 -->
    (<fo> ^correct true)
-   (write |16 is correct!|)
+   (write (crlf) |16 is correct!|)
 }
 
 ##########################################
@@ -466,7 +466,7 @@ sp {apply*check-17
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |17 is correct!|)
+   (write (crlf) |17 is correct!|)
 }
 
 ##########################################
@@ -495,7 +495,7 @@ sp {apply*check-18
         ^multiplicity 2)
 -->
    (<fo> ^correct true)
-   (write |18 is correct!|)
+   (write (crlf) |18 is correct!|)
 }
 
 ##########################################
@@ -521,7 +521,7 @@ sp {apply*check-19
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |19 is correct!|)
+   (write (crlf) |19 is correct!|)
 }
 
 ##########################################
@@ -550,5 +550,5 @@ sp {apply*check-20
         ^multiplicity 1)
 -->
    (<fo> ^correct true)
-   (write |20 is correct!|)
+   (write (crlf) |20 is correct!|)
 }
