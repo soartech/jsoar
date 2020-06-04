@@ -38,7 +38,7 @@ public class Utils
      *
      * @param command the command to execute; this may be a user object or a pre-initialized {@code picocli.CommandLine} object
      * @param args the command line arguments (the first arg will be removed from this list)
-     * @param ps the PrintStream to print any command output to
+     * @param pw the PrintWriter to print any command output to
      * @return the command result
      * @throws SoarException if the user input was invalid or if a runtime exception occurred
      *                      while executing the command business logic
