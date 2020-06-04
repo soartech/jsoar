@@ -16,7 +16,7 @@ import org.jsoar.util.Arguments;
 /**
  * Manages registered RHS functions for an agent
  * 
- * @author ray
+ * @author ray, adam.sypniewski
  * @see RhsFunctionHandler
  */
 public class RhsFunctionManager
@@ -92,7 +92,6 @@ public class RhsFunctionManager
     
     /**
      * Disables a RHS function handler (so that calling it is a NOP).
-     * @author adam.sypniewski
      * @param name Name of handler to disable.
      */
     public void disableHandler(String name)
@@ -105,7 +104,6 @@ public class RhsFunctionManager
     
     /**
      * Enables a previously disabled RHS function handler (so that calling it is no longer a NOP).
-     * @author adam.sypniewski
      * @param name Name of handler to enable.
      */
     public void enableHandler(String name)
@@ -118,7 +116,6 @@ public class RhsFunctionManager
     
     /**
      * Checks to see if a function handler is disabled.
-     * @author adam.sypniewski
      * @param name Name of handler to check/
      * @return true if the handler is disabled; otherwise--if it is enabled or not registered--returns false.
      */
