@@ -126,7 +126,7 @@ public class Printer
         printWriter.flush();
         persistentPrintWriter.flush();
         
-        stack.push(new StackEntry(internalWriter, printWriter));
+        stack.push(new StackEntry(internalWriter, printWriter, atStartOfLine));
         
         this.internalWriter = writer != null ? writer : new NullWriter();
         this.printWriter = asPrintWriter(internalWriter);
@@ -160,6 +160,7 @@ public class Printer
         StackEntry e = stack.pop();
         this.internalWriter = e.internal;
         this.printWriter = e.wrapped;
+        this.atStartOfLine = e.atStartOfLine;
         
         teeWriter = null;
         
@@ -326,11 +327,13 @@ public class Printer
     {
         final Writer internal;
         final PrintWriter wrapped;
+        final boolean atStartOfLine;
         
-        public StackEntry(Writer internal, PrintWriter wrapped)
+        public StackEntry(Writer internal, PrintWriter wrapped, boolean atStartOfLine)
         {
             this.internal = internal;
             this.wrapped = wrapped;
+            this.atStartOfLine = atStartOfLine;
         }
     }
 }
