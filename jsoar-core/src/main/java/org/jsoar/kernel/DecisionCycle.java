@@ -6,7 +6,6 @@
 package org.jsoar.kernel;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -383,12 +382,12 @@ public class DecisionCycle
         afterPhase(Phase.DECISION);
 
         if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS)) {
-            final Writer writer = trace.getPrinter().getWriter();
+            final Printer printer = trace.getPrinter();
             try
             {
-                writer.append("\n");
-                traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
-                writer.flush();
+                printer.startNewLine();
+                traceFormats.print_lowest_slot_in_context_stack(printer.getWriter(), decider.bottom_goal);
+                printer.flush();
             }
             catch (IOException e)
             {
