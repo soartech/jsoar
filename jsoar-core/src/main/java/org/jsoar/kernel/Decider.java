@@ -2135,16 +2135,16 @@ public class Decider
                            * leak). 
                            */
                         } else {
-							// If this happens, we better be halted, see chunk.cpp:chunk_instantiation
-							// This can happen if a chunk can't be created, because then the match level 
-							// of the preference instantiation can map back to the original matching 
-							// production which can be at a different level than the id wme.
-							// Normally, there would be a chunk or justification firing at the higher
-							// goal with a match level equal to the id level.
-							// See more comments in chunk_instantiation.
-							if (!this.decisionCycle.isHalted()) {
-								throw new IllegalStateException("Wanted to create a GDS for a WME level different from the instantiation level.....Big problems....exiting....");
-							}                           
+                            // If this happens, we better be halted, see chunk.cpp:chunk_instantiation
+                            // This can happen if a chunk can't be created, because then the match level 
+                            // of the preference instantiation can map back to the original matching 
+                            // production which can be at a different level than the id wme.
+                            // Normally, there would be a chunk or justification firing at the higher
+                            // goal with a match level equal to the id level.
+                            // See more comments in chunk_instantiation.
+                            if (!this.decisionCycle.isHalted()) {
+                                throw new IllegalStateException("Wanted to create a GDS for a WME level different from the instantiation level.....Big problems....exiting....");
+                            }                           
                         }
                      } /* end if no GDS yet for goal... */
                      
