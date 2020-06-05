@@ -257,7 +257,6 @@ import org.jsoar.util.markers.Marker;
      * 
      * @param rt1
      * @param rt2
-     * @return
      */
     private static boolean single_rete_tests_are_identical(ReteTest rt1, ReteTest rt2)
     {
@@ -306,7 +305,6 @@ import org.jsoar.util.markers.Marker;
      * 
      * @param rt1
      * @param rt2
-     * @return
      */
     private static boolean rete_test_lists_are_identical(ReteTest rt1, ReteTest rt2)
     {
@@ -330,7 +328,6 @@ import org.jsoar.util.markers.Marker;
      * 
      * @param rt
      * @param dest_hash_loc
-     * @return
      */
     private static boolean extract_rete_test_to_hash_with(ByRef<ReteTest> rt, ByRef<VarLocation> dest_hash_loc)
     {
@@ -381,7 +378,6 @@ import org.jsoar.util.markers.Marker;
      * @param cond
      * @param current_depth
      * @param parent
-     * @return
      */
     private static ReteNode make_node_for_positive_cond(Rete rete, PositiveCondition cond, int current_depth, ReteNode parent)
     {
@@ -527,7 +523,6 @@ import org.jsoar.util.markers.Marker;
      * @param cond
      * @param current_depth
      * @param parent
-     * @return
      */
     private static ReteNode make_node_for_negative_cond(Rete rete, NegativeCondition cond, int current_depth, ReteNode parent)
     {

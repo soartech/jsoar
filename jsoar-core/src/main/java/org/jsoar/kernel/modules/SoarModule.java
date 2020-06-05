@@ -104,7 +104,6 @@ public class SoarModule
      * @param state
      * @param conditions
      * @param actions
-     * @return
      */
     public static Instantiation make_fake_instantiation(SymbolImpl state, Set<WmeImpl> conditions, List<SymbolTriple> actions){
      // make fake instantiation

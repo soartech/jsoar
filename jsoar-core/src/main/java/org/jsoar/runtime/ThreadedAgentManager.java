@@ -34,7 +34,6 @@ enum ThreadedAgentManager
     /**
      * Creates a ThreadedAgent. Automatically initializes it. Returns when complete.
      * @param name
-     * @return
      */
     public ThreadedAgent create(String name)
     {

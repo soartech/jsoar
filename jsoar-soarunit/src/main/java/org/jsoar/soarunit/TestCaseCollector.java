@@ -122,7 +122,6 @@ public class TestCaseCollector
      * Find the index of the end of the greatest common prefix in the entries list
      * This will be used to truncate that prefix off for the test names
      * Note if there is only one entry, it will be the entire entry
-     * @return
      */
     private int greatestCommonPrefixIndex()
     {

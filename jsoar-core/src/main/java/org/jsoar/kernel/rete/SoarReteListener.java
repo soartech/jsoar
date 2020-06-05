@@ -943,7 +943,6 @@ public class SoarReteListener implements ReteListener
          * 
          * @param sym
          * @param goal
-         * @return
          */
         public static MS_trace incrementOrCreate(MS_trace start, Symbol sym, Symbol goal)
         {

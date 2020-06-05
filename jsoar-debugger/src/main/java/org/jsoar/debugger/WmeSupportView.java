@@ -95,9 +95,6 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         this.selectionManager.addListener(this);
     }
 
-    /**
-     * @return
-     */
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();

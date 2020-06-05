@@ -221,7 +221,6 @@ class ReteTestRoutines
      * @param test
      * @param left
      * @param w
-     * @return
      */
     static boolean match_left_and_right(ReteTest test, LeftToken left, WmeImpl w)
     {

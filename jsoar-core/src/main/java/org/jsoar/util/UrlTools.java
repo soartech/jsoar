@@ -27,7 +27,6 @@ public class UrlTools
      * TODO: Should catch and rethrow different exceptions, like {@link XmlTools}?
      * 
      * @param url
-     * @return
      * @throws URISyntaxException
      * @throws MalformedURLException
      */

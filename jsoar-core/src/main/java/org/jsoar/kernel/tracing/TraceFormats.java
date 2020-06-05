@@ -156,7 +156,6 @@ public class TraceFormats
      * trace.cpp:152:parse_format_string
      * 
      * @param string
-     * @return
      */
     private TraceFormat parse_format_string(String string)
     {
@@ -194,8 +193,6 @@ public class TraceFormats
 
     /**
      * trace.cpp:180:parse_attribute_path_in_brackets
-     * 
-     * @return
      */
     private List<Symbol> parse_attribute_path_in_brackets()
     {
@@ -259,7 +256,6 @@ public class TraceFormats
      * trace.cpp:232:parse_pattern_in_brackets
      * 
      * @param read_opening_bracket
-     * @return
      */
     private TraceFormat parse_pattern_in_brackets(boolean read_opening_bracket)
     {
@@ -309,8 +305,6 @@ public class TraceFormats
 
     /**
      * trace.cpp:270:parse_item_from_format_string
-     * 
-     * @return
      */
     private TraceFormat parse_item_from_format_string()
     {
@@ -574,7 +568,6 @@ public class TraceFormats
      * @param stack_trace
      * @param type_restriction
      * @param name_restriction
-     * @return
      */
     private TraceFormat lookup_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
             SymbolImpl name_restriction)
@@ -979,7 +972,6 @@ public class TraceFormats
      * @param stack_trace
      * @param type
      * @param name
-     * @return
      */
     private TraceFormat find_appropriate_trace_format(boolean stack_trace, TraceFormatRestriction type, SymbolImpl name)
     {

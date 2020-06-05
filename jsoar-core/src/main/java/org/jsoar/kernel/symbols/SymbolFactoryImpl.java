@@ -503,8 +503,6 @@ public class SymbolFactoryImpl implements SymbolFactory
 
     /**
      * symtab.cpp:153:get_next_hash_id
-     * 
-     * @return
      */
     private int get_next_hash_id()
     {

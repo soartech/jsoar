@@ -465,7 +465,6 @@ public class Rete
      * @param i
      * @param a
      * @param v
-     * @return
      */
     private static int xor_op(int i, int a, int v)
     {
@@ -622,8 +621,6 @@ public class Rete
     
     /**
      * rete.cpp:1403:get_next_alpha_mem_id
-     * 
-     * @return
      */
     int get_next_alpha_mem_id()
     {
@@ -678,7 +675,6 @@ public class Rete
      * @param attr
      * @param value
      * @param acceptable
-     * @return
      */
     /*package*/ HashTable<AlphaMemory> table_for_tests(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
@@ -697,7 +693,6 @@ public class Rete
      * @param attr
      * @param value
      * @param acceptable
-     * @return
      */
     AlphaMemory find_alpha_mem(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
@@ -739,7 +734,6 @@ public class Rete
      * @param attr
      * @param value
      * @param acceptable
-     * @return
      */
     AlphaMemory find_or_make_alpha_mem(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
@@ -833,8 +827,6 @@ public class Rete
 
     /**
      * <p>rete.cpp:1698:get_next_beta_node_id
-     * 
-     * @return
      */
     int get_next_beta_node_id()
     {
@@ -2212,7 +2204,6 @@ public class Rete
      * @param right_wme
      * @param cond
      * @param nots_found_in_production
-     * @return
      */
     NotStruct collect_nots(ReteTest rt, WmeImpl right_wme, Condition cond, NotStruct nots_found_in_production)
     {
@@ -2299,7 +2290,6 @@ public class Rete
      * @param tok
      * @param w
      * @param conds_for_cutoff_and_up
-     * @return
      */
     ReteNodeToConditionsResult rete_node_to_conditions(ReteNode node, NodeVarNames nvn, ReteNode cutoff, Token tok,
             WmeImpl w, Condition conds_for_cutoff_and_up)
@@ -2500,7 +2490,6 @@ public class Rete
      * <p>rete.cpp:7554:get_all_left_tokens_emerging_from_node
      * 
      * @param node
-     * @return
      */
     private Token get_all_left_tokens_emerging_from_node(ReteNode node)
     {

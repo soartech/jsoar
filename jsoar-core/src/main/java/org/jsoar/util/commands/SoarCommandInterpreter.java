@@ -60,7 +60,6 @@ public interface SoarCommandInterpreter
      * Gets the parsed command for a string, after alias resolution
      * @param name
      * @param srcLoc
-     * @return
      */
     ParsedCommand getParsedCommand(String name, SourceLocation srcLoc);
     
@@ -153,14 +152,12 @@ public interface SoarCommandInterpreter
     /**
      * Get the autocomplete list for an incomplete command or a command with no CommandLine
      * @param command
-     * @return
      */
     String[] getCompletionList(String command, int cursorPosition);
 
     /**
      * Return the autocomplete list for a command with a command line
      * @param command
-     * @return
      */
     default CommandLine findCommand(String command)
     {
@@ -202,7 +199,6 @@ public interface SoarCommandInterpreter
     /**
      * Returns a sorted list of the names of all the registered SoarCommands
      * This is not intended to report aliases or interpreter-specific commands (e.g., Tcl commands)
-     * @return
      */
     public List<String> getCommandStrings() throws SoarException;
 
@@ -210,7 +206,6 @@ public interface SoarCommandInterpreter
      * Returns the interpreter's SoarTclExceptionsManager
      * This is intended to be used by the language server to provide context/info
      * for "soft" exceptions that are caught and logged but not "reported" to IDEs
-     * @return
      */
     public SoarExceptionsManager getExceptionsManager();
 

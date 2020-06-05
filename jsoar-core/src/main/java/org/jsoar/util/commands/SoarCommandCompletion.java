@@ -11,7 +11,6 @@ public class SoarCommandCompletion
      * @param commandLine The CommandLine to perform conpletion on
      * @param input The typed input to generate a completion list for
      * @param cursorPosition The user's cursor position in the string
-     * @return
      */
     public static String[] complete(CommandLine commandLine, String input, int cursorPosition)
     {

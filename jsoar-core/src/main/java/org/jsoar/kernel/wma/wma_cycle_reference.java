@@ -14,7 +14,6 @@ public class wma_cycle_reference
     /**
      * wma.cpp:1224:_wma_ref_to_str
      * @param current_cycle
-     * @return
      */
     String toString(long current_cycle )
     {
