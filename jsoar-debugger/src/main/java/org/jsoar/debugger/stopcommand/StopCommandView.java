@@ -34,12 +34,10 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 {
     private static final Logger LOG = LoggerFactory.getLogger(StopCommandView.class);
     
-    private static final long COMMAND_DELAY_MILLIS = 800;
     private final JSoarDebugger debugger;
     private final Highlighter highlighter;
     private JXTextField txtCommand = new JXTextField("");
     private JTextPane txtResult = new JTextPane();
-    private long lastInputTimestamp = System.currentTimeMillis();
     private DefaultStyledDocument styledDocument = new DefaultStyledDocument();
 
     public StopCommandView(MultipleCDockableFactory<?,?> factory, JSoarDebugger debuggerIn)
@@ -90,19 +88,8 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
     private void updateCommand(DocumentEvent e)
     {
-        new Thread(() ->
-        {
-            lastInputTimestamp = System.currentTimeMillis();
-            try {
-                Thread.sleep(COMMAND_DELAY_MILLIS);
-            } catch (InterruptedException ignored) {
-            }
-            long time = System.currentTimeMillis();
-            if (lastInputTimestamp + COMMAND_DELAY_MILLIS <= time) {
-                setTitleText("On Stop: "+txtCommand.getText());
-                runStopCommand();
-            }
-        }).start();
+        setTitleText("On Stop: "+txtCommand.getText());
+        debugger.getAgent().execute(() -> { runStopCommand(); return null; }, null);
     }
 
     @Override
@@ -152,29 +139,32 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
 
         if (!command.trim().isEmpty()) 
         {
+            
+            LOG.info("stopcommand " + command + " running...");
+
+            //most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
+            StringWriter writer = new StringWriter();
+
+            debugger.getAgent().getPrinter().pushWriter(writer); //redirect output to us
+            
+            String commandReturnResult;
             try
             {
-                LOG.info("stopcommand " + command + " running...");
-
-                //most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
-                StringWriter writer = new StringWriter();
-
-                debugger.getAgent().getPrinter().pushWriter(writer); //redirect output to us
-
-                String commandReturnResult = debugger.getAgent().getInterpreter().eval(command);
-
-                debugger.getAgent().getPrinter().popWriter();//stop redirecting output to us
-
-                String commandPrintResult = writer.getBuffer().toString();
-                
-                final String result = commandReturnResult + commandPrintResult;
-                SwingUtilities.invokeLater(() -> txtResult.setText(result.trim()));
-
-                LOG.info("stopcommand " + command + " done!");
+                commandReturnResult = debugger.getAgent().getInterpreter().eval(command);
             } catch (SoarException e) {
                 LOG.info("stopcommand " + command + " error!");
-                SwingUtilities.invokeLater( () -> txtResult.setText(e.getMessage())); //print the error if there was one
+                commandReturnResult = e.getMessage(); //print the error if there was one
             }
+            
+            debugger.getAgent().getPrinter().popWriter();//stop redirecting output to us
+
+            String commandPrintResult = writer.getBuffer().toString();
+            final String result = commandReturnResult + commandPrintResult;
+
+            SwingUtilities.invokeLater(() -> txtResult.setText(result.trim()));
+
+            LOG.info("stopcommand " + command + " done!");
+            
         }
     }
     
