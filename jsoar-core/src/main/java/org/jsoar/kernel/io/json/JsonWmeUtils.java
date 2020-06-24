@@ -1,6 +1,9 @@
 package org.jsoar.kernel.io.json;
 
-import com.google.common.collect.Maps;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWme;
@@ -10,15 +13,12 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.google.common.collect.Maps;
 
 /**
  * Utility methods for adding json to the input link and converting output link wmes to json.
@@ -38,13 +38,13 @@ public class JsonWmeUtils
                                Object attr,
                                Object obj)
     {
-        if (obj instanceof JSONObject)
+        if (obj instanceof JsonObject)
         {
-            addObjectWmes(io, attr, (JSONObject) obj);
+            addObjectWmes(io, attr, (JsonObject) obj);
         }
-        else if (obj instanceof JSONArray)
+        else if (obj instanceof JsonArray)
         {
-            addArrayWmes(io, attr, (JSONArray) obj);
+            addArrayWmes(io, attr, (JsonArray) obj);
         }
         else if (obj instanceof Boolean)
         {
@@ -62,13 +62,13 @@ public class JsonWmeUtils
                                Object attr,
                                Object obj)
     {
-        if (obj instanceof JSONObject)
+        if (obj instanceof JsonObject)
         {
-            addObjectWmes(io, id, attr, (JSONObject) obj);
+            addObjectWmes(io, id, attr, (JsonObject) obj);
         }
-        else if (obj instanceof JSONArray)
+        else if (obj instanceof JsonArray)
         {
-            addArrayWmes(io, id, attr, (JSONArray) obj);
+            addArrayWmes(io, id, attr, (JsonArray) obj);
         }
         else if (obj instanceof Boolean)
         {
@@ -85,13 +85,13 @@ public class JsonWmeUtils
                                Object attr,
                                Object obj)
     {
-        if (obj instanceof JSONObject)
+        if (obj instanceof JsonObject)
         {
-            addObjectWmes(root, attr, (JSONObject) obj);
+            addObjectWmes(root, attr, (JsonObject) obj);
         }
-        else if (obj instanceof JSONArray)
+        else if (obj instanceof JsonArray)
         {
-            addArrayWmes(root, attr, (JSONArray) obj);
+            addArrayWmes(root, attr, (JsonArray) obj);
         }
         else if (obj instanceof Boolean)
         {
@@ -107,7 +107,7 @@ public class JsonWmeUtils
     public static void addObjectWmes(
                                      InputOutput io,
                                      Object attr,
-                                     JSONObject jsonObj)
+                                     JsonObject jsonObj)
     {
         InputWme wme = InputWmes.add(io, attr, Symbols.NEW_ID);
         Iterator iter = jsonObj.entrySet().iterator();
@@ -123,7 +123,7 @@ public class JsonWmeUtils
                                      InputOutput io,
                                      Identifier id,
                                      Object attr,
-                                     JSONObject jsonObj)
+                                     JsonObject jsonObj)
     {
         InputWme wme = InputWmes.add(io, id, attr, Symbols.NEW_ID);
         Iterator iter = jsonObj.entrySet().iterator();
@@ -137,7 +137,7 @@ public class JsonWmeUtils
     public static void addObjectWmes(
                                      InputWme root,
                                      Object attr,
-                                     JSONObject jsonObj)
+                                     JsonObject jsonObj)
     {
         InputWme wme = InputWmes.add(root, attr, Symbols.NEW_ID);
         addObjectWmes(wme, jsonObj);
@@ -146,7 +146,7 @@ public class JsonWmeUtils
     @SuppressWarnings("rawtypes")
     public static void addObjectWmes(
                                      InputWme root,
-                                     JSONObject jsonObj)
+                                     JsonObject jsonObj)
     {
         Iterator iter = jsonObj.entrySet().iterator();
         while (iter.hasNext())
@@ -159,7 +159,7 @@ public class JsonWmeUtils
     public static void addArrayWmes(
                                     InputOutput io,
                                     Object attr,
-                                    JSONArray jsonArray)
+                                    JsonArray jsonArray)
     {
         for (Object obj : jsonArray)
         {
@@ -171,7 +171,7 @@ public class JsonWmeUtils
                                     InputOutput io,
                                     Identifier id,
                                     Object attr,
-                                    JSONArray jsonArray)
+                                    JsonArray jsonArray)
     {
         for (Object obj : jsonArray)
         {
@@ -182,7 +182,7 @@ public class JsonWmeUtils
     public static void addArrayWmes(
                                     InputWme root,
                                     Object attr,
-                                    JSONArray jsonArray)
+                                    JsonArray jsonArray)
     {
         for (Object obj : jsonArray)
         {
@@ -214,22 +214,21 @@ public class JsonWmeUtils
         }
     }
 
-    public static JSONObject parse(Identifier root){
+    public static JsonObject parse(Identifier root){
         return parse(root, false);
     }
 
-    @SuppressWarnings("unchecked")
-    public static JSONObject parse(Identifier root, Boolean autoCreateJSONArray)
+    public static JsonObject parse(Identifier root, Boolean autoCreateJSONArray)
     {
-        final JSONObject jsonObj = new JSONObject();
-        final Map<String, JSONArray> arrayAttrs = Maps.newHashMap();
+        final JsonObject jsonObj = new JsonObject();
+        final Map<String, JsonArray> arrayAttrs = Maps.newHashMap();
 
         // Create empty arrays for all array attributes
         Iterator<String> arrayAttributes = getJsonArrayAttributes(root).iterator();
         while (arrayAttributes.hasNext())
         {
             String attr = arrayAttributes.next();
-            JSONArray array = new JSONArray();
+            JsonArray array = new JsonArray();
             jsonObj.put(attr, array);
             arrayAttrs.put(attr, array);
         }
@@ -253,7 +252,7 @@ public class JsonWmeUtils
             // If this attribute is an array, then add the value to the array.
             // Otherwise, add it as a JSON value.
             // Multiple attributes that have not been specified as an array are considered an error.
-            JSONArray array = arrayAttrs.get(attr);
+            JsonArray array = arrayAttrs.get(attr);
             if (array != null)
             {
                 array.add(jsonValue);
@@ -263,14 +262,14 @@ public class JsonWmeUtils
                 if (jsonObj.containsKey(attr))
                 {
                     if(autoCreateJSONArray){
-                        if(!(jsonObj.get(attr) instanceof JSONArray)){
+                        if(!(jsonObj.get(attr) instanceof JsonArray)){
                             Object oldObject = jsonObj.get(attr);
-                            JSONArray newJsonArray = new JSONArray();
+                            JsonArray newJsonArray = new JsonArray();
                             newJsonArray.add(oldObject);
                             newJsonArray.add(jsonValue);
                             jsonObj.put(attr, newJsonArray);
                         } else{
-                            ((JSONArray) jsonObj.get(attr)).add(jsonValue);
+                            ((JsonArray) jsonObj.get(attr)).add(jsonValue);
                         }
                     }else{
                         logger.error("Parsing identifier {} - Replacing value for key {} ({} -> {}). To make an array instead add a ^{} {} WME to the identifier.",

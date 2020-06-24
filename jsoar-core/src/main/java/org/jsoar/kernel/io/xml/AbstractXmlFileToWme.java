@@ -11,9 +11,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.io.xml.XmlToWme;
-import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeBuilder;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
