@@ -5,6 +5,8 @@
  */
 package org.jsoar.debugger;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
@@ -38,7 +40,13 @@ public class LoadPluginCommand implements SoarCommand
         try
         {
             Class<?> klass = Class.forName(args[1]);
-            JSoarDebuggerPlugin plugin = (JSoarDebuggerPlugin) klass.newInstance();
+            JSoarDebuggerPlugin plugin;
+            try {
+                plugin = (JSoarDebuggerPlugin) klass.getConstructor().newInstance();
+            } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                    | SecurityException e) {
+                throw new SoarException("Failed to instantiate plugin", e);
+            }
             
             String[] initArgs = new String[args.length - 2];
             for(int i = 2; i < args.length; ++i)

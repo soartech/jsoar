@@ -121,7 +121,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         south.add(status, BorderLayout.CENTER);
         final JButton loadButton = new JButton(loadAction);
         // map ctrl+return to load the production back into the agent.
-        textArea.getKeymap().addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_MASK), loadAction);
+        textArea.getKeymap().addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), loadAction);
         textArea.selectAll();
         
         JPanel t = new JPanel();
