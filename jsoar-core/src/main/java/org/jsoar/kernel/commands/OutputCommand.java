@@ -119,7 +119,9 @@ public final class OutputCommand extends PicocliSoarCommand
                         parent.writerStack.push(w);
                         parent.agent.getPrinter().pushWriter(new TeeWriter(
                                 parent.agent.getPrinter().getWriter(), w));
-                        parent.agent.getPrinter().startNewLine().print("Log file " + fileName + " open.");
+                        // adding a newline at the end because we don't want the next line (which could be a command output) to start on the same line.
+                        // normally we would leave this up to the debugger or other display mechanism to figure out, but in this case it's going straight to a file.
+                        parent.agent.getPrinter().startNewLine().print("Log file " + fileName + " open.").startNewLine();
                     }
                     catch (IOException e)
                     {
