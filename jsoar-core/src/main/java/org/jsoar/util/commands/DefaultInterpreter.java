@@ -152,7 +152,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(File file) throws SoarException
     {
-        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "load rete-net", "--load", file.getAbsolutePath() });
     }
     
     /*
@@ -162,7 +162,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void loadRete(URL url) throws SoarException
     {
-        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { url.toExternalForm() });
+        loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "load rete-net", "--load", url.toExternalForm() });
     }
     
     /*
@@ -172,7 +172,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void saveRete(File file) throws SoarException
     {
-        saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getAbsolutePath() });
+        saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "save rete-net", "--save", file.getAbsolutePath() });
     }   
     
     @Override

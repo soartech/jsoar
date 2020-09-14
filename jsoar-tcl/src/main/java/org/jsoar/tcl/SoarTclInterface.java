@@ -351,7 +351,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     @Override
     public void loadRete(File file) throws SoarException
     {
-        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getPath() });
+        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "rete-net", "--load", file.getPath() });
     }
     
     /*
@@ -361,7 +361,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     @Override
     public void loadRete(URL url) throws SoarException
     {
-        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { url.toExternalForm() });
+        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "rete-net", "--load", url.toExternalForm() });
     }
     
     /*
@@ -371,7 +371,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     @Override
     public void saveRete(File file) throws SoarException
     {
-        this.saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { file.getPath() });
+        this.saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "rete-net", "--save", file.getPath() });
     }
     
     @Override
