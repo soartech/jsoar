@@ -65,10 +65,13 @@ public class Utils
     
     public static String parseAndRun(Object command, String[] args) throws SoarException {
         StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        String result = parseAndRun(command, args, pw);
-        pw.print(result != null ? result : "");
-        pw.close();
+        
+        try(PrintWriter pw = new PrintWriter(sw);) {
+            String result = parseAndRun(command, args, pw);
+            pw.print(result != null ? result : "");
+        } catch (SoarException e) {
+            throw new SoarException(sw.toString(), e);
+        }
         return sw.toString();
     }
     
