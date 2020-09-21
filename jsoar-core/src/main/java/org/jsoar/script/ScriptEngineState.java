@@ -9,7 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.function.Predicate;
 
+import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -120,6 +122,10 @@ public class ScriptEngineState
         final InputStream is = getClass().getResourceAsStream(engineName.toLowerCase());
         if(is != null)
         {
+            Bindings bindings = engine.getBindings(javax.script.ScriptContext.ENGINE_SCOPE);
+            bindings.put("polyglot.js.allowHostAccess", true);
+            bindings.put("polyglot.js.allowHostClassLookup", (Predicate<String>) s -> true);
+            
             engine.put("_soar", new ScriptContext(context));
             
             engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);

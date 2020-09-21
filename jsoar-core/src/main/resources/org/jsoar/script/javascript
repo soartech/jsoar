@@ -2,14 +2,18 @@
 // Performs additional initialization that's easier to do in straight
 // javascript than through the Java scripting API.
 
-soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
+soar = (_soar.getAgent() instanceof Java.type('org.jsoar.kernel.Agent')) ? new (function(agent) {
 
   var INPUT_EVENT = "org.jsoar.kernel.events.InputEvent";
   var OUTPUT_EVENT = "org.jsoar.kernel.events.OutputEvent";
   
-  var Symbols = org.jsoar.kernel.symbols.Symbols;
-  var InputWmes = org.jsoar.kernel.io.InputWmes;
-  
+  var Symbols = Java.type('org.jsoar.kernel.symbols.Symbols');
+  var InputWmes = Java.type('org.jsoar.kernel.io.InputWmes');
+  var RhsFunctionHandler = Java.extend(Java.type('org.jsoar.kernel.rhs.functions.RhsFunctionHandler'));
+  var SoarEventListenerProxy = Java.type('org.jsoar.util.events.SoarEventListenerProxy');
+  var Integer = Java.type('java.lang.Integer');
+  var Long = Java.type('java.lang.Long');
+
   var io = agent.getInputOutput();
   
   // Remember all listeners we register so we can remove them
@@ -25,13 +29,13 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
   // General event registration handler (see below)
   function onEvent(eventClass, callback) {
     if(typeof(eventClass) === "string") {
-      eventClass = java.lang.ClassLoader.getSystemClassLoader().loadClass(eventClass);
+      eventClass = Java.type(eventClass);
     }
-    var proxy = new org.jsoar.util.events.SoarEventListenerProxy(callback);
-    agent.events.addListener(eventClass, proxy);
+    var proxy = new SoarEventListenerProxy(callback);
+    agent.getEvents().addListener(eventClass, proxy);
     
     var disposer = function() {
-      agent.events.removeListener(eventClass, proxy);
+      agent.getEvents().removeListener(eventClass, proxy);
     }
     disposers.unshift(disposer); // add to front so disposed in reverse
     return disposer;
@@ -114,7 +118,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
   
   var wmes = {
     newId : function(letter) {
-      return agent.symbols.createIdentifier(letter);
+      return agent.getSymbols().createIdentifier(letter);
     },
     /**
      * Add an input wme and return it
@@ -195,21 +199,21 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @return a java.lang.Long
      */
     integer : function(value) {
-      return java.lang.Long.valueOf(value);
+      return Long.valueOf(value);
     },
     
     /**
      * Get the current working directory
      */
     pwd : function() {
-      return this.agent.interpreter.eval("pwd");
+      return agent.getInterpreter().eval("pwd");
     },
     
     /**
      * Print to the agent's console
      */
     print : function(s) {
-      this.agent.printer.print(s);
+      agent.getPrinter().print(s);
     },
     
     /**
@@ -324,10 +328,10 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @returns a function that can be called to remove the RHS function
      */
     rhsFunction : function(options) {
-      agent.getRhsFunctions().registerHandler(new org.jsoar.kernel.rhs.functions.RhsFunctionHandler({
+      agent.getRhsFunctions().registerHandler(new RhsFunctionHandler({
         getName : function() { return options.name; },
         getMinArguments : function() { return options.minArguments ? options.minArguments : 0; },
-        getMaxArguments : function() { return options.maxArguments || java.lang.Integer.MAX_VALUE; },
+        getMaxArguments : function() { return options.maxArguments || Integer.MAX_VALUE; },
         mayBeStandalone : function() { return options.mayBeStandalone !== undefined ? options.mayBeStandalone : true; },
         mayBeValue : function() { return options.mayBeValue !== undefined ? options.mayBeValue : true; },
         execute : function(context, args) {
@@ -355,7 +359,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     
     _dispose : dispose,
   }
-})(_soar.agent) : _soar;
+})(_soar.getAgent()) : _soar;
 
 /**
  * Called when the engine is disposed or reset...
