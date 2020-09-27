@@ -64,7 +64,12 @@ public class WmeSupportInfo
         public String getValueTrace() { return valueTrace; }
         public Symbol getReferent() { return pref.referent; }
         public boolean isOSupported() { return osupported; }
-        public Production getSource() { return pref.inst.prod; }
+        public Production getSource() { 
+            if(pref.inst != null) {
+                return pref.inst.prod; 
+            } 
+            return null;
+        }
         public List<Wme> getSourceWmes() { return wmes; }
 
         /* (non-Javadoc)
