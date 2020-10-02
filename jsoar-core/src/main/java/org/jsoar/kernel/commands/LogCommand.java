@@ -75,10 +75,10 @@ public class LogCommand extends PicocliSoarCommand
         @Option(names={"-a", "--add"}, description="Adds a logger with the given name")
         String logToAdd;
 
-        @Option(names={"on", "-e", "--on", "--enable", "--yes"}, defaultValue="false", description="Enables logging")
+        @Option(names={"-e", "--on", "--enable", "--yes"}, defaultValue="false", description="Enables logging")
         boolean enable;
 
-        @Option(names={"off", "-d", "--off", "--disable", "--no"}, defaultValue="false", description="Disables logging")
+        @Option(names={"-d", "--off", "--disable", "--no"}, defaultValue="false", description="Disables logging")
         boolean disable;
 
         @Option(names={"-s", "--strict"}, description="Enables or disables logging strictness")
