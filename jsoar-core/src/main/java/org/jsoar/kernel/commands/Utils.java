@@ -3,6 +3,7 @@ package org.jsoar.kernel.commands;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -59,8 +60,7 @@ public class Utils
         int exitCode = commandLine.execute(
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
         if(exitCode != 0) throw new SoarException("Error executing command " + String.join(" ", args));
-        String executionResult = commandLine.getExecutionResult();
-        return executionResult == null ? "" : executionResult;
+        return Objects.toString(commandLine.getExecutionResult(), "");
     }
     
     public static String parseAndRun(Object command, String[] args) throws SoarException {
