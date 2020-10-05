@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.function.Predicate;
 
 import javax.script.Bindings;
 import javax.script.Invocable;
@@ -123,8 +122,7 @@ public class ScriptEngineState
         if(is != null)
         {
             Bindings bindings = engine.getBindings(javax.script.ScriptContext.ENGINE_SCOPE);
-            bindings.put("polyglot.js.allowHostAccess", true);
-            bindings.put("polyglot.js.allowHostClassLookup", (Predicate<String>) s -> true);
+            bindings.put("polyglot.js.allowAllAccess", true);
             
             engine.put("_soar", new ScriptContext(context));
             
