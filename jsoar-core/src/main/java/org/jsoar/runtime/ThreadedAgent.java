@@ -38,6 +38,7 @@ import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -440,6 +441,34 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     public void openDebugger() throws SoarException { agent.openDebugger(); }
     public void openDebuggerAndWait() throws SoarException, InterruptedException { agent.openDebuggerAndWait(); }
     
+    public void loadProductionsAndWait(Object source) throws SoarException {
+        try
+        {
+            this.executeAndWait(() -> {
+                SoarCommands.source(this.getInterpreter(), source);
+                return null;
+            }, Long.MAX_VALUE, TimeUnit.DAYS);
+        }
+        catch (InterruptedException | ExecutionException | TimeoutException e)
+        {
+            throw new SoarException(e);
+        }
+        
+    }
+    
+    public void loadReteAndWait(Object rete) throws SoarException {
+        try
+        {
+            this.executeAndWait(() -> {
+                SoarCommands.loadRete(this.getInterpreter(), rete);
+                return null;
+            }, Long.MAX_VALUE, TimeUnit.DAYS);
+        }
+        catch (InterruptedException | ExecutionException | TimeoutException e)
+        {
+            throw new SoarException(e);
+        }
+    }
     
     /**
      * Execute the given runnable in the agent thread.

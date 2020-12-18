@@ -65,6 +65,31 @@ public class SoarCommands
         }
     }
     
+    public static void loadRete(SoarCommandInterpreter interp, Object any) throws SoarException
+    {
+        if(any instanceof File)
+        {
+            interp.loadRete((File) any);
+        }
+        else if(any instanceof URL)
+        {
+            interp.loadRete((URL) any);
+        }
+        else
+        {
+            final String s = any.toString();
+            final URL url = FileTools.asUrl(s);
+            if(url != null)
+            {
+                interp.loadRete(url);
+            }
+            else
+            {
+                interp.loadRete(new File(s));
+            }
+        }
+    }
+    
     /**
      * Register custom commands on the given interpreter by finding SoarCommandProvider
      * through the usual ServiceLoader mechanism.
