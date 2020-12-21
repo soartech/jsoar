@@ -9,8 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -19,10 +17,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
-import org.jsoar.util.StringTools;
 import org.jsoar.util.UrlTools;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -39,10 +34,8 @@ import org.jsoar.util.events.SoarEventManager;
  * 
  * @author ray
  */
-public class SourceCommand implements SoarCommand
+public class SourceCommand
 {
-    private static enum Options { ALL, DISABLE, VERBOSE };
-    
     private final SourceCommandAdapter interp;
     private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
     private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
@@ -82,11 +75,7 @@ public class SourceCommand implements SoarCommand
         this.events = events;
         fileStack.push("");
     }
-    @Override
-    public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return null;
-    }
+
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
@@ -207,127 +196,6 @@ public class SourceCommand implements SoarCommand
             pushd(file.getParent());
             evalFileAndPop(file);
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
-     */
-    @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
-    {
-        if(args.length < 2)
-        {
-            throw new SoarException("Expected fileName argument");
-        }
-        
-        final boolean topLevel = topLevelState == null;
-        
-        final boolean reload = "-r".equals(args[1]) || "--reload".equals(args[1]);
-        if(topLevel && reload && lastTopLevelCommand != null)
-        {
-            return "Reloaded: " + 
-                   StringTools.join(Arrays.asList(lastTopLevelCommand), " ") + "\n" + 
-                   execute(commandContext, lastTopLevelCommand);
-        }
-        else if(!topLevel && reload)
-        {
-            throw new SoarException(args[1] + " option only valid at top level");
-        }
-        else if(lastTopLevelCommand == null && reload)
-        {
-            throw new SoarException("No previous file to reload");
-        }
-        
-        // Process args to get list of files and options ...
-        final List<String> files = new ArrayList<String>();
-        final EnumSet<Options> opts = EnumSet.noneOf(Options.class);
-        for(int i = 1; i < args.length; ++i)
-        {
-            final String arg = args[i];
-            if(arg.equals("-d") || arg.equals("--disable")) opts.add(Options.DISABLE);
-            else if(arg.equals("-a") || arg.equals("--all")) opts.add(Options.ALL);
-            else if(arg.equals("-v") || arg.endsWith("--verbose")) opts.add(Options.VERBOSE);
-            else if(arg.startsWith("-"))
-            {
-                throw new SoarException("Unknown option '" + arg + "'");
-            }
-            else
-            {
-                files.add(arg);
-            }
-        }
-        
-        // If this is the top source command (user-initiated), set up the 
-        // state info and register for production events
-        if(topLevel)
-        {
-            topLevelState = new TopLevelState();
-            events.addListener(ProductionAddedEvent.class, eventListener);
-            events.addListener(ProductionExcisedEvent.class, eventListener);
-        }
-        try
-        {
-            for(String file : files)
-            {
-                source(file);
-            }
-            if(topLevel)
-            {
-                lastTopLevelCommand = Arrays.copyOf(args, args.length);
-            }
-            return generateResult(topLevel, opts);
-        }
-        finally
-        {
-            // Clean up top-level state
-            if(topLevel)
-            {
-                topLevelState = null;
-                events.removeListener(null, eventListener);
-            }
-        }
-    }
-    
-    private String generateResult(boolean topLevel, EnumSet<Options> opts)
-    {
-        final StringBuilder result = new StringBuilder();
-        if(topLevel)
-        {
-            if(opts.contains(Options.ALL))
-            {
-                for(FileInfo file : topLevelState.files)
-                {
-                    result.append(String.format("%s: %d productions sourced.\n", file.name, file.productionsAdded.size()));
-                    if(opts.contains(Options.VERBOSE) && !file.productionsExcised.isEmpty())
-                    {
-                        result.append("Excised productions:\n");
-                        for(String p : file.productionsExcised)
-                        {
-                            result.append("        " + p + "\n");
-                        }
-                    }
-                }
-            }
-            if(!opts.contains(Options.DISABLE))
-            {
-                result.append(String.format("Total: %d productions sourced. %d productions excised.\n", 
-                                topLevelState.totalProductionsAdded,
-                                topLevelState.totalProductionsExcised));
-            }
-            if(opts.contains(Options.VERBOSE) && !opts.contains(Options.ALL) && topLevelState.totalProductionsExcised != 0)
-            {
-                result.append("Excised productions:\n");
-                for(FileInfo file : topLevelState.files)
-                {
-                    for(String p : file.productionsExcised)
-                    {
-                        result.append("        " + p + "\n");
-                    }
-                }
-            }
-            result.append("Source finished.");
-        }
-        return result.toString();
     }
     
     private URL getParentUrl(URL url) throws SoarException

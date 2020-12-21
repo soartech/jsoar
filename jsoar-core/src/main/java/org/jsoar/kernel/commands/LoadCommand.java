@@ -16,7 +16,6 @@ import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.rete.ReteSerializer;
 import org.jsoar.util.FileTools;
-import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -76,9 +75,6 @@ public class LoadCommand extends PicocliSoarCommand
         @Option(names={"-d", "--disable"}, defaultValue="false", description="Disables all summaries")
         boolean disableSummaries;
         
-        @Option(names={"-r", "--reload"}, defaultValue="false", description="Reloads the last loaded file(s)")
-        boolean reload;
-        
         @Option(names={"-v", "--verbose"}, defaultValue="false", description="Prints all excised production names")
         boolean printExcised;
         
@@ -89,41 +85,13 @@ public class LoadCommand extends PicocliSoarCommand
         public void run()
         {
             // File name is required unless -r option is provided
-            if (!reload && fileNames == null)
+            if (fileNames == null)
             {
                 parent.agent.getPrinter().startNewLine().print("Error: file name(s) required");
                 return;
             }
             
             final boolean topLevel = parent.sourceCommand.topLevelState == null;
-
-            if (topLevel && reload && parent.sourceCommand.lastTopLevelCommand != null)
-            {
-                // Attempt to reload the last loaded file(s)
-                parent.agent.getPrinter().startNewLine().print("Reloaded: ");
-                try
-                {
-                    parent.agent.getInterpreter().eval(StringTools.join(
-                            Arrays.asList(parent.sourceCommand.lastTopLevelCommand), " "));
-                    return;
-                }
-                catch (SoarException e)
-                {
-                    parent.agent.getPrinter().startNewLine().print(e.getMessage());
-                    return;
-                }
-            }
-            else if (!topLevel && reload)
-            {
-                parent.agent.getPrinter().startNewLine().print(
-                        "--reload option only valid at top level");
-                return;
-            }
-            else if (parent.sourceCommand.lastTopLevelCommand == null && reload)
-            {
-                parent.agent.getPrinter().startNewLine().print("No previous file to reload");
-                return;
-            }
             
             // If this is the top source command (user-initiated), set up the 
             // state info and register for production events

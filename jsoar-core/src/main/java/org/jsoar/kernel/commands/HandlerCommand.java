@@ -3,11 +3,9 @@ package org.jsoar.kernel.commands;
 import java.util.concurrent.Callable;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.util.commands.PicocliSoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -23,16 +21,6 @@ public class HandlerCommand extends PicocliSoarCommand
     public HandlerCommand(Agent agent)
     {
         super(agent, new Handler(agent));
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        return Utils.parseAndRun(new Handler(agent), args);
-    }
-    @Override
-    public Object getCommand() {
-        return new Handler(agent);
     }
 
     @Command(name="handler", description="Prints, enables, or disables RHS functions",

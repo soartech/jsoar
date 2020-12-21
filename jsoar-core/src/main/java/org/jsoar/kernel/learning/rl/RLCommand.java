@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.Utils;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ApoptosisChoices;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.DecayMode;
@@ -18,8 +16,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtensio
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Trace;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
@@ -34,48 +31,31 @@ import picocli.CommandLine.Parameters;
  * This is the implementation of the "rl" command.
  * @author austin.brehob
  */
-public class RLCommand implements SoarCommand
+public class RLCommand extends PicocliSoarCommand
 {
-    private final Agent agent;
-    
     public static class Provider implements SoarCommandProvider
     {
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("rl", new RLCommand(context));
+            interp.addCommand("rl", new RLCommand((Agent)context));
         }
     }
 
-    public RLCommand(Adaptable context)
+    public RLCommand(Agent agent)
     {
-        this.agent = (Agent) context;
+        super(agent, new RL(agent));
     }
 
-    @Override
-    public Object getCommand()
-    {
-        return new RLC(agent);
-    }
-
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new RLC(agent), args);
-        
-        return "";
-    }
-
-    
     @Command(name="rl", description="Controls how numeric indifferent preference "
             + "values in RL rules are updated via reinforcement learning",
             subcommands={HelpCommand.class})
-    static public class RLC implements Runnable
+    static public class RL implements Runnable
     {
         private final Agent agent;
         private final ReinforcementLearning rl;
         
-        public RLC(Agent agent)
+        public RL(Agent agent)
         {
             this.agent = agent;
             this.rl = Adaptables.require(getClass(), agent, ReinforcementLearning.class);

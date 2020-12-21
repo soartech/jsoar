@@ -26,18 +26,18 @@ public class PreferencesCommand extends PicocliSoarCommand
 
     public PreferencesCommand(Agent agent)
     {
-        super(agent, new PreferencesC(agent));
+        super(agent, new Preferences(agent));
     }
 
 
     @Command(name="preferences", description="Examines details about the preferences "
             + "that support the specified identifier and attribute",
             subcommands={HelpCommand.class})
-    static public class PreferencesC implements Runnable
+    static public class Preferences implements Runnable
     {
         private Agent agent;
 
-        public PreferencesC(Agent agent)
+        public Preferences(Agent agent)
         {
             this.agent = agent;
         }

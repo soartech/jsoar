@@ -21,6 +21,7 @@ import tcl.lang.TclObject;
 public class SoarTclCommandAdapter implements Command
 {
     private final SoarCommand inner;
+    private final String[] alias;
     private final SoarTclInterface soarTclInterface;
     
     /**
@@ -28,7 +29,17 @@ public class SoarTclCommandAdapter implements Command
      */
     public SoarTclCommandAdapter(SoarCommand inner, SoarTclInterface soarTclInterface)
     {
+        this(inner, new String[0], soarTclInterface);
+    }
+    
+    /**
+     * Note that the alias support here is very weak -- we only support replacing a single command name with an array of strings
+     * That is, we don't support aliasing subcommands  
+     */
+    public SoarTclCommandAdapter(SoarCommand inner, String[] alias, SoarTclInterface soarTclInterface)
+    {
         this.inner = inner;
+        this.alias = alias;
         this.soarTclInterface = soarTclInterface;
     }
 
@@ -38,8 +49,19 @@ public class SoarTclCommandAdapter implements Command
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final String[] stringArgs = new String[args.length];
-        for(int i = 0; i < args.length; ++i) { stringArgs[i] = args[i].toString(); }
+        String[] stringArgs;
+        if(alias.length > 0) {
+            // if there is an alias, then replace the command name with the alias
+            stringArgs = new String[args.length - 1 + alias.length];
+            for(int i = 0; i < alias.length; ++i) { stringArgs[i] = alias[i].toString(); }
+            // skip the first index, which is the command name that we're replacing
+            for(int stringArgsIndex = alias.length, argsIndex = 1; argsIndex < args.length; ++stringArgsIndex, ++argsIndex) { stringArgs[stringArgsIndex] = args[argsIndex].toString(); }
+            
+        } else {
+            stringArgs = new String[args.length];
+            for(int i = 0; i < args.length; ++i) { stringArgs[i] = args[i].toString(); }
+        }
+        
         try
         {
             interp.setResult(inner.execute(soarTclInterface.getContext(), stringArgs));

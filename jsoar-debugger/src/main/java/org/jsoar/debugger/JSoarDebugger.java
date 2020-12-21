@@ -45,7 +45,6 @@ import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.GarbageCollectorAction;
 import org.jsoar.debugger.actions.InitSoarAction;
-import org.jsoar.debugger.actions.ReloadAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.SetBreakpointAction;
@@ -539,8 +538,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         final JMenu fileMenu = new JMenu("File");
         fileMenu.add(actionManager.getAction(SourceFileAction.class));
-        fileMenu.add(new ReloadAction(actionManager, false));
-        fileMenu.add(new ReloadAction(actionManager, true));
         fileMenu.addSeparator();
         fileMenu.add(new AbstractAction("Reset preferences ...") {
 

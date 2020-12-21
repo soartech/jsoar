@@ -6,15 +6,14 @@
 package org.jsoar.script;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
-import org.jsoar.util.adaptables.Adaptable;
-import org.jsoar.util.adaptables.AdaptableContainer;
-import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.events.SoarEvent;
 import org.junit.After;
@@ -23,7 +22,7 @@ import org.junit.Test;
 
 public class ScriptCommandTest
 {
-    private Adaptable context;
+    private Agent agent;
     private ScriptCommand command;
     
     public static class TestEvent implements SoarEvent {};
@@ -31,8 +30,8 @@ public class ScriptCommandTest
     @Before
     public void setUp() throws Exception
     {
-        context = AdaptableContainer.from(new RhsFunctionManager(null));
-        command = new ScriptCommand(context);
+        agent = new Agent();
+        command = new ScriptCommand(agent);
     }
 
     @After
@@ -59,7 +58,7 @@ public class ScriptCommandTest
         // Initialize javascript engine
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "javascript" });
         
-        final RhsFunctionManager rhsFuncs = Adaptables.adapt(context, RhsFunctionManager.class);
+        final RhsFunctionManager rhsFuncs = agent.getRhsFunctions();
         assertNotNull(rhsFuncs);
         
         final RhsFunctionHandler handler = rhsFuncs.getHandler("javascript");
