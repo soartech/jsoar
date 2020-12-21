@@ -11,11 +11,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.Utils;
 import org.jsoar.util.adaptables.Adaptable;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.slf4j.Logger;
@@ -35,37 +34,22 @@ import picocli.CommandLine.Spec;
  * This is the implementation of the "script" command.
  * @author austin.brehob
  */
-public class ScriptCommand implements SoarCommand
+public class ScriptCommand extends PicocliSoarCommand
 {
     private static final Logger logger = LoggerFactory.getLogger(ScriptCommand.class);
-    private final Map<String, ScriptEngineState> engines = new HashMap<>();
-    private ScriptEngineManager manager;
-    private final Adaptable context;
 
     public static class Provider implements SoarCommandProvider
     {
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("script", new ScriptCommand(context));
+            interp.addCommand("script", new ScriptCommand((Agent)context));
         }
     }
 
-    public ScriptCommand(Adaptable context)
+    public ScriptCommand(Agent agent)
     {
-        this.context = context;
-    }
-
-    @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
-    {
-        return Utils.parseAndRun(new Script(context, engines, manager), args);
-    }
-
-
-    @Override
-    public Object getCommand() {
-        return new Script(context, engines, manager);
+        super(new Script(agent));
     }
 
     @Command(name="script", description="Runs Javascript, Python, or Ruby code",
@@ -74,15 +58,13 @@ public class ScriptCommand implements SoarCommand
     {
         @Spec
         private CommandSpec spec; // injected by picocli
-        private final Map<String, ScriptEngineState> engines;
-        private Adaptable context;
+        private final Map<String, ScriptEngineState> engines = new HashMap<>();
+        private Agent agent;
         private ScriptEngineManager manager;
 
-        public Script(Adaptable context, Map<String, ScriptEngineState> engines, ScriptEngineManager manager)
+        public Script(Agent agent)
         {
-            this.context = context;
-            this.engines = engines;
-            this.manager = manager;
+            this.agent = agent;
         }
 
         @Option(names={"-d", "--dispose"}, description="Disposes the given script engine")
@@ -189,10 +171,10 @@ public class ScriptCommand implements SoarCommand
                 final ScriptEngineFactory f = engine.getFactory();
                 logger.info(String.format("Loaded '%s' script engine for %s: "
                         + "%s version %s, %s version %s",
-                        name, context, f.getEngineName(), f.getEngineVersion(),
+                        name, agent, f.getEngineName(), f.getEngineVersion(),
                         f.getLanguageName(), f.getLanguageVersion()));
 
-                engines.put(name, state = new ScriptEngineState(context, name, engine));
+                engines.put(name, state = new ScriptEngineState(agent, name, engine));
             }
 
             return state;
