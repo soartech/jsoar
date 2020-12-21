@@ -62,7 +62,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         this.exceptionsManager = new SoarExceptionsManager();
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
-        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
+        this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents());
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));

@@ -152,13 +152,15 @@ public class SoarTclInterface implements SoarCommandInterpreter
         this.agent.getRhsFunctions().registerHandler(cmdRhsFunction);
         
         // Interpreter-specific handlers
-        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
+        this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents());
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));
         
         addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
         addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
+        
+        addAliasedCommand("source", new String[] {"load", "file"}, this.loadCommand);
         
         // rename the tcl built-in trace command to tcl-trace, to avoid a conflict with Soar's trace command
         try
@@ -265,6 +267,11 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private Command adapt(SoarCommand c)
     {
         return new SoarTclCommandAdapter(c, this);
+    }
+    
+    private Command adapt(SoarCommand c, String[] prefix)
+    {
+        return new SoarTclCommandAdapter(c, prefix, this);
     }
     
     public SoarCommandContext getContext()
@@ -406,6 +413,10 @@ public class SoarTclInterface implements SoarCommandInterpreter
     public void addCommand(String name, SoarCommand handler)
     {
         interp.createCommand(name, adapt(handler));
+    }
+    
+    public void addAliasedCommand(String alias, String[] actualCommand, SoarCommand handler ) {
+        interp.createCommand(alias, adapt(handler, actualCommand));
     }
     
     /*
