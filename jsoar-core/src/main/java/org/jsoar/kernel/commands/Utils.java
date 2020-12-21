@@ -25,9 +25,9 @@ public class Utils
      * @param args The args as received by a SoarCommand's execute method (i.e., the 0th arg should be the string for the command itself)
      * @throws SoarException 
      */
-    public static String parseAndRun(Agent agent, Object command, String[] args) throws SoarException {
+    public static String parseAndRun(Agent agent, CommandLine commandLine, String[] args) throws SoarException {
         PrintWriter pw = agent.getPrinter().asPrintWriter();
-        return parseAndRun(command, args, pw);
+        return parseAndRun(commandLine, args, pw);
     }
     
     
@@ -44,11 +44,7 @@ public class Utils
      * @throws SoarException if the user input was invalid or if a runtime exception occurred
      *                      while executing the command business logic
      */
-    public static String parseAndRun(Object command, String[] args, PrintWriter pw) throws SoarException {
-        
-        CommandLine commandLine = command instanceof CommandLine
-                ? (CommandLine) command
-                : new CommandLine(command);
+    public static String parseAndRun(CommandLine commandLine, String[] args, PrintWriter pw) throws SoarException {
         
         // always treat unrecognized options as params, as there are a number of commands whose params can be preceded by a dash (e.g., srand with a negative number, log with negative numbers, debug time with another command with options, etc.).  
         commandLine.setUnmatchedOptionsArePositionalParams(true);
@@ -63,11 +59,11 @@ public class Utils
         return Objects.toString(commandLine.getExecutionResult(), "");
     }
     
-    public static String parseAndRun(Object command, String[] args) throws SoarException {
+    public static String parseAndRun(CommandLine commandLine, String[] args) throws SoarException {
         StringWriter sw = new StringWriter();
         
         try(PrintWriter pw = new PrintWriter(sw);) {
-            String result = parseAndRun(command, args, pw);
+            String result = parseAndRun(commandLine, args, pw);
             pw.print(result != null ? result : "");
         } catch (SoarException e) {
             throw new SoarException(sw.toString(), e);
