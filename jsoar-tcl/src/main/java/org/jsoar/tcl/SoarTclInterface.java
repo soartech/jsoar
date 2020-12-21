@@ -473,16 +473,11 @@ public class SoarTclInterface implements SoarCommandInterpreter
                 
                 SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
                 
-                final InputStream in = new BufferedInputStream(url.openStream());
-                try
+                try(final InputStream in = new BufferedInputStream(url.openStream()))
                 {
                     final ByteArrayOutputStream out = new ByteArrayOutputStream();
                     ByteStreams.copy(in, out);
                     eval(out.toString());
-                }
-                finally
-                {
-                    in.close();
                 }
             }
             catch(IOException | URISyntaxException e)
