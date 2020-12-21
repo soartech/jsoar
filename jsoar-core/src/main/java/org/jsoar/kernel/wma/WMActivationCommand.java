@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.Utils;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
@@ -16,8 +14,7 @@ import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.PetrovApproxCho
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.TimerLevels;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
@@ -34,7 +31,7 @@ import picocli.CommandLine.ParentCommand;
  * This is the implementation of the "wm activation" command.
  * @author austin.brehob
  */
-public class WMActivationCommand implements SoarCommand
+public class WMActivationCommand extends PicocliSoarCommand
 {
     public static class Provider implements SoarCommandProvider
     {
@@ -44,45 +41,28 @@ public class WMActivationCommand implements SoarCommand
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("wm", new WMActivationCommand(context));
+            interp.addCommand("wm", new WMActivationCommand((Agent)context));
         }
     }
     
-    private final DefaultWorkingMemoryActivation wma;
-    private final Rete rete;
-    private Agent agent;
-    
-    public WMActivationCommand(Adaptable context)
+    public WMActivationCommand(Agent agent)
     {
-        this.agent = (Agent)context;
-        this.wma = Adaptables.require(getClass(), agent, DefaultWorkingMemoryActivation.class);
-        this.rete = Adaptables.adapt(agent, Rete.class);
+        super(agent, new WMA( 
+                Adaptables.require(WMActivationCommand.class, agent, DefaultWorkingMemoryActivation.class),
+                Adaptables.adapt(agent, Rete.class),
+                agent));
     }
-    
-    @Override
-    public String execute(SoarCommandContext context, String[] args) throws SoarException
-    {
-        Utils.parseAndRun(agent, new WM(wma, rete, agent), args);
-        
-        return "";
-    }
-
-    @Override
-    public Object getCommand() {
-        return new WM(wma,rete,agent);
-    }
-
 
     @Command(name="wm", description="Commands and settings related to working memory",
             subcommands={HelpCommand.class,
                          WMActivationCommand.Activation.class})
-    static public class WM implements Runnable
+    static public class WMA implements Runnable
     {
         private final DefaultWorkingMemoryActivation wma;
         private final Rete rete;
-        private Agent agent;
+        private final Agent agent;
         
-        public WM(DefaultWorkingMemoryActivation wma, Rete rete, Agent agent)
+        public WMA(DefaultWorkingMemoryActivation wma, Rete rete, Agent agent)
         {
             this.wma = wma;
             this.rete = rete;
@@ -103,7 +83,7 @@ public class WMActivationCommand implements SoarCommand
     static public class Activation implements Runnable
     {
         @ParentCommand
-        WM parent; // injected by picocli
+        WMA parent; // injected by picocli
         
         @Option(names={"-g", "--get"}, description="Print current parameter setting")
         String getParam = null;
