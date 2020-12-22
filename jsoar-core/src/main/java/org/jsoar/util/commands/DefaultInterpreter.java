@@ -42,6 +42,10 @@ import org.jsoar.util.UrlTools;
 
 import com.google.common.base.Joiner;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Parameters;
+
 /**
  * Default implementation of {@link SoarCommandInterpreter}.
  * 
@@ -61,7 +65,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     {
         this.exceptionsManager = new SoarExceptionsManager();
         // Interpreter-specific handlers
-        addCommand("alias", new AliasCommand());
+        addCommand("alias", new AliasCommand(agent, this.aliases));
         this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents());
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
         addCommand("popd", new PopdCommand(sourceCommand, agent));
@@ -343,52 +347,69 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return commands.get(s);
     }
 
-    private class AliasCommand implements SoarCommand
+    private static class AliasCommand extends PicocliSoarCommand
     {
-        private String aliasToString(String name, List<String> args)
-        {
-            return name + "=" + StringTools.join(args, " ");
+        public AliasCommand(Agent agent, Map<String, List<String>> aliases) {
+            super(agent, new Alias(agent, aliases));
         }
         
-        @Override
-        public String execute(SoarCommandContext context, String[] args) throws SoarException
-        {
-            if(args.length == 1)
-            {
-                final StringBuilder b = new StringBuilder();
-                for(Map.Entry<String, List<String>> e : aliases.entrySet())
-                {
-                    b.append(aliasToString(e.getKey(), e.getValue()));
-                    b.append('\n');
-                }
-                return b.toString();
+        @Command(name="alias", description="Create or print command aliases",
+                subcommands={HelpCommand.class})
+        private static class Alias implements Runnable {
+
+            private final Map<String, List<String>> aliases;
+            private final Agent agent;
+            
+            @Parameters(description = "If no args, prints the list of aliases. If 1 arg, prints the command for that alias. If 2 or more args, defines an alias. The first arg is the alias name, and all following args are the command and options/parameters that it maps to.")
+            private String[] args = new String[0];
+            
+            public Alias(Agent agent, Map<String, List<String>> aliases) {
+                this.agent = agent;
+                this.aliases = aliases;
             }
-            else if(args.length == 2)
+            
+            @Override
+            public void run()
             {
-                final List<String> aliasArgs = aliases.get(args[1]);
-                if(aliasArgs == null)
+                if(args.length == 0)
                 {
-                    throw new SoarException("Unknown alias '" + args[1] + "'");
+                    final StringBuilder b = new StringBuilder();
+                    for(Map.Entry<String, List<String>> e : aliases.entrySet())
+                    {
+                        b.append(aliasToString(e.getKey(), e.getValue()));
+                        b.append('\n');
+                    }
+                    agent.getPrinter().print(b.toString());
                 }
-                return aliasToString(args[1], aliasArgs);
+                else if(args.length == 1)
+                {
+                    final List<String> aliasArgs = aliases.get(args[0]);
+                    if(aliasArgs == null)
+                    {
+                        agent.getPrinter().print("Unknown alias '" + args[0] + "'");
+                        return;
+                    }
+                    agent.getPrinter().print(aliasToString(args[0], aliasArgs));
+                }
+                else
+                {
+                    final List<String> aliasArgs = new ArrayList<String>(args.length - 1);
+                    for(int i = 1; i < args.length; ++i)
+                    {
+                        aliasArgs.add(args[i]);
+                    }
+                    aliases.put(args[0], aliasArgs);
+                    agent.getPrinter().print(aliasToString(args[0], aliasArgs));
+                }
             }
-            else
+            
+            private String aliasToString(String name, List<String> args)
             {
-                final List<String> aliasArgs = new ArrayList<String>(args.length - 2);
-                for(int i = 2; i < args.length; ++i)
-                {
-                    aliasArgs.add(args[i]);
-                }
-                aliases.put(args[1], aliasArgs);
-                return aliasToString(args[1], aliasArgs);
+                return name + "=" + StringTools.join(args, " ");
             }
-        }
-        @Override
-        public Object getCommand() {
-            //todo - when implementing picocli, return the runnable
-            return null;
         }
     }
+    
     private class MySourceCommandAdapter implements SourceCommandAdapter
     {
         @Override
