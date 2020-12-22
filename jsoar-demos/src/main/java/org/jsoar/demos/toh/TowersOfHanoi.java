@@ -52,15 +52,6 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         initialize(em, args);
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.debugger.JSoarDebuggerPlugin#shutdown()
-     */
-    @Override
-    public void shutdown()
-    {
-        // nothing to do
-    }
-
     /**
      * @param em
      * @param args
