@@ -9,8 +9,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 
 import picocli.CommandLine;
-import picocli.CommandLine.IExecutionExceptionHandler;
-import picocli.CommandLine.ParseResult;
 
 public class Utils
 {
@@ -29,7 +27,6 @@ public class Utils
         PrintWriter pw = agent.getPrinter().asPrintWriter();
         return parseAndRun(commandLine, args, pw);
     }
-    
     
     /**
      * Executes the specified command and returns the result.
@@ -51,8 +48,7 @@ public class Utils
         
         commandLine.setOut(pw);
         commandLine.setErr(pw);
-        ExceptionHandler handler = new ExceptionHandler();
-        commandLine.setExecutionExceptionHandler(handler);
+        ;
         int exitCode = commandLine.execute(
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray starting at the second arg
         if(exitCode != 0) throw new SoarException("Error executing command " + String.join(" ", args));
@@ -71,23 +67,4 @@ public class Utils
         return sw.toString();
     }
     
-    /**
-     * This throws all exceptions, so we can catch them above and re-throw as SoarExceptions
-     * @author bob.marinier
-     *
-     */
-    protected static class ExceptionHandler implements IExecutionExceptionHandler {
-
-        /**
-         * For execution exceptions, just rethrow without printing help
-         * @throws Exception 
-         */
-        @Override
-        public int handleExecutionException(Exception ex,
-                CommandLine commandLine,
-                ParseResult parseResult) throws Exception
-        {
-            throw new SoarException(ex);
-        } 
-    }
 }

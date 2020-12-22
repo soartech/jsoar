@@ -5,6 +5,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.Utils;
 
 import picocli.CommandLine;
+import picocli.CommandLine.IExecutionExceptionHandler;
+import picocli.CommandLine.ParseResult;
 
 public abstract class PicocliSoarCommand implements SoarCommand
 {
@@ -22,7 +24,8 @@ public abstract class PicocliSoarCommand implements SoarCommand
     public PicocliSoarCommand(Agent agent, Object picocliCommand) {
         this.agent = agent;
         this.picocliCommand = picocliCommand;
-        this.commandLine = new CommandLine(picocliCommand);
+        this.commandLine = new CommandLine(picocliCommand)
+                .setExecutionExceptionHandler(new ExceptionHandler());
     }
     
     /**
@@ -45,6 +48,26 @@ public abstract class PicocliSoarCommand implements SoarCommand
     @Override
     public Object getCommand() {
         return this.picocliCommand;
+    }
+    
+    /**
+     * This throws all exceptions, so we can catch them above and re-throw as SoarExceptions
+     * @author bob.marinier
+     *
+     */
+    protected static class ExceptionHandler implements IExecutionExceptionHandler {
+
+        /**
+         * For execution exceptions, just rethrow without printing help
+         * @throws Exception 
+         */
+        @Override
+        public int handleExecutionException(Exception ex,
+                CommandLine commandLine,
+                ParseResult parseResult) throws Exception
+        {
+            throw new SoarException(ex);
+        } 
     }
 
 }
