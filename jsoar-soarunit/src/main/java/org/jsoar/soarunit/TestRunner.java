@@ -5,7 +5,6 @@
  */
 package org.jsoar.soarunit;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -15,20 +14,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
 
 /**
  * @author ray
  */
 public class TestRunner
 {
-    private final PrintWriter out;
+    private final PrintWriterProxy out;
     private int total;
     private boolean haltOnFailure = true;
     private FiringCounts firingCounts = new FiringCounts();
     private final TestAgentFactory factory;
     private final ExecutorService executor;
     
-    public TestRunner(TestAgentFactory factory, PrintWriter out, ExecutorService executor)
+    public TestRunner(TestAgentFactory factory, PrintWriterProxy out, ExecutorService executor)
     {
         this.factory = factory;
         this.out = out;

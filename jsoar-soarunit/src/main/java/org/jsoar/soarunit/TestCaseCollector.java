@@ -7,13 +7,13 @@ package org.jsoar.soarunit;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
 import org.jsoar.util.UrlTools;
 
 /**
@@ -21,10 +21,10 @@ import org.jsoar.util.UrlTools;
  */
 public class TestCaseCollector
 {
-    private final PrintWriter out;
+    private final PrintWriterProxy out;
     private final List<Entry> entries = new ArrayList<Entry>();
     
-    public TestCaseCollector(PrintWriter out)
+    public TestCaseCollector(PrintWriterProxy out)
     {
         this.out = out;
     }

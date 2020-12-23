@@ -44,20 +44,12 @@ public class DebugTestAction extends AbstractAction
     {
         try
         {
-            final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()), null);
+            PrintWriter pw = new PrintWriter(new NullWriter());
+            final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
+            pw.close();
         }
-        catch (SoarException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (InterruptedException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (IOException e)
+        catch (SoarException | InterruptedException | IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
