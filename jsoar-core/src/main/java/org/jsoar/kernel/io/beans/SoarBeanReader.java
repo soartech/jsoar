@@ -146,7 +146,7 @@ public class SoarBeanReader
         
         try
         {
-            final T bean = klass.newInstance();
+            final T bean = klass.getConstructor().newInstance();
             beanMap.put(id, bean); // remember id to avoid cycles
             for(final Iterator<Wme> it = id.getWmes(); it.hasNext();)
             {
