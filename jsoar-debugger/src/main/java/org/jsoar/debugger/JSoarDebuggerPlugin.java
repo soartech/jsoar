@@ -13,5 +13,5 @@ public interface JSoarDebuggerPlugin
 
     void initialize(JSoarDebugger debugger, String[] args);
     
-    void shutdown();
+    default void shutdown() {};
 }

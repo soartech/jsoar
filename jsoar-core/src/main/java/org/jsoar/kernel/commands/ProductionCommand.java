@@ -494,11 +494,18 @@ public class ProductionCommand extends PicocliSoarCommand
         
         private void printResults(List<Production> productions, int n)
         {
-            final Printer printer = parent.agent.getPrinter();
-            for (int i = 0; i < n && i < productions.size(); ++i)
-            {
-                final Production p = productions.get(i);
-                printer.startNewLine().print("%5d:  %s", p.getFiringCount(), p.getName());
+            if(productions.size() > 0 && n > 0) {
+                Production p = productions.get(0);
+                final Printer printer = parent.agent.getPrinter();
+                
+                // don't print a newline for the first one, but do print one before each subsequent one
+                printer.print("%5d:  %s", p.getFiringCount(), p.getName());
+
+                for (int i = 1; i < n && i < productions.size(); ++i)
+                {
+                    p = productions.get(i);
+                    printer.startNewLine().print("%5d:  %s", p.getFiringCount(), p.getName());
+                }
             }
         }
         

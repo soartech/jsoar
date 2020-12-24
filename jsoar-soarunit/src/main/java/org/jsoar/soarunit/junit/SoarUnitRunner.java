@@ -41,11 +41,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
+
 public class SoarUnitRunner extends Runner
 {
     private final TestClass testClass;
     private final JSoarTestAgentFactory agentFactory = new AgentFactory();
-    private final PrintWriter out = new PrintWriter(System.out);
+    private final PrintWriterProxy out;
     private final PathMatchingResourcePatternResolver resolverSoarUnit = new PathMatchingResourcePatternResolver();
     private final int POOL_SIZE;
     private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(8));
@@ -57,6 +59,9 @@ public class SoarUnitRunner extends Runner
 
     public SoarUnitRunner(Class<?> clazz) throws IOException, SoarException
     {
+        PrintWriter pw = new PrintWriter(System.out);
+        out = () -> pw;
+        
         this.testClass = new TestClass(clazz);
         if (testClass.getAnnotation(SoarInterpreter.class) != null)
         {

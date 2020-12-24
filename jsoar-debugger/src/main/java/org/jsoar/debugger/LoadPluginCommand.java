@@ -7,77 +7,82 @@ package org.jsoar.debugger;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandContext;
+import org.jsoar.util.commands.PicocliSoarCommand;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 /**
  * @author ray
  */
-public class LoadPluginCommand implements SoarCommand
+public class LoadPluginCommand extends PicocliSoarCommand
 {
-    private final JSoarDebugger debugger;
-    
     /**
      * @param debugger
      */
-    LoadPluginCommand(JSoarDebugger debugger)
+    public LoadPluginCommand(JSoarDebugger debugger)
     {
-        this.debugger = debugger;
+        super(null, new LoadPlugin(debugger));
     }
 
-    /* (non-Javadoc)
-     * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
-     */
-    @Override
-    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
-    {
-        if(args.length < 2)
-        {
-            // TODO illegal arguments
-            throw new SoarException(String.format("%s <class> args...", args[0]));
+    @Command(name="load-plugin", description="Loads a debugger plugin",
+            subcommands={HelpCommand.class})
+    static public class LoadPlugin implements Runnable {
+        
+        private final JSoarDebugger debugger;
+        
+        @Spec
+        private CommandSpec spec;
+        
+        @Parameters(index = "0", description = "Fully qualified class name of plugin. Must be on the classpath.")
+        private String className;
+        
+        @Parameters(index = "1..*", description = "Zero or more arguments expected by the plugin.")
+        private String[] args = {};
+        
+        public LoadPlugin(JSoarDebugger debugger) {
+            this.debugger = debugger;
         }
-        try
+        
+        /* (non-Javadoc)
+         * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+         */
+        @Override
+        public void run()
         {
-            Class<?> klass = Class.forName(args[1]);
-            JSoarDebuggerPlugin plugin;
-            try {
-                plugin = (JSoarDebuggerPlugin) klass.getConstructor().newInstance();
-            } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                    | SecurityException e) {
-                throw new SoarException("Failed to instantiate plugin", e);
-            }
-            
-            String[] initArgs = new String[args.length - 2];
-            for(int i = 2; i < args.length; ++i)
+            try
             {
-                initArgs[i - 2] = args[i].toString();
+                Class<?> klass = Class.forName(className);
+                JSoarDebuggerPlugin plugin;
+                try {
+                    plugin = (JSoarDebuggerPlugin) klass.getConstructor().newInstance();
+                } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                        | SecurityException e) {
+                    throw new ParameterException(spec.commandLine(), "Failed to instantiate plugin", e);
+                }
+                
+                String[] initArgs = new String[args.length];
+                for(int i = 0; i < args.length; ++i)
+                {
+                    initArgs[i] = args[i].toString();
+                }
+                
+                plugin.initialize(debugger, initArgs);
+                debugger.addPlugin(plugin);
             }
-            
-            plugin.initialize(debugger, initArgs);
-            debugger.addPlugin(plugin);
-            return "";
+            catch (ClassNotFoundException e)
+            {
+                throw new ParameterException(spec.commandLine(), "Failed to find plugin class. Maybe it's not on the class path? : " + e.getMessage(), e);
+            }
+            catch (InstantiationException | IllegalAccessException | ClassCastException e)
+            {
+                throw new ParameterException(spec.commandLine(), e.getMessage(), e);
+            }
         }
-        catch (ClassNotFoundException e)
-        {
-            throw new SoarException("Failed to find plugin class. Maybe it's not on the class path? : " + e.getMessage(), e);
-        }
-        catch (InstantiationException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-        catch (ClassCastException e)
-        {
-            throw new SoarException(e.getMessage());
-        }
-    }
-    @Override
-    public Object getCommand() {
-        //todo - when implementing picocli, return the runnable
-        return null;
+    
     }
 }
