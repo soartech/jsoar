@@ -198,5 +198,6 @@
         <module>jsoar-soar2soar</module>
         <module>jsoar-soarunit</module>
         <module>jsoar-tcl</module>
+        <module>jsoar-performance-testing</module>
     </modules>
 </project>
