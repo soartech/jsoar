@@ -3,6 +3,8 @@
  */
 package org.jsoar.performancetesting;
 
+import java.nio.file.Path;
+
 /**
  * An interface for constructing tests.
  * 
@@ -21,6 +23,6 @@ public interface TestFactory
      * @return A new instance of a class which has already been created and
      *         initialized.
      */
-    public Test createTest(String testName, String testFile,
+    public Test createTest(String testName, Path testFile,
             TestSettings settings);
 }

@@ -3,6 +3,7 @@
  */
 package org.jsoar.performancetesting;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -31,13 +32,13 @@ public class TestSettings
 
     private long seed;
 
-    private String csvDirectory;
+    private Path csvDirectory;
 
-    private String summaryFile;
+    private Path summaryFile;
 
-    private List<String> csoarDirectories;
+    private List<Path> csoarDirectories;
 
-    private List<String> jsoarDirectories;
+    private List<Path> jsoarDirectories;
 
     private String jvmSettings;
 
@@ -65,9 +66,9 @@ public class TestSettings
 
     public TestSettings(boolean jsoarEnabled, boolean csoarEnabled,
             int runCount, int warmUpCount, List<Integer> decisionCycles,
-            boolean useSeed, long seed, String csvDirectory,
-            String summaryFile, List<String> csoarDirectories,
-            List<String> jsoarDirectories, String jvmSettings)
+            boolean useSeed, long seed, Path csvDirectory,
+            Path summaryFile, List<Path> csoarDirectories,
+            List<Path> jsoarDirectories, String jvmSettings)
     {
         this.jsoarEnabled = jsoarEnabled;
         this.csoarEnabled = csoarEnabled;
@@ -172,42 +173,42 @@ public class TestSettings
         return seed;
     }
 
-    public void setCSVDirectory(String csvDirectory)
+    public void setCsvDirectory(Path csvDirectory)
     {
         this.csvDirectory = csvDirectory;
     }
 
-    public String getCSVDirectory()
+    public Path getCsvDirectory()
     {
         return csvDirectory;
     }
 
-    public void setSummaryFile(String summaryFile)
+    public void setSummaryFile(Path summaryFile)
     {
         this.summaryFile = summaryFile;
     }
 
-    public String getSummaryFile()
+    public Path getSummaryFile()
     {
         return summaryFile;
     }
 
-    public void setCSoarVersions(List<String> csoarDirectories)
+    public void setCsoarVersions(List<Path> csoarDirectories)
     {
         this.csoarDirectories = csoarDirectories;
     }
 
-    public List<String> getCSoarVersions()
+    public List<Path> getCsoarVersions()
     {
         return csoarDirectories;
     }
 
-    public void setJSoarVersions(List<String> jsoarDirectories)
+    public void setJsoarVersions(List<Path> jsoarDirectories)
     {
         this.jsoarDirectories = jsoarDirectories;
     }
 
-    public List<String> getJSoarVersions()
+    public List<Path> getJsoarVersions()
     {
         return jsoarDirectories;
     }

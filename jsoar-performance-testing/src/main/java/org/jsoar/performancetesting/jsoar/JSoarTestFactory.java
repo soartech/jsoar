@@ -3,6 +3,9 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
 import org.jsoar.performancetesting.TestSettings;
@@ -17,15 +20,15 @@ public class JSoarTestFactory implements TestFactory
 {
     private String label;
 
-    private String jsoarDirectory;
+    private Path jsoarDirectory;
 
     public JSoarTestFactory()
     {
         this.label = new String();
-        this.jsoarDirectory = new String();
+        this.jsoarDirectory = Paths.get(".");
     }
 
-    public JSoarTestFactory(String label, String jsoarDirectory)
+    public JSoarTestFactory(String label, Path jsoarDirectory)
     {
         this.label = label;
         this.jsoarDirectory = jsoarDirectory;
@@ -41,7 +44,7 @@ public class JSoarTestFactory implements TestFactory
         return label;
     }
 
-    public void setJSoarDirectory(String jsoarDirectory)
+    public void setJSoarDirectory(Path jsoarDirectory)
     {
         this.jsoarDirectory = jsoarDirectory;
     }
@@ -57,7 +60,7 @@ public class JSoarTestFactory implements TestFactory
      * @return A new and initialized JSoar test.
      */
     @Override
-    public Test createTest(String testName, String testFile,
+    public Test createTest(String testName, Path testFile,
             TestSettings settings)
     {
         JSoarTest jsoarTest = new JSoarTest(label, jsoarDirectory);

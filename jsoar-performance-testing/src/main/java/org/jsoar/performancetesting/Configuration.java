@@ -34,28 +34,28 @@ public class Configuration
      */
     class ConfigurationTest implements Comparable<ConfigurationTest>
     {
-        private String testName;
-
-        private String testFile;
-
+        private String name;
+        
+        private Path file;
         private TestSettings settings;
 
-        public ConfigurationTest(String testName, String testFile,
+        public ConfigurationTest(String name, Path file,
                 TestSettings settings)
         {
-            this.testName = testName;
-            this.testFile = testFile;
+            this.name = name;
+            this.file = file;
             this.settings = settings;
         }
 
-        public String getTestName()
+        public void setName(String name)
         {
-            return testName;
+            this.name = name;
         }
 
-        public String getTestFile()
+        public void setFile(Path file)
         {
-            return testFile;
+            this.file = file;
+        }
         }
 
         public TestSettings getTestSettings()
@@ -66,7 +66,7 @@ public class Configuration
         @Override
         public int compareTo(ConfigurationTest o)
         {
-            return this.testName.compareTo(o.testName);
+            return this.name.compareTo(o.name);
         }
     }
 
@@ -74,7 +74,7 @@ public class Configuration
      * Class variables
      */
 
-    private final String file;
+    private final Path file;
 
     public static final int PARSE_FAILURE = 201;
 
@@ -85,13 +85,13 @@ public class Configuration
     private Set<ConfigurationTest> configurationTests;
 
     private TestSettings defaultTestSettings = null;
-
+    
     /**
      * Initializes the Configuration class
      * 
      * @param file
      */
-    public Configuration(String file)
+    public Configuration(Path file)
     {
         this.file = file;
         this.yaml = new Yaml();
@@ -108,7 +108,6 @@ public class Configuration
      */
     public int parse() throws IOException
     {
-        FileInputStream fileStream = new FileInputStream(file);
 
         try
         {
@@ -199,6 +198,7 @@ public class Configuration
         finally
         {
             fileStream.close();
+        FileInputStream fileStream = new FileInputStream(file.toFile());
         }
 
         return PARSE_SUCCESS;
@@ -224,36 +224,16 @@ public class Configuration
                 else if (keyValuePair.getKey().equalsIgnoreCase(
                         "CSoar Directories"))
                 {
-                    Object arrayObject = keyValuePair.getValue();
-
                     @SuppressWarnings("unchecked")
-                    List<String> directoriesUnchecked = (ArrayList<String>) arrayObject;
-
-                    List<String> directoriesChecked = new ArrayList<String>();
-
-                    for (String directory : directoriesUnchecked)
-                    {
-                        directoriesChecked.add(directory.replace("\\", "/"));
-                    }
-
-                    settings.setCSoarVersions(directoriesChecked);
+                    List<Path> directories = (List<Path>)keyValuePair.getValue();
+                    settings.setCsoarVersions(directories);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase(
                         "JSoar Directories"))
                 {
-                    Object arrayObject = keyValuePair.getValue();
-
                     @SuppressWarnings("unchecked")
-                    List<String> directoriesUnchecked = (ArrayList<String>) arrayObject;
-
-                    List<String> directoriesChecked = new ArrayList<String>();
-
-                    for (String directory : directoriesUnchecked)
-                    {
-                        directoriesChecked.add(directory.replace("\\", "/"));
-                    }
-
-                    settings.setJSoarVersions(directoriesChecked);
+                    List<Path> directories = (List<Path>)keyValuePair.getValue();
+                    settings.setJsoarVersions(directories);
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("WarmUp Count"))
                 {
@@ -284,11 +264,11 @@ public class Configuration
                 else if (keyValuePair.getKey()
                         .equalsIgnoreCase("CSV Directory"))
                 {
-                    settings.setCSVDirectory((String) keyValuePair.getValue());
+                    settings.setCsvDirectory(Paths.get(keyValuePair.getValue().toString()));
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("Summary File"))
                 {
-                    settings.setSummaryFile((String) keyValuePair.getValue());
+                    settings.setSummaryFile(Paths.get(keyValuePair.getValue().toString()));
                 }
                 else if (keyValuePair.getKey().equalsIgnoreCase("JVM Settings"))
                 {

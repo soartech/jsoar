@@ -1,5 +1,6 @@
 package org.jsoar.performancetesting.csoar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * So this is a very unique class. What this does is it tries to find sml.jar
@@ -32,7 +34,7 @@ public class CSoarKernelFactory
 
     private static boolean initialized = false;
 
-    CSoarKernelFactory(String newLabel, String csoarDirectory)
+    CSoarKernelFactory(String newLabel, Path csoarDirectory)
     {
         if (initialized)
             return;
@@ -119,62 +121,38 @@ public class CSoarKernelFactory
         //
         // - ALT
 
-        // Get the field from the class loader
-        Field usrPathsField = null;
         try
         {
-            usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
-        }
-        catch (NoSuchFieldException | SecurityException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            // Get the field from the class loader
+            Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 
-        // Set it to public
-        usrPathsField.setAccessible(true);
+            // Set it to public
+            usrPathsField.setAccessible(true);
+    
+            // get the array of paths
+            String[] paths = (String[]) usrPathsField.get(null);
 
-        // get the array of paths
-        String[] paths = null;
-        try
-        {
-            paths = (String[]) usrPathsField.get(null);
-        }
-        catch (IllegalArgumentException | IllegalAccessException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
-        // check if the path to add is already present
-        for (String path : paths)
-        {
-            if (path.equals(csoarDirectory))
+            // add the new path
+            final List<Path> newPaths = Arrays.stream(paths).map(Paths::get).collect(Collectors.toList());
+            
+            // check if the path to add is already present
+            for (Path path : newPaths)
             {
-                return;
+                if (Files.isSameFile(csoarDirectory, path))
+                {
+                    return;
+                }
             }
-        }
 
-        // add the new path
-        final String[] newPaths = Arrays.copyOf(paths, paths.length);
+            // Add the path to our new list
+            newPaths.add(csoarDirectory);
 
-        List<String> finalUserPaths = new ArrayList<String>();
-
-        for (int i = 0; i < newPaths.length; i++)
-        {
-            finalUserPaths.add(newPaths[i]);
-        }
-
-        // Add the path to our new list
-        finalUserPaths.add(csoarDirectory);
-
-        // Set the path
-        try
-        {
-            final String[] temp = finalUserPaths.toArray(new String[0]);
+            // Set the path
+            final String[] temp = newPaths.toArray(new String[0]);
             usrPathsField.set(null, temp);
         }
-        catch (IllegalArgumentException | IllegalAccessException e)
+        catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -297,19 +275,19 @@ public class CSoarKernelFactory
         return label;
     }
 
-    private List<Path> getPathToSml(String csoarDirectory)
+    private List<Path> getPathToSml(Path csoarDirectory)
     {
         // depending on the version of csoar, sml.jar may be in different places
-        String[] paths = { "/java/", "/../share/java/", "/../lib/" };
-        String[] files = { "sml.jar", "soar-smljava-9.3.1.jar" };
+        Path[] paths = { Paths.get("/java/"), Paths.get("/../share/java/"), Paths.get("/../lib/") };
+        Path[] files = { Paths.get("sml.jar"), Paths.get("soar-smljava-9.3.1.jar") };
 
         List<Path> smlPaths = new LinkedList<Path>();
 
-        for (String path : paths)
+        for (Path path : paths)
         {
-            for (String file : files)
+            for (Path file : files)
             {
-                Path smlpath = Paths.get(csoarDirectory, path, file);
+                Path smlpath = csoarDirectory.resolve(path).resolve(file);
                 if (Files.exists(smlpath))
                 {
                     smlPaths.add(smlpath);

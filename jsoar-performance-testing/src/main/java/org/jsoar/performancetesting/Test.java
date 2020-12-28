@@ -3,6 +3,8 @@
  */
 package org.jsoar.performancetesting;
 
+import java.nio.file.Path;
+
 import org.jsoar.kernel.SoarException;
 
 /**
@@ -15,14 +17,14 @@ public interface Test
 {
     /**
      * This initializes a test and is where the testName, testFile, and number
-     * of decisionCycles to run for is set. This is the equivilent of a
+     * of decisionCycles to run for is set. This is the equivalent of a
      * constructor.
      * 
      * @param testName
      * @param testFile
      * @param decisionCycles
      */
-    public void initialize(String testName, String testFile,
+    public void initialize(String testName, Path testFile,
             TestSettings settings);
 
     /**
@@ -35,7 +37,7 @@ public interface Test
      * 
      * @return the path to the Soar file
      */
-    public String getTestFile();
+    public Path getTestFile();
 
     /**
      * Runs the test for a given runCount with a given seed.

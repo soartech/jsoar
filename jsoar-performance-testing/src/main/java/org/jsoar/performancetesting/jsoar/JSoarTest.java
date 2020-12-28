@@ -3,6 +3,9 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
+import java.io.File;
+import java.nio.file.Path;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
@@ -23,7 +26,7 @@ public class JSoarTest implements Test
 {
     private String testName;
 
-    private String testFile;
+    private Path testFile;
 
     private Agent agent;
 
@@ -43,7 +46,7 @@ public class JSoarTest implements Test
      * Sets all the values used in the test to be impossible values so we know
      * if something failed horribly.
      */
-    public JSoarTest(String label, String jsoarDirectory)
+    public JSoarTest(String label, Path jsoarDirectory)
     {
         this.agent = null;
 
@@ -62,7 +65,7 @@ public class JSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile,
+    public void initialize(String testName, Path testFile,
             TestSettings settings)
     {
         this.testName = testName;
@@ -87,7 +90,7 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#getTestFile()
      */
     @Override
-    public String getTestFile()
+    public Path getTestFile()
     {
         return testFile;
     }

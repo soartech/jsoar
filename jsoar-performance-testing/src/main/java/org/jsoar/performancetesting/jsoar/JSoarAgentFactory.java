@@ -1,21 +1,20 @@
 package org.jsoar.performancetesting.jsoar;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.jsoar.kernel.Agent;
-import org.jsoar.performancetesting.helpers.FileFinder;
 
 /**
  * So this is a very unique class. What this does is it tries to find
@@ -32,7 +31,7 @@ public class JSoarAgentFactory
 
     private static boolean initialized = false;
 
-    JSoarAgentFactory(String newLabel, String JSoarDirectory)
+    JSoarAgentFactory(String newLabel, Path JSoarDirectory)
     {
         if (initialized)
             return;
@@ -134,7 +133,7 @@ public class JSoarAgentFactory
             return new Agent(agentLabel);
     }
 
-    private List<Path> getPathToJSoarCore(String jsoarDirectory)
+    private List<Path> getPathToJSoarCore(Path jsoarDirectory)
             throws IOException
     {
         // depending on the version of JSoar, jsoar-core-*.jar may be in
@@ -142,27 +141,25 @@ public class JSoarAgentFactory
 
         List<Path> jsoarPaths = new LinkedList<Path>();
 
-        if (jsoarDirectory != null && jsoarDirectory.length() > 0)
+        if (jsoarDirectory != null && jsoarDirectory.getNameCount() > 0)
         {
-            String[] paths = { "/lib/", "/", "/jsoar-core/" };
-            String[] files = { "jsoar-core-*.jar", "/bin/" };
+            Path[] paths = { Paths.get("/lib/"), Paths.get("/"), Paths.get("/jsoar-core/") };
+            String[] filePatterns = { "jsoar-core-*.jar", "/bin/" };
 
-            for (String path : paths)
+            for (Path path : paths)
             {
-                for (String file : files)
+                for (String filePattern : filePatterns)
                 {
-                    FileFinder finder = new FileFinder(file);
+                    File dir = jsoarDirectory.resolve(path).toFile();
+                    FileFilter fileFilter = new WildcardFileFilter(filePattern);
+                    File[] files = dir.listFiles(fileFilter);
 
-                    Files.walkFileTree(Paths.get(jsoarDirectory, path),
-                            EnumSet.noneOf(FileVisitOption.class), 1, finder);
-
-                    for (Path matchedPath : finder.getMatchedPaths())
+                    for (File matchedFile : files)
                     {
-                        if (matchedPath.getFileName().toString()
-                                .contains(".src.jar") != true)
+                        Path matchedPath = matchedFile.toPath();
+                        if (matchedPath.getFileName().endsWith(".src.jar") != true)
                         {
-                            jsoarPaths.add(Paths.get(jsoarDirectory, path,
-                                    matchedPath.getFileName().toString()));
+                            jsoarPaths.add(matchedPath.toAbsolutePath());
                         }
                     }
                 }

@@ -3,6 +3,7 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,7 @@ public class CSoarTest implements Test
 {
     private String testName;
 
-    private String testFile;
+    private Path testFile;
 
     private TestSettings settings = null;
 
@@ -38,7 +39,7 @@ public class CSoarTest implements Test
 
     private long memoryForRun;
 
-    public CSoarTest(String label, String csoarDirectory)
+    public CSoarTest(String label, Path csoarDirectory)
     {
         this.agent = null;
         this.kernel = null;
@@ -58,7 +59,7 @@ public class CSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile,
+    public void initialize(String testName, Path testFile,
             TestSettings settings)
     {
         this.testName = testName;
@@ -85,7 +86,7 @@ public class CSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#getTestFile()
      */
     @Override
-    public String getTestFile()
+    public Path getTestFile()
     {
         return testFile;
     }
