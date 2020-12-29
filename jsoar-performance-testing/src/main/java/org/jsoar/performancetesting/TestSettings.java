@@ -6,6 +6,7 @@ package org.jsoar.performancetesting;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A class for holding test settings. This is used all over the place for
@@ -39,7 +40,7 @@ public class TestSettings
 
     private List<Path> csoarDirectories;
 
-    private List<Path> jsoarDirectories;
+    private List<Path> jsoarCoreJars;
 
     private String jvmSettings;
 
@@ -67,7 +68,7 @@ public class TestSettings
         summaryFile = other.getSummaryFile();
 
         csoarDirectories = other.getCsoarDirectories();
-        jsoarDirectories = other.getJsoarDirectories();
+        jsoarCoreJars = other.getJsoarCoreJars();
 
         jvmSettings = other.getJvmSettings();
     }
@@ -93,7 +94,7 @@ public class TestSettings
         this.summaryFile = summaryFile;
 
         this.csoarDirectories = csoarDirectories;
-        this.jsoarDirectories = jsoarDirectories;
+        this.jsoarCoreJars = jsoarDirectories;
 
         this.jvmSettings = jvmSettings;
 
@@ -203,7 +204,7 @@ public class TestSettings
 
     public void setCsoarDirectories(List<Path> csoarDirectories)
     {
-        this.csoarDirectories = csoarDirectories;
+        this.csoarDirectories = TestSettings.processUserHomeInPaths(csoarDirectories);
     }
 
     public List<Path> getCsoarDirectories()
@@ -211,14 +212,14 @@ public class TestSettings
         return csoarDirectories;
     }
 
-    public void setJsoarDirectories(List<Path> jsoarDirectories)
+    public void setJsoarCoreJars(List<Path> jsoarCoreJars)
     {
-        this.jsoarDirectories = jsoarDirectories;
+        this.jsoarCoreJars = TestSettings.processUserHomeInPaths(jsoarCoreJars);
     }
 
-    public List<Path> getJsoarDirectories()
+    public List<Path> getJsoarCoreJars()
     {
-        return jsoarDirectories;
+        return jsoarCoreJars;
     }
 
     public void setJvmSettings(String jvmSettings)
@@ -229,5 +230,14 @@ public class TestSettings
     public String getJvmSettings()
     {
         return jvmSettings;
+    }
+    
+    private static List<Path> processUserHomeInPaths(List<Path> paths) {
+        // replace instances of %USER_HOME% with the user's home dir when setting
+        return paths.stream()
+            .map(Path::toString)
+            .map(s -> s.replace("%USER_HOME%", System.getProperty("user.home")))
+            .map(s -> Paths.get(s))
+            .collect(Collectors.toList());
     }
 }

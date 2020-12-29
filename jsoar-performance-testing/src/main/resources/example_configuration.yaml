@@ -1,9 +1,8 @@
 # This is an example configuration for the performance testing framework.
-# This is a YAML file and conforms to the YAML 1.1 Specification.  You can
+# This is a YAML file and conforms to the YAML 1.2 Specification.  You can
 # use any YAML you want in this file and it will be parsed correctly.  We
 # are using an actual YAML parser for this so you can even do fancy stuff
-# like references in this file.  The only caveat here is that it is a YAML
-# 1.1 parser and does not support anything from YAML 1.2
+# like references in this file.
 
 # Each setting name in here is case insensitive.
 # You can also use spaces without escaping them.
@@ -31,10 +30,10 @@
 # below and you do not specify it in every test, it will use the values above
 # instead.
 defaultSettings:
-    jsoarEnabled: TRUE
-    csoarEnabled: FALSE
-    csoarDirectories: [ 'csoar/' ] # can list multiple versions of csoar to use
-    jsoarDirectories: [ '../' ] # can list multiple versions of jsoar to use
+    jsoarEnabled: FALSE
+    csoarEnabled: TRUE
+    csoarDirectories: [ '%USER_HOME%/SoarTutorial_9.6.0-Multiplatform_64bit/bin' ] # can list multiple versions of csoar to use
+    jsoarCoreJars: [ '%USER_HOME%/.m2/repository/com/soartech/jsoar-core/4.0.4-SNAPSHOT/jsoar-core-4.0.4-SNAPSHOT.jar' ] # can list multiple versions of jsoar to use. %USER_HOME% is correctly substituted.
     warmUpCount: 0
     runCount: 5
     decisionCycles: [ 0 ] # Magic Number.  Run a test until it halts
@@ -71,35 +70,35 @@ tests:
 # Wait SNC
 # Tests how fast raw decision cycles are
 - name: wait-snc
-  file: APT/wait.soar
+  file: src/main/resources/APT/wait.soar
   settings:
     decisionCycles: [ 100, 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory
 - name: All Test
-  file: APT/all-test/all-test.soar
+  file: src/main/resources/APT/all-test/all-test.soar
   settings:
     decisionCycles: [ 10000 ]
 
 # Arithmetic
 # Computes problems it makes up
 - name: Arithmetic
-  file: APT/Arithmetic/arithmetic.soar
+  file: src/main/resources/APT/Arithmetic/arithmetic.soar
   settings:
     decisionCycles: [ 10000 ]
 
 # Arithmetic Chunking
 # Computes problems it makes up while also using chunking
 - name: Arithmetic Chunking
-  file: APT/Arithmetic/arithmetic-chunking.soar
+  file: src/main/resources/APT/Arithmetic/arithmetic-chunking.soar
   settings:
     decisionCycles: [ 10000 ]
 
 # Arithmetic SMem
 # Computes problems it makes up while also using SMem
 - name: Arithmetic SMem
-  file: APT/Arithmetic-smem/arithmetic.soar
+  file: src/main/resources/APT/Arithmetic-smem/arithmetic.soar
   settings:
     decisionCycles: [ 10000 ]
 
@@ -107,7 +106,7 @@ tests:
 # A series of 9 tests testing performance.  Ideally this
 # would be split up into 9 separate tests.
 - name: Count Test
-  file: APT/count-test-files/count-test.soar
+  file: src/main/resources/APT/count-test-files/count-test.soar
 
 ##
 ## Factorization Stress Tests
@@ -130,42 +129,42 @@ tests:
 # a substate, and repeats until it finds all the factors.
 # then it copies up all the factors.
 - name: Pure Soar Factorization Stress Test
-  file: Stress Tests/SingleFileFactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/SingleFileFactorizationStressTest.soar
 
 # This is the pure Soar Factorization Stress Test
 # but with Chunking enabled.
 - name: Chunking Factorization Stress Test
-  file: Stress Tests/Chunking_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/Chunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem to retrieve factors
 - name: EpMem Factorization Stress Test
-  file: Stress Tests/EpMem_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/EpMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # SMem to retrieve factors
 - name: SMem Factorization Stress Test
-  file: Stress Tests/SMem_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/SMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem and SMem together.  EpMem for even numbers
 # and SMem for odd numbers.  (Applies even to substates!)
 - name: EpMem & SMem Factorization Stress Test
-  file: Stress Tests/EpMemSMem_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/EpMemSMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # both EpMem and Chunking.
 - name: EpMem & Chunking Factorization Stress Test
-  file: Stress Tests/EpMemWithChunking_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/EpMemWithChunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # both SMem and Chunking.
 - name: SMem & Chunking Factorization Stress Test
-  file: Stress Tests/SMemWithChunking_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/SMemWithChunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem and SMem AND Chunking together.  EpMem for
 # even numbers and SMem for odd numbers.  (Applies
 # even to substates!)
 - name: EpMem & SMem & Chunking Factorization Stress Test
-  file: Stress Tests/EpMemSMemChunking_FactorizationStressTest.soar
+  file: src/main/resources/Stress Tests/EpMemSMemChunking_FactorizationStressTest.soar

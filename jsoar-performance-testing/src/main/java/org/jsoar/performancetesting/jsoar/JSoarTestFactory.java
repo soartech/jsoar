@@ -3,8 +3,8 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
+import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
@@ -20,18 +20,11 @@ public class JSoarTestFactory implements TestFactory
 {
     private String label;
 
-    private Path jsoarDirectory;
+    private Path jsoarCoreJar;
 
     public JSoarTestFactory()
     {
         this.label = new String();
-        this.jsoarDirectory = Paths.get(".");
-    }
-
-    public JSoarTestFactory(String label, Path jsoarDirectory)
-    {
-        this.label = label;
-        this.jsoarDirectory = jsoarDirectory;
     }
 
     public void setLabel(String label)
@@ -44,9 +37,9 @@ public class JSoarTestFactory implements TestFactory
         return label;
     }
 
-    public void setJSoarDirectory(Path jsoarDirectory)
+    public void setJsoarCoreJar(Path jsoarCoreJar)
     {
-        this.jsoarDirectory = jsoarDirectory;
+        this.jsoarCoreJar = jsoarCoreJar;
     }
 
     /**
@@ -58,12 +51,14 @@ public class JSoarTestFactory implements TestFactory
      * @param testFile
      * @param settings
      * @return A new and initialized JSoar test.
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
      */
     @Override
     public Test createTest(String testName, Path testFile,
-            TestSettings settings)
+            TestSettings settings) throws MalformedURLException, ClassNotFoundException
     {
-        JSoarTest jsoarTest = new JSoarTest(label, jsoarDirectory);
+        JSoarTest jsoarTest = new JSoarTest(label, jsoarCoreJar);
 
         jsoarTest.initialize(testName, testFile, settings);
 

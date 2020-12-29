@@ -24,5 +24,5 @@ public interface TestFactory
      *         initialized.
      */
     public Test createTest(String testName, Path testFile,
-            TestSettings settings);
+            TestSettings settings) throws Exception;
 }

@@ -3,7 +3,7 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
-import java.io.File;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 
 import org.jsoar.kernel.Agent;
@@ -45,8 +45,10 @@ public class JSoarTest implements Test
     /**
      * Sets all the values used in the test to be impossible values so we know
      * if something failed horribly.
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
      */
-    public JSoarTest(String label, Path jsoarDirectory)
+    public JSoarTest(String label, Path jsoarCoreJar) throws MalformedURLException, ClassNotFoundException
     {
         this.agent = null;
 
@@ -55,7 +57,7 @@ public class JSoarTest implements Test
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
 
-        this.agentFactory = new JSoarAgentFactory(label, jsoarDirectory);
+        this.agentFactory = new JSoarAgentFactory(label, jsoarCoreJar);
     }
 
     /*
@@ -127,7 +129,7 @@ public class JSoarTest implements Test
             ifc.eval("srand " + settings.getSeed());
         }
 
-        ifc.eval("set-stop-phase -o");
+        ifc.eval("soar stop-phase output");
 
         if (settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)

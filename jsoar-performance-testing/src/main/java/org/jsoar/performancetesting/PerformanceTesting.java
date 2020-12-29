@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -88,7 +89,7 @@ public class PerformanceTesting implements Callable<Integer>
     @Option(names = {"-c", "--category"}, description = "Specify the number of warm up runs for JSoar.")
     String category;
     
-    @Option(names = {"-j", "--jsoar"}, arity = "0..1", fallbackValue="Internal", description = "Run the tests in JSoar optionally specifying the directory with the jsoar version to use. If not specified will default to the internal jsoar version.")
+    @Option(names = {"-j", "--jsoar"}, arity = "0..1", fallbackValue="Internal", description = "Run the tests in JSoar optionally specifying the jsoar jar. If not specified will default to the internal jsoar version.")
     Path jsoar = null;
     
     @Option(names = {"-s", "--soar"}, description = "Run the tests in CSoar specifying the directory of CSoar's bin. When running with CSoar, CSoar's bin directory must be on the system path or in java.library.path or specified in a configuration file.")
@@ -171,8 +172,9 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws IOException 
      * @throws JsonMappingException 
      * @throws JsonParseException 
+     * @throws ClassNotFoundException 
      */
-    public Integer call() throws URISyntaxException, JsonParseException, JsonMappingException, IOException
+    public Integer call() throws URISyntaxException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
     {
         // This adds a shutdown hook to the runtime
         // to kill any child processes spawned that
@@ -250,8 +252,9 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws IOException 
      * @throws JsonMappingException 
      * @throws JsonParseException 
+     * @throws ClassNotFoundException 
      */
-    private int parseOptions() throws JsonParseException, JsonMappingException, IOException
+    private int parseOptions() throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException
     {
         // If there is a configuration option,
         // ignore any CLI options beyond that.
@@ -306,8 +309,10 @@ public class PerformanceTesting implements Callable<Integer>
      * 
      * @param options
      * @return whether the parsing was successful or not
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
      */
-    private int parseCLIOptions()
+    private int parseCLIOptions() throws MalformedURLException, ClassNotFoundException
     {
         if (output != null)
         {
@@ -325,10 +330,10 @@ public class PerformanceTesting implements Callable<Integer>
             } else {
                 List<Path> tempArray = new ArrayList<>();
                 tempArray.add(this.jsoar);
-                defaultTestSettings.setJsoarDirectories(tempArray);
+                defaultTestSettings.setJsoarCoreJars(tempArray);
 
                 jsoarTestFactory.setLabel(this.jsoar.toString());
-                jsoarTestFactory.setJSoarDirectory(this.jsoar);
+                jsoarTestFactory.setJsoarCoreJar(this.jsoar);
             }
         }
 
@@ -540,14 +545,14 @@ public class PerformanceTesting implements Callable<Integer>
             arguments.add("--jsoar");
 
             // For each version of JSoar, run a child JVM
-            if (test.getTestSettings().getJsoarDirectories() == null)
+            if (test.getTestSettings().getJsoarCoreJars() == null)
             {
                 // Default to internal representation
                 exitCode = runJVM(test, arguments);
             }
             else
             {
-                List<Path> paths = test.getTestSettings().getJsoarDirectories();
+                List<Path> paths = test.getTestSettings().getJsoarCoreJars();
                 for (Path path : paths)
                 {
                     List<String> argumentsPerTest = new ArrayList<>(arguments);
@@ -752,9 +757,9 @@ public class PerformanceTesting implements Callable<Integer>
 
                 if (test.getTestSettings().isJsoarEnabled())
                 {
-                    if (test.getTestSettings().getJsoarDirectories() != null)
+                    if (test.getTestSettings().getJsoarCoreJars() != null)
                     {
-                        for (Path jsoarPath : test.getTestSettings().getJsoarDirectories())
+                        for (Path jsoarPath : test.getTestSettings().getJsoarCoreJars())
                         {
                             row.add(new Cell("JSoar " + jsoarPath));
                         }
@@ -835,7 +840,7 @@ public class PerformanceTesting implements Callable<Integer>
 
         if (settings.isJsoarEnabled())
         {
-            List<Path> jsoarVersions = settings.getJsoarDirectories();
+            List<Path> jsoarVersions = settings.getJsoarCoreJars();
 
             if (jsoarVersions == null)
             {

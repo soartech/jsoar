@@ -115,7 +115,7 @@ public class CSoarTest implements Test
             agent.ExecuteCommandLine("srand " + settings.getSeed());
         }
 
-        agent.ExecuteCommandLine("set-stop-phase -o");
+        agent.ExecuteCommandLine("soar stop-phase output");
 
         if (settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)

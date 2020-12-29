@@ -40,10 +40,9 @@ public interface Test
     public Path getTestFile();
 
     /**
-     * Runs the test for a given runCount with a given seed.
+     * Runs the test for a given runCount.
      * 
      * @param runCount
-     * @param seed
      * @return whether running a test was successful or not.
      * @throws SoarException
      */
