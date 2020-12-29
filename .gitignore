@@ -36,3 +36,4 @@ jsoar-build/test.log
 *.trace
 jsoar-debugger/ngs-temp.txt
 jsoar-performance-testing/.classpath
+jsoar-performance-testing/Test-Results
