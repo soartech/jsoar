@@ -22,23 +22,18 @@ public class TestRunner
 
     private Test test;
 
-    private List<Double> cpuTimes;
+    private List<Double> cpuTimes = new ArrayList<>();
 
-    private List<Double> kernelTimes;
+    private List<Double> kernelTimes = new ArrayList<>();
 
-    private List<Double> decisionCycles;
+    private List<Double> decisionCycles = new ArrayList<>();
 
-    private List<Double> memoryLoads;
+    private List<Double> memoryLoads = new ArrayList<>();
 
     public TestRunner(Test test, PrintWriter out)
     {
         this.test = test;
         this.out = out;
-
-        cpuTimes = new ArrayList<Double>();
-        kernelTimes = new ArrayList<Double>();
-        decisionCycles = new ArrayList<Double>();
-        memoryLoads = new ArrayList<Double>();
     }
 
     /**
@@ -58,9 +53,9 @@ public class TestRunner
         cpuTimes.add(test.getCPURunTime());
         kernelTimes.add(test.getKernelRunTime());
 
-        decisionCycles.add(new Double(test.getDecisionCyclesRunFor()));
+        decisionCycles.add(Double.valueOf(test.getDecisionCyclesRunFor()));
 
-        memoryLoads.add(new Double(test.getMemoryForRun()));
+        memoryLoads.add(Double.valueOf(test.getMemoryForRun()));
 
         return result;
     }
@@ -77,7 +72,7 @@ public class TestRunner
      */
     boolean runTestsForAverage(TestSettings settings) throws SoarException
     {
-        if (settings.isJSoarEnabled() && settings.getWarmUpCount() > 0)
+        if (settings.isJsoarEnabled() && settings.getWarmUpCount() > 0)
         {
             out.print("Warming Up: ");
             out.flush();
