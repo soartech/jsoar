@@ -32,14 +32,19 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.csoar.CSoarTestFactory;
 import org.jsoar.performancetesting.jsoar.JSoarTestFactory;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import io.github.classgraph.ClassGraph;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Spec;
 import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
 
 /**
  * @author ALT
@@ -125,7 +130,7 @@ public class PerformanceTesting implements Callable<Integer>
     // Class Specific Configuration
 
 
-    private Set<Configuration.ConfigurationTest> configurationTests;
+    private List<ConfigurationTest> configurationTests;
 
     // Used for killing the current child process in the shutdown hook
     private Process currentChildProcess = null;
@@ -163,8 +168,11 @@ public class PerformanceTesting implements Callable<Integer>
      * @param args
      * @return Whether performance testing was successful or not.
      * @throws URISyntaxException 
+     * @throws IOException 
+     * @throws JsonMappingException 
+     * @throws JsonParseException 
      */
-    public Integer call() throws URISyntaxException
+    public Integer call() throws URISyntaxException, JsonParseException, JsonMappingException, IOException
     {
         // This adds a shutdown hook to the runtime
         // to kill any child processes spawned that
@@ -239,8 +247,11 @@ public class PerformanceTesting implements Callable<Integer>
      * 
      * @param args
      * @return whether the parsing was successful or not
+     * @throws IOException 
+     * @throws JsonMappingException 
+     * @throws JsonParseException 
      */
-    private int parseOptions()
+    private int parseOptions() throws JsonParseException, JsonMappingException, IOException
     {
         // If there is a configuration option,
         // ignore any CLI options beyond that.
@@ -262,46 +273,30 @@ public class PerformanceTesting implements Callable<Integer>
      * 
      * @param options
      * @return whether the parsing was successful or not.
+     * @throws IOException 
+     * @throws JsonMappingException 
+     * @throws JsonParseException 
      */
-    private int parseConfiguration(Path configuration)
+    private int parseConfiguration(Path configuration) throws JsonParseException, JsonMappingException, IOException
     {
         if (!configuration.toString().endsWith(".yaml"))
         {
-            out.println("Configuration files need to be yaml files.");
+            out.println("Configuration files need to be yaml files; got: " + configuration);
             return EXIT_FAILURE_CONFIGURATION;
         }
 
-        Configuration config = new Configuration(configuration);
-        int result = Configuration.PARSE_FAILURE;
-
-        // Make sure there are no duplicate keys and then parse the properties
-        // file
-        try
-        {
-            result = config.parse();
-        }
-        catch (IOException e)
-        {
-            out.println(e.getMessage());
-            return EXIT_FAILURE;
-        }
-
-        if (result != Configuration.PARSE_SUCCESS)
-        {
-            out.println("Configuration parsing failed!");
-            return EXIT_FAILURE_CONFIGURATION;
-        }
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        Configuration config = mapper.readValue(configuration.toFile(), Configuration.class);
 
         defaultTestSettings = config.getDefaultSettings();
 
         if (!defaultTestSettings.isJsoarEnabled()
                 && !defaultTestSettings.isCsoarEnabled())
         {
-            out.println("WARNING: You must select something to run.  Defaulting to JSoar.");
-            defaultTestSettings.setJsoarEnabled(true);
+            out.println("WARNING: Neither jsoar nor csoar selected to run in defaults.");
         }
 
-        configurationTests = config.getConfigurationTests();
+        configurationTests = config.getTests();
 
         return NON_EXIT;
     }
@@ -330,7 +325,7 @@ public class PerformanceTesting implements Callable<Integer>
             } else {
                 List<Path> tempArray = new ArrayList<>();
                 tempArray.add(this.jsoar);
-                defaultTestSettings.setJsoarVersions(tempArray);
+                defaultTestSettings.setJsoarDirectories(tempArray);
 
                 jsoarTestFactory.setLabel(this.jsoar.toString());
                 jsoarTestFactory.setJSoarDirectory(this.jsoar);
@@ -342,7 +337,7 @@ public class PerformanceTesting implements Callable<Integer>
             defaultTestSettings.setCsoarEnabled(true);
             List<Path> tempArray = new ArrayList<>();
             tempArray.add(this.csoar);
-            defaultTestSettings.setCsoarVersions(tempArray);
+            defaultTestSettings.setCsoarDirectories(tempArray);
 
             Path path = this.csoar;
 
@@ -371,7 +366,7 @@ public class PerformanceTesting implements Callable<Integer>
         if (this.testPath != null)
         {
 
-            if (!testPath.endsWith(".soar"))
+            if (!testPath.toString().endsWith(".soar"))
             {
                 out.println("Tests need to end with .soar");
                 return EXIT_FAILURE_TEST;
@@ -410,14 +405,14 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws URISyntaxException 
      */
     private int runTestsInChildrenJVMs(
-            Set<Configuration.ConfigurationTest> tests) throws URISyntaxException
+            List<ConfigurationTest> tests) throws URISyntaxException
     {
         Set<Path> previousSummaryFiles = new HashSet<>();
 
         // Since we have more than one test to run, spawn a separate JVM for
         // each run.
         int i = 0;
-        for (Configuration.ConfigurationTest test : tests)
+        for (ConfigurationTest test : tests)
         {
             Path dir = test.getTestSettings().getCsvDirectory();
 
@@ -493,7 +488,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @return Whether the run was successful or not
      * @throws URISyntaxException 
      */
-    private int spawnChildJVMForTest(Configuration.ConfigurationTest test, boolean jsoar) throws URISyntaxException
+    private int spawnChildJVMForTest(ConfigurationTest test, boolean jsoar) throws URISyntaxException
     {
         // Arguments to the process builder including the command to run
         List<String> arguments = new ArrayList<String>();
@@ -545,14 +540,14 @@ public class PerformanceTesting implements Callable<Integer>
             arguments.add("--jsoar");
 
             // For each version of JSoar, run a child JVM
-            if (test.getTestSettings().getJsoarVersions() == null)
+            if (test.getTestSettings().getJsoarDirectories() == null)
             {
                 // Default to internal representation
                 exitCode = runJVM(test, arguments);
             }
             else
             {
-                List<Path> paths = test.getTestSettings().getJsoarVersions();
+                List<Path> paths = test.getTestSettings().getJsoarDirectories();
                 for (Path path : paths)
                 {
                     List<String> argumentsPerTest = new ArrayList<>(arguments);
@@ -572,12 +567,12 @@ public class PerformanceTesting implements Callable<Integer>
             arguments.add("--soar");
 
             // For each version of CSoar, run a child JVM
-            if (test.getTestSettings().getCsoarVersions() == null)
+            if (test.getTestSettings().getCsoarDirectories() == null)
             {
                 throw new RuntimeException(
                         "CSoar Enabled but no versions specified");
             }
-            for (Path path : test.getTestSettings().getCsoarVersions())
+            for (Path path : test.getTestSettings().getCsoarDirectories())
             {
                 List<String> argumentsPerTest = new ArrayList<>(arguments);
                 argumentsPerTest.add(path.toString());
@@ -608,7 +603,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @param arguments
      * @return whether running the child JVM was successful or not
      */
-    private int runJVM(Configuration.ConfigurationTest test,
+    private int runJVM(ConfigurationTest test,
             List<String> arguments)
     {
         int exitCode = 0;
@@ -733,13 +728,13 @@ public class PerformanceTesting implements Callable<Integer>
     /**
      * Output the results to a summary file for a given test. This reads in the
      * individual run results and then computes the summary for the test. This
-     * summary does not split among seperate decisions! So if you need decisions
-     * to be seperated, you need to create a seperate test, or modify the code
+     * summary does not split among separate decisions! So if you need decisions
+     * to be separated, you need to create a separate test, or modify the code
      * to append per decisions.
      * 
      * @param test
      */
-    private void appendToSummaryFile(Configuration.ConfigurationTest test)
+    private void appendToSummaryFile(ConfigurationTest test)
     {
         TestSettings settings = test.getTestSettings();
         Table summaryTable = new Table();
@@ -757,9 +752,9 @@ public class PerformanceTesting implements Callable<Integer>
 
                 if (test.getTestSettings().isJsoarEnabled())
                 {
-                    if (test.getTestSettings().getJsoarVersions() != null)
+                    if (test.getTestSettings().getJsoarDirectories() != null)
                     {
-                        for (Path jsoarPath : test.getTestSettings().getJsoarVersions())
+                        for (Path jsoarPath : test.getTestSettings().getJsoarDirectories())
                         {
                             row.add(new Cell("JSoar " + jsoarPath));
                         }
@@ -770,7 +765,7 @@ public class PerformanceTesting implements Callable<Integer>
 
                 if (test.getTestSettings().isCsoarEnabled())
                 {
-                    for (Path csoarPath : test.getTestSettings().getCsoarVersions())
+                    for (Path csoarPath : test.getTestSettings().getCsoarDirectories())
                     {
                         row.add(new Cell("CSoar " + csoarPath));
                     }
@@ -840,7 +835,7 @@ public class PerformanceTesting implements Callable<Integer>
 
         if (settings.isJsoarEnabled())
         {
-            List<Path> jsoarVersions = settings.getJsoarVersions();
+            List<Path> jsoarVersions = settings.getJsoarDirectories();
 
             if (jsoarVersions == null)
             {
@@ -987,7 +982,7 @@ public class PerformanceTesting implements Callable<Integer>
 
         if (settings.isCsoarEnabled())
         {
-            for (Path csoarPath : test.getTestSettings().getCsoarVersions())
+            for (Path csoarPath : test.getTestSettings().getCsoarDirectories())
             {
                 String csoarLabel = "CSoar-"
                         + csoarPath.toString().replaceAll("[^a-zA-Z0-9]+", "");
@@ -1273,9 +1268,9 @@ public class PerformanceTesting implements Callable<Integer>
                 String message = e.getMessage();
 
                 if (message.equals("Could not load CSoar")
-                        && settings.getCsoarVersions().size() > 0)
+                        && settings.getCsoarDirectories().size() > 0)
                 {
-                    message += " - " + settings.getCsoarVersions().get(0);
+                    message += " - " + settings.getCsoarDirectories().get(0);
                 }
 
                 out.println("Error: " + message);

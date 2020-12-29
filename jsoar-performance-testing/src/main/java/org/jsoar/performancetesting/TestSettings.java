@@ -4,6 +4,7 @@
 package org.jsoar.performancetesting;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -32,9 +33,9 @@ public class TestSettings
 
     private long seed;
 
-    private Path csvDirectory;
+    private Path csvDirectory = Paths.get("");
 
-    private Path summaryFile;
+    private Path summaryFile = Paths.get("");
 
     private List<Path> csoarDirectories;
 
@@ -42,10 +43,17 @@ public class TestSettings
 
     private String jvmSettings;
 
+    // used by yaml reader
+    public TestSettings() {
+        this(Configuration.defaultSettings);
+    }
+    
     public TestSettings(TestSettings other)
     {
-        jsoarEnabled = other.isJSoarEnabled();
-        csoarEnabled = other.isCSoarEnabled();
+        if(other == null) return;
+        
+        jsoarEnabled = other.isJsoarEnabled();
+        csoarEnabled = other.isCsoarEnabled();
 
         runCount = other.getRunCount();
         warmUpCount = other.getWarmUpCount();
@@ -55,13 +63,13 @@ public class TestSettings
         useSeed = other.isUsingSeed();
         seed = other.getSeed();
 
-        csvDirectory = other.getCSVDirectory();
+        csvDirectory = other.getCsvDirectory();
         summaryFile = other.getSummaryFile();
 
-        csoarDirectories = other.getCSoarVersions();
-        jsoarDirectories = other.getJSoarVersions();
+        csoarDirectories = other.getCsoarDirectories();
+        jsoarDirectories = other.getJsoarDirectories();
 
-        jvmSettings = other.getJVMSettings();
+        jvmSettings = other.getJvmSettings();
     }
 
     public TestSettings(boolean jsoarEnabled, boolean csoarEnabled,
@@ -103,22 +111,22 @@ public class TestSettings
         }
     }
 
-    public void setJSoarEnabled(boolean jsoarEnabled)
+    public void setJsoarEnabled(boolean jsoarEnabled)
     {
         this.jsoarEnabled = jsoarEnabled;
     }
 
-    public boolean isJSoarEnabled()
+    public boolean isJsoarEnabled()
     {
         return jsoarEnabled;
     }
 
-    public void setCSoarEnabled(boolean csoarEnabled)
+    public void setCsoarEnabled(boolean csoarEnabled)
     {
         this.csoarEnabled = csoarEnabled;
     }
 
-    public boolean isCSoarEnabled()
+    public boolean isCsoarEnabled()
     {
         return csoarEnabled;
     }
@@ -193,32 +201,32 @@ public class TestSettings
         return summaryFile;
     }
 
-    public void setCsoarVersions(List<Path> csoarDirectories)
+    public void setCsoarDirectories(List<Path> csoarDirectories)
     {
         this.csoarDirectories = csoarDirectories;
     }
 
-    public List<Path> getCsoarVersions()
+    public List<Path> getCsoarDirectories()
     {
         return csoarDirectories;
     }
 
-    public void setJsoarVersions(List<Path> jsoarDirectories)
+    public void setJsoarDirectories(List<Path> jsoarDirectories)
     {
         this.jsoarDirectories = jsoarDirectories;
     }
 
-    public List<Path> getJsoarVersions()
+    public List<Path> getJsoarDirectories()
     {
         return jsoarDirectories;
     }
 
-    public void setJVMSettings(String jvmSettings)
+    public void setJvmSettings(String jvmSettings)
     {
         this.jvmSettings = jvmSettings;
     }
 
-    public String getJVMSettings()
+    public String getJvmSettings()
     {
         return jvmSettings;
     }

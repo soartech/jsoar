@@ -15,39 +15,40 @@
 # Each of these settings can also be specified on a per test basis including
 # versions of CSoar to use!  The hard coded internal values for each of these
 # are as follows:
-# JSoar Enabled: False
-# CSoar Enabled: False
-# CSoar Directories: []
-# WarmUp Count: 0
-# Run Count: 0
-# Decision Cycles: 0
-# Use Seed: False
-# Seed: 1
-# CSV Directory: ""
-# JVM Settings: ""
-# Summary File: ""
+# jsoarEnabled: False
+# csoarEnabled: False
+# csoarDirectories: []
+# warmUpCount: 0
+# runCount: 0
+# decisionCycles: 0
+# useseed: False
+# seed: 1
+# csvDirectory: ""
+# jvmSettings: ""
+# summaryFile: ""
 #
 # This means that if you do not specify one of these values in the default block
 # below and you do not specify it in every test, it will use the values above
 # instead.
-default:
-    - JSoar Enabled: TRUE
-    - CSoar Enabled: FALSE
-    - CSoar Directories: [ 'csoar/' ] # can list multiple versions of csoar to use
-    - JSoar Directories: [ '../' ] # can list multiple versions of jsoar to use
-    - WarmUp Count: 0
-    - Run Count: 5
-    - Decision Cycles: [ 0 ] # Magic Number.  Run a test until it halts
-    - Use Seed: FALSE
-    - Seed: 1
-    - CSV Directory: Test-Results
-    - JVM Settings: -Xmx2G
-    
-    # If you wish to debug the child performance testing framework JVM
-    #- JVM Settings: -Xmx2G -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
-    
-    - Summary File: test-summaries.txt
+defaultSettings:
+    jsoarEnabled: TRUE
+    csoarEnabled: FALSE
+    csoarDirectories: [ 'csoar/' ] # can list multiple versions of csoar to use
+    jsoarDirectories: [ '../' ] # can list multiple versions of jsoar to use
+    warmUpCount: 0
+    runCount: 5
+    decisionCycles: [ 0 ] # Magic Number.  Run a test until it halts
+    useSeed: FALSE
+    seed: 1
+    csvDirectory: Test-Results
+    jvmSettings: -Xmx2G
 
+    # If you wish to debug the child performance testing framework JVM
+    #jvmSettings: -Xmx2G -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+
+    summaryFile: test-summaries.txt
+
+tests:
 #
 # Here are some example tests.
 #
@@ -59,8 +60,8 @@ default:
 
 # The general format is as follows:
 # test<Unique Identifier>:
-#     - Name: <Name>
-#     - Path: <Path>
+#     - name: <name>
+#     - file: <file>
 #
 # And then any settings specific to this test.  You must have
 # a name and a path and unique keys!  You must also include the
@@ -69,45 +70,44 @@ default:
 
 # Wait SNC
 # Tests how fast raw decision cycles are
-test-wait-snc:
-    - Name: wait-snc
-    - Path: APT/wait.soar
-    - Decision Cycles: [ 100, 10000 ]
+- name: wait-snc
+  file: APT/wait.soar
+  settings:
+    decisionCycles: [ 100, 10000 ]
 
 # All Test
 # Runs blocks world with tons of rules loaded into memory
-test-all-test:
-    - Name: All Test
-    - Path: APT/all-test/all-test.soar
-    - Decision Cycles: [ 10000 ]
+- name: All Test
+  file: APT/all-test/all-test.soar
+  settings:
+    decisionCycles: [ 10000 ]
 
 # Arithmetic
 # Computes problems it makes up
-test-Arithmetic:
-    - Name: Arithmetic
-    - Path: APT/Arithmetic/arithmetic.soar
-    - Decision Cycles: [ 10000 ]
+- name: Arithmetic
+  file: APT/Arithmetic/arithmetic.soar
+  settings:
+    decisionCycles: [ 10000 ]
 
 # Arithmetic Chunking
 # Computes problems it makes up while also using chunking
-test-Arithmetic-chunking:
-    - Name: Arithmetic Chunking
-    - Path: APT/Arithmetic/arithmetic-chunking.soar
-    - Decision Cycles: [ 10000 ]
+- name: Arithmetic Chunking
+  file: APT/Arithmetic/arithmetic-chunking.soar
+  settings:
+    decisionCycles: [ 10000 ]
 
 # Arithmetic SMem
 # Computes problems it makes up while also using SMem
-test-Arithmetic-smem:
-    - Name: Arithmetic SMem
-    - Path: APT/Arithmetic-smem/arithmetic.soar
-    - Decision Cycles: [ 10000 ]
+- name: Arithmetic SMem
+  file: APT/Arithmetic-smem/arithmetic.soar
+  settings:
+    decisionCycles: [ 10000 ]
 
 # Count Test
 # A series of 9 tests testing performance.  Ideally this
 # would be split up into 9 separate tests.
-test-count-test:
-    - Name: Count Test
-    - Path: APT/count-test-files/count-test.soar
+- name: Count Test
+  file: APT/count-test-files/count-test.soar
 
 ##
 ## Factorization Stress Tests
@@ -129,51 +129,43 @@ test-count-test:
 # It finds a factor, divides the number, goes into
 # a substate, and repeats until it finds all the factors.
 # then it copies up all the factors.
-test-pure-Soar-factorization-stress-test:
-    - Name: Pure Soar Factorization Stress Test
-    - Path: Stress Tests/SingleFileFactorizationStressTest.soar
+- name: Pure Soar Factorization Stress Test
+  file: Stress Tests/SingleFileFactorizationStressTest.soar
 
 # This is the pure Soar Factorization Stress Test
 # but with Chunking enabled.
-test-chunking-factorization-stress-test:
-    - Name: Chunking Factorization Stress Test
-    - Path: Stress Tests/Chunking_FactorizationStressTest.soar
+- name: Chunking Factorization Stress Test
+  file: Stress Tests/Chunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem to retrieve factors
-test-epmem-factorization-stress-test:
-    - Name: EpMem Factorization Stress Test
-    - Path: Stress Tests/EpMem_FactorizationStressTest.soar
+- name: EpMem Factorization Stress Test
+  file: Stress Tests/EpMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # SMem to retrieve factors
-test-smem-factorization-stress-test:
-    - Name: SMem Factorization Stress Test
-    - Path: Stress Tests/SMem_FactorizationStressTest.soar
+- name: SMem Factorization Stress Test
+  file: Stress Tests/SMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem and SMem together.  EpMem for even numbers
 # and SMem for odd numbers.  (Applies even to substates!)
-test-epmem-smem-factorization-stress-test:
-    - Name: EpMem & SMem Factorization Stress Test
-    - Path: Stress Tests/EpMemSMem_FactorizationStressTest.soar
+- name: EpMem & SMem Factorization Stress Test
+  file: Stress Tests/EpMemSMem_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # both EpMem and Chunking.
-test-epmem-chunking-factorization-stress-test:
-    - Name: EpMem & Chunking Factorization Stress Test
-    - Path: Stress Tests/EpMemWithChunking_FactorizationStressTest.soar
+- name: EpMem & Chunking Factorization Stress Test
+  file: Stress Tests/EpMemWithChunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # both SMem and Chunking.
-test-smem-chunking-factorization-stress-test:
-    - Name: SMem & Chunking Factorization Stress Test
-    - Path: Stress Tests/SMemWithChunking_FactorizationStressTest.soar
+- name: SMem & Chunking Factorization Stress Test
+  file: Stress Tests/SMemWithChunking_FactorizationStressTest.soar
 
 # This is the Factorization Stress Test but using
 # EpMem and SMem AND Chunking together.  EpMem for
 # even numbers and SMem for odd numbers.  (Applies
 # even to substates!)
-test-epmem-smem-chunking-factorization-stress-test:
-    - Name: EpMem & SMem & Chunking Factorization Stress Test
-    - Path: Stress Tests/EpMemSMemChunking_FactorizationStressTest.soar
+- name: EpMem & SMem & Chunking Factorization Stress Test
+  file: Stress Tests/EpMemSMemChunking_FactorizationStressTest.soar
