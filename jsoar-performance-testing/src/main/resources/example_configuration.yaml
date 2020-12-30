@@ -30,8 +30,8 @@
 # below and you do not specify it in every test, it will use the values above
 # instead.
 defaultSettings:
-    jsoarEnabled: FALSE
-    csoarEnabled: TRUE
+    jsoarEnabled: TRUE
+    csoarEnabled: FALSE
     csoarDirectories: [ '%USER_HOME%/SoarTutorial_9.6.0-Multiplatform_64bit/bin' ] # can list multiple versions of csoar to use
     jsoarCoreJars: [ '%USER_HOME%/.m2/repository/com/soartech/jsoar-core/4.0.4-SNAPSHOT/jsoar-core-4.0.4-SNAPSHOT.jar' ] # can list multiple versions of jsoar to use. %USER_HOME% is correctly substituted.
     warmUpCount: 0

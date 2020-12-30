@@ -3,6 +3,7 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class CSoarTest implements Test
 
     private long memoryForRun;
 
-    public CSoarTest(String label, Path csoarDirectory)
+    public CSoarTest(String label, Path csoarDirectory) throws Exception
     {
         this.agent = null;
         this.kernel = null;
@@ -63,7 +64,7 @@ public class CSoarTest implements Test
             TestSettings settings)
     {
         this.testName = testName;
-        this.testFile = testFile;
+        this.testFile = testFile.toAbsolutePath();
         this.settings = settings;
 
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
@@ -105,7 +106,7 @@ public class CSoarTest implements Test
         if (agent.LoadProductions(testFile) == false)
         {
             agent.ExecuteCommandLine("excise --all");
-            System.err.println(agent.ExecuteCommandLine("source " + testFile));
+            System.err.println(agent.ExecuteCommandLine("source " + testFile.toString().replace(File.separatorChar, '/')));
             System.err.println("\n" + "ERROR: Failed to load " + testFile);
             return false;
         }

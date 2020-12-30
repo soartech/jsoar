@@ -3,6 +3,7 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -90,7 +91,8 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
     {
         try
         {
-            return (boolean) loadProductions.invoke(agentImpl, file.toString());
+            String path = file.toString().replace(File.separatorChar, '/');
+            return (boolean) loadProductions.invoke(agentImpl, path);
         }
         catch (IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)

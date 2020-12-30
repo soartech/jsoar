@@ -62,7 +62,7 @@ public class CSoarTestFactory implements TestFactory
      */
     @Override
     public Test createTest(String testName, Path testFile,
-            TestSettings settings)
+            TestSettings settings) throws Exception
     {
         CSoarTest csoarTest = new CSoarTest(label, csoarDirectory);
 

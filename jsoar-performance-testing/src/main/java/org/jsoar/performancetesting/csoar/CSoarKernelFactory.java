@@ -1,7 +1,6 @@
 package org.jsoar.performancetesting.csoar;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -11,10 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * So this is a very unique class. What this does is it tries to find sml.jar
@@ -34,7 +31,7 @@ public class CSoarKernelFactory
 
     private static boolean initialized = false;
 
-    CSoarKernelFactory(String newLabel, Path csoarDirectory)
+    CSoarKernelFactory(String newLabel, Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         if (initialized)
             return;
@@ -67,96 +64,25 @@ public class CSoarKernelFactory
             }
         }
 
-        // URL[] url = { smlPath.toFile().toURI().toURL() };
         URL[] dummy = {};
         child = new URLClassLoader(urls.toArray(dummy), this.getClass()
                 .getClassLoader());
 
-        // Resolve the sml.Kernel class
-        try
-        {
-            kernel = Class.forName("sml.Kernel", true, child); // Resolves the
-                                                               // kernel class
-        }
-        catch (ClassNotFoundException e)
-        {
-            System.out.println("Could not find Kernel class!");
-            return;
-        }
+        kernel = Class.forName("sml.Kernel", true, child); // Resolves the kernel class
 
         // Resolve the sml.Agent class
-        try
-        {
-            agent = Class.forName("sml.Agent", true, child); // Resolves the
-                                                             // agent class
-        }
-        catch (ClassNotFoundException e)
-        {
-            System.out.println("Could not find Agent class!");
-            return;
-        }
+        agent = Class.forName("sml.Agent", true, child); // Resolves the agent class
 
-        // Now a hack to add the native library path
+        // this appears to work on OpenJDK 15. Not sure about Oracle JDKs.
+        String libraries = System.getProperty( "java.library.path" );
 
-        // So this code has been the same through Java SE 5 and 7 however
-        // because I'm reflecting into Java classes this is VERY BAD but
-        // it works. However if this breaks in the future, you can probably
-        // find a solution quite easily since this is only getting one field,
-        // the usr_path which has to exist.
-        //
-        // Method is from:
-        // http://stackoverflow.com/questions/5419039/is-djava-library-path-equivalent-to-system-setpropertyjava-library-path
-        // And also from:
-        // http://stackoverflow.com/questions/15409223/adding-new-paths-for-native-libraries-at-runtime-in-java
-        //
-        // Basically Sun never wanted to fix it and yet people like me needed
-        // this feature
-        // so a Sun engineer eventually posted a solution which is a bit of a
-        // hack but it
-        // has worked from Java SE 5 through 7 so it is pretty safe to assume it
-        // will work
-        // At least through the rest of Java SE 7 and probably through 8 and 9
-        // and however
-        // many versions after 7 there are.
-        //
-        // - ALT
+        if( libraries != null && libraries.length() != 0 )
+          libraries += File.pathSeparator + csoarDirectory;
+        else
+          libraries = csoarDirectory.toString();
 
-        try
-        {
-            // Get the field from the class loader
-            Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+        System.setProperty("java.library.path", libraries);
 
-            // Set it to public
-            usrPathsField.setAccessible(true);
-    
-            // get the array of paths
-            String[] paths = (String[]) usrPathsField.get(null);
-
-
-            // add the new path
-            final List<Path> newPaths = Arrays.stream(paths).map(Paths::get).collect(Collectors.toList());
-            
-            // check if the path to add is already present
-            for (Path path : newPaths)
-            {
-                if (Files.isSameFile(csoarDirectory, path))
-                {
-                    return;
-                }
-            }
-
-            // Add the path to our new list
-            newPaths.add(csoarDirectory);
-
-            // Set the path
-            final String[] temp = newPaths.toArray(new String[0]);
-            usrPathsField.set(null, temp);
-        }
-        catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException | IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
         // Now load the library including all the correct paths to the native
         // libraries.
@@ -278,7 +204,7 @@ public class CSoarKernelFactory
     private List<Path> getPathToSml(Path csoarDirectory)
     {
         // depending on the version of csoar, sml.jar may be in different places
-        Path[] paths = { Paths.get("/java/"), Paths.get("/../share/java/"), Paths.get("/../lib/") };
+        Path[] paths = { Paths.get("java"), Paths.get("../share/java"), Paths.get("../lib") };
         Path[] files = { Paths.get("sml.jar"), Paths.get("soar-smljava-9.3.1.jar") };
 
         List<Path> smlPaths = new LinkedList<Path>();

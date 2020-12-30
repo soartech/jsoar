@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -174,7 +173,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws JsonParseException 
      * @throws ClassNotFoundException 
      */
-    public Integer call() throws URISyntaxException, JsonParseException, JsonMappingException, IOException, ClassNotFoundException
+    public Integer call() throws Exception
     {
         // This adds a shutdown hook to the runtime
         // to kill any child processes spawned that
@@ -253,8 +252,10 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws JsonMappingException 
      * @throws JsonParseException 
      * @throws ClassNotFoundException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalAccessException 
      */
-    private int parseOptions() throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException
+    private int parseOptions() throws Exception
     {
         // If there is a configuration option,
         // ignore any CLI options beyond that.
@@ -309,10 +310,8 @@ public class PerformanceTesting implements Callable<Integer>
      * 
      * @param options
      * @return whether the parsing was successful or not
-     * @throws ClassNotFoundException 
-     * @throws MalformedURLException 
      */
-    private int parseCLIOptions() throws MalformedURLException, ClassNotFoundException
+    private int parseCLIOptions() throws Exception
     {
         if (output != null)
         {
