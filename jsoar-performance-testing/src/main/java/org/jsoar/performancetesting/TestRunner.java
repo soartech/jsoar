@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A class for running tests. This can run both CSoar and JSoar tests and

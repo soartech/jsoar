@@ -6,6 +6,7 @@ package org.jsoar.performancetesting;
 import java.nio.file.Path;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * This is an interface for both JSoar and CSoar tests

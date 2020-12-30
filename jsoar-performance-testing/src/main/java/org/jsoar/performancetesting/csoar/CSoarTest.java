@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.performancetesting.Test;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A CSoar Test. This class is used to launch and run all CSoar tests.

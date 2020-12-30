@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.jsoar.performancetesting;
+package org.jsoar.performancetesting.yaml;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

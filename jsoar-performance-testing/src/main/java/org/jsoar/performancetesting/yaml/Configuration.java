@@ -1,4 +1,4 @@
-package org.jsoar.performancetesting;
+package org.jsoar.performancetesting.yaml;
 
 import java.util.List;
 

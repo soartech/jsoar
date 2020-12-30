@@ -5,6 +5,8 @@ package org.jsoar.performancetesting;
 
 import java.nio.file.Path;
 
+import org.jsoar.performancetesting.yaml.TestSettings;
+
 /**
  * An interface for constructing tests.
  * 

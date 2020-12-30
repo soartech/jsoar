@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * This creates instantiations of CSoar tests.

@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.csoar.CSoarTestFactory;
 import org.jsoar.performancetesting.jsoar.JSoarTestFactory;
+import org.jsoar.performancetesting.yaml.Configuration;
+import org.jsoar.performancetesting.yaml.ConfigurationTest;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
