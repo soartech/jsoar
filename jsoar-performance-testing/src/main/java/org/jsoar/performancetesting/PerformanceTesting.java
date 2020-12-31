@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.jsoar.kernel.SoarException;
@@ -52,20 +51,8 @@ import picocli.CommandLine.Spec;
  * 
  */
 @Command(name="performance-testing", description="Performance Testing - Performance testing framework for JSoar and CSoar", subcommands={HelpCommand.class})
-public class PerformanceTesting implements Callable<Integer>
+public class PerformanceTesting implements Runnable
 {
-    // Static + Constants
-
-    private static final int NON_EXIT = 1024;
-
-    private static final int EXIT_SUCCESS = 0;
-
-    private static final int EXIT_FAILURE = 255;
-
-    private static final int EXIT_FAILURE_TEST = 254;
-
-    private static final int EXIT_FAILURE_CONFIGURATION = 253;
-
     private static TestSettings defaultTestSettings = new TestSettings(false,
             false, 0, 0, new ArrayList<Integer>(), false, 1, Paths.get("."), null,
             null, null, "");
@@ -130,7 +117,6 @@ public class PerformanceTesting implements Callable<Integer>
 
     // Class Specific Configuration
 
-
     private List<ConfigurationTest> configurationTests;
 
     // Used for killing the current child process in the shutdown hook
@@ -146,10 +132,7 @@ public class PerformanceTesting implements Callable<Integer>
 
         writer.flush();
 
-        if (result != EXIT_SUCCESS)
-        {
-            System.exit(result);
-        }
+        System.exit(result);
     }
 
     /**
@@ -174,73 +157,72 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws JsonParseException 
      * @throws ClassNotFoundException 
      */
-    public Integer call() throws Exception
+    public void run()
     {
-        // This adds a shutdown hook to the runtime
-        // to kill any child processes spawned that
-        // are still running. This handles CTRL-C
-        // as well as normal kills, SIGKILL and
-        // SIGHALT I believe
-        // - ALT
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
+        try {
+            // This adds a shutdown hook to the runtime
+            // to kill any child processes spawned that
+            // are still running. This handles CTRL-C
+            // as well as normal kills, SIGKILL and
+            // SIGHALT I believe
+            // - ALT
+            Runtime.getRuntime().addShutdownHook(new Thread()
             {
-                if (currentChildProcess != null)
+                @Override
+                public void run()
                 {
-                    currentChildProcess.destroy();
+                    if (currentChildProcess != null)
+                    {
+                        currentChildProcess.destroy();
+                    }
                 }
-            }
-        });
-
-        // Parse the CLI options and Configuration options
-        // if there are any
-        int optionsParseResult = parseOptions();
-
-        if (optionsParseResult != NON_EXIT)
-        {
-            return optionsParseResult;
-        }
-
-        // If this is not a single test and configurationTests is null
-        // exit because the configuration file didn't work out
-        // or something else bad happened.
-        if (!singleTest && configurationTests == null)
-        {
-            out.println("Did not load any tests or configuration.");
-            
-            throw new ParameterException(this.spec.commandLine(), "Did not load any tests or configuration.");
-        }
-
-        // Only output starting information like this if we're not in a child
-        // process
-        if (!singleTest)
-        {
-            out.printf(
-                    "Performance Testing - Starting Tests - %d Tests Loaded\n\n",
-                    configurationTests.size());
-            out.flush();
-        }
-
-        // If we have multiple tests to run, then run
-        // them in children JVMs
-        if (configurationTests != null)
-        {
-            return runTestsInChildrenJVMs(configurationTests);
-        }
-        else
-        {
-            // In this case, we are running just one test which means
-            // the test is either going to be jsoarTest or csoarTest.
-            if (jsoarTest != null)
+            });
+    
+            // Parse the CLI options and Configuration options
+            // if there are any
+            parseOptions();
+    
+            // If this is not a single test and configurationTests is null
+            // exit because the configuration file didn't work out
+            // or something else bad happened.
+            if (!singleTest && configurationTests == null)
             {
-                return runTest(new TestRunner(jsoarTest, out));
+                out.println("Did not load any tests or configuration.");
+                
+                throw new ParameterException(this.spec.commandLine(), "Did not load any tests or configuration.");
+            }
+    
+            // Only output starting information like this if we're not in a child
+            // process
+            if (!singleTest)
+            {
+                out.printf(
+                        "Performance Testing - Starting Tests - %d Tests Loaded\n\n",
+                        configurationTests.size());
+                out.flush();
+            }
+    
+            // If we have multiple tests to run, then run
+            // them in children JVMs
+            if (configurationTests != null)
+            {
+                runTestsInChildrenJVMs(configurationTests);
             }
             else
             {
-                return runTest(new TestRunner(csoarTest, out));
+                // In this case, we are running just one test which means
+                // the test is either going to be jsoarTest or csoarTest.
+                if (jsoarTest != null)
+                {
+                    runTest(new TestRunner(jsoarTest, out));
+                }
+                else
+                {
+                    runTest(new TestRunner(csoarTest, out));
+                }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -256,20 +238,18 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws NoSuchFieldException 
      * @throws IllegalAccessException 
      */
-    private int parseOptions() throws Exception
+    private void parseOptions() throws Exception
     {
         // If there is a configuration option,
         // ignore any CLI options beyond that.
         if (this.configuration != null)
         {
             parseConfiguration(configuration);
-
-            return NON_EXIT;
         }
 
         // Since we don't have a configuration
         // option, parse the CLI arguments.
-        return parseCLIOptions();
+        parseCLIOptions();
     }
 
     /**
@@ -282,12 +262,11 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws JsonMappingException 
      * @throws JsonParseException 
      */
-    private int parseConfiguration(Path configuration) throws JsonParseException, JsonMappingException, IOException
+    private void parseConfiguration(Path configuration) throws JsonParseException, JsonMappingException, IOException
     {
         if (!configuration.toString().endsWith(".yaml"))
         {
-            out.println("Configuration files need to be yaml files; got: " + configuration);
-            return EXIT_FAILURE_CONFIGURATION;
+            throw new ParameterException(spec.commandLine(), "Configuration files need to be yaml files; got: " + configuration);
         }
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -302,8 +281,6 @@ public class PerformanceTesting implements Callable<Integer>
         }
 
         configurationTests = config.getTests();
-
-        return NON_EXIT;
     }
 
     /**
@@ -312,7 +289,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @param options
      * @return whether the parsing was successful or not
      */
-    private int parseCLIOptions() throws Exception
+    private void parseCLIOptions() throws Exception
     {
         if (output != null)
         {
@@ -371,8 +348,7 @@ public class PerformanceTesting implements Callable<Integer>
 
             if (!testPath.toString().endsWith(".soar"))
             {
-                out.println("Tests need to end with .soar");
-                return EXIT_FAILURE_TEST;
+                throw new ParameterException(spec.commandLine(), "Tests need to end with .soar");
             }
 
             String testName = testPath.getFileName().toString();
@@ -395,7 +371,6 @@ public class PerformanceTesting implements Callable<Integer>
             }
         }
 
-        return NON_EXIT;
     }
 
     /**
@@ -407,7 +382,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @return Whether running the tests in child JVMs was successful
      * @throws Exception 
      */
-    private int runTestsInChildrenJVMs(
+    private void runTestsInChildrenJVMs(
             List<ConfigurationTest> tests) throws Exception
     {
         // Since we have more than one test to run, spawn a separate JVM for
@@ -449,8 +424,6 @@ public class PerformanceTesting implements Callable<Integer>
         }
 
         out.println("Performance Testing - Done");
-
-        return EXIT_SUCCESS;
     }
 
     /**
@@ -463,7 +436,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @return Whether the run was successful or not
      * @throws URISyntaxException 
      */
-    private int spawnChildJVMForTest(ConfigurationTest test, boolean jsoar) throws URISyntaxException
+    private void spawnChildJVMForTest(ConfigurationTest test, boolean jsoar) throws URISyntaxException
     {
         // Arguments to the process builder including the command to run
         List<String> arguments = new ArrayList<String>();
@@ -507,9 +480,6 @@ public class PerformanceTesting implements Callable<Integer>
         arguments.add("--nosummary");
         arguments.add("--single");
 
-        // Run the process and get the exit code
-        int exitCode = 0;
-
         if (jsoar)
         {
             arguments.add("--jsoar");
@@ -518,7 +488,7 @@ public class PerformanceTesting implements Callable<Integer>
             if (test.getTestSettings().getJsoarCoreJars() == null)
             {
                 // Default to internal representation
-                exitCode = runJVM(test, arguments);
+                runJVM(test, arguments);
             }
             else
             {
@@ -528,12 +498,9 @@ public class PerformanceTesting implements Callable<Integer>
                     List<String> argumentsPerTest = new ArrayList<>(arguments);
                     argumentsPerTest.add(path.toString());
 
-                    exitCode = runJVM(test, argumentsPerTest);
+                    runJVM(test, argumentsPerTest);
 
-                    if (exitCode != 0)
-                    {
-                        return EXIT_FAILURE_TEST;
-                    }
+                   
                 }
             }
         }
@@ -552,23 +519,10 @@ public class PerformanceTesting implements Callable<Integer>
                 List<String> argumentsPerTest = new ArrayList<>(arguments);
                 argumentsPerTest.add(path.toString());
 
-                exitCode = runJVM(test, argumentsPerTest);
-
-                if (exitCode != 0)
-                {
-                    return EXIT_FAILURE_TEST;
-                }
+                runJVM(test, argumentsPerTest);
             }
         }
 
-        if (exitCode != 0)
-        {
-            return EXIT_FAILURE_TEST;
-        }
-        else
-        {
-            return EXIT_SUCCESS;
-        }
     }
 
     /**
@@ -578,11 +532,9 @@ public class PerformanceTesting implements Callable<Integer>
      * @param arguments
      * @return whether running the child JVM was successful or not
      */
-    private int runJVM(ConfigurationTest test,
+    private void runJVM(ConfigurationTest test,
             List<String> arguments)
     {
-        int exitCode = 0;
-
         // Run the test in a new child JVM for each run
         for (int i = 1; i <= test.getTestSettings().getRunCount(); ++i)
         {
@@ -666,7 +618,9 @@ public class PerformanceTesting implements Callable<Integer>
                     errorGobbler.start();
 
                     // Wait for the process to exit and then get the exit code
-                    exitCode = process.waitFor();
+                    if(process.waitFor() != 0) {
+                        throw new RuntimeException("Child jvm exited with error");
+                    }
                     // Make sure we don't try to kill a non-existent process
                     // if we are shutdown after this.
                     currentChildProcess = null;
@@ -697,7 +651,6 @@ public class PerformanceTesting implements Callable<Integer>
             }
         }
 
-        return exitCode;
     }
 
     /**
@@ -801,7 +754,7 @@ public class PerformanceTesting implements Callable<Integer>
      * @throws CsvDataTypeMismatchException 
      * @throws SoarException 
      */
-    private int runTest(TestRunner testRunner) throws Exception
+    private void runTest(TestRunner testRunner) throws Exception
     {
         Test test = testRunner.getTest();
         TestSettings settings = test.getTestSettings();
@@ -849,8 +802,6 @@ public class PerformanceTesting implements Callable<Integer>
         out.print("\n");
 
         out.flush();
-
-        return NON_EXIT;
     }
 
 }
