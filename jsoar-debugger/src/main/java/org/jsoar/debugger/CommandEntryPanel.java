@@ -280,42 +280,49 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private void updateCompletions(String command, int cursorPosition)
     {
 
+        this.debugger.getAgent().execute(() -> {
+            String[] commands = null;
 
-
-        command = command.trim();
-        String[] commands = null;
-        if (!command.isEmpty()) {
-            CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(command);
+            String trimmedCommand = command.trim();
+            
+            if (!trimmedCommand.isEmpty()) {
+                
+            CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(trimmedCommand);
             if (commandLine == null) {
-                commands = debugger.getAgent().getInterpreter().getCompletionList(command, cursorPosition);
+                commands = debugger.getAgent().getInterpreter().getCompletionList(trimmedCommand, cursorPosition);
             } else {
-                commands = SoarCommandCompletion.complete(commandLine, command, cursorPosition);
+                commands = SoarCommandCompletion.complete(commandLine, trimmedCommand, cursorPosition);
             }
+            
+            final String[] finalCommands = commands;
+            
+            SwingUtilities.invokeLater( () -> {
+                if (finalCommands != null && finalCommands.length > 0) {
+                    try {
+                        completions.setVisible(true);
+                        completionsList.setListData(finalCommands);
+                        completionsScrollPane.doLayout();
+                        Point location = field.getLocationOnScreen();
+                        int yLoc = location.y + field.getHeight();
+                        completions.setBounds(location.x, yLoc, 200, 100);
+                        completions.toFront();
+                        completionsList.setToolTipText("");
+                        completionsShowing = true;
 
-            if (commands != null && commands.length > 0) {
-                try {
-                    completions.setVisible(true);
-                    completionsList.setListData(commands);
-                    completionsScrollPane.doLayout();
-                    Point location = field.getLocationOnScreen();
-                    int yLoc = location.y + field.getHeight();
-                    completions.setBounds(location.x, yLoc, 200, 100);
-                    completions.toFront();
-                    completionsList.setToolTipText("");
-                    completionsShowing = true;
-
-                    showHelpTooltip(commandLine);
-                } catch (Exception e) {
-
-                }
-            } else {
-                completions.setVisible(false);
-                if (tooltipPopup != null) {
-                    tooltipPopup.hide();
-                    tooltipPopup = null;
-                }
+                        showHelpTooltip(commandLine);
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                } else {
+                    completions.setVisible(false);
+                    if (tooltipPopup != null) {
+                        tooltipPopup.hide();
+                        tooltipPopup = null;
+                    }
+                }});
             }
-        }
+            return null;
+        }, null);
     }
 
     private void showHelpTooltip(CommandLine commandLine)
