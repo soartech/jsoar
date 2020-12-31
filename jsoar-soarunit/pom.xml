@@ -82,7 +82,7 @@
         <dependency>
             <groupId>edu.umich.soar</groupId>
             <artifactId>sml</artifactId>
-            <version>9.3.2</version>
+            <version>9.6.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -95,4 +95,15 @@
             <version>4.13.1</version>
         </dependency>
     </dependencies>
+    
+    <!-- local repo for sml dependencies -->
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.baseUri}/sml-setup/repo</url>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+            </releases>
+        </repository>
+    </repositories>
 </project>
