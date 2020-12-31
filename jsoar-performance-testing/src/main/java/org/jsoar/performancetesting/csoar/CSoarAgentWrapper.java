@@ -1,5 +1,7 @@
 package org.jsoar.performancetesting.csoar;
 
+import java.nio.file.Path;
+
 /**
  * This is a wrapper class around the functions used by the test to allow for
  * CSoar at-runtime dependency resolution.
@@ -9,7 +11,7 @@ package org.jsoar.performancetesting.csoar;
  */
 public interface CSoarAgentWrapper
 {
-    boolean LoadProductions(String file);
+    boolean LoadProductions(Path file);
 
     String RunSelfForever();
 

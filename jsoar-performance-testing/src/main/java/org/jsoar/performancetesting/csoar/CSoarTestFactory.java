@@ -3,9 +3,12 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * This creates instantiations of CSoar tests.
@@ -15,33 +18,24 @@ import org.jsoar.performancetesting.TestSettings;
  */
 public class CSoarTestFactory implements TestFactory
 {
-    private String label;
-
-    private String csoarDirectory;
+    private Path csoarDirectory;
 
     public CSoarTestFactory()
     {
-        this.label = new String();
-        this.csoarDirectory = new String();
+        this.csoarDirectory = Paths.get("");
     }
 
-    public CSoarTestFactory(String label, String csoarDirectory)
+    public CSoarTestFactory(Path csoarDirectory)
     {
-        this.label = label;
         this.csoarDirectory = csoarDirectory;
     }
 
-    public void setLabel(String label)
+    public Path getSoarPath()
     {
-        this.label = label;
+        return csoarDirectory;
     }
 
-    public String getLabel()
-    {
-        return label;
-    }
-
-    public void setCSoarDirectory(String csoarDirectory)
+    public void setCSoarDirectory(Path csoarDirectory)
     {
         this.csoarDirectory = csoarDirectory;
     }
@@ -58,10 +52,10 @@ public class CSoarTestFactory implements TestFactory
      *         errors if it didn't load properly.)
      */
     @Override
-    public Test createTest(String testName, String testFile,
-            TestSettings settings)
+    public Test createTest(String testName, Path testFile,
+            TestSettings settings) throws Exception
     {
-        CSoarTest csoarTest = new CSoarTest(label, csoarDirectory);
+        CSoarTest csoarTest = new CSoarTest(csoarDirectory);
 
         csoarTest.initialize(testName, testFile, settings);
 

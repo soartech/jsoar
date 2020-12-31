@@ -3,12 +3,14 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.performancetesting.Test;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A CSoar Test. This class is used to launch and run all CSoar tests.
@@ -20,7 +22,7 @@ public class CSoarTest implements Test
 {
     private String testName;
 
-    private String testFile;
+    private Path testFile;
 
     private TestSettings settings = null;
 
@@ -38,7 +40,7 @@ public class CSoarTest implements Test
 
     private long memoryForRun;
 
-    public CSoarTest(String label, String csoarDirectory)
+    public CSoarTest(Path csoarDirectory) throws Exception
     {
         this.agent = null;
         this.kernel = null;
@@ -48,7 +50,7 @@ public class CSoarTest implements Test
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
 
-        this.kernelFactory = new CSoarKernelFactory(label, csoarDirectory);
+        this.kernelFactory = new CSoarKernelFactory(csoarDirectory);
     }
 
     /*
@@ -58,16 +60,21 @@ public class CSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile,
+    public void initialize(String testName, Path testFile,
             TestSettings settings)
     {
         this.testName = testName;
-        this.testFile = testFile;
+        this.testFile = testFile.toAbsolutePath();
         this.settings = settings;
 
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
     }
 
+    @Override
+    public Path getSoarPath() {
+        return this.kernelFactory.getSoarPath();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -85,7 +92,7 @@ public class CSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#getTestFile()
      */
     @Override
-    public String getTestFile()
+    public Path getTestFile()
     {
         return testFile;
     }
@@ -104,7 +111,7 @@ public class CSoarTest implements Test
         if (agent.LoadProductions(testFile) == false)
         {
             agent.ExecuteCommandLine("excise --all");
-            System.err.println(agent.ExecuteCommandLine("source " + testFile));
+            System.err.println(agent.ExecuteCommandLine("source " + testFile.toString().replace(File.separatorChar, '/')));
             System.err.println("\n" + "ERROR: Failed to load " + testFile);
             return false;
         }
@@ -114,7 +121,7 @@ public class CSoarTest implements Test
             agent.ExecuteCommandLine("srand " + settings.getSeed());
         }
 
-        agent.ExecuteCommandLine("set-stop-phase -o");
+        agent.ExecuteCommandLine("soar stop-phase output");
 
         if (settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)
@@ -382,10 +389,10 @@ public class CSoarTest implements Test
     /*
      * (non-Javadoc)
      * 
-     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     * @see org.jsoar.performancetesting.Test#getSoarVariant()
      */
     @Override
-    public String getDisplayName()
+    public String getSoarVariant()
     {
         return "CSoar";
     }

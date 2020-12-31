@@ -3,12 +3,15 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.performancetesting.Test;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
@@ -23,7 +26,7 @@ public class JSoarTest implements Test
 {
     private String testName;
 
-    private String testFile;
+    private Path testFile;
 
     private Agent agent;
 
@@ -38,12 +41,14 @@ public class JSoarTest implements Test
     private TestSettings settings;
 
     private JSoarAgentFactory agentFactory;
-
+    
     /**
      * Sets all the values used in the test to be impossible values so we know
      * if something failed horribly.
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
      */
-    public JSoarTest(String label, String jsoarDirectory)
+    public JSoarTest(Path jsoarCoreJar) throws MalformedURLException, ClassNotFoundException
     {
         this.agent = null;
 
@@ -52,7 +57,7 @@ public class JSoarTest implements Test
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
 
-        this.agentFactory = new JSoarAgentFactory(label, jsoarDirectory);
+        this.agentFactory = new JSoarAgentFactory(jsoarCoreJar);
     }
 
     /*
@@ -62,7 +67,7 @@ public class JSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile,
+    public void initialize(String testName, Path testFile,
             TestSettings settings)
     {
         this.testName = testName;
@@ -70,6 +75,11 @@ public class JSoarTest implements Test
         this.settings = settings;
     }
 
+    @Override
+    public Path getSoarPath() {
+        return this.agentFactory.getSoarPath();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -87,7 +97,7 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#getTestFile()
      */
     @Override
-    public String getTestFile()
+    public Path getTestFile()
     {
         return testFile;
     }
@@ -124,7 +134,7 @@ public class JSoarTest implements Test
             ifc.eval("srand " + settings.getSeed());
         }
 
-        ifc.eval("set-stop-phase -o");
+        ifc.eval("soar stop-phase output");
 
         if (settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)
@@ -212,10 +222,10 @@ public class JSoarTest implements Test
     /*
      * (non-Javadoc)
      * 
-     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     * @see org.jsoar.performancetesting.Test#getSoarVariant()
      */
     @Override
-    public String getDisplayName()
+    public String getSoarVariant()
     {
         return "JSoar";
     }

@@ -3,9 +3,12 @@
  */
 package org.jsoar.performancetesting.jsoar;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
-import org.jsoar.performancetesting.TestSettings;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A class to create instantiations of JSoar tests.
@@ -15,35 +18,16 @@ import org.jsoar.performancetesting.TestSettings;
  */
 public class JSoarTestFactory implements TestFactory
 {
-    private String label;
+    private Path jsoarCoreJar;
 
-    private String jsoarDirectory;
-
-    public JSoarTestFactory()
+    public Path getSoarPath()
     {
-        this.label = new String();
-        this.jsoarDirectory = new String();
+        return jsoarCoreJar;
     }
 
-    public JSoarTestFactory(String label, String jsoarDirectory)
+    public void setJsoarCoreJar(Path jsoarCoreJar)
     {
-        this.label = label;
-        this.jsoarDirectory = jsoarDirectory;
-    }
-
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-
-    public String getLabel()
-    {
-        return label;
-    }
-
-    public void setJSoarDirectory(String jsoarDirectory)
-    {
-        this.jsoarDirectory = jsoarDirectory;
+        this.jsoarCoreJar = jsoarCoreJar;
     }
 
     /**
@@ -55,12 +39,14 @@ public class JSoarTestFactory implements TestFactory
      * @param testFile
      * @param settings
      * @return A new and initialized JSoar test.
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
      */
     @Override
-    public Test createTest(String testName, String testFile,
-            TestSettings settings)
+    public Test createTest(String testName, Path testFile,
+            TestSettings settings) throws MalformedURLException, ClassNotFoundException
     {
-        JSoarTest jsoarTest = new JSoarTest(label, jsoarDirectory);
+        JSoarTest jsoarTest = new JSoarTest(jsoarCoreJar);
 
         jsoarTest.initialize(testName, testFile, settings);
 

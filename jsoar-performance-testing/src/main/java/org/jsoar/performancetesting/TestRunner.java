@@ -4,10 +4,9 @@
 package org.jsoar.performancetesting;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A class for running tests. This can run both CSoar and JSoar tests and
@@ -22,23 +21,14 @@ public class TestRunner
 
     private Test test;
 
-    private List<Double> cpuTimes;
-
-    private List<Double> kernelTimes;
-
-    private List<Double> decisionCycles;
-
-    private List<Double> memoryLoads;
+    private RawResults rawResults = new RawResults();
+    private Results results;
 
     public TestRunner(Test test, PrintWriter out)
     {
         this.test = test;
+        this.results = new Results(test);
         this.out = out;
-
-        cpuTimes = new ArrayList<Double>();
-        kernelTimes = new ArrayList<Double>();
-        decisionCycles = new ArrayList<Double>();
-        memoryLoads = new ArrayList<Double>();
     }
 
     /**
@@ -55,12 +45,12 @@ public class TestRunner
 
         boolean result = test.run(runCount);
 
-        cpuTimes.add(test.getCPURunTime());
-        kernelTimes.add(test.getKernelRunTime());
+        rawResults.cpuTimes.add(test.getCPURunTime());
+        rawResults.kernelTimes.add(test.getKernelRunTime());
 
-        decisionCycles.add(new Double(test.getDecisionCyclesRunFor()));
+        rawResults.decisionCycles.add(test.getDecisionCyclesRunFor());
 
-        memoryLoads.add(new Double(test.getMemoryForRun()));
+        rawResults.memoryLoads.add(test.getMemoryForRun());
 
         return result;
     }
@@ -77,7 +67,7 @@ public class TestRunner
      */
     boolean runTestsForAverage(TestSettings settings) throws SoarException
     {
-        if (settings.isJSoarEnabled() && settings.getWarmUpCount() > 0)
+        if (settings.isJsoarEnabled() && settings.getWarmUpCount() > 0)
         {
             out.print("Warming Up: ");
             out.flush();
@@ -120,163 +110,19 @@ public class TestRunner
 
     /**
      * 
-     * @return the total CPU time for all the runs.
-     */
-    public double getTotalCPUTime()
-    {
-        return Statistics.calculateTotal(cpuTimes);
-    }
-
-    /**
-     * 
-     * @return the total kernel time for all the runs.
-     */
-    public double getTotalKernelTime()
-    {
-        return Statistics.calculateTotal(kernelTimes);
-    }
-
-    /**
-     * 
-     * @return the total decision cycles run for, for all the runs.
-     */
-    public double getTotalDecisionCycles()
-    {
-        return Statistics.calculateTotal(decisionCycles);
-    }
-
-    /**
-     * 
-     * @return the total memory load for all the runs.
-     */
-    public double getTotalMemoryLoad()
-    {
-        return Statistics.calculateTotal(memoryLoads);
-    }
-
-    /**
-     * 
-     * @return the average cpu time for all the runs.
-     */
-    public double getAverageCPUTime()
-    {
-        return Statistics.calculateAverage(cpuTimes);
-    }
-
-    /**
-     * 
-     * @return the median cpu time for all the runs.
-     */
-    public double getMedianCPUTime()
-    {
-        return Statistics.calculateMedian(cpuTimes);
-    }
-
-    /**
-     * 
-     * @return the average kernel time for all the runs.
-     */
-    public double getAverageKernelTime()
-    {
-        return Statistics.calculateAverage(kernelTimes);
-    }
-
-    /**
-     * 
-     * @return the median kernel time for all the runs.
-     */
-    public double getMedianKernelTime()
-    {
-        return Statistics.calculateMedian(kernelTimes);
-    }
-
-    /**
-     * 
-     * @return the average decision cycles over all the runs.
-     */
-    public double getAverageDecisionCycles()
-    {
-        return Statistics.calculateAverage(decisionCycles);
-    }
-
-    /**
-     * 
-     * @return the median decision cycles over all the runs.
-     */
-    public double getMedianDecisionCycles()
-    {
-        return Statistics.calculateMedian(decisionCycles);
-    }
-
-    /**
-     * 
-     * @return the average memory load for all the runs.
-     */
-    public double getAverageMemoryLoad()
-    {
-        return Statistics.calculateAverage(memoryLoads);
-    }
-
-    /**
-     * 
-     * @return the median memory load for all the runs.
-     */
-    public double getMedianMemoryLoad()
-    {
-        return Statistics.calculateMedian(memoryLoads);
-    }
-
-    /**
-     * 
-     * @return the total memory load deviation.
-     */
-    public double getMemoryLoadDeviation()
-    {
-        return Statistics.calculateDeviation(memoryLoads);
-    }
-
-    /**
-     * 
      * @return the test this test runner was running.
      */
     public Test getTest()
     {
         return test;
     }
-
-    /**
-     * 
-     * @return all the cpu times for the runs.
-     */
-    public List<Double> getAllCPUTimes()
-    {
-        return cpuTimes;
+    
+    public RawResults getRawResults() {
+        return rawResults;
     }
 
-    /**
-     * 
-     * @return all the kernel times for the runs.
-     */
-    public List<Double> getAllKernelTimes()
-    {
-        return kernelTimes;
-    }
-
-    /**
-     * 
-     * @return all the decision cycle counts for the runs.
-     */
-    public List<Double> getAllDecisionCycles()
-    {
-        return decisionCycles;
-    }
-
-    /**
-     * 
-     * @return all the memory loads for the runs.
-     */
-    public List<Double> getAllMemoryLoads()
-    {
-        return memoryLoads;
+    public Results getResults() {
+        results.updateStats(rawResults);
+        return results;
     }
 }

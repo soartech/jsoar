@@ -3,8 +3,10 @@
  */
 package org.jsoar.performancetesting.csoar;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 
 /**
  * This is the implementation of a loaded CSoar sml.Agent class around the
@@ -85,11 +87,12 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
      * java.lang.String)
      */
     @Override
-    public boolean LoadProductions(String file)
+    public boolean LoadProductions(Path file)
     {
         try
         {
-            return (boolean) loadProductions.invoke(agentImpl, file);
+            String path = file.toString().replace(File.separatorChar, '/');
+            return (boolean) loadProductions.invoke(agentImpl, path);
         }
         catch (IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)

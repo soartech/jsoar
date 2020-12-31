@@ -7,6 +7,6 @@
 #smem -s learning on
 #smem -s timers two
 #epmem -s learning on
-wait -d
+#wait -d
 
 
