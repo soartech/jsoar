@@ -1,0 +1,84 @@
+<configuration>
+    <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmssSSS" />
+
+    <!--
+    This block sets up logging to a timestamped file.
+    
+    We really only care about the FileAppender, but if we only specify that
+    and we comment out logging to a file in the <root> below, then an empty file still
+    gets created. By wrapping it in the SiftingAppender, the file doesn't get created
+    until the first logging event, so if logging to a file is commented out we avoid
+    getting an empty file
+     -->
+    <appender name="FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator class="ch.qos.logback.classic.sift.JNDIBasedContextDiscriminator">
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILEINTERNAL" class="ch.qos.logback.core.FileAppender">
+                <file>logs/pulse-${bySecond}.log</file>
+                <append>true</append>
+                <encoder>
+                    <pattern>[%-5level] [%date{ISO8601}] [%thread] [%logger{1}] %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+    
+    <!--
+    These blocks log warn and error to std error, and everything else to stdout.
+    This is nice because many IDEs/consoles print stderr in red, which makes warn and error
+    messages stand out.
+    -->
+
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <encoder>
+            <pattern>[%-5level] [%date{ISO8601}] [%thread] [%logger{1}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>TRACE</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <encoder>
+            <pattern>[%-5level] [%date{ISO8601}] [%thread] [%logger{1}] %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- package/logger specific log levels -->
+    <logger name="org.apache.commons.beanutils" level="warn" />
+    <logger name="org.jsoar.runtime.ThreadedAgentTest" level="debug" />
+
+    <!--
+    Default log level and appenders to use.
+    Uncomment the FILE appender-ref to log to a file.
+     -->
+    <root level="WARN">
+        <!-- <appender-ref ref="FILE" />  -->
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDERR" />
+    </root>
+</configuration>

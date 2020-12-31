@@ -1,1 +1,0 @@
-This folder is a placeholder for additional database driver jars used during development.
