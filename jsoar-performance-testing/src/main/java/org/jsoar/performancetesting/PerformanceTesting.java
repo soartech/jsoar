@@ -107,8 +107,8 @@ public class PerformanceTesting implements Callable<Integer>
     @Option(names = {"-n", "--name"}, description = "Used in conjunction with -T; specifies the test's name.")
     String name = "";
     
-    @Option(names = {"-N", "--nosummary"}, defaultValue = "true", description = "Don't output results to a summary file.")
-    boolean outputToSummaryFile;
+    @Option(names = {"-N", "--nosummary"}, defaultValue = "false", description = "Don't output results to a summary file.")
+    boolean nosummary;
     
     @Option(names = {"-S", "--single"}, hidden = true, description = "Used internally when spawning child JVMs")
     boolean singleTest = false;
@@ -834,7 +834,7 @@ public class PerformanceTesting implements Callable<Integer>
                 beanToCsv.write(testRunner.getResults());
             }
 
-            if (outputToSummaryFile)
+            if (!nosummary)
             {
                 finalPath = settings.getCsvDirectory().resolve(settings.getSummaryFile());
                 newFile = !Files.exists(finalPath);
