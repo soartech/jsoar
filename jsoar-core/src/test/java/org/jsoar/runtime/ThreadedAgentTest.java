@@ -153,6 +153,7 @@ public class ThreadedAgentTest
             }}, 10000, TimeUnit.MILLISECONDS);
         
         assertEquals("success", result);
+        logger.info("Success!");
     }
     
     @Test(timeout=5000)
@@ -191,6 +192,8 @@ public class ThreadedAgentTest
                 signal.wait();
             }
         }
+        
+        logger.info("Success!");
     }
     
     /*
@@ -234,6 +237,7 @@ public class ThreadedAgentTest
         // Make sure the agents are running
         for (ThreadedAgent ta : agents)
         {
+            logger.debug("Checking that agent is running: {}", ta.getName());
             assertTrue("A ThreadedAgent failed to start.", ta.isRunning());
         }
 
@@ -242,10 +246,12 @@ public class ThreadedAgentTest
         Thread.sleep(500);
 
         // Stop the threads in a random order
+        logger.debug("Shuffling agents");
         Collections.shuffle(agents, rand);
         // Stop the threads
         for (ThreadedAgent ta : agents)
         {
+            logger.debug("Stopping agent: {}", ta.getName());
             ta.stop();
         }
 
