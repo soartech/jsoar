@@ -23,11 +23,13 @@ public interface Test
      * 
      * @param testName
      * @param testFile
-     * @param decisionCycles
+     * @param settings
      */
     public void initialize(String testName, Path testFile,
             TestSettings settings);
 
+    public Path getSoarPath();
+    
     /**
      * 
      * @return a test's name
@@ -60,7 +62,7 @@ public interface Test
      * 
      * @return the display name for the test, either 'JSoar' or 'CSoar'.
      */
-    public String getDisplayName();
+    public String getSoarVariant();
 
     /**
      * Gets the time in seconds that the test ran for on the CPU (total). This

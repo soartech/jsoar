@@ -20,16 +20,16 @@ public class JSoarAgentFactory
 {
     private static Class<?> agent;
 
-    private static String label;
+    private static Path jsoarCorePath;
 
     private static boolean initialized = false;
 
-    JSoarAgentFactory(String newLabel, Path jsoarCorePath) throws MalformedURLException, ClassNotFoundException
+    JSoarAgentFactory(Path jsoarCorePath) throws MalformedURLException, ClassNotFoundException
     {
         if (initialized)
             return;
 
-        label = newLabel;
+        JSoarAgentFactory.jsoarCorePath = jsoarCorePath;
 
 
         if(!Files.exists(jsoarCorePath))
@@ -58,9 +58,9 @@ public class JSoarAgentFactory
      *         JSoar this will be 'JSoar X' where X is the label in the
      *         configuration file.
      */
-    String getLabel()
+    Path getSoarPath()
     {
-        return label;
+        return jsoarCorePath;
     }
 
     Object newAgent(String agentLabel)

@@ -18,30 +18,21 @@ import org.jsoar.performancetesting.yaml.TestSettings;
  */
 public class CSoarTestFactory implements TestFactory
 {
-    private String label;
-
     private Path csoarDirectory;
 
     public CSoarTestFactory()
     {
-        this.label = new String();
         this.csoarDirectory = Paths.get("");
     }
 
-    public CSoarTestFactory(String label, Path csoarDirectory)
+    public CSoarTestFactory(Path csoarDirectory)
     {
-        this.label = label;
         this.csoarDirectory = csoarDirectory;
     }
 
-    public void setLabel(String label)
+    public Path getSoarPath()
     {
-        this.label = label;
-    }
-
-    public String getLabel()
-    {
-        return label;
+        return csoarDirectory;
     }
 
     public void setCSoarDirectory(Path csoarDirectory)
@@ -64,7 +55,7 @@ public class CSoarTestFactory implements TestFactory
     public Test createTest(String testName, Path testFile,
             TestSettings settings) throws Exception
     {
-        CSoarTest csoarTest = new CSoarTest(label, csoarDirectory);
+        CSoarTest csoarTest = new CSoarTest(csoarDirectory);
 
         csoarTest.initialize(testName, testFile, settings);
 

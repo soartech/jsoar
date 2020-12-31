@@ -40,7 +40,7 @@ public class CSoarTest implements Test
 
     private long memoryForRun;
 
-    public CSoarTest(String label, Path csoarDirectory) throws Exception
+    public CSoarTest(Path csoarDirectory) throws Exception
     {
         this.agent = null;
         this.kernel = null;
@@ -50,7 +50,7 @@ public class CSoarTest implements Test
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
 
-        this.kernelFactory = new CSoarKernelFactory(label, csoarDirectory);
+        this.kernelFactory = new CSoarKernelFactory(csoarDirectory);
     }
 
     /*
@@ -70,6 +70,11 @@ public class CSoarTest implements Test
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
     }
 
+    @Override
+    public Path getSoarPath() {
+        return this.kernelFactory.getSoarPath();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -384,10 +389,10 @@ public class CSoarTest implements Test
     /*
      * (non-Javadoc)
      * 
-     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     * @see org.jsoar.performancetesting.Test#getSoarVariant()
      */
     @Override
-    public String getDisplayName()
+    public String getSoarVariant()
     {
         return "CSoar";
     }

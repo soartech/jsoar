@@ -27,16 +27,16 @@ public class CSoarKernelFactory
 
     private static Class<?> agent;
 
-    private static String label;
+    private static Path csoarDirectory;
 
     private static boolean initialized = false;
 
-    CSoarKernelFactory(String newLabel, Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
+    CSoarKernelFactory(Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         if (initialized)
             return;
 
-        label = newLabel;
+        CSoarKernelFactory.csoarDirectory = csoarDirectory;
 
         List<Path> smlPath = getPathToSml(csoarDirectory);
         if (smlPath.size() == 0)
@@ -196,9 +196,9 @@ public class CSoarKernelFactory
      *         CSoar this will be 'CSoar X' where X is the label in the
      *         configuration file.
      */
-    String getLabel()
+    Path getSoarPath()
     {
-        return label;
+        return csoarDirectory;
     }
 
     private List<Path> getPathToSml(Path csoarDirectory)

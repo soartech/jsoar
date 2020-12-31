@@ -18,23 +18,11 @@ import org.jsoar.performancetesting.yaml.TestSettings;
  */
 public class JSoarTestFactory implements TestFactory
 {
-    private String label;
-
     private Path jsoarCoreJar;
 
-    public JSoarTestFactory()
+    public Path getSoarPath()
     {
-        this.label = new String();
-    }
-
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-
-    public String getLabel()
-    {
-        return label;
+        return jsoarCoreJar;
     }
 
     public void setJsoarCoreJar(Path jsoarCoreJar)
@@ -58,7 +46,7 @@ public class JSoarTestFactory implements TestFactory
     public Test createTest(String testName, Path testFile,
             TestSettings settings) throws MalformedURLException, ClassNotFoundException
     {
-        JSoarTest jsoarTest = new JSoarTest(label, jsoarCoreJar);
+        JSoarTest jsoarTest = new JSoarTest(jsoarCoreJar);
 
         jsoarTest.initialize(testName, testFile, settings);
 

@@ -41,14 +41,14 @@ public class JSoarTest implements Test
     private TestSettings settings;
 
     private JSoarAgentFactory agentFactory;
-
+    
     /**
      * Sets all the values used in the test to be impossible values so we know
      * if something failed horribly.
      * @throws ClassNotFoundException 
      * @throws MalformedURLException 
      */
-    public JSoarTest(String label, Path jsoarCoreJar) throws MalformedURLException, ClassNotFoundException
+    public JSoarTest(Path jsoarCoreJar) throws MalformedURLException, ClassNotFoundException
     {
         this.agent = null;
 
@@ -57,7 +57,7 @@ public class JSoarTest implements Test
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
 
-        this.agentFactory = new JSoarAgentFactory(label, jsoarCoreJar);
+        this.agentFactory = new JSoarAgentFactory(jsoarCoreJar);
     }
 
     /*
@@ -75,6 +75,11 @@ public class JSoarTest implements Test
         this.settings = settings;
     }
 
+    @Override
+    public Path getSoarPath() {
+        return this.agentFactory.getSoarPath();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -217,10 +222,10 @@ public class JSoarTest implements Test
     /*
      * (non-Javadoc)
      * 
-     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     * @see org.jsoar.performancetesting.Test#getSoarVariant()
      */
     @Override
-    public String getDisplayName()
+    public String getSoarVariant()
     {
         return "JSoar";
     }
