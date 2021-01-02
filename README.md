@@ -8,6 +8,8 @@
 [![javadoc-jsoar-soar2soar](https://img.shields.io/badge/javadoc-jsoar--soar2soar-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soar2soar) 
 [![javadoc-jsoar-demos](https://img.shields.io/badge/javadoc-jsoar--demos-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-demos) 
 
+![Maven Build](https://github.com/soartech/jsoar/workflows/Maven%20Build/badge.svg)
+
 JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](https://github.com/soartech/jsoar/wiki) for more information. The [User's Guide](https://github.com/soartech/jsoar/wiki/JSoarUsersGuide) is a good place to start.
 
 ## Obtaining JSoar ##
