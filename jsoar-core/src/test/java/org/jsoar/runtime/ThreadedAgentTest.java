@@ -30,7 +30,11 @@ import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.runner.Description;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,17 @@ public class ThreadedAgentTest
     private static final Logger logger = LoggerFactory.getLogger(ThreadedAgentTest.class);
     
     private final List<SoarEventListener> listeners = new ArrayList<SoarEventListener>();
+    
+    @Rule
+    public TestRule watcher = new TestWatcher() {
+       protected void starting(Description description) {
+          logger.debug("Starting test: {}", description.getMethodName());
+       }
+       
+       protected void finished(Description description) {
+           logger.debug("Finished test: {}", description.getMethodName());
+        }
+    };
     
     /**
      * @throws java.lang.Exception
@@ -153,7 +168,6 @@ public class ThreadedAgentTest
             }}, 10000, TimeUnit.MILLISECONDS);
         
         assertEquals("success", result);
-        logger.info("Success!");
     }
     
     @Test(timeout=5000)
@@ -193,7 +207,6 @@ public class ThreadedAgentTest
             }
         }
         
-        logger.info("Success!");
     }
     
     /*
