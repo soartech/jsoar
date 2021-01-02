@@ -280,16 +280,15 @@ public class ThreadedAgentTest
             while (iter.hasNext())
             {
                 ThreadedAgent ta = iter.next();
-                logger.debug("Waiting for agent to stop: {}", ta.getName());
                 // If the agent successfully stopped, remove it from the list
                 if (!ta.isRunning())
                 {
+                    logger.debug("Cleaning up stopped agent: {}", ta.getName());
                     ta.dispose();
                     iter.remove();
                 }
             }
         }
-        logger.debug("Test complete");
         // If we got here, there were not any critical issues
     }
 }
