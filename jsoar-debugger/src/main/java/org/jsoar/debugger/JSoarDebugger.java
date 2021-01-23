@@ -45,6 +45,7 @@ import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.GarbageCollectorAction;
 import org.jsoar.debugger.actions.InitSoarAction;
+import org.jsoar.debugger.actions.MatchesProductionAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.SetBreakpointAction;
@@ -529,6 +530,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new EditProductionAction(actionManager);
         new RestoreLayoutAction(actionManager);
         new StopCommandAction(actionManager);
+        new MatchesProductionAction(actionManager, false);
+        new MatchesProductionAction(actionManager, true);
     }
 
     @SuppressWarnings("serial")
