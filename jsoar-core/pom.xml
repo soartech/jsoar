@@ -9,7 +9,7 @@
     <artifactId>jsoar-core</artifactId>
     
     <properties>
-        <graalvm.version>20.3.0</graalvm.version>
+        <graalvm.version>21.0.0</graalvm.version>
     </properties>
 
     <dependencies>
