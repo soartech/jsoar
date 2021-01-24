@@ -5,18 +5,41 @@
  */
 package org.jsoar.debugger;
 
-import org.jdesktop.swingx.JXComboBox;
-import org.jsoar.util.commands.SoarCommandCompletion;
-import picocli.CommandLine;
+import java.awt.AWTKeyStroke;
+import java.awt.BorderLayout;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JToolTip;
+import javax.swing.JWindow;
+import javax.swing.KeyStroke;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Collections;
-import java.util.prefs.Preferences;
+
+import org.jdesktop.swingx.JXComboBox;
+import org.jsoar.util.commands.SoarCommandCompletion;
+
+import picocli.CommandLine;
 
 /**
  * A panel with a command entry field and history.
@@ -246,15 +269,21 @@ public class CommandEntryPanel extends JPanel implements Disposable
         completionsList.setSelectedIndex(selectedIndex);
         completionsList.ensureIndexIsVisible(selectedIndex);
         String command = completionsList.getSelectedValue();
-        CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(command);
-        if (commandLine == null){
-            if (tooltipPopup != null){
-                tooltipPopup.hide();
-                tooltipPopup = null;
-            }
-        } else {
-            showHelpTooltip(commandLine);
-        }
+        debugger.getAgent().execute(() -> {
+            return debugger.getAgent().getInterpreter().findCommand(command);
+        }, commandLine -> {
+            SwingUtilities.invokeLater(() -> {
+                if (commandLine == null){
+                    if (tooltipPopup != null){
+                        tooltipPopup.hide();
+                        tooltipPopup = null;
+                    }
+                } else {
+                    showHelpTooltip(commandLine);
+                }
+            });
+        });
+        
     }
 
     private void updateCompletionsDelay(String command, int cursorPosition){
@@ -279,7 +308,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private void updateCompletions(String command, int cursorPosition)
     {
-
         this.debugger.getAgent().execute(() -> {
             String[] commands = null;
 
@@ -346,9 +374,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
 
-
-
-
     private void hideCompletions()
     {
         if (completionsShowing) {
@@ -360,8 +385,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
             tooltipPopup = null;
         }
     }
-
-
 
     public void giveFocus()
     {
@@ -403,7 +426,11 @@ public class CommandEntryPanel extends JPanel implements Disposable
     {
         final String command = field.getEditor().getItem().toString().trim();
         if (command.length() > 0) {
-            debugger.getAgent().execute(new CommandLineRunnable(debugger, command), null);
+            debugger.getAgent().execute(() -> {
+                debugger.getAgent().execute(new CommandLineRunnable(debugger, command), null);
+                return null;
+            }, null);
+            
             addCommand(command);
         }
     }
@@ -417,36 +444,46 @@ public class CommandEntryPanel extends JPanel implements Disposable
         field.getEditor().selectAll();
     }
 
-
     private String getHelp(CommandLine commandLine)
     {
         if (commandLine != null) {
-            CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), commandLine.getColorScheme());
-            StringBuilder helpBuilder = new StringBuilder()
-                    .append("<html>")
-                    .append("<b>Usage:</b>")
-                    .append("<br>")
-                    .append(help.abbreviatedSynopsis())
-                    .append("<br>")
-                    .append("<b>Description</b>")
-                    .append("<br>")
-                    .append(help.description())
-                    .append("<br>");
-            if (!help.parameterList().isEmpty()) {
-                helpBuilder.append("<b>Parameters:</b>")
-                           .append("<br>")
-                           .append(help.parameterList().replaceAll("\n", "<br>"))
-                           .append("<br>");
+            StringBuilder helpBuilder = new StringBuilder();
+            try
+            {
+                debugger.getAgent().executeAndWait(() -> {
+                    CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), commandLine.getColorScheme());
+                    helpBuilder
+                            .append("<html>")
+                            .append("<b>Usage:</b>")
+                            .append("<br>")
+                            .append(help.abbreviatedSynopsis())
+                            .append("<br>")
+                            .append("<b>Description</b>")
+                            .append("<br>")
+                            .append(help.description())
+                            .append("<br>");
+                    if (!help.parameterList().isEmpty()) {
+                        helpBuilder.append("<b>Parameters:</b>")
+                                   .append("<br>")
+                                   .append(help.parameterList().replaceAll("\n", "<br>"))
+                                   .append("<br>");
+                    }
+                    helpBuilder.append("<b>Options:</b>")
+                               .append("<br>")
+                               .append(help.optionList().replaceAll("\n", "<br>"))
+                               .append("<b>Commands:</b>")
+                               .append("<br>")
+                               .append(help.commandList().replaceAll("\n", "<br>"))
+                               .append("</html>");
+                    return null;
+                }, Long.MAX_VALUE, TimeUnit.DAYS);
             }
-            helpBuilder.append("<b>Options:</b>")
-                       .append("<br>")
-                       .append(help.optionList().replaceAll("\n", "<br>"))
-                       .append("<b>Commands:</b>")
-                       .append("<br>")
-                       .append(help.commandList().replaceAll("\n", "<br>"))
-                       .append("</html>");
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+            
             return helpBuilder.toString();
-
         }
         return "";
     }
