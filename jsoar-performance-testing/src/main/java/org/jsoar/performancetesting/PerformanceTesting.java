@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.csoar.CSoarTestFactory;
 import org.jsoar.performancetesting.jsoar.JSoarTestFactory;
 import org.jsoar.performancetesting.yaml.Configuration;
@@ -34,8 +33,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import io.github.classgraph.ClassGraph;
 import picocli.CommandLine;
@@ -147,16 +144,6 @@ public class PerformanceTesting implements Runnable
         this.csoarTestFactory = new CSoarTestFactory();
     }
 
-    /**
-     * 
-     * @param args
-     * @return Whether performance testing was successful or not.
-     * @throws URISyntaxException 
-     * @throws IOException 
-     * @throws JsonMappingException 
-     * @throws JsonParseException 
-     * @throws ClassNotFoundException 
-     */
     public void run()
     {
         try {
@@ -228,15 +215,6 @@ public class PerformanceTesting implements Runnable
 
     /**
      * Parses the CLI and Configuration Options
-     * 
-     * @param args
-     * @return whether the parsing was successful or not
-     * @throws IOException 
-     * @throws JsonMappingException 
-     * @throws JsonParseException 
-     * @throws ClassNotFoundException 
-     * @throws NoSuchFieldException 
-     * @throws IllegalAccessException 
      */
     private void parseOptions() throws Exception
     {
@@ -256,8 +234,7 @@ public class PerformanceTesting implements Runnable
      * Parse a configuration file from a given options processor. This will do
      * any validity checks on the configuration file as well.
      * 
-     * @param options
-     * @return whether the parsing was successful or not.
+     * @param configuration Path to the configuration file
      * @throws IOException 
      * @throws JsonMappingException 
      * @throws JsonParseException 
@@ -285,9 +262,6 @@ public class PerformanceTesting implements Runnable
 
     /**
      * Parse the CLI arguments
-     * 
-     * @param options
-     * @return whether the parsing was successful or not
      */
     private void parseCLIOptions() throws Exception
     {
@@ -375,11 +349,7 @@ public class PerformanceTesting implements Runnable
 
     /**
      * 
-     * @param tests
-     *            All the tests
-     * @param testCategories
-     *            The categories of all the tests
-     * @return Whether running the tests in child JVMs was successful
+     * @param tests All the tests
      * @throws Exception 
      */
     private void runTestsInChildrenJVMs(
@@ -429,11 +399,8 @@ public class PerformanceTesting implements Runnable
     /**
      * Spawns a child JVM for the test and waits for it to exit.
      * 
-     * @param test
-     *            The test to run
-     * @param jsoar
-     *            Whether this is a JSoar or CSoar test
-     * @return Whether the run was successful or not
+     * @param test The test to run
+     * @param jsoar Whether this is a JSoar or CSoar test
      * @throws URISyntaxException 
      */
     private void spawnChildJVMForTest(ConfigurationTest test, boolean jsoar) throws URISyntaxException
@@ -530,7 +497,6 @@ public class PerformanceTesting implements Runnable
      * 
      * @param test
      * @param arguments
-     * @return whether running the child JVM was successful or not
      */
     private void runJVM(ConfigurationTest test,
             List<String> arguments)
@@ -744,15 +710,8 @@ public class PerformanceTesting implements Runnable
      * This runs a test. This assume we're already in the child JVM or at least
      * are only ever running one test.
      * 
-     * @param testRunners
-     *            All the tests
-     * @param testCategories
-     *            All the test categories
-     * @return Whether running the tests was successful or not
-     * @throws IOException 
-     * @throws CsvRequiredFieldEmptyException 
-     * @throws CsvDataTypeMismatchException 
-     * @throws SoarException 
+     * @param testRunner A test
+     * @throws Exception
      */
     private void runTest(TestRunner testRunner) throws Exception
     {

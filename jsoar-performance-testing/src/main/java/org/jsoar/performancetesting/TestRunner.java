@@ -35,7 +35,6 @@ public class TestRunner
      * This runs a test a single iterator and records all the statistics.
      * 
      * @param runCount
-     * @param seed
      * @return Whether the run was successful
      * @throws SoarException
      */
@@ -59,9 +58,6 @@ public class TestRunner
      * Runs a test for a passed runCount and for each JSoar test, a passed
      * warmUpCount. Also sets the seed of the test from the passed parameter.
      * 
-     * @param runCount
-     * @param warmUpCount
-     * @param seed
      * @return Whether running all the tests was successful or not.
      * @throws SoarException
      */

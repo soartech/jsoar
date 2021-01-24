@@ -9,14 +9,13 @@ import org.jsoar.util.adaptables.Adaptables;
 
 public class MatchesProductionAction extends AbstractDebuggerAction
 {
+    private final boolean showWmes;
+    
     private static final long serialVersionUID = -7767296421795513742L;
     /**
      * @param manager the owning action manager
      * @param showWmes whether to add --wmes to the production matches command
      */
-    
-    private final boolean showWmes;
-    
     public MatchesProductionAction(ActionManager manager, boolean showWmes)
     {
         super(manager, getBaseCommand(showWmes), null, Production.class, true);

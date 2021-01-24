@@ -21,7 +21,6 @@ public interface TestFactory
      * 
      * @param testName
      * @param testFile
-     * @param decisionCycles
      * @return A new instance of a class which has already been created and
      *         initialized.
      */

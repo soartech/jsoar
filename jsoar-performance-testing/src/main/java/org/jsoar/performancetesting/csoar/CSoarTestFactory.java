@@ -47,7 +47,6 @@ public class CSoarTestFactory implements TestFactory
      * 
      * @param testName
      * @param testFile
-     * @param decisionCycles
      * @return A new and initialized CSoar Test (but may be only assertion
      *         errors if it didn't load properly.)
      */
