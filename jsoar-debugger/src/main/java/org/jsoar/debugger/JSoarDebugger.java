@@ -665,6 +665,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void finish(Void result)
             {
+                getAgent().getPrinter().flush();
                 update(afterInitSoar);
             }
         });
