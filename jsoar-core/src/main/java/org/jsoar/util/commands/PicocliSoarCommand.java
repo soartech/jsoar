@@ -39,7 +39,9 @@ public abstract class PicocliSoarCommand implements SoarCommand
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException {
         if(agent != null) {
-            return Utils.parseAndRun(this.agent, this.commandLine, args);
+            String result = Utils.parseAndRun(this.agent, this.commandLine, args);
+            agent.getPrinter().flush();
+            return result;
         } else {
             return Utils.parseAndRun(this.commandLine, args);
         }
