@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarUsersGuide">JSoar User Guide</a>
  * 
  * <p>Generally, <b>all</b> access to agent data structures, i.e. the 
- * {@link Agent} instance should be marshaled through the {@link #execute(Runnable)}
+ * {@link Agent} instance should be marshaled through the {@link #executeInternal(Runnable)}
  * methods. Note however, that many public Soar interfaces, or at least parts of them,
  * are immutable, so it is safe to access them from other threads.
  * 
@@ -417,7 +417,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void stop()
     {
-        execute(new Runnable() { public void run() { agent.stop(); } });
+        executeInternal(new Runnable() { public void run() { agent.stop(); } });
     }
     
     // Convenience methods forwarded to equivalent {@link Agent} methods.
@@ -447,9 +447,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             this.executeAndWait(() -> {
                 SoarCommands.source(this.getInterpreter(), source);
                 return null;
-            }, Long.MAX_VALUE, TimeUnit.DAYS);
+            });
         }
-        catch (InterruptedException | ExecutionException | TimeoutException e)
+        catch (InterruptedException | ExecutionException e)
         {
             throw new SoarException(e);
         }
@@ -462,9 +462,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             this.executeAndWait(() -> {
                 SoarCommands.loadRete(this.getInterpreter(), rete);
                 return null;
-            }, Long.MAX_VALUE, TimeUnit.DAYS);
+            });
         }
-        catch (InterruptedException | ExecutionException | TimeoutException e)
+        catch (InterruptedException | ExecutionException e)
         {
             throw new SoarException(e);
         }
@@ -475,7 +475,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * 
      * @param runnable the runnable to run
      */
-    private void execute(Runnable runnable)
+    private void executeInternal(Runnable runnable)
     {
         if(!isAgentThread())
         {
@@ -488,9 +488,32 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     }
     
     /**
+     * Schedule the given runnable for execution in the agent thread and return
+     * immediately. This is the correct way to access the agent in a thread-safe
+     * manner without deadlocks.
+     * 
+     * If you need to handle a return type, see {@code execute(final Callable<V> callable, final CompletionHandler<V> finish)}.
+     * 
+     * Note that your runnable will need to handle checked exceptions when using this. Using the callable version handles that for you. This is a limitation of the Runnable interface.
+     * 
+     * @param runnable the runnable to run
+     * @throws RuntimeException if an exception is thrown while waiting for the
+     *  result.
+     */
+    public void execute(Runnable runnable)
+    {
+        execute(() -> {
+            runnable.run();
+            return null;
+        }, null);
+    }
+    
+    /**
      * Schedule the given callable for execution in the agent thread and return
      * immediately. This is the correct way to access the agent in a thread-safe
      * manner without deadlocks.
+     * 
+     * If you don't need a return type with a completion handler, it is simpler to use {@code execute(Runnable runnable)}.
      * 
      * @param <V> return type
      * @param callable the callable to run
@@ -500,7 +523,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public <V> void execute(final Callable<V> callable, final CompletionHandler<V> finish)
     {
-        execute(new Runnable() {
+        executeInternal(new Runnable() {
 
             @Override
             public void run()
@@ -544,9 +567,79 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     {
         final FutureTask<V> task = new FutureTask<V>(callable);
         
-        execute(task);
+        executeInternal(task);
         
         return task.get(timeout, timeUnit);
+    }
+    
+    /**
+     * Execute a callable in the agent thread and wait for its result. 
+     * 
+     * <p>Note that in almost all cases, {@link #execute(Callable, CompletionHandler)} is
+     * what you want. This method is very prone to deadlocks if the thread that is calling
+     * it (e.g. the Swing UI thread) handles events from the agent.  
+     * 
+     * @param <V> the return type
+     * @param callable the callable to run in the agent thread
+     * @return the return value
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * @throws ExecutionException if there's an unhandled exception in the callable
+     */
+    public <V> V executeAndWait(final Callable<V> callable) throws InterruptedException, ExecutionException
+    {
+        final FutureTask<V> task = new FutureTask<V>(callable);
+        
+        executeInternal(task);
+        
+        return task.get();
+    }
+    
+    /**
+     * Execute a runnable in the agent thread and wait for it to complete. 
+     * 
+     * <p>Note that in almost all cases, {@link #execute(Runnable)} is
+     * what you want. This method is very prone to deadlocks if the thread that is calling
+     * it (e.g. the Swing UI thread) handles events from the agent.
+     * 
+     * Note that your runnable will need to handle checked exceptions when using this. Using the callable version handles that for you. This is a limitation of the Runnable interface.
+     * 
+     * @param runnable the runnable to run in the agent thread
+     * @param timeout timeout value
+     * @param timeUnit timeout units
+     * @return the return value
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * @throws ExecutionException if there's an unhandled exception in the runnable
+     * @throws TimeoutException on timeout
+     */
+    public void executeAndWait(final Runnable runnable, long timeout, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        executeAndWait(() -> {
+            runnable.run();
+            return null;
+        }, timeout, timeUnit);
+    }
+    
+    /**
+     * Execute a runnable in the agent thread and wait for it to complete. 
+     * 
+     * <p>Note that in almost all cases, {@link #execute(Runnable)} is
+     * what you want. This method is very prone to deadlocks if the thread that is calling
+     * it (e.g. the Swing UI thread) handles events from the agent.
+     * 
+     * Note that your runnable will need to handle checked exceptions when using this. Using the callable version handles that for you. This is a limitation of the Runnable interface.
+     * 
+     * @param <V> the return type
+     * @param runnable the runnable to run in the agent thread
+     * @return the return value
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * @throws ExecutionException if there's an unhandled exception in the runnable
+     */
+    public void executeAndWait(final Runnable runnable) throws InterruptedException, ExecutionException
+    {
+        executeAndWait(() -> {
+            runnable.run();
+            return null;
+        });
     }
     
     /**
