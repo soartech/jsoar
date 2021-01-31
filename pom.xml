@@ -205,5 +205,6 @@
         <module>jsoar-soarunit</module>
         <module>jsoar-tcl</module>
         <module>jsoar-performance-testing</module>
+        <module>jsoar-repl</module>
     </modules>
 </project>
