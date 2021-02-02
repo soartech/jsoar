@@ -17,7 +17,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -272,6 +271,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         debugger.getAgent().execute(() -> {
             return debugger.getAgent().getInterpreter().findCommand(command);
         }, commandLine -> {
+            String help = getHelp(commandLine);
             SwingUtilities.invokeLater(() -> {
                 if (commandLine == null){
                     if (tooltipPopup != null){
@@ -279,7 +279,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                         tooltipPopup = null;
                     }
                 } else {
-                    showHelpTooltip(commandLine);
+                    showHelpTooltip(help);
                 }
             });
         });
@@ -308,13 +308,15 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private void updateCompletions(String command, int cursorPosition)
     {
+        String trimmedCommand = command.trim();
+        if (!trimmedCommand.isEmpty())
+        {
+            return;
+        }
+        
         this.debugger.getAgent().execute(() -> {
             String[] commands = null;
-
-            String trimmedCommand = command.trim();
             
-            if (!trimmedCommand.isEmpty()) {
-                
             CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(trimmedCommand);
             if (commandLine == null) {
                 commands = debugger.getAgent().getInterpreter().getCompletionList(trimmedCommand, cursorPosition);
@@ -323,42 +325,43 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
             
             final String[] finalCommands = commands;
+            if (finalCommands != null && finalCommands.length > 0)
+            {
+                String help = getHelp(commandLine);
             
-            SwingUtilities.invokeLater( () -> {
-                if (finalCommands != null && finalCommands.length > 0) {
+                SwingUtilities.invokeLater( () -> {
                     try {
-                        completions.setVisible(true);
-                        completionsList.setListData(finalCommands);
-                        completionsScrollPane.doLayout();
-                        Point location = field.getLocationOnScreen();
-                        int yLoc = location.y + field.getHeight();
-                        completions.setBounds(location.x, yLoc, 200, 100);
-                        completions.toFront();
-                        completionsList.setToolTipText("");
-                        completionsShowing = true;
-
-                        showHelpTooltip(commandLine);
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                } else {
+                            completions.setVisible(true);
+                            completionsList.setListData(finalCommands);
+                            completionsScrollPane.doLayout();
+                            Point location = field.getLocationOnScreen();
+                            int yLoc = location.y + field.getHeight();
+                            completions.setBounds(location.x, yLoc, 200, 100);
+                            completions.toFront();
+                            completionsList.setToolTipText("");
+                            completionsShowing = true;
+    
+                            showHelpTooltip(help);
+                        } catch (Exception e) {
+                            // ignore
+                        }
+                });
+            } else {
+                SwingUtilities.invokeLater( () -> {
                     completions.setVisible(false);
                     if (tooltipPopup != null) {
                         tooltipPopup.hide();
                         tooltipPopup = null;
                     }
-                }});
+                });
             }
-            return null;
-        }, null);
+            });
     }
 
-    private void showHelpTooltip(CommandLine commandLine)
+    private void showHelpTooltip(String help)
     {
         int yLoc = completions.getY();
         int xLoc = completions.getX() + completions.getWidth();
-
-        String help = getHelp(commandLine);
 
         if (tooltipPopup != null) {
             tooltipPopup.hide();
@@ -444,45 +447,41 @@ public class CommandEntryPanel extends JPanel implements Disposable
         field.getEditor().selectAll();
     }
 
+    /**
+     * NOTE: this must be executed on the Soar thread!
+     */
     private String getHelp(CommandLine commandLine)
     {
-        if (commandLine != null) {
+        if (commandLine != null)
+        {
             StringBuilder helpBuilder = new StringBuilder();
-            try
+                
+            CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), commandLine.getColorScheme());
+            helpBuilder
+                    .append("<html>")
+                    .append("<b>Usage:</b>")
+                    .append("<br>")
+                    .append(help.abbreviatedSynopsis())
+                    .append("<br>")
+                    .append("<b>Description</b>")
+                    .append("<br>")
+                    .append(help.description())
+                    .append("<br>");
+            if (!help.parameterList().isEmpty())
             {
-                debugger.getAgent().executeAndWait(() -> {
-                    CommandLine.Help help = new CommandLine.Help(commandLine.getCommandSpec(), commandLine.getColorScheme());
-                    helpBuilder
-                            .append("<html>")
-                            .append("<b>Usage:</b>")
-                            .append("<br>")
-                            .append(help.abbreviatedSynopsis())
-                            .append("<br>")
-                            .append("<b>Description</b>")
-                            .append("<br>")
-                            .append(help.description())
-                            .append("<br>");
-                    if (!help.parameterList().isEmpty()) {
-                        helpBuilder.append("<b>Parameters:</b>")
-                                   .append("<br>")
-                                   .append(help.parameterList().replaceAll("\n", "<br>"))
-                                   .append("<br>");
-                    }
-                    helpBuilder.append("<b>Options:</b>")
-                               .append("<br>")
-                               .append(help.optionList().replaceAll("\n", "<br>"))
-                               .append("<b>Commands:</b>")
-                               .append("<br>")
-                               .append(help.commandList().replaceAll("\n", "<br>"))
-                               .append("</html>");
-                    return null;
-                }, Long.MAX_VALUE, TimeUnit.DAYS);
+                helpBuilder.append("<b>Parameters:</b>")
+                           .append("<br>")
+                           .append(help.parameterList().replaceAll("\n", "<br>"))
+                           .append("<br>");
             }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-            
+            helpBuilder.append("<b>Options:</b>")
+                       .append("<br>")
+                       .append(help.optionList().replaceAll("\n", "<br>"))
+                       .append("<b>Commands:</b>")
+                       .append("<br>")
+                       .append(help.commandList().replaceAll("\n", "<br>"))
+                       .append("</html>");
+
             return helpBuilder.toString();
         }
         return "";
