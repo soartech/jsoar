@@ -441,6 +441,46 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     public void openDebugger() throws SoarException { agent.openDebugger(); }
     public void openDebuggerAndWait() throws SoarException, InterruptedException { agent.openDebuggerAndWait(); }
     
+    /**
+     * Schedule loading a rete in the agent thread and return
+     * immediately. This will not deadlock.
+     * 
+     * If you don't need a completion handler, it is simpler to use {@code loadProductions(Object rete)}.
+     * 
+     * @param source the source to load
+     * @param finish called after the callable is executed. Ignored if <code>null</code>.
+     * @throws RuntimeException if an exception is thrown while waiting for the
+     *  result.
+     */
+    public void loadProductions(Object source, final CompletionHandler<Void> finish) {
+        this.execute(() -> {
+            SoarCommands.source(this.getInterpreter(), source);
+            return null;
+        }, finish);
+    }
+    
+    /**
+     * Schedule loading productions in the agent thread and return
+     * immediately. This will not deadlock.
+     * 
+     * @param source the source to load
+     * @throws RuntimeException if an exception is thrown while waiting for the
+     *  result.
+     */
+    public void loadProductions(Object source) {
+        this.execute(() -> {
+            SoarCommands.source(this.getInterpreter(), source);
+            return null;
+        }, null);
+    }
+    
+    /**
+     * Load productions on the agent thread and wait for its result. 
+     * 
+     * <p>Note that in almost all cases, {@link #loadProductions(Object, CompletionHandler)} or
+     * {@link #loadProductions(Object)} is what you want. This method is very prone to deadlocks 
+     * if the thread that is calling it (e.g. the Swing UI thread) handles events from the agent. 
+     */
     public void loadProductionsAndWait(Object source) throws SoarException {
         try
         {
@@ -456,6 +496,47 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
     }
     
+
+    /**
+     * Schedule loading a rete in the agent thread and return
+     * immediately. This will not deadlock.
+     * 
+     * @param rete the rete to load
+     * @throws RuntimeException if an exception is thrown while waiting for the
+     *  result.
+     */
+    public void loadRete(Object rete) {
+        this.execute(() -> {
+            SoarCommands.loadRete(this.getInterpreter(), rete);
+            return null;
+        }, null);
+    }
+    
+    /**
+     * Schedule loading a rete in the agent thread and return
+     * immediately. This will not deadlock.
+     * 
+     * If you don't need a completion handler, it is simpler to use {@code loadRete(Object rete)}.
+     * 
+     * @param rete the rete to load
+     * @param finish called after the callable is executed. Ignored if <code>null</code>.
+     * @throws RuntimeException if an exception is thrown while waiting for the
+     *  result.
+     */
+    public void loadRete(Object rete, final CompletionHandler<Void> finish) {
+        this.execute(() -> {
+            SoarCommands.loadRete(this.getInterpreter(), rete);
+            return null;
+        }, finish);
+    }
+    
+    /**
+     * Load a rete on the agent thread and wait for its result. 
+     * 
+     * <p>Note that in almost all cases, {@link #loadRete(Object, CompletionHandler)} or
+     * {@link #loadRete(Object)} is what you want. This method is very prone to deadlocks 
+     * if the thread that is calling it (e.g. the Swing UI thread) handles events from the agent. 
+     */
     public void loadReteAndWait(Object rete) throws SoarException {
         try
         {
