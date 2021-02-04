@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,10 +30,10 @@ import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.runner.Description;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,13 +244,24 @@ public class ThreadedAgentTest
 
         // Give the agents a chance to start
         logger.debug("Giving agents a chance to start");
-        Thread.sleep(5000);
-
+        Thread.sleep(500);
+        
         // Make sure the agents are running
-        for (ThreadedAgent ta : agents)
+        // If the agents are unhappy or unresponsive, we will timeout in this
+        // loop
+        while (!agents.isEmpty())
         {
-            logger.debug("Checking that agent is running: {}", ta.getName());
-            assertTrue("A ThreadedAgent failed to start.", ta.isRunning());
+            Iterator<ThreadedAgent> iter = agents.iterator();
+            while (iter.hasNext())
+            {
+                ThreadedAgent ta = iter.next();
+                // If the agent successfully stopped, remove it from the list
+                if (!ta.isRunning())
+                {
+                    logger.debug("Agent is running: {}", ta.getName());
+                    iter.remove();
+                }
+            }
         }
 
         // Let the threads run for a bit longer
