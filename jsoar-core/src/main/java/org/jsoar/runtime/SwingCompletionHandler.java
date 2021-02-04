@@ -9,10 +9,10 @@ import javax.swing.SwingUtilities;
 
 /**
  * Wrap a completion handler in logic to ensure that it executes on the 
- * Swing event thread.
+ * Swing event thread. Do not interact with the Soar agent in this unless
+ * rewrapping in a {@code ThreadedAgent.execute}
  * 
  * @author ray
- * @param <T>
  */
 public class SwingCompletionHandler<T> implements CompletionHandler<T>
 {

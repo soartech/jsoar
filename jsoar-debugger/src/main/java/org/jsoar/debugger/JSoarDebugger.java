@@ -282,6 +282,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void onEvent(SoarEvent event)
             {
+                proxy.getPrinter().flush();
                 newUpdateCompleter(true).finish(null);
             }}));
 
@@ -291,6 +292,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void onEvent(SoarEvent event)
             {
+                proxy.getPrinter().flush();
                 newUpdateCompleter(false).finish(null);
             }}));
 
@@ -619,8 +621,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                //getAgent().execute(() -> getAgent().getAgent().getInterpreter().eval("help"), null);
-                
                 Callable<Void> callable = () -> {
                     SoarCommand cmd = getAgent().getAgent().getInterpreter().getCommand("help", null);
                     cmd.execute(null, new String[] {"help"});
@@ -658,6 +658,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
     }
 
+    /**
+     * Executes the CompletionHandler on the Swing thread. Do not do any agent interaction in here!
+     * @param afterInitSoar True if calling this in response to Soar being (re)initialized
+     */
     public CompletionHandler<Void> newUpdateCompleter(final boolean afterInitSoar)
     {
         return SwingCompletionHandler.newInstance( new CompletionHandler<Void>() {
@@ -665,7 +669,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void finish(Void result)
             {
-                getAgent().getPrinter().flush();
                 update(afterInitSoar);
             }
         });

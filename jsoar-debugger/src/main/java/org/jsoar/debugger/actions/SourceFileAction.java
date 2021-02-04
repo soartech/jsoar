@@ -88,6 +88,7 @@ public class SourceFileAction extends AbstractDebuggerAction
                     // TODO this is a little smelly.
                     getApplication().getAgent().getPrinter().error(e.getMessage());
                 }
+                getApplication().getAgent().getPrinter().flush();
                 return null;
             }}, getApplication().newUpdateCompleter(false));
         
