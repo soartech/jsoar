@@ -245,7 +245,7 @@ public class ThreadedAgentTest
 
         // Give the agents a chance to start
         logger.debug("Giving agents a chance to start");
-        Thread.sleep(2000);
+        Thread.sleep(5000);
 
         // Make sure the agents are running
         for (ThreadedAgent ta : agents)
