@@ -481,6 +481,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * {@link #loadProductions(Object)} is what you want. This method is very prone to deadlocks 
      * if the thread that is calling it (e.g. the Swing UI thread) handles events from the agent. 
      */
+    @Deprecated
     public void loadProductionsAndWait(Object source) throws SoarException {
         try
         {
@@ -537,6 +538,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * {@link #loadRete(Object)} is what you want. This method is very prone to deadlocks 
      * if the thread that is calling it (e.g. the Swing UI thread) handles events from the agent. 
      */
+    @Deprecated
     public void loadReteAndWait(Object rete) throws SoarException {
         try
         {
@@ -666,6 +668,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @throws InterruptedException if the thread is interrupted while waiting
      * @throws ExecutionException if there's an unhandled exception in the callable
      */
+    @Deprecated
     public <V> V executeAndWait(final Callable<V> callable) throws InterruptedException, ExecutionException
     {
         final FutureTask<V> task = new FutureTask<V>(callable);
@@ -692,6 +695,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @throws ExecutionException if there's an unhandled exception in the runnable
      * @throws TimeoutException on timeout
      */
+    @Deprecated
     public void executeAndWait(final Runnable runnable, long timeout, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException
     {
         executeAndWait(() -> {
@@ -715,6 +719,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @throws InterruptedException if the thread is interrupted while waiting
      * @throws ExecutionException if there's an unhandled exception in the runnable
      */
+    @Deprecated
     public void executeAndWait(final Runnable runnable) throws InterruptedException, ExecutionException
     {
         executeAndWait(() -> {
