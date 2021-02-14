@@ -75,7 +75,7 @@ public class SyntaxSettings {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.err.println(e.getMessage());
             System.err.println("attempted regex: " + regex);
         }

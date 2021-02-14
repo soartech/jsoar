@@ -40,7 +40,14 @@ class RootRow extends Row
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e.getMessage(), e);
+            if(e instanceof InterruptedException)
+            {
+                Thread.currentThread().interrupt();
+            }
+            else
+            {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
         
         deleteButton.setBorderPainted(false);
@@ -63,7 +70,14 @@ class RootRow extends Row
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e.getMessage(), e);
+            if(e instanceof InterruptedException)
+            {
+                Thread.currentThread().interrupt();
+            }
+            else
+            {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
         
         return oldId != id;

@@ -25,9 +25,9 @@ public class PerformanceTimer
     
     /**
      * @param args
-     * @throws Exception 
+     * @throws SoarException 
      */
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws SoarException
     {
         int numRuns = 10;
         

@@ -180,10 +180,14 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
                 }
             });
         }
-        catch (InvocationTargetException | InterruptedException e)
+        catch (InvocationTargetException e)
         {
             LOG.error("Exception while getting stop command", e);
             return "";
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
         }
         return textholder[0];
     }

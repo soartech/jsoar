@@ -177,7 +177,7 @@ public class TestPanel extends JPanel
             {
                 runTestsInternal();
             }
-            catch (Exception e)
+            catch (RuntimeException | SoarException | IOException e)
             {
                 showError(e.getMessage(), e);
             }

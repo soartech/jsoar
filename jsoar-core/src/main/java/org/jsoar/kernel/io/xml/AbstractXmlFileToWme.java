@@ -6,9 +6,11 @@
 package org.jsoar.kernel.io.xml;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.WmeBuilder;
@@ -16,10 +18,13 @@ import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.adaptables.Adaptables;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Abstract class which contains functions to load XML from file and add a
@@ -115,7 +120,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
      *         <code>null</code> if the file cannot be read or an error occurs
      *         during parsing.
      */
-    protected static Element getRootElement(File f)
+    protected Element getRootElement(File f)
     {
         try
         {
@@ -124,9 +129,18 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
             Document dom = db.parse(f);
             return dom.getDocumentElement();
         }
-        catch (Exception ex)
+        catch (ParserConfigurationException | SAXException | IOException ex)
         {
-            ex.printStackTrace();
+            Printer p = Adaptables.adapt(this.factory.getSymbols(), Printer.class);
+            if(p == null)
+            {
+                ex.printStackTrace();
+            }
+            else
+            {
+                ex.printStackTrace(p.asPrintWriter());
+                p.flush();
+            }
         }
         return null;
     }

@@ -71,8 +71,10 @@ public class UrlTools
      *
      * @param url the url
      * @return the parent of the url, never {@code null}
+     * @throws URISyntaxException 
+     * @throws MalformedURLException 
      */
-    public static URL getParent(URL url) throws Exception
+    public static URL getParent(URL url) throws URISyntaxException, MalformedURLException
     {
         URI uri = url.toURI().getPath().endsWith("/") ? url.toURI().resolve("..") : url.toURI().resolve(".");
         return uri.toURL();
@@ -125,9 +127,10 @@ public class UrlTools
      * Converts a file: URL to a file object, if possible.
      * @param url url to convert
      * @return {@link java.io.File} representing the URL
-     * @throws Exception on failure
+     * @throws URISyntaxException 
+     * @throws MalformedURLException 
      */
-    public static File toFile(URL url) throws Exception
+    public static File toFile(URL url) throws URISyntaxException, MalformedURLException
     {
         URI uri = url.toURI();
         // Handle UNC paths.
@@ -148,7 +151,7 @@ public class UrlTools
         try
         {
             return toFile(url);
-        } catch (Exception e) {
+        } catch (URISyntaxException | MalformedURLException e) {
             return null;
         }
     }

@@ -289,8 +289,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             }
             catch (InterruptedException e)
             {
-                Thread.currentThread().interrupt();
                 logger.error("Interrupted while waiting for agent thread to exit", e);
+                Thread.currentThread().interrupt();
             }
             waitFunction.detach();
             waitManager.detach();
@@ -622,6 +622,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
                 catch(InterruptAgentException e)
                 {
                     throw e;
+                }
+                catch(InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
                 }
                 catch (Exception e)
                 {

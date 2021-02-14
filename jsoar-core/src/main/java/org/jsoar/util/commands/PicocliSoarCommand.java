@@ -61,13 +61,17 @@ public abstract class PicocliSoarCommand implements SoarCommand
 
         /**
          * For execution exceptions, just rethrow without printing help
-         * @throws Exception 
+         * @throws SoarException 
+         * @throws InterruptedException 
          */
         @Override
         public int handleExecutionException(Exception ex,
                 CommandLine commandLine,
-                ParseResult parseResult) throws Exception
+                ParseResult parseResult) throws SoarException, InterruptedException
         {
+            if(ex instanceof InterruptedException) {
+                throw new InterruptedException(ex.getMessage());
+            }
             throw new SoarException(ex);
         } 
     }

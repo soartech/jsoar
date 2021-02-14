@@ -7,6 +7,8 @@ package org.jsoar.soarunit.ui;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -47,7 +49,7 @@ public class EditTestAction extends AbstractAction
         {
             Desktop.getDesktop().edit(UrlTools.toFile(test.getTestCase().getUrl()));
         }
-        catch (Exception e1)
+        catch (RuntimeException | IOException | URISyntaxException e1)
         {
             JOptionPane.showMessageDialog(null, e1.getMessage(), "Error opening test", JOptionPane.ERROR_MESSAGE);
         }

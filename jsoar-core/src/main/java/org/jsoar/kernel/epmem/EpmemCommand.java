@@ -385,7 +385,7 @@ public class EpmemCommand extends PicocliSoarCommand
                     nativeOrPure = "Not connected to database";
                 }
             }
-            catch (Exception e)
+            catch (Exception e) // SQLiteJDBCLoader.isNativeMode() throws Exception, but nothing throws InterruptedException so this should be ok
             {
                 agent.getPrinter().startNewLine().print(e.getMessage());
                 return "";

@@ -24,7 +24,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -807,7 +809,7 @@ public class WorkingMemoryTree extends JComponent
         }
     }
     
-    public static void swingMain() throws Exception
+    public static void swingMain() throws InterruptedException, ExecutionException, TimeoutException
     {
         final JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -895,7 +897,11 @@ public class WorkingMemoryTree extends JComponent
                 {
                     swingMain();
                 }
-                catch (Exception e)
+                catch (InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
+                }
+                catch (ExecutionException | TimeoutException e)
                 {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

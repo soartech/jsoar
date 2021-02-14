@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.csoar.CSoarTestFactory;
 import org.jsoar.performancetesting.jsoar.JSoarTestFactory;
 import org.jsoar.performancetesting.yaml.Configuration;
@@ -33,6 +35,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import io.github.classgraph.ClassGraph;
 import picocli.CommandLine;
@@ -208,15 +212,24 @@ public class PerformanceTesting implements Runnable
                     runTest(new TestRunner(csoarTest, out));
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IllegalStateException | URISyntaxException | IOException | SoarException | ClassNotFoundException | IllegalAccessException | NoSuchFieldException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
     /**
      * Parses the CLI and Configuration Options
+     * @throws IOException 
+     * @throws JsonMappingException 
+     * @throws JsonParseException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalAccessException 
+     * @throws ClassNotFoundException 
+     * @throws Exception 
      */
-    private void parseOptions() throws Exception
+    private void parseOptions() throws JsonParseException, JsonMappingException, IOException, ClassNotFoundException, IllegalAccessException, NoSuchFieldException
     {
         // If there is a configuration option,
         // ignore any CLI options beyond that.
@@ -262,8 +275,12 @@ public class PerformanceTesting implements Runnable
 
     /**
      * Parse the CLI arguments
+     * @throws ClassNotFoundException 
+     * @throws MalformedURLException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalAccessException 
      */
-    private void parseCLIOptions() throws Exception
+    private void parseCLIOptions() throws MalformedURLException, ClassNotFoundException, IllegalAccessException, NoSuchFieldException
     {
         if (output != null)
         {
@@ -350,10 +367,15 @@ public class PerformanceTesting implements Runnable
     /**
      * 
      * @param tests All the tests
+     * @throws URISyntaxException 
+     * @throws IOException 
+     * @throws IllegalStateException 
+     * @throws CsvRequiredFieldEmptyException 
+     * @throws CsvDataTypeMismatchException 
      * @throws Exception 
      */
     private void runTestsInChildrenJVMs(
-            List<ConfigurationTest> tests) throws Exception
+            List<ConfigurationTest> tests) throws URISyntaxException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IllegalStateException, IOException
     {
         // Since we have more than one test to run, spawn a separate JVM for
         // each run.
@@ -591,9 +613,12 @@ public class PerformanceTesting implements Runnable
                     // if we are shutdown after this.
                     currentChildProcess = null;
                 }
-                catch (IOException | InterruptedException e)
+                catch (IOException e)
                 {
                     throw new RuntimeException(e);
+                }
+                catch( InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
                 finally
                 {
@@ -624,8 +649,12 @@ public class PerformanceTesting implements Runnable
      * individual run results and then computes the summary for the test. The 
      * reading is necessary as these results were (probably) generated in another
      * jvm. 
+     * @throws IOException 
+     * @throws IllegalStateException 
+     * @throws CsvRequiredFieldEmptyException 
+     * @throws CsvDataTypeMismatchException 
      */
-    private void appendToSummaryFile(ConfigurationTest test) throws Exception
+    private void appendToSummaryFile(ConfigurationTest test) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IllegalStateException, IOException
     {
         TestSettings settings = test.getTestSettings();
 
@@ -685,7 +714,7 @@ public class PerformanceTesting implements Runnable
         return testPath;
     }
     
-    private void appendToSummaryFileInternal(ConfigurationTest test, String soarVariant, Path soarPath, int dcs, String fileSuffix) throws Exception {
+    private void appendToSummaryFileInternal(ConfigurationTest test, String soarVariant, Path soarPath, int dcs, String fileSuffix) throws IllegalStateException, IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         File testFile = getTestPath(test.getSettings(), test.getName(), soarVariant, soarPath, dcs, "-raw").toFile();
         
         List<RawResults> rawResults = new CsvToBeanBuilder<RawResults>(new FileReader(testFile))
@@ -711,9 +740,13 @@ public class PerformanceTesting implements Runnable
      * are only ever running one test.
      * 
      * @param testRunner A test
+     * @throws SoarException 
+     * @throws IOException 
+     * @throws CsvRequiredFieldEmptyException 
+     * @throws CsvDataTypeMismatchException 
      * @throws Exception
      */
-    private void runTest(TestRunner testRunner) throws Exception
+    private void runTest(TestRunner testRunner) throws SoarException, IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException
     {
         Test test = testRunner.getTest();
         TestSettings settings = test.getTestSettings();

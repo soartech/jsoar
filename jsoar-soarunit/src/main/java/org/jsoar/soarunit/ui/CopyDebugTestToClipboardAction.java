@@ -11,6 +11,8 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 import javax.swing.*;
 
@@ -51,7 +53,7 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
             final StringSelection ss = new StringSelection(command);
             final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             cb.setContents(ss, this);
-        } catch (Exception e1) {
+        } catch (RuntimeException | MalformedURLException | URISyntaxException e1) {
             JOptionPane.showMessageDialog(null, e1.getMessage(), "Error creating debug test string", JOptionPane.ERROR_MESSAGE);
         }
     }

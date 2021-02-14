@@ -1046,7 +1046,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         return getName();
     }
     
-    private static Agent agent() throws Exception
+    private static Agent agent() throws SoarException
     {
         //.setProperty("jsoar.agent.interpreter", "tcl");
         final Agent a = new Agent();
@@ -1062,7 +1062,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         
         return a;
     }
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws SoarException, InterruptedException
     {
         final List<Agent> agents = new ArrayList<Agent>();
         for(int i = 0; i < 1; ++i)

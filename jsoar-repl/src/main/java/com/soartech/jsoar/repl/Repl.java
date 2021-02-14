@@ -21,7 +21,7 @@ public class Repl
         Repl repl = new Repl(System.in, System.out);
         try {
             repl.start();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }

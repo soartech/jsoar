@@ -241,7 +241,7 @@ public class PrintCommand extends PicocliSoarCommand
                     {
                         wmp.print(agent, agent.getPrinter(), arg, argString);
                     }
-                    catch (Exception e)
+                    catch (RuntimeException e)
                     {
                         agent.getPrinter().print(e.toString());
                     }

@@ -79,7 +79,7 @@ public class MainFrame extends JFrame
                         return;
                     }
                 }
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 // If Nimbus is not available, you can set the GUI to another look and feel.
             }
             

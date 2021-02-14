@@ -202,8 +202,8 @@ public class Printer
     	try {
     		this.printWriter.printf(format, args);
     	}
-    	catch (Exception e) {
-    		System.out.println("!!");	
+    	catch (RuntimeException e) {
+    		System.out.println("!!");
     	}
     	this.persistentPrintWriter.printf(format, args);
         return this;

@@ -293,7 +293,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 lastInputTimestamp = System.currentTimeMillis();
                 try {
                     Thread.sleep(COMPLETION_DELAY);
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
                 long time = System.currentTimeMillis();
                 if (lastInputTimestamp + COMPLETION_DELAY <= time) {
@@ -342,7 +343,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                             completionsShowing = true;
     
                             showHelpTooltip(help);
-                        } catch (Exception e) {
+                        } catch (RuntimeException e) {
                             // ignore
                         }
                 });

@@ -93,8 +93,12 @@ public class LegilimensServer
     
     /**
      * @param args
+     * @throws IOException 
+     * @throws TimeoutException 
+     * @throws ExecutionException 
+     * @throws InterruptedException 
      */
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
         createAgent("eye ? ball", null);
         

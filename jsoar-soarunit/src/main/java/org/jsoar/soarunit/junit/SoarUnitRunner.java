@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -199,11 +200,12 @@ public class SoarUnitRunner extends Runner
         }
 
         // Block until completion.
-        try {
+        try
+        {
             Futures.successfulAsList(wait).get();
             Futures.successfulAsList(runNotifications).get();
-        } catch (Exception e) {
         }
+        catch (Exception e) { } // note this catches an InterruptedException, but it might be safe in this case since the next step is to shutdown
         exec.shutdown();
         runNotifierExec.shutdown();
     }
@@ -255,7 +257,7 @@ public class SoarUnitRunner extends Runner
                     }
                 }
             }
-            catch (Exception e) {
+            catch (IOException | SoarException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -40,7 +40,7 @@ public class CSoarTest implements Test
 
     private long memoryForRun;
 
-    public CSoarTest(Path csoarDirectory) throws Exception
+    public CSoarTest(Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         this.agent = null;
         this.kernel = null;

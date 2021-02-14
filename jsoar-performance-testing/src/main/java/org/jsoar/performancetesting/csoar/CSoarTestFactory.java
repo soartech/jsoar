@@ -49,10 +49,13 @@ public class CSoarTestFactory implements TestFactory
      * @param testFile
      * @return A new and initialized CSoar Test (but may be only assertion
      *         errors if it didn't load properly.)
+     * @throws ClassNotFoundException 
+     * @throws NoSuchFieldException 
+     * @throws IllegalAccessException 
      */
     @Override
     public Test createTest(String testName, Path testFile,
-            TestSettings settings) throws Exception
+            TestSettings settings) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         CSoarTest csoarTest = new CSoarTest(csoarDirectory);
 

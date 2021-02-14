@@ -7,7 +7,9 @@ package org.jsoar.soarunit.sml;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
+import java.net.URISyntaxException;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -294,7 +296,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
                     FileTools.getParent(UrlTools.toFile(test.getTestCase().getUrl())).replace('\\', '/')), true);
             executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
             executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
-        } catch (Exception e) {
+        } catch (RuntimeException | MalformedURLException | URISyntaxException e) {
             throw new SoarException(e);
         }
     }

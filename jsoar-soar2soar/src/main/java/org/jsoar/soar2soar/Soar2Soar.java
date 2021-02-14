@@ -1,9 +1,12 @@
 package org.jsoar.soar2soar;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.SoarException;
@@ -15,7 +18,7 @@ public class Soar2Soar
 {
     private final EnvironmentAgent ea;
     
-    public Soar2Soar(String[] args) throws Exception
+    public Soar2Soar(String[] args) throws SoarException, InterruptedException, ExecutionException, TimeoutException, IOException
     {
         if (args.length < 1)
         {

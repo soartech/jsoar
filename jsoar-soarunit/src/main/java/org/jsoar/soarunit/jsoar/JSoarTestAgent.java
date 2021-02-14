@@ -6,6 +6,8 @@
 package org.jsoar.soarunit.jsoar;
 
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -232,7 +234,7 @@ public class JSoarTestAgent implements TestAgent
     {
         try {
             agent.getInterpreter().eval(String.format("pushd \"%s\"", UrlTools.getParent(test.getTestCase().getUrl()).toString().replace('\\', '/')));
-        } catch (Exception e) {
+        } catch (RuntimeException | MalformedURLException | URISyntaxException e) {
             throw new SoarException(e);
         }
         agent.getInterpreter().eval(test.getTestCase().getSetup());

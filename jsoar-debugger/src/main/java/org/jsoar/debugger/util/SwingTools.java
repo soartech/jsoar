@@ -43,7 +43,7 @@ public class SwingTools {
                         return;
                     }
                 }
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 // If Nimbus is not available, you can set the GUI to another look and feel.
             }
 

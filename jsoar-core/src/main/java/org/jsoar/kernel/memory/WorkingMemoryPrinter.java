@@ -42,7 +42,6 @@ public class WorkingMemoryPrinter
      * @param pattern
      */
     public void print(Agent agent, Printer printer, Symbol idIn, String pattern)
-            throws Exception
     {
         Arguments.checkNotNull(agent, "agent");
         Arguments.checkNotNull(printer, "printer");
