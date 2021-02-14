@@ -812,11 +812,11 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
                 {
                       commands.take().run();
                 }
-                catch (InterruptAgentException e)
+                catch (InterruptAgentException | InterruptedException e)
                 {
                     this.interrupt();
                 }
-                catch(Exception e)
+                catch(RuntimeException e)
                 {
                     processUncaughtException(e);
                 }
