@@ -784,23 +784,31 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
 
     private class AgentThread extends Thread
     {
+        private AtomicBoolean interrupted = new AtomicBoolean(false);
+        
+        /**
+         *  it seems that sometimes the InterruptedException is swallowed (e.g., deep down inside jtcl)
+         *  so this is a way to guarantee that this loop stops processing even in that case
+         */
+        @Override
+        public void interrupt() {
+            super.interrupt();
+            interrupted.set(true);
+        }
+        
         /* (non-Javadoc)
          * @see java.lang.Thread#run()
          */
         @Override
         public void run()
         {
-            while(!isInterrupted())
+            while(!isInterrupted() && !interrupted.get())
             {
                 try
                 {
-                    commands.take().run();
+                      commands.take().run();
                 }
                 catch (InterruptAgentException e)
-                {
-                    this.interrupt();
-                }
-                catch (InterruptedException e)
                 {
                     this.interrupt();
                 }
