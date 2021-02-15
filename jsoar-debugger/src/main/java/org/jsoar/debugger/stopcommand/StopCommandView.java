@@ -137,7 +137,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     {
         String command = getCommandToExecute();
 
-        if (!command.trim().isEmpty()) 
+        if (command != null && !command.trim().isEmpty()) 
         {
             
             LOG.info("stopcommand " + command + " running...");
