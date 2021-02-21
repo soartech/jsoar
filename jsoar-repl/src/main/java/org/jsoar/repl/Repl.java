@@ -1,4 +1,4 @@
-package com.soartech.jsoar.repl;
+package org.jsoar.repl;
 
 import java.io.IOException;
 import java.io.InputStream;
