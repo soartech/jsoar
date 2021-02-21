@@ -32,6 +32,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.prefs.Preferences;
 
 /**
  * @author ray
@@ -212,7 +213,14 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         final String contents = textArea.getText();
         if(!contents.equals(DEFAULT_CONTENTS))
         {
-            getPreferences().put(LAST_CONTENT_KEY, contents);
+            if( contents.length() > Preferences.MAX_VALUE_LENGTH)
+            {
+                logger.warn("The contents of the {} are too long to be saved", this.getTitleText());
+            }
+            else
+            {
+                getPreferences().put(LAST_CONTENT_KEY, contents);
+            }
         }
     }
     
