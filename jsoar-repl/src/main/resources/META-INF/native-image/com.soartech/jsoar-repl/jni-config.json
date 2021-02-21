@@ -1,0 +1,39 @@
+[
+{
+  "name":"java.lang.ClassLoader",
+  "methods":[{"name":"getPlatformClassLoader","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.NoSuchMethodError"
+},
+{
+  "name":"org.sqlite.core.NativeDB",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.Function",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.Function$Aggregate",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.ProgressHandler",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.Function$Window",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.core.DB$ProgressObserver",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+}
+]

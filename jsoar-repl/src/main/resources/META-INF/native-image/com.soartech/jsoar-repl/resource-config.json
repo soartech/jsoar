@@ -1,0 +1,17 @@
+{
+  "resources":{
+  "includes":[
+    {"pattern":"\\QMETA-INF/maven/org.xerial/sqlite-jdbc/pom.properties\\E"}, 
+    {"pattern":"\\QMETA-INF/services/java.sql.Driver\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.commands.SoarCommandInterpreterFactory\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.commands.SoarCommandProvider\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.timing.ExecutionTimeSource\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/commands/aliases\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/org.sqlite.JDBC.performance.sql\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/statements.properties\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/structures.sql\\E"}, 
+    {"pattern":"\\Qsqlite-jdbc.properties\\E"},
+    {"pattern":"db/.*|static/.*|templates/.*|.*.yml|.*.xml|.*/org/sqlite/.*|org/sqlite/.*"}
+  ]},
+  "bundles":[]
+}

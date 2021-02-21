@@ -39,3 +39,4 @@ jsoar-performance-testing/.classpath
 jsoar-performance-testing/Test-Results
 jsoar-repl/.classpath
 jsoar-repl/.settings/
+*.factorypath
