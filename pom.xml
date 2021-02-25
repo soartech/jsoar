@@ -37,7 +37,7 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.2.0</version>
@@ -45,9 +45,6 @@
                     <show>private</show>
                     <doclint>none</doclint>
                     <source>8</source>
-                    <!-- if you don't want javadoc errors to fail the build, uncomment this
-                    <failOnError>false</failOnError>
-                    -->
                 </configuration>
                 <executions>
                   <execution>
@@ -57,7 +54,6 @@
                     </goals>
                     <phase>install</phase>
                     <configuration>
-                      <!-- Specific configuration for the aggregate report -->
                     </configuration>
                   </execution>
                   <execution>
@@ -67,8 +63,8 @@
                     </goals>
                   </execution>
                 </executions>
-            </plugin>
-            <plugin>
+            </plugin-->
+            <!-- plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-source-plugin</artifactId>
               <version>3.2.0</version>
@@ -80,7 +76,7 @@
                   </goals>
                 </execution>
               </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -99,10 +95,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M4</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
@@ -115,7 +111,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
         <resources>
             <resource>
@@ -197,14 +193,15 @@
     <modules>
         <!-- <module>jsoar-build</module> only needed for uber jar, which shouldn't be used anyway -->
         <module>jsoar-core</module>
-        <module>jsoar-debugger</module>
-        <module>jsoar-demos</module>
-        <module>jsoar-legilimens</module>
-        <!-- <module>jsoar-ruby</module> -->
-        <module>jsoar-soar2soar</module>
-        <module>jsoar-soarunit</module>
         <module>jsoar-tcl</module>
-        <module>jsoar-performance-testing</module>
         <module>jsoar-repl</module>
+        <!-- module>jsoar-debugger</module>
+        <module>jsoar-demos</module>
+        <module>jsoar-legilimens</module-->
+        <!-- <module>jsoar-ruby</module> -->
+        <!-- module>jsoar-soar2soar</module>
+        <module>jsoar-soarunit</module>
+        <module>jsoar-performance-testing</module-->
+        
     </modules>
 </project>
