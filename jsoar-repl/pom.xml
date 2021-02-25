@@ -115,6 +115,10 @@
                             <buildArgs>--no-fallback
                                 --allow-incomplete-classpath
                                 --language:js
+                                -H:+ReportExceptionStackTraces
+                                --native-image-info
+                                --verbose
+                                -O0
                                 -Dfile.encoding=UTF-8</buildArgs>
                         </configuration>
                     </plugin>
@@ -163,6 +167,12 @@
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
             <version>4.0.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.soartech</groupId>
+            <artifactId>jsoar-tcl</artifactId>
+            <version>4.0.4-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

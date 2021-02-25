@@ -1,8 +1,14 @@
 [
 {
+  "name":"java.io.FilePermission"
+},
+{
   "name":"java.lang.Object",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
+},
+{
+  "name":"java.lang.RuntimePermission"
 },
 {
   "name":"java.lang.String[]"
@@ -12,6 +18,16 @@
   "methods":[{"name":"console","parameterTypes":[] }]
 },
 {
+  "name":"java.net.NetPermission"
+},
+{
+  "name":"java.net.SocketPermission"
+},
+{
+  "name":"java.net.URLPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
   "name":"java.nio.file.Path"
 },
 {
@@ -19,10 +35,16 @@
   "methods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
 },
 {
+  "name":"java.security.AllPermission"
+},
+{
   "name":"java.security.MessageDigestSpi"
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.SecurityPermission"
 },
 {
   "name":"java.sql.Connection"
@@ -100,6 +122,9 @@
 {
   "name":"java.time.ZonedDateTime",
   "methods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.util.PropertyPermission"
 },
 {
   "name":"org.jsoar.kernel.commands.ChunkCommand$Chunk",
@@ -533,7 +558,37 @@
   "name":"org.springframework.util.ConcurrentReferenceHashMap$Segment[]"
 },
 {
+  "name":"org.sqlite.Function",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.Function$Aggregate",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.Function$Window",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
   "name":"org.sqlite.JDBC"
+},
+{
+  "name":"org.sqlite.ProgressHandler",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.core.DB$ProgressObserver",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
+},
+{
+  "name":"org.sqlite.core.NativeDB",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true
 },
 {
   "name":"picocli.CommandLine$HelpCommand",
@@ -554,33 +609,163 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.core.NativeDB",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.ArrayCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.Function",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.CatchCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.Function$Aggregate",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.CloseCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.ProgressHandler",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.ContinueCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.Function$Window",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.DictCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"org.sqlite.core.DB$ProgressObserver",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"tcl.lang.cmd.EvalCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ExprCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.FileCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ForCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ForeachCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.GetsCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.GlobalCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.IfCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.IncrCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.InfoCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.InterpCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.JoinCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.LappendCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.LindexCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ListCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.LlengthCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.LsearchCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.NamespaceCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.OpenCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.PackageCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ProcCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ReadCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.RenameCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.ReturnCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.SetCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.SourceCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.SplitCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.StringCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.SubstCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.SwitchCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.UnsetCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.UplevelCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.UpvarCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.lang.cmd.VariableCmd",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"tcl.pkg.itcl.ItclExtension",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 }
 ]
