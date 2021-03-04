@@ -112,7 +112,7 @@ public class LoadCommand extends PicocliSoarCommand
                     }
                     catch (SoarException e)
                     {
-                        parent.agent.getPrinter().startNewLine().print(e.getMessage());
+                        parent.agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
                         return;
                     }
                 }
@@ -234,12 +234,12 @@ public class LoadCommand extends PicocliSoarCommand
             }
             catch (IOException e)
             {
-                parent.agent.getPrinter().startNewLine().print("Load file failed.");
+                parent.agent.getPrinter().startNewLine().print("Error: Load file failed.");
                 return;
             }
             catch (SoarException e)
             {
-                parent.agent.getPrinter().startNewLine().print(e.getMessage());
+                parent.agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
                 return;
             }
             finally
@@ -253,7 +253,7 @@ public class LoadCommand extends PicocliSoarCommand
                     catch (IOException e)
                     {
                         parent.agent.getPrinter().startNewLine().print(
-                                "IO error while closing the input source.");
+                                "Error: IO error while closing the input source.");
                     }
                 }
             }
