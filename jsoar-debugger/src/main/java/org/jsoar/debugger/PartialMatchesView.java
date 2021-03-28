@@ -41,6 +41,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         super("partialmatches", "Partial Matches");
 
+        this.highlighter = Highlighter.getInstance(debugger);
         this.agent = debugger.getAgent();
         this.selectionManager = debugger.getSelectionManager();
         
@@ -54,7 +55,6 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
 
         this.selectionManager.addListener(this);
         selectionChanged(selectionManager);
-        highlighter = Highlighter.getInstance(debugger);
     }
 
     /* (non-Javadoc)
@@ -86,12 +86,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
 
     private void getMatchOutput(final List<Object> selection)
     {
+        Color background = highlighter.getPatterns().getBackground();
         Callable<String> matchCall = new Callable<String>() {
 
             @Override
             public String call() throws Exception
             {
-                return safeGetMatchOutput(selection);
+                return safeGetMatchOutput(selection, background);
             }};
         CompletionHandler<String> finish = new CompletionHandler<String>() {
             @Override
@@ -101,7 +102,6 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 {
                     textArea.setText(result);
                     textArea.setCaretPosition(0);
-
                 }
             }
             
@@ -120,11 +120,10 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         return pm.getProduction(o.toString());
     }
     
-    private String safeGetMatchOutput(List<Object> selection)
+    private String safeGetMatchOutput(List<Object> selection, Color background)
     {
         final StringBuilder b = new StringBuilder();
         b.append("<html>");
-        Color background = highlighter.getPatterns().getBackground();
         b.append("<body bgcolor='")
          .append(String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue()))
          .append("'>");
