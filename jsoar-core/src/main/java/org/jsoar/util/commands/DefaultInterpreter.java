@@ -28,6 +28,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.exceptions.SoarInterpreterException;
 import org.jsoar.kernel.commands.LoadCommand;
+import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
@@ -70,12 +71,13 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("pushd", new PushdCommand(sourceCommand, agent));
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        
-        addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
         addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
+        
+        // this interpreter-specific handler depends on SpCommand, which is created as part of the standard commands
+        addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, (SpCommand)this.commands.get("sp"), agent));
     }
     
     /* (non-Javadoc)

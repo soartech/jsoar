@@ -16,6 +16,8 @@ public abstract class PicocliSoarCommand implements SoarCommand
     final protected Object picocliCommand;
     final protected CommandLine commandLine;
     
+    protected boolean autoFlush = true;
+    
     /**
      * Creates a PicocliSoarCommand with an agent.
      * A command with an agent may print results to the agent's printer
@@ -40,7 +42,9 @@ public abstract class PicocliSoarCommand implements SoarCommand
     public String execute(SoarCommandContext context, String[] args) throws SoarException {
         if(agent != null) {
             String result = Utils.parseAndRun(this.agent, this.commandLine, args);
-            agent.getPrinter().flush();
+            if(autoFlush) {
+                agent.getPrinter().flush();
+            }
             return result;
         } else {
             return Utils.parseAndRun(this.commandLine, args);
@@ -50,6 +54,14 @@ public abstract class PicocliSoarCommand implements SoarCommand
     @Override
     public Object getCommand() {
         return this.picocliCommand;
+    }
+    
+    /**
+     * Turn auto flushing after command execution on/off
+     * @param autoFlush
+     */
+    public void autoFlush(boolean autoFlush) {
+        this.autoFlush = autoFlush;
     }
     
     /**

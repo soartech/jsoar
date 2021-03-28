@@ -32,10 +32,9 @@ import picocli.CommandLine.ParentCommand;
  */
 public class LoadCommand extends PicocliSoarCommand
 {
-    
-    public LoadCommand(SourceCommand sourceCommand, Agent agent)
+    public LoadCommand(SourceCommand sourceCommand, SpCommand spCommand, Agent agent)
     {
-        super(agent, new Load(sourceCommand, agent));
+        super(agent, new Load(sourceCommand, spCommand, agent));
     }
     
 
@@ -46,11 +45,13 @@ public class LoadCommand extends PicocliSoarCommand
     static public class Load implements Runnable
     {
         private SourceCommand sourceCommand;
+        private PicocliSoarCommand spCommand;
         private Agent agent;
         
-        public Load(SourceCommand sourceCommand, Agent agent)
+        public Load(SourceCommand sourceCommand, SpCommand spCommand, Agent agent)
         {
             this.sourceCommand = sourceCommand;
+            this.spCommand = spCommand;
             this.agent = agent;
         }
         
@@ -98,6 +99,7 @@ public class LoadCommand extends PicocliSoarCommand
             if (topLevel)
             {
                 parent.sourceCommand.topLevelState = new TopLevelState();
+                parent.spCommand.autoFlush(false);
                 parent.sourceCommand.events.addListener(ProductionAddedEvent.class, eventListener);
                 parent.sourceCommand.events.addListener(ProductionExcisedEvent.class, eventListener);
             }
@@ -183,6 +185,7 @@ public class LoadCommand extends PicocliSoarCommand
                 // Clean up top-level state
                 if (topLevel)
                 {
+                    parent.spCommand.autoFlush(true);
                     parent.sourceCommand.topLevelState = null;
                     parent.sourceCommand.events.removeListener(null, eventListener);
                 }

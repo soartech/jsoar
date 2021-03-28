@@ -30,6 +30,7 @@ import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
+import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.kernel.exceptions.TclInterpreterException;
 import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
@@ -157,10 +158,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("popd", new PopdCommand(sourceCommand, agent));
         addCommand("pwd", new PwdCommand(sourceCommand));
         
-        addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, agent));
         addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
-        
-        addAliasedCommand("source", new String[] {"load", "file"}, this.loadCommand);
         
         // rename the tcl built-in trace command to tcl-trace, to avoid a conflict with Soar's trace command
         try
@@ -171,11 +169,25 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             final String message = "Failed to rename tcl built-in trace command to tcl-trace: " + interp.getResult();
             logger.error(message, e);
-            agent.getPrinter().error(message);
+            agent.getPrinter().error(message).flush();
         }
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
+        
+        // this interpreter-specific handler depends on SpCommand, which is created as part of the standard commands
+        try
+        {
+            addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, (SpCommand)this.getCommand("sp", null), agent));
+        }
+        catch (SoarException e)
+        {
+            final String message = "Failed to get 'sp' command";
+            logger.error(message, e);
+            agent.getPrinter().error(message).flush();
+        }
+        
+        addAliasedCommand("source", new String[] {"load", "file"}, this.loadCommand);
         
         try
         {
