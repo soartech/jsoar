@@ -31,11 +31,15 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.events.ProductionAddedEvent;
+import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 
 
 /**
@@ -118,7 +122,36 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         p.add(bottom, BorderLayout.SOUTH);
         
         this.getContentPane().add(p);
+        
+        this.agent.execute(() -> {
+            this.agent.getAgent().getEvents().addListener(ProductionAddedEvent.class, eventListener);
+            this.agent.getAgent().getEvents().addListener(ProductionExcisedEvent.class, eventListener);
+        });
     }
+    
+    private final SoarEventListener eventListener = new SoarEventListener() {
+
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            // unregister for events, since we only want to refresh once
+            agent.getAgent().getEvents().removeListener(ProductionAddedEvent.class, this);
+            agent.getAgent().getEvents().removeListener(ProductionExcisedEvent.class, this);
+            
+            // on the swing thread, schedule another Soar thread execution
+            // we do this through the swing thread so it ends up at the end of the Soar agent queue -- otherwise it will execute right away,
+            // and we don't want it to execute until after the productions are loaded (e.g., the source command completes)
+            SwingUtilities.invokeLater(() -> {
+                agent.execute( () -> {
+                    // by this time, the production sourcing should be complete, so schedule the refresh on the swing thread and re-register for the events
+                    SwingUtilities.invokeLater(() -> refresh(false));
+                    agent.getAgent().getEvents().addListener(ProductionAddedEvent.class, eventListener);
+                    agent.getAgent().getEvents().addListener(ProductionExcisedEvent.class, eventListener);
+                });
+            });
+            
+        }
+    };
     
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
@@ -233,10 +266,10 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             setText(p.getName());
             final long fc = p.getFiringCount();
             setToolTipText("<html>" +
-            		       "<b>" + p.getName() + "</b><br>" +
-            		       p.getType().getDisplayString() + " production<br>" +
-            		       "Fired " + fc + " time" + (fc != 1 ? "s" : "") +
-            		       (p.isBreakpointEnabled() ? "<br>:interrupt" : "") + "<p>" +
+                           "<b>" + p.getName() + "</b><br>" +
+                            p.getType().getDisplayString() + " production<br>" +
+                           "Fired " + fc + " time" + (fc != 1 ? "s" : "") +
+                           (p.isBreakpointEnabled() ? "<br>:interrupt" : "") + "<p>" +
                             p.getDocumentation() + "</html>");
             return c;
         }

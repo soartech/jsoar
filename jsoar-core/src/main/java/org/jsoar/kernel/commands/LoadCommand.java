@@ -32,10 +32,9 @@ import picocli.CommandLine.ParentCommand;
  */
 public class LoadCommand extends PicocliSoarCommand
 {
-    
-    public LoadCommand(SourceCommand sourceCommand, Agent agent)
+    public LoadCommand(SourceCommand sourceCommand, SpCommand spCommand, Agent agent)
     {
-        super(agent, new Load(sourceCommand, agent));
+        super(agent, new Load(sourceCommand, spCommand, agent));
     }
     
 
@@ -46,11 +45,13 @@ public class LoadCommand extends PicocliSoarCommand
     static public class Load implements Runnable
     {
         private SourceCommand sourceCommand;
+        private PicocliSoarCommand spCommand;
         private Agent agent;
         
-        public Load(SourceCommand sourceCommand, Agent agent)
+        public Load(SourceCommand sourceCommand, SpCommand spCommand, Agent agent)
         {
             this.sourceCommand = sourceCommand;
+            this.spCommand = spCommand;
             this.agent = agent;
         }
         
@@ -98,6 +99,7 @@ public class LoadCommand extends PicocliSoarCommand
             if (topLevel)
             {
                 parent.sourceCommand.topLevelState = new TopLevelState();
+                parent.spCommand.autoFlush(false);
                 parent.sourceCommand.events.addListener(ProductionAddedEvent.class, eventListener);
                 parent.sourceCommand.events.addListener(ProductionExcisedEvent.class, eventListener);
             }
@@ -112,7 +114,7 @@ public class LoadCommand extends PicocliSoarCommand
                     }
                     catch (SoarException e)
                     {
-                        parent.agent.getPrinter().startNewLine().print(e.getMessage());
+                        parent.agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
                         return;
                     }
                 }
@@ -183,6 +185,7 @@ public class LoadCommand extends PicocliSoarCommand
                 // Clean up top-level state
                 if (topLevel)
                 {
+                    parent.spCommand.autoFlush(true);
                     parent.sourceCommand.topLevelState = null;
                     parent.sourceCommand.events.removeListener(null, eventListener);
                 }
@@ -234,12 +237,12 @@ public class LoadCommand extends PicocliSoarCommand
             }
             catch (IOException e)
             {
-                parent.agent.getPrinter().startNewLine().print("Load file failed.");
+                parent.agent.getPrinter().startNewLine().print("Error: Load file failed.");
                 return;
             }
             catch (SoarException e)
             {
-                parent.agent.getPrinter().startNewLine().print(e.getMessage());
+                parent.agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
                 return;
             }
             finally
@@ -253,7 +256,7 @@ public class LoadCommand extends PicocliSoarCommand
                     catch (IOException e)
                     {
                         parent.agent.getPrinter().startNewLine().print(
-                                "IO error while closing the input source.");
+                                "Error: IO error while closing the input source.");
                     }
                 }
             }
