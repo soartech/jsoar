@@ -1,0 +1,34 @@
+{
+  "resources":{
+  "includes":[
+    {"pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"}, 
+    {"pattern":"\\QMETA-INF/services/java.sql.Driver\\E"}, 
+    {"pattern":"\\QMETA-INF/services/javax.script.ScriptEngineFactory\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.commands.SoarCommandInterpreterFactory\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.commands.SoarCommandProvider\\E"}, 
+    {"pattern":"\\QMETA-INF/services/org.jsoar.util.timing.ExecutionTimeSource\\E"}, 
+    {"pattern":"\\Qjsoar-core.buildinfo.properties\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/commands/aliases\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/epmem/org.sqlite.JDBC.performance.sql\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/epmem/statements.properties\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/epmem/structures.sql\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/org.sqlite.JDBC.performance.sql\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/smem-csoar-db.sqlite\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/statements.properties\\E"}, 
+    {"pattern":"\\Qorg/jsoar/kernel/smem/structures.sql\\E"}, 
+    {"pattern":"\\Qorg/jsoar/script/javascript\\E"}, 
+    {"pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"}, 
+    {"pattern":"\\Qorg/sqlite/native/Windows/x86_64/sqlitejdbc.dll\\E"}, 
+    {"pattern":"\\Qsimplelogger.properties\\E"}, 
+    {"pattern":"\\Qsqlite-jdbc.properties\\E"}
+  ]},
+  "bundles":[
+    {"name":"com.sun.org.apache.xml.internal.serializer.XMLEntities"}, 
+    {"name":"com.sun.tools.javac.resources.compiler"}, 
+    {"name":"com.sun.tools.javac.resources.ct"}, 
+    {"name":"com.sun.tools.javac.resources.javac"}, 
+    {"name":"jdk.nashorn.api.scripting.resources.Messages"}, 
+    {"name":"jdk.nashorn.internal.runtime.resources.Options"}, 
+    {"name":"jdk.nashorn.internal.runtime.resources.version"}
+  ]
+}
