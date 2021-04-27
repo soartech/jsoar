@@ -310,7 +310,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private void updateCompletions(String command, int cursorPosition)
     {
         String trimmedCommand = command.trim();
-        if (!trimmedCommand.isEmpty())
+        if (trimmedCommand.isEmpty())
         {
             return;
         }
