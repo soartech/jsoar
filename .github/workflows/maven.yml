@@ -13,24 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        java: [ 8, 11, 15 ]
-    runs-on: ${{ matrix.os }}
-    name: Java ${{ matrix.java }} on ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java }}
-    - name: Build with Maven
-      run: | 
-        chmod +x mvnw
-        ./mvnw -B package --file pom.xml
-  windows-build:
-    strategy:
-      matrix:
-        os: [windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         java: [ 8, 11, 15 ]
     runs-on: ${{ matrix.os }}
     name: Java ${{ matrix.java }} on ${{ matrix.os }}
