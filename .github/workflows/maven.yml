@@ -5,9 +5,9 @@ name: Maven Build
 
 on:
   push:
-    branches: [ maven ]
+    branches: [ maven add-maven-wrapper ]
   pull_request:
-    branches: [ maven ]
+    branches: [ maven add-maven-wrapper ]
 
 jobs:
   build:
