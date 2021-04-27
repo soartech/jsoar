@@ -5,9 +5,9 @@ name: Maven Build
 
 on:
   push:
-    branches: [ maven ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ maven ]
+    branches: [ '*' ]
 
 jobs:
   build:
