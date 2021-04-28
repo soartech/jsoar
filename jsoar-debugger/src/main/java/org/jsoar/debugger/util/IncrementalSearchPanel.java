@@ -148,7 +148,7 @@ public class IncrementalSearchPanel extends JPanel
         addonPanel.add(lblMatches, constraints);
 
         addonWindow = new JWindow(debugger.frame);
-        addonWindow.setOpacity(0.8f);
+        //addonWindow.setOpacity(0.8f);
         addonWindow.setVisible(false);
         addonWindow.setFocusable(true);
         addonWindow.setAutoRequestFocus(false);

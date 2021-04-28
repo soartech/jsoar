@@ -5,9 +5,9 @@ name: Maven Build
 
 on:
   push:
-    branches: [ maven ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ maven ]
+    branches: [ '*' ]
 
 jobs:
   build:
@@ -24,5 +24,4 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
-  
+      run: ./mvnw -B package --file pom.xml

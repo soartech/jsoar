@@ -134,7 +134,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
 
         completions = new JWindow(debugger.frame);
-        completions.setOpacity(0.8f);
+        //completions.setOpacity(0.8f); // some environments, like Linux Manjaro with KDE, do not support transparency, and it's not necessary here
         completions.setVisible(false);
         completions.setFocusable(true);
         completions.setAutoRequestFocus(false);
@@ -310,7 +310,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
     private void updateCompletions(String command, int cursorPosition)
     {
         String trimmedCommand = command.trim();
-        if (!trimmedCommand.isEmpty())
+        if (trimmedCommand.isEmpty())
         {
             return;
         }
