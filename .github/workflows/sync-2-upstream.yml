@@ -21,9 +21,8 @@ jobs:
       # Step 2: run this sync action - specify the upstream repo, upstream branch to sync with, and target sync branch
       - name: Pull upstream changes
         id: sync
-        uses: bdougie/Fork-Sync-With-Upstream-action@fork
+        uses: aormsby/Fork-Sync-With-Upstream-action@v2.1
         with:
           upstream_repository: soartech/jsoar
           upstream_branch: maven
           target_branch: maven
-          git_push_args: --force
