@@ -25,4 +25,4 @@ jobs:
         with:
           upstream_repository: soartech/jsoar
           upstream_branch: maven
-          target_branch: main
+          #target_branch: main
