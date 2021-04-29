@@ -26,4 +26,4 @@ jobs:
           upstream_repository: soartech/jsoar
           upstream_branch: maven
           target_branch: maven
-          git_push_args:
+          git_push_args: --force
