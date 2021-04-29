@@ -23,6 +23,6 @@ jobs:
         id: sync
         uses: bdougie/Fork-Sync-With-Upstream-action@fork
         with:
-          upstream_repository: soartech/jsoar
-          #upstream_branch: maven
+          upstream_repository: soartech/jsoar.git/
+          upstream_branch: maven
           target_branch: main
