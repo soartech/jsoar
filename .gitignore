@@ -40,3 +40,5 @@ jsoar-performance-testing/Test-Results
 jsoar-repl/.classpath
 jsoar-repl/.settings/
 *.factorypath
+*.dll
+jsoar-repl.build_artifacts.txt
