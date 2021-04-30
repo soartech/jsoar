@@ -31,8 +31,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>15</maven.compiler.source>
+        <maven.compiler.target>15</maven.compiler.target>
     </properties>
 
     <build>
@@ -156,31 +156,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>soartech-internal</id>-->
-<!--            <url>https://nexus.soartech.com:8443/nexus/content/groups/internal/</url>-->
-<!--        </repository>-->
-<!--        <repository>-->
-<!--            <id>soartech-public</id>-->
-<!--            <url>https://nexus.soartech.com:8443/nexus/content/groups/public/</url>-->
-<!--        </repository>-->
-<!--        <repository>-->
-<!--            <id>soartech-internal-snapshots</id>-->
-<!--            <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>true</enabled>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
-<!--        <repository>-->
-<!--            <id>soartech-public-snapshots</id>-->
-<!--            <url>https://nexus.soartech.com:8443/nexus/content/repositories/public-snapshots/</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>true</enabled>-->
-<!--            </snapshots>-->
-<!--        </repository>-->
-<!--    </repositories>-->
 
     <distributionManagement>
         <snapshotRepository>
