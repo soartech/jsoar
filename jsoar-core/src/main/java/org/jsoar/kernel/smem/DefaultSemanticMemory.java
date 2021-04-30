@@ -3859,10 +3859,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                             {
                                 wme_count++;
 
-                                if (w_p.timetag > smem_info.last_cmd_time[time_slot])
+                                if (w_p.getTimetag() > smem_info.last_cmd_time[time_slot])
                                 {
                                     new_cue = true;
-                                    smem_info.last_cmd_time[time_slot] = w_p.timetag;
+                                    smem_info.last_cmd_time[time_slot] = w_p.getTimetag();
                                 }
 
                                 if ((w_p.value.asIdentifier() != null) && (parent_level == 0) && ((w_p.attr == predefinedSyms.smem_sym_query) || (w_p.attr == predefinedSyms.smem_sym_store)))

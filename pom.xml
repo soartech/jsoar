@@ -127,6 +127,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>30.1-jre</version>
@@ -150,30 +157,30 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>soartech-internal</id>
-            <url>https://nexus.soartech.com:8443/nexus/content/groups/internal/</url>
-        </repository>
-        <repository>
-            <id>soartech-public</id>
-            <url>https://nexus.soartech.com:8443/nexus/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>soartech-internal-snapshots</id>
-            <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>soartech-public-snapshots</id>
-            <url>https://nexus.soartech.com:8443/nexus/content/repositories/public-snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>soartech-internal</id>-->
+<!--            <url>https://nexus.soartech.com:8443/nexus/content/groups/internal/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>soartech-public</id>-->
+<!--            <url>https://nexus.soartech.com:8443/nexus/content/groups/public/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>soartech-internal-snapshots</id>-->
+<!--            <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>soartech-public-snapshots</id>-->
+<!--            <url>https://nexus.soartech.com:8443/nexus/content/repositories/public-snapshots/</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <distributionManagement>
         <snapshotRepository>

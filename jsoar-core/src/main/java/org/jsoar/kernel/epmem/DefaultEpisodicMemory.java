@@ -3206,10 +3206,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             wme_count++;
 
-                            if (wme.timetag > epmem_info.last_cmd_time)
+                            if (wme.getTimetag() > epmem_info.last_cmd_time)
                             {
                                 new_cue = true;
-                                epmem_info.last_cmd_time = wme.timetag;
+                                epmem_info.last_cmd_time = wme.getTimetag();
                             }
 
                             if (wme.value.asIdentifier() != null)

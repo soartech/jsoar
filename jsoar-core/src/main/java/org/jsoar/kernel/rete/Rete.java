@@ -2442,7 +2442,7 @@ public class Rete
         if (w != null)
         {
             if (wtt == WmeTraceType.TIMETAG)
-                printer.print("%d", w.timetag);
+                printer.print("%d", w.getTimetag());
             else if (wtt == WmeTraceType.FULL)
                 printer.print("%s", w);
             if (wtt != WmeTraceType.NONE)
@@ -2593,7 +2593,7 @@ public class Rete
                     for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
                     {
                         if (wtt == WmeTraceType.TIMETAG)
-                            printer.print("%d", rm.w.timetag);
+                            printer.print("%d", rm.w.getTimetag());
                         else if (wtt == WmeTraceType.FULL)
                             printer.print("%s", rm.w);
                         printer.print(" ");
