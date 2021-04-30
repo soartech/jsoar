@@ -23,9 +23,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/soartech/jsoar.git</connection>
-        <developerConnection>scm:git:https://github.com/soartech/jsoar.git</developerConnection>
-        <url>https://github.com/soartech/jsoar/tree/maven/</url>
+        <connection>scm:git:https://github.com/uniknow/jsoar.git</connection>
+        <developerConnection>scm:git:https://github.com/uniknow/jsoar.git</developerConnection>
+        <url>https://github.com/uniknow/jsoar/tree/maven/</url>
         <tag>HEAD</tag>
     </scm>
 
