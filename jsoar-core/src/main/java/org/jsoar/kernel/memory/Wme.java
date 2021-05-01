@@ -47,6 +47,14 @@ public interface Wme extends Formattable, Adaptable
     Symbol getValue();
     
     /**
+     * When a working memory element is created, Soar assigns it a unique integer timetag. The timetags are used to
+     * distinguish between multiple occurrences of the same WME. As preferences change and elements are added and
+     * deleted from working memory, it is possible for a WME to be created, removed, and created again. The second
+     * creation of the WME - which bears the same identier, attribute, and value as the rst WME - is different, and
+     * therefore is assigned a different timetag. This is important because a production will fire only once for a given
+     * instantiation, and the instantiation is determined by the timetags that match the production and not by the
+     * identifier value
+     *
      * @return the WME's time tag. This value will never change.
      */
     int getTimetag();
