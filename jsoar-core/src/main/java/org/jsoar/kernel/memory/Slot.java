@@ -193,7 +193,8 @@ public class Slot
         if (id == null)
         {
             return null; // fixes bug #135 kjh
-        } 
+        }
+
         for (Slot s = id.slots; s != null; s = s.next)
         {
             if (s.attr == attr)
@@ -333,8 +334,6 @@ public class Slot
      * Adds a new preference to the correct type list, in the correct position.
      * 
      * <p>This method is extracted from prefmem.cpp:add_preference_to_tm
-     * 
-     * @param pref
      */
     private void addPreferenceToCorrectTypeList(Preference pref)
     {
@@ -379,7 +378,7 @@ public class Slot
     {
         if(preferencesByType == null)
         {
-            preferencesByType = new EnumMap<PreferenceType, Preference>(PreferenceType.class);
+            preferencesByType = new EnumMap<>(PreferenceType.class);
         }
         
         if(after == null)
@@ -441,7 +440,6 @@ public class Slot
      * Clear out and deallocate the CDPS.
      * 
      * tempmem.cpp:166:clear_CDPS
-     * @param context
      */
     public void clear_CDPS(final Adaptable context)
     {
@@ -504,7 +502,7 @@ public class Slot
 
         if(this.cdps == null)
         {
-            this.cdps = new LinkedList<Preference>();
+            this.cdps = new LinkedList<>();
         }
         
         boolean already_exists = false;
