@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import lombok.Getter;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -86,7 +87,9 @@ public class Slot
 {
     public Slot next, prev;// dll of slots for id
     
-    public final IdentifierImpl id; 
+    public final IdentifierImpl id;
+
+    @Getter
     public final SymbolImpl attr;
 
     private WmeImpl wmes; // dll of wmes in the slot
@@ -198,7 +201,7 @@ public class Slot
 
         for (Slot s = id.slots; s != null; s = s.next)
         {
-            if (s.attr == attr)
+            if (s.getAttr() == attr)
             {
                 return s;
             }
