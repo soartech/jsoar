@@ -186,6 +186,7 @@ public class Slot
      * 
      * @param id the slot identifier
      * @param attr the slot attribute
+     *
      * @return the slot, or {@code null} if not found
      */
     public static Slot find_slot(IdentifierImpl id, Symbol attr)

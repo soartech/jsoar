@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.soartech</groupId>
     <artifactId>jsoar</artifactId>
@@ -48,38 +49,54 @@
                     <!-- if you don't want javadoc errors to fail the build, uncomment this
                     <failOnError>false</failOnError>
                     -->
+
+                    <!-- START: Enable asciidoclet -->
+                    <additionalJOptions>
+                        <additionalJOption>-J--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED</additionalJOption>
+                        <additionalJOption>--base-dir</additionalJOption>
+                        <additionalJOption>${project.basedir}</additionalJOption>
+                    </additionalJOptions>
+                    <doclet>org.asciidoctor.asciidoclet.Asciidoclet</doclet>
+                    <docletArtifact>
+                        <groupId>org.uniknow</groupId>
+                        <artifactId>asciidoclet</artifactId>
+                        <version>2.2.1</version>
+                    </docletArtifact>
+                    <detectJavaApiLink>true</detectJavaApiLink>
+                    <!-- END: Enable asciidoclet -->
+
                 </configuration>
                 <executions>
-                  <execution>
-                    <id>aggregate</id>
-                    <goals>
-                      <goal>aggregate</goal>
-                    </goals>
-                    <phase>install</phase>
-                    <configuration>
-                      <!-- Specific configuration for the aggregate report -->
-                    </configuration>
-                  </execution>
-                  <execution>
-                    <id>attach-javadocs</id>
-                    <goals>
-                      <goal>jar</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <!-- Specific configuration for the aggregate report -->
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-source-plugin</artifactId>
-              <version>3.2.0</version>
-              <executions>
-                <execution>
-                  <id>attach-sources</id>
-                  <goals>
-                    <goal>jar</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
