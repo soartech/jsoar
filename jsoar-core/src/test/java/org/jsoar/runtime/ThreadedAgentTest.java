@@ -249,14 +249,15 @@ public class ThreadedAgentTest
         // Make sure the agents are running
         // If the agents are unhappy or unresponsive, we will timeout in this
         // loop
-        while (!agents.isEmpty())
+        List<ThreadedAgent> startedAgents = new ArrayList<>(agents);
+        while (!startedAgents.isEmpty())
         {
-            Iterator<ThreadedAgent> iter = agents.iterator();
+            Iterator<ThreadedAgent> iter = startedAgents.iterator();
             while (iter.hasNext())
             {
                 ThreadedAgent ta = iter.next();
-                // If the agent successfully stopped, remove it from the list
-                if (!ta.isRunning())
+                // If the agent successfully started, remove it from the list
+                if (ta.isRunning())
                 {
                     logger.debug("Agent is running: {}", ta.getName());
                     iter.remove();
