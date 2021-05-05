@@ -10,6 +10,7 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import lombok.NonNull;
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.memory.Slot;
@@ -68,10 +69,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     
     public /*epmem_node_id*/ long epmem_id = 0;
     public /*uint64_t*/ long epmem_valid = 0;
-    
-    /**
-     * @param hash_id
-     */
+
     IdentifierImpl(SymbolFactory factory, int hash_id, char name_letter, long name_number)
     {
         super(factory, hash_id);
@@ -171,9 +169,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
 
     /**
      * <p>production.cpp:1043:mark_identifier_if_unmarked
-     * 
-     * @param tc
-     * @param id_list
      */
     private void mark_identifier_if_unmarked(Marker tc, ListHead<IdentifierImpl> id_list)
     {
@@ -209,8 +204,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     
     /**
      * <p>production.cpp:1068:unmark_identifiers_and_free_list
-     * 
-     * @param ids
      */
     public static void unmark(ListHead<IdentifierImpl> ids)
     {
@@ -220,7 +213,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         }
     }
     
-    public void addSlot(Slot slot)
+    public void addSlot(@NonNull Slot slot)
     {
         slot.next = slots;
         slot.prev = null;
@@ -362,7 +355,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public String toString()
     {
-        return (smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number);
+        return (smem_lti != 0 ? "@" : "") + name_letter + name_number;
     }
 
     /* (non-Javadoc)
@@ -371,7 +364,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number));
+        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + name_number);
     }
     
     /* (non-Javadoc)

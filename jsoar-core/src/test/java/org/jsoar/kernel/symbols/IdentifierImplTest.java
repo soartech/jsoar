@@ -6,6 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
@@ -32,24 +34,13 @@ import com.google.common.collect.Iterators;
 public class IdentifierImplTest extends JSoarTest
 {
     private Agent agent;
-    
-    /**
-     * @throws java.lang.Exception
-     */
+
     @Before
     public void setUp() throws Exception
     {
         super.setUp();
         
         this.agent = new Agent();
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
     }
 
     /**
@@ -77,7 +68,7 @@ public class IdentifierImplTest extends JSoarTest
         assertNotNull(test);
         
         // Now verify that all the sub-wmes are there.
-        List<Wme> kids = new ArrayList<Wme>();
+        List<Wme> kids = new ArrayList<>();
         final Identifier testId = test.getValue().asIdentifier();
         Iterators.addAll(kids, testId.getWmes());
         assertEquals(4, kids.size());
@@ -142,4 +133,54 @@ public class IdentifierImplTest extends JSoarTest
         // test the operator name
         assertEquals("test-operator", goal.getOperatorName().asString().getValue());
     }
+
+    @Test
+    public void testAddSlotToIdentifierWithSlots() {
+        // Given a identifier
+        final IdentifierImpl id = syms.createIdentifier('S');
+        // With a existing Slot
+        Slot existingSlot = mock(Slot.class);
+        id.slots = existingSlot;
+
+        // When adding new slot to identifier
+        Slot newSlot = mock(Slot.class);
+        id.addSlot(newSlot);
+
+        // Then slots of identifier points to new Slot
+        assertEquals(newSlot, id.slots);
+        // And new Slot if pointing to existing Slot in list
+        assertEquals(existingSlot, newSlot.next);
+        // And new Slot is at begin of list
+        assertNull(newSlot.prev);
+        // And existing Slot is pointing to new Slot
+        assertEquals(newSlot, existingSlot.prev);
+    }
+
+    @Test
+    public void testAddSlotToIdentifierWithoutSlots() {
+        // Given a identifier
+        final IdentifierImpl id = syms.createIdentifier('S');
+
+        // When adding new slot to identifier
+        Slot newSlot = mock(Slot.class);
+        id.addSlot(newSlot);
+
+        // Then slots of identifier points to new Slot
+        assertEquals(newSlot, id.slots);
+        // And new Slot is at end of list
+        assertNull(newSlot.next);
+        // And new Slot is at begin of list
+        assertNull(newSlot.prev);
+    }
+
+    @Test
+    public void testAddInvalidSlotToIdentifier() {
+        // Given a identifier
+        final IdentifierImpl id = syms.createIdentifier('S');
+
+        // When adding null as Slot to identifier
+        // Then Illegal Argument Exception is thrown
+        assertThrows(IllegalArgumentException.class, ()->id.addSlot(null) );
+    }
+
 }
