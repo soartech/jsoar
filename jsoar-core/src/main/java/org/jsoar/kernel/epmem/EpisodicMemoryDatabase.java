@@ -266,24 +266,23 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase {
 
     public boolean backupDb(final String fileName) throws SQLException {
 
-        try (Connection connection = getConnection()) {
-            if (connection.getAutoCommit()) {
-                commit.execute();
-                begin.execute();
-            }
+        Connection connection = getConnection();
 
-            // See sqlite-jdbc notes
-            String query = backup.getQuery() + " \"" + fileName + "\"";
+        if (connection.getAutoCommit()) {
+            commit.execute();
+            begin.execute();
+        }
 
-            try (Statement statement = connection.createStatement()) {
-                statement.executeUpdate(query);
-            }
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
 
-            if (connection.getAutoCommit()) {
-                commit.execute();
-                begin.execute();
-            }
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(query);
+        }
 
+        if (connection.getAutoCommit()) {
+            commit.execute();
+            begin.execute();
         }
 
         return true;

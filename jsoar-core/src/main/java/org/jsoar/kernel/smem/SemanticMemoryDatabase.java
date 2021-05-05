@@ -5,26 +5,25 @@
  */
 package org.jsoar.kernel.smem;
 
+import org.jsoar.util.db.AbstractSoarDatabase;
+import org.jsoar.util.db.SoarPreparedStatement;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jsoar.util.db.AbstractSoarDatabase;
-import org.jsoar.util.db.SoarPreparedStatement;
-
 /**
  * Database helper class for semantic memory.
- * 
+ *
  * @author ray
  */
-final class SemanticMemoryDatabase extends AbstractSoarDatabase
-{
+final class SemanticMemoryDatabase extends AbstractSoarDatabase {
     // empty table used to verify proper structure
     static final String SMEM_SCHEMA = "smem_";
-    
+
     static final String SMEM_SCHEMA_VERSION = "2.0";
-    
+
     static final String IN_MEMORY_PATH = ":memory:";
 
     // These are all the prepared statements for SMEM. They're filled in via reflection
@@ -35,7 +34,7 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
 
     SoarPreparedStatement backup;
     SoarPreparedStatement restore;
-    
+
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -59,7 +58,7 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement lti_access_get;
     PreparedStatement lti_access_set;
     PreparedStatement lti_get_t;
-    
+
     PreparedStatement web_add;
     PreparedStatement web_truncate;
     PreparedStatement web_expand;
@@ -73,7 +72,7 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement web_attr_child;
     PreparedStatement web_const_child;
     PreparedStatement web_lti_child;
-    
+
     PreparedStatement attribute_frequency_check;
     PreparedStatement wmes_constant_frequency_check;
     PreparedStatement wmes_lti_frequency_check;
@@ -99,15 +98,15 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement history_get;
     PreparedStatement history_push;
     PreparedStatement history_add;
-    
+
     PreparedStatement vis_lti;
     PreparedStatement vis_lti_act;
     PreparedStatement vis_value_const;
     PreparedStatement vis_value_lti;
-    
+
     PreparedStatement set_schema_version;
     PreparedStatement get_schema_version;
-    
+
     PreparedStatement drop_smem_persistent_variables;
     PreparedStatement drop_smem_symbols_type;
     PreparedStatement drop_smem_symbols_integer;
@@ -120,14 +119,13 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement drop_smem_wmes_constant_frequency;
     PreparedStatement drop_smem_wmes_lti_frequency;
     PreparedStatement drop_smem_ascii;
-    
-    public SemanticMemoryDatabase(String driver, Connection db)
-    {
+
+    public SemanticMemoryDatabase(String driver, Connection db) {
         super(driver, db);
         getFilterMap().put("@PREFIX@", SMEM_SCHEMA);
     }
-    
-    public void dropSmemTables() throws SQLException{
+
+    public void dropSmemTables() throws SQLException {
         drop_smem_persistent_variables.execute();
         drop_smem_symbols_type.execute();
         drop_smem_symbols_integer.execute();
@@ -141,27 +139,26 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
         drop_smem_wmes_lti_frequency.execute();
         drop_smem_ascii.execute();
     }
-    
-    public boolean backupDb(String fileName) throws SQLException
-    {
-        try(Connection connection = getConnection()) {
 
-            if (connection.getAutoCommit()) {
-                commit.execute();
-                begin.execute();
-            }
+    public boolean backupDb(String fileName) throws SQLException {
+        Connection connection = getConnection();
 
-            // See sqlite-jdbc notes
-            String query = backup.getQuery() + " \"" + fileName + "\"";
-            try(Statement statement = connection.createStatement()) {
-                statement.executeUpdate(query);
-            }
-
-            if (connection.getAutoCommit()) {
-                commit.execute();
-                begin.execute();
-            }
+        if (connection.getAutoCommit()) {
+            commit.execute();
+            begin.execute();
         }
+
+        // See sqlite-jdbc notes
+        String query = backup.getQuery() + " \"" + fileName + "\"";
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(query);
+        }
+
+        if (connection.getAutoCommit()) {
+            commit.execute();
+            begin.execute();
+        }
+
         return true;
     }
 }
