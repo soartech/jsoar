@@ -41,7 +41,6 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Analyse code
-    needs: build
 
     steps:
 
