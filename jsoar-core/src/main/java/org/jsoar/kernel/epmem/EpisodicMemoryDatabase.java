@@ -5,50 +5,50 @@
  */
 package org.jsoar.kernel.epmem;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.db.AbstractSoarDatabase;
 import org.jsoar.util.db.SoarPreparedStatement;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
- * Database helper class for epmem.
- * 
+ * Database helper class for episodic memory.
+ *
  * @author ray
  */
-final class EpisodicMemoryDatabase extends AbstractSoarDatabase
-{
-    enum value_type { null_t, int_t, double_t, text_t };
-    
+final class EpisodicMemoryDatabase extends AbstractSoarDatabase {
+    enum value_type {null_t, int_t, double_t, text_t}
+
     // empty table used to verify proper structure
     static final String EPMEM_SCHEMA = "epmem_";
-    
+
     static final String EPMEM_SCHEMA_VERSION = "2.0";
-    
+
     static final String IN_MEMORY_PATH = ":memory:";
-    
+
     // These are all the prepared statements for EPMEM. They're filled in via reflection
     // from statements.properties.
-    
+
     // epmem_common_statement_container
     PreparedStatement begin;
     PreparedStatement commit;
     PreparedStatement rollback;
-    
+
     SoarPreparedStatement backup;
     SoarPreparedStatement restore;
-    
+
     PreparedStatement var_get;
     PreparedStatement var_set;
-    
+
     PreparedStatement rit_add_left;
     PreparedStatement rit_truncate_left;
     PreparedStatement rit_add_right;
     PreparedStatement rit_truncate_right;
-    
+
     PreparedStatement hash_rev_int;
     PreparedStatement hash_rev_float;
     PreparedStatement hash_rev_str;
@@ -60,49 +60,49 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement hash_add_int;
     PreparedStatement hash_add_float;
     PreparedStatement hash_add_str;
-    
+
     // epmem_graph_statement_container
     PreparedStatement add_node;
     PreparedStatement add_time;
-    
+
     //
-    
+
     PreparedStatement add_epmem_wmes_constant_now;
     PreparedStatement delete_epmem_wmes_constant_now;
     PreparedStatement add_epmem_wmes_constant_point;
     PreparedStatement add_epmem_wmes_constant_range;
-    
+
     PreparedStatement add_epmem_wmes_constant;
     PreparedStatement find_epmem_wmes_constant;
-    
+
     //
-    
+
     PreparedStatement add_epmem_wmes_identifier_now;
     PreparedStatement delete_epmem_wmes_identifier_now;
     PreparedStatement add_epmem_wmes_identifier_point;
     PreparedStatement add_epmem_wmes_identifier_range;
-    
+
     PreparedStatement add_epmem_wmes_identifier;
     PreparedStatement find_epmem_wmes_identifier;
     PreparedStatement find_epmem_wmes_identifier_shared;
-    
+
     //
-    
+
     PreparedStatement valid_episode;
     PreparedStatement next_episode;
     PreparedStatement prev_episode;
-    
+
     PreparedStatement get_wmes_with_identifier_values;
     PreparedStatement get_wmes_with_constant_values;
-    
+
     //
-    
+
     PreparedStatement promote_id;
     PreparedStatement find_lti;
     PreparedStatement find_lti_promotion_time;
-    
+
     //
-    
+
     PreparedStatement drop_epmem_nodes;
     PreparedStatement drop_epmem_episodes;
     PreparedStatement drop_epmem_wmes_constant_now;
@@ -121,7 +121,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement drop_epmem_symbols_integer;
     PreparedStatement drop_epmem_symbols_float;
     PreparedStatement drop_epmem_symbols_string;
-    
+
     PreparedStatement update_epmem_wmes_identifier_last_episode_id;
 
     // episodic_memory.cpp:1703:epmem_init_db
@@ -140,20 +140,20 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement minmax_select_edge;
     // episodic_memory.cpp:1794:epmem_init_db
     PreparedStatement edge_unique_select;
-    
+
     PreparedStatement database_version;
     PreparedStatement set_schema_version;
     PreparedStatement get_schema_version;
-    
+
     // episodic_memory.cpp:854
     SoarPreparedStatement pool_dummy;
-    
+
     SoarPreparedStatement pool_find_edge_queries_0_0;
     SoarPreparedStatement pool_find_edge_queries_0_1;
     SoarPreparedStatement pool_find_edge_queries_1_0;
     SoarPreparedStatement pool_find_edge_queries_1_1;
     public SoarPreparedStatement[][] pool_find_edge_queries;
-    
+
     SoarPreparedStatement pool_find_interval_queries_0_0_0;
     SoarPreparedStatement pool_find_interval_queries_0_0_1;
     SoarPreparedStatement pool_find_interval_queries_0_0_2;
@@ -167,7 +167,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     SoarPreparedStatement pool_find_interval_queries_1_1_1;
     SoarPreparedStatement pool_find_interval_queries_1_1_2;
     public SoarPreparedStatement[][][] pool_find_interval_queries;
-    
+
     SoarPreparedStatement pool_find_lti_queries_0_0;
     SoarPreparedStatement pool_find_lti_queries_0_1;
     SoarPreparedStatement pool_find_lti_queries_0_2;
@@ -175,76 +175,75 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     SoarPreparedStatement pool_find_lti_queries_1_1;
     SoarPreparedStatement pool_find_lti_queries_1_2;
     public SoarPreparedStatement[][] pool_find_lti_queries;
-    
-    public void prepare() throws SoarException, IOException
-    {
+
+    @Override
+    public void prepare() throws SoarException, IOException {
         //Reflect the prepared statements in
         super.prepare();
         //Assign them to the proper arrays
         pool_find_edge_queries = new SoarPreparedStatement[][]
                 {
-                    {
-                        pool_find_edge_queries_0_0,
-                        pool_find_edge_queries_0_1
-                    },
-                    {
-                        pool_find_edge_queries_1_0,
-                        pool_find_edge_queries_1_1
-                    }
+                        {
+                                pool_find_edge_queries_0_0,
+                                pool_find_edge_queries_0_1
+                        },
+                        {
+                                pool_find_edge_queries_1_0,
+                                pool_find_edge_queries_1_1
+                        }
                 };
         pool_find_interval_queries = new SoarPreparedStatement[][][]
-            {
                 {
-                    {
-                        pool_find_interval_queries_0_0_0,
-                        pool_find_interval_queries_0_0_1,
-                        pool_find_interval_queries_0_0_2
-                    },
-                    {
-                        pool_find_interval_queries_0_1_0,
-                        pool_find_interval_queries_0_1_1,
-                        pool_find_interval_queries_0_1_2
-                    }
-                },
-                {
-                    {
-                        pool_find_interval_queries_1_0_0,
-                        pool_find_interval_queries_1_0_1,
-                        pool_find_interval_queries_1_0_2
-                    },
-                    {
-                        pool_find_interval_queries_1_1_0,
-                        pool_find_interval_queries_1_1_1,
-                        pool_find_interval_queries_1_1_2
-                    }
-                },
-            };
+                        {
+                                {
+                                        pool_find_interval_queries_0_0_0,
+                                        pool_find_interval_queries_0_0_1,
+                                        pool_find_interval_queries_0_0_2
+                                },
+                                {
+                                        pool_find_interval_queries_0_1_0,
+                                        pool_find_interval_queries_0_1_1,
+                                        pool_find_interval_queries_0_1_2
+                                }
+                        },
+                        {
+                                {
+                                        pool_find_interval_queries_1_0_0,
+                                        pool_find_interval_queries_1_0_1,
+                                        pool_find_interval_queries_1_0_2
+                                },
+                                {
+                                        pool_find_interval_queries_1_1_0,
+                                        pool_find_interval_queries_1_1_1,
+                                        pool_find_interval_queries_1_1_2
+                                }
+                        },
+                };
         pool_find_lti_queries = new SoarPreparedStatement[][]
-            {
                 {
-                    pool_find_lti_queries_0_0,
-                    pool_find_lti_queries_0_1,
-                    pool_find_lti_queries_0_2
-                },
-                {
-                    pool_find_lti_queries_1_0,
-                    pool_find_lti_queries_1_1,
-                    pool_find_lti_queries_1_2
-                }
-            };
+                        {
+                                pool_find_lti_queries_0_0,
+                                pool_find_lti_queries_0_1,
+                                pool_find_lti_queries_0_2
+                        },
+                        {
+                                pool_find_lti_queries_1_0,
+                                pool_find_lti_queries_1_1,
+                                pool_find_lti_queries_1_2
+                        }
+                };
     }
-    
+
     /**
      * @param driver
      * @param db
      */
-    public EpisodicMemoryDatabase(String driver, Connection db)
-    {
+    public EpisodicMemoryDatabase(String driver, Connection db) {
         super(driver, db);
         getFilterMap().put("@PREFIX@", EPMEM_SCHEMA);
     }
-    
-    public void dropEpmemTables() throws SQLException{
+
+    public void dropEpmemTables() throws SQLException {
         drop_epmem_nodes.execute();
         drop_epmem_episodes.execute();
         drop_epmem_wmes_constant_now.execute();
@@ -264,29 +263,29 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         drop_epmem_symbols_float.execute();
         drop_epmem_symbols_string.execute();
     }
-    
-    public boolean backupDb(String fileName) throws SQLException
-    {
-        boolean returnValue = false;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
+
+    public boolean backupDb(final String fileName) throws SQLException {
+
+        try (Connection connection = getConnection()) {
+            if (connection.getAutoCommit()) {
+                commit.execute();
+                begin.execute();
+            }
+
+            // See sqlite-jdbc notes
+            String query = backup.getQuery() + " \"" + fileName + "\"";
+
+            try (Statement statement = connection.createStatement()) {
+                statement.executeUpdate(query);
+            }
+
+            if (connection.getAutoCommit()) {
+                commit.execute();
+                begin.execute();
+            }
+
         }
-        
-        // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-        this.getConnection().createStatement().executeUpdate(query);
-        
-        returnValue = true;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        return returnValue;
+
+        return true;
     }
 }
