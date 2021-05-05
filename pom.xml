@@ -37,6 +37,7 @@
         <junit-jupiter.version>5.7.1</junit-jupiter.version>
 
         <sonar.projectKey>UniKnow_jsoar</sonar.projectKey>
+        <sonar.moduleKey>${artifactId}</sonar.moduleKey>
         <sonar.organization>uniknow</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
