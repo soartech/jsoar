@@ -42,15 +42,10 @@ public class DebugTestAction extends AbstractAction
     @Override
     public void actionPerformed(ActionEvent event)
     {
-        try
-        {
-            PrintWriter pw = new PrintWriter(new NullWriter());
+        try(PrintWriter pw = new PrintWriter(new NullWriter())) {
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
-            pw.close();
-        }
-        catch (SoarException | InterruptedException | IOException e)
-        {
+        } catch (SoarException | InterruptedException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
