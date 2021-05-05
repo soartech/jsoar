@@ -21,8 +21,8 @@ public class Prefs extends AbstractPreferences {
     private final TreeMap<String, Prefs> children;
     private boolean isRemoved = false;
 
-    public Prefs(AbstractPreferences parent, String name){
-        super(parent,name);
+    public Prefs(AbstractPreferences parent, String name) {
+        super(parent, name);
 
         root = new TreeMap<>();
         children = new TreeMap<>();
@@ -37,7 +37,7 @@ public class Prefs extends AbstractPreferences {
 
     @Override
     protected void putSpi(String key, String value) {
-        root.put(key,value);
+        root.put(key, value);
         try {
             flush();
         } catch (BackingStoreException e) {
@@ -74,9 +74,9 @@ public class Prefs extends AbstractPreferences {
     @Override
     protected AbstractPreferences childSpi(String name) {
         Prefs prefs = children.get(name);
-        if (prefs == null){
-            prefs = new Prefs(this,name);
-            children.put(name,prefs);
+        if (prefs == null) {
+            prefs = new Prefs(this, name);
+            children.put(name, prefs);
         }
         return prefs;
     }
@@ -91,8 +91,8 @@ public class Prefs extends AbstractPreferences {
 
         synchronized (file) {
             Properties p = new Properties();
-            try {
-                p.load(new FileInputStream(file));
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                p.load(inputStream);
 
                 StringBuilder sb = new StringBuilder();
                 getPath(sb);
@@ -109,17 +109,14 @@ public class Prefs extends AbstractPreferences {
                         }
                     }
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new BackingStoreException(e);
             }
         }
     }
 
 
-
-    private void getPath(StringBuilder sb)
-    {
+    private void getPath(StringBuilder sb) {
         final Prefs parent = (Prefs) parent();
         if (parent == null) return;
 
@@ -140,8 +137,9 @@ public class Prefs extends AbstractPreferences {
                 String path = sb.toString();
 
                 if (file.exists()) {
-                    p.load(new FileInputStream(file));
-
+                    try(FileInputStream inputStream = new FileInputStream(file)) {
+                        p.load(inputStream);
+                    }
                     List<String> toRemove = new ArrayList<>();
 
                     // Make a list of all direct children of this node to be removed
@@ -170,9 +168,10 @@ public class Prefs extends AbstractPreferences {
                     }
                 }
 
-                p.store(new FileOutputStream(file), "JSoar Debugger Preferences");
-            }
-            catch (IOException e) {
+                try(FileOutputStream outputStream=new FileOutputStream(file)) {
+                    p.store(outputStream, "JSoar Debugger Preferences");
+                }
+            } catch (IOException e) {
                 throw new BackingStoreException(e);
             }
         }
@@ -255,8 +254,7 @@ public class Prefs extends AbstractPreferences {
         return new SyntaxSettings();
     }
 
-    public static File getLayoutFile() throws IOException
-    {
+    public static File getLayoutFile() throws IOException {
         @SuppressWarnings("unused")
         boolean success = true;
         File file = new File(PREFS_PATH);
