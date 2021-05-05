@@ -46,7 +46,6 @@ public class DebugTestAction extends AbstractAction
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
         } catch (SoarException | InterruptedException | IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
