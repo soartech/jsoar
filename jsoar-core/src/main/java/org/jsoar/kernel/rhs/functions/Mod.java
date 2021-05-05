@@ -32,12 +32,12 @@ public class Mod extends AbstractRhsFunctionHandler
         final IntegerSymbol a = arguments.get(0).asInteger();
         if(a == null)
         {
-            throw new RhsFunctionException(String.format("Non-integer (%d) passed to '%s' function", arguments.get(0), getName()));
+            throw new RhsFunctionException(String.format("Non-integer (%s) passed to '%s' function", arguments.get(0), getName()));
         }
         final IntegerSymbol b = arguments.get(1).asInteger(); 
         if(b == null)
         {
-            throw new RhsFunctionException(String.format("Non-integer (%d) passed to '%s' function", arguments.get(1), getName()));
+            throw new RhsFunctionException(String.format("Non-integer (%s) passed to '%s' function", arguments.get(1), getName()));
         }
         
         if(b.getValue() == 0)
