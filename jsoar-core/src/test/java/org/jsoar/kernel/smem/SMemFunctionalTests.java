@@ -798,22 +798,10 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         {
             a.runFor(4+1, RunType.DECISIONS);
         }
-        
-        boolean allStopped = false;
-        while (!allStopped)
-        {
-            allStopped = true;
-            
-            for (ThreadedAgent a : agents)
-            {
-                if (a.isRunning())
-                {
-                    allStopped = false;
-                    break;
-                }
-            }
-        }
-        
+
+        // Wait until all agents are stopped
+        while (agents.stream().noneMatch(ThreadedAgent::isRunning));
+
         for (ThreadedAgent a : agents)
         {
             if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 4)
