@@ -8,6 +8,7 @@ package org.jsoar.kernel.smem;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
 import org.jsoar.util.db.SoarPreparedStatement;
@@ -143,26 +144,24 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     
     public boolean backupDb(String fileName) throws SQLException
     {
-        boolean returnValue = false;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
+        try(Connection connection = getConnection()) {
+
+            if (connection.getAutoCommit()) {
+                commit.execute();
+                begin.execute();
+            }
+
+            // See sqlite-jdbc notes
+            String query = backup.getQuery() + " \"" + fileName + "\"";
+            try(Statement statement = connection.createStatement()) {
+                statement.executeUpdate(query);
+            }
+
+            if (connection.getAutoCommit()) {
+                commit.execute();
+                begin.execute();
+            }
         }
-        
-        // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-        this.getConnection().createStatement().executeUpdate(query);
-        
-        returnValue = true;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        return returnValue;
+        return true;
     }
 }
