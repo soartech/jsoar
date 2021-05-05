@@ -3,6 +3,7 @@ package org.jsoar.debugger.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoar.debugger.syntax.SyntaxSettings;
 
 import java.io.*;
@@ -10,6 +11,7 @@ import java.util.*;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
+@Slf4j
 public class Prefs extends AbstractPreferences {
 
     private static final String PREFS_FILENAME = "jsoar.properties";
@@ -235,7 +237,7 @@ public class Prefs extends AbstractPreferences {
             };
             return mapper.readValue(file, highlightsType);
         } catch (IOException ignored) {
-            System.out.println("Error loading syntax, reverting to defaults");
+            log.warn("Error loading syntax, reverting to defaults");
         }
         return null;
     }
