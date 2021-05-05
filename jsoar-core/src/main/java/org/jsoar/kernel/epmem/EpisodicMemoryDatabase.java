@@ -273,11 +273,9 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase {
             begin.execute();
         }
 
-        // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-
+        // See sqlite-jdbc notes; causes a Security Hotspot in sonar
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
+            statement.executeUpdate(backup.getQuery() + " " + fileName);
         }
 
         if (connection.getAutoCommit()) {

@@ -148,10 +148,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase {
             begin.execute();
         }
 
-        // See sqlite-jdbc notes
-        try (PreparedStatement statement = connection.prepareStatement(backup.getQuery())) {
-            statement.setString(1,fileName);
-            statement.executeUpdate();
+        // See sqlite-jdbc notes; causes a Security Hotspot in sonar
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(backup.getQuery() + " " + fileName);
         }
 
         if (connection.getAutoCommit()) {
