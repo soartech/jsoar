@@ -149,9 +149,9 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase {
         }
 
         // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(query);
+        try (PreparedStatement statement = connection.prepareStatement(backup.getQuery())) {
+            statement.setString(1,fileName);
+            statement.executeUpdate();
         }
 
         if (connection.getAutoCommit()) {
