@@ -1,14 +1,8 @@
 [![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
-![version](https://img.shields.io/badge/jsoar-v4.1.0-blue)
+![version](https://img.shields.io/badge/jsoar-4.1.0-blue)
 
-[![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
-[![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
-[![javadoc-jsoar-debugger](https://img.shields.io/badge/javadoc-jsoar--debugger-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-debugger) 
-[![javadoc-jsoar-soarunit](https://img.shields.io/badge/javadoc-jsoar--soarunit-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soarunit) 
-[![javadoc-jsoar-soar2soar](https://img.shields.io/badge/javadoc-jsoar--soar2soar-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-soar2soar) 
-[![javadoc-jsoar-demos](https://img.shields.io/badge/javadoc-jsoar--demos-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-demos) 
-
-![Maven Build](https://github.com/soartech/jsoar/workflows/Maven%20Build/badge.svg)
+![Maven Build](https://github.com/uniknow/jsoar/workflows/Maven%20Build/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=alert_status)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar)
 
 JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](https://github.com/soartech/jsoar/wiki) for more information. The [User's Guide](https://github.com/soartech/jsoar/wiki/JSoarUsersGuide) is a good place to start.
 
