@@ -32,8 +32,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
+        <java.version>15</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <junit-jupiter.version>5.7.1</junit-jupiter.version>
 
         <sonar.projectKey>UniKnow_jsoar</sonar.projectKey>
@@ -45,6 +46,34 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+                <executions>
+                    <execution>
+                        <id>prepare-jacoco</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-report-jacoco</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -52,15 +81,14 @@
                 <configuration>
                     <show>private</show>
                     <doclint>none</doclint>
-                    <source>8</source>
-                    <!-- if you don't want javadoc errors to fail the build, uncomment this
+                    <source>${java.version}</source>
+
+                     <!-- if you want javadoc errors to fail the build, comment this -->
                     <failOnError>false</failOnError>
-                    -->
 
                     <!-- START: Enable asciidoclet -->
                     <additionalJOptions>
-                        <additionalJOption>-J--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED
-                        </additionalJOption>
+                        <additionalJOption>-J--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED</additionalJOption>
                         <additionalJOption>--base-dir</additionalJOption>
                         <additionalJOption>${project.basedir}</additionalJOption>
                     </additionalJOptions>
@@ -93,6 +121,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
