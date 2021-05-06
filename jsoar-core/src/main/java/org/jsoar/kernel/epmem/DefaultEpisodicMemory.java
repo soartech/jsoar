@@ -5,83 +5,25 @@
  */
 package org.jsoar.kernel.epmem;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableSet;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.LazyCommitChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.PageChoices;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.*;
 import org.jsoar.kernel.epmem.EpisodicMemoryIdReservation.EpisodicMemoryIdPair;
 import org.jsoar.kernel.learning.Chunker;
-import org.jsoar.kernel.memory.Instantiation;
-import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.RecognitionMemory;
-import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.*;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
-import org.jsoar.kernel.memory.WmeType;
-import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
-import org.jsoar.kernel.symbols.DoubleSymbol;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.IntegerSymbol;
-import org.jsoar.kernel.symbols.JavaSymbol;
-import org.jsoar.kernel.symbols.StringSymbol;
-import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.symbols.*;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -93,20 +35,23 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.sql.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <h2>Variance from CSoar Implementation</h2>
  * <p>
  * The smem_data_struct that was added to every identifier in CSoar is instead
  * maintained in a map from id to {@link EpisodicMemoryStateInfo} in this class.
- * 
+ *
  * <h2>Typedef mappings</h2>
  * <ul>
  * <li>uint64_t == long
@@ -123,19 +68,17 @@ import com.google.common.collect.Sets;
  * <li>epmem_symbol_stack = {@code Deque<SymbolImpl>}
  * <li>epmem_id_ref_counter = {@code Map<Long, Set<WmeImpl>>}
  * </ul>
- * 
+ *
  * @author voigtjr
  */
-public class DefaultEpisodicMemory implements EpisodicMemory
-{
-    private static final Logger logger = LoggerFactory.getLogger(DefaultEpisodicMemory.class);
+@Slf4j
+public class DefaultEpisodicMemory implements EpisodicMemory {
 
     /**
      * episodic_memory.h:42:epmem_variable_key
      */
-    private static enum epmem_variable_key
-    {
-        var_rit_offset_1, var_rit_leftroot_1, var_rit_rightroot_1, var_rit_minstep_1, 
+    private static enum epmem_variable_key {
+        var_rit_offset_1, var_rit_leftroot_1, var_rit_rightroot_1, var_rit_minstep_1,
         var_rit_offset_2, var_rit_leftroot_2, var_rit_rightroot_2, var_rit_minstep_2, var_next_id
     }
 
@@ -153,19 +96,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * episodic_memory.h:53:EPMEM_HASH_ACCEPTABLE
      */
     public static final long EPMEM_HASH_ACCEPTABLE = 1;
-    
+
     /**
      * episodic_memory.h:55:EPMEM_NODE_POS
      * int, so it can be switched on
      */
     public static final int EPMEM_NODE_POS = 0;
-    
+
     /**
      * episodic_memory.h:56:EPMEM_NODE_NEG
      * int, so it can be switched on
      */
     public static final int EPMEM_NODE_NEG = 1;
-    
+
     /**
      * episodic_memory.h:57:EPMEM_RANGE_START
      */
@@ -175,41 +118,39 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * episodic_memory.h:58:EPMEM_RANGE_END
      */
     public static final int EPMEM_RANGE_END = 1;
-    
+
     /**
      * episodic_memory.h:59:EPMEM_RANGE_EP
      */
     public static final int EPMEM_RANGE_EP = 0;
-    
+
     /**
      * episodic_memory.h:60:EPMEM_RANGE_NOW
      */
     public static final long EPMEM_RANGE_NOW = 1;
-    
+
     /**
      * episodic_memory.h:61:EPMEM_RANGE_POINT
      */
     public static final long EPMEM_RANGE_POINT = 2;
-    
+
     /**
      * episodic_memory.h:63:EPMEM_RIT_ROOT
      */
     private static final long EPMEM_RIT_ROOT = 0;
-    
+
     /**
      * episodic_memory.h:65:EPMEM_LN_2
      */
     private static final double EPMEM_LN_2 = 0.693147180559945;
-    
-    private static class epmem_rit_state_param
-    {
+
+    private static class epmem_rit_state_param {
         long /* soar_module::integer_stat */stat;
 
         epmem_variable_key var_key = epmem_variable_key.var_rit_offset_1;
     }
 
-    private static class epmem_rit_state
-    {
+    private static class epmem_rit_state {
         epmem_rit_state_param offset = new epmem_rit_state_param();
         epmem_rit_state_param leftroot = new epmem_rit_state_param();
         epmem_rit_state_param rightroot = new epmem_rit_state_param();
@@ -218,115 +159,147 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // TODO EPMEM soar_module::timer *timer;
         PreparedStatement add_query;
     }
-    
+
     private Adaptable context;
     private Agent agent;
     private DefaultSemanticMemory smem;
     private Chunker chunker;
-    
+
     private DefaultEpisodicMemoryParams params;
     DefaultEpisodicMemoryStats stats;
 
     private Decider decider;
     SymbolFactoryImpl symbols;
     EpisodicMemoryDatabase db;
-    
+
     private RecognitionMemory recognitionMemory;
 
-    /** agent.h:epmem_validation */
-    private/* uintptr_t */long epmem_validation = 0;
+    /**
+     * agent.h:epmem_validation
+     */
+    private/* uintptr_t */ long epmem_validation = 0;
 
-    /** agent.h:epmem_node_removals */
+    /**
+     * agent.h:epmem_node_removals
+     */
     private SortedMap</* epmem_node_id */Long, Boolean> epmem_node_removals;
 
-    /** agent.h:epmem_node_mins */
+    /**
+     * agent.h:epmem_node_mins
+     */
     private List</* epmem_time_id */Long> epmem_node_mins;
 
-    /** agent.h:epmem_node_maxes */
+    /**
+     * agent.h:epmem_node_maxes
+     */
     private List<Boolean> epmem_node_maxes;
 
-    /** agent.h:epmem_edge_removals */
+    /**
+     * agent.h:epmem_edge_removals
+     */
     private SortedMap</* epmem_node_id */Long, Boolean> epmem_edge_removals;
 
-    /** agent.h:epmem_edge_mins */
+    /**
+     * agent.h:epmem_edge_mins
+     */
     private List</* epmem_time_id */Long> epmem_edge_mins;
 
-    /** agent.h:epmem_edge_maxes */
+    /**
+     * agent.h:epmem_edge_maxes
+     */
     private List<Boolean> epmem_edge_maxes;
 
-    /** agent.h:epmem_id_repository */
+    /**
+     * agent.h:epmem_id_repository
+     */
     private Map<Long, Map<Long, LinkedList<EpisodicMemoryIdPair>>> /* epmem_parent_id_pool */epmem_id_repository;
 
-    /** agent.h:epmem_id_replacement */
+    /**
+     * agent.h:epmem_id_replacement
+     */
     private Map<Long, LinkedList<EpisodicMemoryIdPair>> /* epmem_return_id_pool */epmem_id_replacement;
 
-    /** agent.h:epmem_id_ref_counts */
+    /**
+     * agent.h:epmem_id_ref_counts
+     */
     private Map<Long, Set<WmeImpl>> /* epmem_id_ref_counter */epmem_id_ref_counts;
 
-    /** agent.h:epmem_id_removes */
+    /**
+     * agent.h:epmem_id_removes
+     */
     private Deque<SymbolImpl> /* epmem_symbol_stack */epmem_id_removes;
 
-    /** agent.h:epmem_wme_adds */
+    /**
+     * agent.h:epmem_wme_adds
+     */
     private final Set<IdentifierImpl> /* epmem_symbol_set */epmem_wme_adds = new LinkedHashSet<IdentifierImpl>();
 
-    /** agent.h:epmem_promotions */
+    /**
+     * agent.h:epmem_promotions
+     */
     private final Set<SymbolImpl> /* epmem_symbol_set */epmem_promotions = new LinkedHashSet<SymbolImpl>();
-    
-    /** episodic_memory.h:51:EPMEM_NODEID_ROOT */
+
+    /**
+     * episodic_memory.h:51:EPMEM_NODEID_ROOT
+     */
     private static final Long EPMEM_NODEID_ROOT = 0L;
 
-    /** episodic_memory.h:69:EPMEM_RIT_STATE_NODE */
+    /**
+     * episodic_memory.h:69:EPMEM_RIT_STATE_NODE
+     */
     private static final int EPMEM_RIT_STATE_NODE = 0;
 
-    /** episodic_memory.h:70:EPMEM_RIT_STATE_EDGE */
+    /**
+     * episodic_memory.h:70:EPMEM_RIT_STATE_EDGE
+     */
     private static final int EPMEM_RIT_STATE_EDGE = 1;
 
-    /** episodic_memory.h:64:EPMEM_RIT_OFFSET_INIT */
+    /**
+     * episodic_memory.h:64:EPMEM_RIT_OFFSET_INIT
+     */
     private static final int EPMEM_RIT_OFFSET_INIT = -1;
 
-    /** agent.h:904:epmem_rit_state_graph */
-    private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] { new epmem_rit_state(),
-            new epmem_rit_state() };
+    /**
+     * agent.h:904:epmem_rit_state_graph
+     */
+    private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[]{new epmem_rit_state(),
+            new epmem_rit_state()};
 
     private Trace trace;
     private Random random;
-    
+
     // bool epmem_first_switch;
 
     EpisodicMemorySymbols predefinedSyms;
 
-    private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = 
+    private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos =
             new LinkedHashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
-    
+
     private final SoarModule soarModule = new SoarModule();
-    
+
     private WorkingMemoryActivation wma;
 
-    public DefaultEpisodicMemory(Adaptable context)
-    {
+    public DefaultEpisodicMemory(Adaptable context) {
         this(context, null);
     }
 
-    public DefaultEpisodicMemory(Adaptable context, EpisodicMemoryDatabase db)
-    {
+    public DefaultEpisodicMemory(Adaptable context, EpisodicMemoryDatabase db) {
         this.context = context;
         this.db = db;
     }
-    
+
     /**
      * @return the interface not the implementation
      */
-    public EpisodicMemoryStatistics getStats()
-    {
+    public EpisodicMemoryStatistics getStats() {
         return stats;
     }
-    
+
     /**
      * This is called when the agent is initialized. This code here in CSoar is
      * usually run at agent creation.
      */
-    public void initialize()
-    {
+    public void initialize() {
         agent = Adaptables.adapt(context, Agent.class);
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
         smem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultSemanticMemory.class);
@@ -334,17 +307,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
         wma = Adaptables.require(DefaultEpisodicMemory.class, context, WorkingMemoryActivation.class);
-        
+
         random = agent.getRandom();
         trace = agent.getTrace();
-        
+
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
         params = new DefaultEpisodicMemoryParams(properties, symbols);
         stats = new DefaultEpisodicMemoryStats(properties);
 
         predefinedSyms = new EpisodicMemorySymbols(symbols);
-        
+
         // CK: not implementing timers
         // src/agent.cpp:369: newAgent->epmem_timers = new
         // epmem_timer_container( newAgent );
@@ -398,18 +371,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // >( newAgent ) );
         // src/agent.cpp:399: newAgent->epmem_id_removes = new
         // epmem_symbol_stack();
-        
+
         /*
          * rit_state_graph stuff taken from:
          * episodic_memory.cpp:257:epmem_stat_container::epmem_stat_container( agent *new_agent ): soar_module::stat_container( new_agent )
-         * 
+         *
          * must be done before epmem_init_db_catch()
          */
-        
+
         /////////////////////////////
         // connect to rit state
         /////////////////////////////
-        
+
         // graph
         //epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].offset.stat = rit_offset_1;
         epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].offset.var_key = epmem_variable_key.var_rit_offset_1;
@@ -428,49 +401,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].rightroot.var_key = epmem_variable_key.var_rit_rightroot_2;
         //epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].minstep.stat = rit_min_step_2;
         epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].minstep.var_key = epmem_variable_key.var_rit_minstep_2;
-        
+
         // CK: in smem this is called from smem_attach, there is no equivalent
         // function in episodic_memory.cpp
         //epmem_init_db_catch();
-        
+
         soarModule.initialize(context);
     }
 
-    EpisodicMemoryDatabase getDatabase()
-    {
+    EpisodicMemoryDatabase getDatabase() {
         return db;
     }
-    
-    DefaultEpisodicMemoryParams getParams()
-    {
+
+    DefaultEpisodicMemoryParams getParams() {
         return params;
     }
 
     /**
      * Opens the SQLite database and performs all initialization required for
      * the current mode
-     * 
+     *
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
-     * 
      */
-    void epmem_init_db() throws SoarException
-    {
+    void epmem_init_db() throws SoarException {
         epmem_init_db(false);
     }
 
     /**
      * similar to epmem_init_db except this catches and logs the exception
      */
-    private void epmem_init_db_catch()
-    {
-        try
-        {
+    private void epmem_init_db_catch() {
+        try {
             epmem_init_db();
-        }
-        catch (SoarException e)
-        {
-            logger.error("While initializing epmem: " + e.getMessage(), e);
+        } catch (SoarException e) {
+            log.error("While initializing epmem: " + e.getMessage(), e);
             agent.getPrinter().error("While initializing epmem: " + e.getMessage());
         }
     }
@@ -478,44 +443,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * Opens the SQLite database and performs all initialization required for
      * the current mode
-     * 
+     *
      * <p>
      * The readonly param should only be used in experimentation where you don't
      * want to alter previous database state.
-     * 
+     *
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
-     * 
      */
-    void epmem_init_db(boolean readonly /* = false */) throws SoarException
-    {
-        if (db == null)
-        {
-            try
-            {
+    void epmem_init_db(boolean readonly /* = false */) throws SoarException {
+        if (db == null) {
+            try {
                 epmem_init_db_ex(readonly);
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
+                throw new SoarException("While attaching epmem: " + e.getMessage(), e);
+            } catch (IOException e) {
                 throw new SoarException("While attaching epmem: " + e.getMessage(), e);
             }
-            catch (IOException e)
-            {
-                throw new SoarException("While attaching epmem: " + e.getMessage(), e);
-            } 
         }
     }
 
     /**
      * Extracted from epmem_init_db(). Take performance settings and apply then
      * to the current database.
-     * 
+     *
      * <p>
      * episodic_memory.cpp:1496:epmem_init_db
-     * 
      */
-    private void applyDatabasePerformanceOptions() throws SQLException, SoarException, IOException
-    {
+    private void applyDatabasePerformanceOptions() throws SQLException, SoarException, IOException {
         // TODO EPMEM SMEM a lot of this database code is identical between the
         // two modules
         // and could be factored out.
@@ -523,103 +478,77 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // apply performance options
 
         // cache
-        if (params.driver.get().equals("org.sqlite.JDBC"))
-        {
+        if (params.driver.get().equals("org.sqlite.JDBC")) {
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
 
-            final Statement s = db.getConnection().createStatement();
-            try
-            {
-                s.execute("PRAGMA cache_size = " + cacheSize);
-            }
-            finally
-            {
-                s.close();
+            try (Statement s = db.getConnection().createStatement()) {
+                s.execute("PRAGMA main.cache_size = " + cacheSize);
             }
         }
 
         // optimization
-        if (params.optimization.get() == Optimization.performance)
-        {
+        if (params.optimization.get() == Optimization.performance) {
             // If /org/jsoar/kernel/smem/<driver>.performance.sql is found on
             // the class path, execute the statements in it.
             final String perfResource = params.driver.get() + ".performance.sql";
-            final InputStream perfStream = getClass().getResourceAsStream(perfResource);
-            final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
-            if (perfStream != null)
-            {
-                logger.info("Applying performance settings from '" + fullPath + "'.");
-                try
-                {
+            try (InputStream perfStream = getClass().getResourceAsStream(perfResource)) {
+                final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
+                if (perfStream != null) {
+                    log.info("Applying performance settings from '{}'.", fullPath);
                     JdbcTools.executeSql(db.getConnection(), perfStream, null /* no filter */);
+                } else {
+                    log.warn("Could not find performance resource at '{}'. No performance settings applied.", fullPath);
                 }
-                finally
-                {
-                    perfStream.close();
-                }
-            }
-            else
-            {
-                logger.warn("Could not find performance resource at '" + fullPath
-                        + "'. No performance settings applied.");
             }
         }
 
         // page_size
-        if (params.driver.get().equals("org.sqlite.JDBC"))
-        {
+        if (params.driver.get().equals("org.sqlite.JDBC")) {
             final PageChoices pageSize = params.page_size.get();
-            
+
             long pageSizeLong = 0;
-            
-            switch (pageSize)
-            {
-            case page_16k:
-                pageSizeLong = 16 * 1024;
-                break;
-            case page_1k:
-                pageSizeLong = 1 * 1024;
-                break;
-            case page_2k:
-                pageSizeLong = 2 * 1024;
-                break;
-            case page_32k:
-                pageSizeLong = 32 * 1024;
-                break;
-            case page_4k:
-                pageSizeLong = 4 * 1024;
-                break;
-            case page_64k:
-                pageSizeLong = 64 * 1024;
-                break;
-            case page_8k:
-                pageSizeLong = 8 * 1024;
-                break;
-            default:
-                break;
+
+            switch (pageSize) {
+                case page_16k:
+                    pageSizeLong = 16 * 1024;
+                    break;
+                case page_1k:
+                    pageSizeLong = 1 * 1024;
+                    break;
+                case page_2k:
+                    pageSizeLong = 2 * 1024;
+                    break;
+                case page_32k:
+                    pageSizeLong = 32 * 1024;
+                    break;
+                case page_4k:
+                    pageSizeLong = 4 * 1024;
+                    break;
+                case page_64k:
+                    pageSizeLong = 64 * 1024;
+                    break;
+                case page_8k:
+                    pageSizeLong = 8 * 1024;
+                    break;
+                default:
+                    break;
             }
 
             final Statement s = db.getConnection().createStatement();
-            try
-            {
+            try {
                 s.execute("PRAGMA page_size = " + pageSizeLong);
-            }
-            finally
-            {
+            } finally {
                 s.close();
             }
         }
     }
 
     private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max,
-            List<Long> minmax_min) throws SQLException
-    {
+                            List<Long> minmax_min) throws SQLException {
         final ResultSet rs = minmax_select.executeQuery();
-        try
-        {
-            while (rs.next())
-            {
+        try {
+            while (rs.next()) {
             	/*
                  * The original port from CSoar did this.  In the original version of Xerial this would return
                  * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
@@ -628,15 +557,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                  *  
                  if ( temp_q->column_type( 0 ) != soar_module::null_t )
                  */
-                if (rs.getInt(0 + 1) != 0)
-                {
+                if (rs.getInt(0 + 1) != 0) {
                     // std::vector<bool>::size_type num_ids =
                     // temp_q->column_int( 0 );
                     int num_ids = rs.getInt(0 + 1);
 
                     //Note that substituting resize for an add loop only works if the incoming lists are empty. -ACN
-                    for (int i = 0; i < num_ids; i++)
-                    {
+                    for (int i = 0; i < num_ids; i++) {
                         // minmax_max[i]->resize( num_ids, true );
                         minmax_max.add(Boolean.TRUE);
                         // minmax_min[i]->resize( num_ids, time_max );
@@ -644,9 +571,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
             }
-        }
-        finally
-        {
+        } finally {
             rs.close();
         }
     }
@@ -654,15 +579,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * Private method for epmem_init_db that throws SQLException, IOException so
      * it can wrap in SoarException and throw.
-     * 
+     *
      * <p>
      * episodic_memory.cpp:1458:epmem_init_db
-     * 
      */
-    private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException
-    {
-        if (db != null /* my_agent->epmem_db->get_status() !=soar_module::disconnected */)
-        {
+    private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException {
+        if (db != null /* my_agent->epmem_db->get_status() !=soar_module::disconnected */) {
             return;
         }
 
@@ -675,8 +597,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final String jdbcUrl = URLDecoder.decode(params.protocol.get() + ":" + params.path.get(), "UTF-8");
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
-        
-        logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
+
+        log.info("Opened database '{}' with {}:{}", jdbcUrl, meta.getDriverName(), meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
 
         applyDatabasePerformanceOptions();
@@ -689,17 +611,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         db.structure();
         db.prepare();
         //Make sure we do not have an incorrect database version
-        if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
-        {
+        if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get())) {
             final ResultSet result = db.get_schema_version.executeQuery();
-            try
-            {
-                if (result.next())
-                {
+            try {
+                if (result.next()) {
                     String schemaVersion = result.getString(1);
-                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
-                    {
-                        logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
+                    if (!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion)) {
+                        log.error("Incorrect database version, switching to memory.  Found version: {}", schemaVersion);
                         params.path.set(EpisodicMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
@@ -709,35 +627,30 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // guaranteed to be memory for the second call
                         epmem_init_db_ex(readonly);
                     }
-                }
-                else
-                {
-                    if (params.append_database.get() == AppendDatabaseChoices.on)
-                    {
-                        logger.info("The selected database contained no data to append on.  New tables created.");
+                } else {
+                    if (params.append_database.get() == AppendDatabaseChoices.on) {
+                        log.info("The selected database contained no data to append on.  New tables created.");
                     }
                 }
-            }
-            finally
-            {
+            } finally {
                 result.close();
             }
         }
         db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION);
         db.set_schema_version.execute();
         /*
-         * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
+         * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the
          * prepared statements without making sure the tables exist, but we cannot drop the new
          * tables without first building the prepared statements.
          * TODO: Maybe we should bypass the reflected query structure so this can be done in
          * one statement, instead of building the tables and immediately dropping them. -ACN
          */
-        if(params.append_database.get() == AppendDatabaseChoices.off){
+        if (params.append_database.get() == AppendDatabaseChoices.off) {
             db.dropEpmemTables();
             db.structure();
             db.prepare();
         }
-        
+
         // initialize range tracking
         epmem_node_mins.clear();
         epmem_node_maxes.clear();
@@ -762,19 +675,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         {
             final ByRef<Long> stored_id = ByRef.create(0L);
-            if (epmem_get_variable(epmem_variable_key.var_next_id, stored_id))
-            {
+            if (epmem_get_variable(epmem_variable_key.var_next_id, stored_id)) {
                 stats.next_id.set(stored_id.value);
-            }
-            else
-            {
+            } else {
                 epmem_set_variable(epmem_variable_key.var_next_id, stats.next_id.get());
             }
         }
 
         // initialize rit state
-        for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
-        {
+        for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++) {
             epmem_rit_state_graph[i].offset.stat = EPMEM_RIT_OFFSET_INIT;
             epmem_rit_state_graph[i].leftroot.stat = 0;
             epmem_rit_state_graph[i].rightroot.stat = 1;
@@ -789,47 +698,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             final ByRef<Long> var_val = ByRef.create(0L);
 
-            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
-            {
+            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++) {
                 // offset
-                if (epmem_get_variable(epmem_rit_state_graph[i].offset.var_key, var_val))
-                {
+                if (epmem_get_variable(epmem_rit_state_graph[i].offset.var_key, var_val)) {
                     epmem_rit_state_graph[i].offset.stat = var_val.value;
-                }
-                else
-                {
+                } else {
                     epmem_set_variable(epmem_rit_state_graph[i].offset.var_key, epmem_rit_state_graph[i].offset.stat);
                 }
 
                 // leftroot
-                if (epmem_get_variable(epmem_rit_state_graph[i].leftroot.var_key, var_val))
-                {
+                if (epmem_get_variable(epmem_rit_state_graph[i].leftroot.var_key, var_val)) {
                     epmem_rit_state_graph[i].leftroot.stat = var_val.value;
-                }
-                else
-                {
+                } else {
                     epmem_set_variable(epmem_rit_state_graph[i].leftroot.var_key,
                             epmem_rit_state_graph[i].leftroot.stat);
                 }
 
                 // rightroot
-                if (epmem_get_variable(epmem_rit_state_graph[i].rightroot.var_key, var_val))
-                {
+                if (epmem_get_variable(epmem_rit_state_graph[i].rightroot.var_key, var_val)) {
                     epmem_rit_state_graph[i].rightroot.stat = var_val.value;
-                }
-                else
-                {
+                } else {
                     epmem_set_variable(epmem_rit_state_graph[i].rightroot.var_key,
                             epmem_rit_state_graph[i].rightroot.stat);
 
                 }
                 // minstep
-                if (epmem_get_variable(epmem_rit_state_graph[i].minstep.var_key, var_val))
-                {
+                if (epmem_get_variable(epmem_rit_state_graph[i].minstep.var_key, var_val)) {
                     epmem_rit_state_graph[i].minstep.stat = var_val.value;
-                }
-                else
-                {
+                } else {
                     epmem_set_variable(epmem_rit_state_graph[i].minstep.var_key, epmem_rit_state_graph[i].minstep.stat);
                 }
             }
@@ -842,17 +738,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final PreparedStatement temp_q = db.get_max_time;
 
             final ResultSet rs = temp_q.executeQuery();
-            try
-            {
-                if (rs.next())
-                {
+            try {
+                if (rs.next()) {
                     // my_agent->epmem_stats->time->set_value(
                     // temp_q->column_int( 0 ) + 1 );
                     stats.time.set(rs.getLong(0 + 1) + 1);
                 }
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
         }
@@ -861,44 +753,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // insert non-NOW intervals for all current NOW's
         // remove NOW's
-        if (!readonly)
-        {
+        if (!readonly) {
             long time_last = (time_max - 1);
 
-            final PreparedStatement[] now_select = new PreparedStatement[] { db.now_select_node, db.now_select_edge };
-            final PreparedStatement[] now_add = new PreparedStatement[] { db.add_epmem_wmes_constant_point, db.add_epmem_wmes_identifier_point };
-            final PreparedStatement[] now_delete = new PreparedStatement[] { db.now_delete_node, db.now_delete_edge };
+            final PreparedStatement[] now_select = new PreparedStatement[]{db.now_select_node, db.now_select_edge};
+            final PreparedStatement[] now_add = new PreparedStatement[]{db.add_epmem_wmes_constant_point, db.add_epmem_wmes_identifier_point};
+            final PreparedStatement[] now_delete = new PreparedStatement[]{db.now_delete_node, db.now_delete_edge};
 
-            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
-            {
+            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++) {
                 final PreparedStatement temp_q = now_add[i];
                 temp_q.setLong(2, time_last);
 
                 final PreparedStatement temp_q2 = now_select[i];
                 final ResultSet rs = temp_q2.executeQuery();
-                try
-                {
+                try {
                     // while ( temp_q2->execute() == soar_module::row )
-                    while (rs.next())
-                    {
+                    while (rs.next()) {
                         // range_start = temp_q2->column_int( 1 );
                         long range_start = rs.getLong(1 + 1);
 
                         // point
-                        if (range_start == time_last)
-                        {
+                        if (range_start == time_last) {
                             temp_q.setLong(1, rs.getLong(0 + 1));
                             temp_q.executeUpdate( /* soar_module::op_reinit */);
-                        }
-                        else
-                        {
+                        } else {
                             epmem_rit_insert_interval(range_start, time_last, rs.getLong(0 + 1),
                                     epmem_rit_state_graph[i]);
                         }
                     }
-                }
-                finally
-                {
+                } finally {
                     rs.close();
                 }
 
@@ -930,11 +813,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             PreparedStatement temp_q = db.edge_unique_select;
             final ResultSet rs = temp_q.executeQuery();
-            try
-            {
+            try {
                 // while ( temp_q->execute() == soar_module::row )
-                while (rs.next())
-                {
+                while (rs.next()) {
                     parent_n_id = rs.getLong(0 + 1);
                     attributes_s_id = rs.getLong(1 + 1);
                     child_n_id = rs.getLong(2 + 1);
@@ -946,8 +827,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // if ( !(*hp) )
                     // (*hp) = new epmem_hashed_id_pool;
                     hp = epmem_id_repository.get(parent_n_id);
-                    if (hp == null)
-                    {
+                    if (hp == null) {
                         hp = Maps.newLinkedHashMap();
                         epmem_id_repository.put(parent_n_id, hp);
                     }
@@ -956,8 +836,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // if ( !(*ip) )
                     // (*ip) = new epmem_id_pool;
                     ip = hp.get(attributes_s_id);
-                    if (ip == null)
-                    {
+                    if (ip == null) {
                         ip = Lists.newLinkedList();
                         hp.put(attributes_s_id, ip);
                     }
@@ -969,15 +848,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // if ( !(*hp) )
                     // (*hp) = new epmem_hashed_id_pool;
                     hp = epmem_id_repository.get(child_n_id);
-                    if (hp == null)
-                    {
+                    if (hp == null) {
                         hp = Maps.newLinkedHashMap();
                         epmem_id_repository.put(child_n_id, hp);
                     }
                 }
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
         }
@@ -987,25 +863,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // to this point
         {
             epmem_wme_adds.add(decider.top_state); // my_agent->epmem_wme_adds->insert(
-                                                   // my_agent->top_state );
+            // my_agent->top_state );
         }
-        
+
         // at init, top-state is considered the only known identifier
         decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
         decider.top_goal.epmem_valid = epmem_validation;
-        
+
         ResultSet r = db.database_version.executeQuery();
         r.next();
-        try{
-        	stats.db_version.set(r.getString(1));
-        }finally{
-        	r.close();
+        try {
+            stats.db_version.set(r.getString(1));
+        } finally {
+            r.close();
         }
-        
+
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
-        if (params.lazy_commit.get() == LazyCommitChoices.on)
-        {
+        if (params.lazy_commit.get() == LazyCommitChoices.on) {
             db.begin.executeUpdate( /* soar_module::op_reinit */);
         }
 
@@ -1014,16 +889,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // //////////////////////////////////////////////////////////////////////////
     }
 
-    private void epmem_rit_insert_interval(long lower, long upper, long id, epmem_rit_state rit_state) throws SQLException
-    {
+    private void epmem_rit_insert_interval(long lower, long upper, long id, epmem_rit_state rit_state) throws SQLException {
         // initialize offset
         long offset = rit_state.offset.stat;
-        if ( offset == EPMEM_RIT_OFFSET_INIT )
-        {
+        if (offset == EPMEM_RIT_OFFSET_INIT) {
             offset = lower;
 
             // update database
-            epmem_set_variable( rit_state.offset.var_key, offset );
+            epmem_set_variable(rit_state.offset.var_key, offset);
 
             // update stat
             rit_state.offset.stat = offset;
@@ -1037,44 +910,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long min_step = rit_state.minstep.stat;
 
             // shift interval
-            long l = ( lower - offset );
-            long u = ( upper - offset );
+            long l = (lower - offset);
+            long u = (upper - offset);
 
             // update left_root
-            if ( ( u < EPMEM_RIT_ROOT ) && ( l <= ( 2 * left_root ) ) )
-            {
-                left_root = (long) Math.pow( -2.0, Math.floor( Math.log( -l ) / EPMEM_LN_2 ) );
+            if ((u < EPMEM_RIT_ROOT) && (l <= (2 * left_root))) {
+                left_root = (long) Math.pow(-2.0, Math.floor(Math.log(-l) / EPMEM_LN_2));
 
                 // update database
-                epmem_set_variable( rit_state.leftroot.var_key, left_root );
+                epmem_set_variable(rit_state.leftroot.var_key, left_root);
 
                 // update stat
                 rit_state.leftroot.stat = left_root;
             }
 
             // update right_root
-            if ( ( l > EPMEM_RIT_ROOT ) && ( u >= ( 2 * right_root ) ) )
-            {
-                right_root = (long) Math.pow( 2.0, Math.floor( Math.log( u ) / EPMEM_LN_2 ) );
+            if ((l > EPMEM_RIT_ROOT) && (u >= (2 * right_root))) {
+                right_root = (long) Math.pow(2.0, Math.floor(Math.log(u) / EPMEM_LN_2));
 
                 // update database
-                epmem_set_variable( rit_state.rightroot.var_key, right_root );
+                epmem_set_variable(rit_state.rightroot.var_key, right_root);
 
                 // update stat
                 rit_state.rightroot.stat = right_root;
             }
 
             // update min_step
-            EpmemRitForkNodeResult forkNodeResult = epmem_rit_fork_node( l, u, /*true,*/ rit_state );
+            EpmemRitForkNodeResult forkNodeResult = epmem_rit_fork_node(l, u, /*true,*/ rit_state);
             long step = forkNodeResult.step;
             node = forkNodeResult.node;
 
-            if ( ( node != EPMEM_RIT_ROOT ) && ( step < min_step ) )
-            {
+            if ((node != EPMEM_RIT_ROOT) && (step < min_step)) {
                 min_step = step;
 
                 // update database
-                epmem_set_variable( rit_state.minstep.var_key, min_step );
+                epmem_set_variable(rit_state.minstep.var_key, min_step);
 
                 // update stat
                 rit_state.minstep.stat = min_step;
@@ -1083,43 +953,40 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // perform insert
         // ( node, start, end, id )
-        rit_state.add_query.setLong( 1, node );
-        rit_state.add_query.setLong( 2, lower );
-        rit_state.add_query.setLong( 3, upper );
-        rit_state.add_query.setLong( 4, id );
+        rit_state.add_query.setLong(1, node);
+        rit_state.add_query.setLong(2, lower);
+        rit_state.add_query.setLong(3, upper);
+        rit_state.add_query.setLong(4, id);
         rit_state.add_query.executeUpdate(/*soar_module::op_reinit*/);
     }
-    
-    private static final class EpmemRitForkNodeResult
-    {
+
+    private static final class EpmemRitForkNodeResult {
         public final long node;
         public final long step;
-        
-        public EpmemRitForkNodeResult(long node, long step)
-        {
+
+        public EpmemRitForkNodeResult(long node, long step) {
             this.node = node;
             this.step = step;
         }
     }
-    
+
     /**
-     * episodic_memory.cpp: 1068: 
-     * int64_t epmem_rit_fork_node( int64_t lower, 
-     *      int64_t upper, 
-     *      bool / *bounds_offset* /,
-     *      int64_t *step_return, 
-     *      epmem_rit_state *rit_state 
+     * episodic_memory.cpp: 1068:
+     * int64_t epmem_rit_fork_node( int64_t lower,
+     * int64_t upper,
+     * bool / *bounds_offset* /,
+     * int64_t *step_return,
+     * epmem_rit_state *rit_state
      * )
-     * 
+     *
      * @param upper
-     * The C has an *int64_t here, but were just going to return it in the java
-     * @return EpmemRitForkNodeResult In the C, there is a pass by reference int, 
+     *         The C has an *int64_t here, but were just going to return it in the java
+     * @return EpmemRitForkNodeResult In the C, there is a pass by reference int,
      * so Java will simulate that with a return class.
      */
-    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long upper, epmem_rit_state rit_state)
-    {
+    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long upper, epmem_rit_state rit_state) {
         //The cpp contains this set of comments:
-        
+
         // never called
         /*if ( !bounds_offset )
           {
@@ -1128,33 +995,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
           lower = ( lower - offset );
           upper = ( upper - offset );
           }*/
-        
+
         //:end comment set -ACN
-        
+
         // descend the tree down to the fork node
         long node = EPMEM_RIT_ROOT;
-        if (upper < EPMEM_RIT_ROOT)
-        {
+        if (upper < EPMEM_RIT_ROOT) {
             node = rit_state.leftroot.stat;
-        }
-        else if (lower > EPMEM_RIT_ROOT)
-        {
+        } else if (lower > EPMEM_RIT_ROOT) {
             node = rit_state.rightroot.stat;
         }
 
         long step;
-        for (step = (((node >= 0) ? (node) : (-1 * node)) / 2); step >= 1; step /= 2)
-        {
-            if (upper < node)
-            {
+        for (step = (((node >= 0) ? (node) : (-1 * node)) / 2); step >= 1; step /= 2) {
+            if (upper < node) {
                 node -= step;
-            }
-            else if (node < lower)
-            {
+            } else if (node < lower) {
                 node += step;
-            }
-            else
-            {
+            } else {
                 break;
             }
         }
@@ -1162,7 +1020,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // never used
         // if ( step_return != NULL )
         //{
-            //(*step_return) = step;  We don't need this in java
+        //(*step_return) = step;  We don't need this in java
         //}
 
         return new EpmemRitForkNodeResult(node, step);
@@ -1170,45 +1028,36 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * Gets an EpMem variable from the database
-     * 
+     *
      * <p>
      * episodic_memory.cpp:984:epmem_get_variable
-     * 
      */
-    boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
-    {
+    boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException {
         final PreparedStatement var_get = db.var_get;
 
         var_get.setInt(1, variable_id.ordinal());
         final ResultSet rs = var_get.executeQuery();
-        try
-        {
-            if (rs.next())
-            {
+        try {
+            if (rs.next()) {
                 variable_value.value = rs.getLong(0 + 1);
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        finally
-        {
+        } finally {
             rs.close();
         }
     }
 
     /**
      * Sets an EpMem variable in the database
-     * 
+     *
      * <p>
      * episodic_memory.cpp:1007:epmem_set_variable
      */
-    void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
-    {
+    void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException {
         final PreparedStatement var_set = db.var_set;
-        
+
         var_set.setInt(1, variable_id.ordinal());
         var_set.setLong(2, variable_value);
 
@@ -1216,28 +1065,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     @Override
-    public void epmem_close() throws SoarException
-    {
-        if (db != null)
-        {
-            try
-            {
+    public void epmem_close() throws SoarException {
+        if (db != null) {
+            try {
                 // TODO this is copy-paste from smem right now, there are other
                 // things to do here
-                
-                if (params.lazy_commit.get() == LazyCommitChoices.on)
-                {
+
+                if (params.lazy_commit.get() == LazyCommitChoices.on) {
                     db.commit.execute();
                 }
-                
+
                 // close the database
                 db.getConnection().close();
                 db = null;
-                
-                logger.info("EpMem| Closing database " + params.path.get() + ".");
-            }
-            catch (SQLException e)
-            {
+
+                log.info("EpMem| Closing database {}.", params.path.get());
+            } catch (SQLException e) {
                 throw new SoarException("While closing epmem: " + e.getMessage(), e);
             }
         }
@@ -1248,35 +1091,31 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jsoar.kernel.epmem.EpisodicMemory#initializeNewContext(org.jsoar.
      * kernel.memory.WorkingMemory, org.jsoar.kernel.symbols.IdentifierImpl)
      */
     @Override
-    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
-    {
+    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id) {
         this.stateInfos.put(id, new EpisodicMemoryStateInfo(this, wm, id));
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jsoar.kernel.smem.EpisodicMemory#epmem_reset(org.jsoar.kernel.symbols
      * .IdentifierImpl)
      */
     @Override
-    public void epmem_reset(IdentifierImpl state)
-    {
+    public void epmem_reset(IdentifierImpl state) {
         // episodic_memory.cpp:1470:epmem_reset()
-        if (state == null)
-        {
+        if (state == null) {
             state = decider.top_goal;
         }
 
-        while (state != null)
-        {
+        while (state != null) {
             final EpisodicMemoryStateInfo data = stateInfos.remove(state);
 
             data.last_ol_time = 0;
@@ -1296,40 +1135,32 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go()
      */
     @Override
-    public void epmem_go()
-    {
+    public void epmem_go() {
         epmem_go(true);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go(boolean)
      */
     @Override
-    public void epmem_go(boolean allow_store)
-    {
+    public void epmem_go(boolean allow_store) {
         boolean new_memory = false;
-        if (allow_store)
-        {
+        if (allow_store) {
             new_memory = epmem_consider_new_episode();
         }
-        try
-        {
+        try {
             epmem_respond_to_cmd(new_memory);
-        }
-        catch (SQLException e)
-        {
-            logger.error("While responding to epmem command: " + e.getMessage(), e);
+        } catch (SQLException e) {
+            log.error("While responding to epmem command: " + e.getMessage(), e);
             agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
-        }
-        catch (SoarException e)
-        {
-            logger.error("While responding to epmem command: " + e.getMessage(), e);
+        } catch (SoarException e) {
+            log.error("While responding to epmem command: " + e.getMessage(), e);
             agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
         }
         // my_agent->epmem_timers->total->stop();
@@ -1338,45 +1169,38 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * Based upon trigger/force parameter settings, potentially records a new
      * episode
-     * 
+     *
      * <p>
      * episodic_memory.cpp:epmem_consider_new_episode( agent *my_agent )
      */
-    private boolean epmem_consider_new_episode()
-    {
+    private boolean epmem_consider_new_episode() {
         // ////////////////////////////////////////////////////////////////////////////
         // my_agent->epmem_timers->trigger->start();
         // ////////////////////////////////////////////////////////////////////////////
         //
         boolean new_memory = false;
 
-        if (params.force.get() == DefaultEpisodicMemoryParams.Force.off)
-        {
-            switch (params.trigger.get())
-            {
-            case output:
-                // examine all commands on the output-link for any
-                // // that appeared since last memory was recorded
-                EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.top_goal);
-                for (Wme wme : agent.getInputOutput().getPendingCommands())
-                {
-                    if (wme.getTimetag() > stateInfo.last_ol_time)
-                    {
-                        new_memory = true;
-                        stateInfo.last_ol_time = wme.getTimetag();
+        if (params.force.get() == DefaultEpisodicMemoryParams.Force.off) {
+            switch (params.trigger.get()) {
+                case output:
+                    // examine all commands on the output-link for any
+                    // // that appeared since last memory was recorded
+                    EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.top_goal);
+                    for (Wme wme : agent.getInputOutput().getPendingCommands()) {
+                        if (wme.getTimetag() > stateInfo.last_ol_time) {
+                            new_memory = true;
+                            stateInfo.last_ol_time = wme.getTimetag();
+                        }
                     }
-                }
-                break;
-            case dc:
-                new_memory = true;
-                break;
-            case none:
-                new_memory = false;     // Only create a new episode if ^epmem.command.store is present.
-                break;
+                    break;
+                case dc:
+                    new_memory = true;
+                    break;
+                case none:
+                    new_memory = false;     // Only create a new episode if ^epmem.command.store is present.
+                    break;
             }
-        }
-        else
-        {
+        } else {
             new_memory = params.force.get() == DefaultEpisodicMemoryParams.Force.remember;
             params.force.set(DefaultEpisodicMemoryParams.Force.off);
         }
@@ -1385,54 +1209,42 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // my_agent->epmem_timers->trigger->stop();
         // ////////////////////////////////////////////////////////////////////////////
 
-        if (new_memory)
-        {
-            try
-            {
+        if (new_memory) {
+            try {
                 epmem_new_episode();
-            }
-            catch (SQLException e)
-            {
-                logger.error("While recording new epmem episode: " + e.getMessage(), e);
+            } catch (SQLException e) {
+                log.error("While recording new epmem episode: " + e.getMessage(), e);
                 agent.getPrinter().error("While recording new epmem episode: " + e.getMessage());
             }
         }
 
         return new_memory;
     }
-    
-    private Set<WmeImpl> epmem_find_inclusion_wmes(IdentifierImpl id)
-    {
+
+    private Set<WmeImpl> epmem_find_inclusion_wmes(IdentifierImpl id) {
         Set<WmeImpl> result = new HashSet<WmeImpl>();
-        
+
         final Marker tc = DefaultMarker.create();
-        
+
         epmem_expand_inclusions(id, tc, result);
-        
+
         return result;
     }
-    
-    private boolean epmem_expand_inclusions(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
-    {
+
+    private boolean epmem_expand_inclusions(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep) {
         boolean keptSomething = false;
         IdentifierImpl id = sym.asIdentifier();
-        
-        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
-        {
+
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD) {
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
-            for (WmeImpl wme : wmes)
-            {
-                if (!params.exclusions.contains(wme.attr))
-                {
-                    if (params.inclusions.contains(wme.attr))
-                    {
+            for (WmeImpl wme : wmes) {
+                if (!params.exclusions.contains(wme.attr)) {
+                    if (params.inclusions.contains(wme.attr)) {
                         // We, and everything below us, can stay.
                         wmesToKeep.add(wme);
                         mark_all_includable(wme.value, tc, wmesToKeep);
                         keptSomething = true;
-                    }
-                    else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep))
-                    {
+                    } else if (epmem_expand_inclusions(wme.value, tc, wmesToKeep)) {
                         // We can stay if there is an inclusion attribute below us.
                         wmesToKeep.add(wme);
                         keptSomething = true;
@@ -1440,20 +1252,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
             }
         }
-        
+
         return keptSomething;
     }
-    
-    private void mark_all_includable(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep)
-    {
+
+    private void mark_all_includable(SymbolImpl sym, Marker tc, Set<WmeImpl> wmesToKeep) {
         IdentifierImpl id = sym.asIdentifier();
-        if (id != null && id.epmem_id != EPMEM_NODEID_BAD)
-        {
+        if (id != null && id.epmem_id != EPMEM_NODEID_BAD) {
             List<WmeImpl> wmes = epmem_get_augs_of_id(id, tc);
-            for (WmeImpl wme : wmes)
-            {
-                if (!params.exclusions.contains(wme.attr))
-                {
+            for (WmeImpl wme : wmes) {
+                if (!params.exclusions.contains(wme.attr)) {
                     wmesToKeep.add(wme);
                     mark_all_includable(wme.value, tc, wmesToKeep);
                 }
@@ -1464,10 +1272,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * <p>
      * episodic_memory.cpp:2473:epmem_new_episode( agent *my_agent )
-     * 
      */
-    private void epmem_new_episode() throws SQLException
-    {
+    private void epmem_new_episode() throws SQLException {
         // if this is the first episode, initialize db components
         epmem_init_db_catch();
 
@@ -1482,7 +1288,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long time_counter = stats.getTime();// my_agent->epmem_stats->time->get_value();
 
         // // provide trace output
-        trace.startNewLine().print(Category.EPMEM, "EpMem| NEW EPISODE: " + time_counter +"\n");
+        trace.startNewLine().print(Category.EPMEM, "EpMem| NEW EPISODE: " + time_counter + "\n");
         // if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
         // {
         // char buf[256];
@@ -1499,7 +1305,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // seen nodes (non-identifiers) and edges (identifiers)
             Queue<Long> epmem_node = new LinkedList<Long>();
             Queue<Long> epmem_edge = new LinkedList<Long>();
-            
+
             // walk appropriate levels
             {
                 // prevents infinite loops
@@ -1517,41 +1323,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // cross-level information
                 Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations = new LinkedHashMap<WmeImpl, EpisodicMemoryIdReservation>();
                 Set<SymbolImpl> new_identifiers = new LinkedHashSet<SymbolImpl>();
-                
+
                 Set<WmeImpl> inclusion_wmes = null;
 
                 // start with new WMEs attached to known identifiers
-                for (IdentifierImpl id_p : epmem_wme_adds)
-                {
-                    if (!params.inclusions.isEmpty())
-                    {
+                for (IdentifierImpl id_p : epmem_wme_adds) {
+                    if (!params.inclusions.isEmpty()) {
                         inclusion_wmes = epmem_find_inclusion_wmes(id_p);
                     }
-                    
+
                     // make sure the WME is valid
                     // it can be invalid if a child WME was added, but then the
                     // parent was removed, setting the epmem_id to
                     // EPMEM_NODEID_BAD
-                    if (id_p.epmem_id != EPMEM_NODEID_BAD)
-                    {
+                    if (id_p.epmem_id != EPMEM_NODEID_BAD) {
                         parent_syms.add(id_p);
                         parent_ids.add(id_p.epmem_id);
-                        while (!parent_syms.isEmpty())
-                        {
+                        while (!parent_syms.isEmpty()) {
                             parent_sym = parent_syms.poll();
                             parent_id = parent_ids.poll();
                             wmes = epmem_get_augs_of_id(parent_sym, tc);
-                            if (!params.inclusions.isEmpty())
-                            {
+                            if (!params.inclusions.isEmpty()) {
                                 ListIterator<WmeImpl> it = wmes.listIterator();
-                                while (it.hasNext())
-                                {
+                                while (it.hasNext()) {
                                     if (!inclusion_wmes.contains(it.next()))
                                         it.remove();
                                 }
                             }
-                            if (!wmes.isEmpty())
-                            {
+                            if (!wmes.isEmpty()) {
                                 _epmem_store_level(
                                         parent_syms,
                                         parent_ids,
@@ -1563,7 +1362,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                         new_identifiers,
                                         epmem_node,
                                         epmem_edge
-                                    );
+                                );
                             }
                             wmes = null;
                         }
@@ -1576,8 +1375,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 long temp_node;
 
                 // nodes
-                while (!epmem_node.isEmpty())
-                {
+                while (!epmem_node.isEmpty()) {
                     temp_node = epmem_node.element();
 
                     // add NOW entry
@@ -1598,8 +1396,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
 
                 // edges
-                while (!epmem_edge.isEmpty())
-                {
+                while (!epmem_edge.isEmpty()) {
                     temp_node = epmem_edge.element();
 
                     // add NOW entry
@@ -1641,69 +1438,61 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 long /*epmem_time_id*/ range_end;
 
                 // wme's with constant values
-                for(Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet())
-                {
-                    if(r.getValue())
-                    {
+                for (Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet()) {
+                    if (r.getValue()) {
                         // remove NOW entry
                         // id = ?
                         db.delete_epmem_wmes_constant_now.setLong(1, r.getKey());
                         db.delete_epmem_wmes_constant_now.executeUpdate(/*soar_module::op_reinit*/);
 
-                        range_start = epmem_node_mins.get((int)(r.getKey()-1));
-                        range_end = ( time_counter - 1 );
+                        range_start = epmem_node_mins.get((int) (r.getKey() - 1));
+                        range_end = (time_counter - 1);
 
                         // point (id, start_episode_id)
-                        if ( range_start == range_end )
-                        {
+                        if (range_start == range_end) {
                             db.add_epmem_wmes_constant_point.setLong(1, r.getKey());
                             db.add_epmem_wmes_constant_point.setLong(2, range_start);
                             db.add_epmem_wmes_constant_point.executeUpdate(/*soar_module::op_reinit*/);
                         }
                         // node
-                        else
-                        {
+                        else {
                             epmem_rit_insert_interval(range_start, range_end, r.getKey(), epmem_rit_state_graph[EPMEM_RIT_STATE_NODE]);
                         }
 
                         // update max
-                        epmem_node_maxes.set((int)(r.getKey()-1), true);
+                        epmem_node_maxes.set((int) (r.getKey() - 1), true);
                     }
                 }
                 epmem_node_removals.clear();
 
                 // wme's with identifier values
-                for(Map.Entry<Long, Boolean> r : epmem_edge_removals.entrySet()) 
-                {
-                    if ( r.getValue() )
-                    {
+                for (Map.Entry<Long, Boolean> r : epmem_edge_removals.entrySet()) {
+                    if (r.getValue()) {
                         // remove NOW entry
                         // id = ?
                         db.delete_epmem_wmes_identifier_now.setLong(1, r.getKey());
                         db.delete_epmem_wmes_identifier_now.executeUpdate(/*soar_module::op_reinit*/);
 
-                        range_start = epmem_edge_mins.get((int)(r.getKey()-1));
-                        range_end = ( time_counter - 1 );
+                        range_start = epmem_edge_mins.get((int) (r.getKey() - 1));
+                        range_end = (time_counter - 1);
 
                         db.update_epmem_wmes_identifier_last_episode_id.setLong(1, range_end);
                         db.update_epmem_wmes_identifier_last_episode_id.setLong(2, r.getKey());
                         db.update_epmem_wmes_identifier_last_episode_id.executeUpdate(/*soar_module::op_reinit*/);
 
                         // point (id, start_episode_id)
-                        if ( range_start == range_end )
-                        {
+                        if (range_start == range_end) {
                             db.add_epmem_wmes_identifier_point.setLong(1, r.getKey());
                             db.add_epmem_wmes_identifier_point.setLong(2, range_start);
                             db.add_epmem_wmes_identifier_point.executeUpdate(/*soar_module::op_reinit*/);
                         }
                         // node
-                        else
-                        {
+                        else {
                             epmem_rit_insert_interval(range_start, range_end, r.getKey(), epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
                         }
 
                         // update max
-                        epmem_edge_maxes.set((int)(r.getKey() - 1), true);
+                        epmem_edge_maxes.set((int) (r.getKey() - 1), true);
                     }
                 }
                 epmem_edge_removals.clear();
@@ -1711,13 +1500,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             // all in-place lti promotions
             {
-                for(SymbolImpl p_it : epmem_promotions)
-                {
+                for (SymbolImpl p_it : epmem_promotions) {
                     final IdentifierImpl identifier = p_it.asIdentifier();
-                    if((identifier.smem_time_id == time_counter ) && (
-                            identifier.id_smem_valid == epmem_validation ) )
-                    {
-                        _epmem_promote_id(identifier, time_counter );
+                    if ((identifier.smem_time_id == time_counter) && (
+                            identifier.id_smem_valid == epmem_validation)) {
+                        _epmem_promote_id(identifier, time_counter);
                     }
                     //SJK: I don't believe this is necessary; see DefaultSemanticMemory.java:1648
                     //symbol_remove_ref( my_agent, (*p_it) );
@@ -1729,18 +1516,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             db.add_time.setLong(1, time_counter);
             db.add_time.executeUpdate(/*soar_module::op_reinit*/);
 
-            stats.setTime( time_counter + 1 );
+            stats.setTime(time_counter + 1);
 
             // update time wme on all states
             {
                 SymbolImpl state = decider.bottom_goal;
-                SymbolImpl my_time_sym = symbols.createInteger(time_counter+1);
+                SymbolImpl my_time_sym = symbols.createInteger(time_counter + 1);
 
-                while ( state != null )
-                {
+                while (state != null) {
                     EpisodicMemoryStateInfo stateInfo = stateInfos.get(state.asIdentifier());
-                    if ( stateInfo.epmem_time_wme != null )
-                    {
+                    if (stateInfo.epmem_time_wme != null) {
                         soarModule.remove_module_wme(stateInfo.epmem_time_wme);
                     }
 
@@ -1766,17 +1551,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * This routine gets all wmes rooted at an id.
-     * 
+     *
      * <p>episodic_memory.cpp:870:epmem_wme_list *epmem_get_augs_of_id( Symbol * id, tc_number tc )
      */
-    private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl sym, Marker tc)
-    {
+    private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl sym, Marker tc) {
         List<WmeImpl> /* epmem_wme_list */return_val = Lists.newLinkedList();
 
         // augs only exist for identifiers
         final IdentifierImpl id = sym.asIdentifier();
-        if (id != null && id.tc_number != tc)
-        {
+        if (id != null && id.tc_number != tc) {
             id.tc_number = tc;
 
             // impasse wmes
@@ -1784,83 +1567,77 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // {
             // return_val->push_back( w );
             // }
-            for(WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
-            {
+            for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next) {
                 return_val.add(w);
             }
 
             // input wmes
-            for (WmeImpl wi = id.getInputWmes(); wi != null; wi = wi.next)
-            {
+            for (WmeImpl wi = id.getInputWmes(); wi != null; wi = wi.next) {
                 return_val.add(wi);
             }
 
             // regular wmes
-            for (Slot s = id.slots; s != null; s = s.next)
-            {
-                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
-                {
+            for (Slot s = id.slots; s != null; s = s.next) {
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
                     return_val.add(w);
                 }
-                for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
-                {
+                for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next) {
                     return_val.add(w);
                 }
             }
         }
-        
+
         return return_val;
     }
 
-    /** **************************************************************************
-    	
-                               _epmem_store_level
-    	
-    	   This function process the addition of "one level" of wme's rooted at
-    	   the n_id specified by parent_id into the working memory graph.  It does
-    	   not process any temporal information.
-    	
-    	   - w_b is the list of wme's it will process (until it hits w_e)
-    	
-    	   - can add syms and ids of augmentations to parent_syms and parent_ids
-    	   queues so that they can be processed during the next "level"
-    	
-    	   - The identifier symbol of each wme isn't set and is ignored. parent_id
-    	     is used to  specify the root.
-    	
-    	
-    		 three cases for sharing ids amongst identifiers in two passes:
-    		 1. value known in phase one (try reservation)
-    		 2. value unknown in phase one, but known at phase two (try assignment adhering to constraint)
-    		 3. value unknown in phase one/two (if anything is left, unconstrained assignment)
-    	
-     ******************************************************************************
+    /**
+     * *************************************************************************
+     *
+     * _epmem_store_level
+     *
+     * This function process the addition of "one level" of wme's rooted at
+     * the n_id specified by parent_id into the working memory graph.  It does
+     * not process any temporal information.
+     *
+     * - w_b is the list of wme's it will process (until it hits w_e)
+     *
+     * - can add syms and ids of augmentations to parent_syms and parent_ids
+     * queues so that they can be processed during the next "level"
+     *
+     * - The identifier symbol of each wme isn't set and is ignored. parent_id
+     * is used to  specify the root.
+     *
+     *
+     * three cases for sharing ids amongst identifiers in two passes:
+     * 1. value known in phase one (try reservation)
+     * 2. value unknown in phase one, but known at phase two (try assignment adhering to constraint)
+     * 3. value unknown in phase one/two (if anything is left, unconstrained assignment)
+     *
+     * *****************************************************************************
      * episodic_memory.cpp:2454:{@code inline void _epmem_store_level( agent* my_agent,
-			                        std::queue< Symbol* >& parent_syms,
-			                        std::queue< epmem_node_id >& parent_ids,
-			                        tc_number tc,
-			                        epmem_wme_list::iterator w_b,
-			                        epmem_wme_list::iterator w_e,
-			                        epmem_node_id parent_id,
-			                        epmem_time_id time_counter,
-			                        std::map< wme*, epmem_id_reservation* >& id_reservations,
-			                        std::set< Symbol* >& new_identifiers,
-			                        std::queue< epmem_node_id >& epmem_node,
-			                        std::queue< epmem_node_id >& epmem_edge )}
-     * 
+     * std::queue< Symbol* >& parent_syms,
+     * std::queue< epmem_node_id >& parent_ids,
+     * tc_number tc,
+     * epmem_wme_list::iterator w_b,
+     * epmem_wme_list::iterator w_e,
+     * epmem_node_id parent_id,
+     * epmem_time_id time_counter,
+     * std::map< wme*, epmem_id_reservation* >& id_reservations,
+     * std::set< Symbol* >& new_identifiers,
+     * std::queue< epmem_node_id >& epmem_node,
+     * std::queue< epmem_node_id >& epmem_edge )}
      */
-    void _epmem_store_level( 
-            Queue<SymbolImpl> parent_syms, 
-            Queue<Long> parent_ids, 
-            Marker tc, 
-            List<WmeImpl> w_p, 
-            long parent_id, 
+    void _epmem_store_level(
+            Queue<SymbolImpl> parent_syms,
+            Queue<Long> parent_ids,
+            Marker tc,
+            List<WmeImpl> w_p,
+            long parent_id,
             long time_counter,
-            Map<WmeImpl, EpisodicMemoryIdReservation > id_reservations, 
-            Set< SymbolImpl > new_identifiers, 
-            Queue< Long > epmem_node, 
-            Queue< Long > epmem_edge ) throws SQLException
-    {
+            Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations,
+            Set<SymbolImpl> new_identifiers,
+            Queue<Long> epmem_node,
+            Queue<Long> epmem_edge) throws SQLException {
         boolean value_known_apriori = false;
 
         // temporal hash
@@ -1878,125 +1655,91 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // CK: these are unused
         // List<WmeImpl> w_p2;
         // boolean good_recurse = false;
-        
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("==================================================\n" +
-            		     "DEBUG _epmem_store_level called for parent_id " + parent_id + "\n" +
-            		     "==================================================\n");
-        }
-        
+
+        log.debug("==================================================\n" +
+                "DEBUG _epmem_store_level called for parent_id {}\n" +
+                "==================================================\n", parent_id);
+
         // find WME ID for WMEs whose value is an identifier and has a known epmem id 
         // (prevents ordering issues with unknown children)
-        for (WmeImpl wme : w_p)
-        {
-            if (logger.isDebugEnabled())
-            {
-                // --------------------------------------------\n
-                // Processing WME: %d ^%s %s\n
-                // (unsigned int) parent_id, symbol_to_string (my_agent, (*w_p)->attr, TRUE, NIL, 0), symbol_to_string (my_agent, (*w_p)->value, TRUE, NIL, 0)
-                
-                logger.debug("--------------------------------------------\n" +
-                             "Processing WME: " + Long.toString(parent_id) + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
-            }
-            
+        for (WmeImpl wme : w_p) {
+            log.debug("--------------------------------------------\n" +
+                    "Processing WME: {} ^{} {} \n", parent_id, wme.getAttribute(), wme.getValue());
+
             // skip over WMEs already in the system
-            if (wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
-            {
+            if (wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation) {
                 continue;
             }
 
-            if ( wme.value.asIdentifier() != null && 
-                    ( wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD && 
-                    wme.value.asIdentifier().epmem_valid == epmem_validation ) &&
-                    wme.value.asIdentifier().smem_lti == 0 )
-            {
+            if (wme.value.asIdentifier() != null &&
+                    (wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD &&
+                            wme.value.asIdentifier().epmem_valid == epmem_validation) &&
+                    wme.value.asIdentifier().smem_lti == 0) {
                 // prevent exclusions from being recorded
-                if (params.exclusions.contains(wme.attr))
-                {
+                if (params.exclusions.contains(wme.attr)) {
                     //fprintf(stderr, "   WME excluded.  Skipping.\n");
-                    logger.debug("   WME excluded.  Skipping.\n");
+                    log.debug("   WME excluded.  Skipping.\n");
                     continue;
                 }
 
                 // if still here, create reservation (case 1)
-                if(wme.acceptable)
-                {
+                if (wme.acceptable) {
                     new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, EPMEM_HASH_ACCEPTABLE);
-                }
-                else
-                {
+                } else {
                     new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, epmem_temporal_hash(wme.attr));
                 }
-                
+
                 // try to find appropriate reservation
                 my_id_repo = epmem_id_repository.get(parent_id).get(new_id_reservation.my_hash);
-                if(my_id_repo != null)
-                {
+                if (my_id_repo != null) {
                     final Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
-                    while (it.hasNext())
-                    {
+                    while (it.hasNext()) {
                         final EpisodicMemoryIdPair pool_p = it.next();
-                        if(pool_p.first == wme.value.asIdentifier().epmem_id)
-                        {
+                        if (pool_p.first == wme.value.asIdentifier().epmem_id) {
                             new_id_reservation.my_id = pool_p.second;
                             it.remove();
                             break;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     // add repository
                     my_id_repo = Lists.newLinkedList();
                     epmem_id_repository.get(parent_id).put(new_id_reservation.my_hash, my_id_repo);
                 }
-                
+
                 new_id_reservation.my_pool = my_id_repo;
                 id_reservations.put(wme, new_id_reservation);
                 new_id_reservation = null;
             }
         }
 
-        for (WmeImpl wme : w_p)
-        {
-            //fprintf(stderr, "--------------------------------------------\nProcessing WME: %d ^%s %s\n",
-            //(unsigned int) parent_id, symbol_to_string (my_agent, (*w_p)->attr, TRUE, NIL, 0), symbol_to_string (my_agent, (*w_p)->value, TRUE, NIL, 0));
-            
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("--------------------------------------------\n" +
-                		     "Processing WME: " + parent_id + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
-            }
-            
+        for (WmeImpl wme : w_p) {
+            log.debug("--------------------------------------------\n" +
+                            "Processing WME: {} ^{} {}\n",
+                    parent_id, wme.getAttribute(), wme.getValue());
+
             // skip over WMEs already in the system
-            if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
-            {
-                //fprintf(stderr, "   WME already in system with id %d.\n", (unsigned int) (*w_p)->epmem_id);
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("   WME already in system with id " + wme.epmem_id + ".\n");
-                }
+            if (wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation) {
+                log.debug("   WME already in system with id {}.\n", wme.epmem_id);
+
                 continue;
             }
 
             // prevent exclusions from being recorded
-            if(params.exclusions.contains(wme.attr))
-            {
+            if (params.exclusions.contains(wme.attr)) {
                 //fprintf(stderr, "   WME excluded.  Skipping.\n");
-                logger.debug("   WME excluded.  Skipping.\n");
+                log.debug("   WME excluded.  Skipping.\n");
                 continue;
             }
-            
+
             final IdentifierImpl wmeValueId = wme.value.asIdentifier();
-            if (wmeValueId != null)
-            {
+            if (wmeValueId != null) {
                 //fprintf(stderr, "   WME value is IDENTIFER.\n");
-                logger.debug("   WME value is IDENTIFER.\n");
-                
+                log.debug("   WME value is IDENTIFER.\n");
+
                 wme.epmem_valid = epmem_validation;
                 wme.epmem_id = EPMEM_NODEID_BAD;
-                
+
                 my_hash = 0;
                 my_id_repo = null;
 
@@ -2008,34 +1751,28 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // value_known_apriori = ( ( (*w_p)->value->id.epmem_id != EPMEM_NODEID_BAD ) 
                 //  && ( (*w_p)->value->id.epmem_valid == my_agent->epmem_validation ) );
                 value_known_apriori = (wmeValueId.epmem_id != EPMEM_NODEID_BAD && wmeValueId.epmem_valid == epmem_validation);
-                
+
                 // if long-term identifier as value, special processing (we may need to promote, we don't add to/take from any pools
-                if (wmeValueId.smem_lti != 0)
-                {
+                if (wmeValueId.smem_lti != 0) {
                     // find the lti or add new one
-                    if(!value_known_apriori)
-                    {
+                    if (!value_known_apriori) {
                         //fprintf(stderr, "   Value is an LTI  Doing processing we haven't looke at!\n");
-                        logger.debug("   Value is an LTI  Doing processing we haven't looked at!\n"); //Minor spelling correction...
-                        
+                        log.debug("   Value is an LTI  Doing processing we haven't looked at!\n"); //Minor spelling correction...
+
                         wmeValueId.epmem_id = EPMEM_NODEID_BAD;
                         wmeValueId.epmem_valid = epmem_validation;
-                        
+
                         // try to find
                         {
                             final PreparedStatement ps = db.find_lti;
                             ps.setLong(1, wmeValueId.getNameLetter());
                             ps.setLong(2, wmeValueId.getNameNumber());
                             final ResultSet rs = ps.executeQuery();
-                            try
-                            {
-                                if (rs.next())
-                                {
+                            try {
+                                if (rs.next()) {
                                     wmeValueId.epmem_id = rs.getLong(0 + 1);
                                 }
-                            }
-                            finally
-                            {
+                            } finally {
                                 rs.close();
                             }
                             // CK: no reinitialize for PreparedStatement
@@ -2043,25 +1780,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
 
                         // add if necessary
-                        if(wmeValueId.epmem_id == EPMEM_NODEID_BAD)
-                        {
+                        if (wmeValueId.epmem_id == EPMEM_NODEID_BAD) {
                             wmeValueId.epmem_id = stats.getNextId();
                             stats.setNextId(wmeValueId.epmem_id + 1L);
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
-                            //fprintf(stderr, "   Adding new n_id and setting wme id to %d for VALUE which is lti %c%d\n",
-                            //(unsigned int) (*w_p)->value->id.epmem_id, (*w_p)->value->id.name_letter, (unsigned int) (*w_p)->value->id.name_number);
-                            
-                            if (logger.isDebugEnabled())
-                            {
-                                logger.debug("   Adding new n_id and setting wme id to " + wmeValueId.epmem_id +
-                                             " for VALUE which is lti " + wmeValueId.getNameLetter() + wmeValueId.getNameNumber() + "\n");
-                            }
-                            
+                            log.debug("   Adding new n_id and setting wme id to {} for VALUE which is lti {} {}\n",
+                                    wmeValueId.epmem_id, wmeValueId.getNameLetter(), wmeValueId.getNameNumber());
+
+
                             // add repository
                             Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                             epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
-                            
+
                             _epmem_promote_id(wmeValueId, time_counter);
                         }
                     }
@@ -2071,62 +1802,50 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // if failure, drop below and use standard channels
                     {
                         // get temporal hash
-                        if ( wme.acceptable )
-                        {
+                        if (wme.acceptable) {
                             my_hash = EPMEM_HASH_ACCEPTABLE;
+                        } else {
+                            my_hash = epmem_temporal_hash(wme.attr);
                         }
-                        else
-                        {
-                            my_hash = epmem_temporal_hash( wme.attr );
-                        }
-                        
+
                         // parent_n_id, attribute_s_id, child_n_id
                         final PreparedStatement ps = db.find_epmem_wmes_identifier_shared;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, wmeValueId.epmem_id);
-                        
+
                         final ResultSet rs = ps.executeQuery();
-                        
-                        try
-                        {
-                            if (rs.next())
-                            {
+
+                        try {
+                            if (rs.next()) {
                                 wme.epmem_id = rs.getLong(0 + 1);
                             }
-                        }
-                        finally
-                        {
+                        } finally {
                             rs.close();
                         }
                         // CK: no reinitialize for PreparedStatement
                         // my_agent->epmem_stmts_graph->find_edge_unique_shared->reinitialize();
                     }
                 }//End special lti proccessing
-                else
-                {
+                else {
                     // in the case of a known value, we already have a reservation (case 1)
-                    if ( value_known_apriori )
-                    {
+                    if (value_known_apriori) {
                         //fprintf(stderr, "   WME is known.  Looking for reservation.\n");
-                        logger.debug("   WME is known.  Looking for reservation.\n");
+                        log.debug("   WME is known.  Looking for reservation.\n");
                         r_p = id_reservations.get(wme);
-                        
-                        if(r_p != null)
-                        {
+
+                        if (r_p != null) {
                             //fprintf(stderr, "   Found existing reservation.\n");
-                            logger.debug("   Found existing reservation.\n");
-                            
+                            log.debug("   Found existing reservation.\n");
+
                             my_hash = r_p.my_hash;
                             my_id_repo2 = r_p.my_pool;
-                            
-                            if (r_p.my_id != EPMEM_NODEID_BAD)
-                            {
+
+                            if (r_p.my_id != EPMEM_NODEID_BAD) {
                                 wme.epmem_id = r_p.my_id;
                                 epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
-                                
-                                //fprintf(stderr, "   Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
-                                logger.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
+
+                                log.debug("   Assigning id from existing pool: {}\n",wme.epmem_id);
                             }
 
                             // delete reservation and map entry
@@ -2134,52 +1853,38 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         // OR a shared identifier at the same level, in which
                         // case we need an exact match (case 2)
-                        else
-                        {
+                        else {
                             //fprintf(stderr, "   No reservation found.  Looking for shared identifier at same level.\n");
-                            logger.debug("   No reservation found.  Looking for shared identifier at same level.\n");
-                            
+                            log.debug("   No reservation found.  Looking for shared identifier at same level.\n");
+
                             // get temporal hash
-                            if (wme.acceptable)
-                            {
+                            if (wme.acceptable) {
                                 my_hash = EPMEM_HASH_ACCEPTABLE;
-                            }
-                            else
-                            {
+                            } else {
                                 my_hash = epmem_temporal_hash(wme.attr);
                             }
-                            
+
                             // try to get an id that matches new information
                             my_id_repo = epmem_id_repository.get(parent_id).get(my_hash);
-                            if(my_id_repo != null)
-                            {
-                                if(!my_id_repo.isEmpty())
-                                {
+                            if (my_id_repo != null) {
+                                if (!my_id_repo.isEmpty()) {
                                     Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
-                                    while(it.hasNext())
-                                    {
+                                    while (it.hasNext()) {
                                         final EpisodicMemoryIdPair pool_p = it.next();
-                                        if (pool_p.first == wmeValueId.epmem_id)
-                                        {
+                                        if (pool_p.first == wmeValueId.epmem_id) {
                                             wme.epmem_id = pool_p.second;
                                             it.remove();
                                             epmem_id_replacement.put(wme.epmem_id, my_id_repo);
-                                            
-                                            //fprintf(stderr, "   Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
-                                            if (logger.isDebugEnabled())
-                                            {
-                                                logger.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
-                                            }
+
+                                            log.debug("   Assigning id from existing pool: {}\n",wme.epmem_id);
                                             break;
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 //fprintf(stderr, "   No pool.  Creating a new one.\n");
-                                logger.debug("   No pool.  Creating a new one.\n");
-                                
+                                log.debug("   No pool.  Creating a new one.\n");
+
                                 // add repository
                                 my_id_repo = Lists.newLinkedList();
                                 epmem_id_repository.get(parent_id).put(my_hash, my_id_repo);
@@ -2190,38 +1895,30 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                     }
                     // case 3
-                    else
-                    {
+                    else {
                         // UNKNOWN identifier
                         new_identifiers.add(wme.value);
 
                         // get temporal hash
-                        if (wme.acceptable)
-                        {
+                        if (wme.acceptable) {
                             my_hash = EPMEM_HASH_ACCEPTABLE;
-                        }
-                        else
-                        {
+                        } else {
                             my_hash = epmem_temporal_hash(wme.attr);
                         }
 
                         // try to find node
                         my_id_repo = epmem_id_repository.get(parent_id).get(my_hash);
-                        if (my_id_repo != null)
-                        {
+                        if (my_id_repo != null) {
                             // if something leftover, try to use it
-                            if (!my_id_repo.isEmpty())
-                            {
+                            if (!my_id_repo.isEmpty()) {
                                 Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
-                                while (it.hasNext())
-                                {
+                                while (it.hasNext()) {
                                     final EpisodicMemoryIdPair pool_p = it.next();
                                     // the ref set for this epmem_id may not be there if the pools were regenerated from a previous DB
                                     // a non-existant ref set is the equivalent of a ref count of 0 (ie. an empty ref set)
                                     // so we allow the identifier from the pool to be used
                                     if (epmem_id_ref_counts.get(pool_p.first) == null ||
-                                            epmem_id_ref_counts.get(pool_p.first).isEmpty())
-                                    {
+                                            epmem_id_ref_counts.get(pool_p.first).isEmpty()) {
                                         wme.epmem_id = pool_p.second;
                                         wmeValueId.epmem_id = pool_p.first;
                                         wmeValueId.epmem_valid = epmem_validation;
@@ -2231,61 +1928,48 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             // add repository
                             my_id_repo = Lists.newLinkedList();
                             epmem_id_repository.get(parent_id).put(my_hash, my_id_repo);
                         }
-                        
+
                         // keep the address for later (used if w->epmem_id was not assgined)
                         my_id_repo2 = my_id_repo;
                     }
                 }
-                
+
                 // add wme if no success above
-                if (wme.epmem_id == EPMEM_NODEID_BAD)
-                {
+                if (wme.epmem_id == EPMEM_NODEID_BAD) {
                     //fprintf(stderr, "   No success, adding wme to database.");
-                    logger.debug("   No success, adding wme to database.");
-                    
+                    log.debug("   No success, adding wme to database.");
+
                     // can't use value_known_apriori, since value may have been assigned (lti, id repository via case 3)
-                    if (wmeValueId.epmem_id == EPMEM_NODEID_BAD || wmeValueId.epmem_valid != epmem_validation)
-                    {
+                    if (wmeValueId.epmem_id == EPMEM_NODEID_BAD || wmeValueId.epmem_valid != epmem_validation) {
                         // update next id
                         wmeValueId.epmem_id = stats.getNextId();
                         wmeValueId.epmem_valid = epmem_validation;
                         stats.setNextId(wmeValueId.epmem_id + 1L);
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
-                        //fprintf(stderr, "   Adding new n_id and setting wme id for VALUE to %d \n", (unsigned int) (*w_p)->value->id.epmem_id);
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug( "   Adding new n_id and setting wme id for VALUE to " + wmeValueId.epmem_id + " \n");
-                        }
-                        
+                        log.debug("   Adding new n_id and setting wme id for VALUE to {} \n",wmeValueId.epmem_id);
+
                         // Update the node database with the new n_id
-                        db.add_node.setLong( 1, wmeValueId.epmem_id );
+                        db.add_node.setLong(1, wmeValueId.epmem_id);
                         db.add_node.execute();
-                        
+
                         // add repository for possible future children
                         Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                         epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
-                        
+
                         Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
                     }
-                    
+
                     // insert (parent_n_id,attributes_s_id,child_n_id)
-                    //fprintf(stderr, "   Peforming database insertion: %d %d %d\n",
-                    //        (unsigned int) parent_id, (unsigned int) my_hash, (unsigned int) (*w_p)->value->id.epmem_id);
-                    //fprintf(stderr, "   Adding wme to epmem_wmes_identifier table.\n");
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug( "   Performing database insertion: " + parent_id + " " + my_hash + " " + wmeValueId.epmem_id + "\n");
-                        logger.debug( "   Adding wme to epmem_wmes_identifier table.\n");
-                    }
+                    log.debug("   Performing database insertion: {} {} {}\n",parent_id, my_hash, wmeValueId.epmem_id);
+                    log.debug("   Adding wme to epmem_wmes_identifier table.\n");
+
                     final PreparedStatement ps = db.add_epmem_wmes_identifier;
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
@@ -2294,53 +1978,38 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ps.execute();
                     // CK: not all database drivers support this
                     final ResultSet rs = ps.getGeneratedKeys();
-                    try
-                    {
-                        if (rs.next())
-                        {
+                    try {
+                        if (rs.next()) {
                             wme.epmem_id = rs.getLong(1);
-                        }
-                        else
-                        {
+                        } else {
                             // throw an exception if we were not able to get the row id of the insert
                             throw new SQLException("ps.getGeneratedKeys failed!");
                         }
-                    }
-                    finally
-                    {
+                    } finally {
                         rs.close();
                     }
-                    
-                    //fprintf(stderr, "   Incrementing and setting wme id to %d \n", (unsigned int) (*w_p)->epmem_id);
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug( "   Incrementing and setting wme id to " + wme.epmem_id + " \n");
-                    }
-                    
-                    if (wmeValueId.smem_lti == 0)
-                    {
+
+                        log.debug("   Incrementing and setting wme id to {} \n", wme.epmem_id);
+
+                    if (wmeValueId.smem_lti == 0) {
                         // replace the epmem_id and wme id in the right place
                         epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
                     }
-                    
+
                     // new nodes definitely start
                     epmem_edge.add(wme.epmem_id);
                     epmem_edge_mins.add(time_counter);
                     epmem_edge_maxes.add(false);
-                }
-                else
-                {
-                    //fprintf(stderr, "   No success but already has id, so don't remove.\n");
-                    logger.debug(     "   No success but already has id, so don't remove.\n");
-                    
+                } else {
+                    log.debug("   No success but already has id, so don't remove.\n");
+
                     // definitely don't remove
                     epmem_edge_removals.put(wme.epmem_id, false);
 
                     // we add ONLY if the last thing we did was remove
-                    if(epmem_edge_maxes.get((int)(wme.epmem_id-1L)))
-                    {
+                    if (epmem_edge_maxes.get((int) (wme.epmem_id - 1L))) {
                         epmem_edge.add(wme.epmem_id);
-                        epmem_edge_maxes.set((int)(wme.epmem_id-1L), false);
+                        epmem_edge_maxes.set((int) (wme.epmem_id - 1L), false);
                     }
                 }
 
@@ -2349,11 +2018,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // unknown at the beginning of this episode, then we need
                 // to update its ref count for each WME added (thereby catching
                 // up with ref counts that would have been accumulated via wme adds)
-                if (new_identifiers.contains(wme.value))
-                {
+                if (new_identifiers.contains(wme.value)) {
                     // because we could have bypassed the ref set before, we need to create it here
-                    if (!epmem_id_ref_counts.containsKey(wmeValueId.epmem_id))
-                    {
+                    if (!epmem_id_ref_counts.containsKey(wmeValueId.epmem_id)) {
                         Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
                     }
@@ -2361,23 +2028,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
 
                 // if the value has not been iterated over, continue to augmentations
-                if(wmeValueId.tc_number != tc)
-                {
+                if (wmeValueId.tc_number != tc) {
                     parent_syms.add(wme.value);
                     parent_ids.add(wmeValueId.epmem_id);
                 }
-            }
-            else
-            {
-                //fprintf(stderr, "   WME value is a CONSTANT.\n");
-                logger.debug(     "   WME value is a CONSTANT.\n");
-                
+            } else {
+                log.debug("   WME value is a CONSTANT.\n");
+
                 // have we seen this node in this database?
-                if (wme.epmem_id == EPMEM_NODEID_BAD || wme.epmem_valid != epmem_validation)
-                {
-                    //fprintf(stderr, "   This is a new wme.\n");
-                    logger.debug(     "   This is a new wme.\n");
-                    
+                if (wme.epmem_id == EPMEM_NODEID_BAD || wme.epmem_valid != epmem_validation) {
+                    log.debug("   This is a new wme.\n");
+
                     wme.epmem_id = EPMEM_NODEID_BAD;
                     wme.epmem_valid = epmem_validation;
 
@@ -2387,44 +2048,32 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // try to get node id
                     {
                         // parent_id=? AND attr=? AND value=?
-                        //fprintf(stderr, "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
-                        logger.debug(     "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
-                        
+                        log.debug("   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
+
                         final PreparedStatement ps = db.find_epmem_wmes_constant;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, my_hash2);
 
                         final ResultSet rs = ps.executeQuery();
-                        try
-                        {
-                            if (rs.next())
-                            {
+                        try {
+                            if (rs.next()) {
                                 wme.epmem_id = rs.getLong(0 + 1);
                             }
-                        }
-                        finally
-                        {
+                        } finally {
                             rs.close();
                         }
 
                         // CK: no reinitialize for PreparedStatment
                         // my_agent->epmem_stmts_graph->find_node_unique->reinitialize();
                     }
-                    
+
                     // act depending on new/existing feature
-                    if (wme.epmem_id == EPMEM_NODEID_BAD)
-                    {
-                        //fprintf(stderr, "   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
-                        
-                        //fprintf(stderr, "   Peforming database insertion: %d %d %d\n",
-                        //(unsigned int) parent_id, (unsigned int) my_hash, (unsigned int) my_hash2);
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug( "   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
-                            logger.debug( "   Performing database insertion: " + parent_id + " " + my_hash + " " + my_hash2 + "\n");
-                        }
-                        
+                    if (wme.epmem_id == EPMEM_NODEID_BAD) {
+
+                        log.debug("   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
+                        log.debug("   Performing database insertion: {} {} {}\n",parent_id , my_hash, my_hash2);
+
                         // insert (parent_id,attr,value)
                         final PreparedStatement ps = db.add_epmem_wmes_constant;
                         ps.setLong(1, parent_id);
@@ -2433,82 +2082,59 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ps.execute();
                         // CK: not all database drivers support this
                         final ResultSet rs = ps.getGeneratedKeys();
-                        try
-                        {
-                            if (rs.next())
-                            {
+                        try {
+                            if (rs.next()) {
                                 //(*w_p)->epmem_id = (epmem_node_id) my_agent->epmem_db->last_insert_rowid();
                                 wme.epmem_id = rs.getLong(1);
-                            }
-                            else
-                            {
+                            } else {
                                 // throw an exception if we were not able to get the row id of the insert
                                 throw new SQLException("ps.getGeneratedKeys failed!");
                             }
-                        }
-                        finally
-                        {
+                        } finally {
                             rs.close();
                         }
-                        
-                        //fprintf(stderr, "   Setting wme id from last row to  %d \n", (unsigned int) (*w_p)->epmem_id);
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug( "   Setting wme id from last row to  " + wme.epmem_id + " \n");
-                        }
+
+                        log.debug("   Setting wme id from last row to  {} \n",wme.epmem_id);
 
                         // new nodes definitely start
                         epmem_node.add(wme.epmem_id);
                         epmem_node_mins.add(time_counter);
                         epmem_node_maxes.add(false);
-                    }
-                    else
-                    {
-                        //fprintf(stderr, "   Node found in database, definitely don't remove.\n");
-                        //fprintf(stderr, "   Setting wme id from existing node to  %d \n", (unsigned int) (*w_p)->epmem_id);
-                        if (logger.isDebugEnabled())
-                        {
-                            logger.debug( "Node found in database, definitely don't remove.\n");
-                            logger.debug( "   Setting wme id from existing node to  " + wme.epmem_id + " \n");
-                        }
-                        
+                    } else {
+
+                        log.debug("Node found in database, definitely don't remove.\n");
+                        log.debug("   Setting wme id from existing node to  {} \n",wme.epmem_id);
+
                         // definitely don't remove
                         epmem_node_removals.put(wme.epmem_id, false);
 
                         // add ONLY if the last thing we did was add
-                        if( epmem_node_maxes.get((int)(wme.epmem_id-1L)) )
-                        {
+                        if (epmem_node_maxes.get((int) (wme.epmem_id - 1L))) {
                             epmem_node.add(wme.epmem_id);
-                            epmem_node_maxes.set((int)(wme.epmem_id - 1L), false);
+                            epmem_node_maxes.set((int) (wme.epmem_id - 1L), false);
                         }
                     }
                 }
             }
         }
     }
-    
+
     /**
      * <p>episodic_memory.cpp:2373:void epmem_schedule_promotion( agent* my_agent, Symbol* id )
-     * 
-     * 
      */
-    public void epmem_schedule_promotion( IdentifierImpl id )
-    {
-        if (epmem_enabled())
-        {
-            if ((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation))
-            {
+    public void epmem_schedule_promotion(IdentifierImpl id) {
+        if (epmem_enabled()) {
+            if ((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation)) {
                 epmem_promotions.add(id);
             }
         }
     }
-    
+
     /**
      * <p>episodic_memory.cpp:2031:inline void _epmem_promote_id( agent* my_agent, Symbol* id, epmem_time_id t )
      */
-    void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
-    {
-    	// n_id,soar_letter,soar_number,promotion_episode_id
+    void _epmem_promote_id(IdentifierImpl id, long /*epmem_time_id*/ t) throws SQLException {
+        // n_id,soar_letter,soar_number,promotion_episode_id
         final PreparedStatement ps = db.promote_id;
         ps.setLong(1, id.epmem_id);
         ps.setLong(2, id.getNameLetter());
@@ -2516,7 +2142,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         ps.setLong(4, t);
         ps.executeUpdate();
     }
-    
+
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
     //Temporal Hash Functions (epmem::hash)
@@ -2532,221 +2158,182 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     //
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
-    
+
     /*
      * episodic_memory.cpp:266
      * inline epmem_hash_id epmem_temporal_hash_add_type( agent* my_agent, byte sym_type )
-     * 
+     *
      * It looks like sym_type is a byte, just to save space.  We don't want to be casting
      * our ints to bytes every time we call this, so well just use an int.  -ACN
      */
-    private long /*epmem_hash_id*/ epmem_temporal_hash_add_type( int sym_type )
-    {
+    private long /*epmem_hash_id*/ epmem_temporal_hash_add_type(int sym_type) {
         long toReturn = -1;
-        try
-        {
+        try {
             db.hash_add_type.setInt(1, sym_type);
             db.hash_add_type.execute();
             ResultSet rs = db.hash_add_type.getGeneratedKeys();
             rs.next();
-            try{
+            try {
                 toReturn = rs.getLong(1);
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return toReturn;
     }
 
     /*
      * episodic_memory.cpp:266
-     * inline epmem_hash_id epmem_temporal_hash_int( 
-     *      agent *my_agent, 
-     *      int64_t val, 
-     *      bool add_on_fail = true 
+     * inline epmem_hash_id epmem_temporal_hash_int(
+     *      agent *my_agent,
+     *      int64_t val,
+     *      bool add_on_fail = true
      *  )
      */
-    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val){
+    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val) {
         return epmem_temporal_hash_int(val, true);
     }
-    
-    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val, boolean add_on_fail)
-    {
+
+    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val, boolean add_on_fail) {
         long/*epmem_hash_id*/ return_val = 0;//NIL;
-        try{
+        try {
             // search first
-            db.hash_get_int.setLong(1, val );
+            db.hash_get_int.setLong(1, val);
             ResultSet rs = db.hash_get_int.executeQuery();
-            try{
-                if ( rs.next() )
-                {
-                    return_val = rs.getLong( 0 + 1 );
+            try {
+                if (rs.next()) {
+                    return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
-        }
-        catch(SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
 
         // if fail and supposed to add
-        if ( return_val == 0 && add_on_fail )
-        {
+        if (return_val == 0 && add_on_fail) {
             // type first
-            return_val = epmem_temporal_hash_add_type( Symbols.INT_CONSTANT_SYMBOL_TYPE );
-            
-            try{
+            return_val = epmem_temporal_hash_add_type(Symbols.INT_CONSTANT_SYMBOL_TYPE);
+
+            try {
                 // then content
-                db.hash_add_int.setLong( 1, return_val );
-                db.hash_add_int.setLong( 2, val );
+                db.hash_add_int.setLong(1, return_val);
+                db.hash_add_int.setLong(2, val);
                 db.hash_add_int.execute();
-            }catch(SQLException e){
-                logger.error(e.getMessage());
+            } catch (SQLException e) {
+                log.error(e.getMessage());
             }
         }
-        
+
         return return_val;
     }
-    
+
     /*
      * episodic_memory.cpp:300
-     * inline epmem_hash_id epmem_temporal_hash_float( 
-     *      agent *my_agent, 
-     *      double val, 
-     *      bool add_on_fail = true 
+     * inline epmem_hash_id epmem_temporal_hash_float(
+     *      agent *my_agent,
+     *      double val,
+     *      bool add_on_fail = true
      *  )
      */
-    long/*epmem_hash_id*/ epmem_temporal_hash_float(double val){
+    long/*epmem_hash_id*/ epmem_temporal_hash_float(double val) {
         return epmem_temporal_hash_float(val, true);
     }
-    
-    long/* epmem_hash_id */epmem_temporal_hash_float(double val, boolean add_on_fail)
-    {
+
+    long/* epmem_hash_id */epmem_temporal_hash_float(double val, boolean add_on_fail) {
         long/* epmem_hash_id */return_val = 0;// NIL;
-        try
-        {
+        try {
             // search first
             db.hash_get_float.setDouble(1, val);
             ResultSet rs = db.hash_get_float.executeQuery();
-            try
-            {
-                if (rs.next())
-                {
+            try {
+                if (rs.next()) {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
 
         // if fail and supposed to add
-        if (return_val == 0 && add_on_fail)
-        {
+        if (return_val == 0 && add_on_fail) {
             // type first
             return_val = epmem_temporal_hash_add_type(Symbols.FLOAT_CONSTANT_SYMBOL_TYPE);
 
-            try
-            {
+            try {
                 // then content
                 db.hash_add_float.setLong(1, return_val);
                 db.hash_add_float.setDouble(2, val);
                 db.hash_add_float.execute();
-            }
-            catch (SQLException e)
-            {
-                logger.error(e.getMessage());
+            } catch (SQLException e) {
+                log.error(e.getMessage());
             }
         }
 
         return return_val;
     }
-    
+
     /*
      * episodic_memory.cpp:327
-     * inline epmem_hash_id epmem_temporal_hash_str( 
-     *      agent *my_agent, 
-     *      char* val, 
-     *      bool add_on_fail = true 
+     * inline epmem_hash_id epmem_temporal_hash_str(
+     *      agent *my_agent,
+     *      char* val,
+     *      bool add_on_fail = true
      *  )
      */
-    long/*epmem_hash_id*/ epmem_temporal_hash_str(String val){
+    long/*epmem_hash_id*/ epmem_temporal_hash_str(String val) {
         return epmem_temporal_hash_str(val, true);
     }
 
-    long/* epmem_hash_id */epmem_temporal_hash_str(String val, boolean add_on_fail)
-    {
+    long/* epmem_hash_id */epmem_temporal_hash_str(String val, boolean add_on_fail) {
         long/* epmem_hash_id */return_val = 0;// NIL;
-        try
-        {
+        try {
             // search first
             db.hash_get_str.setString(1, val);
             ResultSet rs = db.hash_get_str.executeQuery();
-            try
-            {
-                if (rs.next())
-                {
+            try {
+                if (rs.next()) {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
+            } finally {
                 rs.close();
             }
-        }
-        catch(SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
 
         // if fail and supposed to add
-        if ( return_val == 0 && add_on_fail )
-        {
+        if (return_val == 0 && add_on_fail) {
             // type first
-            return_val = epmem_temporal_hash_add_type( Symbols.SYM_CONSTANT_SYMBOL_TYPE );
-            
-            try
-            {
+            return_val = epmem_temporal_hash_add_type(Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+
+            try {
                 // then content
                 db.hash_add_str.setLong(1, return_val);
                 db.hash_add_str.setString(2, val);
                 db.hash_add_str.execute();
-            }
-            catch (SQLException e)
-            {
-                logger.error(e.getMessage());
+            } catch (SQLException e) {
+                log.error(e.getMessage());
             }
         }
-        
+
         return return_val;
     }
-    
+
     /*
      * episodic_memory.cpp:355
-     * inline int64_t epmem_reverse_hash_int( 
-     *      agent* my_agent, 
+     * inline int64_t epmem_reverse_hash_int(
+     *      agent* my_agent,
      *      epmem_hash_id s_id_lookup )
      */
-    long epmem_reverse_hash_int(long/* epmem_hash_id */s_id_lookup)
-    {
+    long epmem_reverse_hash_int(long/* epmem_hash_id */s_id_lookup) {
         long return_val = 0;// NIL;
-        try
-        {
+        try {
             db.hash_rev_int.setLong(1, s_id_lookup);
             ResultSet res = db.hash_rev_int.executeQuery();
             // assert( res == soar_module::row );
@@ -2754,38 +2341,30 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
-            {
-                if (!res.next())
-                {
+            try {
+                if (!res.next()) {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getLong(0 + 1);
-            }
-            finally
-            {
+            } finally {
                 res.close();
             }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return return_val;
     }
-    
+
     /*
      * episodic_memory.cpp:369
-     * inline double epmem_reverse_hash_float( 
-     *      agent* my_agent, 
-     *      epmem_hash_id s_id_lookup 
+     * inline double epmem_reverse_hash_float(
+     *      agent* my_agent,
+     *      epmem_hash_id s_id_lookup
      *  )
      */
-    double epmem_reverse_hash_float(long/* epmem_hash_id */s_id_lookup)
-    {
+    double epmem_reverse_hash_float(long/* epmem_hash_id */s_id_lookup) {
         double return_val = 0;// NIL;
-        try
-        {
+        try {
             db.hash_rev_float.setLong(1, s_id_lookup);
             ResultSet res = db.hash_rev_float.executeQuery();
             // assert( res == soar_module::row );
@@ -2793,38 +2372,30 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
-            {
-                if (!res.next())
-                {
+            try {
+                if (!res.next()) {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getDouble(0 + 1);
-            }
-            finally
-            {
+            } finally {
                 res.close();
             }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return return_val;
     }
-    
+
     /*
      * episodic_memory.cpp:383
-     * inline double epmem_reverse_hash_float( 
-     *      agent* my_agent, 
-     *      epmem_hash_id s_id_lookup 
+     * inline double epmem_reverse_hash_float(
+     *      agent* my_agent,
+     *      epmem_hash_id s_id_lookup
      *  )
      */
-    String epmem_reverse_hash_str(long/* epmem_hash_id */s_id_lookup)
-    {
+    String epmem_reverse_hash_str(long/* epmem_hash_id */s_id_lookup) {
         String return_val = null;// NIL;
-        try
-        {
+        try {
             db.hash_rev_str.setLong(1, s_id_lookup);
             ResultSet res = db.hash_rev_str.executeQuery();
             // assert( res == soar_module::row );
@@ -2832,26 +2403,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
-            {
-                if (!res.next())
-                {
+            try {
+                if (!res.next()) {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getString(0 + 1);
-            }
-            finally
-            {
+            } finally {
                 res.close();
             }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return return_val;
     }
-    
+
     /* **************************************************************************
 
     epmem_reverse_hash
@@ -2875,54 +2440,48 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     ************************************************************************** */
     /*
      * episodic_memory.cpp:418
-     * inline Symbol* epmem_reverse_hash( 
-     *      agent* my_agent, 
-     *      epmem_hash_id s_id_lookup, 
-     *      byte sym_type = 255 
+     * inline Symbol* epmem_reverse_hash(
+     *      agent* my_agent,
+     *      epmem_hash_id s_id_lookup,
+     *      byte sym_type = 255
      *  )
-     *  
+     *
      *  The C code uses byte in a few places here, but it is at best nominally more
-     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  space efficent, and we have to cast it up all over the place in Java, so
      *  we'll just stick with ints.
      */
-    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup){
+    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup) {
         return epmem_reverse_hash(s_id_lookup, 255);
     }
-    
-    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup, int sym_type)
-    {
+
+    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup, int sym_type) {
         SymbolImpl return_val = null;
         String dest;
 
         if (sym_type == 255) {
-            try{
-                    
-                db.hash_get_type.setLong( 1, s_id_lookup );
+            try {
+
+                db.hash_get_type.setLong(1, s_id_lookup);
                 ResultSet res = db.hash_get_type.executeQuery();
                 //assert( res == soar_module::row );
                 // We don't want this assertion to compile out. If we were to
                 // procceed from here
                 // on bad data, we could potentially put bad symbols into working
                 // memory. -ACN
-                try
-                {
-                    if (!res.next())
-                    {
+                try {
+                    if (!res.next()) {
                         throw new AssertionError("Database query for unknown value");
                     }
                     sym_type = res.getInt(0 + 1);
-                }
-                finally
-                {
+                } finally {
                     res.close();
                 }
-            }catch(SQLException e){
-                logger.error(e.getMessage());
+            } catch (SQLException e) {
+                log.error(e.getMessage());
             }
         }
 
-        switch ( sym_type )
-        {
+        switch (sym_type) {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
                 dest = epmem_reverse_hash_str(s_id_lookup);
                 return_val = symbols.createString(dest);
@@ -2933,7 +2492,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 break;
 
             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                return_val = symbols.createDouble( epmem_reverse_hash_float(s_id_lookup));
+                return_val = symbols.createDouble(epmem_reverse_hash_float(s_id_lookup));
                 break;
 
             default:
@@ -2957,33 +2516,31 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     ************************************************************************** */
     /*
      * episodic_memory.cpp:418
-     * inline void epmem_reverse_hash_print( 
-     *      agent* my_agent, 
-     *      epmem_hash_id s_id_lookup, 
-     *      std::string& dest, 
+     * inline void epmem_reverse_hash_print(
+     *      agent* my_agent,
+     *      epmem_hash_id s_id_lookup,
+     *      std::string& dest,
      *      byte sym_type = 255)
-     *  
+     *
      *  The C code uses byte in a few places here, but it is at best nominally more
-     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  space efficent, and we have to cast it up all over the place in Java, so
      *  we'll just stick with ints.
      */
-    
-    String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup){
+
+    String epmem_reverse_hash_print(long/*epmem_hash_id*/ s_id_lookup) {
         return epmem_reverse_hash_print(s_id_lookup, 255);
     }
-    
-    String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup, int sym_type)
-    {
+
+    String epmem_reverse_hash_print(long/*epmem_hash_id*/ s_id_lookup, int sym_type) {
         @SuppressWarnings("unused")
         Symbol return_val = null;
-        String dest = null; 
-        
+        String dest = null;
+
         // This may be faster than including type lookup in edges?  Might want to check later.
 
         if (sym_type == 255) {
-            try
-            {
-                db.hash_get_type.setLong(1, s_id_lookup );
+            try {
+                db.hash_get_type.setLong(1, s_id_lookup);
                 ResultSet res = db.hash_get_type.executeQuery();
                 //(void)res; // quells compiler warning
                 //assert( res == soar_module::row );
@@ -2991,28 +2548,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // procceed from here
                 // on bad data, we could potentially put bad symbols into working
                 // memory. -ACN
-                try
-                {
-                    if (!res.next())
-                    {
+                try {
+                    if (!res.next()) {
                         throw new AssertionError("Database query for unknown value");
                     }
                     // check if should be column_int
                     sym_type = res.getInt(0 + 1);
-                }
-                finally
-                {
+                } finally {
                     res.close();
                 }
-            }
-            catch(SQLException e)
-            {
-                logger.error(e.getMessage());
+            } catch (SQLException e) {
+                log.error(e.getMessage());
             }
         }
 
-        switch ( sym_type )
-        {
+        switch (sym_type) {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
                 dest = epmem_reverse_hash_str(s_id_lookup);
                 break;
@@ -3031,7 +2581,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         return dest;
     }
-    
+
     /* **************************************************************************
 
     epmem_temporal_hash
@@ -3045,33 +2595,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     ************************************************************************** */
     /*
      * episodic_memory.cpp:503
-     * epmem_hash_id epmem_temporal_hash( 
-     *      agent *my_agent, 
-     *      Symbol *sym, 
-     *      bool add_on_fail = true 
+     * epmem_hash_id epmem_temporal_hash(
+     *      agent *my_agent,
+     *      Symbol *sym,
+     *      bool add_on_fail = true
      *  )
-     *  
+     *
      *  The C code uses byte in a few places here, but it is at best nominally more
-     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  space efficent, and we have to cast it up all over the place in Java, so
      *  we'll just stick with ints.
      */
-    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym)
-    {
+    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym) {
         return epmem_temporal_hash(sym, true);
     }
-    
-    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym, boolean add_on_fail)
-    {
+
+    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym, boolean add_on_fail) {
         long/*epmem_hash_id*/ return_val = 0;//NIL;
 
         ////////////////////////////////////////////////////////////////////////////
         //my_agent->epmem_timers->hash->start();
         ////////////////////////////////////////////////////////////////////////////
 
-        if (sym.symbol_is_constant() )
-        {
-            if ( (sym.epmem_hash_id != 0) || ( sym.epmem_valid != epmem_validation ) )
-            {
+        if (sym.symbol_is_constant()) {
+            if ((sym.epmem_hash_id != 0) || (sym.epmem_valid != epmem_validation)) {
                 sym.epmem_hash_id = 0;//NIL;
                 sym.epmem_valid = epmem_validation;
                 /*
@@ -3092,19 +2638,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         break;
                 }
                 */
-                if(sym.asString() != null)
-                {
-                    return_val = epmem_temporal_hash_str( sym.asString().getValue(), add_on_fail );
+                if (sym.asString() != null) {
+                    return_val = epmem_temporal_hash_str(sym.asString().getValue(), add_on_fail);
+                } else if (sym.asInteger() != null) {
+                    return_val = epmem_temporal_hash_int(sym.asInteger().getValue(), add_on_fail);
+                } else if (sym.asDouble() != null) {
+                    return_val = epmem_temporal_hash_float(sym.asDouble().getValue(), add_on_fail);
                 }
-                else if(sym.asInteger() != null)
-                {
-                    return_val = epmem_temporal_hash_int( sym.asInteger().getValue(), add_on_fail );
-                }
-                else if(sym.asDouble() != null)
-                {
-                    return_val = epmem_temporal_hash_float( sym.asDouble().getValue(), add_on_fail );
-                }
-                
+
                 // cache results for later re-use
                 sym.epmem_hash_id = return_val;
                 sym.epmem_valid = epmem_validation;
@@ -3118,21 +2659,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         return return_val;
     }
-    
+
     ///////////////////////////////
     //End of hash functions -ACN
     //////////////////////////////
-    
+
     /**
      * Implements the Soar-EpMem API
-     * 
+     *
      * <p>episodic_memory.cpp:5238:void epmem_respond_to_cmd( agent *my_agent )
      */
-    private void epmem_respond_to_cmd(boolean created_new_memory) throws SoarException, SQLException
-    {
+    private void epmem_respond_to_cmd(boolean created_new_memory) throws SoarException, SQLException {
         // if this is before the first episode, initialize db components
-        if (db == null)
-        {
+        if (db == null) {
             epmem_init_db();
         }
 
@@ -3174,14 +2713,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         boolean new_cue;
 
         boolean do_wm_phase = false;
-        
-        while ( state != null )
-        {
+
+        while (state != null) {
             final EpisodicMemoryStateInfo epmem_info = epmem_info(state);
             // ////////////////////////////////////////////////////////////////////////////
             // my_agent->epmem_timers->api->start();
             // ////////////////////////////////////////////////////////////////////////////
-            
+
             // make sure this state has had some sort of change to the cmd
             new_cue = false;
             wme_count = 0;
@@ -3194,81 +2732,69 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // initialize BFS at command
                 syms.add(epmem_info.epmem_cmd_header);
 
-                while (!syms.isEmpty())
-                {
+                while (!syms.isEmpty()) {
                     // get state
                     parent_sym = syms.poll();
-                    
+
                     // get children of the current identifier
                     wmes = epmem_get_augs_of_id(parent_sym, tc);
                     {
-                        for (final WmeImpl wme : wmes)
-                        {
+                        for (final WmeImpl wme : wmes) {
                             wme_count++;
 
-                            if (wme.getTimetag() > epmem_info.last_cmd_time)
-                            {
+                            if (wme.getTimetag() > epmem_info.last_cmd_time) {
                                 new_cue = true;
                                 epmem_info.last_cmd_time = wme.getTimetag();
                             }
 
-                            if (wme.value.asIdentifier() != null)
-                            {
+                            if (wme.value.asIdentifier() != null) {
                                 syms.add(wme.value.asIdentifier());
                             }
                         }
-                        
+
                         // free space from aug list
-                        if (cmds == null)
-                        {
+                        if (cmds == null) {
                             cmds = wmes;
-                        }
-                        else
-                        {
+                        } else {
                             wmes = null;
                         }
                     }
                 }
-                
+
                 // see if any WMEs were removed
-                if (epmem_info.last_cmd_count != wme_count)
-                {
+                if (epmem_info.last_cmd_count != wme_count) {
                     new_cue = true;
                     epmem_info.last_cmd_count = wme_count;
                 }
-                
-                if (new_cue)
-                {
+
+                if (new_cue) {
                     // clear old results
                     epmem_clear_result(state);
 
                     do_wm_phase = true;
                 }
             }
-            
+
             // a command is issued if the cue is new
             // and there is something on the cue
-            if (new_cue && wme_count != 0)
-            {
-                _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next, 
+            if (new_cue && wme_count != 0) {
+                _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next,
                         previous, query, neg_query, filter, prohibit, before, after, currents, cue_wmes, store);
-                
+
                 // ////////////////////////////////////////////////////////////////////////////
                 // my_agent->epmem_timers->api->stop();
                 // ////////////////////////////////////////////////////////////////////////////
-                
+
                 retrieval_wmes.clear();
                 meta_wmes.clear();
 
                 // process command
-                if (good_cue.value)
-                {
+                if (good_cue.value) {
                     // retrieve
-                    if (path.value == 1)
-                    {
+                    if (path.value == 1) {
                         epmem_install_memory(
-                                state, 
-                                retrieve.value, 
+                                state,
+                                retrieve.value,
                                 meta_wmes,
                                 retrieval_wmes);
 
@@ -3276,101 +2802,88 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         stats.ncbr.set(stats.ncbr.get() + 1L);
                     }
                     // previous or next
-                    else if (path.value == 2)
-                    {
-                        if (next.value != null)
-                        {
+                    else if (path.value == 2) {
+                        if (next.value != null) {
                             epmem_install_memory(
-                                    state, 
-                                    epmem_next_episode(epmem_info.last_memory), 
-                                    meta_wmes, 
+                                    state,
+                                    epmem_next_episode(epmem_info.last_memory),
+                                    meta_wmes,
                                     retrieval_wmes);
 
                             // add one to the next stat
                             stats.nexts.set(stats.nexts.get() + 1L);
-                        }
-                        else
-                        {
+                        } else {
                             epmem_install_memory(
-                                    state, 
-                                    epmem_previous_episode(epmem_info.last_memory), 
-                                    meta_wmes, 
+                                    state,
+                                    epmem_previous_episode(epmem_info.last_memory),
+                                    meta_wmes,
                                     retrieval_wmes);
 
                             // add one to the prev stat
                             stats.prevs.set(stats.prevs.get() + 1L);
                         }
-                        
-                        if (epmem_info.last_memory == EPMEM_MEMID_NONE)
-                        {
+
+                        if (epmem_info.last_memory == EPMEM_MEMID_NONE) {
                             epmem_buffer_add_wme(
-                                    meta_wmes, 
-                                    epmem_info.epmem_result_header, 
-                                    predefinedSyms.epmem_sym_failure, 
+                                    meta_wmes,
+                                    epmem_info.epmem_result_header,
+                                    predefinedSyms.epmem_sym_failure,
                                     ((next.value != null) ? (next.value) : (previous.value)));
-                        }
-                        else
-                        {
+                        } else {
                             epmem_buffer_add_wme(
-                                    meta_wmes, 
-                                    epmem_info.epmem_result_header, 
-                                    predefinedSyms.epmem_sym_success, 
+                                    meta_wmes,
+                                    epmem_info.epmem_result_header,
+                                    predefinedSyms.epmem_sym_success,
                                     ((next.value != null) ? (next.value) : (previous.value)));
                         }
                     }
                     // query
-                    else if (path.value == 3)
-                    {
+                    else if (path.value == 3) {
                         epmem_process_query(
-                                state, 
-                                query.value, 
+                                state,
+                                query.value,
                                 neg_query.value,
                                 filter.value,
-                                prohibit, 
-                                before.value, 
-                                after.value, 
-                                currents, 
-                                cue_wmes, 
-                                meta_wmes, 
+                                prohibit,
+                                before.value,
+                                after.value,
+                                currents,
+                                cue_wmes,
+                                meta_wmes,
                                 retrieval_wmes);
 
                         // add one to the cbr stat
                         stats.cbr.set(stats.cbr.get() + 1L);
                     }
                     // store
-                    else if (path.value == 4)
-                    {
+                    else if (path.value == 4) {
                         // Only do this if we haven't already made an episode.
-                        if (!created_new_memory)
-                        {
+                        if (!created_new_memory) {
                             epmem_new_episode();
                         }
-                        
+
                         epmem_buffer_add_wme(
-                            meta_wmes, 
-                            epmem_info.epmem_result_header,
-                            predefinedSyms.epmem_sym_success,
-                            store.value
+                                meta_wmes,
+                                epmem_info.epmem_result_header,
+                                predefinedSyms.epmem_sym_success,
+                                store.value
                         );
                     }
-                }
-                else
-                {
-                    epmem_buffer_add_wme(meta_wmes, 
-                            epmem_info.epmem_result_header, 
-                            predefinedSyms.epmem_sym_status, 
+                } else {
+                    epmem_buffer_add_wme(meta_wmes,
+                            epmem_info.epmem_result_header,
+                            predefinedSyms.epmem_sym_status,
                             predefinedSyms.epmem_sym_bad_cmd);
                 }
-                
+
                 // clear prohibit list
                 prohibit.clear();
-                
+
                 //CK: this is not implemented in smem - added to c++ after port?
-                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
-                {
+                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty()) {
                     // process preference assertion en masse
                     epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
-                    
+
                     //We don't need to manage the ref counts, but we should still empty the lists. -ACN 
                     meta_wmes.clear();
                     retrieval_wmes.clear();
@@ -3399,25 +2912,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                 // clear cue wmes
                 cue_wmes.clear();
-            }
-            else
-            {
+            } else {
                 // ////////////////////////////////////////////////////////////////////////////
                 // my_agent->epmem_timers->api->stop();
                 // ////////////////////////////////////////////////////////////////////////////
             }
-            
-         // free space from command aug list
-            if ( cmds != null )
-            {
+
+            // free space from command aug list
+            if (cmds != null) {
                 cmds = null;
             }
 
             state = state.goalInfo.higher_goal;
         }
-        
-        if (do_wm_phase)
-        {
+
+        if (do_wm_phase) {
             // ////////////////////////////////////////////////////////////////////////////
             // my_agent->epmem_timers->wm_phase->start();
             // ////////////////////////////////////////////////////////////////////////////
@@ -3429,23 +2938,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // ////////////////////////////////////////////////////////////////////////////
         }
     }
-    
+
     /**
      * <p>
      * episodic_memory.cpp:992:{@code inline void epmem_process_buffered_wmes( agent*
      * my_agent, Symbol* state, soar_module::wme_set& cue_wmes,
      * soar_module::symbol_triple_list& meta_wmes,
      * soar_module::symbol_triple_list& retrieval_wmes )}
-     * 
      */
     private void epmem_process_buffered_wmes(
-            IdentifierImpl state, 
-            Set<WmeImpl> cue_wmes, 
-            List<SymbolTriple> meta_wmes, 
-            List<SymbolTriple> retrieval_wmes)
-    {
-        _epmem_process_buffered_wme_list( state, cue_wmes, meta_wmes, epmem_info(state).epmem_wmes );
-        _epmem_process_buffered_wme_list( state, cue_wmes, retrieval_wmes, null );
+            IdentifierImpl state,
+            Set<WmeImpl> cue_wmes,
+            List<SymbolTriple> meta_wmes,
+            List<SymbolTriple> retrieval_wmes) {
+        _epmem_process_buffered_wme_list(state, cue_wmes, meta_wmes, epmem_info(state).epmem_wmes);
+        _epmem_process_buffered_wme_list(state, cue_wmes, retrieval_wmes, null);
     }
 
     /**
@@ -3455,71 +2962,61 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * soar_module::symbol_triple_list& my_list, epmem_wme_stack* epmem_wmes )}
      */
     private void _epmem_process_buffered_wme_list(
-            IdentifierImpl state, 
-            Set<WmeImpl> cue_wmes, 
-            List<SymbolTriple> my_list, 
-            Deque<Preference> epmem_wmes)
-    {
-        if (my_list.isEmpty())
-        {
+            IdentifierImpl state,
+            Set<WmeImpl> cue_wmes,
+            List<SymbolTriple> my_list,
+            Deque<Preference> epmem_wmes) {
+        if (my_list.isEmpty()) {
             return;
         }
-        
-        Instantiation inst = SoarModule.make_fake_instantiation( state, cue_wmes, my_list );
 
-        for ( Preference pref = inst.preferences_generated; pref != null; pref=pref.inst_next )
-        {
+        Instantiation inst = SoarModule.make_fake_instantiation(state, cue_wmes, my_list);
+
+        for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next) {
             // add the preference to temporary memory
             // add to the list of preferences to be removed
             // when the goal is removed
             //insert_at_head_of_dll( state->id.preferences_from_goal, pref, all_of_goal_next, all_of_goal_prev );
-            recognitionMemory.add_preference_to_tm( pref );
-            
+            recognitionMemory.add_preference_to_tm(pref);
+
             state.goalInfo.addGoalPreference(pref);
             pref.on_goal_list = true;
 
-            if ( epmem_wmes != null )
-            {
+            if (epmem_wmes != null) {
                 // if this is a meta wme, then it is completely local
                 // to the state and thus we will manually remove it
                 // (via preference removal) when the time comes
-                epmem_wmes.add( pref );
+                epmem_wmes.add(pref);
             }
         }
 
         //if ( !epmem_wmes )
-        if ( epmem_wmes == null )
-        {
+        if (epmem_wmes == null) {
             // otherwise, we submit the fake instantiation to backtracing
             // such as to potentially produce justifications that can follow
             // it to future adventures (potentially on new states)
             final ByRef<Instantiation> my_justification_list = new ByRef<Instantiation>(null);//NIL;
-            chunker.chunk_instantiation( inst, false, my_justification_list );
+            chunker.chunk_instantiation(inst, false, my_justification_list);
 
             // if any justifications are created, assert their preferences manually
             // (copied mainly from assert_new_preferences with respect to our circumstances)
-            if ( my_justification_list.value != null/*NIL*/ )
-            {
+            if (my_justification_list.value != null/*NIL*/) {
                 Preference just_pref = null;//NIL;
                 Instantiation next_justification = null;//NIL;
 
-                for ( Instantiation my_justification = my_justification_list.value;
-                        my_justification != null;//NIL;
-                        my_justification=next_justification )
-                {
+                for (Instantiation my_justification = my_justification_list.value;
+                     my_justification != null;//NIL;
+                     my_justification = next_justification) {
                     next_justification = my_justification.nextInProdList;
 
-                    if ( my_justification.in_ms )
-                    {
+                    if (my_justification.in_ms) {
                         my_justification.prod.instantiations = my_justification.insertAtHeadOfProdList(my_justification.prod.instantiations);
                     }
 
-                    for ( just_pref=my_justification.preferences_generated; just_pref!=null/*NIL*/; just_pref=just_pref.inst_next )
-                    {
-                        recognitionMemory.add_preference_to_tm( just_pref );
-                        if ( wma.wma_enabled() )
-                        {
-                            wma.wma_activate_wmes_in_pref( just_pref );
+                    for (just_pref = my_justification.preferences_generated; just_pref != null/*NIL*/; just_pref = just_pref.inst_next) {
+                        recognitionMemory.add_preference_to_tm(just_pref);
+                        if (wma.wma_enabled()) {
+                            wma.wma_activate_wmes_in_pref(just_pref);
                         }
                     }
                 }
@@ -3530,18 +3027,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * Call epmem_process_query with level = 3 (default in C++)
      */
-    private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, SymbolImpl filter, List<Long> prohibit, long before, 
-            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException, SoarException
-    {
+    private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, SymbolImpl filter, List<Long> prohibit, long before,
+                                     long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException, SoarException {
         epmem_process_query(state, query, neg_query, filter, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
     }
-    
-    private static class EpmemLiteral implements Comparable<EpmemLiteral>
-    {
+
+    private static class EpmemLiteral implements Comparable<EpmemLiteral> {
         //We need this to prevent sets from deciding these are equal.  -ACN
-        private static AtomicLong nextId = new AtomicLong(); 
+        private static AtomicLong nextId = new AtomicLong();
         private final long privateID = nextId.incrementAndGet();
-        
+
         SymbolImpl id_sym;
         SymbolImpl value_sym;
         long/*int*/ is_neg_q;
@@ -3552,70 +3047,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long/*epmem_node_id*/ child_n_id;
         double weight;
         Set<EpmemLiteral> parents;
-        Set<EpmemLiteral> children;        
+        Set<EpmemLiteral> children;
         NavigableSet<EpmemNodePair>/*epmem_node_pair_set*/ matches;
         Map<Long, Integer>/*epmem_node_int_map*/ values;
-        
+
         @Override
-        public int compareTo(EpmemLiteral o)
-        {
-            if(this.privateID == o.privateID){
+        public int compareTo(EpmemLiteral o) {
+            if (this.privateID == o.privateID) {
                 return 0;
             }
-            return (this.privateID < o.privateID)?-1:1;
+            return (this.privateID < o.privateID) ? -1 : 1;
         }
     }
-    
+
     /**
      * Based on episodic_memory:559
+     *
      * @author ACNickels
      */
-    private static class EpmemTriple implements Comparable<EpmemTriple>
-    {
+    private static class EpmemTriple implements Comparable<EpmemTriple> {
         long parent_n_id;
         long attribute_s_id;
         long child_n_id;
-        
+
         public EpmemTriple(
                 long parent_n_id,
                 long attribute_s_id,
                 long child_n_id
-        )
-        {
+        ) {
             this.parent_n_id = parent_n_id;
             this.attribute_s_id = attribute_s_id;
             this.child_n_id = child_n_id;
         }
-        
+
         /**
          * Create a copy of this EpmemTriple object
          */
-        public EpmemTriple copyEpmemTriple()
-        {
+        public EpmemTriple copyEpmemTriple() {
             return new EpmemTriple(parent_n_id, attribute_s_id, child_n_id);
         }
-        
+
         @Override
-        public int compareTo(EpmemTriple other)
-        {
-            if (parent_n_id != other.parent_n_id)
-            {
-                return (parent_n_id < other.parent_n_id)?-1:1;
-            } 
-            else if (attribute_s_id != other.attribute_s_id) 
-            {
-                return (attribute_s_id < other.attribute_s_id)?-1:1;
-            }
-            else if(child_n_id != other.child_n_id)
-            {
-                return (child_n_id < other.child_n_id)?-1:1;
+        public int compareTo(EpmemTriple other) {
+            if (parent_n_id != other.parent_n_id) {
+                return (parent_n_id < other.parent_n_id) ? -1 : 1;
+            } else if (attribute_s_id != other.attribute_s_id) {
+                return (attribute_s_id < other.attribute_s_id) ? -1 : 1;
+            } else if (child_n_id != other.child_n_id) {
+                return (child_n_id < other.child_n_id) ? -1 : 1;
             }
             return 0;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + (int) (parent_n_id ^ (parent_n_id >>> 32));
@@ -3625,8 +3110,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3642,12 +3126,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 return false;
             return true;
         }
-        
+
     }
-    
+
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private static class EpmemPEdge
-    {
+    private static class EpmemPEdge {
         EpmemTriple triple;
         int value_is_id;
         boolean has_noncurrent;
@@ -3657,9 +3140,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         ResultSet sqlResults = null;
         long/*epmem_time_id*/ time;
     }
+
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private static class EpmemUEdge
-    {
+    private static class EpmemUEdge {
         EpmemTriple triple;
         long value_is_id;
         boolean has_noncurrent;
@@ -3668,40 +3151,36 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long intervals;
         boolean activated;
     }
+
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private static class EpmemInterval
-    {
+    private static class EpmemInterval {
         EpmemUEdge uedge;
         int is_end_point;
         PreparedStatement sql = null;
         ResultSet sqlResult = null;
         long/*epmem_time_id*/ time;
     }
-    
-    private static class EpmemSymbolNodePair
-    {        
-        public EpmemSymbolNodePair(SymbolImpl id_sym, long parent)
-        {
+
+    private static class EpmemSymbolNodePair {
+        public EpmemSymbolNodePair(SymbolImpl id_sym, long parent) {
             first = id_sym;
             second = parent;
         }
-       
+
         final SymbolImpl first;
         final long /*epmem_node_id*/ second;
-        
+
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((first == null) ? 0 : first.hashCode());
             result = prime * result + (int) (second ^ (second >>> 32));
             return result;
         }
-        
+
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3709,42 +3188,37 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (getClass() != obj.getClass())
                 return false;
             EpmemSymbolNodePair other = (EpmemSymbolNodePair) obj;
-            if (first == null)
-            {
+            if (first == null) {
                 if (other.first != null)
                     return false;
-            }
-            else if (!first.equals(other.first))
+            } else if (!first.equals(other.first))
                 return false;
             if (second != other.second)
                 return false;
             return true;
         }
     }
-    
-    private static class EpmemNodePair implements Comparable<EpmemNodePair>
-    {
-        public EpmemNodePair(long parent, long child)
-        {
+
+    private static class EpmemNodePair implements Comparable<EpmemNodePair> {
+        public EpmemNodePair(long parent, long child) {
             this.first = parent;
             this.second = child;
         }
+
         final long /*epmem_node_id*/ first;
         final long /*epmem_node_id*/ second;
-        
+
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + (int) (first ^ (first >>> 32));
             result = prime * result + (int) (second ^ (second >>> 32));
             return result;
         }
-        
+
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -3758,91 +3232,81 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 return false;
             return true;
         }
-        
+
         @Override
-        public int compareTo(EpmemNodePair other)
-        {
-            if (this.first != other.first)
-            {
-                return (this.first < other.first)?-1:1;
-            } 
-            else if (this.second != other.second) 
-            {
-                return (this.second < other.second)?-1:1;
+        public int compareTo(EpmemNodePair other) {
+            if (this.first != other.first) {
+                return (this.first < other.first) ? -1 : 1;
+            } else if (this.second != other.second) {
+                return (this.second < other.second) ? -1 : 1;
             }
             return 0;
         }
     }
+
     /**
      * <p>
-     * episodic_memory.cpp:3869:{@code void 
+     * episodic_memory.cpp:3869:{@code void
      * epmem_process_query(
-     *      agent *my_agent, 
-     *      Symbol *state, 
-     *      Symbol *pos_query, 
-     *      Symbol *neg_query, 
-     *      epmem_time_list& prohibits,
-     *      epmem_time_id before, 
-     *      epmem_time_id after, 
-     *      epmem_symbol_set& currents,
-     *      soar_module::wme_set& cue_wmes, 
-     *      soar_module::symbol_triple_list& meta_wmes, 
-     *      soar_module::symbol_triple_list& retrieval_wmes, 
-     *      int level=3
-     *  )}
-     * 
+     * agent *my_agent,
+     * Symbol *state,
+     * Symbol *pos_query,
+     * Symbol *neg_query,
+     * epmem_time_list& prohibits,
+     * epmem_time_id before,
+     * epmem_time_id after,
+     * epmem_symbol_set& currents,
+     * soar_module::wme_set& cue_wmes,
+     * soar_module::symbol_triple_list& meta_wmes,
+     * soar_module::symbol_triple_list& retrieval_wmes,
+     * int level=3
+     * )}
      */
     private void epmem_process_query(
-            IdentifierImpl state, 
-            SymbolImpl pos_query, 
-            SymbolImpl neg_query, 
-            SymbolImpl filter, 
-            List<Long> prohibits, 
-            long before, 
+            IdentifierImpl state,
+            SymbolImpl pos_query,
+            SymbolImpl neg_query,
+            SymbolImpl filter,
+            List<Long> prohibits,
+            long before,
             long after,
-            Set<SymbolImpl> currents, 
-            Set<WmeImpl> cue_wmes, 
-            List<SymbolTriple> meta_wmes, 
+            Set<SymbolImpl> currents,
+            Set<WmeImpl> cue_wmes,
+            List<SymbolTriple> meta_wmes,
             List<SymbolTriple> retrieval_wmes,
             int level /*=3*/
-    ) throws SQLException, SoarException
-    {
+    ) throws SQLException, SoarException {
         // a query must contain a positive cue
-        if (pos_query == null) 
-        {
+        if (pos_query == null) {
             epmem_buffer_add_wme(
-                    meta_wmes, 
-                    epmem_info(state).epmem_result_header, 
-                    predefinedSyms.epmem_sym_status, 
+                    meta_wmes,
+                    epmem_info(state).epmem_result_header,
+                    predefinedSyms.epmem_sym_status,
                     predefinedSyms.epmem_sym_bad_cmd
-                );
+            );
             return;
         }
 
         // before and after, if specified, must be valid relative to each other
-        if (before != EPMEM_MEMID_NONE && after != EPMEM_MEMID_NONE && before <= after) 
-        {
+        if (before != EPMEM_MEMID_NONE && after != EPMEM_MEMID_NONE && before <= after) {
             epmem_buffer_add_wme(
-                    meta_wmes, 
-                    epmem_info(state).epmem_result_header, 
-                    predefinedSyms.epmem_sym_status, 
+                    meta_wmes,
+                    epmem_info(state).epmem_result_header,
+                    predefinedSyms.epmem_sym_status,
                     predefinedSyms.epmem_sym_bad_cmd
-                );
+            );
             return;
         }
-        
-        if ( logger.isDebugEnabled() ) {
-            logger.debug("\n==========================\n");
-        }
-        
+
+        log.debug("\n==========================\n");
+
         //my_agent->epmem_timers->query->start();
-        
+
         stats.last_considered.set(0L);
         stats.last_graph_matches.set(0L);
-        
+
         // sort probibit's
-        if (!prohibits.isEmpty()) 
-        {
+        if (!prohibits.isEmpty()) {
             //std::sort(prohibits.begin(), prohibits.end());
             Collections.sort(prohibits);
         }
@@ -3871,7 +3335,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
         uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
-        
+
         Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new LinkedHashSet<EpmemInterval>();
         //#endif
 
@@ -3887,27 +3351,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         PriorityQueue<EpmemPEdge> pedge_pq =
                 //11 is the default size a queue without a comparator uses
                 new PriorityQueue<EpmemPEdge>(
-                        11, 
+                        11,
                         //Comparator code comes from episodic_memory.h: 617
                         //The java implementation sorts in reverse order, becuase the Java and C
                         //queue implementations sort their elements in reverse orders.
-                        new Comparator<EpmemPEdge>()
-                        {
-                            public int compare(EpmemPEdge a, EpmemPEdge b)
-                            {
-                                if (a.time != b.time) 
-                                {
-                                    return (a.time < b.time)?1:-1;
-                                } 
-                                else 
-                                {
+                        new Comparator<EpmemPEdge>() {
+                            public int compare(EpmemPEdge a, EpmemPEdge b) {
+                                if (a.time != b.time) {
+                                    return (a.time < b.time) ? 1 : -1;
+                                } else {
                                     //This is an arbitrary tie break. -ACN
                                     //return (a < b);
                                     return (a.triple.compareTo(b.triple));
                                 }
                             }
                         }
-                    );
+                );
         //epmem_interval_pq interval_pq;
         PriorityQueue<EpmemInterval> interval_pq =
                 new PriorityQueue<EpmemInterval>(
@@ -3915,34 +3374,28 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //Comparator based on episodic_memory.h: 627
                         //The java implementation sorts in reverse order, becuase the Java and C
                         //queue implementations sort their elements in reverse orders.
-                        new Comparator<EpmemInterval>()
-                        {
-                            public int compare(EpmemInterval a, EpmemInterval b)
-                            {
+                        new Comparator<EpmemInterval>() {
+                            public int compare(EpmemInterval a, EpmemInterval b) {
                                 if (a.time != b.time) {
-                                    return (a.time < b.time)?1:-1;
-                                }
-                                else if (a.is_end_point == b.is_end_point) 
-                                {
+                                    return (a.time < b.time) ? 1 : -1;
+                                } else if (a.is_end_point == b.is_end_point) {
                                     //This is an arbitrary tie break. -ACN
                                     return (a.uedge.triple.compareTo(b.uedge.triple));
-                                }
-                                else 
-                                {
+                                } else {
                                     // put starts before ends so intervals are closed first
-                                    return (a.is_end_point == EPMEM_RANGE_END)?1:-1;
+                                    return (a.is_end_point == EPMEM_RANGE_END) ? 1 : -1;
                                 }
                             }
                         }
-                    );
+                );
 
         // variables needed to track satisfiability
         // number of literals with a certain symbol as its value
-        Map<SymbolImpl, Integer>/*epmem_symbol_int_map*/ symbol_num_incoming 
-            = new LinkedHashMap<SymbolImpl, Integer>();
+        Map<SymbolImpl, Integer>/*epmem_symbol_int_map*/ symbol_num_incoming
+                = new LinkedHashMap<SymbolImpl, Integer>();
         // number of times a symbol is matched by a node
         Map<EpmemSymbolNodePair, Integer>/*epmem_symbol_node_pair_int_map*/ symbol_node_count
-            = new LinkedHashMap<EpmemSymbolNodePair, Integer>();
+                = new LinkedHashMap<EpmemSymbolNodePair, Integer>();
 
         // various things about the current and the best episodes
         long/*epmem_time_id*/ best_episode = EPMEM_MEMID_NONE;
@@ -3950,7 +3403,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         boolean best_graph_matched = false;
         long/*long int*/ best_cardinality = 0;
         Map<EpmemLiteral, EpmemNodePair>/*epmem_literal_node_pair_map*/ best_bindings
-            = new LinkedHashMap<EpmemLiteral, EpmemNodePair>();
+                = new LinkedHashMap<EpmemLiteral, EpmemNodePair>();
         double current_score = 0;
         long/*long int*/ current_cardinality = 0;
 
@@ -3959,10 +3412,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //will use a linked list instead.  LinkedList has a collections method to sort
         //it and implements Deque, so we can still pass it around as a Deque. 
         LinkedList<EpmemLiteral>/*epmem_literal_deque*/ gm_ordering
-            = new LinkedList<EpmemLiteral>();
+                = new LinkedList<EpmemLiteral>();
 
-        if (level > 1) 
-        {
+        if (level > 1) {
             // build the DNF graph while checking for leaf WMEs
             {
                 stats.qry_pos.set(0l);
@@ -3986,18 +3438,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 */
                 root_literal.matches = new TreeSet<EpmemNodePair>();
                 //#endif
-                root_literal.values = new  LinkedHashMap<Long, Integer>();
+                root_literal.values = new LinkedHashMap<Long, Integer>();
                 symbol_num_incoming.put(pos_query, 1);
                 literal_cache.put(null, root_literal);
 
                 Set<SymbolImpl>/*std::set<Symbol*>*/ visiting = new LinkedHashSet<SymbolImpl>();
                 visiting.add(pos_query);
                 visiting.add(neg_query);
-                for (int query_type = EPMEM_NODE_POS; query_type <= EPMEM_NODE_NEG; query_type++) 
-                {
+                for (int query_type = EPMEM_NODE_POS; query_type <= EPMEM_NODE_NEG; query_type++) {
                     SymbolImpl query_root = null;
-                    switch (query_type) 
-                    {
+                    switch (query_type) {
                         case EPMEM_NODE_POS:
                             query_root = pos_query;
                             break;
@@ -4005,27 +3455,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             query_root = neg_query;
                             break;
                     }
-                    if (query_root == null)
-                    {
+                    if (query_root == null) {
                         continue;
                     }
                     List<WmeImpl>/*epmem_wme_list**/ children = epmem_get_augs_of_id(query_root, DefaultMarker.create());//get_new_tc_number(my_agent));
                     // for each first level WME, build up a DNF
-                    for (WmeImpl wme_iter: children) 
-                    {
+                    for (WmeImpl wme_iter : children) {
                         EpmemLiteral/*epmem_literal**/ child = epmem_build_dnf(
-                                    wme_iter, 
-                                    literal_cache, 
-                                    leaf_literals, 
-                                    symbol_num_incoming, 
-                                    gm_ordering, 
-                                    currents, 
-                                    query_type, 
-                                    visiting, 
-                                    cue_wmes
-                                );
-                        if (child != null) 
-                        {
+                                wme_iter,
+                                literal_cache,
+                                leaf_literals,
+                                symbol_num_incoming,
+                                gm_ordering,
+                                currents,
+                                query_type,
+                                visiting,
+                                cue_wmes
+                        );
+                        if (child != null) {
                             // force all first level literals to have the same id symbol
                             child.id_sym = pos_query;
                             child.parents.add(root_literal);
@@ -4041,10 +3488,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // calculate the highest possible score and cardinality score
             double perfect_score = 0;
             int perfect_cardinality = 0;
-            for (EpmemLiteral iter: leaf_literals) 
-            {
-                if (iter.is_neg_q == 0) 
-                {
+            for (EpmemLiteral iter : leaf_literals) {
+                if (iter.is_neg_q == 0) {
                     perfect_score += iter.weight;
                     perfect_cardinality++;
                 }
@@ -4053,9 +3498,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // set default values for before and after
             if (before == EPMEM_MEMID_NONE) {
                 before = stats.time.get() - 1;//my_agent->epmem_stats->time->get_value() - 1;
-            }
-            else 
-            {
+            } else {
                 before = before - 1; // since before's are strict
             }
             /*  WAT.  They are uint64_t
@@ -4066,7 +3509,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long/*epmem_time_id*/ current_episode = before;
             long/*epmem_time_id*/ next_episode;
 
-            
+
             // create dummy edges and intervals
             {
                 // insert dummy unique edge and interval end point queries for DNF root
@@ -4085,7 +3528,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_pedge.time = Long.MAX_VALUE/*LLONG_MAX*/;
                 pedge_pq.add(root_pedge);
                 pedge_caches[EPMEM_RIT_STATE_EDGE].put(triple, root_pedge);
-                
+
                 EpmemUEdge root_uedge = new EpmemUEdge();
                 //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &root_uedge);
                 root_uedge.triple = triple.copyEpmemTriple();
@@ -4110,14 +3553,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 interval_cleanup.add(root_interval);
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
-            }
+            log.debug("{}",epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
+
             // main loop of interval walk
             //my_agent->epmem_timers->query_walk->start();
-            
-            while (pedge_pq.size() != 0 && current_episode > after) 
-            {
+
+            while (pedge_pq.size() != 0 && current_episode > after) {
                 long /*epmem_time_id*/ next_edge;
                 long /*epmem_time_id*/ next_interval;
 
@@ -4126,39 +3567,32 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //my_agent->epmem_timers->query_walk_edge->start();
                 next_edge = pedge_pq.peek().time;
                 // process all edges which were last used at this time point
-                while ((pedge_pq.size() != 0) && (pedge_pq.peek().time == next_edge || pedge_pq.peek().time >= current_episode)) 
-                {
+                while ((pedge_pq.size() != 0) && (pedge_pq.peek().time == next_edge || pedge_pq.peek().time >= current_episode)) {
                     final EpmemPEdge pedge = pedge_pq.poll();
                     final EpmemTriple triple = pedge.triple.copyEpmemTriple();
-                    if(pedge.sqlResults.getMetaData().getColumnCount() > 1)
-                    {
+                    if (pedge.sqlResults.getMetaData().getColumnCount() > 1) {
                         triple.child_n_id = pedge.sqlResults.getLong(1 + 1);
-                    }
-                    else
-                    {
+                    } else {
                         // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                         // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                         // the C sqllite interface appears to return 0 for columns that do not exist
                         // in the result set
                         triple.child_n_id = 0L;
                     }
-                    
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("  EDGE " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
-                    }
+
+
+                    log.debug("  EDGE {}-{}-{}", triple.parent_n_id ,triple.attribute_s_id, triple.child_n_id);
+
 
                     // create queries for the unique edge children of this partial edge
-                    if (pedge.value_is_id != 0) 
-                    {
+                    if (pedge.value_is_id != 0) {
                         @SuppressWarnings("unused")
                         boolean created = false;
                         //for (epmem_literal_set::iterator literal_iter = pedge->literals.begin(); literal_iter != pedge->literals.end(); literal_iter++) {
-                        for(EpmemLiteral literal_iter: pedge.literals)
-                        {
+                        for (EpmemLiteral literal_iter : pedge.literals) {
                             EpmemLiteral literal = literal_iter;
                             //for (epmem_literal_set::iterator child_iter = literal->children.begin(); child_iter != literal->children.end(); child_iter++) {
-                            for(EpmemLiteral child_iter: literal.children)
-                            {
+                            for (EpmemLiteral child_iter : literal.children) {
                                 created |= epmem_register_pedges(triple.child_n_id, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
                             }
                         }
@@ -4170,8 +3604,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // otherwise, link up the uedge with the pedge and consider score changes
                     Map<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map**/ uedge_cache = uedge_caches[pedge.value_is_id];
                     EpmemUEdge uedge_iter = uedge_cache.get(triple);
-                    if (uedge_iter == null) 
-                    {
+                    if (uedge_iter == null) {
                         // create a uedge for this
                         EpmemUEdge uedge = new EpmemUEdge();
                         //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &uedge);
@@ -4179,7 +3612,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         uedge.value_is_id = pedge.value_is_id;
                         uedge.has_noncurrent = pedge.has_noncurrent;
                         uedge.activation_count = 0;
-                        uedge.pedges  = new LinkedHashSet<EpmemPEdge>();
+                        uedge.pedges = new LinkedHashSet<EpmemPEdge>();
                         uedge.intervals = 0;
                         uedge.activated = false;
                         // create interval queries for this partial edge
@@ -4187,23 +3620,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         long/*int64_t*/ edge_id = pedge.sqlResults.getLong(0 + 1);
                         long/*epmem_time_id*/ promo_time = EPMEM_MEMID_NONE;
                         boolean is_lti = (pedge.value_is_id != 0 && pedge.triple.child_n_id != EPMEM_NODEID_BAD && pedge.triple.child_n_id != EPMEM_NODEID_ROOT);
-                        if (is_lti) 
-                        {
+                        if (is_lti) {
                             // find the promotion time of the LTI
                             db.find_lti_promotion_time.setLong(1, triple.child_n_id);
                             ResultSet results = db.find_lti_promotion_time.executeQuery();
-                            if (results.next())
-                            {
+                            if (results.next()) {
                                 promo_time = results.getLong(0 + 1);
                             }
                             results.close();
-                            
+
                             //my_agent->epmem_stmts_graph->find_lti_promotion_time->reinitialize();
                         }
-                        for (int interval_type = EPMEM_RANGE_EP; interval_type <= EPMEM_RANGE_POINT; interval_type++) 
-                        {
-                            for (int point_type = EPMEM_RANGE_START; point_type <= EPMEM_RANGE_END; point_type++) 
-                            {
+                        for (int interval_type = EPMEM_RANGE_EP; interval_type <= EPMEM_RANGE_POINT; interval_type++) {
+                            for (int point_type = EPMEM_RANGE_START; point_type <= EPMEM_RANGE_END; point_type++) {
                                 /*
                                  * This appears to be selecting the timer to time the next queries -ACN
                                  * 
@@ -4236,30 +3665,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 // create the SQL query and bind it
                                 // try to find an existing query first; if none exist, allocate a new one from the memory pools
                                 PreparedStatement/*soar_module::pooled_sqlite_statement**/ interval_sql = null;
-                                if (is_lti) 
-                                {
+                                if (is_lti) {
                                     interval_sql = db.pool_find_lti_queries[point_type][interval_type].getCopy(/*sql_timer*/);
-                                } 
-                                else 
-                                {
+                                } else {
                                     interval_sql = db.pool_find_interval_queries[pedge.value_is_id][point_type][interval_type].getCopy(/*sql_timer*/);
                                 }
                                 // CK: both the JDBC and C drivers have an index of 1 for the leftmost parameter in a prepared statement
                                 // (see: http://www.sqlite.org/c3ref/bind_blob.html)
                                 int bind_pos = 1;
-                                if (point_type == EPMEM_RANGE_END && interval_type == EPMEM_RANGE_NOW) 
-                                {
+                                if (point_type == EPMEM_RANGE_END && interval_type == EPMEM_RANGE_NOW) {
                                     interval_sql.setLong(bind_pos++, current_episode);
                                 }
                                 interval_sql.setLong(bind_pos++, edge_id);
-                                if (is_lti && interval_type == EPMEM_RANGE_EP) 
-                                {
+                                if (is_lti && interval_type == EPMEM_RANGE_EP) {
                                     interval_sql.setLong(bind_pos++, promo_time);
                                 }
                                 interval_sql.setLong(bind_pos++, current_episode);
                                 ResultSet results = interval_sql.executeQuery();
-                                if (results.next()) 
-                                {
+                                if (results.next()) {
                                     EpmemInterval interval = new EpmemInterval();
                                     //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &interval);
                                     interval.is_end_point = point_type;
@@ -4270,15 +3693,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     // This will only happen if the LTI is promoted in the last interval it appeared in
                                     // (since otherwise the start point would not be before its promotion).
                                     // We don't care about the remaining results of the query
-                                    
+
                                     // why wouldn't the LTI still be satisfied before its promotion time? what guards against that?
                                     interval.time = results.getLong(0 + 1);
-                                    
-                                    if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time)
-                                    {
+
+                                    if (is_lti && point_type == EPMEM_RANGE_START && interval_type != EPMEM_RANGE_POINT && interval.time < promo_time) {
                                         interval.time = promo_time - 1;
                                     }
-                                    
+
                                     interval.sql = interval_sql;
                                     //This logic does not allow us to free this result set here.
                                     //This means that we need ot close this by hand later on. -ACN
@@ -4287,18 +3709,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     interval_cleanup.add(interval);
                                     uedge.intervals++;
                                     created = true;
-                                }
-                                else 
-                                {
+                                } else {
                                     results.close();
                                     interval_sql.close();
                                 }
                             }
                         }
-                        if (created) 
-                        {
-                            if (is_lti) 
-                            {
+                        if (created) {
+                            if (is_lti) {
                                 // insert a dummy promo time start for LTIs
                                 EpmemInterval start_interval = new EpmemInterval();
                                 //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &start_interval);
@@ -4312,22 +3730,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             uedge.pedges.add(pedge);
                             // CK: std::make_pair is copying by value
                             uedge_cache.put(triple.copyEpmemTriple(), uedge);
-                        } 
-                        else
-                        { 
+                        } else {
                             //uedge.pedges.~epmem_pedge_set();
                             uedge.pedges.clear();
                             uedge.pedges = null;
                             //free_with_pool(&(my_agent->epmem_uedge_pool), uedge);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         EpmemUEdge uedge = uedge_iter;
                         uedge.pedges.add(pedge);
                         if (uedge.activated && uedge.activation_count == 1) {
-                            for (EpmemLiteral lit_iter: pedge.literals) 
-                            {
+                            for (EpmemLiteral lit_iter : pedge.literals) {
                                 EpmemLiteral literal = lit_iter;
                                 ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                 ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
@@ -4340,22 +3753,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     // put the partial edge query back into the queue if there's more
                     // otherwise, reinitialize the query and put it in a pool
-                    if(pedge.sql != null)
-                    {
+                    if (pedge.sql != null) {
                         //Calling execute() on the C driver will advance the row, if the 
                         //query has already been run.  -ACN
-                        if(pedge.sqlResults == null){
+                        if (pedge.sqlResults == null) {
                             ResultSet results = pedge.sql.executeQuery();
                             pedge.sqlResults = results;
                         }
-                        if(pedge.sqlResults.next())
-                        {
-                            if(pedge.sqlResults.getMetaData().getColumnCount() > 2)
-                            {
+                        if (pedge.sqlResults.next()) {
+                            if (pedge.sqlResults.getMetaData().getColumnCount() > 2) {
                                 pedge.time = pedge.sqlResults.getLong(2 + 1);
-                            }
-                            else
-                            {
+                            } else {
                                 // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                                 // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                                 // the C sqllite interface appears to return 0 for columns that do not exist
@@ -4363,9 +3771,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 pedge.time = 0L;
                             }
                             pedge_pq.add(pedge);
-                        }
-                        else 
-                        {
+                        } else {
                             //pedge->sql->get_pool()->release(pedge->sql);
                             pedge.sqlResults.close();
                             pedge.sqlResults = null;
@@ -4379,35 +3785,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                 // process all intervals before the next edge arrives
                 //my_agent->epmem_timers->query_walk_interval->start();
-                
-                while (interval_pq.size() != 0 && interval_pq.peek().time > next_edge && current_episode > after) 
-                {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("EPISODE " + current_episode);
-                    }
+
+                while (interval_pq.size() != 0 && interval_pq.peek().time > next_edge && current_episode > after) {
+                    log.debug("EPISODE {}", current_episode);
+
 
                     // process all interval endpoints at this time step
-                    while (interval_pq.size() != 0 && interval_pq.peek().time >= current_episode) 
-                    {
+                    while (interval_pq.size() != 0 && interval_pq.peek().time >= current_episode) {
                         EpmemInterval interval = interval_pq.poll();
                         EpmemUEdge uedge = interval.uedge;
                         EpmemTriple triple = uedge.triple.copyEpmemTriple();
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
-                        }
 
-                        if (interval.is_end_point != 0) 
-                        {
+                        log.debug("  INTERVAL ({}): {}-{}-{}",
+                                interval.is_end_point != 0 ? "end" : "start", triple.parent_n_id, triple.attribute_s_id, triple.child_n_id);
+
+
+                        if (interval.is_end_point != 0) {
                             uedge.activated = true;
                             uedge.activation_count++;
-                            if (uedge.activation_count == 1) 
-                            {
-                                for (EpmemPEdge pedge_iter: uedge.pedges)
-                                {
+                            if (uedge.activation_count == 1) {
+                                for (EpmemPEdge pedge_iter : uedge.pedges) {
                                     EpmemPEdge pedge = pedge_iter;
-                                    for (EpmemLiteral lit_iter: pedge.literals)
-                                    {
+                                    for (EpmemLiteral lit_iter : pedge.literals) {
                                         EpmemLiteral literal = lit_iter;
                                         ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                         ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
@@ -4417,16 +3817,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     }
                                 }
                             }
-                        } 
-                        else
-                        {
+                        } else {
                             uedge.activated = false;
                             uedge.activation_count--;
-                            for (EpmemPEdge pedge_iter: uedge.pedges)
-                            {
+                            for (EpmemPEdge pedge_iter : uedge.pedges) {
                                 EpmemPEdge pedge = pedge_iter;
-                                for (EpmemLiteral lit_iter: pedge.literals)
-                                {
+                                for (EpmemLiteral lit_iter : pedge.literals) {
                                     ByRef<Double> curScore = new ByRef<Double>(current_score);
                                     ByRef<Long> curCardinality = new ByRef<Long>(current_cardinality);
                                     changed_score |= epmem_unsatisfy_literal(lit_iter, triple.parent_n_id, triple.child_n_id, curScore, curCardinality, symbol_node_count);
@@ -4437,18 +3833,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         // put the interval query back into the queue if there's more and some literal cares
                         // otherwise, reinitialize the query and put it in a pool
-                        
-                        if(interval.sql != null)
-                        {
-                            if(interval.sqlResult == null){
+
+                        if (interval.sql != null) {
+                            if (interval.sqlResult == null) {
                                 interval.sqlResult = interval.sql.executeQuery();
                             }
-                            if (interval.uedge.has_noncurrent && interval.sqlResult.next()) 
-                            {
+                            if (interval.uedge.has_noncurrent && interval.sqlResult.next()) {
                                 interval.time = interval.sqlResult.getInt(0 + 1);
                                 interval_pq.add(interval);
-                            }
-                            else// if (interval.sql != null)
+                            } else// if (interval.sql != null)
                             {
                                 //interval->sql->get_pool()->release(interval->sql);
                                 interval.sqlResult.close();
@@ -4456,13 +3849,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 interval.sql.close();
                                 interval.sql = null;
                                 uedge.intervals--;
-                                if (uedge.intervals != 0)
-                                {
+                                if (uedge.intervals != 0) {
                                     interval_cleanup.remove(interval);
                                     //free_with_pool(&(my_agent->epmem_interval_pool), interval);
-                                } 
-                                else 
-                                {
+                                } else {
                                     //Left in from C: // todo retract intervals
                                 }
                             }
@@ -4472,31 +3862,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     next_episode = (next_edge > next_interval ? next_edge : next_interval);
 
                     // update the prohibits list to catch up
-                    while (prohibits.size() != 0 && prohibits.get(prohibits.size() - 1) > current_episode)
-                    {
+                    while (prohibits.size() != 0 && prohibits.get(prohibits.size() - 1) > current_episode) {
                         prohibits.remove(prohibits.size() - 1);
                     }
                     // ignore the episode if it is prohibited
-                    while (prohibits.size() != 0 && current_episode > next_episode && current_episode == prohibits.get(prohibits.size() - 1))
-                    {
+                    while (prohibits.size() != 0 && current_episode > next_episode && current_episode == prohibits.get(prohibits.size() - 1)) {
                         current_episode--;
                         prohibits.remove(prohibits.size() - 1);
                     }
 
-                    if (logger.isTraceEnabled()) {
-                        logger.trace(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
-                    }
-                    
+                    log.trace("{}",epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
+
                     stats.considered.set(stats.considered.get() + 1);
                     stats.last_considered.set(stats.last_considered.get() + 1);
                     trace.startNewLine().print(
-                            Category.EPMEM, 
+                            Category.EPMEM,
                             "EpMem| Considering episode (time, cardinality, score) (" +
-                                current_episode + ", " +
-                                current_cardinality + ", " + 
-                                current_score + 
-                                ")"
-                        );
+                                    current_episode + ", " +
+                                    current_cardinality + ", " +
+                                    current_score +
+                                    ")"
+                    );
                     /*
                     if (my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
                         char buf[256];
@@ -4511,52 +3897,44 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // * and the new score is higher than the best score
                     // then save the current time as the best one
                     if (
-                            current_episode > next_episode && 
-                            changed_score && 
-                            (
-                                    best_episode == EPMEM_MEMID_NONE || 
-                                    current_score > best_score || 
+                            current_episode > next_episode &&
+                                    changed_score &&
                                     (
-                                            do_graph_match && 
-                                            current_score == best_score && !best_graph_matched
+                                            best_episode == EPMEM_MEMID_NONE ||
+                                                    current_score > best_score ||
+                                                    (
+                                                            do_graph_match &&
+                                                                    current_score == best_score && !best_graph_matched
+                                                    )
                                     )
-                            )
                     ) {
                         boolean new_king = false;
-                        if (best_episode == EPMEM_MEMID_NONE || current_score > best_score)
-                        {
+                        if (best_episode == EPMEM_MEMID_NONE || current_score > best_score) {
                             best_episode = current_episode;
                             best_score = current_score;
                             best_cardinality = current_cardinality;
                             new_king = true;
                         }
                         // we should graph match if the option is set and all leaf literals are satisfied
-                        if (current_cardinality == perfect_cardinality) 
-                        {
+                        if (current_cardinality == perfect_cardinality) {
                             boolean graph_matched = false;
-                            if (do_graph_match) 
-                            {
-                                if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.undefined)
-                                {
+                            if (do_graph_match) {
+                                if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.undefined) {
                                     //This randomizes the list in C by sorting it on pointer values. -ACN
                                     //std::sort(gm_ordering.begin(), gm_ordering.end());
                                     Collections.shuffle(gm_ordering, random);
-                                }
-                                else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.mcv)
-                                {
+                                } else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.mcv) {
                                     //std::sort(gm_ordering.begin(), gm_ordering.end(), epmem_gm_mcv_comparator);
                                     Collections.sort(
                                             gm_ordering,
-                                            new Comparator<EpmemLiteral>()
-                                            {
+                                            new Comparator<EpmemLiteral>() {
                                                 //episodic_memory.cpp:3427
                                                 @Override
-                                                public int compare(EpmemLiteral a, EpmemLiteral b)
-                                                {
-                                                    return (a.matches.size() < b.matches.size()? -1: 1);
+                                                public int compare(EpmemLiteral a, EpmemLiteral b) {
+                                                    return (a.matches.size() < b.matches.size() ? -1 : 1);
                                                 }
                                             }
-                                        );
+                                    );
                                 }
                                 //epmem_literal_deque::iterator begin = gm_ordering.begin();
                                 //epmem_literal_deque::iterator end = gm_ordering.end();
@@ -4564,41 +3942,37 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 //Java array do not get along well with paramatized types.  Maybe 
                                 //we should make this a list. -ACN
                                 @SuppressWarnings("unchecked")
-                                Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
-                                for(int i = 0; i < bound_nodes.length; i++)
-                                {
-                                    bound_nodes[i] = new LinkedHashMap<Long, SymbolImpl>(); 
+                                Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[]) new Map[2];
+                                for (int i = 0; i < bound_nodes.length; i++) {
+                                    bound_nodes[i] = new LinkedHashMap<Long, SymbolImpl>();
                                 }
-                                
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug("  GRAPH MATCH");
-                                    logger.debug(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
-                                }
-                                
+
+                                log.debug("  GRAPH MATCH");
+                                log.debug("{}",epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
+
                                 //my_agent->epmem_timers->query_graph_match->start();
                                 stats.graph_matches.set(stats.graph_matches.get() + 1);
                                 stats.last_graph_matches.set(stats.last_graph_matches.get() + 1);
                                 graph_matched = epmem_graph_match(gm_ordering, gm_ordering.listIterator(), best_bindings, bound_nodes, 2);
                                 //my_agent->epmem_timers->query_graph_match->stop();
                             }
-                            if (!do_graph_match || graph_matched) 
-                            {
+                            if (!do_graph_match || graph_matched) {
                                 best_episode = current_episode;
                                 best_graph_matched = true;
                                 current_episode = EPMEM_MEMID_NONE;
                                 new_king = true;
                             }
                         }
-                        
-                        if(new_king){
-                           trace.startNewLine().print(
-                                   Category.EPMEM, 
-                                   "NEW KING (perfect, graph-match): (" + 
-                                       Boolean.toString(current_cardinality == perfect_cardinality) + 
-                                       ", " + 
-                                       Boolean.toString(best_graph_matched) + 
-                                       ")"
-                               ); 
+
+                        if (new_king) {
+                            trace.startNewLine().print(
+                                    Category.EPMEM,
+                                    "NEW KING (perfect, graph-match): (" +
+                                            Boolean.toString(current_cardinality == perfect_cardinality) +
+                                            ", " +
+                                            Boolean.toString(best_graph_matched) +
+                                            ")"
+                            );
                         }
                         /*
                         if (new_king && my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
@@ -4610,12 +3984,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         */
                     }
 
-                    if (current_episode == EPMEM_MEMID_NONE)
-                    {
+                    if (current_episode == EPMEM_MEMID_NONE) {
                         break;
-                    } 
-                    else 
-                    {
+                    } else {
                         current_episode = next_episode;
                     }
                 }
@@ -4625,16 +3996,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             // if the best episode is the default, fail
             // otherwise, put the episode in working memory
-            if (best_episode == EPMEM_MEMID_NONE)
-            {
+            if (best_episode == EPMEM_MEMID_NONE) {
                 epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_failure, pos_query);
-                if (neg_query != null) 
-                {
+                if (neg_query != null) {
                     epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_failure, neg_query);
                 }
-            }
-            else 
-            {
+            } else {
                 stats.qry_ret.set(best_episode);
                 stats.qry_card.set(best_cardinality);
                 //my_agent->epmem_timers->query_result->start();
@@ -4659,21 +4026,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //symbol_remove_ref(my_agent, temp_sym);
                 // status
                 epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_success, pos_query);
-                if (neg_query != null) 
-                {
+                if (neg_query != null) {
                     epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_success, neg_query);
                 }
                 // give more metadata if graph match is turned on
-                if (do_graph_match)
-                {
+                if (do_graph_match) {
                     // graph match
                     temp_sym = symbols.createInteger((best_graph_matched ? 1 : 0));
                     epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_graph_match, temp_sym);
                     //symbol_remove_ref(my_agent, temp_sym);
 
                     // mapping
-                    if (best_graph_matched) 
-                    {
+                    if (best_graph_matched) {
                         //This instantiation of level is shadowing the function parameter, which java does not
                         //allow, so were going to have to rename it here.
                         @SuppressWarnings("unused")
@@ -4684,10 +4048,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //symbol_remove_ref(my_agent, mapping);
 
                         //for (epmem_literal_node_pair_map::iterator iter = best_bindings.begin(); iter != best_bindings.end(); iter++) {
-                        for(Entry<EpmemLiteral, EpmemNodePair> iter: best_bindings.entrySet())
-                        {
-                            if (iter.getKey().value_is_id != 0)
-                            {
+                        for (Entry<EpmemLiteral, EpmemNodePair> iter : best_bindings.entrySet()) {
+                            if (iter.getKey().value_is_id != 0) {
                                 // create the node
                                 temp_sym = symbols.make_new_identifier('N', level);
                                 epmem_buffer_add_wme(meta_wmes, mapping, predefinedSyms.epmem_sym_graph_match_mapping_node, temp_sym);
@@ -4702,19 +4064,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
                 // reconstruct the actual episode
-                if (level > 2) 
-                {
+                if (level > 2) {
                     epmem_install_memory(state, best_episode, meta_wmes, retrieval_wmes, node_mem_map, filter);
                 }
-                if (best_graph_matched)
-                {
+                if (best_graph_matched) {
                     //for (epmem_id_mapping::iterator iter = node_mem_map.begin(); iter != node_mem_map.end(); iter++) {
-                    for(Entry<Long, SymbolImpl> iter: node_mem_map.entrySet())
-                    {
+                    for (Entry<Long, SymbolImpl> iter : node_mem_map.entrySet()) {
                         //epmem_id_mapping::iterator map_iter = node_map_map.find((*iter).first);
                         SymbolImpl map_iter = node_map_map.get(iter.getKey());
-                        if (map_iter != null && iter.getValue() != null)
-                        {
+                        if (map_iter != null && iter.getValue() != null) {
                             epmem_buffer_add_wme(meta_wmes, map_iter, predefinedSyms.epmem_sym_retrieved, iter.getValue());
                         }
                     }
@@ -4725,11 +4083,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // cleanup
         //my_agent->epmem_timers->query_cleanup->start();
-        for (EpmemInterval interval: interval_cleanup) 
-        {
+        for (EpmemInterval interval : interval_cleanup) {
             //epmem_interval* interval = *iter;
-            if (interval.sqlResult != null) 
-            {
+            if (interval.sqlResult != null) {
                 //interval->sql->get_pool()->release(interval->sql);
                 interval.sqlResult.close();
                 interval.sqlResult = null;
@@ -4738,14 +4094,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             //free_with_pool(&(my_agent->epmem_interval_pool), interval);
         }
-        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) 
-        {
+        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
             //for (epmem_triple_pedge_map::iterator iter = pedge_caches[type].begin(); iter != pedge_caches[type].end(); iter++) {
-            for(EpmemPEdge pedge: pedge_caches[type].values())
-            {    
+            for (EpmemPEdge pedge : pedge_caches[type].values()) {
                 //epmem_pedge* pedge = (*iter).second;
-                if (pedge.sqlResults != null) 
-                {
+                if (pedge.sqlResults != null) {
                     //pedge->sql->get_pool()->release(pedge->sql);
                     pedge.sqlResults.close();
                     pedge.sqlResults = null;
@@ -4781,36 +4134,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         my_agent->epmem_timers->query->stop();
         */
     }
-    
+
     /**
      * episodic_memory:3756
-     * 
+     *
      * {@code bool epmem_graph_match(
-     *      epmem_literal_deque::iterator& dnf_iter, 
-     *      epmem_literal_deque::iterator& iter_end, 
-     *      epmem_literal_node_pair_map& bindings, 
-     *      epmem_node_symbol_map bound_nodes[], 
-     *      agent* my_agent, 
-     *      int depth = 0
-     *  )}
+     * epmem_literal_deque::iterator& dnf_iter,
+     * epmem_literal_deque::iterator& iter_end,
+     * epmem_literal_node_pair_map& bindings,
+     * epmem_node_symbol_map bound_nodes[],
+     * agent* my_agent,
+     * int depth = 0
+     * )}
      */
     private boolean epmem_graph_match(
             LinkedList<EpmemLiteral> dnf_array,
             ListIterator<EpmemLiteral> dnf_iter,
             Map<EpmemLiteral, EpmemNodePair> bindings,
-            Map<Long, SymbolImpl>[] bound_nodes, 
+            Map<Long, SymbolImpl>[] bound_nodes,
             int depth
-    )
-    {
+    ) {
         if (!dnf_iter.hasNext()) {
             return true;
         }
-        
+
         // Doing a next to get the value then a previous so 
         // the cursor stays at its original position
         EpmemLiteral literal = dnf_iter.next();
         dnf_iter.previous();
-        
+
         if (bindings.containsKey(literal)) {
             return false;
         }
@@ -4820,45 +4172,45 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //next_iter++;
         next_iter.next();
 
-    //#ifdef USE_MEM_POOL_ALLOCATORS
-    //    epmem_node_set failed_parents = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
-    //    epmem_node_set failed_children = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
-    //#else
+        //#ifdef USE_MEM_POOL_ALLOCATORS
+        //    epmem_node_set failed_parents = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
+        //    epmem_node_set failed_children = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
+        //#else
         Set<Long> failed_parents = new LinkedHashSet<Long>();
         Set<Long> failed_children = new LinkedHashSet<Long>();
-    //#endif
+        //#endif
         // go through the list of matches, binding each one to this literal in turn
-        for ( EpmemNodePair match : literal.matches ) {
+        for (EpmemNodePair match : literal.matches) {
             long parent_n_id = match.first;
             long child_n_id = match.second;
             if (failed_parents.contains(parent_n_id)) {
                 continue;
             }
-            if (logger.isTraceEnabled()) {
+            if (log.isTraceEnabled()) {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
                 sb.append("TRYING ").append(literal).append(" ").append(parent_n_id);
-                logger.trace(sb.toString());
+                log.trace(sb.toString());
             }
             boolean relations_okay = true;
             // for all parents
-            for ( EpmemLiteral parent : literal.parents ) {
-                EpmemNodePair bind = bindings.get(parent); 
+            for (EpmemLiteral parent : literal.parents) {
+                EpmemNodePair bind = bindings.get(parent);
                 if (bind != null && bind.second != parent_n_id) {
                     relations_okay = false;
                     break;
                 }
             }
             if (!relations_okay) {
-                if ( logger.isTraceEnabled() ) {
+                if (log.isTraceEnabled()) {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < depth; i++) {
                         sb.append("\t");
                     }
                     sb.append("PARENT CONSTRAINT FAIL");
-                    logger.trace(sb.toString());
+                    log.trace(sb.toString());
                 }
                 failed_parents.add(parent_n_id);
                 continue;
@@ -4869,48 +4221,49 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 failed_children.add(child_n_id);
                 continue;
             }
-            if ( logger.isTraceEnabled() ) {
+            if (log.isTraceEnabled()) {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
                 sb.append("TRYING ").append(literal).append(" ").append(parent_n_id).append(" ").append(child_n_id);
-                logger.trace(sb.toString());
+                log.trace(sb.toString());
             }
             if (literal.child_n_id != EPMEM_NODEID_BAD && literal.child_n_id != child_n_id) {
                 relations_okay = false;
             }
             // for all children
-            for ( EpmemLiteral child : literal.children ) {
+            for (EpmemLiteral child : literal.children) {
                 EpmemNodePair bind = bindings.get(child);
-                if ( bind != null && bind.first != child_n_id) {
+                if (bind != null && bind.first != child_n_id) {
                     relations_okay = false;
                     break;
                 }
             }
             if (!relations_okay) {
                 StringBuilder sb = new StringBuilder();
-                if (logger.isTraceEnabled()) {
+                if (log.isTraceEnabled()) {
                     for (int i = 0; i < depth; i++) {
                         sb.append("\t");
                     }
                     sb.append("CHILD CONSTRAINT FAIL");
-                    logger.trace(sb.toString());
+                    log.trace(sb.toString());
                 }
                 failed_children.add(child_n_id);
                 continue;
             }
-            if (logger.isTraceEnabled()) {
+            if (log.isTraceEnabled()) {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
                 sb.append(literal).append(" ").append(parent_n_id).append(" ").append(child_n_id);
+                log.trace(sb.toString());
             }
             // temporarily modify the bindings and bound nodes
-            bindings.put(literal, new EpmemNodePair(parent_n_id,child_n_id));
+            bindings.put(literal, new EpmemNodePair(parent_n_id, child_n_id));
             bound_nodes[(int) literal.value_is_id].put(child_n_id, literal.value_sym);
-            
+
             // recurse on the rest of the list
             boolean list_satisfied = epmem_graph_match(dnf_array, next_iter, bindings, bound_nodes, depth + 1);
             // if the rest of the list matched, we've succeeded
@@ -4924,47 +4277,46 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         // this means we've tried everything and this whole exercise was a waste of time
         // EPIC FAIL
-        if ( logger.isTraceEnabled() ) {
+        if (log.isTraceEnabled()) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < depth; i++) {
                 sb.append("\t");
             }
             sb.append("EPIC FAIL");
-            logger.trace(sb.toString());
+            log.trace(sb.toString());
         }
         return false;
     }
 
     /**
      * {@code bool epmem_unsatisfy_literal(
-     *      epmem_literal* literal, 
-     *      epmem_node_id parent, 
-     *      epmem_node_id child, 
-     *      double& current_score, 
-     *      long int& current_cardinality, 
-     *      epmem_symbol_node_pair_int_map& symbol_node_count
-     *   )}
+     * epmem_literal* literal,
+     * epmem_node_id parent,
+     * epmem_node_id child,
+     * double& current_score,
+     * long int& current_cardinality,
+     * epmem_symbol_node_pair_int_map& symbol_node_count
+     * )}
      */
     private boolean epmem_unsatisfy_literal(
-            EpmemLiteral literal, 
+            EpmemLiteral literal,
             long /*epmem_node_id*/ parent,
-            long /*epmem_node_id*/ child, 
-            ByRef<Double> current_score, 
+            long /*epmem_node_id*/ child,
+            ByRef<Double> current_score,
             ByRef<Long> current_cardinality,
             Map<EpmemSymbolNodePair, Integer> symbol_node_count
-    )
-    {
+    ) {
         if (literal.matches.size() == 0) {
             return false;
         }
-        if ( logger.isDebugEnabled() ) {
-            logger.debug("      RECURSING ON " + parent + " " + child + " " + literal);
-        }
+
+        log.debug("      RECURSING ON {} {} {}", parent, child, literal);
+
         // we only need things if this parent-child pair is matching the literal
         // epmem_node_pair_set::iterator lit_match_iter = literal->matches.find(std::make_pair(parent, child));
-        EpmemNodePair enpair = new EpmemNodePair(parent,child);
+        EpmemNodePair enpair = new EpmemNodePair(parent, child);
         boolean removedMatch = literal.matches.remove(enpair);
-        if ( removedMatch ) {
+        if (removedMatch) {
             // erase the edge from this literal's matches
             // literal->matches.erase(lit_match_iter);
             int value = literal.values.get(child);
@@ -4972,15 +4324,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             //(*values_iter).second--;
             value--;
             literal.values.put(child, value);
-            if ( value == 0) {
+            if (value == 0) {
                 literal.values.remove(child);
                 if (literal.is_leaf) {
                     if (literal.matches.size() == 0) {
                         current_score.value -= literal.weight;
                         current_cardinality.value -= (literal.is_neg_q != 0 ? -1 : 1);
-                        if ( logger.isDebugEnabled() ) {
-                            logger.debug("          NEW SCORE: " + current_score + ", " + current_cardinality);
-                        }
+                        log.debug("          NEW SCORE: {}, {}", current_score, current_cardinality);
                         return true;
                     }
                 } else {
@@ -4996,14 +4346,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // if this literal is no longer satisfied, recurse on all children
                     // if this literal is still satisfied, recurse on children who is matching on descendants of this edge
                     if (literal.matches.size() == 0) {
-                        for (EpmemLiteral child_lit : literal.children ) {
-                            for (EpmemNodePair node : child_lit.matches ) {
+                        for (EpmemLiteral child_lit : literal.children) {
+                            for (EpmemNodePair node : child_lit.matches) {
                                 changed_score |= epmem_unsatisfy_literal(child_lit, node.first, node.second, current_score, current_cardinality, symbol_node_count);
                             }
                         }
                     } else {
                         EpmemNodePair node_pair = new EpmemNodePair(child, EPMEM_NODEID_BAD);
-                        for ( EpmemLiteral child_lit : literal.children ) {
+                        for (EpmemLiteral child_lit : literal.children) {
                             EpmemNodePair node = child_lit.matches.ceiling(node_pair);
                             if (node != null && node.first == child) {
                                 changed_score |= epmem_unsatisfy_literal(child_lit, node.first, node.second, current_score, current_cardinality, symbol_node_count);
@@ -5019,37 +4369,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * {@code bool epmem_satisfy_literal(
-     *      epmem_literal* literal,     
-     *      epmem_node_id parent, 
-     *      epmem_node_id child, 
-     *      double& current_score, 
-     *      long int& current_cardinality, 
-     *      epmem_symbol_node_pair_int_map& symbol_node_count, 
-     *      epmem_triple_uedge_map uedge_caches[], 
-     *      epmem_symbol_int_map& symbol_num_incoming)}
-     * 
+     * epmem_literal* literal,
+     * epmem_node_id parent,
+     * epmem_node_id child,
+     * double& current_score,
+     * long int& current_cardinality,
+     * epmem_symbol_node_pair_int_map& symbol_node_count,
+     * epmem_triple_uedge_map uedge_caches[],
+     * epmem_symbol_int_map& symbol_num_incoming)}
      */
     private boolean epmem_satisfy_literal(
-            EpmemLiteral literal, 
+            EpmemLiteral literal,
             long parent,
-            long child, 
-            ByRef<Double> current_score, 
+            long child,
+            ByRef<Double> current_score,
             ByRef<Long> current_cardinality,
             Map<EpmemSymbolNodePair, Integer> symbol_node_count,
-            SortedMap<EpmemTriple,EpmemUEdge>[] uedge_caches,
-            Map<SymbolImpl, Integer> symbol_num_incoming)
-    {
-        if ( logger.isDebugEnabled() ) {
-            logger.debug("      RECURSING ON " + parent + " " + child + " " + literal); 
-        }
-                
+            SortedMap<EpmemTriple, EpmemUEdge>[] uedge_caches,
+            Map<SymbolImpl, Integer> symbol_num_incoming) {
+
+        log.debug("      RECURSING ON {} {} {}", parent, child, literal);
+
         // check if the ancestors of this literal are satisfied
         boolean parents_satisfied = (literal.id_sym == null);
         if (!parents_satisfied) {
             // ancestors are satisfied if:
             // 1. all incoming literals are satisfied
             // 2. all incoming literals have this particular node satisfying it
-            
+
             // TODO: Check if this map retrieval should return 0 if key is missing
             Integer num_incoming = symbol_num_incoming.get(literal.id_sym);
             Integer match = symbol_node_count.get(new EpmemSymbolNodePair(literal.id_sym, parent));
@@ -5057,19 +4404,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             parents_satisfied = (match != null) && (match == num_incoming);
         }
         // if yes
-        if ( parents_satisfied ) {
+        if (parents_satisfied) {
             // add the edge as a match
             literal.matches.add(new EpmemNodePair(parent, child));
             Integer value = literal.values.get(child);
-            if ( value == null ) {
+            if (value == null) {
                 literal.values.put(child, 1);
-                if ( literal.is_leaf ) {
+                if (literal.is_leaf) {
                     if (literal.matches.size() == 1) {
                         current_score.value += literal.weight;
                         current_cardinality.value += (literal.is_neg_q != 0 ? -1 : 1);
-                        if ( logger.isDebugEnabled() ) {
-                            logger.debug("          NEW SCORE: " + current_score + ", " + current_cardinality );
-                        }
+                        log.debug("          NEW SCORE: {}, {}", current_score, current_cardinality);
                         return true;
                     }
                 } else {
@@ -5077,19 +4422,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // change bookkeeping information about ancestry
                     EpmemSymbolNodePair matchKey = new EpmemSymbolNodePair(literal.value_sym, child);
                     Integer match = symbol_node_count.get(matchKey);
-                    if ( match == null ) {
+                    if (match == null) {
                         symbol_node_count.put(matchKey, 1);
                     } else {
-                        symbol_node_count.put(matchKey, match+1);
+                        symbol_node_count.put(matchKey, match + 1);
                     }
                     // recurse over child literals
-                    for ( EpmemLiteral child_lit : literal.children ) {
+                    for (EpmemLiteral child_lit : literal.children) {
                         SortedMap<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[(int) child_lit.value_is_id];
                         EpmemTriple child_triple = new EpmemTriple(child, child_lit.attribute_s_id, child_lit.child_n_id);
                         EpmemUEdge child_uedge = null;
                         if (child_lit.child_n_id == EPMEM_NODEID_BAD) {
                             SortedMap<EpmemTriple, EpmemUEdge> tailMap = uedge_cache.tailMap(child_triple);
-                            for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : tailMap.entrySet()) {
+                            for (Map.Entry<EpmemTriple, EpmemUEdge> entry : tailMap.entrySet()) {
                                 child_triple = entry.getKey();
                                 child_uedge = entry.getValue();
                                 if (child_triple.parent_n_id != child || child_triple.attribute_s_id != child_lit.attribute_s_id) {
@@ -5101,7 +4446,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             }
                         } else {
                             child_uedge = uedge_cache.get(child_triple);
-                            if (child_uedge != null ) {
+                            if (child_uedge != null) {
                                 if (child_uedge.activated && (!literal.is_current || child_uedge.activation_count == 1)) {
                                     changed_score |= epmem_satisfy_literal(child_lit, child_triple.parent_n_id, child_triple.child_n_id, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
                                 }
@@ -5111,7 +4456,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     return changed_score;
                 }
             } else {
-                literal.values.put(child, value+1);
+                literal.values.put(child, value + 1);
             }
         }
         return false;
@@ -5120,36 +4465,33 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory.cpp:3539
      * {@code bool epmem_register_pedges(
-     *      epmem_node_id parent, 
-     *      epmem_literal* literal, 
-     *      epmem_pedge_pq& pedge_pq, 
-     *      epmem_time_id after, 
-     *      epmem_triple_pedge_map pedge_caches[], 
-     *      epmem_triple_uedge_map uedge_caches[], 
-     *      agent* my_agent
-     *   )}
+     * epmem_node_id parent,
+     * epmem_literal* literal,
+     * epmem_pedge_pq& pedge_pq,
+     * epmem_time_id after,
+     * epmem_triple_pedge_map pedge_caches[],
+     * epmem_triple_uedge_map uedge_caches[],
+     * agent* my_agent
+     * )}
      */
-        
+
     private boolean epmem_register_pedges(long parent, EpmemLiteral literal,
-            PriorityQueue<EpmemPEdge> pedge_pq, long after,
-            Map<EpmemTriple, EpmemPEdge>[] pedge_caches,
-            SortedMap<EpmemTriple, EpmemUEdge>[] uedge_caches
-    ) throws SQLException
-    {
+                                          PriorityQueue<EpmemPEdge> pedge_pq, long after,
+                                          Map<EpmemTriple, EpmemPEdge>[] pedge_caches,
+                                          SortedMap<EpmemTriple, EpmemUEdge>[] uedge_caches
+    ) throws SQLException {
         // we don't need to keep track of visited literals/nodes because the literals are guaranteed to be acyclic
         // that is, the expansion to the literal's children will eventually bottom out
         // select the query
         EpmemTriple triple = new EpmemTriple(parent, literal.attribute_s_id, literal.child_n_id);
         int is_edge = (int) literal.value_is_id;
-        if ( logger.isDebugEnabled() ) {
-            logger.debug("      RECURSING ON " + parent + " " + literal);
-        }
+        log.debug("      RECURSING ON {} {}", parent, literal);
         // if the unique edge does not exist, create a new unique edge query
         // otherwse, if the pedge has not been registered with this literal
         Map<EpmemTriple, EpmemPEdge> pedge_cache = pedge_caches[is_edge];
         EpmemPEdge child_pedge = pedge_cache.get(triple);
         //If the key was not there, or the value attached was null
-        if ( child_pedge == null ) {
+        if (child_pedge == null) {
             int has_value = (literal.child_n_id != EPMEM_NODEID_BAD ? 1 : 0);
             //soar_module::pooled_sqlite_statement* pedge_sql = my_agent->epmem_stmts_graph->pool_find_edge_queries[is_edge][has_value]->request(my_agent->epmem_timers->query_sql_edge);
 
@@ -5166,10 +4508,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (is_edge != 0) {
                 pedge_sql.setLong(bind_pos++, after);
             }
-        
+
             ResultSet results = pedge_sql.executeQuery();
-            if (results.next())
-            {
+            if (results.next()) {
                 // allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool),
                 // &child_pedge);
                 child_pedge = new EpmemPEdge();
@@ -5186,9 +4527,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 pedge_pq.add(child_pedge);
                 pedge_cache.put(triple.copyEpmemTriple(), child_pedge);
                 return true;
-            }
-            else
-            {
+            } else {
                 results.close();
                 pedge_sql.close();
                 return false;
@@ -5202,9 +4541,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // if the literal is an edge with no specified value, add the literal to all potential pedges
                 if (!literal.is_leaf && literal.child_n_id == EPMEM_NODEID_BAD) {
                     boolean created = false;
-                    SortedMap<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[is_edge];
-                    Map<EpmemTriple,EpmemUEdge> uedge_iter = uedge_cache.tailMap(triple);
-                    for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_iter.entrySet() ) {
+                    SortedMap<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[is_edge];
+                    Map<EpmemTriple, EpmemUEdge> uedge_iter = uedge_cache.tailMap(triple);
+                    for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_iter.entrySet()) {
                         EpmemTriple child_triple = entry.getKey();
                         // make sure we're still looking at the right edge(s)
                         if (child_triple.parent_n_id != triple.parent_n_id || child_triple.attribute_s_id != triple.attribute_s_id) {
@@ -5212,7 +4551,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         EpmemUEdge child_uedge = entry.getValue();
                         if (child_triple.child_n_id != EPMEM_NODEID_BAD && child_uedge.value_is_id != 0) {
-                            for (EpmemLiteral child_iter : literal.children ) {
+                            for (EpmemLiteral child_iter : literal.children) {
                                 created |= epmem_register_pedges(child_triple.child_n_id, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
                             }
                         }
@@ -5226,15 +4565,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * episodic_memory.cpp:3318
-     * 
-     * {@code void epmem_print_retrieval_state(epmem_wme_literal_map& literals, 
-     *                                  epmem_triple_pedge_map pedge_caches[], 
-     *                                  epmem_triple_uedge_map uedge_caches[])} 
-     *   
+     *
+     * {@code void epmem_print_retrieval_state(epmem_wme_literal_map& literals,
+     * epmem_triple_pedge_map pedge_caches[],
+     * epmem_triple_uedge_map uedge_caches[])}
      */
-    private String epmem_print_retrieval_state(Map<WmeImpl,EpmemLiteral> literals, 
-                                               Map<EpmemTriple,EpmemPEdge> pedge_caches[], 
-                                               Map<EpmemTriple,EpmemUEdge> uedge_caches[]) {
+    private String epmem_print_retrieval_state(Map<WmeImpl, EpmemLiteral> literals,
+                                               Map<EpmemTriple, EpmemPEdge> pedge_caches[],
+                                               Map<EpmemTriple, EpmemUEdge> uedge_caches[]) {
         //std::map<epmem_node_id, std::string> tsh;
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
@@ -5276,8 +4614,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         sb.append("subgraph cluster_uedges{\n");
         sb.append("node [fillcolor=\"#FFD320\"];\n");
         for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
-            Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
-            for (Map.Entry<EpmemTriple,EpmemUEdge> entry : uedge_cache.entrySet()) {
+            Map<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[type];
+            for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_cache.entrySet()) {
                 EpmemTriple triple = entry.getKey();
                 if (triple.child_n_id != EPMEM_NODEID_ROOT) {
                     if (type == EPMEM_RIT_STATE_NODE) {
@@ -5293,8 +4631,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         sb.append("node [fillcolor=\"#008000\"];\n");
         HashMultimap<Long /*epmem_node_id*/, EpmemPEdge> parent_pedge_map = HashMultimap.create();
         for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
-            Map<EpmemTriple,EpmemPEdge> pedge_cache = pedge_caches[type];
-            for (Map.Entry<EpmemTriple,EpmemPEdge> entry : pedge_cache.entrySet() ) {
+            Map<EpmemTriple, EpmemPEdge> pedge_cache = pedge_caches[type];
+            for (Map.Entry<EpmemTriple, EpmemPEdge> entry : pedge_cache.entrySet()) {
                 EpmemTriple triple = entry.getKey();
                 EpmemPEdge pedge = entry.getValue();
                 if (triple.attribute_s_id != EPMEM_NODEID_BAD) {
@@ -5309,7 +4647,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         sb.append(", shape=\"rect\"");
                     }
                     sb.append("];\n");
-                    for (EpmemLiteral literal : pedge.literals ) {
+                    for (EpmemLiteral literal : pedge.literals) {
                         sb.append("\"" + literal.value_sym + "\" -> \"" + pedge + "\";\n");
                     }
                     parent_pedge_map.put(triple.parent_n_id, pedge);
@@ -5320,12 +4658,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // PEDGE->PEDGE / PEDGE->NODE
         Set<EpmemPEdgeNodePair> drawn = new LinkedHashSet<EpmemPEdgeNodePair>();
         for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
-            Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
+            Map<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[type];
             for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_cache.entrySet()) {
                 EpmemTriple triple = entry.getKey();
                 EpmemUEdge uedge = entry.getValue();
                 if (triple.attribute_s_id != EPMEM_NODEID_BAD) {
-                    for (EpmemPEdge pedge : uedge.pedges ) {
+                    for (EpmemPEdge pedge : uedge.pedges) {
                         EpmemPEdgeNodePair pair = new EpmemPEdgeNodePair(pedge, triple.parent_n_id);
                         if (!drawn.contains(pair)) {
                             drawn.add(pair);
@@ -5336,7 +4674,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         std::pair<std::multimap<epmem_node_id, epmem_pedge*>::iterator, std::multimap<epmem_node_id, epmem_pedge*>::iterator> pedge_iters = parent_pedge_map.equal_range(triple.q1);
                         for (std::multimap<epmem_node_id, epmem_pedge*>::iterator pedge_iter = pedge_iters.first; pedge_iter != pedge_iters.second; pedge_iter++) {
                         */
-                        for ( EpmemPEdge pedge_iter : parent_pedge_map.get(triple.child_n_id) ) {
+                        for (EpmemPEdge pedge_iter : parent_pedge_map.get(triple.child_n_id)) {
                             sb.append("\"" + pedge + "\" -> \"" + pedge_iter + "\";\n");
                         }
                     }
@@ -5351,15 +4689,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private static class EpmemPEdgeNodePair {
         EpmemPEdge pedge;
         long node_id;
-        
+
         EpmemPEdgeNodePair(EpmemPEdge pedge, long node_id) {
             this.pedge = pedge;
             this.node_id = node_id;
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             final int prime = 31;
             int result = 1;
             result = prime * result + (int) (node_id ^ (node_id >>> 32));
@@ -5368,8 +4705,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
@@ -5379,43 +4715,40 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             EpmemPEdgeNodePair other = (EpmemPEdgeNodePair) obj;
             if (node_id != other.node_id)
                 return false;
-            if (pedge == null)
-            {
+            if (pedge == null) {
                 if (other.pedge != null)
                     return false;
-            }
-            else if (!pedge.equals(other.pedge))
+            } else if (!pedge.equals(other.pedge))
                 return false;
             return true;
         }
     }
-    
+
     /**
      * episodic_memory.cpp:3431
      * {@code epmem_literal* epmem_build_dnf(
-     *      wme* cue_wme, 
-     *      epmem_wme_literal_map& literal_cache, 
-     *      epmem_literal_set& leaf_literals, 
-     *      epmem_symbol_int_map& symbol_num_incoming, 
-     *      epmem_literal_deque& gm_ordering, 
-     *      epmem_symbol_set& currents, 
-     *      int query_type, std::set<Symbol*>& visiting, 
-     *      soar_module::wme_set& cue_wmes, 
-     *      agent* my_agent
-     *  )}
+     * wme* cue_wme,
+     * epmem_wme_literal_map& literal_cache,
+     * epmem_literal_set& leaf_literals,
+     * epmem_symbol_int_map& symbol_num_incoming,
+     * epmem_literal_deque& gm_ordering,
+     * epmem_symbol_set& currents,
+     * int query_type, std::set<Symbol*>& visiting,
+     * soar_module::wme_set& cue_wmes,
+     * agent* my_agent
+     * )}
      */
     private EpmemLiteral epmem_build_dnf(
             WmeImpl cue_wme,
             Map<WmeImpl, EpmemLiteral> literal_cache,
             Set<EpmemLiteral> leaf_literals,
             Map<SymbolImpl, Integer> symbol_num_incoming,
-            Deque<EpmemLiteral> gm_ordering, 
+            Deque<EpmemLiteral> gm_ordering,
             Set<SymbolImpl> currents,
-            long query_type, 
-            Set<SymbolImpl> visiting, 
+            long query_type,
+            Set<SymbolImpl> visiting,
             Set<WmeImpl> cue_wmes
-    ) throws SQLException
-    {
+    ) throws SQLException {
         // if the value is being visited, this is part of a loop; return NULL
         // remove this check (and in fact, the entire visiting parameter) if cyclic cues are allowed
         if (visiting.contains(cue_wme.value)) {
@@ -5434,24 +4767,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //new(&(literal->parents)) epmem_literal_set();
         //new(&(literal->children)) epmem_literal_set();
         literal.parents = new LinkedHashSet<EpmemLiteral>();
-        literal.children = new LinkedHashSet<EpmemLiteral>();        
+        literal.children = new LinkedHashSet<EpmemLiteral>();
 
         IdentifierImpl identifier = value.asIdentifier();
-        if ( identifier == null ) { // WME is a value
+        if (identifier == null) { // WME is a value
             literal.value_is_id = EPMEM_RIT_STATE_NODE;
             literal.is_leaf = true;
             literal.child_n_id = epmem_temporal_hash(value);
             leaf_literals.add(literal);
-        } else if ( identifier.smem_lti != 0 ) { // WME is an LTI
+        } else if (identifier.smem_lti != 0) { // WME is an LTI
             // if we can find the LTI node id, cache it; otherwise, return failure
             //my_agent->epmem_stmts_graph->find_lti->bind_int(1, identifier.getNameLetter());
             //my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
             db.find_lti.setLong(1, identifier.getNameLetter());
             db.find_lti.setLong(2, identifier.getNameNumber());
             ResultSet results = db.find_lti.executeQuery();
-            
+
             try {
-                if ( results.next() ) {
+                if (results.next()) {
                     literal.value_is_id = EPMEM_RIT_STATE_EDGE;
                     literal.is_leaf = true;
                     literal.child_n_id = results.getLong(0 + 1);
@@ -5470,7 +4803,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             } finally {
                 results.close();
             }
-            
+
         } else { // WME is a normal identifier
             // we determine whether it is a leaf by checking for children
             List<WmeImpl> children = epmem_get_augs_of_id(value, DefaultMarker.create());
@@ -5486,7 +4819,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             } else {
                 boolean cycle = false;
                 visiting.add(cue_wme.value);
-                for (WmeImpl wme_iter : children ) {
+                for (WmeImpl wme_iter : children) {
                     // check to see if this child forms a cycle
                     // if it does, we skip over it
                     EpmemLiteral child = epmem_build_dnf(wme_iter, literal_cache, leaf_literals, symbol_num_incoming, gm_ordering, currents, query_type, visiting, cue_wmes);
@@ -5518,96 +4851,85 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 } else {
                     incomingCount++;
                 }
-                symbol_num_incoming.put(value,  incomingCount);
+                symbol_num_incoming.put(value, incomingCount);
             }
         }
 
-        if ( query_type == EPMEM_NODE_POS ) {
+        if (query_type == EPMEM_NODE_POS) {
             stats.qry_pos.set(stats.qry_pos.get() + 1);
             gm_ordering.offerFirst(literal);
-        }else{
+        } else {
             stats.qry_neg.set(stats.qry_neg.get() + 1);
         }
 
         literal.id_sym = cue_wme.id;
         literal.value_sym = cue_wme.value;
         literal.is_current = currents.contains(value);
-        literal.attribute_s_id   = epmem_temporal_hash(cue_wme.attr);
+        literal.attribute_s_id = epmem_temporal_hash(cue_wme.attr);
         literal.is_neg_q = query_type;
         literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : cue_wme.wma.wma_get_wme_activation(cue_wme, true));
-    //#ifdef USE_MEM_POOL_ALLOCATORS
-    //    new(&(literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
-    //#else
-    //    new(&(literal->matches)) epmem_node_pair_set();
-    //#endif
-    //    new(&(literal->values)) epmem_node_int_map();
+        //#ifdef USE_MEM_POOL_ALLOCATORS
+        //    new(&(literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
+        //#else
+        //    new(&(literal->matches)) epmem_node_pair_set();
+        //#endif
+        //    new(&(literal->values)) epmem_node_int_map();
         literal.matches = new TreeSet<EpmemNodePair>();
-        literal.values = new LinkedHashMap<Long,Integer>();
+        literal.values = new LinkedHashMap<Long, Integer>();
 
-        literal_cache.put(cue_wme,literal);
+        literal_cache.put(cue_wme, literal);
         return literal;
     }
-    
+
     /**
      * <p>
      * episodic_memory.cpp:998:{@code inline void epmem_buffer_add_wme(
      * soar_module::symbol_triple_list& my_list, Symbol* id, Symbol* attr,
      * Symbol* value )}
-     * 
      */
     private void epmem_buffer_add_wme(
-            List<SymbolTriple> my_list, 
-            SymbolImpl id, 
-            SymbolImpl attr, 
-            SymbolImpl value)
-    {
-        my_list.add( new SymbolTriple( id, attr, value) );
-        
+            List<SymbolTriple> my_list,
+            SymbolImpl id,
+            SymbolImpl attr,
+            SymbolImpl value) {
+        my_list.add(new SymbolTriple(id, attr, value));
+
         //In java, we don't care about reference counting
         //symbol_add_ref( id );
         //symbol_add_ref( attr );
         //symbol_add_ref( value );
-        
+
     }
 
     /**
-     * episodic_memory.cpp:3199:{@code epmem_time_id epmem_previous_episode( 
-     *      agent *my_agent, epmem_time_id memory_id )}
-     *      
+     * episodic_memory.cpp:3199:{@code epmem_time_id epmem_previous_episode(
+     * agent *my_agent, epmem_time_id memory_id )}
+     *
      * Returns the last valid temporal id.  This is really
      * only an issue if you implement episode dynamics like
      * forgetting.
      */
-    private long epmem_previous_episode(long memory_id)
-    {
+    private long epmem_previous_episode(long memory_id) {
         // //////////////////////////////////////////////////////////////////////////
         // my_agent->epmem_timers->prev->start();
         // //////////////////////////////////////////////////////////////////////////
 
         long return_val = EPMEM_MEMID_NONE;
 
-        if (memory_id != EPMEM_MEMID_NONE)
-        {
+        if (memory_id != EPMEM_MEMID_NONE) {
             // soar_module::sqlite_statement *my_q = my_agent->epmem_stmts_graph->prev_episode;
             final PreparedStatement myQuery = db.prev_episode;
-            try
-            {
+            try {
                 myQuery.setLong(1, memory_id);
                 final ResultSet resultSet = myQuery.executeQuery();
-                try
-                {
-                    if (resultSet.next())
-                    {
+                try {
+                    if (resultSet.next()) {
                         return_val = resultSet.getLong(0 + 1);
                     }
-                }
-                finally
-                {
+                } finally {
                     resultSet.close();
                 }
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
             /*
@@ -5627,83 +4949,68 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * only an issue if you implement episode dynamics like
      * forgetting.
      */
-    private long epmem_next_episode(long memory_id)
-    {
+    private long epmem_next_episode(long memory_id) {
         ////////////////////////////////////////////////////////////////////////////
         //my_agent->epmem_timers->next->start();
         ////////////////////////////////////////////////////////////////////////////
-        
+
         long return_val = EPMEM_MEMID_NONE;
 
-        if (memory_id != EPMEM_MEMID_NONE)
-        {
+        if (memory_id != EPMEM_MEMID_NONE) {
             final PreparedStatement myQuery = db.next_episode;
-            try
-            {
+            try {
                 myQuery.setLong(1, memory_id);
                 final ResultSet resultSet = myQuery.executeQuery();
-                try
-                {
-                    if (resultSet.next())
-                    {
+                try {
+                    if (resultSet.next()) {
                         return_val = resultSet.getLong(0 + 1);
                     }
-                }
-                finally
-                {
+                } finally {
                     resultSet.close();
                 }
 
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        
+
         ////////////////////////////////////////////////////////////////////////////
         //my_agent->epmem_timers->next->stop();
         ////////////////////////////////////////////////////////////////////////////
-        
+
         return return_val;
     }
-    
+
     /**
      * This is being used to emulate the default parameter in C
-     * 
      */
     private void epmem_install_memory(
-            IdentifierImpl state, 
-            long /*epmem_time_id*/ memory_id, 
-            List<SymbolTriple> meta_wmes, 
+            IdentifierImpl state,
+            long /*epmem_time_id*/ memory_id,
+            List<SymbolTriple> meta_wmes,
             List<SymbolTriple> retrieval_wmes
             /*Map<Long / *epmem_node_id* /, SymbolImpl> id_record = NULL*/
-        ) throws SQLException, SoarException
-    {
+    ) throws SQLException, SoarException {
         epmem_install_memory(state, memory_id, meta_wmes, retrieval_wmes, null);
     }
-    
+
     /**
      * This is used to emulate {@code std::pair<Symbol, bool>}
-     * 
-     * @author ACNickles
      *
+     * @author ACNickles
      */
-    private class SymbolBooleanPair
-    {
+    private class SymbolBooleanPair {
         SymbolImpl first;
         boolean second;
-        
-        SymbolBooleanPair(SymbolImpl first, boolean second)
-        {
+
+        SymbolBooleanPair(SymbolImpl first, boolean second) {
             this.first = first;
             this.second = second;
         }
     }
-    
-    private class EpmemEdge
-    {
-        
+
+    private class EpmemEdge {
+
         long /*epmem_node_id*/ parent_n_id;      // id
         SymbolImpl attribute;                   // attr
         long /*epmem_node_id*/ child_n_id;      // value
@@ -5712,101 +5019,96 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         char val_letter;
         long val_num;
 
-    };
-    
+    }
+
     private void epmem_install_memory(
-            IdentifierImpl state, 
-            long /*epmem_time_id*/ memory_id, 
-            List<SymbolTriple> meta_wmes, 
+            IdentifierImpl state,
+            long /*epmem_time_id*/ memory_id,
+            List<SymbolTriple> meta_wmes,
             List<SymbolTriple> retrieval_wmes,
-            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/
-        ) throws SQLException, SoarException
-    {
+            Map<Long /*epmem_node_id*/, SymbolImpl> id_record /*=NULL*/
+    ) throws SQLException, SoarException {
         epmem_install_memory(state, memory_id, meta_wmes, retrieval_wmes, id_record, null);
     }
-    
+
     /**
      * episodic_memory.cpp: 2847:
-     * {@code void epmem_install_memory( 
-     *      agent *my_agent, 
-     *      Symbol *state, 
-     *      epmem_time_id memory_id, 
-     *      soar_module::symbol_triple_list& meta_wmes, 
-     *      soar_module::symbol_triple_list& retrieval_wmes, 
-     *      epmem_id_mapping *id_record = NULL )}
-     * 
+     * {@code void epmem_install_memory(
+     * agent *my_agent,
+     * Symbol *state,
+     * epmem_time_id memory_id,
+     * soar_module::symbol_triple_list& meta_wmes,
+     * soar_module::symbol_triple_list& retrieval_wmes,
+     * epmem_id_mapping *id_record = NULL )}
      */
     private void epmem_install_memory(
-            IdentifierImpl state, 
-            long /*epmem_time_id*/ memory_id, 
-            List<SymbolTriple> meta_wmes, 
+            IdentifierImpl state,
+            long /*epmem_time_id*/ memory_id,
+            List<SymbolTriple> meta_wmes,
             List<SymbolTriple> retrieval_wmes,
-            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/,
+            Map<Long /*epmem_node_id*/, SymbolImpl> id_record /*=NULL*/,
             SymbolImpl filter /*=null*/
-        ) throws SQLException, SoarException
-    {
+    ) throws SQLException, SoarException {
         final EpisodicMemoryStateInfo epmemInfo = epmem_info(state);
         ////////////////////////////////////////////////////////////////////////////
         //my_agent->epmem_timers->ncb_retrieval->start();
         ////////////////////////////////////////////////////////////////////////////
-        
+
         // get the ^result header for this state
         SymbolImpl result_header = epmemInfo.epmem_result_header;
-        
+
         // initialize stat
         long num_wmes = 0;
         //my_agent->epmem_stats->ncb_wmes->set_value( num_wmes );
         this.stats.ncb_wmes.set(num_wmes);
-        
+
         // if no memory, say so
-        if ( 
-                ( memory_id == EPMEM_MEMID_NONE ) ||
-                !epmem_valid_episode( memory_id )
-            )
-        {
-            epmem_buffer_add_wme( 
-                    meta_wmes, 
-                    result_header, 
-                    predefinedSyms.epmem_sym_retrieved, 
-                    predefinedSyms.epmem_sym_no_memory 
-                );
+        if (
+                (memory_id == EPMEM_MEMID_NONE) ||
+                        !epmem_valid_episode(memory_id)
+        ) {
+            epmem_buffer_add_wme(
+                    meta_wmes,
+                    result_header,
+                    predefinedSyms.epmem_sym_retrieved,
+                    predefinedSyms.epmem_sym_no_memory
+            );
             epmemInfo.last_memory = EPMEM_MEMID_NONE;
-            
+
             ////////////////////////////////////////////////////////////////////////////
             //my_agent->epmem_timers->ncb_retrieval->stop();
             ////////////////////////////////////////////////////////////////////////////
-            
+
             return;
         }
         // remember this as the last memory installed
         epmemInfo.last_memory = memory_id;
-        
+
         // create a new ^retrieved header for this result
         SymbolImpl retrieved_header;
-        retrieved_header = symbols.make_new_identifier( 'R', result_header.asIdentifier().level );
+        retrieved_header = symbols.make_new_identifier('R', result_header.asIdentifier().level);
         //if ( id_record )
-        if ( id_record != null )
-        {
-            id_record.put( EPMEM_NODEID_ROOT, retrieved_header);
+        if (id_record != null) {
+            id_record.put(EPMEM_NODEID_ROOT, retrieved_header);
         }
-        
-        epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_retrieved, retrieved_header );
+
+        epmem_buffer_add_wme(meta_wmes, result_header, predefinedSyms.epmem_sym_retrieved, retrieved_header);
         //Java doesn't care about reference counting
         //symbol_remove_ref( retrieved_header );
-        
+
         // add *-id wme's
         {
             SymbolImpl my_meta;
-            
-            my_meta = symbols.createInteger( memory_id );
-            epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_memory_id, my_meta );
+
+            my_meta = symbols.createInteger(memory_id);
+            epmem_buffer_add_wme(meta_wmes, result_header, predefinedSyms.epmem_sym_memory_id, my_meta);
             //symbol_remove_ref( my_agent, my_meta );
-            
-            my_meta = symbols.createInteger( stats.time.get() );
-            epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_present_id, my_meta );
+
+            my_meta = symbols.createInteger(stats.time.get());
+            epmem_buffer_add_wme(meta_wmes, result_header, predefinedSyms.epmem_sym_present_id, my_meta);
             //symbol_remove_ref( my_agent, my_meta );
         }
-        
+
         // install memory
         {
             // Big picture: create identifier skeleton, then hang non-identifers
@@ -5819,112 +5121,102 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // parents have shown up.  I *suppose* there could be a really evil case in which
             // the ordering of the unique ids is exactly opposite of their insertion order.
             // I just hope this isn't a common case...
-            
+
             // shared identifier lookup table
             //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
             boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.add);
-            
+
             Set<IdentifierImpl> passedFilter = null;
             Map<IdentifierImpl, Set<SymbolImpl>> filterParents = null;
-            if (filter != null)
-            {
+            if (filter != null) {
                 filterParents = new HashMap<IdentifierImpl, Set<SymbolImpl>>();
                 passedFilter = new HashSet<IdentifierImpl>();
             }
-            
+
             // symbols used to create WMEs
             SymbolImpl attr = null;
-            
+
             // lookup query
             //soar_module::sqlite_statement *my_q;
-            
+
             // initialize the lookup table
             ids.put(EPMEM_NODEID_ROOT, new SymbolBooleanPair(retrieved_header, true));
-            
+
             // Add the filter head.
-            if (filter != null)
-            {
+            if (filter != null) {
                 Set<SymbolImpl> initialFilter = new HashSet<SymbolImpl>();
                 initialFilter.add(filter);
                 filterParents.put(retrieved_header.asIdentifier(), initialFilter);
             }
-            
+
             // first identifiers (i.e. reconstruct)
             PreparedStatement my_q = db.get_wmes_with_identifier_values;
             {
                 // relates to finite automata: child_n_id = d(parent_n_id, attribute_s_id)
                 long /*epmem_node_id*/ parent_n_id; // id
                 long /*epmem_node_id*/ child_n_id; // attribute
-                
+
                 boolean val_is_short_term = false;
                 char val_letter = 0;//NIL
                 long /*int64_t*/ val_num = 0;//NIL
-                
+
                 // used to lookup shared identifiers
                 // the bool in the pair refers to if children are allowed on this id (re: lti)
                 //We dont need to use an iterator for lookups in Java, however the port will
                 //match much closer if we use the variable. -ACN
                 //std::map< epmem_node_id, std::pair< Symbol*, bool> >::iterator id_p;
                 SymbolBooleanPair id_p;
-                                
+
                 // orphaned children
                 Queue<EpmemEdge> orphans = new LinkedList<EpmemEdge>();
                 EpmemEdge orphan;
-                
-                epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_EDGE ]  );
-                                
+
+                epmem_rit_prep_left_right(memory_id, memory_id, epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
+
                 my_q.setLong(1, memory_id);
                 my_q.setLong(2, memory_id);
                 my_q.setLong(3, memory_id);
                 my_q.setLong(4, memory_id);
                 my_q.setLong(5, memory_id);
                 ResultSet resultSet = my_q.executeQuery();
-                while ( resultSet.next() )
-                {
-                 // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
+                while (resultSet.next()) {
+                    // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
                     //parent_n_id  = my_q->column_int( 0 );
-                    parent_n_id  = resultSet.getLong(0 + 1);
+                    parent_n_id = resultSet.getLong(0 + 1);
                     //q1 = my_q->column_int( 2 );
                     child_n_id = resultSet.getLong(2 + 1);
                     //attr = epmem_reverse_hash( my_agent, my_q->column_int( 1 ), SYM_CONSTANT_SYMBOL_TYPE);
-                    attr = epmem_reverse_hash( resultSet.getLong( 1 + 1 ));
-                    
+                    attr = epmem_reverse_hash(resultSet.getLong(1 + 1));
+
                     // short vs. long-term
                     //This is how Smem is doing this cast, but I'm not certain how 
-                    char tempValLetter = (char)resultSet.getLong(3 + 1);
-                    val_is_short_term = ( resultSet.wasNull() );
-                    if ( !val_is_short_term )
-                    {
+                    char tempValLetter = (char) resultSet.getLong(3 + 1);
+                    val_is_short_term = (resultSet.wasNull());
+                    if (!val_is_short_term) {
                         val_letter = tempValLetter;
                         //val_num = static_cast<uint64_t>( my_q->column_int( 4 ) );
                         val_num = resultSet.getLong(4 + 1);
                     }
-                    
+
                     // get a reference to the parent
-                    id_p = ids.get( parent_n_id );
-                    if ( id_p != null )
-                    {
+                    id_p = ids.get(parent_n_id);
+                    if (id_p != null) {
                         // if existing lti with kids don't touch
-                        if ( dont_abide_by_ids_second || id_p.second )
-                        {
+                        if (dont_abide_by_ids_second || id_p.second) {
                             Set<Slot> filterSlots = null;
                             boolean should_install;
                             if (filter == null)
                                 should_install = true;
-                            else
-                            {
+                            else {
                                 should_install = false;
-                                                                
+
                                 IdentifierImpl memoryId = id_p.first.asIdentifier();
-                                
+
                                 // Check to see if this ID has made it all the way through the filter.
-                                if (passedFilter.contains(memoryId))
-                                {
+                                if (passedFilter.contains(memoryId)) {
                                     should_install = true;
-                                }
-                                else
-                                {
+                                } else {
                                     Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
                                     if (filterIdSet != null)    // if filterParents.contains(wme.parent)
                                     {
@@ -5936,11 +5228,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             {
                                                 // Check to make sure that this filter WME's value is an identifier.
                                                 Iterator<Wme> it = slot.getWmeIterator();
-                                                while (it.hasNext())
-                                                {
-                                                    WmeImpl childWme = (WmeImpl)it.next();
-                                                    if (childWme.value.asIdentifier() != null)
-                                                    {
+                                                while (it.hasNext()) {
+                                                    WmeImpl childWme = (WmeImpl) it.next();
+                                                    if (childWme.value.asIdentifier() != null) {
                                                         if (filterSlots == null)
                                                             filterSlots = new HashSet<Slot>();
                                                         filterSlots.add(slot);
@@ -5953,46 +5243,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     }
                                 }
                             }
-                            
-                            if (should_install)
-                            {
-                                _epmem_install_id_wme( 
-                                        id_p.first, 
-                                        attr, 
-                                        ids, 
-                                        child_n_id, 
-                                        val_is_short_term, 
-                                        val_letter, 
-                                        val_num, 
-                                        id_record, 
-                                        retrieval_wmes 
-                                    );
+
+                            if (should_install) {
+                                _epmem_install_id_wme(
+                                        id_p.first,
+                                        attr,
+                                        ids,
+                                        child_n_id,
+                                        val_is_short_term,
+                                        val_letter,
+                                        val_num,
+                                        id_record,
+                                        retrieval_wmes
+                                );
                                 num_wmes++;
-                                
-                                if (filterSlots != null)
-                                {
+
+                                if (filterSlots != null) {
                                     SymbolImpl childMemorySym = ids.get(child_n_id).first;
                                     IdentifierImpl childMemoryId = childMemorySym.asIdentifier();
-                                    
+
                                     Set<SymbolImpl> currentFilterList = filterParents.get(childMemorySym);
-                                    if (currentFilterList == null)
-                                    {
+                                    if (currentFilterList == null) {
                                         currentFilterList = new HashSet<SymbolImpl>();
                                         filterParents.put(childMemoryId, currentFilterList);
                                     }
-                                    
-                                    for (Slot filterSlot : filterSlots)
-                                    {
+
+                                    for (Slot filterSlot : filterSlots) {
                                         Iterator<Wme> it = filterSlot.getWmeIterator();
                                         while (it.hasNext())    // for childWme in filterWme.getChildren()
                                         {
-                                            WmeImpl childWme = (WmeImpl)it.next();
+                                            WmeImpl childWme = (WmeImpl) it.next();
                                             SymbolImpl childSym = childWme.value;
-                                            
+
                                             // Check if there is substructure under this filter.
                                             IdentifierImpl childId = childSym.asIdentifier();
-                                            if (childId != null)
-                                            {
+                                            if (childId != null) {
                                                 if (childId.slots == null)
                                                     passedFilter.add(childMemoryId);
                                                 else
@@ -6000,79 +5285,65 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             }
                                         }
                                     }
-                                }
-                                else if (filter != null)
-                                {
+                                } else if (filter != null) {
                                     passedFilter.add(ids.get(child_n_id).first.asIdentifier());
                                 }
                             }
                         }
                         //Ref counting doesn't matter in Java
                         //symbol_remove_ref( my_agent, attr );
-                    }
-                    else
-                    {
+                    } else {
                         // out of order
                         orphan = new EpmemEdge();
                         orphan.parent_n_id = parent_n_id;
                         orphan.attribute = attr;
                         orphan.child_n_id = child_n_id;
-                        
+
                         orphan.val_letter = 0;//NIL;
                         orphan.val_num = 0;//NIL;
-                        
+
                         orphan.val_is_short_term = val_is_short_term;
-                        if ( !val_is_short_term )
-                        {
+                        if (!val_is_short_term) {
                             orphan.val_letter = val_letter;
                             orphan.val_num = val_num;
                         }
-                        
-                        orphans.add( orphan );
+
+                        orphans.add(orphan);
                     }
                 }
                 //my_q->reinitialize();
                 resultSet.close();
-                
-                epmem_rit_clear_left_right( );
-                
+
+                epmem_rit_clear_left_right();
+
                 // take care of any orphans
-                if ( !orphans.isEmpty() )
-                {                    
+                if (!orphans.isEmpty()) {
                     int /*std::queue<epmem_edge *>::size_type*/ orphans_left;
                     Queue<EpmemEdge> still_orphans = new LinkedList<EpmemEdge>();
-                    
-                    do
-                    {
+
+                    do {
                         orphans_left = orphans.size();
-                        
-                        while ( !orphans.isEmpty() )
-                        {
+
+                        while (!orphans.isEmpty()) {
                             orphan = orphans.poll();
-                            
+
                             // get a reference to the parent
-                            id_p = ids.get( orphan.parent_n_id  );
-                            if ( id_p != null )
-                            {
-                                if ( dont_abide_by_ids_second || id_p.second )
-                                {
+                            id_p = ids.get(orphan.parent_n_id);
+                            if (id_p != null) {
+                                if (dont_abide_by_ids_second || id_p.second) {
                                     Set<Slot> filterSlots = null;
                                     boolean should_install;
                                     if (filter == null)
                                         should_install = true;
-                                    else
-                                    {
+                                    else {
                                         should_install = false;
-                                                                        
+
                                         IdentifierImpl memoryId = id_p.first.asIdentifier();
-                                        
+
                                         // Check to see if this ID has made it all the way through the filter.
-                                        if (passedFilter.contains(memoryId))
-                                        {
+                                        if (passedFilter.contains(memoryId)) {
                                             should_install = true;
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
                                             if (filterIdSet != null)    // if filterParents.contains(wme.parent)
                                             {
@@ -6084,11 +5355,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                     {
                                                         // Check to make sure that this filter WME's value is an identifier.
                                                         Iterator<Wme> it = slot.getWmeIterator();
-                                                        while (it.hasNext())
-                                                        {
-                                                            WmeImpl childWme = (WmeImpl)it.next();
-                                                            if (childWme.value.asIdentifier() != null)
-                                                            {
+                                                        while (it.hasNext()) {
+                                                            WmeImpl childWme = (WmeImpl) it.next();
+                                                            if (childWme.value.asIdentifier() != null) {
                                                                 if (filterSlots == null)
                                                                     filterSlots = new HashSet<Slot>();
                                                                 filterSlots.add(slot);
@@ -6101,46 +5370,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             }
                                         }
                                     }
-                                    
-                                    if (should_install)
-                                    {
-                                        _epmem_install_id_wme( 
-                                                id_p.first, 
-                                                orphan.attribute, 
-                                                ids, 
-                                                orphan.child_n_id, 
-                                                orphan.val_is_short_term, 
-                                                orphan.val_letter, 
-                                                orphan.val_num, 
-                                                id_record, 
-                                                retrieval_wmes 
-                                            );
+
+                                    if (should_install) {
+                                        _epmem_install_id_wme(
+                                                id_p.first,
+                                                orphan.attribute,
+                                                ids,
+                                                orphan.child_n_id,
+                                                orphan.val_is_short_term,
+                                                orphan.val_letter,
+                                                orphan.val_num,
+                                                id_record,
+                                                retrieval_wmes
+                                        );
                                         num_wmes++;
-                                        
-                                        if (filterSlots != null)
-                                        {
+
+                                        if (filterSlots != null) {
                                             SymbolImpl childMemorySym = ids.get(orphan.child_n_id).first;
                                             IdentifierImpl childMemoryId = childMemorySym.asIdentifier();
-                                            
+
                                             Set<SymbolImpl> currentFilterList = filterParents.get(childMemorySym);
-                                            if (currentFilterList == null)
-                                            {
+                                            if (currentFilterList == null) {
                                                 currentFilterList = new HashSet<SymbolImpl>();
                                                 filterParents.put(childMemoryId, currentFilterList);
                                             }
-                                            
-                                            for (Slot filterSlot : filterSlots)
-                                            {
+
+                                            for (Slot filterSlot : filterSlots) {
                                                 Iterator<Wme> it = filterSlot.getWmeIterator();
                                                 while (it.hasNext())    // for childWme in filterWme.getChildren()
                                                 {
-                                                    WmeImpl childWme = (WmeImpl)it.next();
+                                                    WmeImpl childWme = (WmeImpl) it.next();
                                                     SymbolImpl childSym = childWme.value;
-                                                    
+
                                                     // Check if there is substructure under this filter.
                                                     IdentifierImpl childId = childSym.asIdentifier();
-                                                    if (childId != null)
-                                                    {
+                                                    if (childId != null) {
                                                         if (childId.slots == null)
                                                             passedFilter.add(childMemoryId);
                                                         else
@@ -6148,24 +5412,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                     }
                                                 }
                                             }
-                                        }
-                                        else if (filter != null)
-                                        {
+                                        } else if (filter != null) {
                                             passedFilter.add(ids.get(orphan.child_n_id).first.asIdentifier());
                                         }
                                     }
                                 }
-                                
+
                                 //Java does this for us
                                 //symbol_remove_ref( my_agent, orphan->attribute );
                                 //delete orphan;
-                            }
-                            else
-                            {
-                                still_orphans.add( orphan );
+                            } else {
+                                still_orphans.add(orphan);
                             }
                         }
-                        
+
                         orphans.addAll(still_orphans);
                         still_orphans.clear();
                         /*
@@ -6175,7 +5435,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             still_orphans.pop();
                         }
                         */
-                    } while ( ( !orphans.isEmpty() ) && ( orphans_left != orphans.size() ) );
+                    } while ((!orphans.isEmpty()) && (orphans_left != orphans.size()));
                     
                     /*
                     while ( !orphans.empty() )
@@ -6189,63 +5449,57 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     */
                 }
             }
-            
+
             // then epmem_wmes_constant
             // f.wc_id, f.parent_n_id, f.attribute_s_id, f.value_s_id
             my_q = db.get_wmes_with_constant_values;
             {
                 long /*epmem_node_id*/ parent_n_id;
-                
+
                 SymbolBooleanPair /*std::pair< Symbol*, bool >*/ parent;
                 SymbolImpl value = null;
-                
-                epmem_rit_prep_left_right( 
-                        memory_id, 
-                        memory_id, 
-                        epmem_rit_state_graph[ EPMEM_RIT_STATE_NODE ] 
-                    );
-                
-                my_q.setLong( 1, memory_id );
-                my_q.setLong( 2, memory_id );
-                my_q.setLong( 3, memory_id );
-                my_q.setLong( 4, memory_id );
-                
+
+                epmem_rit_prep_left_right(
+                        memory_id,
+                        memory_id,
+                        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE]
+                );
+
+                my_q.setLong(1, memory_id);
+                my_q.setLong(2, memory_id);
+                my_q.setLong(3, memory_id);
+                my_q.setLong(4, memory_id);
+
                 ResultSet resultSet = my_q.executeQuery();
-                while ( resultSet.next() )
-                {
-                    parent_n_id = resultSet.getLong( 1 + 1 );
-                    
+                while (resultSet.next()) {
+                    parent_n_id = resultSet.getLong(1 + 1);
+
                     // get a reference to the parent
-                    parent = ids.get( parent_n_id );
+                    parent = ids.get(parent_n_id);
                     if (parent == null)
                         continue;
-                    
-                    if ( dont_abide_by_ids_second || parent.second )
-                    {
+
+                    if (dont_abide_by_ids_second || parent.second) {
                         // make a symbol to represent the attribute
                         //attr = epmem_reverse_hash( my_agent, my_q->column_int( 2 ));
-                        attr = epmem_reverse_hash( resultSet.getLong( 2 + 1));
-                        
+                        attr = epmem_reverse_hash(resultSet.getLong(2 + 1));
+
                         // make a symbol to represent the value
                         //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
-                        value = epmem_reverse_hash( resultSet.getLong( 3 + 1 ));
-                        
+                        value = epmem_reverse_hash(resultSet.getLong(3 + 1));
+
                         boolean should_install;
                         if (filter == null)
                             should_install = true;
-                        else
-                        {
+                        else {
                             should_install = false;
-                                                            
+
                             IdentifierImpl memoryId = parent.first.asIdentifier();
-                            
+
                             // Check to see if this ID has made it all the way through the filter.
-                            if (passedFilter.contains(memoryId))
-                            {
+                            if (passedFilter.contains(memoryId)) {
                                 should_install = true;
-                            }
-                            else
-                            {
+                            } else {
                                 Set<SymbolImpl> filterIdSet = filterParents.get(memoryId);
                                 if (filterIdSet != null)    // if filterParents.contains(wme.parent)
                                 {
@@ -6257,25 +5511,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                         {
                                             // Check to make sure that this filter WME's value is an identifier.
                                             Iterator<Wme> it = slot.getWmeIterator();
-                                            while (it.hasNext())
-                                            {
-                                                WmeImpl childWme = (WmeImpl)it.next();
-                                                
+                                            while (it.hasNext()) {
+                                                WmeImpl childWme = (WmeImpl) it.next();
+
                                                 IdentifierImpl valueId = childWme.value.asIdentifier();
                                                 // If these are the same value, or if this matches a dangling identifier on the filter.
-                                                if (valueId != null && valueId.slots == null)
-                                                {
+                                                if (valueId != null && valueId.slots == null) {
                                                     passedFilter.add(memoryId);
                                                     should_install = true;  // addToWM(wme)
                                                     break;
-                                                }
-                                                else if (compare_symbol(childWme.value, value))
-                                                {
+                                                } else if (compare_symbol(childWme.value, value)) {
                                                     should_install = true;  // addToWM(wme)
                                                     break;
                                                 }
                                             }
-                                            
+
                                             if (should_install)
                                                 break;
                                         }
@@ -6283,13 +5533,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                             }
                         }
-                        
-                        if (should_install)
-                        {
-                            epmem_buffer_add_wme( retrieval_wmes, parent.first, attr, value );
+
+                        if (should_install) {
+                            epmem_buffer_add_wme(retrieval_wmes, parent.first, attr, value);
                             num_wmes++;
                         }
-                        
+
                         //symbol_remove_ref( my_agent, attr );
                         //symbol_remove_ref( my_agent, value ); 
                     }
@@ -6298,15 +5547,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 resultSet.close();
                 epmem_rit_clear_left_right();
             }
-            
+
             // Prune if necessary
-            if (filter != null)
-            {
+            if (filter != null) {
                 int goodIndex = retrieval_wmes.size();
-                
+
                 int i = 0;
-                while (i < goodIndex)
-                {
+                while (i < goodIndex) {
                     SymbolTriple wme = retrieval_wmes.get(i);
                     if (wme.value.asIdentifier() == null)
                         passedFilter.add(wme.id.asIdentifier());
@@ -6315,265 +5562,223 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     else
                         ++i;
                 }
-                
-                while (true)
-                {
+
+                while (true) {
                     int oldSize = goodIndex;
-                    
+
                     i = 0;
-                    while (i < goodIndex)
-                    {
+                    while (i < goodIndex) {
                         SymbolTriple wme = retrieval_wmes.get(i);
-                        if (passedFilter.contains(wme.value))
-                        {
+                        if (passedFilter.contains(wme.value)) {
                             Collections.swap(retrieval_wmes, i, --goodIndex);
                             passedFilter.add(wme.id.asIdentifier());
-                        }
-                        else
+                        } else
                             ++i;
                     }
-                    
+
                     if (oldSize == goodIndex)
                         break;
                 }
-                
+
                 retrieval_wmes.subList(0, goodIndex).clear();
             }
         }
-        
+
         // adjust stat
         this.stats.ncb_wmes.set(num_wmes);
-        
+
         ////////////////////////////////////////////////////////////////////////////
         //my_agent->epmem_timers->ncb_retrieval->stop();
         ////////////////////////////////////////////////////////////////////////////
-         
+
     }
-    
+
     /**
      * episodic_memory.cpp: 1121:
      * {@code void epmem_rit_clear_left_right( agent *my_agent )}
-     * 
+     *
      * Clears the left/right relations populated during prep
      */
-    private void epmem_rit_clear_left_right() throws SQLException
-    {
+    private void epmem_rit_clear_left_right() throws SQLException {
         db.rit_truncate_left.execute();
         db.rit_truncate_right.execute();
     }
-    
+
     /**
      * episodic_memory.cpp: 2779:
-     * {@code inline void _epmem_install_id_wme( 
-     *      agent* my_agent, 
-     *      Symbol* parent, 
-     *      Symbol* attr, 
-     *      std::map< epmem_node_id, std::pair< Symbol*, bool > >* ids, 
-     *      epmem_node_id child_n_id, 
-     *      bool val_is_short_term, 
-     *      char val_letter, 
-     *      uint64_t val_num, 
-     *      epmem_id_mapping* id_record, 
-     *      soar_module::symbol_triple_list& retrieval_wmes 
-     *    )}
-     * 
+     * {@code inline void _epmem_install_id_wme(
+     * agent* my_agent,
+     * Symbol* parent,
+     * Symbol* attr,
+     * std::map< epmem_node_id, std::pair< Symbol*, bool > >* ids,
+     * epmem_node_id child_n_id,
+     * bool val_is_short_term,
+     * char val_letter,
+     * uint64_t val_num,
+     * epmem_id_mapping* id_record,
+     * soar_module::symbol_triple_list& retrieval_wmes
+     * )}
      */
     private void _epmem_install_id_wme(
-            SymbolImpl parent, 
-            SymbolImpl attr, 
-            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids, 
-            long /*epmem_node_id*/ child_n_id, 
-            boolean val_is_short_term, 
-            char val_letter, 
-            long val_num, 
-            Map<Long, SymbolImpl>/*epmem_id_mapping*/ id_record, 
+            SymbolImpl parent,
+            SymbolImpl attr,
+            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids,
+            long /*epmem_node_id*/ child_n_id,
+            boolean val_is_short_term,
+            char val_letter,
+            long val_num,
+            Map<Long, SymbolImpl>/*epmem_id_mapping*/ id_record,
             List<SymbolTriple> /*soar_module::symbol_triple_list&*/ retrieval_wmes
-        ) throws SoarException
-    {
+    ) throws SoarException {
         //std::map< epmem_node_id, std::pair< Symbol*, bool > >::iterator id_p = ids->find( q1 );
-        SymbolBooleanPair id_p = ids.get( child_n_id );
-        boolean existing_identifier = ( id_p != null );
+        SymbolBooleanPair id_p = ids.get(child_n_id);
+        boolean existing_identifier = (id_p != null);
 
-        if ( val_is_short_term )
-        {
-            if ( !existing_identifier )
-            {
+        if (val_is_short_term) {
+            if (!existing_identifier) {
                 // CK: std::map insert does not replace existing elements in the map
                 // check that ids doesn't already contain the key
-                if (!ids.containsKey(child_n_id))
-                {
+                if (!ids.containsKey(child_n_id)) {
                     ids.put(child_n_id,
                             new SymbolBooleanPair(symbols.make_new_identifier(
                                     ((Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE) ? (attr.getFirstLetter()) : ('E')),
                                     parent.asIdentifier().level), true));
                 }
                 id_p = ids.get(child_n_id);
-                
+
                 //if ( id_record )
-                if ( id_record != null )
-                {
+                if (id_record != null) {
                     //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
                     //if ( rec_p != id_record->end() )
-                    if ( id_record.containsKey(child_n_id) )
-                    {
+                    if (id_record.containsKey(child_n_id)) {
                         //rec_p->second = id_p->second.first;
                         id_record.put(child_n_id, id_p.first);
                     }
                 }
             }
-            epmem_buffer_add_wme( retrieval_wmes, parent, attr, id_p.first );
+            epmem_buffer_add_wme(retrieval_wmes, parent, attr, id_p.first);
 
             //if ( !existing_identifier )
             //{
             //    symbol_remove_ref( my_agent, id_p->second.first );
             //}
-        }
-        else
-        {
-            if ( existing_identifier )
-            {
-                epmem_buffer_add_wme( retrieval_wmes, parent, attr, id_p.first );
-            }
-            else
-            {
+        } else {
+            if (existing_identifier) {
+                epmem_buffer_add_wme(retrieval_wmes, parent, attr, id_p.first);
+            } else {
                 //SymbolImpl value = smem_lti_soar_make( my_agent, smem_lti_get_id( my_agent, val_letter, val_num ), val_letter, val_num, parent->id.level );
-                SymbolImpl value = smem.smem_lti_soar_make( 
-                        smem.smem_lti_get_id( 
-                                val_letter, 
-                                val_num 
-                            ), 
-                        val_letter, 
-                        val_num, 
-                        parent.asIdentifier().level 
-                    );
+                SymbolImpl value = smem.smem_lti_soar_make(
+                        smem.smem_lti_get_id(
+                                val_letter,
+                                val_num
+                        ),
+                        val_letter,
+                        val_num,
+                        parent.asIdentifier().level
+                );
 
                 //if ( id_record )
-                if ( id_record != null )
-                {
+                if (id_record != null) {
                     //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
                     //if ( rec_p != id_record->end() )
-                    if ( id_record.containsKey(child_n_id) )
-                    {
+                    if (id_record.containsKey(child_n_id)) {
                         //rec_p->second = value;
                         id_record.put(child_n_id, value);
                     }
                 }
 
-                epmem_buffer_add_wme( retrieval_wmes, parent, attr, value );
+                epmem_buffer_add_wme(retrieval_wmes, parent, attr, value);
                 //symbol_remove_ref( my_agent, value );
 
                 ids.put(
-                        child_n_id, 
+                        child_n_id,
                         new SymbolBooleanPair(
-                                value, 
-                                !( 
-                                    ( (value.asIdentifier().goalInfo != null) && (value.asIdentifier().goalInfo.getImpasseWmes() != null)) || 
-                                    ( value.asIdentifier().getInputWmes() != null) || 
-                                    ( value.asIdentifier().slots != null) 
+                                value,
+                                !(
+                                        ((value.asIdentifier().goalInfo != null) && (value.asIdentifier().goalInfo.getImpasseWmes() != null)) ||
+                                                (value.asIdentifier().getInputWmes() != null) ||
+                                                (value.asIdentifier().slots != null)
                                 )
-                            )
-                    );
+                        )
+                );
             }
         }
     }
-    
+
     /**
      * episodic_memory.cpp: 1156:
-     * void epmem_rit_prep_left_right( 
-     *      agent *my_agent, 
-     *      int64_t lower, 
-     *      int64_t upper, 
-     *      epmem_rit_state *rit_state 
-     *    )
-     * 
+     * void epmem_rit_prep_left_right(
+     * agent *my_agent,
+     * int64_t lower,
+     * int64_t upper,
+     * epmem_rit_state *rit_state
+     * )
+     *
      * Implements the computational components of the RIT
      */
-    private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state) throws SQLException
-    {
+    private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state) throws SQLException {
         ////////////////////////////////////////////////////////////////////////////
         //rit_state->timer->start();
         ////////////////////////////////////////////////////////////////////////////
-        
+
         long offset = rit_state.offset.stat;
         long node, step;
         long left_node, left_step;
         long right_node, right_step;
-        
-        lower = ( lower - offset );
-        upper = ( upper - offset );
-        
+
+        lower = (lower - offset);
+        upper = (upper - offset);
+
         // auto add good range
-        epmem_rit_add_left( lower, upper );
-        
+        epmem_rit_add_left(lower, upper);
+
         // go to fork
         node = EPMEM_RIT_ROOT;
         step = 0;
-        if ( ( lower > node ) || (upper < node ) )
-        {
-            if ( lower > node )
-            {
+        if ((lower > node) || (upper < node)) {
+            if (lower > node) {
                 node = rit_state.rightroot.stat;
-                epmem_rit_add_left( EPMEM_RIT_ROOT, EPMEM_RIT_ROOT );
-            }
-            else
-            {
+                epmem_rit_add_left(EPMEM_RIT_ROOT, EPMEM_RIT_ROOT);
+            } else {
                 node = rit_state.leftroot.stat;
-                epmem_rit_add_right( EPMEM_RIT_ROOT );
+                epmem_rit_add_right(EPMEM_RIT_ROOT);
             }
-            
-            for ( step = ( ( ( node >= 0 )?( node ):( -1 * node ) ) / 2 ); step >= 1; step /= 2 )
-            {
-                if ( lower > node )
-                {
-                    epmem_rit_add_left( node, node );
+
+            for (step = (((node >= 0) ? (node) : (-1 * node)) / 2); step >= 1; step /= 2) {
+                if (lower > node) {
+                    epmem_rit_add_left(node, node);
                     node += step;
-                }
-                else if ( upper < node )
-                {
-                    epmem_rit_add_right( node );
+                } else if (upper < node) {
+                    epmem_rit_add_right(node);
                     node -= step;
-                }
-                else
-                {
+                } else {
                     break;
                 }
             }
         }
-        
+
         // go left
         left_node = node - step;
-        for ( left_step = ( step / 2 ); left_step >= 1; left_step /= 2 )
-        {
-            if ( lower == left_node )
-            {
+        for (left_step = (step / 2); left_step >= 1; left_step /= 2) {
+            if (lower == left_node) {
                 break;
-            }
-            else if ( lower > left_node )
-            {
-                epmem_rit_add_left( left_node, left_node );
+            } else if (lower > left_node) {
+                epmem_rit_add_left(left_node, left_node);
                 left_node += left_step;
-            }
-            else
-            {
+            } else {
                 left_node -= left_step;
             }
         }
-        
+
         // go right
         right_node = node + step;
-        for ( right_step = ( step / 2 ); right_step >= 1; right_step /= 2 )
-        {
-            if ( upper == right_node )
-            {
+        for (right_step = (step / 2); right_step >= 1; right_step /= 2) {
+            if (upper == right_node) {
                 break;
-            }
-            else if ( upper < right_node )
-            {
-                epmem_rit_add_right( right_node );
+            } else if (upper < right_node) {
+                epmem_rit_add_right(right_node);
                 right_node -= right_step;
-            }
-            else
-            {
+            } else {
                 right_node += right_step;
             }
         }
@@ -6581,52 +5786,50 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //rit_state->timer->stop();
         ////////////////////////////////////////////////////////////////////////////
     }
-    
+
     /**
      * episodic_memory.cpp: 1144:
      * void epmem_rit_add_right( agent *my_agent, epmem_time_id id )
      */
-    private void epmem_rit_add_right(long id) throws SQLException{
+    private void epmem_rit_add_right(long id) throws SQLException {
         //my_agent->epmem_stmts_common->rit_add_right->bind_int( 1, id );
-        db.rit_add_right.setLong( 1, id );
+        db.rit_add_right.setLong(1, id);
         //my_agent->epmem_stmts_common->rit_add_right->execute( soar_module::op_reinit );
         db.rit_add_right.execute();
     }
-    
+
     /**
      * episodic_memory.cpp: 1132:
      * void epmem_rit_add_left( agent *my_agent, epmem_time_id min, epmem_time_id max )
-     * 
+     *
      * Adds a range to the left relation
      */
-    private void epmem_rit_add_left(long min, long max) throws SQLException
-    {
+    private void epmem_rit_add_left(long min, long max) throws SQLException {
         //my_agent->epmem_stmts_common->rit_add_left->bind_int( 1, min );
-        db.rit_add_left.setLong( 1, min );
+        db.rit_add_left.setLong(1, min);
         //my_agent->epmem_stmts_common->rit_add_left->bind_int( 2, max );
-        db.rit_add_left.setLong( 2, max );
+        db.rit_add_left.setLong(2, max);
         //my_agent->epmem_stmts_common->rit_add_left->execute( soar_module::op_reinit );
         db.rit_add_left.execute();
     }
-    
+
     /**
      * episodic_memory.cpp: 2760:
      * bool epmem_valid_episode( agent *my_agent, epmem_time_id memory_id )
-     * 
+     *
      * @return Returns true if the temporal id is valid
      */
-    private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id) throws SQLException
-    {
+    private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id) throws SQLException {
         boolean return_val = false;
 
         {
             PreparedStatement my_q = db.valid_episode;
-            
-            my_q.setLong( 1, memory_id );
+
+            my_q.setLong(1, memory_id);
             ResultSet resultSet = my_q.executeQuery();
             resultSet.next();
             //return_val = ( my_q->column_int( 0 ) > 0 );
-            return_val = ( resultSet.getLong( 0 + 1 ) > 0 );
+            return_val = (resultSet.getLong(0 + 1) > 0);
             resultSet.close();
         }
 
@@ -6636,42 +5839,40 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * <p>
      * episodic_memory.cpp:5063:
-     * {@code void inline _epmem_respond_to_cmd_parse( 
-     *      agent*
-     *      my_agent, 
-     *      epmem_wme_list* cmds, 
-     *      bool& good_cue, 
-     *      int& path, 
-     *      epmem_time_id& retrieve, 
-     *      Symbol*& next, 
-     *      Symbol*& previous, 
-     *      Symbol*& query, 
-     *      Symbol*& neg_query, 
-     *      epmem_time_list& prohibit, 
-     *      epmem_time_id& before, 
-     *      epmem_time_id& after, 
-     *      epmem_symbol_set& currents, 
-     *      soar_module::wme_set& cue_wmes 
-     *  )}
-     * 
+     * {@code void inline _epmem_respond_to_cmd_parse(
+     * agent*
+     * my_agent,
+     * epmem_wme_list* cmds,
+     * bool& good_cue,
+     * int& path,
+     * epmem_time_id& retrieve,
+     * Symbol*& next,
+     * Symbol*& previous,
+     * Symbol*& query,
+     * Symbol*& neg_query,
+     * epmem_time_list& prohibit,
+     * epmem_time_id& before,
+     * epmem_time_id& after,
+     * epmem_symbol_set& currents,
+     * soar_module::wme_set& cue_wmes
+     * )}
      */
     private void _epmem_respond_to_cmd_parse(
-            List<WmeImpl> cmds, 
-            final ByRef<Boolean> good_cue, 
-            final ByRef<Integer> path, 
-            final ByRef<Long> retrieve, 
-            final ByRef<SymbolImpl> next, 
+            List<WmeImpl> cmds,
+            final ByRef<Boolean> good_cue,
+            final ByRef<Integer> path,
+            final ByRef<Long> retrieve,
+            final ByRef<SymbolImpl> next,
             final ByRef<SymbolImpl> previous,
-            final ByRef<SymbolImpl> query, 
-            final ByRef<SymbolImpl> neg_query, 
+            final ByRef<SymbolImpl> query,
+            final ByRef<SymbolImpl> neg_query,
             final ByRef<SymbolImpl> filter,
-            List<Long> prohibit, 
-            final ByRef<Long> before, 
-            final ByRef<Long> after, 
-            Set<SymbolImpl> currents, 
+            List<Long> prohibit,
+            final ByRef<Long> before,
+            final ByRef<Long> after,
+            Set<SymbolImpl> currents,
             Set<WmeImpl> cue_wmes,
-            final ByRef<SymbolImpl> store)
-    {
+            final ByRef<SymbolImpl> store) {
         cue_wmes.clear();
 
         retrieve.value = EPMEM_MEMID_NONE;
@@ -6680,422 +5881,320 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         after.value = EPMEM_MEMID_NONE;
         good_cue.value = true;
         path.value = 0;
-        
+
 
         //for ( epmem_wme_list::iterator w_p=cmds->begin(); w_p!=cmds->end(); w_p++ )
-        for(WmeImpl w_p : cmds)
-        {
-            cue_wmes.add( (w_p) );
+        for (WmeImpl w_p : cmds) {
+            cue_wmes.add((w_p));
 
-            if ( good_cue.value )
-            {
+            if (good_cue.value) {
                 // collect information about known commands
-                if ( w_p.attr == predefinedSyms.epmem_sym_retrieve )
-                {
+                if (w_p.attr == predefinedSyms.epmem_sym_retrieve) {
                     //if ( ( (*w_p)->value->ic.common_symbol_info.symbol_type == INT_CONSTANT_SYMBOL_TYPE ) &&
-                    if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( path.value == 0 ) &&
-                            ( w_p.value.asInteger().getValue() > 0 ) )
-                    {
+                    if ((w_p.getValue().asInteger() != null) &&
+                            (path.value == 0) &&
+                            (w_p.value.asInteger().getValue() > 0)) {
                         retrieve.value = w_p.value.asInteger().getValue();
                         path.value = 1;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_next )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( path.value == 0 ) )
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_next) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            (path.value == 0)) {
                         next.value = w_p.value;
                         path.value = 2;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_prev )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( path.value == 0 ) )
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_prev) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            (path.value == 0)) {
                         previous.value = w_p.value;
                         path.value = 2;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_query )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
-                            ( query.value == null ) )
-
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_query) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            ((path.value == 0) || (path.value == 3)) &&
+                            (query.value == null)) {
                         query.value = w_p.value;
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_negquery )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
-                            ( neg_query.value == null ) )
-
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_negquery) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            ((path.value == 0) || (path.value == 3)) &&
+                            (neg_query.value == null)) {
                         neg_query.value = w_p.value;
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_filter )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
-                            ( filter.value == null ) )
-
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_filter) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            ((path.value == 0) || (path.value == 3)) &&
+                            (filter.value == null)) {
                         filter.value = w_p.value;
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_before )
-                {
-                    if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
-                    {
-                        if ( ( before.value == EPMEM_MEMID_NONE ) || ( w_p.value.asInteger().getValue() < before.value ) )
-                        {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_before) {
+                    if ((w_p.getValue().asInteger() != null) &&
+                            ((path.value == 0) || (path.value == 3))) {
+                        if ((before.value == EPMEM_MEMID_NONE) || (w_p.value.asInteger().getValue() < before.value)) {
                             before.value = w_p.value.asInteger().getValue();
                         }
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_after )
-                {
-                    if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
-                    {
-                        if ( after.value < w_p.value.asInteger().getValue() )
-                        {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_after) {
+                    if ((w_p.getValue().asInteger() != null) &&
+                            ((path.value == 0) || (path.value == 3))) {
+                        if (after.value < w_p.value.asInteger().getValue()) {
                             after.value = w_p.value.asInteger().getValue();
                         }
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_prohibit )
-                {
-                    if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
-                    {
-                        prohibit.add( w_p.value.asInteger().getValue() );
+                } else if (w_p.attr == predefinedSyms.epmem_sym_prohibit) {
+                    if ((w_p.getValue().asInteger() != null) &&
+                            ((path.value == 0) || (path.value == 3))) {
+                        prohibit.add(w_p.value.asInteger().getValue());
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_current )
-                {
-                    if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
-                    {
-                        currents.add( w_p.value );
+                } else if (w_p.attr == predefinedSyms.epmem_sym_current) {
+                    if ((w_p.getValue().asIdentifier() != null) &&
+                            ((path.value == 0) || (path.value == 3))) {
+                        currents.add(w_p.value);
                         path.value = 3;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else if ( w_p.attr == predefinedSyms.epmem_sym_store )
-                {
-                    if ( ( path.value == 0 ) )
-                    {
+                } else if (w_p.attr == predefinedSyms.epmem_sym_store) {
+                    if ((path.value == 0)) {
                         store.value = w_p.value;
                         path.value = 4;
-                    }
-                    else
-                    {
+                    } else {
                         good_cue.value = false;
                     }
-                }
-                else
-                {
+                } else {
                     good_cue.value = false;
                 }
             }
         }
-        
+
         // if on path 3 must have query
-        if ( ( path.value == 3 ) && ( query == null ) )
-        {
+        if ((path.value == 3) && (query == null)) {
             good_cue.value = false;
         }
 
         // must be on a path
-        if ( path.value == 0 )
-        {
+        if (path.value == 0) {
             good_cue.value = false;
         }
-        
+
     }
-    
+
     /**
      * Removes any WMEs produced by EpMem resulting from a command
-     * 
+     *
      * <p>episodic_memory.cpp:1449:void epmem_clear_result( agent *my_agent, Symbol *state )
      */
-    private void epmem_clear_result(IdentifierImpl state)
-    {
+    private void epmem_clear_result(IdentifierImpl state) {
         Preference pref;
-        
+
         final Deque<Preference> wmes = epmem_info(state).epmem_wmes;
-        
+
         //while ( !state->id.epmem_info->epmem_wmes->empty() ) -ACN
-        while ( !wmes.isEmpty() )
-        {
+        while (!wmes.isEmpty()) {
             pref = wmes.removeLast();
-            if ( pref.isInTempMemory())
-            {
-                recognitionMemory.remove_preference_from_tm( pref );
+            if (pref.isInTempMemory()) {
+                recognitionMemory.remove_preference_from_tm(pref);
             }
         }
     }
 
-    private EpisodicMemoryStateInfo epmem_info(IdentifierImpl state)
-    {
+    private EpisodicMemoryStateInfo epmem_info(IdentifierImpl state) {
         return stateInfos.get(state);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_enabled()
      */
     @Override
-    public boolean epmem_enabled()
-    {
+    public boolean epmem_enabled() {
         // CK: C++ code
         // return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
         return (params.learning.get() == DefaultEpisodicMemoryParams.Learning.on);
     }
 
     @Override
-    public boolean encodeInOutputPhase()
-    {
+    public boolean encodeInOutputPhase() {
         return (params.phase.get() == Phase.output);
     }
 
     @Override
-    public boolean encodeInSelectionPhase()
-    {
+    public boolean encodeInSelectionPhase() {
         return (params.phase.get() == Phase.selection);
     }
 
     @Override
-    public long epmem_validation()
-    {
+    public long epmem_validation() {
         return epmem_validation;
     }
 
     @Override
-    public boolean addIdRefCount(long id, WmeImpl w)
-    {
+    public boolean addIdRefCount(long id, WmeImpl w) {
         Set<WmeImpl> wmes = epmem_id_ref_counts.get(id);
-        if(wmes==null)
+        if (wmes == null)
             return false;
-        
+
         wmes.add(w);
         return true;
     }
 
     @Override
-    public void addWme(IdentifierImpl id)
-    {
+    public void addWme(IdentifierImpl id) {
         epmem_wme_adds.add(id);
     }
-    
+
     /*
      * Taken from rete.cpp:1626:inline void _epmem_remove_wme( agent* my_agent, wme* w )
-     * 
+     *
      * (non-Javadoc)
      * @see org.jsoar.kernel.epmem.EpisodicMemory#removeWme(org.jsoar.kernel.memory.WmeImpl)
      */
     @Override
-    public void removeWme(WmeImpl w)
-    {
+    public void removeWme(WmeImpl w) {
         boolean was_encoded = false;
-        
-        if(w.value.asIdentifier()!=null)
-        {
-            boolean lti = (w.value.asIdentifier().smem_lti!=0);
 
-            if((w.epmem_id!=EPMEM_NODEID_BAD) && (w.epmem_valid==epmem_validation)) 
-            {
+        if (w.value.asIdentifier() != null) {
+            boolean lti = (w.value.asIdentifier().smem_lti != 0);
+
+            if ((w.epmem_id != EPMEM_NODEID_BAD) && (w.epmem_valid == epmem_validation)) {
                 was_encoded = true;
-         
+
                 epmem_edge_removals.put(w.epmem_id, true);
-              
+
                 // return to the id pool
-                if ( !lti )
-                {
+                if (!lti) {
                     LinkedList<EpisodicMemoryIdPair> p = epmem_id_replacement.get(w.epmem_id);
                     p.addFirst(new EpisodicMemoryIdPair(w.value.asIdentifier().epmem_id, w.epmem_id));
                     epmem_id_replacement.remove(w.epmem_id);
                 }
             }
-          
+
             // reduce the ref count on the value
-            if(!lti && (w.value.asIdentifier().epmem_id!=EPMEM_NODEID_BAD) && (w.value.asIdentifier().epmem_valid==epmem_validation))
-            {
+            if (!lti && (w.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD) && (w.value.asIdentifier().epmem_valid == epmem_validation)) {
                 Set<WmeImpl> my_refs = epmem_id_ref_counts.get(w.value.asIdentifier().epmem_id);
 
                 //This is to mimic the lazy insertion of entries from the stl map. -ACN
-                if(my_refs == null){
+                if (my_refs == null) {
                     my_refs = new LinkedHashSet<WmeImpl>();
                     epmem_id_ref_counts.put(w.value.asIdentifier().epmem_id, my_refs);
                 }
-                if(my_refs.contains(w))
-                {
+                if (my_refs.contains(w)) {
                     my_refs.remove(w);
-                    
+
                     // recurse if no incoming edges from epmem
-                    if(my_refs.isEmpty())
-                    {
+                    if (my_refs.isEmpty()) {
                         my_refs.clear();
                         epmem_id_removes.push(w.value);
                     }
                 }
             }
-        }
-        else if((w.epmem_id!=EPMEM_NODEID_BAD) && (w.epmem_valid==epmem_validation))
-        {
+        } else if ((w.epmem_id != EPMEM_NODEID_BAD) && (w.epmem_valid == epmem_validation)) {
             was_encoded = true;
-     
+
             epmem_node_removals.put(w.epmem_id, true);
         }
 
-        if ( was_encoded )
-        {
+        if (was_encoded) {
             w.epmem_id = EPMEM_NODEID_BAD;
             w.epmem_valid = 0;
         }
     }
 
     @Override
-    public void processIds()
-    {
-        while(!epmem_id_removes.isEmpty())
-        {
+    public void processIds() {
+        while (!epmem_id_removes.isEmpty()) {
             IdentifierImpl id = epmem_id_removes.poll().asIdentifier();
-            
+
             //assert( id->common.symbol_type == IDENTIFIER_SYMBOL_TYPE );   
-            if(id==null) {
+            if (id == null) {
                 logError("Expected identifier symbol type in epmem_id_removes queue");
                 continue;
             }
 
-            if((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation))
-            {
+            if ((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation)) {
                 // invalidate identifier encoding
                 id.epmem_id = EPMEM_NODEID_BAD;
                 id.epmem_valid = 0;
 
                 // impasse wmes
-                for(WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
-                {
+                for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next) {
                     removeWme(w);
                 }
 
                 // input wmes
-                for(WmeImpl w=id.getInputWmes(); w!=null; w=w.next)
-                {
+                for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) {
                     removeWme(w);
                 }
 
                 // regular wmes
-                for(Slot s=id.slots; s!=null; s=s.next)
-                {
-                    for(WmeImpl w=s.getWmes(); w!=null; w=w.next)
-                    {
+                for (Slot s = id.slots; s != null; s = s.next) {
+                    for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
                         removeWme(w);
                     }
-                    
-                    for(WmeImpl w=s.getAcceptablePreferenceWmes(); w!=null; w=w.next)
-                    {
+
+                    for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next) {
                         removeWme(w);
                     }
                 }
             }
         }
     }
-    
+
     private void logError(String text) {
-        logger.error(text);
+        log.error(text);
         agent.getPrinter().error(text);
     }
-    
-    String epmem_print_episode( long /*epmem_time_id*/ memory_id){
-        try
-        {
+
+    String epmem_print_episode(long /*epmem_time_id*/ memory_id) {
+        try {
             return epmem_print_episode_ex(memory_id);
-        }
-        catch (SoarException e)
-        {
-            logger.error("Soar Exception: ");
-            e.printStackTrace();
-        }
-        catch (SQLException e)
-        {
-            logger.error("Database Error: ");
-            e.printStackTrace();
+        } catch (SoarException e) {
+            log.error("Soar Exception: {}", e.getStackTrace());
+        } catch (SQLException e) {
+            log.error("Database Error: {}", e.getStackTrace());
         }
         return "";
     }
-    
+
     /**
-     * 
      * <p> episodic_memory.cpp:4518:
-     * epmem_print_episode( 
-     *      agent* my_agent, 
-     *      epmem_time_id memory_id, 
-     *      std::string* buf 
-     *  )
-     *  
-     *  This version of the function can throw, but we dont want that to propogate,
-     *  and I don't want to wrap 2/3 of the function in a try catch, so there is 
-     *  a wrapped version of this with the original C function name that can catch 
-     *  the exceptions.
+     * epmem_print_episode(
+     * agent* my_agent,
+     * epmem_time_id memory_id,
+     * std::string* buf
+     * )
+     *
+     * This version of the function can throw, but we dont want that to propogate,
+     * and I don't want to wrap 2/3 of the function in a try catch, so there is
+     * a wrapped version of this with the original C function name that can catch
+     * the exceptions.
      */
-    String epmem_print_episode_ex( long /*epmem_time_id*/ memory_id) throws SoarException, SQLException
-    {
+    String epmem_print_episode_ex(long /*epmem_time_id*/ memory_id) throws SoarException, SQLException {
         //Give the return value the same name as it would have 
         //had if it was passed in
         String buf = "";
@@ -7105,9 +6204,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_init_db();
 
         // if bad memory, bail
-        if ( ( memory_id == EPMEM_MEMID_NONE ) ||
-                !epmem_valid_episode( memory_id ) )
-        {
+        if ((memory_id == EPMEM_MEMID_NONE) ||
+                !epmem_valid_episode(memory_id)) {
             return "";
         }
 
@@ -7115,7 +6213,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //std::map< epmem_node_id, std::string > ltis;
         Map<Long, String> ltis = new TreeMap<Long, String>();
         //std::map< epmem_node_id, std::map< std::string, std::list< std::string > > > ep;
-        Map<Long, Map<String, List<String>>> ep = new TreeMap<Long, Map<String,List<String>>>(); 
+        Map<Long, Map<String, List<String>>> ep = new TreeMap<Long, Map<String, List<String>>>();
         {
             PreparedStatement my_q;
             String temp_s = null, temp_s2 = null, temp_s3;
@@ -7125,28 +6223,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 long /*epmem_node_id*/ parent_n_id;
                 long /*epmem_node_id*/ child_n_id;
-                
+
                 boolean val_is_short_term;
 
                 epmem_rit_prep_left_right(memory_id, memory_id, epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
 
                 // query for edges
-                my_q.setLong( 1, memory_id );
-                my_q.setLong( 2, memory_id );
-                my_q.setLong( 3, memory_id );
-                my_q.setLong( 4, memory_id );
-                my_q.setLong( 5, memory_id );
-                
+                my_q.setLong(1, memory_id);
+                my_q.setLong(2, memory_id);
+                my_q.setLong(3, memory_id);
+                my_q.setLong(4, memory_id);
+                my_q.setLong(5, memory_id);
+
                 ResultSet result = null;
-                try{
+                try {
                     result = my_q.executeQuery();
-                    while ( result.next() )
-                    {
+                    while (result.next()) {
                         // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
-                        parent_n_id = result.getLong( 0 + 1 );
-                        child_n_id = result.getLong( 2 + 1 );
-                        
-                        temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
+                        parent_n_id = result.getLong(0 + 1);
+                        child_n_id = result.getLong(2 + 1);
+
+                        temp_s = epmem_reverse_hash_print(result.getLong(1 + 1));
                         /*
                          * The original port from CSoar did this.  In the original version of Xerial this would return
                          * the type of the VALUE retrieved, but in the new version of Xerial it returns the type of the
@@ -7157,39 +6254,36 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
                                         == EpisodicMemoryDatabase.value_type.null_t );
     					*/
-                        val_is_short_term = ( result.getLong(3 + 1) == 0 );
-                        
-                        if ( val_is_short_term )
-                        {
-                            temp_s2 = _epmem_print_sti( child_n_id );
-                        }
-                        else
-                        {
+                        val_is_short_term = (result.getLong(3 + 1) == 0);
+
+                        if (val_is_short_term) {
+                            temp_s2 = _epmem_print_sti(child_n_id);
+                        } else {
                             temp_s2 = "@";
-                            temp_s2 += (char)result.getLong( 3 + 1 );
-    
-                            temp_i = result.getLong( 4 + 1 );
+                            temp_s2 += (char) result.getLong(3 + 1);
+
+                            temp_i = result.getLong(4 + 1);
                             //to_string( temp_i, temp_s3 );
                             temp_s3 = temp_i.toString();
                             temp_s2 += temp_s3;
-    
-                            ltis.put( child_n_id, temp_s2);
+
+                            ltis.put(child_n_id, temp_s2);
                         }
-                        
+
                         //ep[ q0 ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(parent_n_id);
-                        if(nestedMap == null){
+                        if (nestedMap == null) {
                             ep.put(parent_n_id, new TreeMap<String, List<String>>());
                             nestedMap = ep.get(parent_n_id);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
-                        if(nestedList == null){
+                        if (nestedList == null) {
                             nestedMap.put(temp_s, new ArrayList<String>());
                             nestedList = nestedMap.get(temp_s);
                         }
-                        nestedList.add( temp_s2 );
+                        nestedList.add(temp_s2);
                     }
-                }finally{
+                } finally {
                     result.close();
                 }
                 epmem_rit_clear_left_right();
@@ -7199,35 +6293,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 Long /*epmem_node_id*/ parent_n_id;
 
-                epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_NODE ] );
+                epmem_rit_prep_left_right(memory_id, memory_id, epmem_rit_state_graph[EPMEM_RIT_STATE_NODE]);
 
-                my_q.setLong( 1, memory_id );
-                my_q.setLong( 2, memory_id );
-                my_q.setLong( 3, memory_id );
-                my_q.setLong(4, memory_id );
+                my_q.setLong(1, memory_id);
+                my_q.setLong(2, memory_id);
+                my_q.setLong(3, memory_id);
+                my_q.setLong(4, memory_id);
                 ResultSet result;
                 result = my_q.executeQuery();
-                try{
-                    while ( result.next() )
-                    {
-                        parent_n_id = result.getLong( 1 + 1 );
-                        temp_s = epmem_reverse_hash_print( result.getLong( 2 + 1 ));
-                        temp_s2 = epmem_reverse_hash_print( result.getLong( 3 + 1 ));
-                        
+                try {
+                    while (result.next()) {
+                        parent_n_id = result.getLong(1 + 1);
+                        temp_s = epmem_reverse_hash_print(result.getLong(2 + 1));
+                        temp_s2 = epmem_reverse_hash_print(result.getLong(3 + 1));
+
                         //ep[ parent_n_id ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(parent_n_id);
-                        if(nestedMap == null){
+                        if (nestedMap == null) {
                             ep.put(parent_n_id, new TreeMap<String, List<String>>());
                             nestedMap = ep.get(parent_n_id);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
-                        if(nestedList == null){
+                        if (nestedList == null) {
                             nestedMap.put(temp_s, new ArrayList<String>());
                             nestedList = nestedMap.get(temp_s);
                         }
-                        nestedList.add( temp_s2 );
+                        nestedList.add(temp_s2);
                     }
-                }finally{
+                } finally {
                     result.close();
                 }
                 epmem_rit_clear_left_right();
@@ -7239,29 +6332,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             //std::map< epmem_node_id, std::string >::iterator lti_it;
             String lti_it;
 
-            for (Map.Entry<Long, Map<String, List<String>>> ep_it: ep.entrySet() )
-            {
+            for (Map.Entry<Long, Map<String, List<String>>> ep_it : ep.entrySet()) {
                 buf += "(";
 
                 // id
-                lti_it = ltis.get( ep_it.getKey());
-                if ( lti_it == null )
-                {
-                    buf += _epmem_print_sti( ep_it.getKey() );
-                }
-                else
-                {
+                lti_it = ltis.get(ep_it.getKey());
+                if (lti_it == null) {
+                    buf += _epmem_print_sti(ep_it.getKey());
+                } else {
                     buf += lti_it;
                 }
 
                 // attr
-                for (Map.Entry<String, List<String>> slot_it: ep_it.getValue().entrySet())
-                {
+                for (Map.Entry<String, List<String>> slot_it : ep_it.getValue().entrySet()) {
                     buf += " ^";
                     buf += slot_it.getKey();
 
-                    for (String val_it: slot_it.getValue())
-                    {
+                    for (String val_it : slot_it.getValue()) {
                         buf += " ";
                         buf += val_it;
                     }
@@ -7272,37 +6359,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         return buf;
     }
-    
+
     /**
-     * 
      * <p> episodic_memory.cpp:4518:
-     * epmem_print_episode( 
-     *      agent* my_agent, 
-     *      epmem_time_id memory_id, 
-     *      std::string* buf 
-     *  )
+     * epmem_print_episode(
+     * agent* my_agent,
+     * epmem_time_id memory_id,
+     * std::string* buf
+     * )
      */
-    String _epmem_print_sti( Long/*epmem_node_id*/ id )
-    {
+    String _epmem_print_sti(Long/*epmem_node_id*/ id) {
         String t1, t2;
 
-        t1 =  "<id";
-        
+        t1 = "<id";
+
         t2 = id.toString();
-        
+
         t1 += t2 + ">";
 
         return t1;
     }
-    
+
     @SuppressWarnings("unused")
-    private String trimTrailingZerosFromDoubleString(String s){
-        if(s.contains(".")){
+    private String trimTrailingZerosFromDoubleString(String s) {
+        if (s.contains(".")) {
             int firstTrailingZero = s.length() - 1;
-            while(s.charAt(firstTrailingZero) == '0'){
-                firstTrailingZero--; 
+            while (s.charAt(firstTrailingZero) == '0') {
+                firstTrailingZero--;
             }
-            if(s.charAt(firstTrailingZero - 1) == '.'){
+            if (s.charAt(firstTrailingZero - 1) == '.') {
                 firstTrailingZero--;
             }
             s = s.substring(0, firstTrailingZero);
@@ -7310,156 +6395,121 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return s;
     }
 
-    public void epmem_reinit()
-    {
-        try
-        {
+    public void epmem_reinit() {
+        try {
             epmem_close();
             epmem_init_db_ex(true);
-            if(!EpisodicMemoryDatabase.IN_MEMORY_PATH.equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on){
-                logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
+            if (!EpisodicMemoryDatabase.IN_MEMORY_PATH.equalsIgnoreCase(params.path.get()) && params.append_database.get() == AppendDatabaseChoices.on) {
+                log.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
             }
+        } catch (SQLException e) {
+            log.error("Failed to reinitialize database: {}", e.getMessage());
+        } catch (IOException e) {
+            log.error("Failed to reinitialize epmem: {}",e.getMessage());
+        } catch (SoarException e) {
+            log.error("Failed to reinitialize epmem: {}", e.getMessage());
         }
-        catch (SQLException e)
-        {
-            logger.error("Failed to reinitialize database:" + e.getMessage());
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to reinitialize epmem:" + e.getMessage());
-        }
-        catch (SoarException e)
-        {
-            logger.error("Failed to reinitialize epmem:" + e.getMessage());
-        } 
     }
-    
-    boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException
-    {
+
+    boolean epmem_backup_db(String file_name, ByRef<String> err) throws SQLException {
         boolean return_val = false;
 
-        if (db != null)
-        {
+        if (db != null) {
             return db.backupDb(file_name);
-        }
-        else
-        {
+        } else {
             err.value = "Episodic database is not currently connected.";
         }
 
         return return_val;
     }
-    
+
     /////////////////////////////
 
-    static SymbolImpl epmem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme)
-    {
+    static SymbolImpl epmem_parse_constant_attr(SymbolFactoryImpl syms, Lexeme lexeme) {
         final SymbolImpl return_val;
 
-        if ((lexeme.type == LexemeType.SYM_CONSTANT))
-        {
+        if ((lexeme.type == LexemeType.SYM_CONSTANT)) {
             return_val = syms.createString(lexeme.string);
-        }
-        else if (lexeme.type == LexemeType.INTEGER)
-        {
+        } else if (lexeme.type == LexemeType.INTEGER) {
             return_val = syms.createInteger(lexeme.int_val);
-        }
-        else if (lexeme.type == LexemeType.FLOAT)
-        {
+        } else if (lexeme.type == LexemeType.FLOAT) {
             return_val = syms.createDouble(lexeme.float_val);
-        }
-        else
-        {
+        } else {
             return_val = null;
         }
 
         return return_val;
     }
-    
-    class IdentifierHolder
-    {
+
+    class IdentifierHolder {
         private IdentifierImpl id;
-        
-        public IdentifierHolder()
-        {
+
+        public IdentifierHolder() {
             this.id = null;
         }
-        
-        public IdentifierHolder(IdentifierImpl id)
-        {
+
+        public IdentifierHolder(IdentifierImpl id) {
             this.id = id;
         }
-        
-        public IdentifierImpl getIdentifier()
-        {
+
+        public IdentifierImpl getIdentifier() {
             return id;
         }
-        
-        public IdentifierImpl setIdentifier(IdentifierImpl id)
-        {
+
+        public IdentifierImpl setIdentifier(IdentifierImpl id) {
             IdentifierImpl oldId = this.id;
             this.id = id;
             return oldId;
         }
     }
-    
-    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes, IdentifierHolder root, IdentifierHolder firstHolder) throws IOException
-    {
+
+    static boolean epmem_parse_chunk(SymbolFactoryImpl symbols, Lexer lexer, Map<String, IdentifierImpl> ids, Set<WmeImpl> wmes, IdentifierHolder root, IdentifierHolder firstHolder) throws IOException {
         boolean return_val = false;
         boolean good_at = false;
 
         // consume left paren
         lexer.getNextLexeme();
-        
+
         boolean nextIdentifierIsState = false;
-        
-        if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
-        {
+
+        if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT) {
             String s = lexer.getCurrentLexeme().string;
-            if (s != null && s.equalsIgnoreCase("state"))
-            {
+            if (s != null && s.equalsIgnoreCase("state")) {
                 nextIdentifierIsState = true;
                 lexer.getNextLexeme();
             }
         }
 
-        if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
-        {
+        if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE)) {
             good_at = true;
 
-            if (lexer.getCurrentLexeme().type == LexemeType.AT)
-            {
+            if (lexer.getCurrentLexeme().type == LexemeType.AT) {
                 lexer.getNextLexeme();
 
                 good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
             }
 
-            if (good_at)
-            {
+            if (good_at) {
                 Lexeme lexeme = lexer.getCurrentLexeme();
                 String idKey;
                 IdentifierImpl id;
-                if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
-                {
+                if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) {
                     id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
                     idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
-                }
-                else
-                {
+                } else {
                     id = ids.get(lexeme.string);
                     if (id == null)
                         id = symbols.createIdentifier('X');
                     idKey = lexeme.string;
                 }
-                
-                if (nextIdentifierIsState)
-                {
+
+                if (nextIdentifierIsState) {
                     root.setIdentifier(id);
                 }
-                
+
                 if (firstHolder.getIdentifier() == null)
                     firstHolder.setIdentifier(id);
-                
+
                 ids.put(idKey, id);
 
                 // consume id
@@ -7471,8 +6521,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 IdentifierImpl intermediate_parent;
 
                 // populate slots
-                while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW)
-                {
+                while (lexer.getCurrentLexeme().type == LexemeType.UP_ARROW) {
                     intermediate_parent = parent;
 
                     // go on to attribute
@@ -7482,8 +6531,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     SymbolImpl chunk_attr = epmem_parse_constant_attr(symbols, lexer.getCurrentLexeme());
 
                     // if constant attribute, proceed to value
-                    if (chunk_attr != null)
-                    {
+                    if (chunk_attr != null) {
                         // consume attribute
                         lexer.getNextLexeme();
 
@@ -7491,8 +6539,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // when we encounter a dot, instantiate
                         // the previous attribute as a temporary
                         // identifier and use that as the parent
-                        while (lexer.getCurrentLexeme().type == LexemeType.PERIOD)
-                        {
+                        while (lexer.getCurrentLexeme().type == LexemeType.PERIOD) {
                             // Anonymous WME: don't need an idKey, don't need to add it to "ids", don't need to check for existing slots.
                             IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
                             WmeImpl newWme = new WmeImpl(intermediate_parent, chunk_attr, temp_id, false, 0);
@@ -7511,92 +6558,73 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             lexer.getNextLexeme();
                         }
 
-                        if (chunk_attr != null)
-                        {
+                        if (chunk_attr != null) {
                             SymbolImpl chunk_value = null;
-                            do
-                            {
+                            do {
                                 chunk_value = null;
                                 // value by type
-                                if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT)
-                                {
+                                if (lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT) {
                                     chunk_value = symbols.createString(lexer.getCurrentLexeme().string);
-                                }
-                                else if (lexer.getCurrentLexeme().type == LexemeType.INTEGER)
-                                {
+                                } else if (lexer.getCurrentLexeme().type == LexemeType.INTEGER) {
                                     chunk_value = symbols.createInteger(lexer.getCurrentLexeme().int_val);
-                                }
-                                else if (lexer.getCurrentLexeme().type == LexemeType.FLOAT)
-                                {
+                                } else if (lexer.getCurrentLexeme().type == LexemeType.FLOAT) {
                                     chunk_value = symbols.createDouble(lexer.getCurrentLexeme().float_val);
-                                }
-                                else if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE))
-                                {
+                                } else if ((lexer.getCurrentLexeme().type == LexemeType.AT) || (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) || (lexer.getCurrentLexeme().type == LexemeType.VARIABLE)) {
                                     // @ must be followed by an identifier
                                     good_at = true;
-                                    if (lexer.getCurrentLexeme().type == LexemeType.AT)
-                                    {
+                                    if (lexer.getCurrentLexeme().type == LexemeType.AT) {
                                         lexer.getNextLexeme();
 
                                         good_at = (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER);
                                     }
 
-                                    if (good_at)
-                                    {
+                                    if (good_at) {
                                         lexeme = lexer.getCurrentLexeme();
-                                        if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER)
-                                        {
+                                        if (lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER) {
                                             id = symbols.findOrCreateIdentifier(lexeme.id_letter, lexeme.id_number);
                                             idKey = String.format("%c%d", lexeme.id_letter, lexeme.id_number);
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             id = ids.get(lexeme.string);
                                             if (id == null)
                                                 id = symbols.createIdentifier('X');
                                             idKey = lexeme.string;
                                         }
-                                        
+
                                         ids.put(idKey, id);
-                                        
+
                                         chunk_value = id;
                                     }
                                 }
 
-                                if (chunk_value != null)
-                                {
+                                if (chunk_value != null) {
                                     // consume
                                     lexer.getNextLexeme();
-                                    
+
                                     //IdentifierImpl temp_id = symbols.createIdentifier(chunk_attr.getFirstLetter());
                                     //String temp_key = temp_id.toString();
-                                    
+
                                     WmeImpl newWme = null;
-                                    
+
                                     // Need to check if this WME exists already
                                     Iterator<Wme> it = intermediate_parent.getWmes(EnumSet.of(WmeType.NORMAL));
-                                    while (it.hasNext())
-                                    {
+                                    while (it.hasNext()) {
                                         Wme wme = it.next();
-                                        if (compare_symbol(wme.getAttribute(), chunk_attr) && compare_symbol(wme.getValue(), chunk_value))
-                                        {
+                                        if (compare_symbol(wme.getAttribute(), chunk_attr) && compare_symbol(wme.getValue(), chunk_value)) {
                                             if (wme instanceof WmeImpl)
-                                                newWme = (WmeImpl)wme;
+                                                newWme = (WmeImpl) wme;
                                             break;
                                         }
                                     }
-                                    
-                                    if (newWme == null)
-                                    {
+
+                                    if (newWme == null) {
                                         newWme = new WmeImpl(intermediate_parent, chunk_attr, chunk_value, false, 0);
                                         wmes.add(newWme);
-                                        
+
                                         Slot.make_slot(intermediate_parent, chunk_attr, null).addWme(newWme);
                                     }
 
                                     // if this was the last attribute
-                                    if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN)
-                                    {
+                                    if (lexer.getCurrentLexeme().type == LexemeType.R_PAREN) {
                                         return_val = true;
                                         lexer.getNextLexeme();
                                         chunk_value = null;
@@ -7606,33 +6634,28 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 // delete new_chunk;
             }
-        }
-        else
-        {
+        } else {
             // delete new_chunk;
         }
 
         return return_val;
     }
-    
-    static public boolean compare_symbol(Symbol a, Symbol b)
-    {
+
+    static public boolean compare_symbol(Symbol a, Symbol b) {
         Identifier idA = a.asIdentifier();
         Identifier idB = b.asIdentifier();
-        
+
         if ((idA == null) != (idB == null))
             return false;
         if (idA != null)
             return a.equals(b);
-        
+
         if (!a.getClass().equals(b.getClass()))
             return false;
-        
+
         if (a instanceof DoubleSymbol)
             return a.asDouble().getValue() == b.asDouble().getValue();
         else if (a instanceof IntegerSymbol)
@@ -7641,46 +6664,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             return a.asString().getValue() == b.asString().getValue();
         else if (a instanceof JavaSymbol)
             return a.asJava().getValue().equals(b.asJava().getValue());
-        
+
         return false;
     }
 
-    boolean epmem_parse_and_add(String chunkString) throws SoarException
-    {
-        try
-        {
+    boolean epmem_parse_and_add(String chunkString) throws SoarException {
+        try {
             // Figure out if the chunkString is a file or an identifier.
             File filename = new File(chunkString);
             if (filename.isFile())
                 return epmem_parse_and_add_file(filename);
             else
                 return epmem_parse_and_add_string("{" + chunkString + "}");     // The interpreter strips braces; put them back.
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new SoarException(e);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new SoarException(e);
         }
     }
-    
-    private boolean epmem_parse_and_add_file(File filename) throws SoarException, SQLException
-    {
-        try
-        {
+
+    private boolean epmem_parse_and_add_file(File filename) throws SoarException, SQLException {
+        try {
             String fileContents = new String(Files.readAllBytes(filename.toPath()), Charset.defaultCharset());
             return epmem_parse_and_add_string(fileContents);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new SoarException("Failed to read file contents: " + filename.getPath());
         }
     }
 
-    private boolean epmem_parse_and_add_string(String chunkString) throws SoarException, IOException, SQLException
-    {        
+    private boolean epmem_parse_and_add_string(String chunkString) throws SoarException, IOException, SQLException {
         // Which bracket group we're in (1-based index)
         long episode_index = 0;
 
@@ -7693,116 +6705,104 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // Consume the outermost bracket
         lexer.getNextLexeme();
         lexer.setAllowIds(true);
-        
+
         // If we expect multiple episodes, this gets set to true.
         boolean multi_episode = false;
 
-        do
-        {
+        do {
             episode_index++;
-            
+
             // Keep track of the WMEs and IDs we add during each episode.
             Map<String, IdentifierImpl> ids = new HashMap<String, IdentifierImpl>();
             Set<WmeImpl> wmes = new HashSet<WmeImpl>();
-            
+
             // consume next token
             lexer.getNextLexeme();
-    
-            if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE)
-            {
+
+            if (lexer.getCurrentLexeme().type == LexemeType.L_BRACE) {
                 // We just ate a bracket: we must be in a multi-episode add command.
                 multi_episode = true;
-                
+
                 // Move on to the first clause.
                 lexer.getNextLexeme();
-            }
-            else if (multi_episode && lexer.getCurrentLexeme().type == LexemeType.R_BRACE)
-            {
+            } else if (multi_episode && lexer.getCurrentLexeme().type == LexemeType.R_BRACE) {
                 break;
-            }
-            else if (multi_episode)
-            {
+            } else if (multi_episode) {
                 throw new SoarException("Unexpected charater at the beginning of episode #" + episode_index);
             }
-            
+
             // Parse each clause in this episode.
             IdentifierImpl rootId = null;
             IdentifierHolder firstHolder = new IdentifierHolder();
-            
+
             long clause_count = 0;          // Which parentheses group we're in (1-based index)
-            while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
-            {
+            while (lexer.getCurrentLexeme().type == LexemeType.L_PAREN) {
                 clause_count++;
-                
+
                 IdentifierHolder rootHolder = new IdentifierHolder();
                 boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes, rootHolder, firstHolder);
                 if (!good_clause)
                     throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
-                if (rootHolder.getIdentifier() != null)
-                {
+                if (rootHolder.getIdentifier() != null) {
                     if (rootId != null)
                         throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index + ": too many root nodes.");
                     rootId = rootHolder.getIdentifier();
                 }
             }
-            
+
             if (clause_count == 0)
                 throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
-            
-            if (rootId == null)
-            {
+
+            if (rootId == null) {
                 rootId = firstHolder.getIdentifier();
                 if (rootId == null)
                     throw new SoarException("No top-state specified in episode #" + episode_index);
             }
-            
+
             // Make sure that our structure is compatible with a single component.
             Set<IdentifierImpl> possibleRoots = new HashSet<IdentifierImpl>(ids.values());
-            for (WmeImpl wme : wmes)
-            {
+            for (WmeImpl wme : wmes) {
                 IdentifierImpl id = wme.value.asIdentifier();
                 if (id != null)
                     possibleRoots.remove(id);
             }
             if ((possibleRoots.size() == 1 && possibleRoots.iterator().next() != rootId) || possibleRoots.size() > 1)
                 throw new SoarException("Too many possible top-states in episode #" + episode_index);
-            
+
             // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
             epmem_wme_adds.clear();
-            
+
             // Mark our fake WM for addition in epmem
             rootId.epmem_id = EPMEM_NODEID_ROOT;
             rootId.epmem_valid = epmem_validation;
             addWme(rootId);
-            
+
             // Mark all real WMEs for termination
             final Marker marker = DefaultMarker.create();
             Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
             symbolsToTraverse.add(decider.top_state);
-            while (!symbolsToTraverse.isEmpty())
-            {
+            while (!symbolsToTraverse.isEmpty()) {
                 SymbolImpl sym = symbolsToTraverse.poll();
                 List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
-                for (WmeImpl wme : children)
-                {
+                for (WmeImpl wme : children) {
                     if (wme.value.asIdentifier() != null)
                         symbolsToTraverse.add(wme.value);
                     removeWme(wme);
                 }
             }
-            
+
             // Create the fake episode.
             epmem_new_episode();
-            
+
             // Mark the real top-state for addition
             epmem_wme_adds.add(decider.top_state);
             decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
             decider.top_goal.epmem_valid = epmem_validation;
-            
+
             // Mark the fake WMEs for termination
             for (WmeImpl wme : wmes)
                 removeWme(wme);
-            
+
             // Print out debug statements
             /*{
                 Map<IdentifierImpl, String> inv = debug_invert_map(ids);
@@ -7830,14 +6830,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         } while (multi_episode);
 
         return true;
-        
+
         // Create fake WM structure.
         // Set fake "top state" id to have epmem_id = EPMEM_NODEID_ROOT
         // Set epmem_wme_adds to contain only the fake "top state"
         // Add all of working memory to epmem_edge_removals.
         // Call epmem_new_memory
         // Add the real top state to epmem_wme_adds
-        
+
         // epmem --add {(<c> ^fish.bait 1 2 ^cluck <cluck>) (<s> ^stuff <c> ^awesome true)}
     }
     
