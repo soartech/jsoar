@@ -192,7 +192,7 @@ public class Chunker
         this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
 
         this.decider = Adaptables.adapt(context, Decider.class);
-        this.explain = Adaptables.adapt(context, Explain.class);
+        this.explain = context.getExplain();
         
         this.backtrace = new Backtracer(context);
         this.backtrace.initialize();

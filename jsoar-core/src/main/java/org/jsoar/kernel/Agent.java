@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -168,7 +167,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
      */
     private final List<Object> adaptables = Arrays.asList((Object)
             printer, trace, decisionManip, exploration, io, traceFormats, properties,
-            chunker, explain, decisionCycle, rete, predefinedSyms,
+            chunker, decisionCycle, rete, predefinedSyms,
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
