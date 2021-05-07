@@ -2,7 +2,8 @@
 ![version](https://img.shields.io/badge/jsoar-4.1.0-blue)
 
 ![Maven Build](https://github.com/uniknow/jsoar/workflows/Maven%20Build/badge.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=alert_status)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=bugs)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar) ![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=code_smells) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=coverage)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=security_rating)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=UniKnow_jsoar&metric=sqale_index)](https://sonarcloud.io/dashboard?id=UniKnow_jsoar)
 
 JSoar is a pure Java implementation of the Soar kernel. See the [JSoar Wiki](https://github.com/soartech/jsoar/wiki) for more information. The [User's Guide](https://github.com/soartech/jsoar/wiki/JSoarUsersGuide) is a good place to start.
 
