@@ -69,7 +69,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Check java code formatting
-        run: ./mvnw -B fmt-maven-plugin:check
+        run: ./mvnw -B fmt:check
 
       - name: Build and analyze
         env:
