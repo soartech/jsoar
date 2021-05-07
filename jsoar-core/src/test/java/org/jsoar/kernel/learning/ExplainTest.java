@@ -22,7 +22,7 @@ public class ExplainTest extends FunctionalTestHarness
         // See ExplainTest_testExplainBacktrace.soar for details.
         runTest("testExplainBacktrace", 4);
         
-        final Explain explain = Adaptables.adapt(agent, Explain.class);
+        final Explain explain = agent.getExplain();
         assertNotNull(explain);
         
         final List<ExplainChunk> chunks = explain.getChunkExplanations();

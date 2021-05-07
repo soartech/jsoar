@@ -47,12 +47,7 @@ public class ExplainBacktracesCommand extends PicocliSoarCommand {
             }
 
             // Obtain agent's Explain object if possible
-            final var explain = Adaptables.adapt(agent, Explain.class);
-            if (explain == null) {
-                agent.getPrinter().startNewLine().print("Internal error: "
-                        + "Could not find Explain object in agent!");
-                return;
-            }
+            final var explain = agent.getExplain();
 
             // Print explanation
             if (prodName == null) {

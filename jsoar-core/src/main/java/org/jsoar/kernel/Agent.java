@@ -20,6 +20,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.Getter;
+import lombok.NonNull;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
@@ -135,7 +137,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Consistency consistency = new Consistency(this);
     
     private final Chunker chunker = new Chunker(this);
+
+    @NonNull
+    @Getter
     private final Explain explain = new Explain(this);
+
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultWorkingMemoryActivation wma = new DefaultWorkingMemoryActivation(this);
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
@@ -180,7 +186,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     private final List<Object> adaptables = Arrays.asList((Object) 
             printer, trace, decisionManip, exploration, io, traceFormats, properties, 
-            chunker, explain, decisionCycle, rete, predefinedSyms, 
+            chunker, decisionCycle, rete, predefinedSyms,
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
