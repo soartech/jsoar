@@ -1733,7 +1733,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
             // fprintf(stderr, "   Value is an LTI  Doing processing we haven't looke at!\n");
             log.debug(
                 "   Value is an LTI  Doing processing we haven't looked at!\n"); // Minor spelling
-                                                                                 // correction...
+            // correction...
 
             wmeValueId.epmem_id = EPMEM_NODEID_BAD;
             wmeValueId.epmem_valid = epmem_validation;

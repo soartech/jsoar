@@ -606,7 +606,7 @@ public class Rete {
         left.removeNegRightToken(rt);
 
         if (!left.hasNegRightTokens()) {
-            /* just went to 0, so call children */
+          /* just went to 0, so call children */
           for (ReteNode child = node.first_child; child != null; child = child.next_sibling) {
             executeLeftAddition(child, left, null);
           }
@@ -1199,7 +1199,7 @@ public class Rete {
       if (levels_up == 1) {
         referent = w.getField(node.left_hash_loc_field_num);
       } else {
-          /* --- levels_up > 1 --- */
+        /* --- levels_up > 1 --- */
         Token t = tok;
         for (t = tok, levels_up -= 2; levels_up != 0; levels_up--) {
           t = t.parent;
@@ -1485,7 +1485,7 @@ public class Rete {
       if (levels_up == 1) {
         referent = w.getField(node.left_hash_loc_field_num);
       } else {
-          /* --- levels_up > 1 --- */
+        /* --- levels_up > 1 --- */
         Token t = tok;
         for (levels_up -= 2; levels_up != 0; levels_up--) {
           t = t.parent;
@@ -1841,7 +1841,7 @@ public class Rete {
         left.removeNegRightToken(rt);
 
         if (!left.hasNegRightTokens()) {
-            /* just went to 0, so call children */
+          /* just went to 0, so call children */
           for (ReteNode child = left.node.first_child; child != null; child = child.next_sibling) {
             executeLeftAddition(child, left, null);
           }
@@ -2182,7 +2182,7 @@ public class Rete {
         pc.test_for_acceptable_preference = w.acceptable;
         pc.bt().wme_ = w;
         if (node.b_posneg().other_tests != null) {
-            /* don't bother if there are no tests*/
+          /* don't bother if there are no tests*/
           result.nots_found_in_production =
               collect_nots(node.b_posneg().other_tests, w, cond, result.nots_found_in_production);
         }

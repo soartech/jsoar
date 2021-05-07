@@ -64,7 +64,7 @@ public class SmlTestAgentTest {
     } catch (UnsatisfiedLinkError e) {
       assumeNoException(
           e); // for automated testing, e.g. on github, the SML native libraries will not be
-              // available.
+      // available.
       // This is better than just disabling, because when the native libs are available (e.g., on
       // someone's machine)
       // then the test will actually run

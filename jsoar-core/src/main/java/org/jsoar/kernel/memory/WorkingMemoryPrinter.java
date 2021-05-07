@@ -252,7 +252,7 @@ public class WorkingMemoryPrinter {
     if (id.tc_number == tc) return; // this has already been printed, so return RPM 4/07 bug 988
     if (id.depth > depth)
       return; // this can be reached via an equal or shorter path, so return without printing RPM
-              // 4/07 bug 988
+    // 4/07 bug 988
 
     // if we're here, then we haven't printed this id yet, so print it
 

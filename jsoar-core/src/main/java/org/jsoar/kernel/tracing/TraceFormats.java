@@ -572,7 +572,7 @@ public class TraceFormats {
       boolean recursive,
       int count) {
     if (pathIndex >= path.size()) {
-        /* path is NIL, so we've reached the end of the path */
+      /* path is NIL, so we've reached the end of the path */
       result.append(" ");
       if (recursive) {
         result.append(object_to_trace_string(object));

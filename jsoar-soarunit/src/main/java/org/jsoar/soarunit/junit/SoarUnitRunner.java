@@ -195,7 +195,7 @@ public class SoarUnitRunner extends Runner {
       Futures.successfulAsList(runNotifications).get();
     } catch (Exception e) {
     } // note this catches an InterruptedException, but it might be safe in this case since the next
-      // step is to shutdown
+    // step is to shutdown
     exec.shutdown();
     runNotifierExec.shutdown();
   }

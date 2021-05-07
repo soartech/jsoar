@@ -538,10 +538,10 @@ public class SoarReteListener implements ReteListener {
       /* Put on the original retraction list */
       ms_retractions = msc.addToHeadOfAllList(ms_retractions);
       if (msc.goal != null) {
-          /* Goal exists */
+        /* Goal exists */
         msc.in_level.insertAtHead(msc.goal.goalInfo.ms_retractions);
       } else {
-          /* NIL Goal; put on the NIL Goal list */
+        /* NIL Goal; put on the NIL Goal list */
         msc.in_level.insertAtHead(nil_goal_retractions);
       }
 
@@ -667,7 +667,7 @@ public class SoarReteListener implements ReteListener {
     // currently active goal
 
     if (decider.active_goal != null) {
-        /* Just do asserts for current goal */
+      /* Just do asserts for current goal */
       if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS) {
         if (decider.active_goal.goalInfo.ms_o_assertions.isEmpty()) return null;
 

@@ -602,10 +602,8 @@ public class SmemCommand extends PicocliSoarCommand {
         } else {
           nativeOrPure = "Not connected to database";
         }
-      } catch (
-          Exception
-              e) // SQLiteJDBCLoader.isNativeMode() throws Exception, but nothing throws
-                 // InterruptedException so this should be ok
+      } catch (Exception e) // SQLiteJDBCLoader.isNativeMode() throws Exception, but nothing throws
+      // InterruptedException so this should be ok
       {
         agent.getPrinter().startNewLine().print(e.getMessage());
         return "";

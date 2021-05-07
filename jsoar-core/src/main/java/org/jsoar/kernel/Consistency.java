@@ -201,9 +201,9 @@ public class Consistency {
           In this case, return FALSE so that the impasse can be removed. */
 
         } else {
-            /* There is no operator in the slot */
+          /* There is no operator in the slot */
           if (goal.goalInfo.lower_goal != null) {
-              /* But there is an impasse */
+            /* But there is an impasse */
             context
                 .getPrinter()
                 .warn("      No Impasse Needed but Impasse exists: remove impasse now\n");
@@ -318,8 +318,8 @@ public class Consistency {
       Slot s = goal.goalInfo.operator_slot;
 
       if ((goal.goalInfo.lower_goal != null) || (s.getWmes() != null)) {
-          /* If we are not at the bottom goal or if there is an operator in the
-          bottom goal's operator slot */
+        /* If we are not at the bottom goal or if there is an operator in the
+        bottom goal's operator slot */
         if (DEBUG_CONSISTENCY_CHECK) {
           context
               .getPrinter()
@@ -327,7 +327,7 @@ public class Consistency {
                   "      This is a goal that either has subgoals or, if the bottom goal, has an operator in the slot\n");
         }
         if (s.changed != null) {
-            /* Only need to check a goal if its prefs have changed */
+          /* Only need to check a goal if its prefs have changed */
           if (DEBUG_CONSISTENCY_CHECK) {
             context.getPrinter().print("      This goal's preferences have changed.\n");
           }

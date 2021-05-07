@@ -1212,7 +1212,7 @@ public class RecognitionMemory {
     pref.slot = s;
     s.addPreference(
         pref); // note this handles inserting at the head of the all_preferences list and inserting
-               // into the correct preference type list
+    // into the correct preference type list
 
     /* --- other miscellaneous stuff --- */
     pref.preference_add_ref();
@@ -1344,7 +1344,7 @@ public class RecognitionMemory {
     final Trace trace = context.getTrace();
     if (trace.isEnabled(Category.PHASES)) {
       if (this.decisionCycle.current_phase.get() == Phase.APPLY) {
-          /* it's always IE for PROPOSE */
+        /* it's always IE for PROPOSE */
         switch (FIRING_TYPE) {
           case PE_PRODS:
             trace

@@ -120,7 +120,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation {
   private Set<Wme> wma_touched_elements;
   private TreeMap<Long, Set<wma_decay_element>>
       wma_forget_pq; // using TreeMap because this needs to be sorted and we will use
-                     // TreeMap-specific methods
+  // TreeMap-specific methods
   private Set<Long> wma_touched_sets;
   private Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<Wme, wma_decay_element>();
 

@@ -454,7 +454,7 @@ public class Backtracer {
           }
           it.remove();
           if (bt.wme_.grounds_tc != grounds_tc) {
-              /* add pot to grounds */
+            /* add pot to grounds */
             bt.wme_.grounds_tc = grounds_tc;
             grounds.push(pot);
             pot.add_cond_to_tc(tc, null, null);

@@ -425,7 +425,7 @@ import org.jsoar.util.markers.Marker;
     }
 
     if (mem_node != null) {
-        /* -- A matching memory node was found --- */
+      /* -- A matching memory node was found --- */
       /* --- look for a matching existing join node --- */
       for (node = mem_node.first_child; node != null; node = node.next_sibling) {
         if ((node.node_type == pos_node_type)
@@ -549,7 +549,7 @@ import org.jsoar.util.markers.Marker;
       am.remove_ref_to_alpha_mem(rete);
       return node;
     } else {
-        /* --- No match was found, so create a new node --- */
+      /* --- No match was found, so create a new node --- */
       node =
           ReteNode.make_new_negative_node(
               rete, parent, node_type, left_hash_loc.value, am, rt.value);

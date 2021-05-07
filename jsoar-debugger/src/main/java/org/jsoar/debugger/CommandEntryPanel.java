@@ -146,16 +146,15 @@ public class CommandEntryPanel extends JPanel implements Disposable {
             .get("history", "")
             .replace(
                 (char) 0,
-                (char)
-                    0x1F); // in case a null string is in the history, replace it with a unit
-                           // separator; this likely to come up for users upgrading from old
-                           // versions of the debugger
+                (char) 0x1F); // in case a null string is in the history, replace it with a unit
+    // separator; this likely to come up for users upgrading from old
+    // versions of the debugger
     final String[] history =
         rawhistory.split(
             String.valueOf(
                 (char)
                     0x1F)); // split on "unit separator" character (used to use null, but that's no
-                            // longer supported in preference values in Java 9+)
+    // longer supported in preference values in Java 9+)
     for (String s : history) {
       final String trimmed = s.trim();
       if (trimmed.length() > 0) {
@@ -443,7 +442,7 @@ public class CommandEntryPanel extends JPanel implements Disposable {
         b.append(
             (char)
                 0x1F); // separate strings using the "unit separator" character (used to use null,
-                       // but no longer supported in key values in Java 9+)
+        // but no longer supported in key values in Java 9+)
       }
       b.append(model.getElementAt(i));
       first = false;
@@ -455,7 +454,7 @@ public class CommandEntryPanel extends JPanel implements Disposable {
           (char) 0,
           (char)
               0x1F); // in case a null string is in the history, replace it with a unit separator;
-                     // this likely to come up for users upgrading from old versions of the debugger
+      // this likely to come up for users upgrading from old versions of the debugger
       getPrefs().put("history", b.toString());
     } catch (IllegalArgumentException e) {
       // somehow the history is invalid, so don't save it
@@ -485,7 +484,7 @@ public class CommandEntryPanel extends JPanel implements Disposable {
 
   @SuppressWarnings(
       "unchecked") // unfortunately, can't parameterize JXComboBox, even though it extends a generic
-                   // type
+  // type
   private void addCommand(String command) {
     field.removeItem(command);
     field.insertItemAt(command, 0);

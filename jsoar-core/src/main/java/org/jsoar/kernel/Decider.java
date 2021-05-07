@@ -2109,7 +2109,7 @@ public class Decider {
      */
 
     if (!goal.goalInfo.ms_retractions.isEmpty()) {
-        /* There's something on the retraction list */
+      /* There's something on the retraction list */
 
       final MatchSetChange head = goal.goalInfo.ms_retractions.getFirstItem();
       MatchSetChange tail = head;
@@ -2133,7 +2133,7 @@ public class Decider {
         nil_goal_retractions.first = head.in_level;
 
       } else {
-          /* If no retractions, make this list the NIL goal list */
+        /* If no retractions, make this list the NIL goal list */
         nil_goal_retractions.first = head.in_level;
       }
     }
@@ -2772,7 +2772,7 @@ public class Decider {
               }
               continue;
             } else {
-                /* (inst->match_goal_level != 1) */
+              /* (inst->match_goal_level != 1) */
               if (DEBUG_GDS) {
                 context.getPrinter().print("         this wme is local and i-supported\n");
               }

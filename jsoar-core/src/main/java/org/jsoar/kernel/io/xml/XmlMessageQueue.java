@@ -56,8 +56,7 @@ import org.w3c.dom.Element;
  *      converter(...).                // set the XmlToWme converter to use
  *      create();
  *
- * }
- * </pre>
+ * }</pre>
  *
  * <p>New messages can be added to the queue <b>from any thread</b> with the {@link #add(Element)}
  * method:

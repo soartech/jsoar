@@ -838,7 +838,7 @@ public class ConditionReorderer {
     ListHead<Variable> bound_vars =
         ListHead
             .newInstance(); // this list necessary pop variables bound inside ncc's out of scope on
-                            // return
+    // return
 
     /* --- add anything bound in a positive condition at this level --- */
     /* --- recurse in to NCCs --- */

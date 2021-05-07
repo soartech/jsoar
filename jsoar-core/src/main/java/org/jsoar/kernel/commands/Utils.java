@@ -60,8 +60,8 @@ public class Utils {
                 args,
                 1,
                 args.length)); // picocli expects the first arg to be the first arg of the command,
-                               // but for SoarCommands its the name of the command, so get the
-                               // subarray starting at the second arg
+    // but for SoarCommands its the name of the command, so get the
+    // subarray starting at the second arg
     if (exitCode != 0) throw new SoarException("Error executing command " + String.join(" ", args));
     return Objects.toString(commandLine.getExecutionResult(), "");
   }
