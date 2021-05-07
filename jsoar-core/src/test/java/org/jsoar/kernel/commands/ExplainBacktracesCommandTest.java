@@ -5,62 +5,85 @@
  */
 package org.jsoar.kernel.commands;
 
-// TODO: fix these test cases to fit the new picocli version of the ExplainBacktracesCommand
-/*
-import static org.junit.Assert.*;
-
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.ExplainBacktracesCommand.Options;
-import org.junit.Test;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ExplainBacktracesCommandTest
-{
+import java.io.StringWriter;
 
-    @Test
-    public void testFullOption() throws Exception
-    {
-        verifyOptions(new Options(false, -1, null), "eb");
-        verifyOptions(new Options(true, -1, null), "eb", "-f");
-        verifyOptions(new Options(true, -1, null), "eb", "--full");
-    }
-    
-    @Test
-    public void testConditionOption() throws Exception
-    {
-        verifyOptions(new Options(false, -1, null), "eb");
-        verifyOptions(new Options(false, 99, null), "eb", "-c", "99");
-        verifyOptions(new Options(false, 101, null), "eb", "--condition", "101");
-    }
-    
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionForNonNumericCondition() throws Exception
-    {
-        ExplainBacktracesCommand.processArgs(new String[] {"eb", "-c", "b"});
-    }
-    
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionForMissingNumericCondition() throws Exception
-    {
-        ExplainBacktracesCommand.processArgs(new String[] {"eb","-c" });
-    }
-    
-    @Test
-    public void testProductionArgument() throws Exception
-    {
-        verifyOptions(new Options(false, -1, "p"), "eb", "p");
-    }
-    
-    @Test
-    public void testMixedOptions() throws Exception
-    {
-        verifyOptions(new Options(false, 99, "rule"), "eb", "-c", "99", "rule");
-        verifyOptions(new Options(true, 101, "hello"), "eb", "--condition", "101", "--full", "hello");
-        verifyOptions(new Options(true, -1, "hello"), "eb", "-f", "hello");
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+class ExplainBacktracesCommandTest {
+
+    private Agent agent;
+    private StringWriter outputWriter = new StringWriter();
+    private ExplainBacktracesCommand explainCommand;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        agent = new Agent();
+        agent.getPrinter().addPersistentWriter(outputWriter);
+        explainCommand = new ExplainBacktracesCommand(agent);
     }
 
-    private void verifyOptions(Options expected, String ... args) throws SoarException
-    {
-        final Options result = ExplainBacktracesCommand.processArgs(args);
-        assertEquals(expected, result);
+    @AfterEach
+    void tearDown() {
+        if (agent != null) {
+            agent.dispose();
+            agent = null;
+        }
     }
-}*/
+
+    @Test
+    void testExplain() throws SoarException {
+        explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"explain-backtraces"});
+        assertEquals("No chunks/justifications built yet!\n", outputWriter.toString());
+    }
+
+    @Test
+    void testExplainPrintFull() throws SoarException {
+        explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"eb","-f","test"});
+        assertEquals("""
+                Could not find the chunk.  Maybe explain was not on when it was created.
+                To turn on explain: save-backtraces --enable before the chunk is created.
+                """, outputWriter.toString());
+    }
+
+    @Test
+    void testExplainListChunks() throws SoarException {
+        explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"eb","test"});
+        assertEquals("""
+                Could not find the chunk.  Maybe explain was not on when it was created.
+                To turn on explain: save-backtraces --enable before the chunk is created.
+                """, outputWriter.toString());
+    }
+
+    @Test
+    void testExplainSpecificChunk() throws SoarException {
+        explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"eb","-c","0","test"});
+        assertEquals("""
+                Could not find the chunk.  Maybe explain was not on when it was created.
+                To turn on explain: save-backtraces --enable before the chunk is created.
+                """, outputWriter.toString());
+    }
+
+    @Test
+    void testThrowsExceptionForNonNumericCondition() {
+        assertThrows(SoarException.class, () ->
+                explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"eb", "-c", "b"})
+        );
+    }
+
+    @Test
+    void testThrowsExceptionForMissingNumericCondition() {
+        assertThrows(SoarException.class, () ->
+                explainCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"eb", "-c"})
+        );
+    }
+
+}
