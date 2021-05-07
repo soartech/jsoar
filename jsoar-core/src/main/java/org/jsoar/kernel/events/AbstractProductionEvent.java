@@ -10,28 +10,23 @@ import org.jsoar.kernel.Production;
 
 /**
  * Abstract base class for production-related events.
- * 
+ *
  * @author ray
  */
-public abstract class AbstractProductionEvent extends AbstractAgentEvent
-{
-    private final Production production;
-    
-    /**
-     * @param agent The agent
-     * @param production The production
-     */
-    public AbstractProductionEvent(Agent agent, Production production)
-    {
-        super(agent);
-        this.production = production;
-    }
+public abstract class AbstractProductionEvent extends AbstractAgentEvent {
+  private final Production production;
 
-    /**
-     * @return the production
-     */
-    public Production getProduction()
-    {
-        return production;
-    }
+  /**
+   * @param agent The agent
+   * @param production The production
+   */
+  public AbstractProductionEvent(Agent agent, Production production) {
+    super(agent);
+    this.production = production;
+  }
+
+  /** @return the production */
+  public Production getProduction() {
+    return production;
+  }
 }

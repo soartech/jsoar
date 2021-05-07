@@ -5,10 +5,7 @@
  */
 package org.jsoar.debugger;
 
-/**
- * @author ray
- */
-public interface Disposable
-{
-    void dispose();
+/** @author ray */
+public interface Disposable {
+  void dispose();
 }

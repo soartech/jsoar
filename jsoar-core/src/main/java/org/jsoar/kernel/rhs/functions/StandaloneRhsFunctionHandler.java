@@ -5,41 +5,30 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+/** @author ray */
+public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHandler {
 
-/**
- * @author ray
- */
-public abstract class StandaloneRhsFunctionHandler extends AbstractRhsFunctionHandler
-{
+  /** @param name */
+  public StandaloneRhsFunctionHandler(String name) {
+    super(name);
+  }
 
-    /**
-     * @param name
-     */
-    public StandaloneRhsFunctionHandler(String name)
-    {
-        super(name);
-    }
+  /**
+   * @param name
+   * @param minArgs
+   * @param maxArgs
+   */
+  public StandaloneRhsFunctionHandler(String name, int minArgs, int maxArgs) {
+    super(name, minArgs, maxArgs);
+  }
 
-    /**
-     * @param name
-     * @param minArgs
-     * @param maxArgs
-     */
-    public StandaloneRhsFunctionHandler(String name, int minArgs, int maxArgs)
-    {
-        super(name, minArgs, maxArgs);
-    }
+  @Override
+  public boolean mayBeStandalone() {
+    return true;
+  }
 
-    @Override
-    public boolean mayBeStandalone()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean mayBeValue()
-    {
-        return false;
-    }
-
+  @Override
+  public boolean mayBeValue() {
+    return false;
+  }
 }

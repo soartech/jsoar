@@ -1,148 +1,141 @@
 package org.jsoar.debugger.syntax;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import java.awt.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import java.awt.*;
 
 public class TextStyle {
 
+  private String styleType;
+  private boolean bold = false;
+  private boolean underline = false;
+  private boolean strikethrough = false;
+  private boolean italic = false;
+  private int fontSize = 0;
+  private boolean enabled = true;
 
-    private String styleType;
-    private boolean bold = false;
-    private boolean underline = false;
-    private boolean strikethrough = false;
-    private boolean italic = false;
-    private int fontSize = 0;
-    private boolean enabled = true;
+  private Color foreground = Color.WHITE;
+  private Color background = Color.BLACK;
 
-    private Color foreground = Color.WHITE;
-    private Color background = Color.BLACK;
+  public TextStyle() {}
 
+  public TextStyle(TextStyle copy) {
+    this.bold = copy.bold;
+    this.underline = copy.underline;
+    this.strikethrough = copy.strikethrough;
+    this.italic = copy.italic;
+    this.fontSize = copy.fontSize;
+    this.foreground = copy.foreground;
+    this.background = copy.background;
+    this.styleType = copy.styleType;
+  }
 
-    public TextStyle() {
+  @JsonIgnore
+  public AttributeSet getAttributes() {
+    SimpleAttributeSet attrs = new SimpleAttributeSet();
+
+    StyleConstants.setBold(attrs, bold);
+    StyleConstants.setUnderline(attrs, underline);
+    StyleConstants.setStrikeThrough(attrs, strikethrough);
+    StyleConstants.setItalic(attrs, italic);
+    if (fontSize > 0) {
+      StyleConstants.setFontSize(attrs, fontSize);
     }
+    StyleConstants.setForeground(attrs, foreground);
+    StyleConstants.setBackground(attrs, background);
 
-    public TextStyle(TextStyle copy) {
-        this.bold = copy.bold;
-        this.underline = copy.underline;
-        this.strikethrough = copy.strikethrough;
-        this.italic = copy.italic;
-        this.fontSize = copy.fontSize;
-        this.foreground = copy.foreground;
-        this.background = copy.background;
-        this.styleType = copy.styleType;
-    }
+    return attrs;
+  }
 
+  public String getStyleType() {
+    return styleType;
+  }
 
-    @JsonIgnore
-    public AttributeSet getAttributes() {
-        SimpleAttributeSet attrs = new SimpleAttributeSet();
+  public void setStyleType(String styleType) {
+    this.styleType = styleType;
+  }
 
-        StyleConstants.setBold(attrs, bold);
-        StyleConstants.setUnderline(attrs, underline);
-        StyleConstants.setStrikeThrough(attrs, strikethrough);
-        StyleConstants.setItalic(attrs, italic);
-        if (fontSize > 0) {
-            StyleConstants.setFontSize(attrs, fontSize);
-        }
-        StyleConstants.setForeground(attrs, foreground);
-        StyleConstants.setBackground(attrs, background);
+  public boolean isBold() {
+    return bold;
+  }
 
-        return attrs;
+  public void setBold(boolean bold) {
+    this.bold = bold;
+  }
 
-    }
+  public boolean isUnderline() {
+    return underline;
+  }
 
+  public void setUnderline(boolean underline) {
+    this.underline = underline;
+  }
 
-    public String getStyleType() {
-        return styleType;
-    }
+  public boolean isStrikethrough() {
+    return strikethrough;
+  }
 
-    public void setStyleType(String styleType) {
-        this.styleType = styleType;
-    }
+  public void setStrikethrough(boolean strikethrough) {
+    this.strikethrough = strikethrough;
+  }
 
-    public boolean isBold() {
-        return bold;
-    }
+  public boolean isItalic() {
+    return italic;
+  }
 
-    public void setBold(boolean bold) {
-        this.bold = bold;
-    }
+  public void setItalic(boolean italic) {
+    this.italic = italic;
+  }
 
-    public boolean isUnderline() {
-        return underline;
-    }
+  public int getFontSize() {
+    return fontSize;
+  }
 
-    public void setUnderline(boolean underline) {
-        this.underline = underline;
-    }
+  public void setFontSize(int fontSize) {
+    this.fontSize = fontSize;
+  }
 
-    public boolean isStrikethrough() {
-        return strikethrough;
-    }
+  @JsonIgnore
+  public Color getForeground() {
+    return foreground;
+  }
 
-    public void setStrikethrough(boolean strikethrough) {
-        this.strikethrough = strikethrough;
-    }
+  public void setForeground(Color foreground) {
+    this.foreground = foreground;
+  }
 
-    public boolean isItalic() {
-        return italic;
-    }
+  @JsonIgnore
+  public Color getBackground() {
+    return background;
+  }
 
-    public void setItalic(boolean italic) {
-        this.italic = italic;
-    }
+  public void setBackground(Color background) {
+    this.background = background;
+  }
 
-    public int getFontSize() {
-        return fontSize;
-    }
+  public void setForegroundRgb(float[] components) {
+    foreground = new Color(components[0], components[1], components[2], components[3]);
+  }
 
-    public void setFontSize(int fontSize) {
-        this.fontSize = fontSize;
-    }
+  public float[] getForegroundRgb() {
+    return foreground.getRGBComponents(null);
+  }
 
-    @JsonIgnore
-    public Color getForeground() {
-        return foreground;
-    }
+  public void setBackgroundRgb(float[] components) {
+    background = new Color(components[0], components[1], components[2], components[3]);
+  }
 
-    public void setForeground(Color foreground) {
-        this.foreground = foreground;
-    }
+  public float[] getBackgroundRgb() {
+    return background.getRGBComponents(null);
+  }
 
-    @JsonIgnore
-    public Color getBackground() {
-        return background;
-    }
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    public void setBackground(Color background) {
-        this.background = background;
-    }
-
-    public void setForegroundRgb(float[] components) {
-        foreground = new Color(components[0], components[1], components[2], components[3]);
-    }
-
-    public float[] getForegroundRgb() {
-        return foreground.getRGBComponents(null);
-    }
-
-    public void setBackgroundRgb(float[] components) {
-        background = new Color(components[0], components[1], components[2], components[3]);
-    }
-
-    public float[] getBackgroundRgb() {
-        return background.getRGBComponents(null);
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 }

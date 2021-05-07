@@ -8,8 +8,7 @@ package org.jsoar.kernel.io.xml;
 @SuppressWarnings("serial")
 public class TagAlreadyAddedException extends Exception {
 
-	public TagAlreadyAddedException(String string) {
-		super(string);
-	}
-
+  public TagAlreadyAddedException(String string) {
+    super(string);
+  }
 }

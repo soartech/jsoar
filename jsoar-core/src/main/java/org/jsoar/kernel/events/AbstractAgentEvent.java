@@ -10,28 +10,23 @@ import org.jsoar.util.events.SoarEvent;
 
 /**
  * Base class for an event that holds a pointer to an agent
- * 
+ *
  * @author ray
  */
-public abstract class AbstractAgentEvent implements SoarEvent
-{
-    private final Agent agent;
+public abstract class AbstractAgentEvent implements SoarEvent {
+  private final Agent agent;
 
-    /**
-     * Construct a new event
-     * 
-     * @param agent the agent
-     */
-    public AbstractAgentEvent(Agent agent)
-    {
-        this.agent = agent;
-    }
+  /**
+   * Construct a new event
+   *
+   * @param agent the agent
+   */
+  public AbstractAgentEvent(Agent agent) {
+    this.agent = agent;
+  }
 
-    /**
-     * @return the agent that is the source of this event
-     */
-    public Agent getAgent()
-    {
-        return agent;
-    }
+  /** @return the agent that is the source of this event */
+  public Agent getAgent() {
+    return agent;
+  }
 }

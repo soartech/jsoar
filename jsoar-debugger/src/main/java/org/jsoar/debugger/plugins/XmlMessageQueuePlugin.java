@@ -6,7 +6,6 @@
 package org.jsoar.debugger.plugins;
 
 import java.io.IOException;
-
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.JSoarDebuggerPlugin;
 import org.jsoar.kernel.SoarException;
@@ -19,73 +18,68 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * Simple plugin with an interface for testing {@link XmlMessageQueuePlugin}.
- * Installs a default message queue on the agent along with a command called
- * 'xmq-add' that enqueues arbitrary XML onto the queue.
- * 
+ * Simple plugin with an interface for testing {@link XmlMessageQueuePlugin}. Installs a default
+ * message queue on the agent along with a command called 'xmq-add' that enqueues arbitrary XML onto
+ * the queue.
+ *
  * @author ray
  */
-public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
-{
-    private XmlMessageQueue queue;
+public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin {
+  private XmlMessageQueue queue;
 
-    /* (non-Javadoc)
-     * @see org.jsoar.debugger.JSoarDebuggerPlugin#initialize(org.jsoar.debugger.JSoarDebugger, java.lang.String[])
-     */
-    @Override
-    public void initialize(JSoarDebugger debugger, String[] args)
-    {
-        final ThreadedAgent agent = debugger.getAgent();
-        
-        this.queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).create();
-        
-        agent.getInterpreter().addCommand("xmq-add", new SoarCommand() {
-            @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+  /* (non-Javadoc)
+   * @see org.jsoar.debugger.JSoarDebuggerPlugin#initialize(org.jsoar.debugger.JSoarDebugger, java.lang.String[])
+   */
+  @Override
+  public void initialize(JSoarDebugger debugger, String[] args) {
+    final ThreadedAgent agent = debugger.getAgent();
+
+    this.queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).create();
+
+    agent
+        .getInterpreter()
+        .addCommand(
+            "xmq-add",
+            new SoarCommand() {
+              @Override
+              public Object getCommand() {
+                // todo - when implementing picocli, return the runnable
                 return null;
-            }
-            @Override
-            public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
-            {
-                if(args.length != 2)
-                {
-                    throw new SoarException("Expected 1 argument, got " + (args.length - 1));
+              }
+
+              @Override
+              public String execute(SoarCommandContext commandContext, String[] args)
+                  throws SoarException {
+                if (args.length != 2) {
+                  throw new SoarException("Expected 1 argument, got " + (args.length - 1));
                 }
                 final String message = args[1];
-                try
-                {
-                    final Document doc = XmlTools.parse(message);
-                    queue.add(doc.getDocumentElement());
-                    agent.getPrinter().print("Added message to message queue").flush();
-                }
-                catch (SAXException e)
-                {
-                    throw new SoarException(e.getMessage(), e);
-                }
-                catch (IOException e)
-                {
-                    throw new SoarException(e.getMessage(), e);
+                try {
+                  final Document doc = XmlTools.parse(message);
+                  queue.add(doc.getDocumentElement());
+                  agent.getPrinter().print("Added message to message queue").flush();
+                } catch (SAXException e) {
+                  throw new SoarException(e.getMessage(), e);
+                } catch (IOException e) {
+                  throw new SoarException(e.getMessage(), e);
                 }
                 return "";
-            }});
-        
-        agent.getPrinter().print("Registered command 'xmq-add'. Usage: xmq-add <xml>").flush();
+              }
+            });
+
+    agent.getPrinter().print("Registered command 'xmq-add'. Usage: xmq-add <xml>").flush();
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.debugger.JSoarDebuggerPlugin#shutdown()
+   */
+  @Override
+  public void shutdown() {
+    if (this.queue != null) {
+      this.queue.dispose();
+      this.queue = null;
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.debugger.JSoarDebuggerPlugin#shutdown()
-     */
-    @Override
-    public void shutdown()
-    {
-        if(this.queue != null)
-        {
-            this.queue.dispose();
-            this.queue = null;
-        }
-        
-        // TODO cleanup command
-    }
-
+    // TODO cleanup command
+  }
 }

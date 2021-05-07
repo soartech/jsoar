@@ -1,55 +1,46 @@
-/**
- * 
- */
+/** */
 package org.jsoar.performancetesting.jsoar;
 
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-
 import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
 import org.jsoar.performancetesting.yaml.TestSettings;
 
 /**
  * A class to create instantiations of JSoar tests.
- * 
- * @author ALT
  *
+ * @author ALT
  */
-public class JSoarTestFactory implements TestFactory
-{
-    private Path jsoarCoreJar;
+public class JSoarTestFactory implements TestFactory {
+  private Path jsoarCoreJar;
 
-    public Path getSoarPath()
-    {
-        return jsoarCoreJar;
-    }
+  public Path getSoarPath() {
+    return jsoarCoreJar;
+  }
 
-    public void setJsoarCoreJar(Path jsoarCoreJar)
-    {
-        this.jsoarCoreJar = jsoarCoreJar;
-    }
+  public void setJsoarCoreJar(Path jsoarCoreJar) {
+    this.jsoarCoreJar = jsoarCoreJar;
+  }
 
-    /**
-     * This creates JSoar Tests. It takes a test's name, file, and the number of
-     * decision cycles to run and returns a new test which has been created and
-     * initialized with all those values.
-     * 
-     * @param testName
-     * @param testFile
-     * @param settings
-     * @return A new and initialized JSoar test.
-     * @throws ClassNotFoundException 
-     * @throws MalformedURLException 
-     */
-    @Override
-    public Test createTest(String testName, Path testFile,
-            TestSettings settings) throws MalformedURLException, ClassNotFoundException
-    {
-        JSoarTest jsoarTest = new JSoarTest(jsoarCoreJar);
+  /**
+   * This creates JSoar Tests. It takes a test's name, file, and the number of decision cycles to
+   * run and returns a new test which has been created and initialized with all those values.
+   *
+   * @param testName
+   * @param testFile
+   * @param settings
+   * @return A new and initialized JSoar test.
+   * @throws ClassNotFoundException
+   * @throws MalformedURLException
+   */
+  @Override
+  public Test createTest(String testName, Path testFile, TestSettings settings)
+      throws MalformedURLException, ClassNotFoundException {
+    JSoarTest jsoarTest = new JSoarTest(jsoarCoreJar);
 
-        jsoarTest.initialize(testName, testFile, settings);
+    jsoarTest.initialize(testName, testFile, settings);
 
-        return jsoarTest;
-    }
+    return jsoarTest;
+  }
 }

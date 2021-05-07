@@ -8,9 +8,9 @@ package org.jsoar.kernel.symbols;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Goal;
@@ -22,165 +22,155 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Iterators;
+/** @author ray */
+public class IdentifierImplTest extends JSoarTest {
+  private Agent agent;
 
-/**
- * @author ray
- */
-public class IdentifierImplTest extends JSoarTest
-{
-    private Agent agent;
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
 
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        
-        this.agent = new Agent();
-    }
+    this.agent = new Agent();
+  }
 
-    /**
-     * Test method for {@link org.jsoar.kernel.symbols.IdentifierImpl#getWmes()}.
-     */
-    @Test
-    public void testGetWmes() throws Exception
-    {
-        // Load a production that creates some WMEs off of S1, then
-        // test iterating over them.
-        agent.getProductions().loadProduction("testGetWmes " +
-        		"(state <s> ^superstate nil)" +
-        		"-->" +
-        		"(<s> ^test <w>)" +
-        		"(<w> ^a 1 ^b 2 ^c 3 ^d 4)");
-        
-        agent.runFor(1, RunType.DECISIONS);
-        
-        final Identifier id = agent.getSymbols().findIdentifier('S', 1);
-        assertNotNull(id);
-        
-        // Find the test wme
-        final MatcherBuilder m = Wmes.matcher(agent);
-        final Wme test = m.attr("test").find(id);
-        assertNotNull(test);
-        
-        // Now verify that all the sub-wmes are there.
-        List<Wme> kids = new ArrayList<>();
-        final Identifier testId = test.getValue().asIdentifier();
-        Iterators.addAll(kids, testId.getWmes());
-        assertEquals(4, kids.size());
-        assertNotNull(m.reset().attr("a").value(1).find(kids));
-        assertNotNull(m.reset().attr("b").value(2).find(kids));
-        assertNotNull(m.reset().attr("c").value(3).find(kids));
-        assertNotNull(m.reset().attr("d").value(4).find(kids));
-    }
+  /** Test method for {@link org.jsoar.kernel.symbols.IdentifierImpl#getWmes()}. */
+  @Test
+  public void testGetWmes() throws Exception {
+    // Load a production that creates some WMEs off of S1, then
+    // test iterating over them.
+    agent
+        .getProductions()
+        .loadProduction(
+            "testGetWmes "
+                + "(state <s> ^superstate nil)"
+                + "-->"
+                + "(<s> ^test <w>)"
+                + "(<w> ^a 1 ^b 2 ^c 3 ^d 4)");
 
-    @Test
-    public void testIsAdaptableToGoalDependencySet()
-    {
-        final IdentifierImpl id = syms.createIdentifier('S');
-        id.goalInfo = new GoalIdentifierInfo(id);
-        assertNull(Adaptables.adapt(id, GoalDependencySet.class));
-        id.goalInfo.gds = new GoalDependencySetImpl(id);
-        assertSame(id.goalInfo.gds, Adaptables.adapt(id, GoalDependencySet.class));
-    }
-    
-    @Test
-    public void testFormatsLongTermIdentifiersCorrectly()
-    {
-        final IdentifierImpl id = syms.createIdentifier('S');
-        id.smem_lti = 99;
-        assertEquals("@S" + id.getNameNumber(), String.format("%s", id));
-    }
-    
-    @Test
-    public void testStateIsAdaptableToGoal()
-    {
-        final Identifier state = agent.getSymbols().findIdentifier('S', 1);
-        assertNotNull(state);
-        
-        final Goal goal = Adaptables.adapt(state, Goal.class);
-        assertNotNull(goal);
-    }
-    
-    @Test
-    public void testNonStatesAreNotAdaptableToGoal()
-    {
-        final Identifier id = agent.getSymbols().createIdentifier('Z');
-        assertNotNull(id);
-        assertFalse(id.isGoal());
-        
-        final Goal goal = Adaptables.adapt(id, Goal.class);
-        assertNull(goal);
-    }
-    
-    @Test
-    public void testAdaptToGoalAndGetSelectedOperatorName() throws Exception
-    {
-        agent.getProductions().loadProduction("propose (state <s> ^superstate nil) --> (<s> ^operator.name test-operator)");
-        agent.runFor(1, RunType.DECISIONS);
-        
-        final Goal state = agent.getGoalStack().get(0);
-        assertNotNull(state);
-        
-        // just verify adaptability here..
-        final Goal goal = Adaptables.adapt(state.getIdentifier(), Goal.class);
-        assertNotNull(goal);
-        
-        // test the operator name
-        assertEquals("test-operator", goal.getOperatorName().asString().getValue());
-    }
+    agent.runFor(1, RunType.DECISIONS);
 
-    @Test
-    public void testAddSlotToIdentifierWithSlots() {
-        // Given a identifier
-        final IdentifierImpl id = syms.createIdentifier('S');
-        // With a existing Slot
-        Slot existingSlot = mock(Slot.class);
-        id.slots = existingSlot;
+    final Identifier id = agent.getSymbols().findIdentifier('S', 1);
+    assertNotNull(id);
 
-        // When adding new slot to identifier
-        Slot newSlot = mock(Slot.class);
-        id.addSlot(newSlot);
+    // Find the test wme
+    final MatcherBuilder m = Wmes.matcher(agent);
+    final Wme test = m.attr("test").find(id);
+    assertNotNull(test);
 
-        // Then slots of identifier points to new Slot
-        assertEquals(newSlot, id.slots);
-        // And new Slot if pointing to existing Slot in list
-        assertEquals(existingSlot, newSlot.next);
-        // And new Slot is at begin of list
-        assertNull(newSlot.prev);
-        // And existing Slot is pointing to new Slot
-        assertEquals(newSlot, existingSlot.prev);
-    }
+    // Now verify that all the sub-wmes are there.
+    List<Wme> kids = new ArrayList<>();
+    final Identifier testId = test.getValue().asIdentifier();
+    Iterators.addAll(kids, testId.getWmes());
+    assertEquals(4, kids.size());
+    assertNotNull(m.reset().attr("a").value(1).find(kids));
+    assertNotNull(m.reset().attr("b").value(2).find(kids));
+    assertNotNull(m.reset().attr("c").value(3).find(kids));
+    assertNotNull(m.reset().attr("d").value(4).find(kids));
+  }
 
-    @Test
-    public void testAddSlotToIdentifierWithoutSlots() {
-        // Given a identifier
-        final IdentifierImpl id = syms.createIdentifier('S');
+  @Test
+  public void testIsAdaptableToGoalDependencySet() {
+    final IdentifierImpl id = syms.createIdentifier('S');
+    id.goalInfo = new GoalIdentifierInfo(id);
+    assertNull(Adaptables.adapt(id, GoalDependencySet.class));
+    id.goalInfo.gds = new GoalDependencySetImpl(id);
+    assertSame(id.goalInfo.gds, Adaptables.adapt(id, GoalDependencySet.class));
+  }
 
-        // When adding new slot to identifier
-        Slot newSlot = mock(Slot.class);
-        id.addSlot(newSlot);
+  @Test
+  public void testFormatsLongTermIdentifiersCorrectly() {
+    final IdentifierImpl id = syms.createIdentifier('S');
+    id.smem_lti = 99;
+    assertEquals("@S" + id.getNameNumber(), String.format("%s", id));
+  }
 
-        // Then slots of identifier points to new Slot
-        assertEquals(newSlot, id.slots);
-        // And new Slot is at end of list
-        assertNull(newSlot.next);
-        // And new Slot is at begin of list
-        assertNull(newSlot.prev);
-    }
+  @Test
+  public void testStateIsAdaptableToGoal() {
+    final Identifier state = agent.getSymbols().findIdentifier('S', 1);
+    assertNotNull(state);
 
-    @Test
-    public void testAddInvalidSlotToIdentifier() {
-        // Given a identifier
-        final IdentifierImpl id = syms.createIdentifier('S');
+    final Goal goal = Adaptables.adapt(state, Goal.class);
+    assertNotNull(goal);
+  }
 
-        // When adding null as Slot to identifier
-        // Then Illegal Argument Exception is thrown
-        assertThrows(IllegalArgumentException.class, ()->id.addSlot(null) );
-    }
+  @Test
+  public void testNonStatesAreNotAdaptableToGoal() {
+    final Identifier id = agent.getSymbols().createIdentifier('Z');
+    assertNotNull(id);
+    assertFalse(id.isGoal());
 
+    final Goal goal = Adaptables.adapt(id, Goal.class);
+    assertNull(goal);
+  }
+
+  @Test
+  public void testAdaptToGoalAndGetSelectedOperatorName() throws Exception {
+    agent
+        .getProductions()
+        .loadProduction(
+            "propose (state <s> ^superstate nil) --> (<s> ^operator.name test-operator)");
+    agent.runFor(1, RunType.DECISIONS);
+
+    final Goal state = agent.getGoalStack().get(0);
+    assertNotNull(state);
+
+    // just verify adaptability here..
+    final Goal goal = Adaptables.adapt(state.getIdentifier(), Goal.class);
+    assertNotNull(goal);
+
+    // test the operator name
+    assertEquals("test-operator", goal.getOperatorName().asString().getValue());
+  }
+
+  @Test
+  public void testAddSlotToIdentifierWithSlots() {
+    // Given a identifier
+    final IdentifierImpl id = syms.createIdentifier('S');
+    // With a existing Slot
+    Slot existingSlot = mock(Slot.class);
+    id.slots = existingSlot;
+
+    // When adding new slot to identifier
+    Slot newSlot = mock(Slot.class);
+    id.addSlot(newSlot);
+
+    // Then slots of identifier points to new Slot
+    assertEquals(newSlot, id.slots);
+    // And new Slot if pointing to existing Slot in list
+    assertEquals(existingSlot, newSlot.next);
+    // And new Slot is at begin of list
+    assertNull(newSlot.prev);
+    // And existing Slot is pointing to new Slot
+    assertEquals(newSlot, existingSlot.prev);
+  }
+
+  @Test
+  public void testAddSlotToIdentifierWithoutSlots() {
+    // Given a identifier
+    final IdentifierImpl id = syms.createIdentifier('S');
+
+    // When adding new slot to identifier
+    Slot newSlot = mock(Slot.class);
+    id.addSlot(newSlot);
+
+    // Then slots of identifier points to new Slot
+    assertEquals(newSlot, id.slots);
+    // And new Slot is at end of list
+    assertNull(newSlot.next);
+    // And new Slot is at begin of list
+    assertNull(newSlot.prev);
+  }
+
+  @Test
+  public void testAddInvalidSlotToIdentifier() {
+    // Given a identifier
+    final IdentifierImpl id = syms.createIdentifier('S');
+
+    // When adding null as Slot to identifier
+    // Then Illegal Argument Exception is thrown
+    assertThrows(IllegalArgumentException.class, () -> id.addSlot(null));
+  }
 }

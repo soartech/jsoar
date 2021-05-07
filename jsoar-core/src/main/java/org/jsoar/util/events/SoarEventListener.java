@@ -5,10 +5,7 @@
  */
 package org.jsoar.util.events;
 
-/**
- * @author ray
- */
-public interface SoarEventListener
-{
-    void onEvent(SoarEvent event);
+/** @author ray */
+public interface SoarEventListener {
+  void onEvent(SoarEvent event);
 }

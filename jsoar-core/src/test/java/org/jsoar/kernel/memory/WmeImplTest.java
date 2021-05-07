@@ -15,20 +15,16 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
-public class WmeImplTest extends JSoarTest
-{
+public class WmeImplTest extends JSoarTest {
 
-    @Test
-    public void testIsAdaptableToGoalDependencySet()
-    {
-        final IdentifierImpl id = syms.createIdentifier('S');
-        id.goalInfo = new GoalIdentifierInfo(id);
-        id.goalInfo.gds = new GoalDependencySetImpl(id);
-        final WmeImpl wme = new WmeImpl(id, syms.createString("hi"), syms.createInteger(99), true, 0);
-        assertNull(Adaptables.adapt(wme, GoalDependencySet.class));
-        id.goalInfo.gds.addWme(wme);
-        assertSame(id.goalInfo.gds, Adaptables.adapt(wme, GoalDependencySet.class));
-        
-    }
-
+  @Test
+  public void testIsAdaptableToGoalDependencySet() {
+    final IdentifierImpl id = syms.createIdentifier('S');
+    id.goalInfo = new GoalIdentifierInfo(id);
+    id.goalInfo.gds = new GoalDependencySetImpl(id);
+    final WmeImpl wme = new WmeImpl(id, syms.createString("hi"), syms.createInteger(99), true, 0);
+    assertNull(Adaptables.adapt(wme, GoalDependencySet.class));
+    id.goalInfo.gds.addWme(wme);
+    assertSame(id.goalInfo.gds, Adaptables.adapt(wme, GoalDependencySet.class));
+  }
 }

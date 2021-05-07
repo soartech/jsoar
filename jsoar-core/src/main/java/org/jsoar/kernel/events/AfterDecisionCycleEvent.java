@@ -9,29 +9,24 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
 
 /**
- * <p>callback.h:53:AFTER_DECISION_CYCLE_CALLBACK
- * 
+ * callback.h:53:AFTER_DECISION_CYCLE_CALLBACK
+ *
  * @author ray
  */
-public class AfterDecisionCycleEvent extends AbstractAgentEvent
-{
-    private final Phase phase;
-    
-    /**
-     * @param agent the agent
-     * @param phase the current phase
-     */
-    public AfterDecisionCycleEvent(Agent agent, Phase phase)
-    {
-        super(agent);
-        this.phase = phase;
-    }
+public class AfterDecisionCycleEvent extends AbstractAgentEvent {
+  private final Phase phase;
 
-    /**
-     * @return the current phase
-     */
-    public Phase getPhase()
-    {
-        return phase;
-    }
+  /**
+   * @param agent the agent
+   * @param phase the current phase
+   */
+  public AfterDecisionCycleEvent(Agent agent, Phase phase) {
+    super(agent);
+    this.phase = phase;
+  }
+
+  /** @return the current phase */
+  public Phase getPhase() {
+    return phase;
+  }
 }

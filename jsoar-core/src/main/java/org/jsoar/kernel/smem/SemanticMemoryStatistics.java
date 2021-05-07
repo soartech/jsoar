@@ -7,25 +7,17 @@ package org.jsoar.kernel.smem;
 
 /**
  * Statistics information for SMem.
- * 
+ *
  * @author voigtjr
  */
-public interface SemanticMemoryStatistics 
-{
+public interface SemanticMemoryStatistics {
 
-    /**
-     * @return Number of times the <code>retrieve</code> command has been issued.
-     */
-    long getRetrieves();
+  /** @return Number of times the <code>retrieve</code> command has been issued. */
+  long getRetrieves();
 
-    /**
-     * @return Number of times the <code>query</code> command has been issued.
-     */
-    long getQueries();
+  /** @return Number of times the <code>query</code> command has been issued. */
+  long getQueries();
 
-    /**
-     * @return Number of times the <code>store</code> command has been issued.
-     */
-    long getStores();
-
+  /** @return Number of times the <code>store</code> command has been issued. */
+  long getStores();
 }

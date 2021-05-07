@@ -7,19 +7,16 @@ package org.jsoar.kernel.exploration;
 
 /**
  * exploration.cpp:196:exploration_validate_temperature
- * 
+ *
  * @author ray
  */
-public class ExplorationValidateTemperature implements ExplorationValueFunction
-{
+public class ExplorationValidateTemperature implements ExplorationValueFunction {
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.ExplorationValueFunction#call(double)
-     */
-    @Override
-    public boolean call(double value)
-    {
-        return value > 0;
-    }
-
+  /* (non-Javadoc)
+   * @see org.jsoar.kernel.ExplorationValueFunction#call(double)
+   */
+  @Override
+  public boolean call(double value) {
+    return value > 0;
+  }
 }

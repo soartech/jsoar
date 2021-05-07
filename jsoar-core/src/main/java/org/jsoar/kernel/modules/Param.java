@@ -5,13 +5,12 @@
  */
 package org.jsoar.kernel.modules;
 
-/**
- * @author ray
- */
-public interface Param
-{
+/** @author ray */
+public interface Param {
 
-    String get_name();
-    boolean set_string(String new_string);
-    boolean validate_string(String new_string);
+  String get_name();
+
+  boolean set_string(String new_string);
+
+  boolean validate_string(String new_string);
 }

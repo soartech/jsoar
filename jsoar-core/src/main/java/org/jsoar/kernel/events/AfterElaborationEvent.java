@@ -8,18 +8,13 @@ package org.jsoar.kernel.events;
 import org.jsoar.kernel.Agent;
 
 /**
- * <p>callback.h:53:AFTER_ELABORATION_CALLBACK
- * 
+ * callback.h:53:AFTER_ELABORATION_CALLBACK
+ *
  * @author ray
  */
-public class AfterElaborationEvent extends AbstractAgentEvent
-{
-    /**
-     * @param agent the agent
-     */
-    public AfterElaborationEvent(Agent agent)
-    {
-        super(agent);
-    }
-
+public class AfterElaborationEvent extends AbstractAgentEvent {
+  /** @param agent the agent */
+  public AfterElaborationEvent(Agent agent) {
+    super(agent);
+  }
 }

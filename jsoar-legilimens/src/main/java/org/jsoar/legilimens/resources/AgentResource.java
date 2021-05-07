@@ -5,10 +5,5 @@
  */
 package org.jsoar.legilimens.resources;
 
-
-/**
- * @author ray
- */
-public class AgentResource extends BaseAgentResource
-{
-}
+/** @author ray */
+public class AgentResource extends BaseAgentResource {}

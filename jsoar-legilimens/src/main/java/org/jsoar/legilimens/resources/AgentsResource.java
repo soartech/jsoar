@@ -7,18 +7,14 @@ package org.jsoar.legilimens.resources;
 
 import java.util.Map;
 
-/**
- * @author ray
- */
-public class AgentsResource extends BaseResource
-{
-    /* (non-Javadoc)
-     * @see org.jsoar.legilimens.BaseResource#setTemplateAttributes(java.util.Map)
-     */
-    @Override
-    public void setTemplateAttributes(Map<String, Object> attrs)
-    {
-        super.setTemplateAttributes(attrs);
-        attrs.put("agents", getLegilimens().getAgents());
-    }
+/** @author ray */
+public class AgentsResource extends BaseResource {
+  /* (non-Javadoc)
+   * @see org.jsoar.legilimens.BaseResource#setTemplateAttributes(java.util.Map)
+   */
+  @Override
+  public void setTemplateAttributes(Map<String, Object> attrs) {
+    super.setTemplateAttributes(attrs);
+    attrs.put("agents", getLegilimens().getAgents());
+  }
 }

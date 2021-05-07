@@ -5,12 +5,9 @@
  */
 package org.jsoar.kernel.memory;
 
-/**
- * @author ray
- */
-public enum WmeType
-{
-    NORMAL,
-    INPUT,
-    IMPASSE
+/** @author ray */
+public enum WmeType {
+  NORMAL,
+  INPUT,
+  IMPASSE
 }

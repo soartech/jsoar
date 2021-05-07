@@ -133,14 +133,9 @@ There is also an Android branch, which maintains an Android-compatible version.
 
 ### Coding Conventions ###
 
-The coding conventions for the JSoar codebase are stored as Eclipse formatter rules in `eclipse-formatter.xml`. To import:
+The coding conventions for the JSoar codebase comply to [Google java format](https://github.com/google/google-java-format).  
 
-    Window -> Preferences -> Java -> Code Style -> Formatter -> Import ...
-
-The basic rules are:
-* NO TABS
-* 4 spaces of indentation
-* Opening braces on their own line
+To apply the code style within InteliJ download the [IntelliJ Java Google Style](https://raw.githubusercontent.com/google/styleguide/gh-pages/intellij-java-google-style.xml) file and import it into File→Settings→Editor→Code Style.
 
 ### Maven Build ###
 

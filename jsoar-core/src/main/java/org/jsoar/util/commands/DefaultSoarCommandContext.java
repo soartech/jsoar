@@ -10,28 +10,25 @@ import org.jsoar.util.SourceLocation;
 
 /**
  * Default implementation of {@link SoarCommandContext}
+ *
  * @author ray
  */
-public class DefaultSoarCommandContext implements SoarCommandContext
-{
-    private final SourceLocation sourceLocation;
-    
-    public static SoarCommandContext empty()
-    {
-        return new DefaultSoarCommandContext(DefaultSourceLocation.UNKNOWN);
-    }
+public class DefaultSoarCommandContext implements SoarCommandContext {
+  private final SourceLocation sourceLocation;
 
-    public DefaultSoarCommandContext(SourceLocation sourceLocation)
-    {
-        this.sourceLocation = sourceLocation;
-    }
+  public static SoarCommandContext empty() {
+    return new DefaultSoarCommandContext(DefaultSourceLocation.UNKNOWN);
+  }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandContext#getSourceLocation()
-     */
-    @Override
-    public SourceLocation getSourceLocation()
-    {
-        return sourceLocation;
-    }
+  public DefaultSoarCommandContext(SourceLocation sourceLocation) {
+    this.sourceLocation = sourceLocation;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandContext#getSourceLocation()
+   */
+  @Override
+  public SourceLocation getSourceLocation() {
+    return sourceLocation;
+  }
 }

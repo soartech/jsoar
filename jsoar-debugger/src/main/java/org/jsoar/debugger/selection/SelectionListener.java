@@ -5,10 +5,7 @@
  */
 package org.jsoar.debugger.selection;
 
-/**
- * @author ray
- */
-public interface SelectionListener
-{
-    void selectionChanged(SelectionManager manager);
+/** @author ray */
+public interface SelectionListener {
+  void selectionChanged(SelectionManager manager);
 }

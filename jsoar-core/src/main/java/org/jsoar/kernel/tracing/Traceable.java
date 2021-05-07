@@ -7,10 +7,7 @@ package org.jsoar.kernel.tracing;
 
 import java.util.Formatter;
 
-/**
- * @author ray
- */
-public interface Traceable
-{
-    void trace(Trace trace, Formatter formatter, int flags, int width, int precision);
+/** @author ray */
+public interface Traceable {
+  void trace(Trace trace, Formatter formatter, int flags, int width, int precision);
 }

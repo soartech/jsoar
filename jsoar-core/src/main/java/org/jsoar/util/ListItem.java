@@ -5,264 +5,221 @@ package org.jsoar.util;
 
 import java.util.Iterator;
 
+/** @author ray */
+public final class ListItem<T> implements Iterable<T> {
+  public final T item;
+  public ListItem<T> next;
+  public ListItem<T> previous;
 
-/**
- * @author ray
- */
-public final class ListItem <T> implements Iterable<T>
-{
-    public final T item;
-    public ListItem<T> next;
-    public ListItem<T> previous;
-    
-    public ListItem(T item)
-    {
-//        Arguments.checkNotNull(item, "item");
-        this.item = item;
-        this.next = null;
-        this.previous = null;
+  public ListItem(T item) {
+    //        Arguments.checkNotNull(item, "item");
+    this.item = item;
+    this.next = null;
+    this.previous = null;
+  }
+
+  public T getNextItem() {
+    return next != null ? next.item : null;
+  }
+
+  public T getPreviousItem() {
+    return previous != null ? previous.item : null;
+  }
+
+  public void insertAtHead(ListHead<T> head) {
+    //        Arguments.checkNotNull(head, "head");
+
+    assert !head.containsAsListItem(this);
+
+    next = head.first;
+    previous = null;
+    if (next != null) {
+      next.previous = this;
     }
-    
-    public T getNextItem()
-    {
-        return next != null ? next.item : null;
+    head.first = this;
+  }
+
+  //    public void insertBefore(ListHead<T> head, AsListItem<T> other)
+  //    {
+  //        Arguments.checkNotNull(head, "head");
+  //        if(other.previous != null)
+  //        {
+  //            other.previous.next = this;
+  //        }
+  //        else
+  //        {
+  //            head.first = this;
+  //        }
+  //        previous = other.previous;
+  //        other.previous = this;
+  //        next = other;
+  //    }
+  //
+  public void insertAfter(ListHead<T> head, ListItem<T> other) {
+    assert head != null;
+    assert other != this;
+    assert !head.containsAsListItem(this);
+
+    this.previous = other;
+    if (other == null) {
+      head.first = this;
+      this.next = null;
+    } else {
+      this.next = other.next;
+      other.next = this;
+      if (this.next != null) {
+        this.next.previous = this;
+      }
     }
-    
-    public T getPreviousItem()
-    {
-        return previous != null ? previous.item : null;
+  }
+
+  public void remove(ListHead<T> head) {
+    assert head != null;
+    // assert head.containsAsListItem(this);
+
+    if (next != null) {
+      next.previous = previous;
     }
-    
-    public void insertAtHead(ListHead<T> head)
-    {
-//        Arguments.checkNotNull(head, "head");
-        
-        assert !head.containsAsListItem(this);
-        
-        next = head.first;
-        previous = null;
-        if(next != null)
-        {
-            next.previous = this;
-        }
-        head.first = this;
+    if (previous != null) {
+      previous.next = next;
+    } else {
+      head.first = next;
     }
-    
-//    public void insertBefore(ListHead<T> head, AsListItem<T> other)
-//    {
-//        Arguments.checkNotNull(head, "head");
-//        if(other.previous != null)
-//        {
-//            other.previous.next = this;
-//        }
-//        else
-//        {
-//            head.first = this;
-//        }
-//        previous = other.previous;
-//        other.previous = this;
-//        next = other;
-//    }
-//    
-    public void insertAfter(ListHead<T> head, ListItem<T> other)
-    {
-        assert head != null;
-        assert other != this;
-        assert !head.containsAsListItem(this);
-        
-        this.previous = other;
-        if(other == null)
-        {
-            head.first = this;
-            this.next = null;
-        }
-        else
-        {
-            this.next = other.next;
-            other.next = this;
-            if(this.next != null)
-            {
-                this.next.previous = this;
-            }
-        }
+    next = null;
+    previous = null;
+  }
+
+  /**
+   * Count the number of list items in this list in the range [this, end), i.e. including this item,
+   * but not including end.
+   *
+   * @param end The item to stop counting at
+   * @return Number of items in list
+   */
+  public int count(ListItem<T> end) {
+    int n = 0;
+    for (ListItem<T> start = this; start != end; start = start.next, ++n) {}
+    return n;
+  }
+
+  /** @return The number of items from this item to the end of the list */
+  public int count() {
+    return count(null);
+  }
+
+  public ListItem<T> find(Object item) {
+    for (ListItem<T> m = this; m != null; m = m.next) {
+      if ((item != null && item.equals(m.item)) || item == m.item) {
+        return m;
+      }
     }
-    
-    public void remove(ListHead<T> head)
-    {
-        assert head != null;
-        //assert head.containsAsListItem(this);
-        
-        if(next != null)
-        {
-            next.previous = previous;
-        }
-        if(previous != null)
-        {
-            previous.next = next;
-        }
-        else
-        {
-            head.first = next;
-        }
-        next = null;
-        previous = null;
+    return null;
+  }
+
+  /*package*/ boolean containsAsListItem(ListItem<T> item) {
+    for (ListItem<T> m = this; m != null; m = m.next) {
+      if (item == m) {
+        return true;
+      }
     }
-    
-    /**
-     * Count the number of list items in this list in the range [this, end),
-     * i.e. including this item, but not including end.
-     * 
-     * @param end The item to stop counting at
-     * @return Number of items in list
-     */
-    public int count(ListItem<T> end)
-    {
-        int n = 0;
-        for(ListItem<T> start = this; start != end; start = start.next, ++n)
-        {
-        }
-        return n;
-    }
-    
-    /**
-     * @return The number of items from this item to the end of the list
-     */
-    public int count()
-    {
-        return count(null);
-    }
-    
-    public ListItem<T> find(Object item)
-    {
-        for(ListItem<T> m = this; m != null; m = m.next)
-        {
-            if((item != null && item.equals(m.item)) || item == m.item)
-            {
-                return m;
-            }
-        }
-        return null;
-    }
-    
-    /*package*/ boolean containsAsListItem(ListItem<T> item)
-    {
-        for(ListItem<T> m = this; m != null; m = m.next)
-        {
-            if(item == m)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-//  public AsListItem<T> getTail()
-//  {
-//      AsListItem<T> tail = this;
-//      for(AsListItem<T> m = next; m != null; m = m.next)
-//      {
-//          tail = m;
-//      }
-//      return tail;
-//  }
-//  
-//  public AsListItem<T> getHead()
-//  {
-//      AsListItem<T> head = this;
-//      for(AsListItem<T> m = previous; m != null; m = m.previous)
-//      {
-//          head = m;
-//      }
-//      return head;
-//  }
-  
-//  public AsListItem<T> next(int offset) { return byOffset(offset); }
-//  
-//  public AsListItem<T> previous(int offset) { return byOffset(-offset); }
-//  
-//  public AsListItem<T> byOffset(int offset)
-//  {
-//      AsListItem<T> start = this;
-//      if(offset >= 0)
-//      {
-//          for(int i = 0; 
-//              start != null && i != offset; 
-//              ++i, start = start.next)
-//          {
-//          }
-//      }
-//      else
-//      {
-//          for(int i = 0; 
-//              start != null && i != offset; 
-//              --i, start = start.previous)
-//          {
-//          }            
-//      }
-//      return start;
-//  }
-    
-    /**
-     * Create a list head whose first item is this one.
-     * 
-     * @return New list head
-     */
-    public ListHead<T> toListHead()
-    {
-        ListHead<T> head = ListHead.newInstance();
-        head.first = this;
-        return head;
+    return false;
+  }
+
+  //  public AsListItem<T> getTail()
+  //  {
+  //      AsListItem<T> tail = this;
+  //      for(AsListItem<T> m = next; m != null; m = m.next)
+  //      {
+  //          tail = m;
+  //      }
+  //      return tail;
+  //  }
+  //
+  //  public AsListItem<T> getHead()
+  //  {
+  //      AsListItem<T> head = this;
+  //      for(AsListItem<T> m = previous; m != null; m = m.previous)
+  //      {
+  //          head = m;
+  //      }
+  //      return head;
+  //  }
+
+  //  public AsListItem<T> next(int offset) { return byOffset(offset); }
+  //
+  //  public AsListItem<T> previous(int offset) { return byOffset(-offset); }
+  //
+  //  public AsListItem<T> byOffset(int offset)
+  //  {
+  //      AsListItem<T> start = this;
+  //      if(offset >= 0)
+  //      {
+  //          for(int i = 0;
+  //              start != null && i != offset;
+  //              ++i, start = start.next)
+  //          {
+  //          }
+  //      }
+  //      else
+  //      {
+  //          for(int i = 0;
+  //              start != null && i != offset;
+  //              --i, start = start.previous)
+  //          {
+  //          }
+  //      }
+  //      return start;
+  //  }
+
+  /**
+   * Create a list head whose first item is this one.
+   *
+   * @return New list head
+   */
+  public ListHead<T> toListHead() {
+    ListHead<T> head = ListHead.newInstance();
+    head.first = this;
+    return head;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Iterable#iterator()
+   */
+  public Iterator<T> iterator() {
+    return new ItemIterator<T>(this);
+  }
+
+  private static class ItemIterator<T> implements Iterator<T> {
+    private ListItem<T> current;
+
+    /** @param current */
+    public ItemIterator(ListItem<T> current) {
+      this.current = current;
     }
 
     /* (non-Javadoc)
-     * @see java.lang.Iterable#iterator()
+     * @see java.util.Iterator#hasNext()
      */
-    public Iterator<T> iterator()
-    {
-        return new ItemIterator<T>(this);
+    public boolean hasNext() {
+      return current != null;
     }
 
-    private static class ItemIterator <T> implements Iterator<T>
-    {
-        private ListItem<T> current;
-        
-        /**
-         * @param current
-         */
-        public ItemIterator(ListItem<T> current)
-        {
-            this.current = current;
-        }
-
-        /* (non-Javadoc)
-         * @see java.util.Iterator#hasNext()
-         */
-        public boolean hasNext()
-        {
-            return current != null;
-        }
-
-        /* (non-Javadoc)
-         * @see java.util.Iterator#next()
-         */
-        public T next()
-        {
-            T r = current != null ? current.item : null;
-            if(current != null)
-            {
-                current = current.next;
-            }
-            return r;
-        }
-
-        /* (non-Javadoc)
-         * @see java.util.Iterator#remove()
-         */
-        public void remove()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
+    /* (non-Javadoc)
+     * @see java.util.Iterator#next()
+     */
+    public T next() {
+      T r = current != null ? current.item : null;
+      if (current != null) {
+        current = current.next;
+      }
+      return r;
     }
 
+    /* (non-Javadoc)
+     * @see java.util.Iterator#remove()
+     */
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
 }

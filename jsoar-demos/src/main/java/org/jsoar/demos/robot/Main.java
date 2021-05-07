@@ -5,18 +5,9 @@
  */
 package org.jsoar.demos.robot;
 
-/**
- * @author ray
- */
-public class Main
-{
+/** @author ray */
+public class Main {
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        
-    }
-
+  /** @param args */
+  public static void main(String[] args) {}
 }

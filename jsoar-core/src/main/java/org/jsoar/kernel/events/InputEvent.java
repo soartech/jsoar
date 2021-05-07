@@ -7,23 +7,19 @@ package org.jsoar.kernel.events;
 
 import org.jsoar.kernel.io.InputOutput;
 
-
 /**
- * Event fired during the input phase. This event is the best/safest time to
- * add input WMEs to an agent.
- * 
+ * Event fired during the input phase. This event is the best/safest time to add input WMEs to an
+ * agent.
+ *
  * @author ray
  */
-public class InputEvent extends AbstractInputOutputEvent
-{
-    /**
-     * Construct a new event
-     * 
-     * @param io the I/O interface
-     */
-    public InputEvent(InputOutput io)
-    {
-        super(io);
-    }
-    
+public class InputEvent extends AbstractInputOutputEvent {
+  /**
+   * Construct a new event
+   *
+   * @param io the I/O interface
+   */
+  public InputEvent(InputOutput io) {
+    super(io);
+  }
 }

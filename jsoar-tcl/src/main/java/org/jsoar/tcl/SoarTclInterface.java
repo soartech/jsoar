@@ -5,6 +5,8 @@
  */
 package org.jsoar.tcl;
 
+import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.LoadCommand;
@@ -45,10 +46,6 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarExceptionsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.MapMaker;
-import com.google.common.io.ByteStreams;
-
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TCL;
@@ -56,503 +53,443 @@ import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 import tcl.lang.cmd.InterpAliasCmd;
 
-/**
- * @author ray
- */
-public class SoarTclInterface implements SoarCommandInterpreter
-{
-    private static final String DEFAULT_TCL_CODE = "/org/jsoar/tcl/jsoar.tcl";
+/** @author ray */
+public class SoarTclInterface implements SoarCommandInterpreter {
+  private static final String DEFAULT_TCL_CODE = "/org/jsoar/tcl/jsoar.tcl";
 
-    private static final Logger logger = LoggerFactory.getLogger(SoarTclInterface.class);
-    
-    private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
-    
-    private SoarCommandContext context = DefaultSoarCommandContext.empty();
+  private static final Logger logger = LoggerFactory.getLogger(SoarTclInterface.class);
 
-    private SoarExceptionsManager exceptionsManager;
-    
-    // Making these volatile since we're always just swapping in entirely new copies
-    private volatile HashMap<String, String> aliasMap = new HashMap<>();
-    private volatile ArrayList<String> commandList = new ArrayList<>();
-    
-    /**
-     * Find the SoarTclInterface for the given agent.
-     * 
-     * <p>Note: you almost never want to use this. You'd be much happier
-     * with {@link Agent#getInterpreter()}.
-     * 
-     * @param agent the agent
-     * @return the Tcl interface, or {@code null} if none is associated with the agent.
-     */
-    public static SoarTclInterface find(Agent agent)
-    {
-        synchronized (interfaces)
-        {
-            return interfaces.get(agent);
-        }
+  private static final ConcurrentMap<Agent, SoarTclInterface> interfaces =
+      new MapMaker().weakKeys().makeMap();
+
+  private SoarCommandContext context = DefaultSoarCommandContext.empty();
+
+  private SoarExceptionsManager exceptionsManager;
+
+  // Making these volatile since we're always just swapping in entirely new copies
+  private volatile HashMap<String, String> aliasMap = new HashMap<>();
+  private volatile ArrayList<String> commandList = new ArrayList<>();
+
+  /**
+   * Find the SoarTclInterface for the given agent.
+   *
+   * <p>Note: you almost never want to use this. You'd be much happier with {@link
+   * Agent#getInterpreter()}.
+   *
+   * @param agent the agent
+   * @return the Tcl interface, or {@code null} if none is associated with the agent.
+   */
+  public static SoarTclInterface find(Agent agent) {
+    synchronized (interfaces) {
+      return interfaces.get(agent);
     }
-    
-    /**
-     * Find the Tcl interface associated with the given agent, or create
-     * a new one if there is none.
-     * 
-     * <p>Note: you almost never want to use this. You'd be much happier
-     * with {@link Agent#getInterpreter()}.
-     * 
-     * @param agent the agent
-     * @return the Tcl interface
-     */
-    public static SoarTclInterface findOrCreate(Agent agent)
-    {
-        synchronized (interfaces)
-        {
-            SoarTclInterface ifc = interfaces.get(agent);
-            if(ifc == null)
-            {
-                ifc = new SoarTclInterface(agent);
-                interfaces.put(agent, ifc);
-            }
-            return ifc;
-        }
+  }
+
+  /**
+   * Find the Tcl interface associated with the given agent, or create a new one if there is none.
+   *
+   * <p>Note: you almost never want to use this. You'd be much happier with {@link
+   * Agent#getInterpreter()}.
+   *
+   * @param agent the agent
+   * @return the Tcl interface
+   */
+  public static SoarTclInterface findOrCreate(Agent agent) {
+    synchronized (interfaces) {
+      SoarTclInterface ifc = interfaces.get(agent);
+      if (ifc == null) {
+        ifc = new SoarTclInterface(agent);
+        interfaces.put(agent, ifc);
+      }
+      return ifc;
     }
-    
-    /**
-     * Dispose of a Tcl interface, removing it from its agent.
-     * 
-     * <p>Note: you almost never want to use this. You'd be much happier
-     * with {@link Agent#getInterpreter()}.
-     * 
-     * @param ifc the interface. If it's {@code null} this method is a no-op.
-     */
-    public static void dispose(SoarTclInterface ifc)
-    {
-        if(ifc != null)
-        {
-            ifc.dispose();
-        }
+  }
+
+  /**
+   * Dispose of a Tcl interface, removing it from its agent.
+   *
+   * <p>Note: you almost never want to use this. You'd be much happier with {@link
+   * Agent#getInterpreter()}.
+   *
+   * @param ifc the interface. If it's {@code null} this method is a no-op.
+   */
+  public static void dispose(SoarTclInterface ifc) {
+    if (ifc != null) {
+      ifc.dispose();
     }
-    
-    private Agent agent;
-    private final Interp interp = new Interp();
-    
-    private final SourceCommand sourceCommand;
-    private LoadCommand loadCommand;
-    private SaveCommand saveCommand;
-    
-    private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
-    private final CmdRhsFunction cmdRhsFunction;
-    
-    private SoarTclInterface(Agent agent)
-    {
-        this.agent = agent;
-        this.cmdRhsFunction = new CmdRhsFunction(this, agent);
-        this.exceptionsManager = new SoarExceptionsManager();
-        
-        initializeEnv();
-        this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
-        this.agent.getRhsFunctions().registerHandler(cmdRhsFunction);
-        
-        // Interpreter-specific handlers
-        this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents());
-        addCommand("pushd", new PushdCommand(sourceCommand, agent));
-        addCommand("popd", new PopdCommand(sourceCommand, agent));
-        addCommand("pwd", new PwdCommand(sourceCommand));
-        
-        addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
-        
-        // rename the tcl built-in trace command to tcl-trace, to avoid a conflict with Soar's trace command
-        try
-        {
-            interp.renameCommand("trace", "tcl-trace");
-        }
-        catch (TclException e)
-        {
-            final String message = "Failed to rename tcl built-in trace command to tcl-trace: " + interp.getResult();
-            logger.error(message, e);
-            agent.getPrinter().error(message).flush();
-        }
-        
-        // Load general handlers
-        StandardCommands.addToInterpreter(agent, this);
-        
-        // this interpreter-specific handler depends on SpCommand, which is created as part of the standard commands
-        try
-        {
-            addCommand("load", this.loadCommand = new LoadCommand(sourceCommand, (SpCommand)this.getCommand("sp", null), agent));
-        }
-        catch (SoarException e)
-        {
-            final String message = "Failed to get 'sp' command";
-            logger.error(message, e);
-            agent.getPrinter().error(message).flush();
-        }
-        
-        addAliasedCommand("source", new String[] {"load", "file"}, this.loadCommand);
-        
-        try
-        {
-            URL url = SoarTclInterface.class.getResource(DEFAULT_TCL_CODE);
-            interp.evalURL(null, url.toString());
-        }
-        catch (TclException e)
-        {
-            final String message = "Failed to load resource " + DEFAULT_TCL_CODE + 
-                ". Some commands may not work as expected: " + interp.getResult();
-            logger.error(message, e);
-            agent.getPrinter().error(message);
-        }
-    }
-    
-    private void updateTCLInfo() {
-        try
-        {
-            updateTCLAliases();           
-            updateTCLProcsAndCommands();
-        }
-        catch (SoarException e)
-        {
-            logger.error("Unable to retreive alias information", e);
-            return;
-        }
+  }
+
+  private Agent agent;
+  private final Interp interp = new Interp();
+
+  private final SourceCommand sourceCommand;
+  private LoadCommand loadCommand;
+  private SaveCommand saveCommand;
+
+  private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+  private final CmdRhsFunction cmdRhsFunction;
+
+  private SoarTclInterface(Agent agent) {
+    this.agent = agent;
+    this.cmdRhsFunction = new CmdRhsFunction(this, agent);
+    this.exceptionsManager = new SoarExceptionsManager();
+
+    initializeEnv();
+    this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
+    this.agent.getRhsFunctions().registerHandler(cmdRhsFunction);
+
+    // Interpreter-specific handlers
+    this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents());
+    addCommand("pushd", new PushdCommand(sourceCommand, agent));
+    addCommand("popd", new PopdCommand(sourceCommand, agent));
+    addCommand("pwd", new PwdCommand(sourceCommand));
+
+    addCommand("save", this.saveCommand = new SaveCommand(sourceCommand, agent));
+
+    // rename the tcl built-in trace command to tcl-trace, to avoid a conflict with Soar's trace
+    // command
+    try {
+      interp.renameCommand("trace", "tcl-trace");
+    } catch (TclException e) {
+      final String message =
+          "Failed to rename tcl built-in trace command to tcl-trace: " + interp.getResult();
+      logger.error(message, e);
+      agent.getPrinter().error(message).flush();
     }
 
-    private void updateTCLProcsAndCommands() throws SoarException
-    {
-        ArrayList<String> curCommands = new ArrayList<>();
-        String result = this.eval("info commands");
-        logger.info("Commands\n\n{}", result);
-        String[] cmds = result.split("\\s+");
-        Collections.addAll(curCommands, cmds);
-        
-        result = this.eval("info procs");
-        logger.info("Procs\n{}", result);
-        String[] procs = result.split("\\s+");
-        Collections.addAll(curCommands, procs);
-        this.commandList = curCommands;
+    // Load general handlers
+    StandardCommands.addToInterpreter(agent, this);
+
+    // this interpreter-specific handler depends on SpCommand, which is created as part of the
+    // standard commands
+    try {
+      addCommand(
+          "load",
+          this.loadCommand =
+              new LoadCommand(sourceCommand, (SpCommand) this.getCommand("sp", null), agent));
+    } catch (SoarException e) {
+      final String message = "Failed to get 'sp' command";
+      logger.error(message, e);
+      agent.getPrinter().error(message).flush();
     }
 
-    private void updateTCLAliases() throws SoarException
-    {
-        String result = this.eval("alias");
-        String[] lines = result.split("\\R+");
-        HashMap<String,String> curAliases = new HashMap<>();
-        for (String line : lines) {
-            String[] args = line.split("->");
-            if (args.length == 2) {
-                String alias = args[0].trim();
-                String cmd = args[1].trim().replace("{", "").replace("}", "");
-                logger.debug("args = {} -> {}", alias, cmd);
-                curAliases.put(alias, cmd);
-            }
-            else
-            {
-                logger.error("Unable to parse alias = {}", line);
-            }
-        }
-        this.aliasMap = curAliases;
-    }
-    
-    /**
-     * Jacl only puts system properties in the <code>env</code> array. Let's add
-     * environment variables as well..
-     */
-    private void initializeEnv()
-    {
-        for(Map.Entry<String, String> e : System.getenv().entrySet())
-        {
-            try
-            {
-                // Windows env vars are case-insensitive, but Jacl's env implementation,
-                // unlike "real" Tcl doesn't take this into account, so for sanity we'll
-                // make them all upper case.
-                interp.setVar("env", e.getKey().toUpperCase(), e.getValue(), TCL.GLOBAL_ONLY);
-            }
-            catch (TclException ex)
-            {
-                final String message = "Failed to set environment variable '" + e + "': " + interp.getResult();
-                logger.error(message);
-                agent.getPrinter().error(message);
-            }
-        }
-    }
+    addAliasedCommand("source", new String[] {"load", "file"}, this.loadCommand);
 
-    private Command adapt(SoarCommand c)
-    {
-        return new SoarTclCommandAdapter(c, this);
+    try {
+      URL url = SoarTclInterface.class.getResource(DEFAULT_TCL_CODE);
+      interp.evalURL(null, url.toString());
+    } catch (TclException e) {
+      final String message =
+          "Failed to load resource "
+              + DEFAULT_TCL_CODE
+              + ". Some commands may not work as expected: "
+              + interp.getResult();
+      logger.error(message, e);
+      agent.getPrinter().error(message);
     }
-    
-    private Command adapt(SoarCommand c, String[] prefix)
-    {
-        return new SoarTclCommandAdapter(c, prefix, this);
+  }
+
+  private void updateTCLInfo() {
+    try {
+      updateTCLAliases();
+      updateTCLProcsAndCommands();
+    } catch (SoarException e) {
+      logger.error("Unable to retreive alias information", e);
+      return;
     }
-    
-    public SoarCommandContext getContext()
-    {
-        return context;
+  }
+
+  private void updateTCLProcsAndCommands() throws SoarException {
+    ArrayList<String> curCommands = new ArrayList<>();
+    String result = this.eval("info commands");
+    logger.info("Commands\n\n{}", result);
+    String[] cmds = result.split("\\s+");
+    Collections.addAll(curCommands, cmds);
+
+    result = this.eval("info procs");
+    logger.info("Procs\n{}", result);
+    String[] procs = result.split("\\s+");
+    Collections.addAll(curCommands, procs);
+    this.commandList = curCommands;
+  }
+
+  private void updateTCLAliases() throws SoarException {
+    String result = this.eval("alias");
+    String[] lines = result.split("\\R+");
+    HashMap<String, String> curAliases = new HashMap<>();
+    for (String line : lines) {
+      String[] args = line.split("->");
+      if (args.length == 2) {
+        String alias = args[0].trim();
+        String cmd = args[1].trim().replace("{", "").replace("}", "");
+        logger.debug("args = {} -> {}", alias, cmd);
+        curAliases.put(alias, cmd);
+      } else {
+        logger.error("Unable to parse alias = {}", line);
+      }
     }
-    
-    private void updateLastKnownSourceLocation(String location)
-    {
-        if (location != null)
-        {
-            try
-            {
-                SourceLocation sourceLocation = DefaultSourceLocation.newBuilder()
-                        .file(new File(location).getCanonicalPath())
-                        .build();
-                context = new DefaultSoarCommandContext(sourceLocation);
-            }
-            catch (IOException e)
-            {
-                // Do nothing.
-            }
-        }
+    this.aliasMap = curAliases;
+  }
+
+  /**
+   * Jacl only puts system properties in the <code>env</code> array. Let's add environment variables
+   * as well..
+   */
+  private void initializeEnv() {
+    for (Map.Entry<String, String> e : System.getenv().entrySet()) {
+      try {
+        // Windows env vars are case-insensitive, but Jacl's env implementation,
+        // unlike "real" Tcl doesn't take this into account, so for sanity we'll
+        // make them all upper case.
+        interp.setVar("env", e.getKey().toUpperCase(), e.getValue(), TCL.GLOBAL_ONLY);
+      } catch (TclException ex) {
+        final String message =
+            "Failed to set environment variable '" + e + "': " + interp.getResult();
+        logger.error(message);
+        agent.getPrinter().error(message);
+      }
     }
-    
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#getName()
-     */
+  }
+
+  private Command adapt(SoarCommand c) {
+    return new SoarTclCommandAdapter(c, this);
+  }
+
+  private Command adapt(SoarCommand c, String[] prefix) {
+    return new SoarTclCommandAdapter(c, prefix, this);
+  }
+
+  public SoarCommandContext getContext() {
+    return context;
+  }
+
+  private void updateLastKnownSourceLocation(String location) {
+    if (location != null) {
+      try {
+        SourceLocation sourceLocation =
+            DefaultSourceLocation.newBuilder().file(new File(location).getCanonicalPath()).build();
+        context = new DefaultSoarCommandContext(sourceLocation);
+      } catch (IOException e) {
+        // Do nothing.
+      }
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#getName()
+   */
+  @Override
+  public String getName() {
+    return "tcl";
+  }
+
+  public void dispose() {
+    synchronized (interfaces) {
+      interfaces.remove(agent);
+      try {
+        interp.dispose();
+      } catch (TclRuntimeError e) {
+        logger.warn("In dispose(): " + e.getMessage());
+      }
+      agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
+      agent = null;
+    }
+  }
+
+  @Override
+  public Collection<String> getSourcedFiles() {
+    return sourceCommand.getSourcedFiles();
+  }
+
+  public Agent getAgent() {
+    return agent;
+  }
+
+  public SoarExceptionsManager getTclContext() {
+    return this.exceptionsManager;
+  }
+
+  public void source(File file) throws SoarException {
+    sourceCommand.source(file.getPath());
+    updateTCLInfo();
+  }
+
+  public void source(URL url) throws SoarException {
+    sourceCommand.source(url.toExternalForm());
+    updateTCLInfo();
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
+   */
+  @Override
+  public void loadRete(File file) throws SoarException {
+    this.loadCommand.execute(
+        DefaultSoarCommandContext.empty(),
+        new String[] {"load", "rete-net", "--load", file.getAbsolutePath().replace('\\', '/')});
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
+   */
+  @Override
+  public void loadRete(URL url) throws SoarException {
+    this.loadCommand.execute(
+        DefaultSoarCommandContext.empty(),
+        new String[] {"load", "rete-net", "--load", url.toExternalForm()});
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
+   */
+  @Override
+  public void saveRete(File file) throws SoarException {
+    this.saveCommand.execute(
+        DefaultSoarCommandContext.empty(),
+        new String[] {"save", "rete-net", "--save", file.getPath().replace('\\', '/')});
+  }
+
+  @Override
+  public String getWorkingDirectory() {
+    return sourceCommand.getWorkingDirectory();
+  }
+
+  public synchronized String eval(String command) throws SoarException {
+    // Convert CRLFs (Windows line delimiters) to LFs.
+    // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
+    // See {@link TclLineContinuationTest}
+    command = command.replaceAll("\r\n", "\n");
+    command = command.replaceAll("\r", "\n");
+    try {
+      interp.eval(command);
+      return interp.getResult().toString();
+    } catch (TclException e) {
+      throw new TclInterpreterException(interp.getResult().toString());
+      //            throw new SoarException(interp.getResult().toString());
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
+   */
+  @Override
+  public void addCommand(String name, SoarCommand handler) {
+    interp.createCommand(name, adapt(handler));
+  }
+
+  public void addAliasedCommand(String alias, String[] actualCommand, SoarCommand handler) {
+    interp.createCommand(alias, adapt(handler, actualCommand));
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreter#findCommand(java.lang.String, org.jsoar.util.SourceLocation)
+   */
+  @Override
+  public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException {
+    Command command = interp.getCommand(name);
+    while (command instanceof InterpAliasCmd) {
+      try {
+        command = ((InterpAliasCmd) command).getTargetCmd(interp).cmd;
+      } catch (TclException e) {
+        e.printStackTrace();
+      }
+    }
+    if (command instanceof SoarTclCommandAdapter) {
+      SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter) command;
+      return commandAdapter.getSoarCommand();
+    } else if (command instanceof SoarCommand) {
+      return (SoarCommand) command;
+    }
+    throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+  }
+
+  @Override
+  public String[] getCompletionList(String command, int cursorPosition) {
+    List<String> commandsList = new ArrayList<>();
+    for (String s : this.commandList) {
+      if (s.startsWith(command)) {
+        commandsList.add(s);
+      }
+    }
+    return commandsList.toArray(new String[0]);
+  }
+
+  private class MySourceCommandAdapter implements SourceCommandAdapter {
     @Override
-    public String getName()
-    {
-        return "tcl";
-    }
+    public void eval(File file) throws SoarException {
+      SoarTclInterface.this.updateLastKnownSourceLocation(file.getPath());
 
-    public void dispose()
-    {
-        synchronized(interfaces)
-        {
-            interfaces.remove(agent);
-            try
-            {
-                interp.dispose();
-            }
-            catch (TclRuntimeError e)
-            {
-                logger.warn("In dispose(): " + e.getMessage());
-            }
-            agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
-            agent = null;
-        }
-    }
-    
-    @Override
-    public Collection<String> getSourcedFiles() 
-    {
-        return sourceCommand.getSourcedFiles();
-    }
-
-    public Agent getAgent()
-    {
-        return agent;
-    }
-
-    public SoarExceptionsManager getTclContext() {
-        return this.exceptionsManager;
-    }
-    
-    public void source(File file) throws SoarException
-    {
-        sourceCommand.source(file.getPath());
-        updateTCLInfo();
-    }
-    
-    public void source(URL url) throws SoarException
-    {
-        sourceCommand.source(url.toExternalForm());
-        updateTCLInfo();
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
-     */
-    @Override
-    public void loadRete(File file) throws SoarException
-    {
-        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "load", "rete-net", "--load", file.getAbsolutePath().replace('\\', '/') });
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
-     */
-    @Override
-    public void loadRete(URL url) throws SoarException
-    {
-        this.loadCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "load", "rete-net", "--load", url.toExternalForm() });
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
-     */
-    @Override
-    public void saveRete(File file) throws SoarException
-    {
-        this.saveCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "save", "rete-net", "--save", file.getPath().replace('\\', '/') });
-    }
-    
-    @Override
-    public String getWorkingDirectory()
-    {
-        return sourceCommand.getWorkingDirectory();
-    }
-    
-    public synchronized String eval(String command) throws SoarException
-    {        
-    	// Convert CRLFs (Windows line delimiters) to LFs.
-        // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
-        // See {@link TclLineContinuationTest}
-        command = command.replaceAll("\r\n", "\n");
-        command = command.replaceAll("\r", "\n");
-        try
-        {
-            interp.eval(command);
-            return interp.getResult().toString();
-        }
-        catch (TclException e)
-        {
-            throw new TclInterpreterException(interp.getResult().toString());
-//            throw new SoarException(interp.getResult().toString());
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
-     */
-    @Override
-    public void addCommand(String name, SoarCommand handler)
-    {
-        interp.createCommand(name, adapt(handler));
-    }
-    
-    public void addAliasedCommand(String alias, String[] actualCommand, SoarCommand handler ) {
-        interp.createCommand(alias, adapt(handler, actualCommand));
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#findCommand(java.lang.String, org.jsoar.util.SourceLocation)
-     */
-    @Override
-    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
-    {
-        Command command = interp.getCommand(name);
-        while (command instanceof InterpAliasCmd) {
-            try {
-                command = ((InterpAliasCmd)command).getTargetCmd(interp).cmd;
-            } catch (TclException e) {
-                e.printStackTrace();
-            }
-        }
-        if (command instanceof SoarTclCommandAdapter) {
-            SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter) command;
-            return commandAdapter.getSoarCommand();
-        } else if (command instanceof SoarCommand){
-            return (SoarCommand) command;
-        }
-        throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+      try {
+        interp.evalFile(file.getAbsolutePath());
+      } catch (TclException e) {
+        String errLocation =
+            "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
+        throw new SoarException(
+            errLocation + System.getProperty("line.separator") + interp.getResult().toString());
+      }
     }
 
     @Override
-    public String[] getCompletionList(String command, int cursorPosition)
-    {
-        List<String> commandsList = new ArrayList<>();
-        for (String s : this.commandList)
-        {
-            if (s.startsWith(command))
-            {
-                commandsList.add(s);
-            }
-        }
-        return commandsList.toArray(new String[0]);
-    }
+    public void eval(URL url) throws SoarException {
+      try {
+        url = UrlTools.normalize(url);
 
-    private class MySourceCommandAdapter implements SourceCommandAdapter
-    {
-        @Override
-        public void eval(File file) throws SoarException
-        {
-            SoarTclInterface.this.updateLastKnownSourceLocation(file.getPath());
-            
-            try
-            {
-                interp.evalFile(file.getAbsolutePath());
-            }
-            catch (TclException e)
-            {
-                String errLocation = "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
-                throw new SoarException(errLocation + System.getProperty("line.separator") + interp.getResult().toString());
-            }
-        }
+        SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
 
-        @Override
-        public void eval(URL url) throws SoarException
-        {
-            try
-            {
-                url = UrlTools.normalize(url);
-                
-                SoarTclInterface.this.updateLastKnownSourceLocation(url.getPath());
-                
-                try(final InputStream in = new BufferedInputStream(url.openStream()))
-                {
-                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    ByteStreams.copy(in, out);
-                    eval(out.toString());
-                }
-            }
-            catch(IOException | URISyntaxException e)
-            {
-                throw new SoarException(e.getMessage(), e);
-            }
+        try (final InputStream in = new BufferedInputStream(url.openStream())) {
+          final ByteArrayOutputStream out = new ByteArrayOutputStream();
+          ByteStreams.copy(in, out);
+          eval(out.toString());
         }
-
-        @Override
-        public String eval(String code) throws SoarException
-        {
-            return SoarTclInterface.this.eval(code);
-        }
+      } catch (IOException | URISyntaxException e) {
+        throw new SoarException(e.getMessage(), e);
+      }
     }
 
     @Override
-    public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
-    {
-        List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
-        String aliasCmd = this.aliasMap.get(args.get(0));
-        
-        // there is no alias, so just return the original args
-        if(aliasCmd == null)
-        {
-            return new ParsedCommand(srcLoc, args);
-        }
-        
-        // there is an alias, so split it and add the original args to it
-        List<String> aliasArgs = new ArrayList<>(Arrays.asList(aliasCmd.split("\\s")));
-        aliasArgs.addAll(args.subList(1, args.size()));
-        
-        return new ParsedCommand(srcLoc, aliasArgs);
+    public String eval(String code) throws SoarException {
+      return SoarTclInterface.this.eval(code);
+    }
+  }
+
+  @Override
+  public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc) {
+    List<String> args = new ArrayList<>(Arrays.asList(name.split("\\s+")));
+    String aliasCmd = this.aliasMap.get(args.get(0));
+
+    // there is no alias, so just return the original args
+    if (aliasCmd == null) {
+      return new ParsedCommand(srcLoc, args);
     }
 
-    @Override
-    public List<String> getCommandStrings() throws SoarException
-    {
-        String[] commandNames = this.eval("info commands").split("\\s");
-        List<String> soarCommandNames = new ArrayList<>();
-        
-        for(String commandName : commandNames) {
-            Command command = interp.getCommand(commandName);
-            if (command instanceof SoarTclCommandAdapter || command instanceof SoarCommand) {
-                soarCommandNames.add(commandName);
-            } // else ignore (e.g., aliases, tcl commands)
-        }
-        Collections.sort(soarCommandNames);
-        return soarCommandNames;
-    }
+    // there is an alias, so split it and add the original args to it
+    List<String> aliasArgs = new ArrayList<>(Arrays.asList(aliasCmd.split("\\s")));
+    aliasArgs.addAll(args.subList(1, args.size()));
 
-    @Override
-    public SoarExceptionsManager getExceptionsManager() {
-        return exceptionsManager;
+    return new ParsedCommand(srcLoc, aliasArgs);
+  }
+
+  @Override
+  public List<String> getCommandStrings() throws SoarException {
+    String[] commandNames = this.eval("info commands").split("\\s");
+    List<String> soarCommandNames = new ArrayList<>();
+
+    for (String commandName : commandNames) {
+      Command command = interp.getCommand(commandName);
+      if (command instanceof SoarTclCommandAdapter || command instanceof SoarCommand) {
+        soarCommandNames.add(commandName);
+      } // else ignore (e.g., aliases, tcl commands)
     }
+    Collections.sort(soarCommandNames);
+    return soarCommandNames;
+  }
+
+  @Override
+  public SoarExceptionsManager getExceptionsManager() {
+    return exceptionsManager;
+  }
 }

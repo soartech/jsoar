@@ -9,32 +9,25 @@ import org.jsoar.util.ListHead;
 
 /**
  * data for beta memory nodes only
- * 
- * rete.cpp:372
- * 
+ *
+ * <p>rete.cpp:372
+ *
  * @author ray
  */
-class BetaMemoryNodeData implements BReteNodeData
-{
-    // first pos node child that is left-linked
-    final ListHead<ReteNode> first_linked_child;
+class BetaMemoryNodeData implements BReteNodeData {
+  // first pos node child that is left-linked
+  final ListHead<ReteNode> first_linked_child;
 
-    public BetaMemoryNodeData()
-    {
-        this.first_linked_child = ListHead.newInstance();
-    }
-    
-    private BetaMemoryNodeData(BetaMemoryNodeData other)
-    {
-        this.first_linked_child = ListHead.newInstance(other.first_linked_child);
-    }
-    
-    /**
-     * @return Shallow copy of this object
-     */
-    public BetaMemoryNodeData copy()
-    {
-        return new BetaMemoryNodeData(this);
-    }  
+  public BetaMemoryNodeData() {
+    this.first_linked_child = ListHead.newInstance();
+  }
 
+  private BetaMemoryNodeData(BetaMemoryNodeData other) {
+    this.first_linked_child = ListHead.newInstance(other.first_linked_child);
+  }
+
+  /** @return Shallow copy of this object */
+  public BetaMemoryNodeData copy() {
+    return new BetaMemoryNodeData(this);
+  }
 }

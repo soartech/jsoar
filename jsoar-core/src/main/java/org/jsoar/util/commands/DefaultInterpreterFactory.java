@@ -7,28 +7,22 @@ package org.jsoar.util.commands;
 
 import org.jsoar.kernel.Agent;
 
-/**
- * @author ray
- */
-public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory
-{
+/** @author ray */
+public class DefaultInterpreterFactory implements SoarCommandInterpreterFactory {
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#create(org.jsoar.kernel.Agent)
-     */
-    @Override
-    public SoarCommandInterpreter create(Agent agent)
-    {
-        return new DefaultInterpreter(agent);
-    }
+  /* (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#create(org.jsoar.kernel.Agent)
+   */
+  @Override
+  public SoarCommandInterpreter create(Agent agent) {
+    return new DefaultInterpreter(agent);
+  }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#getName()
-     */
-    @Override
-    public String getName()
-    {
-        return "default";
-    }
-
+  /* (non-Javadoc)
+   * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#getName()
+   */
+  @Override
+  public String getName() {
+    return "default";
+  }
 }

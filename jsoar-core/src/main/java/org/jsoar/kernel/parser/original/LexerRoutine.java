@@ -7,10 +7,7 @@ package org.jsoar.kernel.parser.original;
 
 import java.io.IOException;
 
-/**
- * @author ray
- */
-interface LexerRoutine
-{
-    void lex(Lexer lexer) throws IOException;
+/** @author ray */
+interface LexerRoutine {
+  void lex(Lexer lexer) throws IOException;
 }

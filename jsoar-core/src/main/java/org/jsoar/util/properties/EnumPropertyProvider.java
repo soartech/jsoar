@@ -9,45 +9,38 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Property provider for an enumeration.
- * 
+ *
  * @author ray
  */
-public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider<T>
-{
-    public final PropertyKey<T> key;
-    private final AtomicReference<T> value;
-    
-    public EnumPropertyProvider(PropertyKey<T> key)
-    {
-        this.key = key;
-        this.value = new AtomicReference<T>(key.getDefaultValue());
-    }
-    
-    @Override
-    public T get()
-    {
-        return value.get();
-    }
+public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider<T> {
+  public final PropertyKey<T> key;
+  private final AtomicReference<T> value;
 
-    @Override
-    public T set(T newValue)
-    {
-        if(newValue == null)
-        {
-            throw new NullPointerException("newValue should not be null");
-        }
-        T oldValue = get();
-        value.set(newValue);
-        return oldValue;
-    }
+  public EnumPropertyProvider(PropertyKey<T> key) {
+    this.key = key;
+    this.value = new AtomicReference<T>(key.getDefaultValue());
+  }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString()
-    {
-        return value.toString();
-    }
+  @Override
+  public T get() {
+    return value.get();
+  }
 
+  @Override
+  public T set(T newValue) {
+    if (newValue == null) {
+      throw new NullPointerException("newValue should not be null");
+    }
+    T oldValue = get();
+    value.set(newValue);
+    return oldValue;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

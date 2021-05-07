@@ -6,14 +6,11 @@
 package org.jsoar.util.timing;
 
 /**
- * An interface representing a time source used by timers. 
- * 
+ * An interface representing a time source used by timers.
+ *
  * @author ray
  */
-public interface ExecutionTimeSource
-{
-    /**
-     * @return A monotonically increasing timestamp with microsecond resolution
-     */
-    long getMicroseconds();
+public interface ExecutionTimeSource {
+  /** @return A monotonically increasing timestamp with microsecond resolution */
+  long getMicroseconds();
 }

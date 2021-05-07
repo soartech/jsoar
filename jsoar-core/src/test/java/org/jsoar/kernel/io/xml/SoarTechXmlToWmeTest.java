@@ -18,79 +18,76 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SoarTechXmlToWmeTest
-{
+public class SoarTechXmlToWmeTest {
 
-    @Before
-    public void setUp() throws Exception
-    {
-    }
+  @Before
+  public void setUp() throws Exception {}
 
-    @After
-    public void tearDown() throws Exception
-    {
-    }
+  @After
+  public void tearDown() throws Exception {}
 
-    @Test
-    public void testFromXml() throws Exception
-    {
-        final Agent agent = new Agent();
-                
-        agent.getProperties().set(SoarProperties.WAITSNC, true);
-        agent.getProductions().loadProduction(
-                "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-st-xml |" +
-                "<ignored>" +
-                "<location link-id='L1'>" +
-                "   <name>Ann Arbor</name>" +
-                "   <population type='integer'>100000</population>" +
-                "</location>" +
-                "<person>" +
-                "   <name>Bill</name>" +
-                "   <where link='L1'/>" +
-                "</person>" +
-                "</ignored>|))");
-        agent.runFor(1, RunType.DECISIONS);
-        
-        final Identifier il = agent.getInputOutput().getInputLink();
-        final MatcherBuilder m = Wmes.matcher(agent);
-        final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
-        assertNotNull(xml);
-        
-        final Wme location = m.attr("location").find(xml);
-        assertNotNull(location);
-        assertEquals("Ann Arbor", m.attr("name").find(location).getValue().asString().getValue());
-        assertEquals(100000, m.attr("population").find(location).getValue().asInteger().getValue());
-        
-        final Wme person = m.attr("person").find(xml);
-        assertNotNull(person);
-        assertEquals("Bill", m.attr("name").find(person).getValue().asString().getValue());
-        assertSame(location.getValue(), m.attr("where").find(person).getValue());
-    }
+  @Test
+  public void testFromXml() throws Exception {
+    final Agent agent = new Agent();
 
-    @Test
-    public void testValueAttributeIsHandled() throws Exception
-    {
-        final Agent agent = new Agent();
-                
-        agent.getProperties().set(SoarProperties.WAITSNC, true);
-        agent.getProductions().loadProduction(
-                "testValueAttributeIsHandled (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-st-xml |" +
-                "<ignored>" +
-                "<name value='hello'/>" +
-                "<age type='integer' value='33'/>" +
-                "<weight type='double' value='180.5'/>" +
-                "</ignored>|))");
-        agent.runFor(1, RunType.DECISIONS);
-        
-        final Identifier il = agent.getInputOutput().getInputLink();
-        final MatcherBuilder m = Wmes.matcher(agent);
-        final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
-        assertNotNull(xml);
-        
-        assertEquals("hello", m.attr("name").find(xml).getValue().asString().getValue());
-        assertEquals(33, m.attr("age").find(xml).getValue().asInteger().getValue());
-        assertEquals(180.5, m.attr("weight").find(xml).getValue().asDouble().getValue(), 0.0001);
-    }
+    agent.getProperties().set(SoarProperties.WAITSNC, true);
+    agent
+        .getProductions()
+        .loadProduction(
+            "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->"
+                + "(<il> ^xml (from-st-xml |"
+                + "<ignored>"
+                + "<location link-id='L1'>"
+                + "   <name>Ann Arbor</name>"
+                + "   <population type='integer'>100000</population>"
+                + "</location>"
+                + "<person>"
+                + "   <name>Bill</name>"
+                + "   <where link='L1'/>"
+                + "</person>"
+                + "</ignored>|))");
+    agent.runFor(1, RunType.DECISIONS);
+
+    final Identifier il = agent.getInputOutput().getInputLink();
+    final MatcherBuilder m = Wmes.matcher(agent);
+    final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
+    assertNotNull(xml);
+
+    final Wme location = m.attr("location").find(xml);
+    assertNotNull(location);
+    assertEquals("Ann Arbor", m.attr("name").find(location).getValue().asString().getValue());
+    assertEquals(100000, m.attr("population").find(location).getValue().asInteger().getValue());
+
+    final Wme person = m.attr("person").find(xml);
+    assertNotNull(person);
+    assertEquals("Bill", m.attr("name").find(person).getValue().asString().getValue());
+    assertSame(location.getValue(), m.attr("where").find(person).getValue());
+  }
+
+  @Test
+  public void testValueAttributeIsHandled() throws Exception {
+    final Agent agent = new Agent();
+
+    agent.getProperties().set(SoarProperties.WAITSNC, true);
+    agent
+        .getProductions()
+        .loadProduction(
+            "testValueAttributeIsHandled (state <s> ^superstate nil ^io.input-link <il>) -->"
+                + "(<il> ^xml (from-st-xml |"
+                + "<ignored>"
+                + "<name value='hello'/>"
+                + "<age type='integer' value='33'/>"
+                + "<weight type='double' value='180.5'/>"
+                + "</ignored>|))");
+    agent.runFor(1, RunType.DECISIONS);
+
+    final Identifier il = agent.getInputOutput().getInputLink();
+    final MatcherBuilder m = Wmes.matcher(agent);
+    final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
+    assertNotNull(xml);
+
+    assertEquals("hello", m.attr("name").find(xml).getValue().asString().getValue());
+    assertEquals(33, m.attr("age").find(xml).getValue().asInteger().getValue());
+    assertEquals(180.5, m.attr("weight").find(xml).getValue().asDouble().getValue(), 0.0001);
+  }
 }

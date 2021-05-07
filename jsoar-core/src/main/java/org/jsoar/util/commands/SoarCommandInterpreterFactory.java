@@ -7,11 +7,9 @@ package org.jsoar.util.commands;
 
 import org.jsoar.kernel.Agent;
 
-/**
- * @author ray
- */
-public interface SoarCommandInterpreterFactory
-{
-    String getName();
-    SoarCommandInterpreter create(Agent agent);
+/** @author ray */
+public interface SoarCommandInterpreterFactory {
+  String getName();
+
+  SoarCommandInterpreter create(Agent agent);
 }

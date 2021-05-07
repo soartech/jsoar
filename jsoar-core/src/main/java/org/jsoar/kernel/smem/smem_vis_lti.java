@@ -6,13 +6,12 @@
 package org.jsoar.kernel.smem;
 
 /**
- * <p>semantic_memory.h:357:smem_vis_lti
- * 
+ * semantic_memory.h:357:smem_vis_lti
+ *
  * @author ray
  */
-class smem_vis_lti
-{
-    /*smem_lti_id*/ long lti_id;
-    String lti_name;
-    /*unsigned int*/ int level;
+class smem_vis_lti {
+  /*smem_lti_id*/ long lti_id;
+  String lti_name;
+  /*unsigned int*/ int level;
 }

@@ -1,53 +1,50 @@
 package org.jsoar.kernel.smem.math;
 
-public class MathQueryMin extends MathQuery
-{
-    private double doubleValue = Double.POSITIVE_INFINITY;
-    private double stagedDoubleValue = Double.POSITIVE_INFINITY;
-    private long longValue = Long.MAX_VALUE;
-    private long stagedLongValue = Long.MAX_VALUE;
-    
-    private void stageDouble(double d){
-        if(d < stagedDoubleValue){
-            stagedDoubleValue = d;
-        }
-    }
-    private void stageLong(long l){
-        if(l < stagedLongValue){
-            stagedLongValue = l;
-        }
-    }
-    
-    @Override
-    public boolean valueIsAcceptable(double value)
-    {
-        if(value < doubleValue && value < longValue){
-            stageDouble(value);
-            return true;
-        }
-        return false;
-    }
+public class MathQueryMin extends MathQuery {
+  private double doubleValue = Double.POSITIVE_INFINITY;
+  private double stagedDoubleValue = Double.POSITIVE_INFINITY;
+  private long longValue = Long.MAX_VALUE;
+  private long stagedLongValue = Long.MAX_VALUE;
 
-    @Override
-    public boolean valueIsAcceptable(long value)
-    {
-        if(value < doubleValue && value < longValue){
-            stageLong(value);
-            return true;
-        }
-        return false;
+  private void stageDouble(double d) {
+    if (d < stagedDoubleValue) {
+      stagedDoubleValue = d;
     }
+  }
 
-    @Override
-    public void commit()
-    {
-        doubleValue = stagedDoubleValue;
-        longValue = stagedLongValue;
+  private void stageLong(long l) {
+    if (l < stagedLongValue) {
+      stagedLongValue = l;
     }
-    @Override
-    public void rollback()
-    {
-        stagedDoubleValue = doubleValue;
-        stagedLongValue = longValue;
+  }
+
+  @Override
+  public boolean valueIsAcceptable(double value) {
+    if (value < doubleValue && value < longValue) {
+      stageDouble(value);
+      return true;
     }
+    return false;
+  }
+
+  @Override
+  public boolean valueIsAcceptable(long value) {
+    if (value < doubleValue && value < longValue) {
+      stageLong(value);
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public void commit() {
+    doubleValue = stagedDoubleValue;
+    longValue = stagedLongValue;
+  }
+
+  @Override
+  public void rollback() {
+    stagedDoubleValue = doubleValue;
+    stagedLongValue = longValue;
+  }
 }

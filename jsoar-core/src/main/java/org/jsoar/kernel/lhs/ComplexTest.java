@@ -5,19 +5,14 @@
  */
 package org.jsoar.kernel.lhs;
 
-/**
- * @author ray
- */
-public abstract class ComplexTest extends Test
-{
+/** @author ray */
+public abstract class ComplexTest extends Test {
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.ComplexTest#asComplexTest()
-     */
-    @Override
-    public ComplexTest asComplexTest()
-    {
-        return this;
-    }
-
+  /* (non-Javadoc)
+   * @see org.jsoar.kernel.ComplexTest#asComplexTest()
+   */
+  @Override
+  public ComplexTest asComplexTest() {
+    return this;
+  }
 }

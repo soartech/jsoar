@@ -7,14 +7,13 @@ package org.jsoar.kernel.symbols;
 
 /**
  * A symbol whose value is a string
- * 
+ *
  * @author ray
  */
-public interface StringSymbol extends Symbol
-{
-    /**
-     * @return The value of the symbol
-     * @see Symbols#valueOf(Symbol)
-     */
-    String getValue();
+public interface StringSymbol extends Symbol {
+  /**
+   * @return The value of the symbol
+   * @see Symbols#valueOf(Symbol)
+   */
+  String getValue();
 }

@@ -1,6 +1,4 @@
-/**
- * 
- */
+/** */
 package org.jsoar.performancetesting.yaml;
 
 import java.nio.file.Path;
@@ -9,235 +7,212 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A class for holding test settings. This is used all over the place for
- * getting individual test settings. It is usually constructed with a default
- * test setting object (another TestSettings object) and then any additional
- * assignments overwrite those values. This means there is less overhead for
- * trying to determine the settings for a test.
- * 
- * @author ALT
+ * A class for holding test settings. This is used all over the place for getting individual test
+ * settings. It is usually constructed with a default test setting object (another TestSettings
+ * object) and then any additional assignments overwrite those values. This means there is less
+ * overhead for trying to determine the settings for a test.
  *
+ * @author ALT
  */
-public class TestSettings
-{
-    private boolean jsoarEnabled;
+public class TestSettings {
+  private boolean jsoarEnabled;
 
-    private boolean csoarEnabled;
+  private boolean csoarEnabled;
 
-    private int runCount;
+  private int runCount;
 
-    private int warmUpCount;
+  private int warmUpCount;
 
-    private List<Integer> decisionCycles;
+  private List<Integer> decisionCycles;
 
-    private boolean useSeed;
+  private boolean useSeed;
 
-    private long seed;
+  private long seed;
 
-    private Path csvDirectory = Paths.get("");
+  private Path csvDirectory = Paths.get("");
 
-    private Path summaryFile = Paths.get("");
+  private Path summaryFile = Paths.get("");
 
-    private List<Path> csoarDirectories;
+  private List<Path> csoarDirectories;
 
-    private List<Path> jsoarCoreJars;
+  private List<Path> jsoarCoreJars;
 
-    private String jvmSettings;
+  private String jvmSettings;
 
-    // used by yaml reader
-    public TestSettings() {
-        this(Configuration.defaultSettings);
-    }
-    
-    public TestSettings(TestSettings other)
-    {
-        if(other == null) return;
-        
-        jsoarEnabled = other.isJsoarEnabled();
-        csoarEnabled = other.isCsoarEnabled();
+  // used by yaml reader
+  public TestSettings() {
+    this(Configuration.defaultSettings);
+  }
 
-        runCount = other.getRunCount();
-        warmUpCount = other.getWarmUpCount();
+  public TestSettings(TestSettings other) {
+    if (other == null) return;
 
-        decisionCycles = other.getDecisionCycles();
+    jsoarEnabled = other.isJsoarEnabled();
+    csoarEnabled = other.isCsoarEnabled();
 
-        useSeed = other.isUsingSeed();
-        seed = other.getSeed();
+    runCount = other.getRunCount();
+    warmUpCount = other.getWarmUpCount();
 
-        csvDirectory = other.getCsvDirectory();
-        summaryFile = other.getSummaryFile();
+    decisionCycles = other.getDecisionCycles();
 
-        csoarDirectories = other.getCsoarDirectories();
-        jsoarCoreJars = other.getJsoarCoreJars();
+    useSeed = other.isUsingSeed();
+    seed = other.getSeed();
 
-        jvmSettings = other.getJvmSettings();
-    }
+    csvDirectory = other.getCsvDirectory();
+    summaryFile = other.getSummaryFile();
 
-    public TestSettings(boolean jsoarEnabled, boolean csoarEnabled,
-            int runCount, int warmUpCount, List<Integer> decisionCycles,
-            boolean useSeed, long seed, Path csvDirectory,
-            Path summaryFile, List<Path> csoarDirectories,
-            List<Path> jsoarDirectories, String jvmSettings)
-    {
-        this.jsoarEnabled = jsoarEnabled;
-        this.csoarEnabled = csoarEnabled;
+    csoarDirectories = other.getCsoarDirectories();
+    jsoarCoreJars = other.getJsoarCoreJars();
 
-        this.runCount = runCount;
-        this.warmUpCount = warmUpCount;
+    jvmSettings = other.getJvmSettings();
+  }
 
-        this.decisionCycles = decisionCycles;
+  public TestSettings(
+      boolean jsoarEnabled,
+      boolean csoarEnabled,
+      int runCount,
+      int warmUpCount,
+      List<Integer> decisionCycles,
+      boolean useSeed,
+      long seed,
+      Path csvDirectory,
+      Path summaryFile,
+      List<Path> csoarDirectories,
+      List<Path> jsoarDirectories,
+      String jvmSettings) {
+    this.jsoarEnabled = jsoarEnabled;
+    this.csoarEnabled = csoarEnabled;
 
-        this.useSeed = useSeed;
-        this.seed = seed;
+    this.runCount = runCount;
+    this.warmUpCount = warmUpCount;
 
-        this.csvDirectory = csvDirectory;
-        this.summaryFile = summaryFile;
+    this.decisionCycles = decisionCycles;
 
-        this.csoarDirectories = csoarDirectories;
-        this.jsoarCoreJars = jsoarDirectories;
+    this.useSeed = useSeed;
+    this.seed = seed;
 
-        this.jvmSettings = jvmSettings;
+    this.csvDirectory = csvDirectory;
+    this.summaryFile = summaryFile;
 
-        // Sanity check
-        if (this.csoarEnabled && csoarDirectories.size() == 0)
-        {
-            throw new RuntimeException(
-                    "Sanity Check Failed!  CSoar is enabled but there are no directories specified for it!");
-        }
+    this.csoarDirectories = csoarDirectories;
+    this.jsoarCoreJars = jsoarDirectories;
 
-        if (this.jsoarEnabled && jsoarDirectories.size() == 0)
-        {
-            throw new RuntimeException(
-                    "Sanity Check Failed!  JSoar is enabled but there are no directories specified for it!");
-        }
+    this.jvmSettings = jvmSettings;
+
+    // Sanity check
+    if (this.csoarEnabled && csoarDirectories.size() == 0) {
+      throw new RuntimeException(
+          "Sanity Check Failed!  CSoar is enabled but there are no directories specified for it!");
     }
 
-    public void setJsoarEnabled(boolean jsoarEnabled)
-    {
-        this.jsoarEnabled = jsoarEnabled;
+    if (this.jsoarEnabled && jsoarDirectories.size() == 0) {
+      throw new RuntimeException(
+          "Sanity Check Failed!  JSoar is enabled but there are no directories specified for it!");
     }
+  }
 
-    public boolean isJsoarEnabled()
-    {
-        return jsoarEnabled;
-    }
+  public void setJsoarEnabled(boolean jsoarEnabled) {
+    this.jsoarEnabled = jsoarEnabled;
+  }
 
-    public void setCsoarEnabled(boolean csoarEnabled)
-    {
-        this.csoarEnabled = csoarEnabled;
-    }
+  public boolean isJsoarEnabled() {
+    return jsoarEnabled;
+  }
 
-    public boolean isCsoarEnabled()
-    {
-        return csoarEnabled;
-    }
+  public void setCsoarEnabled(boolean csoarEnabled) {
+    this.csoarEnabled = csoarEnabled;
+  }
 
-    public void setRunCount(int runCount)
-    {
-        this.runCount = runCount;
-    }
+  public boolean isCsoarEnabled() {
+    return csoarEnabled;
+  }
 
-    public int getRunCount()
-    {
-        return runCount;
-    }
+  public void setRunCount(int runCount) {
+    this.runCount = runCount;
+  }
 
-    public void setWarmUpCount(int warmUpCount)
-    {
-        this.warmUpCount = warmUpCount;
-    }
+  public int getRunCount() {
+    return runCount;
+  }
 
-    public int getWarmUpCount()
-    {
-        return warmUpCount;
-    }
+  public void setWarmUpCount(int warmUpCount) {
+    this.warmUpCount = warmUpCount;
+  }
 
-    public void setDecisionCycles(List<Integer> decisionCycles)
-    {
-        this.decisionCycles = decisionCycles;
-    }
+  public int getWarmUpCount() {
+    return warmUpCount;
+  }
 
-    public List<Integer> getDecisionCycles()
-    {
-        return decisionCycles;
-    }
+  public void setDecisionCycles(List<Integer> decisionCycles) {
+    this.decisionCycles = decisionCycles;
+  }
 
-    public void setUseSeed(boolean useSeed)
-    {
-        this.useSeed = useSeed;
-    }
+  public List<Integer> getDecisionCycles() {
+    return decisionCycles;
+  }
 
-    public boolean isUsingSeed()
-    {
-        return this.useSeed;
-    }
+  public void setUseSeed(boolean useSeed) {
+    this.useSeed = useSeed;
+  }
 
-    public void setSeed(long seed)
-    {
-        this.seed = seed;
-    }
+  public boolean isUsingSeed() {
+    return this.useSeed;
+  }
 
-    public long getSeed()
-    {
-        return seed;
-    }
+  public void setSeed(long seed) {
+    this.seed = seed;
+  }
 
-    public void setCsvDirectory(Path csvDirectory)
-    {
-        this.csvDirectory = csvDirectory;
-    }
+  public long getSeed() {
+    return seed;
+  }
 
-    public Path getCsvDirectory()
-    {
-        return csvDirectory;
-    }
+  public void setCsvDirectory(Path csvDirectory) {
+    this.csvDirectory = csvDirectory;
+  }
 
-    public void setSummaryFile(Path summaryFile)
-    {
-        this.summaryFile = summaryFile;
-    }
+  public Path getCsvDirectory() {
+    return csvDirectory;
+  }
 
-    public Path getSummaryFile()
-    {
-        return summaryFile;
-    }
+  public void setSummaryFile(Path summaryFile) {
+    this.summaryFile = summaryFile;
+  }
 
-    public void setCsoarDirectories(List<Path> csoarDirectories)
-    {
-        this.csoarDirectories = TestSettings.processUserHomeInPaths(csoarDirectories);
-    }
+  public Path getSummaryFile() {
+    return summaryFile;
+  }
 
-    public List<Path> getCsoarDirectories()
-    {
-        return csoarDirectories;
-    }
+  public void setCsoarDirectories(List<Path> csoarDirectories) {
+    this.csoarDirectories = TestSettings.processUserHomeInPaths(csoarDirectories);
+  }
 
-    public void setJsoarCoreJars(List<Path> jsoarCoreJars)
-    {
-        this.jsoarCoreJars = TestSettings.processUserHomeInPaths(jsoarCoreJars);
-    }
+  public List<Path> getCsoarDirectories() {
+    return csoarDirectories;
+  }
 
-    public List<Path> getJsoarCoreJars()
-    {
-        return jsoarCoreJars;
-    }
+  public void setJsoarCoreJars(List<Path> jsoarCoreJars) {
+    this.jsoarCoreJars = TestSettings.processUserHomeInPaths(jsoarCoreJars);
+  }
 
-    public void setJvmSettings(String jvmSettings)
-    {
-        this.jvmSettings = jvmSettings;
-    }
+  public List<Path> getJsoarCoreJars() {
+    return jsoarCoreJars;
+  }
 
-    public String getJvmSettings()
-    {
-        return jvmSettings;
-    }
-    
-    private static List<Path> processUserHomeInPaths(List<Path> paths) {
-        // replace instances of %USER_HOME% with the user's home dir when setting
-        return paths.stream()
-            .map(Path::toString)
-            .map(s -> s.replace("%USER_HOME%", System.getProperty("user.home")))
-            .map(s -> Paths.get(s))
-            .collect(Collectors.toList());
-    }
+  public void setJvmSettings(String jvmSettings) {
+    this.jvmSettings = jvmSettings;
+  }
+
+  public String getJvmSettings() {
+    return jvmSettings;
+  }
+
+  private static List<Path> processUserHomeInPaths(List<Path> paths) {
+    // replace instances of %USER_HOME% with the user's home dir when setting
+    return paths.stream()
+        .map(Path::toString)
+        .map(s -> s.replace("%USER_HOME%", System.getProperty("user.home")))
+        .map(s -> Paths.get(s))
+        .collect(Collectors.toList());
+  }
 }

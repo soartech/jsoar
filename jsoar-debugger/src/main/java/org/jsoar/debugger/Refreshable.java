@@ -5,10 +5,7 @@
  */
 package org.jsoar.debugger;
 
-/**
- * @author ray
- */
-public interface Refreshable
-{
-    void refresh(boolean afterInitSoar);
+/** @author ray */
+public interface Refreshable {
+  void refresh(boolean afterInitSoar);
 }

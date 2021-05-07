@@ -7,15 +7,11 @@ package org.jsoar.kernel.wma;
 
 /**
  * Statistics information for wma.
- * 
+ *
  * @author bob.marinier
  */
-public interface WorkingMemoryActivationStatistics 
-{
+public interface WorkingMemoryActivationStatistics {
 
-    /**
-     * @return Number of wmes that have been forgotten.
-     */
-    long getForgottenWmes();
-
+  /** @return Number of wmes that have been forgotten. */
+  long getForgottenWmes();
 }

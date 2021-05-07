@@ -9,19 +9,16 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-/**
- * @author ray
- */
-public class DefaultExecutionTimerTest
-{
-    /**
-     * Test method for {@link org.jsoar.util.timing.DefaultExecutionTimer#DefaultExecutionTimer()}.
-     */
-    @Test
-    public void testNewInstanceDefaultServiceLoader()
-    {
-        ExecutionTimer timer = DefaultExecutionTimer.newInstance();
-        assertNotNull(timer);
-        assertTrue(((DefaultExecutionTimer) timer).__testGetSource() instanceof WallclockExecutionTimeSource);
-    }
+/** @author ray */
+public class DefaultExecutionTimerTest {
+  /**
+   * Test method for {@link org.jsoar.util.timing.DefaultExecutionTimer#DefaultExecutionTimer()}.
+   */
+  @Test
+  public void testNewInstanceDefaultServiceLoader() {
+    ExecutionTimer timer = DefaultExecutionTimer.newInstance();
+    assertNotNull(timer);
+    assertTrue(
+        ((DefaultExecutionTimer) timer).__testGetSource() instanceof WallclockExecutionTimeSource);
+  }
 }

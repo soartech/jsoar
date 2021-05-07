@@ -5,13 +5,11 @@
  */
 package org.jsoar.debugger;
 
-/**
- * @author ray
- */
-public interface JSoarDebuggerPlugin
-{
+/** @author ray */
+public interface JSoarDebuggerPlugin {
 
-    void initialize(JSoarDebugger debugger, String[] args);
-    
-    default void shutdown() {};
+  void initialize(JSoarDebugger debugger, String[] args);
+
+  default void shutdown() {}
+  ;
 }

@@ -6,106 +6,95 @@
 package org.jsoar.debugger;
 
 import javax.swing.table.AbstractTableModel;
-
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.ResultEntry;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 
-/**
- * @author ray
- */
-public class PreferencesTableModel extends AbstractTableModel
-{
-    private static final long serialVersionUID = 1244490544555893063L;
-    
-    private static final String[] columns = {"Type", "Support", "Id", "Attr", "Value", "Referent" };
-    private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
+/** @author ray */
+public class PreferencesTableModel extends AbstractTableModel {
+  private static final long serialVersionUID = 1244490544555893063L;
 
-    private Result result;
-    
-    public PreferencesTableModel()
-    {
-    }
-    
-    /**
-     * @return the result
-     */
-    public Result getResult()
-    {
-        return result;
-    }
+  private static final String[] columns = {"Type", "Support", "Id", "Attr", "Value", "Referent"};
+  private static final Class<?>[] classes = {
+    PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class
+  };
 
-    public void setResult(Result result)
-    {
-        if(result == null)
-        {
-            throw new IllegalArgumentException("result");
-        }
-        this.result = result;
-        
-        this.fireTableDataChanged();
-    }
-    
-    public ResultEntry getResultEntry(int r)
-    {
-        return result.getEntries().get(r);
-    }
+  private Result result;
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
-     */
-    @Override
-    public Class<?> getColumnClass(int c)
-    {
-        return classes[c];
-    }
+  public PreferencesTableModel() {}
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.AbstractTableModel#getColumnName(int)
-     */
-    @Override
-    public String getColumnName(int c)
-    {
-        return columns[c];
-    }
+  /** @return the result */
+  public Result getResult() {
+    return result;
+  }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnCount()
-     */
-    @Override
-    public int getColumnCount()
-    {
-        return columns.length;
+  public void setResult(Result result) {
+    if (result == null) {
+      throw new IllegalArgumentException("result");
     }
+    this.result = result;
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getRowCount()
-     */
-    @Override
-    public int getRowCount()
-    {
-        return result != null ? result.getEntries().size() : 0;
+    this.fireTableDataChanged();
+  }
+
+  public ResultEntry getResultEntry(int r) {
+    return result.getEntries().get(r);
+  }
+
+  /* (non-Javadoc)
+   * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+   */
+  @Override
+  public Class<?> getColumnClass(int c) {
+    return classes[c];
+  }
+
+  /* (non-Javadoc)
+   * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+   */
+  @Override
+  public String getColumnName(int c) {
+    return columns[c];
+  }
+
+  /* (non-Javadoc)
+   * @see javax.swing.table.TableModel#getColumnCount()
+   */
+  @Override
+  public int getColumnCount() {
+    return columns.length;
+  }
+
+  /* (non-Javadoc)
+   * @see javax.swing.table.TableModel#getRowCount()
+   */
+  @Override
+  public int getRowCount() {
+    return result != null ? result.getEntries().size() : 0;
+  }
+
+  /* (non-Javadoc)
+   * @see javax.swing.table.TableModel#getValueAt(int, int)
+   */
+  @Override
+  public Object getValueAt(int r, int c) {
+    ResultEntry e = result.getEntries().get(r);
+    switch (c) {
+      case 0:
+        return e.getType();
+      case 1:
+        return e.isOSupported() ? ":O" : ":I";
+      case 2:
+        return e.getIdentifier();
+      case 3:
+        return e.getAttribute();
+      case 4:
+        return e.getValueTrace();
+      case 5:
+        return e.getReferent();
     }
-
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getValueAt(int, int)
-     */
-    @Override
-    public Object getValueAt(int r, int c)
-    {
-        ResultEntry e = result.getEntries().get(r);
-        switch(c)
-        {
-        case 0: return e.getType();
-        case 1: return e.isOSupported() ? ":O" : ":I";
-        case 2: return e.getIdentifier();
-        case 3: return e.getAttribute();
-        case 4: return e.getValueTrace();
-        case 5: return e.getReferent();
-        }
-        return null;
-    }
-
+    return null;
+  }
 }

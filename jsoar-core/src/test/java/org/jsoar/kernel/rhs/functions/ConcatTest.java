@@ -8,25 +8,24 @@ package org.jsoar.kernel.rhs.functions;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
 import org.junit.Test;
 
-/**
- * @author ray
- */
-public class ConcatTest extends JSoarTest
-{
+/** @author ray */
+public class ConcatTest extends JSoarTest {
 
-    /**
-     * Test method for {@link org.jsoar.kernel.rhs.functions.Concat#execute(RhsFunctionContext, List)}.
-     */
-    @Test
-    public void testExecute() throws Exception
-    {
-        Concat c = new Concat();
-        assertEquals("abc  D  e><>123", c.execute(rhsFuncContext, Symbols.asList(syms, "a", "b", "c  D  e>", "<>", 1, 2, 3)).asString().getValue());
-    }
-
+  /**
+   * Test method for {@link org.jsoar.kernel.rhs.functions.Concat#execute(RhsFunctionContext,
+   * List)}.
+   */
+  @Test
+  public void testExecute() throws Exception {
+    Concat c = new Concat();
+    assertEquals(
+        "abc  D  e><>123",
+        c.execute(rhsFuncContext, Symbols.asList(syms, "a", "b", "c  D  e>", "<>", 1, 2, 3))
+            .asString()
+            .getValue());
+  }
 }

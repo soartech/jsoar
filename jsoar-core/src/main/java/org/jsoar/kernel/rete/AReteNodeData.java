@@ -5,10 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-/**
- * @author ray
- */
-interface AReteNodeData extends ReteNodeData
-{
-    AReteNodeData copy();
+/** @author ray */
+interface AReteNodeData extends ReteNodeData {
+  AReteNodeData copy();
 }

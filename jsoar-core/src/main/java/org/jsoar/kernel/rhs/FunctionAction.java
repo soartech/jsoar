@@ -9,47 +9,33 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.markers.Marker;
 
-/**
- * @author ray
- */
-public class FunctionAction extends Action
-{
-    public RhsFunctionCall call;
-    
-    
-    /**
-     * @param call
-     */
-    public FunctionAction(RhsFunctionCall call)
-    {
-        this.call = call;
-    }
+/** @author ray */
+public class FunctionAction extends Action {
+  public RhsFunctionCall call;
 
-    /**
-     * @return the call
-     */
-    public RhsFunctionCall getCall()
-    {
-        return call;
-    }
+  /** @param call */
+  public FunctionAction(RhsFunctionCall call) {
+    this.call = call;
+  }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.Action#asFunctionAction()
-     */
-    @Override
-    public FunctionAction asFunctionAction()
-    {
-        return this;
-    }
+  /** @return the call */
+  public RhsFunctionCall getCall() {
+    return call;
+  }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
-     */
-    @Override
-    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
-    {
-        call.addAllVariables(tc_number, var_list);
-    }
-    
-    
+  /* (non-Javadoc)
+   * @see org.jsoar.kernel.Action#asFunctionAction()
+   */
+  @Override
+  public FunctionAction asFunctionAction() {
+    return this;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
+   */
+  @Override
+  public void addAllVariables(Marker tc_number, ListHead<Variable> var_list) {
+    call.addAllVariables(tc_number, var_list);
+  }
 }

@@ -5,10 +5,7 @@
  */
 package org.jsoar.util;
 
-/**
- * @author ray
- */
-public class HashTableItem
-{
-    public HashTableItem next_in_hash_table;
+/** @author ray */
+public class HashTableItem {
+  public HashTableItem next_in_hash_table;
 }

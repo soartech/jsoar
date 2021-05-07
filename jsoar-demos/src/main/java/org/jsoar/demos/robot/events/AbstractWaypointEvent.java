@@ -8,17 +8,12 @@ package org.jsoar.demos.robot.events;
 import org.jsoar.demos.robot.Waypoint;
 import org.jsoar.demos.robot.World;
 
-/**
- * @author ray
- */
-public class AbstractWaypointEvent extends AbstractWorldEvent
-{
-    public final Waypoint waypoint;
+/** @author ray */
+public class AbstractWaypointEvent extends AbstractWorldEvent {
+  public final Waypoint waypoint;
 
-    public AbstractWaypointEvent(World world, Waypoint waypoint)
-    {
-        super(world);
-        this.waypoint = waypoint;
-    }
-
+  public AbstractWaypointEvent(World world, Waypoint waypoint) {
+    super(world);
+    this.waypoint = waypoint;
+  }
 }

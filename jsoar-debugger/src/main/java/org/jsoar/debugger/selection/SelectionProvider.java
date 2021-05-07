@@ -7,14 +7,13 @@ package org.jsoar.debugger.selection;
 
 import java.util.List;
 
-/**
- * @author ray
- */
-public interface SelectionProvider
-{
-    void activate(SelectionManager manager);
-    void deactivate();
-    
-    Object getSelectedObject();
-    List<Object> getSelection();
+/** @author ray */
+public interface SelectionProvider {
+  void activate(SelectionManager manager);
+
+  void deactivate();
+
+  Object getSelectedObject();
+
+  List<Object> getSelection();
 }

@@ -5,21 +5,13 @@
  */
 package org.jsoar.demos.robot;
 
-/**
- * @author ray
- */
-public class RadarRange
-{
-    public final double angle;
-    public double range;
-    
-    /**
-     * @param angle
-     */
-    public RadarRange(double angle)
-    {
-        this.angle = angle;
-    }
+/** @author ray */
+public class RadarRange {
+  public final double angle;
+  public double range;
 
-
+  /** @param angle */
+  public RadarRange(double angle) {
+    this.angle = angle;
+  }
 }

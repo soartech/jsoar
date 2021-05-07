@@ -7,15 +7,8 @@ package org.jsoar.kernel.rete;
 
 import org.junit.Test;
 
-
-/**
- * @author ray
- */
-public class ReteBuilderTest
-{
-    @Test
-    public void testDummy()
-    {
-        
-    }
+/** @author ray */
+public class ReteBuilderTest {
+  @Test
+  public void testDummy() {}
 }

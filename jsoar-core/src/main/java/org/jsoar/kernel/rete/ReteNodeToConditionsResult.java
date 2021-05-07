@@ -7,12 +7,9 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.lhs.Condition;
 
-/**
- * @author ray
- */
-public class ReteNodeToConditionsResult
-{
-    Condition dest_top_cond;
-    Condition dest_bottom_cond; 
-    NotStruct nots_found_in_production;
+/** @author ray */
+public class ReteNodeToConditionsResult {
+  Condition dest_top_cond;
+  Condition dest_bottom_cond;
+  NotStruct nots_found_in_production;
 }

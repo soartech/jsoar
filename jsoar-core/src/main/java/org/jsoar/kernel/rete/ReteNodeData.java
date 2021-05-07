@@ -5,10 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-/**
- * @author ray
- */
-interface ReteNodeData
-{
-    ReteNodeData copy();
+/** @author ray */
+interface ReteNodeData {
+  ReteNodeData copy();
 }

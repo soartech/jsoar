@@ -5,10 +5,7 @@
  */
 package org.jsoar.kernel.exploration;
 
-/**
- * @author ray
- */
-public interface ExplorationValueFunction
-{
-    boolean call(double value);
+/** @author ray */
+public interface ExplorationValueFunction {
+  boolean call(double value);
 }

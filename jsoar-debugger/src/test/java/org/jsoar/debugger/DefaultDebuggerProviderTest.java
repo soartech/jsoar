@@ -9,17 +9,14 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-/**
- * @author ray
- */
-public class DefaultDebuggerProviderTest
-{
+/** @author ray */
+public class DefaultDebuggerProviderTest {
 
-    @Test
-    public void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
-    {
-        assertEquals("The debugger provider's name or package has chanaged, but is referenced reflectively.",
-                org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS, DefaultDebuggerProvider.class.getCanonicalName());
-    }
-
+  @Test
+  public void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection() {
+    assertEquals(
+        "The debugger provider's name or package has chanaged, but is referenced reflectively.",
+        org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS,
+        DefaultDebuggerProvider.class.getCanonicalName());
+  }
 }

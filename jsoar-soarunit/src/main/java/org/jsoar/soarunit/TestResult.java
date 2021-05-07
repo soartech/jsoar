@@ -5,87 +5,72 @@
  */
 package org.jsoar.soarunit;
 
+/** @author ray */
+public class TestResult {
+  private final Test test;
+  private final long initNanos;
+  private final long runNanos;
+  private final boolean passed;
+  private final String message;
+  private final String output;
+  private final FiringCounts firingCounts;
 
-/**
- * @author ray
- */
-public class TestResult
-{
-    private final Test test;
-    private final long initNanos;
-    private final long runNanos;
-    private final boolean passed;
-    private final String message;
-    private final String output;
-    private final FiringCounts firingCounts;
-    
-    public TestResult(Test test, long initNanos, long nanos, boolean passed, String message, String output, FiringCounts firingCounts)
-    {
-        this.test = test;
-        this.initNanos = initNanos;
-        this.runNanos = nanos;
-        this.passed = passed;
-        this.message = message;
-        this.output = output;
-        this.firingCounts = firingCounts;
-    }
+  public TestResult(
+      Test test,
+      long initNanos,
+      long nanos,
+      boolean passed,
+      String message,
+      String output,
+      FiringCounts firingCounts) {
+    this.test = test;
+    this.initNanos = initNanos;
+    this.runNanos = nanos;
+    this.passed = passed;
+    this.message = message;
+    this.output = output;
+    this.firingCounts = firingCounts;
+  }
 
-    /**
-     * @return the test
-     */
-    public Test getTest()
-    {
-        return test;
-    }
+  /** @return the test */
+  public Test getTest() {
+    return test;
+  }
 
-    /**
-     * @return the passed
-     */
-    public boolean isPassed()
-    {
-        return passed;
-    }
+  /** @return the passed */
+  public boolean isPassed() {
+    return passed;
+  }
 
-    /**
-     * @return the message
-     */
-    public String getMessage()
-    {
-        return message;
-    }
+  /** @return the message */
+  public String getMessage() {
+    return message;
+  }
 
-    /**
-     * @return the output
-     */
-    public String getOutput()
-    {
-        return output;
-    }
+  /** @return the output */
+  public String getOutput() {
+    return output;
+  }
 
-    /**
-     * @return the firingCounts
-     */
-    public FiringCounts getFiringCounts()
-    {
-        return firingCounts;
-    }
-    
-    public double getInitTimeInSeconds()
-    {
-        return ((double) initNanos) / 1000000000.0;
-    }
-    
-    public double getRunTimeInSeconds()
-    {
-    	return ((double) runNanos) / 1000000000.0;
-    }
+  /** @return the firingCounts */
+  public FiringCounts getFiringCounts() {
+    return firingCounts;
+  }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString()
-    {
-        return String.format("%s (%.3f s + %.3f s)", test.toString(), getInitTimeInSeconds(), getRunTimeInSeconds());
-    }
+  public double getInitTimeInSeconds() {
+    return ((double) initNanos) / 1000000000.0;
+  }
+
+  public double getRunTimeInSeconds() {
+    return ((double) runNanos) / 1000000000.0;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return String.format(
+        "%s (%.3f s + %.3f s)", test.toString(), getInitTimeInSeconds(), getRunTimeInSeconds());
+  }
 }

@@ -7,10 +7,7 @@ package org.jsoar.util.events;
 
 /**
  * A tag interface for events fired in Soar.
- * 
+ *
  * @author ray
  */
-public interface SoarEvent
-{
-
-}
+public interface SoarEvent {}

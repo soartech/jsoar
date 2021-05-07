@@ -5,12 +5,9 @@
  */
 package org.jsoar.kernel.rhs;
 
-/**
- * @author ray
- */
-public enum ActionSupport
-{
-    UNKNOWN_SUPPORT,
-    O_SUPPORT,
-    I_SUPPORT;
+/** @author ray */
+public enum ActionSupport {
+  UNKNOWN_SUPPORT,
+  O_SUPPORT,
+  I_SUPPORT;
 }

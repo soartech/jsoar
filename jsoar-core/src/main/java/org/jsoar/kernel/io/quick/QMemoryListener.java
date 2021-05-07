@@ -5,10 +5,7 @@
  */
 package org.jsoar.kernel.io.quick;
 
-/**
- * @author ray
- */
-public interface QMemoryListener
-{
-    void onQMemoryChanged();
+/** @author ray */
+public interface QMemoryListener {
+  void onQMemoryChanged();
 }

@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel.wma;
 
-/**
- * wma.h:220:wma_go_action
- */
-public enum wma_go_action { wma_histories, wma_forgetting }
+/** wma.h:220:wma_go_action */
+public enum wma_go_action {
+  wma_histories,
+  wma_forgetting
+}

@@ -10,21 +10,18 @@ import org.jsoar.kernel.Production;
 
 /**
  * Event fired after a production is added to the agent
- * 
+ *
  * @author ray
  */
-public class ProductionAddedEvent extends AbstractProductionEvent
-{
+public class ProductionAddedEvent extends AbstractProductionEvent {
 
-    /**
-     * Construct a new event
-     * 
-     * @param agent The agent
-     * @param production The production added
-     */
-    public ProductionAddedEvent(Agent agent, Production production)
-    {
-        super(agent, production);
-    }
-
+  /**
+   * Construct a new event
+   *
+   * @param agent The agent
+   * @param production The production added
+   */
+  public ProductionAddedEvent(Agent agent, Production production) {
+    super(agent, production);
+  }
 }

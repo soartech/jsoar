@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
@@ -15,40 +14,32 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author ray
- */
-public class InterruptTest
-{
-    private Agent agent;
+/** @author ray */
+public class InterruptTest {
+  private Agent agent;
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        this.agent = new Agent();
-    }
+  /** @throws java.lang.Exception */
+  @Before
+  public void setUp() throws Exception {
+    this.agent = new Agent();
+  }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-    }
+  /** @throws java.lang.Exception */
+  @After
+  public void tearDown() throws Exception {}
 
-    @Test(timeout=3000)
-    public void testInterrupt() throws Exception
-    {
-        new CycleCountInput(agent.getInputOutput());
-        agent.getProperties().set(SoarProperties.WAITSNC, true);
-        this.agent.getProductions().loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
-        
-        this.agent.runForever();
-        
-        assertEquals("*** Interrupt from production testInterrupt ***", this.agent.getReasonForStop());
-        assertEquals(45, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
-    }
+  @Test(timeout = 3000)
+  public void testInterrupt() throws Exception {
+    new CycleCountInput(agent.getInputOutput());
+    agent.getProperties().set(SoarProperties.WAITSNC, true);
+    this.agent
+        .getProductions()
+        .loadProduction(
+            "testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
+
+    this.agent.runForever();
+
+    assertEquals("*** Interrupt from production testInterrupt ***", this.agent.getReasonForStop());
+    assertEquals(45, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
+  }
 }

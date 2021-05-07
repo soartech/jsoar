@@ -8,46 +8,38 @@ package org.jsoar.runtime;
 import javax.swing.SwingUtilities;
 
 /**
- * Wrap a completion handler in logic to ensure that it executes on the 
- * Swing event thread. Do not interact with the Soar agent in this unless
- * rewrapping in a {@code ThreadedAgent.execute}
- * 
+ * Wrap a completion handler in logic to ensure that it executes on the Swing event thread. Do not
+ * interact with the Soar agent in this unless rewrapping in a {@code ThreadedAgent.execute}
+ *
  * @author ray
  */
-public class SwingCompletionHandler<T> implements CompletionHandler<T>
-{
-    private final CompletionHandler<T> inner;
-    
-    public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner) 
-    {
-        return new SwingCompletionHandler<V>(inner);
-    }
-    
-    private SwingCompletionHandler(CompletionHandler<T> inner)
-    {
-        this.inner = inner;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.jsoar.runtime.Result#finish(java.lang.Object)
-     */
-    @Override
-    public void finish(final T result)
-    {
-        if(SwingUtilities.isEventDispatchThread())
-        {
-            inner.finish(result);
-        }
-        else
-        {
-            SwingUtilities.invokeLater(new Runnable() {
+public class SwingCompletionHandler<T> implements CompletionHandler<T> {
+  private final CompletionHandler<T> inner;
 
-                @Override
-                public void run()
-                {
-                    inner.finish(result);
-                }});
-        }
-    }
+  public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner) {
+    return new SwingCompletionHandler<V>(inner);
+  }
 
+  private SwingCompletionHandler(CompletionHandler<T> inner) {
+    this.inner = inner;
+  }
+
+  /* (non-Javadoc)
+   * @see org.jsoar.runtime.Result#finish(java.lang.Object)
+   */
+  @Override
+  public void finish(final T result) {
+    if (SwingUtilities.isEventDispatchThread()) {
+      inner.finish(result);
+    } else {
+      SwingUtilities.invokeLater(
+          new Runnable() {
+
+            @Override
+            public void run() {
+              inner.finish(result);
+            }
+          });
+    }
+  }
 }

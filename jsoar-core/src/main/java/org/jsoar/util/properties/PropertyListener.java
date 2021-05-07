@@ -6,17 +6,15 @@
 package org.jsoar.util.properties;
 
 /**
- * Interface implemented by objects interested in changes to properties in
- * a property manager.
- * 
+ * Interface implemented by objects interested in changes to properties in a property manager.
+ *
  * @author ray
  */
-public interface PropertyListener <T>
-{
-    /**
-     * Called when the value of a property changes.
-     * 
-     * @param event The event
-     */
-    void propertyChanged(PropertyChangeEvent<T> event);
+public interface PropertyListener<T> {
+  /**
+   * Called when the value of a property changes.
+   *
+   * @param event The event
+   */
+  void propertyChanged(PropertyChangeEvent<T> event);
 }

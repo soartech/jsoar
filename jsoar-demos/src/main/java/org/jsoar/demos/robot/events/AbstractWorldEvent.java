@@ -8,17 +8,11 @@ package org.jsoar.demos.robot.events;
 import org.jsoar.demos.robot.World;
 import org.jsoar.util.events.SoarEvent;
 
-/**
- * @author ray
- */
-public abstract class AbstractWorldEvent implements SoarEvent
-{
-    public final World world;
+/** @author ray */
+public abstract class AbstractWorldEvent implements SoarEvent {
+  public final World world;
 
-    public AbstractWorldEvent(World world)
-    {
-        this.world = world;
-    }
-    
-    
+  public AbstractWorldEvent(World world) {
+    this.world = world;
+  }
 }

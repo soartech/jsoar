@@ -9,18 +9,13 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/** @author ray */
+public class ByRefTest {
 
-/**
- * @author ray
- */
-public class ByRefTest
-{
-
-    @Test
-    public void testCreateFromNull()
-    {
-        ByRef<ByRefTest> ref = ByRef.create(null);
-        assertNotNull(ref);
-        assertNull(ref.value);
-    }
+  @Test
+  public void testCreateFromNull() {
+    ByRef<ByRefTest> ref = ByRef.create(null);
+    assertNotNull(ref);
+    assertNull(ref.value);
+  }
 }
