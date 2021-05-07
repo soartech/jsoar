@@ -102,10 +102,10 @@ public class TestPanel extends JPanel
             }
         });
 
-        try(PrintWriter pw = new PrintWriter(new NullWriter())) {
+        try(var pw = new PrintWriter(new NullWriter())) {
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, executor);
             runner.setHaltOnFailure(false);
-            runner.runAllTestCases(allTestCases, result -> addResult(result));
+            runner.runAllTestCases(allTestCases, this::addResult);
 
             SwingUtilities.invokeLater(() -> handleTestRunFinished(runner));
         }
