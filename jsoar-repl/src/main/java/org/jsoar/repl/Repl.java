@@ -18,7 +18,7 @@ public class Repl
     
     public static void main(String[] args)
     {
-        System.setProperty("jsoar.agent.interpreter", "tcl");
+        //System.setProperty("jsoar.agent.interpreter", "tcl");
         
         Repl repl = new Repl(System.in, System.out);
         try {
