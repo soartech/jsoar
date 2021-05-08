@@ -99,6 +99,16 @@ public class SmemCommand extends PicocliSoarCommand
             }
         }
         
+        @Option(names={"-e", "--on", "--enable"},
+                defaultValue="false",
+                description="Enable semantic memory")
+        boolean enable;
+
+        @Option(names={"-d", "--off", "--disable"},
+                defaultValue="false",
+                description="Disables semantic memory")
+        boolean disable;
+        
         @Option(names={"-a", "--add"}, description="Adds concepts to semantic memory")
         String conceptsToAdd = null;
         
@@ -149,6 +159,16 @@ public class SmemCommand extends PicocliSoarCommand
         @Override
         public void run()
         {
+            if(enable && !disable) {
+                doSet("learning", "on");
+            }
+            else if(!enable && disable) {
+                doSet("learning", "off");
+            } else if(enable && disable) {
+                agent.getPrinter().print("smem takes only one option at a time");
+                return;
+            }
+            
             if (conceptsToAdd != null)
             {
                 agent.getPrinter().print(doAdd(conceptsToAdd));

@@ -278,15 +278,18 @@ public class DecisionCycle
         context.getEvents().fireEvent(pollEvent);
         ExecutionTimers.start(context.getTotalKernelTimer());
         
-        // TODO SMEM It seems kind of aggressive to init the database regardless of whether it's used.
-        try
-        {
-            smem.smem_attach();
-        }
-        catch (SoarException e)
-        {
-            logger.error("While initializing smem: " + e.getMessage(), e);
-            this.context.getPrinter().error("While initializing smem: " + e.getMessage());
+        // Note: this method of attaching smem diverges from how csoar does it
+        // At least at the time smem was originally ported to jsoar, csoar always attached smem, whereas here we only do it if smem is enabled 
+        if(smem.smem_enabled()) {
+            try
+            {
+                smem.smem_attach();
+            }
+            catch (SoarException e)
+            {
+                logger.error("While initializing smem: " + e.getMessage(), e);
+                this.context.getPrinter().error("While initializing smem: " + e.getMessage());
+            }
         }
         
         switch (current_phase.get())
