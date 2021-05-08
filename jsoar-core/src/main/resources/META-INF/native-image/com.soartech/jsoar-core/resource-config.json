@@ -18,7 +18,11 @@
     {"pattern":"\\Qorg/jsoar/kernel/smem/structures.sql\\E"}, 
     {"pattern":"\\Qorg/jsoar/script/javascript\\E"}, 
     {"pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"}, 
-    {"pattern":"\\Qorg/sqlite/native/Windows/x86_64/sqlitejdbc.dll\\E"}, 
+    {"pattern":"\\Qorg/sqlite/native/Windows/x86_64/sqlitejdbc.dll\\E"},
+    {"pattern":"\\Qorg/sqlite/native/Windows/x86/sqlitejdbc.dll\\E"},
+    {"pattern":"\\Qorg/sqlite/native/Linux/android-arm/sqlitejdbc.so\\E"},
+    {"pattern":"\\Qorg/sqlite/native/Linux/x86_64/sqlitejdbc.so\\E"},
+    {"pattern":"\\Qorg/sqlite/native/Linux/x86/sqlitejdbc.so\\E"},
     {"pattern":"\\Qsimplelogger.properties\\E"}, 
     {"pattern":"\\Qsqlite-jdbc.properties\\E"}
   ]},
@@ -26,9 +30,6 @@
     {"name":"com.sun.org.apache.xml.internal.serializer.XMLEntities"}, 
     {"name":"com.sun.tools.javac.resources.compiler"}, 
     {"name":"com.sun.tools.javac.resources.ct"}, 
-    {"name":"com.sun.tools.javac.resources.javac"}, 
-    {"name":"jdk.nashorn.api.scripting.resources.Messages"}, 
-    {"name":"jdk.nashorn.internal.runtime.resources.Options"}, 
-    {"name":"jdk.nashorn.internal.runtime.resources.version"}
+    {"name":"com.sun.tools.javac.resources.javac"}
   ]
 }
