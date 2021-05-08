@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.DebuggerProvider;
@@ -175,7 +176,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
   }
 
   /** @param agent the agent to wrap. */
-  ThreadedAgent(Agent agent) {
+  ThreadedAgent(@NonNull final Agent agent) {
     this.agent = agent;
     agentThread.setName("Agent '" + this.agent + "' thread");
 

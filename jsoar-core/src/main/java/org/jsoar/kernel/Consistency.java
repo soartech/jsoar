@@ -27,6 +27,7 @@ import org.jsoar.util.adaptables.Adaptables;
  * @author ray
  */
 public class Consistency {
+
   private static final boolean DEBUG_CONSISTENCY_CHECK = false;
 
   private static enum LevelChangeType {
@@ -66,18 +67,14 @@ public class Consistency {
    */
   private boolean decision_consistent_with_current_preferences(IdentifierImpl goal, Slot s) {
 
-    if (DEBUG_CONSISTENCY_CHECK) {
-      if (s.isa_context_slot) {
-        context
-            .getPrinter()
-            .print(
-                "    slot (s)  isa context slot: "
-                    + "    Slot IdentifierImpl [%s] and attribute [%s]\n",
-                s.id, s.attr);
-      }
-      /* printf("    Address of s: %x\n", s); */
-      context.getPrinter().print("    s->impasse_type: %s\n", s.impasse_type);
-      if (s.impasse_id != null) context.getPrinter().print("    Impasse ID is set (non-NIL)\n");
+    if (s.isa_context_slot) {
+      printDebugMessage(
+          "    slot (s)  isa context slot: " + "    Slot IdentifierImpl [%s] and attribute [%s]\n",
+          s.id, s.attr);
+    }
+    printDebugMessage("    s->impasse_type: %s\n", s.impasse_type);
+    if (s.impasse_id != null) {
+      printDebugMessage("    Impasse ID is set (non-NIL)\n");
     }
 
     /* Determine the current operator/impasse in the slot*/
@@ -99,13 +96,10 @@ public class Consistency {
       // the goal is impassed
       current_impasse_type = decider.type_of_existing_impasse(goal);
       current_impasse_attribute = decider.attribute_of_existing_impasse(goal);
-      if (DEBUG_CONSISTENCY_CHECK) {
-        context
-            .getPrinter()
-            .print(
-                "    Goal is impassed:  Impasse type: %d: Impasse attribute: [%s]\n",
-                current_impasse_type, current_impasse_attribute);
-      }
+      printDebugMessage(
+          "    Goal is impassed:  Impasse type: %d: Impasse attribute: [%s]\n",
+          current_impasse_type, current_impasse_attribute);
+
       /* Special case for an operator no-change */
       if ((operator_in_slot) && (current_impasse_type == ImpasseType.NO_CHANGE)) {
         /* Operator no-change impasse: run_preference_semantics will return 0
@@ -115,17 +109,13 @@ public class Consistency {
         the impasse type here to 0; that way we'll know that we should be
         comparing a previous decision for a unique operator against the
         current preference semantics. */
-        if (DEBUG_CONSISTENCY_CHECK) {
-          context.getPrinter().print("    This is an operator no-change  impasse.\n");
-        }
+        printDebugMessage("    This is an operator no-change  impasse.\n");
         current_impasse_type = ImpasseType.NONE;
       }
     } else {
       current_impasse_type = ImpasseType.NONE;
       current_impasse_attribute = null;
-      if (DEBUG_CONSISTENCY_CHECK) {
-        context.getPrinter().print("    Goal is not impassed: ");
-      }
+      printDebugMessage("    Goal is not impassed: ");
     }
 
     /* Determine the new impasse type, based on the preferences that exist now */
@@ -148,13 +138,10 @@ public class Consistency {
 
     if (current_impasse_type != new_impasse_type) {
       /* Then there is an inconsistency: no more work necessary */
-      if (DEBUG_CONSISTENCY_CHECK) {
-        context
-            .getPrinter()
-            .print(
-                "    Impasse types are different: Returning FALSE, "
-                    + "preferences are not consistent with prior decision.\n");
-      }
+      printDebugMessage(
+          "    Impasse types are different: Returning FALSE, "
+              + "preferences are not consistent with prior decision.\n");
+
       return false;
     }
 
@@ -169,23 +156,16 @@ public class Consistency {
         /* This next if is meant to test that there actually is something in the slot but
         I'm nut quite certain that it will not always be true? */
         if (operator_in_slot) {
-          if (DEBUG_CONSISTENCY_CHECK) {
-            context
-                .getPrinter()
-                .print("    There is a WME in the operator slot:%s", current_operator);
-          }
+          printDebugMessage("    There is a WME in the operator slot:%s", current_operator);
 
           /* Because of indifferent preferences, we need to compare all possible candidates
           with the current decision */
           for (Preference cand = candidates.value; cand != null; cand = cand.next_candidate) {
             if (current_operator.value == cand.value) {
-              if (DEBUG_CONSISTENCY_CHECK) {
-                context
-                    .getPrinter()
-                    .print(
-                        "       Operator slot ID [%s] and candidate ID [%s] are the same.\n",
-                        current_operator.value, cand.value);
-              }
+              printDebugMessage(
+                  "       Operator slot ID [%s] and candidate ID [%s] are the same.\n",
+                  current_operator.value, cand.value);
+
               return true;
             }
           }
@@ -227,23 +207,19 @@ public class Consistency {
         return true;
 
       case CONSTRAINT_FAILURE:
-        if (DEBUG_CONSISTENCY_CHECK)
-          context.getPrinter().print("    Constraint Failure Impasse: Returning TRUE\n");
+        printDebugMessage("    Constraint Failure Impasse: Returning TRUE\n");
         return true;
 
       case CONFLICT:
-        if (DEBUG_CONSISTENCY_CHECK)
-          context.getPrinter().print("    Conflict Impasse: Returning TRUE\n");
+        printDebugMessage("    Conflict Impasse: Returning TRUE\n");
         return true;
 
       case TIE:
-        if (DEBUG_CONSISTENCY_CHECK)
-          context.getPrinter().print("    Tie Impasse: Returning TRUE\n");
+        printDebugMessage("    Tie Impasse: Returning TRUE\n");
         return true;
 
       case NO_CHANGE:
-        if (DEBUG_CONSISTENCY_CHECK)
-          context.getPrinter().print("    No change Impasse: Returning TRUE\n");
+        printDebugMessage("    No change Impasse: Returning TRUE\n");
         return true;
 
       default:
@@ -265,25 +241,28 @@ public class Consistency {
    */
   private void remove_current_decision(Slot s) {
     final Trace trace = context.getTrace();
-    if (s.getWmes() == null)
+    if (s.getWmes() == null) {
       trace.print(
           Category.OPERAND2_REMOVALS,
           "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n",
           s.id,
           s.attr);
+    }
 
-    if (s.id != null)
+    if (s.id != null) {
       trace.print(
           Category.OPERAND2_REMOVALS,
           "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n",
           s.id);
+    }
 
     /* If there is an operator in the slot, remove it */
     decider.remove_wmes_for_context_slot(s);
 
     /* If there are any subgoals, remove those */
-    if (s.id.goalInfo.lower_goal != null)
+    if (s.id.goalInfo.lower_goal != null) {
       decider.remove_existing_context_and_descendents(s.id.goalInfo.lower_goal);
+    }
 
     decider.do_buffered_wm_and_ownership_changes();
   }
@@ -295,13 +274,10 @@ public class Consistency {
    * <p>consistency.cpp:326:check_context_slot_decisions
    */
   private boolean check_context_slot_decisions(int level) {
-    if (DEBUG_CONSISTENCY_CHECK) {
-      if (tempMemory.highest_goal_whose_context_changed != null)
-        context
-            .getPrinter()
-            .print(
-                "    Highest goal with changed context: [%s]\n",
-                tempMemory.highest_goal_whose_context_changed);
+    if (tempMemory.highest_goal_whose_context_changed != null) {
+      printDebugMessage(
+          "    Highest goal with changed context: [%s]\n",
+          tempMemory.highest_goal_whose_context_changed);
     }
 
     /* Check only those goals where preferences have changes that are at or above the level
@@ -309,36 +285,23 @@ public class Consistency {
     for (IdentifierImpl goal = tempMemory.highest_goal_whose_context_changed;
         goal != null && goal.level <= level;
         goal = goal.goalInfo.lower_goal) {
-      if (DEBUG_CONSISTENCY_CHECK) {
-        context
-            .getPrinter()
-            .print("    Looking at goal [%s] to see if its preferences have changed\n", goal);
-      }
+      printDebugMessage("    Looking at goal [%s] to see if its preferences have changed\n", goal);
 
       Slot s = goal.goalInfo.operator_slot;
 
       if ((goal.goalInfo.lower_goal != null) || (s.getWmes() != null)) {
         /* If we are not at the bottom goal or if there is an operator in the
         bottom goal's operator slot */
-        if (DEBUG_CONSISTENCY_CHECK) {
-          context
-              .getPrinter()
-              .print(
-                  "      This is a goal that either has subgoals or, if the bottom goal, has an operator in the slot\n");
-        }
+        printDebugMessage(
+            "      This is a goal that either has subgoals or, if the bottom goal, has an operator in the slot\n");
+
         if (s.changed != null) {
           /* Only need to check a goal if its prefs have changed */
-          if (DEBUG_CONSISTENCY_CHECK) {
-            context.getPrinter().print("      This goal's preferences have changed.\n");
-          }
+          printDebugMessage("      This goal's preferences have changed.\n");
           if (!decision_consistent_with_current_preferences(goal, s)) {
-            if (DEBUG_CONSISTENCY_CHECK) {
-              context
-                  .getPrinter()
-                  .print(
-                      "   The current preferences indicate that the decision at [%s] needs to be removed.\n",
-                      goal);
-            }
+            printDebugMessage(
+                "   The current preferences indicate that the decision at [%s] needs to be removed.\n",
+                goal);
 
             context
                 .getTrace()
@@ -352,13 +315,8 @@ public class Consistency {
           }
         }
       }
-      /*
-      #ifdef DEBUG_CONSISTENCY_CHECK
-      else {
-      printf("   This is a bottom goal with no operator in the slot\n");
-      }
-      #endif
-      */
+
+      printDebugMessage("   This is a bottom goal with no operator in the slot\n");
     }
 
     return true;
@@ -368,9 +326,13 @@ public class Consistency {
   private boolean i_activity_at_goal(IdentifierImpl goal) {
     /* print_with_symbols("\nLooking for I-activity at goal: %y\n", goal); */
 
-    if (!goal.goalInfo.ms_i_assertions.isEmpty()) return true;
+    if (!goal.goalInfo.ms_i_assertions.isEmpty()) {
+      return true;
+    }
 
-    if (!goal.goalInfo.ms_retractions.isEmpty()) return true;
+    if (!goal.goalInfo.ms_retractions.isEmpty()) {
+      return true;
+    }
 
     /* printf("\nNo instantiation found.  Returning FALSE\n");  */
     return false;
@@ -384,9 +346,11 @@ public class Consistency {
    */
   private boolean minor_quiescence_at_goal(IdentifierImpl goal) {
     if ((recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
-      /* firing IEs but no more to fire == minor quiescence */
+    /* firing IEs but no more to fire == minor quiescence */ {
       return true;
-    else return false;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -413,8 +377,9 @@ public class Consistency {
       #endif
        */
       /* If there are any active productions at this goal, return the goal */
-      if ((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_retractions.isEmpty()))
+      if ((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_retractions.isEmpty())) {
         return goal;
+      }
     }
 
     /* This routine should only be called when !quiescence.  However, there is
@@ -428,7 +393,9 @@ public class Consistency {
        xml_generate_warning(thisAgent, "WARNING: Returning NIL active goal because only NIL goal retractions are active.");
     #endif
     */
-    if (!this.soarReteListener.nil_goal_retractions.isEmpty()) return null;
+    if (!this.soarReteListener.nil_goal_retractions.isEmpty()) {
+      return null;
+    }
 
     if (!noneOk) {
       context.getTrace().flush();
@@ -461,7 +428,9 @@ public class Consistency {
       /* If there are any active productions at this goal, return the goal */
       if ((!goal.goalInfo.ms_i_assertions.isEmpty())
           || (!goal.goalInfo.ms_o_assertions.isEmpty())
-          || (!goal.goalInfo.ms_retractions.isEmpty())) return goal;
+          || (!goal.goalInfo.ms_retractions.isEmpty())) {
+        return goal;
+      }
     }
 
     /* This routine should only be called when !quiescence.  However, there is
@@ -476,7 +445,9 @@ public class Consistency {
     xml_generate_warning(thisAgent, "WARNING: Returning NIL active goal because only NIL goal retractions are active.");
     #endif
     */
-    if (!this.soarReteListener.nil_goal_retractions.isEmpty()) return null;
+    if (!this.soarReteListener.nil_goal_retractions.isEmpty()) {
+      return null;
+    }
 
     if (!noneOk) {
       throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
@@ -494,8 +465,11 @@ public class Consistency {
    * <p>consistency.cpp::active_production_type_at_goal
    */
   private SavedFiringType active_production_type_at_goal(IdentifierImpl goal) {
-    if (i_activity_at_goal(goal)) return SavedFiringType.IE_PRODS;
-    else return SavedFiringType.PE_PRODS;
+    if (i_activity_at_goal(goal)) {
+      return SavedFiringType.IE_PRODS;
+    } else {
+      return SavedFiringType.PE_PRODS;
+    }
   }
 
   /** consistency.cpp:516:goal_stack_consistent_through_goal */
@@ -523,9 +497,7 @@ public class Consistency {
 
     boolean test = check_context_slot_decisions(goal.level);
 
-    if (DEBUG_CONSISTENCY_CHECK) {
-      context.getPrinter().print("\nEnd:   CONSISTENCY CHECK\n");
-    }
+    printDebugMessage("\nEnd:   CONSISTENCY CHECK\n");
 
     // #ifndef NO_TIMING_STUFF
     // #ifdef DETAILED_TIMING_STATS
@@ -550,8 +522,9 @@ public class Consistency {
     decider.active_goal = null;
 
     /* Clear any interruption flags on the goals....*/
-    for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.goalInfo.lower_goal)
+    for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.goalInfo.lower_goal) {
       goal.goalInfo.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+    }
   }
 
   /**
@@ -566,19 +539,9 @@ public class Consistency {
    * <p>consistency.cpp:590:determine_highest_active_production_level_in_stack_apply
    */
   public void determine_highest_active_production_level_in_stack_apply() {
-    /*
-    #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-    printf("\nDetermining the highest active level in the stack....\n");
-    #endif
-    */
-
     if (!this.soarReteListener.any_assertions_or_retractions_ready()) {
       /* This is quiescence */
       /*
-      #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-      printf("\n(Full) APPLY phases Quiescence has been reached...going to output\n");
-      #endif
-      */
 
       /* Need to determine if this quiescence is also a minor quiescence,
       otherwise, an inconsistent decision could get retained here (because
@@ -586,7 +549,6 @@ public class Consistency {
       in the previous preference phases, IE_PRODS fired, then force a
       consistency check over the entire stack (by checking at the
       bottom goal). */
-
       if (minor_quiescence_at_goal(decider.bottom_goal)) {
         goal_stack_consistent_through_goal(decider.bottom_goal);
       }
@@ -611,54 +573,40 @@ public class Consistency {
 
     /* Determine the new highest level of activity */
     decider.active_goal = highest_active_goal_apply(decider.top_goal, false);
-    if (decider.active_goal != null) decider.active_level = decider.active_goal.level;
-    else decider.active_level = 0; /* Necessary for get_next_retraction */
-
-    /*
-    #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-    printf("\nHighest level of activity is....%d", thisAgent->active_level);
-    printf("\n   Previous level of activity is....%d", thisAgent->previous_active_level);
-    #endif
-    */
+    if (decider.active_goal != null) {
+      decider.active_level = decider.active_goal.level;
+    } else {
+      decider.active_level = 0; /* Necessary for get_next_retraction */
+    }
 
     LevelChangeType level_change_type;
     if (decider.active_goal == null)
-      /* Only NIL goal retractions */
+    /* Only NIL goal retractions */ {
       level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
-    else if (decider.previous_active_level == 0) level_change_type = LevelChangeType.NEW_DECISION;
-    else {
+    } else if (decider.previous_active_level == 0) {
+      level_change_type = LevelChangeType.NEW_DECISION;
+    } else {
       int diff = decider.active_level - decider.previous_active_level;
-      if (diff == 0) level_change_type = LevelChangeType.SAME_LEVEL;
-      else if (diff > 0) level_change_type = LevelChangeType.LOWER_LEVEL;
-      else level_change_type = LevelChangeType.HIGHER_LEVEL;
+      if (diff == 0) {
+        level_change_type = LevelChangeType.SAME_LEVEL;
+      } else if (diff > 0) {
+        level_change_type = LevelChangeType.LOWER_LEVEL;
+      } else {
+        level_change_type = LevelChangeType.HIGHER_LEVEL;
+      }
     }
 
     switch (level_change_type) {
       case NIL_GOAL_RETRACTIONS:
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        print(thisAgent, "\nOnly NIL goal retractions are active");
-        #endif
-        */
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
         break;
 
       case NEW_DECISION:
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        print(thisAgent, "\nThis is a new decision....");
-        #endif
-        */
         recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
         /* in APPLY phases, we can test for ONC here, check ms_o_assertions */
         break;
 
       case LOWER_LEVEL:
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        print(thisAgent, "\nThe level is lower than the previous level....");
-        #endif
-        */
         /* Is there a minor quiescence at the previous level? */
         if (minor_quiescence_at_goal(decider.previous_active_goal)) {
           /*
@@ -676,23 +624,7 @@ public class Consistency {
 
         IdentifierImpl goal = decider.active_goal;
 
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        if (goal->id.saved_firing_type == IE_PRODS)
-           print(thisAgent, "\nSaved production type: IE _PRODS");
-        if (goal->id.saved_firing_type == PE_PRODS)
-           print(thisAgent, "\nSaved production type: PE _PRODS");
-        if (goal->id.saved_firing_type == NO_SAVED_PRODS)
-           print(thisAgent, "\nSaved production type: NONE");
-        #endif
-        */
-
         if (goal.goalInfo.saved_firing_type != SavedFiringType.NO_SAVED_PRODS) {
-          /*
-          #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-          print(thisAgent, "\nRestoring production type from previous processing at this level");
-          #endif
-          */
           recMemory.FIRING_TYPE = goal.goalInfo.saved_firing_type;
           // KJC 04.05 commented the next line after reworking the phases
           // in init_soar.cpp
@@ -714,17 +646,7 @@ public class Consistency {
         break;
 
       case SAME_LEVEL:
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        print(thisAgent, "\nThe level is the same as the previous level....");
-        #endif
-        */
         if (minor_quiescence_at_goal(decider.active_goal)) {
-          /*
-          #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-          printf("\nMinor quiescence at level %d", thisAgent->active_level);
-          #endif
-          */
           if (!goal_stack_consistent_through_goal(decider.active_goal)) {
             this.decisionCycle.current_phase.set(Phase.OUTPUT);
             break;
@@ -734,35 +656,11 @@ public class Consistency {
         break;
 
       case HIGHER_LEVEL:
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        print(thisAgent, "\nThe level is higher than the previous level....");
-        #endif
-        */
-
         goal = decider.previous_active_goal;
         goal.goalInfo.saved_firing_type = recMemory.FIRING_TYPE;
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        if (goal->id.saved_firing_type == IE_PRODS)
-           print(thisAgent, "\n Saving current firing type as IE_PRODS");
-        else if (goal->id.saved_firing_type == PE_PRODS)
-           print(thisAgent, "\n Saving current firing type as PE_PRODS");
-        else if (goal->id.saved_firing_type == NO_SAVED_PRODS)
-           print(thisAgent, "\n Saving current firing type as NO_SAVED_PRODS");
-        else
-           print(thisAgent, "\n Unknown SAVED firing type???????");
-        #endif
-        */
 
         /* run consistency check at new active level *before* firing any
         productions there */
-        /*
-        #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-        printf("\nMinor quiescence at level %d", thisAgent->active_level);
-        #endif
-        */
-
         if (!goal_stack_consistent_through_goal(decider.active_goal)) {
           this.decisionCycle.current_phase.set(Phase.OUTPUT);
           break;
@@ -839,8 +737,11 @@ public class Consistency {
 
     /* Determine the new highest level of activity */
     decider.active_goal = highest_active_goal_propose(decider.top_goal, false);
-    if (decider.active_goal != null) decider.active_level = decider.active_goal.level;
-    else decider.active_level = 0; /* Necessary for get_next_retraction */
+    if (decider.active_goal != null) {
+      decider.active_level = decider.active_goal.level;
+    } else {
+      decider.active_level = 0; /* Necessary for get_next_retraction */
+    }
     /*
     #ifdef DEBUG_DETERMINE_LEVEL_PHASE
     printf("\nHighest level of activity is....%d", thisAgent->active_level);
@@ -850,14 +751,19 @@ public class Consistency {
 
     LevelChangeType level_change_type;
     if (decider.active_goal == null)
-      /* Only NIL goal retractions */
+    /* Only NIL goal retractions */ {
       level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
-    else if (decider.previous_active_level == 0) level_change_type = LevelChangeType.NEW_DECISION;
-    else {
+    } else if (decider.previous_active_level == 0) {
+      level_change_type = LevelChangeType.NEW_DECISION;
+    } else {
       int diff = decider.active_level - decider.previous_active_level;
-      if (diff == 0) level_change_type = LevelChangeType.SAME_LEVEL;
-      else if (diff > 0) level_change_type = LevelChangeType.LOWER_LEVEL;
-      else level_change_type = LevelChangeType.HIGHER_LEVEL;
+      if (diff == 0) {
+        level_change_type = LevelChangeType.SAME_LEVEL;
+      } else if (diff > 0) {
+        level_change_type = LevelChangeType.LOWER_LEVEL;
+      } else {
+        level_change_type = LevelChangeType.HIGHER_LEVEL;
+      }
     }
 
     switch (level_change_type) {
@@ -945,6 +851,12 @@ public class Consistency {
 
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
         break;
+    }
+  }
+
+  private void printDebugMessage(final String message, Object... arguments) {
+    if (DEBUG_CONSISTENCY_CHECK) {
+      context.getPrinter().print(message, arguments);
     }
   }
 }

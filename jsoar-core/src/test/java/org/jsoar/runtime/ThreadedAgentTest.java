@@ -69,6 +69,13 @@ public class ThreadedAgentTest {
     }
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void createThreadedAgentNull() {
+    // When instantiating Threaded Agent with argument null
+    // Then IllegalArgumentException is thrown
+    new ThreadedAgent(null);
+  }
+
   @Test
   public void testMultipleCallsToAttachReturnSameInstance() throws Exception {
     final Agent agent = new Agent();
@@ -81,13 +88,23 @@ public class ThreadedAgentTest {
 
   @Test(timeout = 5000)
   public void testShutdownDoesntHangIfAgentIsRunningForever() throws Exception {
-    ThreadedAgent proxy = ThreadedAgent.attach(new Agent());
+
+    // Given an agent
+    Agent agent = new Agent();
+    // And Agent wrapped in ThreadedAgent
+    ThreadedAgent proxy = ThreadedAgent.attach(agent);
     proxy.getProperties().set(SoarProperties.WAITSNC, true);
     proxy.getTrace().setWatchLevel(0);
     proxy.initialize();
     proxy.runForever();
     Thread.sleep(500);
+    ThreadedAgentManager.INSTANCE.find(agent);
+
+    // When detaching Agent from ThreadedAgent
     proxy.detach();
+
+    // Then agent is removed from ThreadedAgent manager
+    assertNull(ThreadedAgentManager.INSTANCE.find(agent));
   }
 
   @Test

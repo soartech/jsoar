@@ -44,14 +44,15 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
- * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * NOTE: This is an internal interface. Don't use it unless you know what you're doing.
  *
- * <p>Soar-specific implementation of the {@link ReteListener} interface. This includes all of the
+ * Soar-specific implementation of the {@link ReteListener} interface. This includes all of the
  * stuff like Soar 7 mode, match set changes, etc.
  *
  * @author ray
  */
 public class SoarReteListener implements ReteListener {
+
   private final Agent context;
   private final Rete rete;
   private PredefinedSymbols predefinedSyms;
@@ -106,7 +107,7 @@ public class SoarReteListener implements ReteListener {
 
   public void initialize() {
     this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
-    this.decider = Adaptables.adapt(context, Decider.class);
+    this.decider = context.getDecider();
     this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
     this.wma = Adaptables.adapt(context, WorkingMemoryActivation.class);
   }
@@ -669,13 +670,17 @@ public class SoarReteListener implements ReteListener {
     if (decider.active_goal != null) {
       /* Just do asserts for current goal */
       if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS) {
-        if (decider.active_goal.goalInfo.ms_o_assertions.isEmpty()) return null;
+        if (decider.active_goal.goalInfo.ms_o_assertions.isEmpty()) {
+          return null;
+        }
 
         msc = decider.active_goal.goalInfo.ms_o_assertions.pop();
         ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
       } else {
         /* IE PRODS */
-        if (decider.active_goal.goalInfo.ms_i_assertions.isEmpty()) return null;
+        if (decider.active_goal.goalInfo.ms_i_assertions.isEmpty()) {
+          return null;
+        }
 
         msc = decider.active_goal.goalInfo.ms_i_assertions.pop();
         ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
@@ -747,9 +752,13 @@ public class SoarReteListener implements ReteListener {
     /* just do the retractions for the current level */
 
     /* initialization condition (2.107/2.111) */
-    if (decider.active_level == 0) return null;
+    if (decider.active_level == 0) {
+      return null;
+    }
 
-    if (decider.active_goal.goalInfo.ms_retractions.isEmpty()) return null;
+    if (decider.active_goal.goalInfo.ms_retractions.isEmpty()) {
+      return null;
+    }
 
     // remove from the Waterfall-specific list */
     final MatchSetChange msc = decider.active_goal.goalInfo.ms_retractions.pop();
@@ -778,7 +787,9 @@ public class SoarReteListener implements ReteListener {
    * @return Retracted instantiation, or null if there are none.
    */
   public Instantiation get_next_nil_goal_retraction() {
-    if (nil_goal_retractions.isEmpty()) return null;
+    if (nil_goal_retractions.isEmpty()) {
+      return null;
+    }
 
     // Remove this retraction from the NIL goal list
     final MatchSetChange msc = nil_goal_retractions.pop();
@@ -796,7 +807,7 @@ public class SoarReteListener implements ReteListener {
   }
 
   /**
-   * returns TRUE iff there are any pending changes to the match set. This is used to test for
+   * returns TRUE if there are any pending changes to the match set. This is used to test for
    * quiescence.
    *
    * <p>rete.cpp:1109:any_assertions_or_retractions_ready
@@ -804,28 +815,28 @@ public class SoarReteListener implements ReteListener {
    * @return true if there are any pending changes to the match set
    */
   public boolean any_assertions_or_retractions_ready() {
-    // Determining if assertions or retractions are ready require looping over
-    // all goals in Waterfall/Operand2
+    if (!nil_goal_retractions.isEmpty()) {
+      return true;
+    }
 
-    if (!nil_goal_retractions.isEmpty()) return true;
-
-    // Loop from bottom to top because we expect activity at
-    // the bottom usually
-
+    // Determining if assertions or retractions are ready require looping over all goals in
+    // Waterfall/Operand2
+    // Loop from bottom to top because we expect activity at the bottom usually
     for (IdentifierImpl goal = decider.bottom_goal;
         goal != null;
         goal = goal.goalInfo.higher_goal) {
-      // if there are any assertions or retrctions for this goal,
-      // return TRUE
+      // if there are any assertions or retractions for this goal, return TRUE
       if (!goal.goalInfo.ms_o_assertions.isEmpty()
           || !goal.goalInfo.ms_i_assertions.isEmpty()
-          || !goal.goalInfo.ms_retractions.isEmpty()) return true;
+          || !goal.goalInfo.ms_retractions.isEmpty()) {
+        return true;
+      }
     }
 
-    /* if there are no nil_goal_retractions and no assertions or retractions
-    for any  goal then return FALSE -- there aren't any productions
-    ready to fire or retract */
-
+    /*
+    if there are no nil_goal_retractions and no assertions or retractions for any  goal then return
+    FALSE -- there aren't any productions ready to fire or retract
+    */
     return false;
   }
 
@@ -836,6 +847,7 @@ public class SoarReteListener implements ReteListener {
 
   /** rete.cpp:7728:MS_trace */
   private static class MS_trace {
+
     final Symbol sym;
     final Symbol goal;
     int count;
@@ -891,7 +903,9 @@ public class SoarReteListener implements ReteListener {
         // assertion inspected, even though there can be multiple
         // assertions at different levels. See 2.110 in the OPERAND-CHANGE-LOG.
         printer.print("  %s [%s] ", tmp.sym, tmp.goal);
-        if (tmp.count > 1) printer.print("(%d)", tmp.count);
+        if (tmp.count > 1) {
+          printer.print("(%d)", tmp.count);
+        }
         printer.print("\n");
       }
     }
@@ -924,9 +938,14 @@ public class SoarReteListener implements ReteListener {
         //  BUG: for now this will print the goal of the first assertion
         //  inspected, even though there can be multiple assertions at
         //  different levels. See 2.110 in the OPERAND-CHANGE-LOG.
-        if (tmp.goal != null) printer.print(" [%s] ", tmp.goal);
-        else printer.print(" [NIL] ");
-        if (tmp.count > 1) printer.print("(%d)", tmp.count);
+        if (tmp.goal != null) {
+          printer.print(" [%s] ", tmp.goal);
+        } else {
+          printer.print(" [NIL] ");
+        }
+        if (tmp.count > 1) {
+          printer.print("(%d)", tmp.count);
+        }
         printer.print("\n");
       }
     }

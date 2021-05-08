@@ -110,7 +110,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   private final RecognitionMemory recMemory = new RecognitionMemory(this);
 
   private final Exploration exploration = new Exploration(this);
-  private final Decider decider = new Decider(this);
+
+  @NonNull @Getter private final Decider decider = new Decider(this);
+
   private final Consistency consistency = new Consistency(this);
 
   private final Chunker chunker = new Chunker(this);
@@ -173,6 +175,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
           rete,
           predefinedSyms,
           predefinedSyms.getSyms(),
+          // TODO: Remove this from adapter and use getter instead
           decider,
           printer,
           rhsFunctions,
@@ -183,7 +186,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
           soarReteListener,
           consistency,
           debuggerProvider,
-          decider,
+          // decider,
           rl,
           smem,
           wma,
