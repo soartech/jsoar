@@ -4215,21 +4215,19 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
     expand_q.setLong(1, lti_id);
 
-    ResultSet rs = null;
-    try {
-      rs = expand_q.executeQuery();
+    try (ResultSet rs = expand_q.executeQuery()) {
 
       while (rs.next()) {
-        switch (rs.getInt(0 + 1)) {
+        switch (rs.getInt(1)) {
           case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
             temp_str = smem_reverse_hash_str(rs.getLong(1 + 1));
             break;
           case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-            temp_str = (new Integer(smem_reverse_hash_int(rs.getLong(1 + 1)))).toString();
+            temp_str = Integer.toString(smem_reverse_hash_int(rs.getLong(1 + 1)));
             break;
           case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-            temp_str = (new Double(smem_reverse_hash_float(rs.getLong(1 + 1)))).toString();
-
+            temp_str = Double.toString(smem_reverse_hash_float(rs.getLong(1 + 1)));
+            break;
           default:
             temp_str = null;
             break;
@@ -4280,8 +4278,6 @@ public class DefaultSemanticMemory implements SemanticMemory {
           augmentations.get(temp_str).add(temp_str);
         }
       }
-    } finally {
-      rs.close();
     }
 
     // output augmentations nicely
@@ -4310,31 +4306,18 @@ public class DefaultSemanticMemory implements SemanticMemory {
   }
 
   void smem_print_store(StringBuilder return_val) throws SoarException {
-    // vizualizing the store requires an open semantic database
+    // visualizing the store requires an open semantic database
     smem_attach();
 
     // id, soar_letter, number
     PreparedStatement q = db.vis_lti;
-    ResultSet rs = null;
-    try {
-      rs = q.executeQuery();
-
+    try (ResultSet rs = q.executeQuery()) {
       while (rs.next()) {
         _smem_print_lti(
-            rs.getLong(0 + 1),
-            (char) rs.getInt(1 + 1),
-            rs.getLong(2 + 1),
-            rs.getDouble(3 + 1),
-            return_val);
+            rs.getLong(1), (char) rs.getInt(2), rs.getLong(3), rs.getDouble(4), return_val);
       }
     } catch (SQLException e) {
       throw new SoarException(e);
-    } finally {
-      try {
-        rs.close();
-      } catch (SQLException e) {
-        throw new SoarException(e);
-      }
     }
   }
 
