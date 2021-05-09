@@ -361,7 +361,7 @@ public class DecisionCycle {
       final Printer printer = trace.getPrinter();
       try {
         printer.startNewLine();
-        traceFormats.print_lowest_slot_in_context_stack(printer.getWriter(), decider.bottom_goal);
+        traceFormats.print_lowest_slot_in_context_stack(printer.getWriter(), decider.bottomGoal());
         printer.flush();
       } catch (IOException e) {
         logger.warn("While printing current context: " + e);
@@ -766,7 +766,7 @@ public class DecisionCycle {
       // To model episodic task, after halt, perform RL update with next-state value 0
       if (rl.rl_enabled()) {
         // TODO how about a method?
-        for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.goalInfo.higher_goal) {
+        for (IdentifierImpl g = decider.bottomGoal(); g != null; g = g.goalInfo.higher_goal) {
           rl.rl_tabulate_reward_value_for_goal(g);
           rl.rl_perform_update(0, true, g);
         }

@@ -1487,7 +1487,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
       // update time wme on all states
       {
-        SymbolImpl state = decider.bottom_goal;
+        SymbolImpl state = decider.bottomGoal();
         SymbolImpl my_time_sym = symbols.createInteger(time_counter + 1);
 
         while (state != null) {
@@ -2674,7 +2674,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
     // start at the bottom and work our way up
     // (could go in the opposite direction as well)
-    IdentifierImpl state = decider.bottom_goal;
+    IdentifierImpl state = decider.bottomGoal();
 
     List<WmeImpl> wmes;
     List<WmeImpl> cmds;

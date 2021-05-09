@@ -549,8 +549,8 @@ public class Consistency {
       in the previous preference phases, IE_PRODS fired, then force a
       consistency check over the entire stack (by checking at the
       bottom goal). */
-      if (minor_quiescence_at_goal(decider.bottom_goal)) {
-        goal_stack_consistent_through_goal(decider.bottom_goal);
+      if (minor_quiescence_at_goal(decider.bottomGoal())) {
+        goal_stack_consistent_through_goal(decider.bottomGoal());
       }
 
       // TODO why is this here?
@@ -702,7 +702,7 @@ public class Consistency {
      */
     if (!(this.soarReteListener.ms_retractions != null
         || this.soarReteListener.ms_i_assertions != null)) {
-      if (minor_quiescence_at_goal(decider.bottom_goal)) {
+      if (minor_quiescence_at_goal(decider.bottomGoal())) {
         /* This is minor quiescence */
         /*
         #ifdef DEBUG_DETERMINE_LEVEL_PHASE
@@ -712,7 +712,7 @@ public class Consistency {
 
         /* Force a consistency check over the entire stack (by checking at
         the bottom goal). */
-        goal_stack_consistent_through_goal(decider.bottom_goal);
+        goal_stack_consistent_through_goal(decider.bottomGoal());
 
         /* Decision phases is always next */
 

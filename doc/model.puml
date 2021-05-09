@@ -10,8 +10,13 @@ class IdentifierImpl implements Identifier
 class SymbolImpl
 interface Identifier
 
-IdentifierImpl --|> SymbolImpl
+class GoalIndentifierInfo
 
-SoarReteListener -> Decider
+IdentifierImpl --|> SymbolImpl
+IdentifierImpl --> GoalIndentifierInfo : goalInfo
+
+SoarReteListener --> Decider
+
 Decider --> IdentifierImpl : topGoal
+Decider --> IdentifierImpl : bottomGoal
 @enduml

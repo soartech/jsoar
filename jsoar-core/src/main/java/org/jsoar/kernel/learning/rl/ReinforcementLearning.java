@@ -622,7 +622,7 @@ public class ReinforcementLearning {
       // TODO my_agent->rl_stats->total_reward->set_value( reward );
       // TODO my_agent->rl_stats->global_reward->set_value( global_reward + reward );
 
-      if ((goal != decider.bottom_goal)
+      if ((goal != decider.bottomGoal())
           && (params.hrl_discount.get()
               == HrlDiscount
                   .on /* my_agent->rl_params->hrl_discount->get_value() == soar_module::on */)) {

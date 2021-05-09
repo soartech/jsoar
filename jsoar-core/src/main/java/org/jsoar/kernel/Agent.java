@@ -500,11 +500,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
    */
   public ContextVariableInfo getContextVariableInfo(String variable) {
     return ContextVariableInfo.get(
-        predefinedSyms, decider.topGoal(), decider.bottom_goal, variable);
+        predefinedSyms, decider.topGoal(), decider.bottomGoal(), variable);
   }
 
   public Symbol readIdentifierOrContextVariable(String t) {
-    var info = ContextVariableInfo.get(predefinedSyms, decider.topGoal(), decider.bottom_goal, t);
+    var info = ContextVariableInfo.get(predefinedSyms, decider.topGoal(), decider.bottomGoal(), t);
     if (info.getValue() != null) {
       return info.getValue();
     }
@@ -756,7 +756,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
       final var writer = trace.getPrinter().getWriter();
       try {
         writer.write("\n");
-        traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
+        traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottomGoal());
       } catch (IOException e) {
         logger.error("IOException while printing initial stack trace. Ignoring.", e);
       }

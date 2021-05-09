@@ -822,7 +822,7 @@ public class SoarReteListener implements ReteListener {
     // Determining if assertions or retractions are ready require looping over all goals in
     // Waterfall/Operand2
     // Loop from bottom to top because we expect activity at the bottom usually
-    for (IdentifierImpl goal = decider.bottom_goal;
+    for (IdentifierImpl goal = decider.bottomGoal();
         goal != null;
         goal = goal.goalInfo.higher_goal) {
       // if there are any assertions or retractions for this goal, return TRUE

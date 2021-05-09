@@ -199,7 +199,9 @@ public class Decider {
   private IdentifierImpl topGoal;
 
   /** Points to the identifier of the bottom goal */
-  public IdentifierImpl bottom_goal;
+  @Getter
+  @Accessors(fluent = true)
+  private IdentifierImpl bottomGoal;
 
   public IdentifierImpl top_state;
   public IdentifierImpl active_goal;
@@ -2175,10 +2177,10 @@ public class Decider {
     /* --- disconnect this goal from the goal stack --- */
     if (goal == topGoal) {
       topGoal = null;
-      bottom_goal = null;
+      bottomGoal = null;
     } else {
-      bottom_goal = goal.goalInfo.higher_goal;
-      bottom_goal.goalInfo.lower_goal = null;
+      bottomGoal = goal.goalInfo.higher_goal;
+      bottomGoal.goalInfo.lower_goal = null;
     }
 
     /* --- remove any preferences supported by this goal --- */
@@ -2323,17 +2325,17 @@ public class Decider {
   private void create_new_context(SymbolImpl attr_of_impasse, ImpasseType impasse_type) {
     IdentifierImpl id;
 
-    if (bottom_goal != null) {
+    if (bottomGoal != null) {
       // Creating a sub-goal (or substate)
-      id = create_new_impasse(bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
+      id = create_new_impasse(bottomGoal, attr_of_impasse, impasse_type, bottomGoal.level + 1);
 
       // Insert into goal stack
-      id.goalInfo.higher_goal = bottom_goal;
-      bottom_goal.goalInfo.lower_goal = id;
-      bottom_goal = id;
+      id.goalInfo.higher_goal = bottomGoal;
+      bottomGoal.goalInfo.lower_goal = id;
+      bottomGoal = id;
 
       add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
-      if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level)) {
+      if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottomGoal.level)) {
         // appear to be SNC'ing deep in goalstack, so interrupt and warn user
         // KJC note: we actually halt, because there is no interrupt function in SoarKernel
         // in the gSKI Agent code, if system_halted, MAX_GOAL_DEPTH is checked and if exceeded
@@ -2359,7 +2361,7 @@ public class Decider {
 
       // Insert into goal stack
       topGoal = id;
-      bottom_goal = id;
+      bottomGoal = id;
       top_state = topGoal;
     }
 
@@ -2618,7 +2620,7 @@ public class Decider {
       goal = tempMemory.highest_goal_whose_context_changed;
     } else
     /* no context changed, so jump right to the bottom */ {
-      goal = bottom_goal;
+      goal = bottomGoal;
     }
 
     Slot s = goal.goalInfo.operator_slot;

@@ -98,7 +98,7 @@ public class PreferencesCommand extends PicocliSoarCommand {
 
       // Set default identifier and attribute
       final Decider decider = Adaptables.adapt(agent, Decider.class);
-      ppc.setId(decider.bottom_goal);
+      ppc.setId(decider.bottomGoal());
       final PredefinedSymbols preSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
       ppc.setAttr(preSyms.operator_symbol);
 

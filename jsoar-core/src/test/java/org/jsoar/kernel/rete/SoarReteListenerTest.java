@@ -122,10 +122,10 @@ public class SoarReteListenerTest {
     listener.nil_goal_retractions = mock(ListHead.class);
     when(listener.nil_goal_retractions.isEmpty()).thenReturn(true);
     // And goal with o assertions
-    IdentifierImpl id = mock(IdentifierImpl.class);
-    agent.getDecider().bottom_goal = id;
-    id.goalInfo = new GoalIdentifierInfo(id);
-    id.goalInfo.ms_o_assertions.first = mock(ListItem.class);
+    IdentifierImpl goal = mock(IdentifierImpl.class);
+    when(agent.getDecider().bottomGoal()).thenReturn(goal);
+    goal.goalInfo = new GoalIdentifierInfo(goal);
+    goal.goalInfo.ms_o_assertions.first = mock(ListItem.class);
 
     // When determining whether there are assertions or retraction ready
     boolean assertionsOrRetractionsReady = listener.any_assertions_or_retractions_ready();
@@ -145,10 +145,10 @@ public class SoarReteListenerTest {
     listener.nil_goal_retractions = mock(ListHead.class);
     when(listener.nil_goal_retractions.isEmpty()).thenReturn(true);
     // And goal with i assertions
-    IdentifierImpl id = mock(IdentifierImpl.class);
-    agent.getDecider().bottom_goal = id;
-    id.goalInfo = new GoalIdentifierInfo(id);
-    id.goalInfo.ms_i_assertions.first = mock(ListItem.class);
+    IdentifierImpl goal = mock(IdentifierImpl.class);
+    when(agent.getDecider().bottomGoal()).thenReturn(goal);
+    goal.goalInfo = new GoalIdentifierInfo(goal);
+    goal.goalInfo.ms_i_assertions.first = mock(ListItem.class);
 
     // When determining whether there are assertions or retraction ready
     boolean assertionsOrRetractionsReady = listener.any_assertions_or_retractions_ready();
@@ -168,10 +168,10 @@ public class SoarReteListenerTest {
     listener.nil_goal_retractions = mock(ListHead.class);
     when(listener.nil_goal_retractions.isEmpty()).thenReturn(true);
     // And goal with retractions
-    IdentifierImpl id = mock(IdentifierImpl.class);
-    agent.getDecider().bottom_goal = id;
-    id.goalInfo = new GoalIdentifierInfo(id);
-    id.goalInfo.ms_retractions.first = mock(ListItem.class);
+    IdentifierImpl goal = mock(IdentifierImpl.class);
+    when(agent.getDecider().bottomGoal()).thenReturn(goal);
+    goal.goalInfo = new GoalIdentifierInfo(goal);
+    goal.goalInfo.ms_retractions.first = mock(ListItem.class);
 
     // When determining whether there are assertions or retraction ready
     boolean assertionsOrRetractionsReady = listener.any_assertions_or_retractions_ready();
@@ -191,7 +191,7 @@ public class SoarReteListenerTest {
     listener.nil_goal_retractions = mock(ListHead.class);
     when(listener.nil_goal_retractions.isEmpty()).thenReturn(true);
     // And no goals
-    agent.getDecider().bottom_goal = null;
+    when(agent.getDecider().bottomGoal()).thenReturn(null);
 
     // When determining whether there are assertions or retraction ready
     boolean assertionsOrRetractionsReady = listener.any_assertions_or_retractions_ready();

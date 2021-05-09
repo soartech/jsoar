@@ -3322,7 +3322,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
   void smem_respond_to_cmd(boolean store_only) throws SQLException, SoarException {
     // start at the bottom and work our way up
     // (could go in the opposite direction as well)
-    IdentifierImpl state = decider.bottom_goal;
+    IdentifierImpl state = decider.bottomGoal();
 
     List<SymbolTriple> meta_wmes = new ArrayList<SymbolTriple>();
     List<SymbolTriple> retrieval_wmes = new ArrayList<SymbolTriple>();
