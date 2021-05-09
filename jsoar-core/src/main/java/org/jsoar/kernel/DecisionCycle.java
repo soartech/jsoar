@@ -553,7 +553,7 @@ public class DecisionCycle {
         beforeElaboration();
       }
 
-      recMemory.do_preference_phase(decider.top_goal);
+      recMemory.do_preference_phase(decider.topGoal());
       decider.do_working_memory_phase();
 
       if (smem.smem_enabled()) {
@@ -648,7 +648,7 @@ public class DecisionCycle {
         beforeElaboration();
       }
 
-      recMemory.do_preference_phase(decider.top_goal);
+      recMemory.do_preference_phase(decider.topGoal());
       decider.do_working_memory_phase();
 
       if (smem.smem_enabled()) {

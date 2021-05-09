@@ -155,7 +155,7 @@ public class ReinforcementLearning {
   /** reinforcement_learning.cpp:273:rl_reset_data (9.3.3+) */
   // resets rl data structures
   private void rl_reset_data() {
-    Symbol goal = decider.top_goal;
+    Symbol goal = decider.topGoal();
     while (goal != null) {
       ReinforcementLearningInfo data = ((IdentifierImpl) goal).goalInfo.rl_info;
       data.eligibility_traces.clear();
@@ -637,7 +637,7 @@ public class ReinforcementLearning {
    * <p>reinforcement_learning:617:rl_tabulate_reward_values (9.3.0)
    */
   public void rl_tabulate_reward_values() {
-    IdentifierImpl goal = decider.top_goal;
+    IdentifierImpl goal = decider.topGoal();
 
     while (goal != null) {
       rl_tabulate_reward_value_for_goal(goal);

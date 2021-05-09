@@ -791,7 +791,7 @@ public class Chunker {
       return Productions.generateUniqueName(
           context.getProductions(), chunk_name_prefix, chunk_count);
 
-    int lowest_result_level = decider.top_goal.level;
+    int lowest_result_level = decider.topGoal().level;
     for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
       if (p.id.level > lowest_result_level) lowest_result_level = p.id.level;
 

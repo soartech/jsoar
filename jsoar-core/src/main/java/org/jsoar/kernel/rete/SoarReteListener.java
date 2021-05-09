@@ -807,7 +807,7 @@ public class SoarReteListener implements ReteListener {
   }
 
   /**
-   * returns TRUE if there are any pending changes to the match set. This is used to test for
+   * returns `true` if there are any pending changes to the match set. This is used to test for
    * quiescence.
    *
    * <p>rete.cpp:1109:any_assertions_or_retractions_ready

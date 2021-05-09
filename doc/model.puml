@@ -1,0 +1,17 @@
+@startuml
+
+!include stylesheet.iuml
+
+class SoarReteListener
+
+class Decider
+
+class IdentifierImpl implements Identifier
+class SymbolImpl
+interface Identifier
+
+IdentifierImpl --|> SymbolImpl
+
+SoarReteListener -> Decider
+Decider --> IdentifierImpl : topGoal
+@enduml

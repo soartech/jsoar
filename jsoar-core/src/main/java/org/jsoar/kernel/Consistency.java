@@ -522,7 +522,7 @@ public class Consistency {
     decider.active_goal = null;
 
     /* Clear any interruption flags on the goals....*/
-    for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.goalInfo.lower_goal) {
+    for (IdentifierImpl goal = decider.topGoal(); goal != null; goal = goal.goalInfo.lower_goal) {
       goal.goalInfo.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     }
   }
@@ -572,7 +572,7 @@ public class Consistency {
     decider.previous_active_level = decider.active_level;
 
     /* Determine the new highest level of activity */
-    decider.active_goal = highest_active_goal_apply(decider.top_goal, false);
+    decider.active_goal = highest_active_goal_apply(decider.topGoal(), false);
     if (decider.active_goal != null) {
       decider.active_level = decider.active_goal.level;
     } else {
@@ -736,7 +736,7 @@ public class Consistency {
     decider.previous_active_level = decider.active_level;
 
     /* Determine the new highest level of activity */
-    decider.active_goal = highest_active_goal_propose(decider.top_goal, false);
+    decider.active_goal = highest_active_goal_propose(decider.topGoal(), false);
     if (decider.active_goal != null) {
       decider.active_level = decider.active_goal.level;
     } else {

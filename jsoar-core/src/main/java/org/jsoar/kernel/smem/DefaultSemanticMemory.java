@@ -2574,7 +2574,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
   public void smem_reset(IdentifierImpl state) {
     // semantic_memory.cpp:1913:smem_reset
     if (state == null) {
-      state = decider.top_goal;
+      state = decider.topGoal();
     }
 
     while (state != null) {

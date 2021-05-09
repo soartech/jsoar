@@ -1,0 +1,17 @@
+#https://plantuml-documentation.readthedocs.io/en/latest/formatting/all-skin-params.html
+@startuml
+
+hide empty members
+hide circle
+
+skinparam {
+    monochrome true
+}
+
+skinparam Object {
+    ObjectFontName Arial
+    ArrowFontName Arial
+    ArrowFontSize 9
+}
+
+@enduml

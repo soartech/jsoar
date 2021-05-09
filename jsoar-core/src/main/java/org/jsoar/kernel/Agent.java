@@ -499,11 +499,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
    * @return info about that variable
    */
   public ContextVariableInfo getContextVariableInfo(String variable) {
-    return ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, variable);
+    return ContextVariableInfo.get(
+        predefinedSyms, decider.topGoal(), decider.bottom_goal, variable);
   }
 
   public Symbol readIdentifierOrContextVariable(String t) {
-    var info = ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, t);
+    var info = ContextVariableInfo.get(predefinedSyms, decider.topGoal(), decider.bottom_goal, t);
     if (info.getValue() != null) {
       return info.getValue();
     }
@@ -551,7 +552,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
 
     final var writer = printer.getWriter();
 
-    for (IdentifierImpl g = decider.top_goal; g != null; g = g.goalInfo.lower_goal) {
+    for (IdentifierImpl g = decider.topGoal(); g != null; g = g.goalInfo.lower_goal) {
       stateCount++;
 
       if (stateCount > maxStates) continue;
@@ -744,7 +745,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   /** init_soar.cpp:1374:init_agent_memory() */
   private void init_agent_memory() {
     // If there is already a top goal this function should probably not be called
-    if (decider.top_goal != null) {
+    if (decider.topGoal() != null) {
       throw new IllegalStateException(
           "There should be no top goal when init_agent_memory is called!");
     }
@@ -863,7 +864,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
     decider.active_level = 0; // Signal that everything should be retracted
     recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
     // allow all i-instantiations to retract
-    recMemory.do_preference_phase(decider.top_goal);
+    recMemory.do_preference_phase(decider.topGoal());
 
     explain.reset_explain();
     syms.reset();

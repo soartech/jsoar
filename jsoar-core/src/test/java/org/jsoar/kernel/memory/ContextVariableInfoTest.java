@@ -45,7 +45,7 @@ public class ContextVariableInfoTest {
     final Decider decider = Adaptables.adapt(agent, Decider.class);
     final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
     ContextVariableInfo info =
-        ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, "<o>");
+        ContextVariableInfo.get(predefinedSyms, decider.topGoal(), decider.bottom_goal, "<o>");
     final Identifier o1 = agent.getSymbols().findIdentifier('O', 1);
     assertNotNull(o1);
     assertSame(o1, info.getValue());

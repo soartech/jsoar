@@ -834,8 +834,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
     }
 
     // at init, top-state is considered the only known identifier
-    decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
-    decider.top_goal.epmem_valid = epmem_validation;
+    decider.topGoal().epmem_id = EPMEM_NODEID_ROOT;
+    decider.topGoal().epmem_valid = epmem_validation;
 
     ResultSet r = db.database_version.executeQuery();
     r.next();
@@ -1074,7 +1074,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
   public void epmem_reset(IdentifierImpl state) {
     // episodic_memory.cpp:1470:epmem_reset()
     if (state == null) {
-      state = decider.top_goal;
+      state = decider.topGoal();
     }
 
     while (state != null) {
@@ -1145,7 +1145,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
         case output:
           // examine all commands on the output-link for any
           // // that appeared since last memory was recorded
-          EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.top_goal);
+          EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.topGoal());
           for (Wme wme : agent.getInputOutput().getPendingCommands()) {
             if (wme.getTimetag() > stateInfo.last_ol_time) {
               new_memory = true;
@@ -6876,8 +6876,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
       // Mark the real top-state for addition
       epmem_wme_adds.add(decider.top_state);
-      decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
-      decider.top_goal.epmem_valid = epmem_validation;
+      decider.topGoal().epmem_id = EPMEM_NODEID_ROOT;
+      decider.topGoal().epmem_valid = epmem_validation;
 
       // Mark the fake WMEs for termination
       for (WmeImpl wme : wmes) removeWme(wme);
