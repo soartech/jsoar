@@ -826,9 +826,9 @@ public class SoarReteListener implements ReteListener {
         goal != null;
         goal = goal.goalInfo.higher_goal) {
       // if there are any assertions or retractions for this goal, return TRUE
-      if (!goal.goalInfo.ms_o_assertions.isEmpty()
-          || !goal.goalInfo.ms_i_assertions.isEmpty()
-          || !goal.goalInfo.ms_retractions.isEmpty()) {
+      if (!(goal.goalInfo.ms_o_assertions.isEmpty()
+          && goal.goalInfo.ms_i_assertions.isEmpty()
+          && goal.goalInfo.ms_retractions.isEmpty())) {
         return true;
       }
     }
