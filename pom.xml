@@ -83,72 +83,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <show>private</show>
-                    <doclint>none</doclint>
-                    <source>${java.version}</source>
-
-                     <!-- if you want javadoc errors to fail the build, comment this -->
-                    <failOnError>false</failOnError>
-
-                    <!-- START: Enable asciidoclet -->
-                    <additionalJOptions>
-                        <additionalJOption>-J--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED</additionalJOption>
-                        <additionalJOption>--base-dir</additionalJOption>
-                        <additionalJOption>${project.basedir}</additionalJOption>
-                    </additionalJOptions>
-                    <doclet>org.asciidoctor.asciidoclet.Asciidoclet</doclet>
-                    <docletArtifact>
-                        <groupId>org.uniknow</groupId>
-                        <artifactId>asciidoclet</artifactId>
-                        <version>2.2.2</version>
-                    </docletArtifact>
-                    <detectJavaApiLink>true</detectJavaApiLink>
-                    <!-- END: Enable asciidoclet -->
-
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>aggregate</id>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                        <phase>install</phase>
-                        <configuration>
-                            <!-- Specific configuration for the aggregate report -->
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M1</version><!--$NO-MVN-MAN-VER$-->
-            </plugin>
-            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
@@ -156,6 +90,7 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -165,6 +100,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -270,6 +206,74 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <show>private</show>
+                            <doclint>none</doclint>
+                            <source>${java.version}</source>
+
+                            <!-- if you want javadoc errors to fail the build, comment this -->
+                            <failOnError>false</failOnError>
+
+                            <!-- START: Enable asciidoclet -->
+                            <additionalJOptions>
+                                <additionalJOption>-J--add-exports=jdk.javadoc/jdk.javadoc.internal.tool=ALL-UNNAMED</additionalJOption>
+                                <additionalJOption>--base-dir</additionalJOption>
+                                <additionalJOption>${project.basedir}</additionalJOption>
+                            </additionalJOptions>
+                            <doclet>org.asciidoctor.asciidoclet.Asciidoclet</doclet>
+                            <docletArtifact>
+                                <groupId>org.uniknow</groupId>
+                                <artifactId>asciidoclet</artifactId>
+                                <version>2.2.2</version>
+                            </docletArtifact>
+                            <detectJavaApiLink>true</detectJavaApiLink>
+                            <!-- END: Enable asciidoclet -->
+
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>aggregate</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <phase>install</phase>
+                                <configuration>
+                                    <!-- Specific configuration for the aggregate report -->
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>3.0.0-M1</version><!--$NO-MVN-MAN-VER$-->
+                    </plugin>
+
                 </plugins>
             </build>
         </profile>
