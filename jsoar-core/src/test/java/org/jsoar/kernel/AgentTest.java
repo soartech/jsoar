@@ -60,4 +60,9 @@ public class AgentTest {
             gs.get(2).getIdentifier(),
             gs.get(3).getIdentifier()));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetDebuggerProviderThrownAnExceptionIfNull() {
+    agent.setDebuggerProvider(null);
+  }
 }

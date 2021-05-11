@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
@@ -39,7 +40,6 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ActivationChoices;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -90,7 +90,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
 
   private static final AtomicInteger nextName = new AtomicInteger(0);
 
+  @Getter @Setter @NonNull
   private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
+
   private Printer printer = new Printer(new NullWriter());
 
   /** The random number generator used throughout the agent */
@@ -293,26 +295,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
    */
   public void setName(String name) {
     getProperties().set(SoarProperties.NAME, name);
-  }
-
-  /**
-   * The agent's current debugger provider
-   *
-   * @return the current debugger provider
-   */
-  public DebuggerProvider getDebuggerProvider() {
-    return debuggerProvider;
-  }
-
-  /**
-   * Set the agent's current debugger provider. This is the mechanism used by the debug RHS function
-   * to launch a debugger.
-   *
-   * @param debuggerProvider the debuggerProvider to set
-   */
-  public void setDebuggerProvider(DebuggerProvider debuggerProvider) {
-    Arguments.checkNotNull(debuggerProvider, "debuggerProvider");
-    this.debuggerProvider = debuggerProvider;
   }
 
   /**
