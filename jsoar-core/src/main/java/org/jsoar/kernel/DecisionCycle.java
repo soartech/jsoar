@@ -705,10 +705,6 @@ public class DecisionCycle {
     this.chunker.chunks_this_d_cycle = 0;
     this.e_cycles_this_d_cycle = 0;
 
-    // #ifndef NO_TIMING_STUFF
-    // start_timer (thisAgent, &thisAgent->start_phase_tv);
-    // #endif
-
     // we check e_cycle_count because Soar 7 runs multiple input cycles per decision
     // always true for Soar 8
     if (e_cycles_this_d_cycle == 0) {
@@ -724,11 +720,6 @@ public class DecisionCycle {
     afterPhase(Phase.INPUT);
 
     Phase.INPUT.trace(trace, false);
-
-    // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
-    // stop_timer (thisAgent, &thisAgent->start_phase_tv,
-    // &thisAgent->decision_cycle_phase_timers[INPUT_PHASE]);
-    // #endif
 
     current_phase.set(Phase.PROPOSE);
   }
