@@ -12,6 +12,7 @@ public final class Arguments {
    *
    * @param arg the argument to check
    * @param name the name of the argument to be used in the exception message.
+   * @deprecated replaced by @NonNull of lombok
    */
   public static void checkNotNull(Object arg, String name) {
     if (arg == null) {

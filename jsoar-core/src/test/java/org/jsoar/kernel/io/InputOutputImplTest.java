@@ -8,6 +8,7 @@ package org.jsoar.kernel.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
@@ -323,5 +324,23 @@ public class InputOutputImplTest extends JSoarTest {
     agent
         .getInputOutput()
         .addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddInputWmeInternalThrowAnExceptionIfIdIsNull() {
+    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
+    io.addInputWmeInternal(null, mock(Symbol.class), mock(Symbol.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddInputWmeInternalThrowAnExceptionIfAttrIsNull() {
+    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
+    io.addInputWme(mock(Identifier.class), null, mock(Symbol.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddInputWmeInternalThrowAnExceptionIfValueIsNull() {
+    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
+    io.addInputWme(mock(Identifier.class), mock(Symbol.class), null);
   }
 }

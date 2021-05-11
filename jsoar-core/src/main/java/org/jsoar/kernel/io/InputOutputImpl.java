@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -124,6 +125,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
   private Set<IdentifierImpl> ids_in_tc = new HashSet<IdentifierImpl>(); /* ids in TC(link) */
   private boolean output_link_changed = false;
   private Set<Wme> lastOutputSet = null;
+
   private final Set<Wme> pendingCommands = new HashSet<Wme>();
   private final Set<Wme> removingCommands = new HashSet<Wme>();
   private Marker output_link_tc_num;
@@ -274,11 +276,8 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     return s;
   }
 
-  public WmeImpl addInputWmeInternal(Identifier id, Symbol attr, Symbol value) {
-    Arguments.checkNotNull(id, "id");
-    Arguments.checkNotNull(attr, "attr");
-    Arguments.checkNotNull(value, "value");
-
+  public WmeImpl addInputWmeInternal(
+      @NonNull Identifier id, @NonNull Symbol attr, @NonNull Symbol value) {
     // go ahead and add the wme
     final WmeImpl w =
         this.workingMemory.make_wme(
