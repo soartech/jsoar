@@ -250,7 +250,7 @@ public class Decider {
     this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
     this.exploration = Adaptables.adapt(context, Exploration.class);
     this.decisionManip = Adaptables.adapt(context, DecisionManipulation.class);
-    this.io = Adaptables.adapt(context, InputOutputImpl.class);
+    this.io = context.getIo();
     this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
     this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
     this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);

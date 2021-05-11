@@ -128,7 +128,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
 
   private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
-  private final InputOutputImpl io = new InputOutputImpl(this);
+
+  @NonNull @Getter private final InputOutputImpl io = new InputOutputImpl(this);
 
   private final RhsFunctionManager rhsFunctions =
       new RhsFunctionManager(recMemory.getRhsFunctionContext());
@@ -167,7 +168,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
           trace,
           decisionManip,
           exploration,
-          io,
           traceFormats,
           properties,
           chunker,

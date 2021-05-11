@@ -179,7 +179,7 @@ public class DecisionCycle {
     properties.setProvider(SoarProperties.CURRENT_PHASE, current_phase);
     properties.setProvider(SoarProperties.STOP_PHASE, stopPhase);
 
-    this.io = Adaptables.adapt(context, InputOutputImpl.class);
+    this.io = context.getIo();
     this.decider = Adaptables.adapt(context, Decider.class);
     this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
     this.chunker = Adaptables.adapt(context, Chunker.class);

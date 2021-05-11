@@ -2,21 +2,31 @@
 
 !include stylesheet.iuml
 
-class SoarReteListener
+class Agent
 
+class DecisionCycle
 class Decider
 
-class IdentifierImpl implements Identifier
-class SymbolImpl
+class GoalIdentifierInfo
+
 interface Identifier
+class IdentifierImpl implements Identifier
+class InputOutputImpl
 
-class GoalIndentifierInfo
+class SoarReteListener
+class SymbolImpl
 
-IdentifierImpl --|> SymbolImpl
-IdentifierImpl --> GoalIndentifierInfo : goalInfo
-
-SoarReteListener --> Decider
+Agent -> DecisionCycle
 
 Decider --> IdentifierImpl : topGoal
 Decider --> IdentifierImpl : bottomGoal
+
+DecisionCycle -> Decider
+
+IdentifierImpl --|> SymbolImpl
+IdentifierImpl --> GoalIdentifierInfo : goalInfo
+
+DecisionCycle --> InputOutputImpl
+SoarReteListener --> Decider
+
 @enduml
