@@ -7,6 +7,7 @@ package org.jsoar.kernel;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import lombok.NonNull;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -55,8 +56,7 @@ public class GoalDependencySetImpl implements GoalDependencySet {
    */
   private WmeImpl wmes;
 
-  public GoalDependencySetImpl(IdentifierImpl goal) {
-    Arguments.checkNotNull(goal, "goal");
+  public GoalDependencySetImpl(@NonNull IdentifierImpl goal) {
     this.goal = goal;
   }
 
