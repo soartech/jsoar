@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.io;
 
+import lombok.NonNull;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.util.Arguments;
@@ -32,9 +33,7 @@ public class CycleCountInput {
    *
    * @param io The I/O interface
    */
-  public CycleCountInput(InputOutput io) {
-    Arguments.checkNotNull(io, "io");
-
+  public CycleCountInput(@NonNull InputOutput io) {
     this.io = io;
     this.listener = new InputListener();
     this.initListener = new InitSoarListener();
