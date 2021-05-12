@@ -8,6 +8,7 @@ package org.jsoar.kernel.io;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.util.Arguments;
@@ -35,9 +36,7 @@ public class TimeInput {
    *
    * @param io The I/O interface
    */
-  public TimeInput(InputOutput io) {
-    Arguments.checkNotNull(io, "io");
-
+  public TimeInput(@NonNull InputOutput io) {
     this.io = io;
     this.listener = new InputListener();
     this.initListener = new InitSoarListener();
