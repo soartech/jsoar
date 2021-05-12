@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.NonNull;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.Arguments;
@@ -43,9 +44,7 @@ public class DefaultQMemory implements QMemory {
     return create(id, "", new DefaultQMemory(), 0);
   }
 
-  private static QMemory create(Identifier id, String path, DefaultQMemory struct, int depth) {
-    Arguments.checkNotNull(id, "id");
-
+  private static QMemory create(@NonNull Identifier id, String path, DefaultQMemory struct, int depth) {
     if (depth > MAX_DEPTH) {
       return struct;
     }

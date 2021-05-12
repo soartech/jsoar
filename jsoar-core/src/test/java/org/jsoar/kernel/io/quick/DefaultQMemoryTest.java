@@ -16,14 +16,18 @@ import org.junit.Test;
 /** @author ray */
 public class DefaultQMemoryTest {
 
-  /** Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#create()}. */
+  /**
+   * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#create()}.
+   */
   @Test
   public void testCreate() {
     QMemory q = DefaultQMemory.create();
     assertEquals(0, q.getPaths().size());
   }
 
-  /** Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#hasPath(java.lang.String)}. */
+  /**
+   * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#hasPath(java.lang.String)}.
+   */
   @Test
   public void testHasPath() {
     QMemory q = DefaultQMemory.create();
@@ -144,7 +148,9 @@ public class DefaultQMemoryTest {
     assertEquals(2, count.intValue());
   }
 
-  /** Check support for 64-bit integers */
+  /**
+   * Check support for 64-bit integers
+   */
   @Test
   public void testSupportsLong() {
     QMemory q = DefaultQMemory.create();
@@ -153,5 +159,10 @@ public class DefaultQMemoryTest {
 
     q.setInteger("integer", Integer.MAX_VALUE);
     assertEquals(Integer.MAX_VALUE, q.getInteger("integer"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCreateThrowsExceptionIfIdIsNull() {
+    DefaultQMemory.create(null);
   }
 }
