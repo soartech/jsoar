@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
@@ -97,8 +98,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener {
    * @return The adapter object
    * @throws IllegalArgumentException if agent is <code>null</code>
    */
-  public static SoarQMemoryAdapter attach(Agent agent, QMemory source) {
-    Arguments.checkNotNull(agent, "agent");
+  public static SoarQMemoryAdapter attach(@NonNull Agent agent, QMemory source) {
     return attach(agent.getInputOutput(), null, source);
   }
 

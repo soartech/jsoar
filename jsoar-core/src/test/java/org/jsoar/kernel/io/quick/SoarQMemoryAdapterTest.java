@@ -7,6 +7,7 @@ package org.jsoar.kernel.io.quick;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
@@ -164,4 +165,10 @@ public class SoarQMemoryAdapterTest extends JSoarTest {
     assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[1]"));
     assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[hello there]"));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAttachThrowsExceptionIfAgentIsNull() {
+    SoarQMemoryAdapter.attach(null,mock(QMemory.class));
+  }
+
 }
