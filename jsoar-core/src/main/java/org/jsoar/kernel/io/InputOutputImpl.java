@@ -332,20 +332,19 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     this.workingMemory.remove_wme_from_wm(wme);
   }
 
-  InputWme updateInputWme(InputWme w, Symbol newValue) {
-    Arguments.checkNotNull(w, "w");
-    Arguments.check(w instanceof InputWmeImpl, "Incompatible WME type: " + w + ", " + w.getClass());
+  InputWme updateInputWme(@NonNull InputWme wme, Symbol newValue) {
+    Arguments.check(wme instanceof InputWmeImpl, "Incompatible WME type: " + wme + ", " + wme.getClass());
 
-    if (newValue == w.getValue()) {
-      return w;
+    if (newValue == wme.getValue()) {
+      return wme;
     }
 
-    final InputWmeImpl iw = (InputWmeImpl) w;
+    final InputWmeImpl iw = (InputWmeImpl) wme;
     final WmeImpl inner = iw.getInner();
 
     removeInputWmeInternal(inner);
-    iw.setInner(addInputWmeInternal(w.getIdentifier(), w.getAttribute(), newValue));
-    return w;
+    iw.setInner(addInputWmeInternal(wme.getIdentifier(), wme.getAttribute(), newValue));
+    return wme;
   }
 
   /* (non-Javadoc)

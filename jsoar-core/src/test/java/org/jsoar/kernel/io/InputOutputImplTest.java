@@ -350,4 +350,10 @@ public class InputOutputImplTest extends JSoarTest {
     io.removeInputWmeInternal(null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testUpdateInputWmeInternalThrowsExceptionIfWmeIsNull() {
+    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
+    io.updateInputWme(null,mock(Symbol.class));
+  }
+
 }
