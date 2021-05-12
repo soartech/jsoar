@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,10 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class WmesTest {
+
   private SymbolFactory syms;
   private MockFactory factory;
 
   private static class Triple {
+
     final Identifier id;
     final Symbol attr;
     final Symbol value;
@@ -36,6 +39,7 @@ public class WmesTest {
   }
 
   private class MockFactory implements WmeFactory<Void> {
+
     final List<Triple> triples = new ArrayList<Triple>();
 
     @Override
@@ -94,5 +98,10 @@ public class WmesTest {
     } else {
       assertTrue(factory.triples.get(index).value instanceof Identifier);
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNewMatcherThrowsExceptionIfSymbolFactoryIsNull() {
+    Wmes.newMatcher(null,mock(Identifier.class),"test", "test", 0);
   }
 }

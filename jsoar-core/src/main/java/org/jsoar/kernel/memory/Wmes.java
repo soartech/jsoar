@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -183,8 +184,7 @@ public class Wmes {
    * @return New predicate object
    */
   public static Predicate<Wme> newMatcher(
-      SymbolFactory syms, Identifier id, Object attr, Object value, int timetag) {
-    Arguments.checkNotNull(syms, "syms");
+      @NonNull SymbolFactory syms, Identifier id, Object attr, Object value, int timetag) {
     return new MatcherPredicate(
         id,
         attr != null ? Symbols.create(syms, attr) : null,
