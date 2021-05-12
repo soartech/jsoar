@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -65,8 +66,7 @@ public class SoarTechXmlToWme implements XmlToWme {
    *
    * @param wmeFactory the WME factory
    */
-  public SoarTechXmlToWme(WmeFactory<?> wmeFactory) {
-    Arguments.checkNotNull(wmeFactory, "wmeFactory");
+  public SoarTechXmlToWme(@NonNull WmeFactory<?> wmeFactory) {
     this.wmeFactory = wmeFactory;
   }
 

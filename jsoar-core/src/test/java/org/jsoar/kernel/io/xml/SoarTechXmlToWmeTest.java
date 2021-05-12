@@ -21,10 +21,12 @@ import org.junit.Test;
 public class SoarTechXmlToWmeTest {
 
   @Before
-  public void setUp() throws Exception {}
+  public void setUp() throws Exception {
+  }
 
   @After
-  public void tearDown() throws Exception {}
+  public void tearDown() throws Exception {
+  }
 
   @Test
   public void testFromXml() throws Exception {
@@ -90,4 +92,10 @@ public class SoarTechXmlToWmeTest {
     assertEquals(33, m.attr("age").find(xml).getValue().asInteger().getValue());
     assertEquals(180.5, m.attr("weight").find(xml).getValue().asDouble().getValue(), 0.0001);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfWmeFactoryIsNull() {
+    new SoarTechXmlToWme(null);
+  }
+
 }
