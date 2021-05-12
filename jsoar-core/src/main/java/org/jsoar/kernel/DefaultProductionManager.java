@@ -183,9 +183,8 @@ public class DefaultProductionManager implements ProductionManager {
    * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String, org.jsoar.util.SourceLocation)
    */
   @Override
-  public Production loadProduction(String productionBody, SourceLocation location)
+  public Production loadProduction(String productionBody, @NonNull SourceLocation location)
       throws ReordererException, ParserException {
-    Arguments.checkNotNull(location, "location");
     this.currentSourceLocation = location;
     final StringReader reader = new StringReader(productionBody);
     final Production p = parser.parseProduction(parserContext, reader);

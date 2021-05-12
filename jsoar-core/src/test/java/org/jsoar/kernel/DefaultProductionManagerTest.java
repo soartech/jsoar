@@ -9,6 +9,8 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 import org.jsoar.JSoarTest;
+import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,9 +44,16 @@ public class DefaultProductionManagerTest extends JSoarTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetParserThrownExceptionIfParserIsNull() {
+  public void testSetParserThrowsExceptionIfParserIsNull() {
     DefaultProductionManager productionManager = new DefaultProductionManager(mock(Agent.class));
     productionManager.setParser(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLoadProductionThrowsExceptionIfLocationIsNull()
+      throws ParserException, ReordererException {
+    DefaultProductionManager productionManager = new DefaultProductionManager(mock(Agent.class));
+    productionManager.loadProduction("productionBody",null);
   }
 
 }
