@@ -6,9 +6,11 @@
 package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.util.SourceLocation;
 import org.junit.Test;
 
 public class ProductionTest {
@@ -43,4 +45,32 @@ public class ProductionTest {
     p.setBreakpointEnabled(true);
     assertTrue(p.isBreakpointEnabled());
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testProductionBuilderThrowsExceptionIfTypeIsNull() {
+    Production.newBuilder()
+        .type(null)
+        .name("test")
+        .location(mock(SourceLocation.class))
+        .build();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testProductionBuilderThrowsExceptionIfNameIsNull() {
+    Production.newBuilder()
+        .type(ProductionType.USER)
+        .name(null)
+        .location(mock(SourceLocation.class))
+        .build();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testProductionBuilderThrowsExceptionIfLocationIsNull() {
+    Production.newBuilder()
+        .type(ProductionType.USER)
+        .name("test")
+        .location(null)
+        .build();
+  }
+
 }

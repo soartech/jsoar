@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.NonNull;
 import org.jsoar.kernel.learning.rl.RLRuleInfo;
 import org.jsoar.kernel.learning.rl.RLTemplateInfo;
 import org.jsoar.kernel.lhs.Condition;
@@ -197,18 +198,15 @@ public class Production {
    * @see Builder#build()
    */
   private Production(
-      ProductionType type,
-      SourceLocation location,
-      String name,
+      @NonNull ProductionType type,
+      @NonNull SourceLocation location,
+      @NonNull String name,
       String doc,
       Condition lhs_top_in,
       Condition lhs_bottom_in,
       Action rhs_top_in,
       Support support,
       boolean interrupt) {
-    Arguments.checkNotNull(type, "type");
-    Arguments.checkNotNull(location, "location");
-    Arguments.checkNotNull(name, "name");
     //        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
     //        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
 
