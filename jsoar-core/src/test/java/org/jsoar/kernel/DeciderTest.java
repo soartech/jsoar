@@ -1,6 +1,5 @@
 package org.jsoar.kernel;
 
-import javax.swing.event.DocumentEvent;
 import org.junit.Test;
 
 public class DeciderTest {
@@ -9,5 +8,4 @@ public class DeciderTest {
   public void testConstructorThrownExceptionIfAgentIsNull() {
     new Decider(null);
   }
-
 }

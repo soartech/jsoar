@@ -10,7 +10,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.NonNull;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.Arguments;
 
 /**
  * Default implementation of {@link QMemory} interface. This class contains factory methods for
@@ -44,7 +43,8 @@ public class DefaultQMemory implements QMemory {
     return create(id, "", new DefaultQMemory(), 0);
   }
 
-  private static QMemory create(@NonNull Identifier id, String path, DefaultQMemory struct, int depth) {
+  private static QMemory create(
+      @NonNull Identifier id, String path, DefaultQMemory struct, int depth) {
     if (depth > MAX_DEPTH) {
       return struct;
     }

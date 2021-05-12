@@ -12,7 +12,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
-import org.jsoar.kernel.io.xml.XmlMessageQueue.Builder;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
@@ -22,9 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author ray
- */
+/** @author ray */
 public class XmlMessageQueueTest {
 
   private static class MatchFunction extends StandaloneRhsFunctionHandler {
@@ -145,5 +142,4 @@ public class XmlMessageQueueTest {
   public void testConstructorBuilderThrowsExceptionIfIoIsNull() {
     XmlMessageQueue.newBuilder(null);
   }
-
 }

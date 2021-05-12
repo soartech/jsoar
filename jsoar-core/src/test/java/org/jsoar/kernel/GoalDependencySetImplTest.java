@@ -8,5 +8,4 @@ public class GoalDependencySetImplTest {
   public void testConstructorThrowsExceptionIfGoalIsNull() {
     new GoalDependencySetImpl(null);
   }
-
 }

@@ -16,7 +16,6 @@ import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.slf4j.Logger;

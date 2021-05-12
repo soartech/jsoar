@@ -10,13 +10,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
@@ -739,13 +739,14 @@ public class ConditionReorderer {
   /**
    * reorder.cpp:509:collect_vars_tested_by_cond_that_are_bound
    *
+   * <p>TODO: Check whether null for start_list can ever occur
+   *
    * @param cond
    * @param tc
    * @param starting_list
    */
   private LinkedList<Variable> collect_vars_tested_by_cond_that_are_bound(
-      Condition cond, Marker tc, LinkedList<Variable> starting_list) {
-    Arguments.checkNotNull(starting_list, "startingList");
+      Condition cond, Marker tc, @NonNull LinkedList<Variable> starting_list) {
 
     ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
     if (ncc != null) {
@@ -767,13 +768,14 @@ public class ConditionReorderer {
   /**
    * reorder.cpp:468:collect_vars_tested_by_test_that_are_bound
    *
+   * <p>TODO: Check whether null for start_list can ever occur
+   *
    * @param t
    * @param tc
    * @param starting_list
    */
   private void collect_vars_tested_by_test_that_are_bound(
-      Test t, Marker tc, LinkedList<Variable> starting_list) {
-    Arguments.checkNotNull(starting_list, "starting_list");
+      Test t, Marker tc, @NonNull LinkedList<Variable> starting_list) {
 
     if (Tests.isBlank(t)) {
       return;

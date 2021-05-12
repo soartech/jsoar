@@ -11,7 +11,6 @@ import lombok.NonNull;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.util.Arguments;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>

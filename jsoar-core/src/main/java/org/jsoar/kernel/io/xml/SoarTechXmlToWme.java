@@ -16,7 +16,6 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.XmlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

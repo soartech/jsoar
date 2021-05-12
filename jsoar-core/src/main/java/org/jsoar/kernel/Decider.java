@@ -41,7 +41,6 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;

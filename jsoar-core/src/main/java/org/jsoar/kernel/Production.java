@@ -29,7 +29,6 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;

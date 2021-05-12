@@ -48,11 +48,7 @@ public class ProductionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testProductionBuilderThrowsExceptionIfTypeIsNull() {
-    Production.newBuilder()
-        .type(null)
-        .name("test")
-        .location(mock(SourceLocation.class))
-        .build();
+    Production.newBuilder().type(null).name("test").location(mock(SourceLocation.class)).build();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -66,11 +62,6 @@ public class ProductionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testProductionBuilderThrowsExceptionIfLocationIsNull() {
-    Production.newBuilder()
-        .type(ProductionType.USER)
-        .name("test")
-        .location(null)
-        .build();
+    Production.newBuilder().type(ProductionType.USER).name("test").location(null).build();
   }
-
 }

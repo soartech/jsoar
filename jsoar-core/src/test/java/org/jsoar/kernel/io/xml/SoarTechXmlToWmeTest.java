@@ -21,12 +21,10 @@ import org.junit.Test;
 public class SoarTechXmlToWmeTest {
 
   @Before
-  public void setUp() throws Exception {
-  }
+  public void setUp() throws Exception {}
 
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testFromXml() throws Exception {
@@ -97,5 +95,4 @@ public class SoarTechXmlToWmeTest {
   public void testConstructorThrowsExceptionIfWmeFactoryIsNull() {
     new SoarTechXmlToWme(null);
   }
-
 }

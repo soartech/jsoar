@@ -19,7 +19,6 @@ import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.w3c.dom.Element;

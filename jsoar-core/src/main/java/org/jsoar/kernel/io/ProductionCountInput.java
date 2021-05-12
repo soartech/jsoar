@@ -12,7 +12,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 

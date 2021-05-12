@@ -27,20 +27,15 @@ public class CycleCountInputTest {
 
   private Agent agent;
 
-  /**
-   * @throws java.lang.Exception
-   */
+  /** @throws java.lang.Exception */
   @Before
   public void setUp() throws Exception {
     this.agent = new Agent();
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
+  /** @throws java.lang.Exception */
   @After
-  public void tearDown() throws Exception {
-  }
+  public void tearDown() throws Exception {}
 
   @Test
   public void testCycleCountInput() throws Exception {
@@ -94,5 +89,4 @@ public class CycleCountInputTest {
   public void testConstructorThrowsExceptionIfIoIsNull() {
     new CycleCountInput(null);
   }
-
 }

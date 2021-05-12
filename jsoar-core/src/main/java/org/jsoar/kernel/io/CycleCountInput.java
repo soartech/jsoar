@@ -8,7 +8,6 @@ package org.jsoar.kernel.io;
 import lombok.NonNull;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 

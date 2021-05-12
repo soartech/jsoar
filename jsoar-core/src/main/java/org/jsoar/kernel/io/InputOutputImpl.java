@@ -39,8 +39,6 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -333,7 +331,8 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
   }
 
   InputWme updateInputWme(@NonNull InputWme wme, Symbol newValue) {
-    Arguments.check(wme instanceof InputWmeImpl, "Incompatible WME type: " + wme + ", " + wme.getClass());
+    Arguments.check(
+        wme instanceof InputWmeImpl, "Incompatible WME type: " + wme + ", " + wme.getClass());
 
     if (newValue == wme.getValue()) {
       return wme;

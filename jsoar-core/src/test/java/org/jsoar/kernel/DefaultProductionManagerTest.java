@@ -53,7 +53,6 @@ public class DefaultProductionManagerTest extends JSoarTest {
   public void testLoadProductionThrowsExceptionIfLocationIsNull()
       throws ParserException, ReordererException {
     DefaultProductionManager productionManager = new DefaultProductionManager(mock(Agent.class));
-    productionManager.loadProduction("productionBody",null);
+    productionManager.loadProduction("productionBody", null);
   }
-
 }

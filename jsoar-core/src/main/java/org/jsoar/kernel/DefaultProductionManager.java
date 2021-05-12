@@ -32,7 +32,6 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.Adaptables;
@@ -59,10 +58,7 @@ public class DefaultProductionManager implements ProductionManager {
   /* (non-Javadoc)
    * @see org.jsoar.kernel.ProductionManager#getParser()
    */
-  @Getter
-  @Setter
-  @NonNull
-  private Parser parser = new OriginalParser();
+  @Getter @Setter @NonNull private Parser parser = new OriginalParser();
 
   private EnumMap<ProductionType, Set<Production>> productionsByType =
       new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
