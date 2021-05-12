@@ -14,6 +14,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
@@ -53,6 +56,12 @@ public class DefaultProductionManager implements ProductionManager {
         }
       };
 
+  /* (non-Javadoc)
+   * @see org.jsoar.kernel.ProductionManager#getParser()
+   */
+  @Getter
+  @Setter
+  @NonNull
   private Parser parser = new OriginalParser();
 
   private EnumMap<ProductionType, Set<Production>> productionsByType =
@@ -159,23 +168,6 @@ public class DefaultProductionManager implements ProductionManager {
       }
     }
     return result;
-  }
-
-  /* (non-Javadoc)
-   * @see org.jsoar.kernel.ProductionManager#getParser()
-   */
-  @Override
-  public Parser getParser() {
-    return parser;
-  }
-
-  /* (non-Javadoc)
-   * @see org.jsoar.kernel.ProductionManager#setParser(org.jsoar.kernel.parser.Parser)
-   */
-  @Override
-  public void setParser(Parser parser) {
-    Arguments.checkNotNull(parser, "parser");
-    this.parser = parser;
   }
 
   /* (non-Javadoc)
