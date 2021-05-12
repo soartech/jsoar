@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import org.jsoar.kernel.Agent;
@@ -159,4 +160,23 @@ public class RecognitionMemoryTest {
         "did not halt when expected",
         agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) == 75005);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddWmeThrowsExceptionIfIdIsNull() {
+    RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
+    memory.getRhsFunctionContext().addWme(null,mock(Symbol.class), mock(Symbol.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddWmeThrowsExceptionIfAttrIsNull() {
+    RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
+    memory.getRhsFunctionContext().addWme(mock(Identifier.class),null, mock(Symbol.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAddWmeThrowsExceptionIfValueIsNull() {
+    RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
+    memory.getRhsFunctionContext().addWme(mock(Identifier.class),mock(Symbol.class), null);
+  }
+
 }

@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.Decider;
@@ -1507,11 +1508,7 @@ public class RecognitionMemory {
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
      */
     @Override
-    public Void addWme(Identifier id, Symbol attr, Symbol value) {
-      Arguments.checkNotNull(id, "id");
-      Arguments.checkNotNull(attr, "attr");
-      Arguments.checkNotNull(value, "value");
-
+    public Void addWme(@NonNull Identifier id, @NonNull Symbol attr, @NonNull Symbol value) {
       Preference p =
           new Preference(
               rhsFunctionPreferenceType,
