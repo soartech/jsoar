@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.NonNull;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -171,9 +172,7 @@ public class XmlMessageQueue {
     return new Builder(io);
   }
 
-  private XmlMessageQueue(Builder builder) {
-    Arguments.checkNotNull(builder, "builder");
-
+  private XmlMessageQueue(@NonNull Builder builder) {
     this.io = builder.io;
     this.converter = builder.converter != null ? builder.converter : DefaultXmlToWme.forInput(io);
     this.queueName = builder.queueName;
