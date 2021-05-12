@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
@@ -239,8 +240,7 @@ public class Decider {
    *
    * @param context the owning agent
    */
-  public Decider(Agent context) {
-    Arguments.checkNotNull(context, "context");
+  public Decider(@NonNull Agent context) {
     this.context = context;
   }
 
