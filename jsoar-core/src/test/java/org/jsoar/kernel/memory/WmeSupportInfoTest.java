@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import org.jsoar.kernel.Agent;
@@ -69,4 +70,15 @@ public class WmeSupportInfoTest {
     assertEquals("i-support", b.getSource().getName().toString());
     assertFalse(b.isOSupported());
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetThrowsExceptionIfAgentIsNull() {
+    WmeSupportInfo.get(null, mock(Wme.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetThrowsExceptionIfWmeIsNull() {
+    WmeSupportInfo.get(mock(Agent.class), null);
+  }
+
 }

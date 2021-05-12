@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
@@ -111,10 +112,7 @@ public class WmeSupportInfo {
    *     no preference
    * @throws IllegalArgumentException if agent or wme is <code>null</code>.
    */
-  public static WmeSupportInfo get(Agent agent, Wme wme) {
-    Arguments.checkNotNull(agent, "agent");
-    Arguments.checkNotNull(wme, "wme");
-
+  public static WmeSupportInfo get(@NonNull Agent agent, @NonNull Wme wme) {
     final List<Support> sources = new ArrayList<Support>();
     final Iterator<Preference> prefIt = wme.getPreferences();
     while (prefIt.hasNext()) {
