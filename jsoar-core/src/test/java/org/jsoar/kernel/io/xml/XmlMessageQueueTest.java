@@ -5,13 +5,14 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
+import org.jsoar.kernel.io.xml.XmlMessageQueue.Builder;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
@@ -21,9 +22,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** @author ray */
+/**
+ * @author ray
+ */
 public class XmlMessageQueueTest {
+
   private static class MatchFunction extends StandaloneRhsFunctionHandler {
+
     int count = 0;
 
     public MatchFunction() {
@@ -51,7 +56,6 @@ public class XmlMessageQueueTest {
     this.agent.initialize();
   }
 
-  /** @throws java.lang.Exception */
   @After
   public void tearDown() throws Exception {
     this.agent.dispose();
@@ -136,4 +140,10 @@ public class XmlMessageQueueTest {
     agent.runFor(20, RunType.DECISIONS);
     assertEquals(2, match.count);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorBuilderThrowsExceptionIfIoIsNull() {
+    XmlMessageQueue.newBuilder(null);
+  }
+
 }

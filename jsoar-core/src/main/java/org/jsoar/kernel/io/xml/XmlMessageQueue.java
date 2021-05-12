@@ -109,8 +109,7 @@ public class XmlMessageQueue {
     private long timeToLive = 50;
     private String queueName = "messages";
 
-    private Builder(InputOutput io) {
-      Arguments.checkNotNull(io, "io");
+    private Builder(@NonNull InputOutput io) {
       this.io = io;
     }
 
