@@ -7,6 +7,7 @@
 package org.jsoar.kernel.io;
 
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.events.InputEvent;
@@ -41,9 +42,7 @@ public class ProductionCountInput {
    *
    * @param agent The agent
    */
-  public ProductionCountInput(Agent agent) {
-    Arguments.checkNotNull(agent, "agent");
-
+  public ProductionCountInput(@NonNull Agent agent) {
     this.agent = agent;
     this.io = agent.getInputOutput();
     this.listener = new InputListener();
