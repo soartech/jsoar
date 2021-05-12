@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -87,8 +88,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author ray
  */
+@Slf4j
 public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
-  private static final Logger logger = LoggerFactory.getLogger(InputOutputImpl.class);
 
   /** io.cpp:387 */
   private static enum OutputLinkStatus {
@@ -309,9 +310,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
   public void removeInputWmeInternal(@NonNull WmeImpl wme) {
     if (!wme.isMemberOfList(wme.id.getInputWmes())) {
-      logger.warn(
-          String.format(
-              "removeInputWmeInternal: %s is not currently in working memory. Ignoring.", wme));
+      log.warn("removeInputWmeInternal: %s is not currently in working memory. Ignoring.", wme);
       return;
     }
 
