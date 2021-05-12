@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import org.jsoar.JSoarTest;
 import org.junit.After;
@@ -39,4 +40,11 @@ public class DefaultProductionManagerTest extends JSoarTest {
     assertNotNull(p);
     assertSame(p, pm.getProduction("testGetProduction"));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetParserThrownExceptionIfParserIsNull() {
+    DefaultProductionManager productionManager = new DefaultProductionManager(mock(Agent.class));
+    productionManager.setParser(null);
+  }
+
 }
