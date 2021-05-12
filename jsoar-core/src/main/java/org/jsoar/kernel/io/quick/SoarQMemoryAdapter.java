@@ -135,10 +135,8 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener {
    * @param rootId Root identifier to construct WMEs from. If {@code null} then the root of the
    *     input-link is used.
    */
-  public void initialize(InputOutput io, Identifier rootId) {
+  public void initialize(@NonNull InputOutput io, Identifier rootId) {
     synchronized (lock) {
-      Arguments.checkNotNull(io, "io");
-
       if (this.io != null) {
         throw new IllegalStateException("already initialized");
       }

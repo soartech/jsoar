@@ -8,6 +8,7 @@ package org.jsoar.kernel.io.quick;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
@@ -169,6 +171,14 @@ public class SoarQMemoryAdapterTest extends JSoarTest {
   @Test(expected = IllegalArgumentException.class)
   public void testAttachThrowsExceptionIfAgentIsNull() {
     SoarQMemoryAdapter.attach(null,mock(QMemory.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInitializeThrowsExceptionIfIoIsNull() {
+    Agent agent = mock(Agent.class);
+    when(agent.getInputOutput()).thenReturn(null);
+
+    SoarQMemoryAdapter q = SoarQMemoryAdapter.attach(agent,mock(QMemory.class));
   }
 
 }
