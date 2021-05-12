@@ -307,13 +307,11 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     }
   }
 
-  public void removeInputWmeInternal(WmeImpl w) {
-    Arguments.checkNotNull(w, "w");
-
-    if (!w.isMemberOfList(w.id.getInputWmes())) {
+  public void removeInputWmeInternal(@NonNull WmeImpl wme) {
+    if (!wme.isMemberOfList(wme.id.getInputWmes())) {
       logger.warn(
           String.format(
-              "removeInputWmeInternal: %s is not currently in working memory. Ignoring.", w));
+              "removeInputWmeInternal: %s is not currently in working memory. Ignoring.", wme));
       return;
     }
 
@@ -321,18 +319,18 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     above test, rather than scanning the linked list.  We could have one
     global hash table for all the input wmes in the system. */
     // go ahead and remove the wme
-    w.id.removeInputWme(w);
+    wme.id.removeInputWme(wme);
 
-    if (w.gds != null) {
-      if (w.gds.getGoal() != null) {
-        decider.gds_invalid_so_remove_goal(w, "While removing an input WME");
+    if (wme.gds != null) {
+      if (wme.gds.getGoal() != null) {
+        decider.gds_invalid_so_remove_goal(wme, "While removing an input WME");
 
         // NOTE: the call to remove_wme_from_wm will take care
         // of checking if GDS should be removed
       }
     }
 
-    this.workingMemory.remove_wme_from_wm(w);
+    this.workingMemory.remove_wme_from_wm(wme);
   }
 
   InputWme updateInputWme(InputWme w, Symbol newValue) {

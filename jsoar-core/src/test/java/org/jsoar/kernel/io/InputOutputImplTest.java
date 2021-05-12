@@ -327,20 +327,27 @@ public class InputOutputImplTest extends JSoarTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testAddInputWmeInternalThrowAnExceptionIfIdIsNull() {
+  public void testAddInputWmeInternalThrowsExceptionIfIdIsNull() {
     InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
     io.addInputWmeInternal(null, mock(Symbol.class), mock(Symbol.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testAddInputWmeInternalThrowAnExceptionIfAttrIsNull() {
+  public void testAddInputWmeInternalThrowsExceptionIfAttrIsNull() {
     InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
     io.addInputWme(mock(Identifier.class), null, mock(Symbol.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testAddInputWmeInternalThrowAnExceptionIfValueIsNull() {
+  public void testAddInputWmeInternalThrowsExceptionIfValueIsNull() {
     InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
     io.addInputWme(mock(Identifier.class), mock(Symbol.class), null);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRemoveInputWmeInternalThrowsExceptionIfWmeIsNull() {
+    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
+    io.removeInputWmeInternal(null);
+  }
+
 }
