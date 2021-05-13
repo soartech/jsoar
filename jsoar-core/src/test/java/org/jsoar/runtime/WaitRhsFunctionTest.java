@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class WaitRhsFunctionTest {
+
   private ThreadedAgent agent;
 
   @Before
@@ -180,5 +181,11 @@ public class WaitRhsFunctionTest {
     while (this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting) {
       Thread.sleep(50);
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAttachThrowsExceptionIfWaitManagerIsNull() {
+    WaitRhsFunction function = new WaitRhsFunction();
+    function.attach(null);
   }
 }

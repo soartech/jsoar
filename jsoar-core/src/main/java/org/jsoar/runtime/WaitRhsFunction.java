@@ -6,6 +6,7 @@
 package org.jsoar.runtime;
 
 import java.util.List;
+import lombok.NonNull;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
@@ -64,8 +65,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler {
    * @throws IllegalStateException if attach has already been called before, or if the {@code
    *     waitManager} is not attached to an agent.
    */
-  public void attach(WaitManager waitManager) {
-    Arguments.checkNotNull(waitManager, "waitManager");
+  public void attach(@NonNull WaitManager waitManager) {
     if (this.waitManager != null) {
       throw new IllegalStateException("Already attached to wait manager");
     }
