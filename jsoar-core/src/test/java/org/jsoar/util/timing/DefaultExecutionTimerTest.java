@@ -5,20 +5,27 @@
  */
 package org.jsoar.util.timing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** @author ray */
+/**
+ * @author ray
+ */
 public class DefaultExecutionTimerTest {
-  /**
-   * Test method for {@link org.jsoar.util.timing.DefaultExecutionTimer#DefaultExecutionTimer()}.
-   */
+
   @Test
   public void testNewInstanceDefaultServiceLoader() {
     ExecutionTimer timer = DefaultExecutionTimer.newInstance();
     assertNotNull(timer);
     assertTrue(
-        ((DefaultExecutionTimer) timer).__testGetSource() instanceof WallclockExecutionTimeSource);
+        ((DefaultExecutionTimer) timer).testGetSource() instanceof WallclockExecutionTimeSource);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNewInstanceThrowsExceptionIfSourceIsNull() {
+    DefaultExecutionTimer.newInstance(null);
+  }
+
 }

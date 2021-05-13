@@ -7,7 +7,7 @@ package org.jsoar.util.timing;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import org.jsoar.util.Arguments;
+import lombok.NonNull;
 
 /**
  * Default implementation of {@link ExecutionTimer}. By default, uses ServiceLoader to locate the
@@ -16,13 +16,14 @@ import org.jsoar.util.Arguments;
  * @author ray
  */
 public class DefaultExecutionTimer extends AbstractExecutionTimer {
+
   private ExecutionTimeSource source;
   private long start;
   private long total;
 
   /**
    * @return A new instance of this timer using the first source implementation found by the
-   *     ServiceLoader.
+   * ServiceLoader.
    */
   public static ExecutionTimer newInstance() {
     return new DefaultExecutionTimer();
@@ -51,9 +52,10 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer {
     }
   }
 
-  /** @param source */
-  private DefaultExecutionTimer(ExecutionTimeSource source) {
-    Arguments.checkNotNull(source, "source");
+  /**
+   * @param source
+   */
+  private DefaultExecutionTimer(@NonNull ExecutionTimeSource source) {
     this.source = source;
   }
 
@@ -89,7 +91,7 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer {
     this.total = 0;
   }
 
-  ExecutionTimeSource __testGetSource() {
+  ExecutionTimeSource testGetSource() {
     return source;
   }
 }
