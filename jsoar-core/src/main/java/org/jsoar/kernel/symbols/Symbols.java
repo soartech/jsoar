@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.Lexer;
-import org.jsoar.util.Arguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +26,10 @@ import org.slf4j.LoggerFactory;
  * @author ray
  */
 public class Symbols {
+
   private static final Logger logger = LoggerFactory.getLogger(Agent.class);
   private static final boolean WARN_ON_JAVA_SYMBOLS =
-      Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
+      Boolean.parseBoolean(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
 
   public static final int IDENTIFIER_SYMBOL_TYPE = 1;
   public static final int SYM_CONSTANT_SYMBOL_TYPE = 2;
@@ -50,7 +51,8 @@ public class Symbols {
     throw new IllegalArgumentException("Don't know integer type of symbol " + sym);
   }
 
-  private Symbols() {}
+  private Symbols() {
+  }
 
   /**
    * Sentinel value passed to {@link #create(SymbolFactory, Object)} to indicate that a new
@@ -80,12 +82,10 @@ public class Symbols {
    * </ul>
    *
    * @param factory the symbol factory to use
-   * @param value the object to convert
+   * @param value   the object to convert
    * @return new symbol
    */
-  public static Symbol create(SymbolFactory factory, Object value) {
-    Arguments.checkNotNull(factory, "factory");
-
+  public static Symbol create(@NonNull SymbolFactory factory, Object value) {
     if (value == NEW_ID) {
       return factory.createIdentifier('Z');
     }
@@ -138,11 +138,9 @@ public class Symbols {
    * @param sym The symbol to convert, not <code>null</code>
    * @return Symbol value as a Java object
    * @throws IllegalArgumentException if sym is <code>null</code>
-   * @throws IllegalStateException if sym type is unknown
+   * @throws IllegalStateException    if sym type is unknown
    */
-  public static Object valueOf(Symbol sym) {
-    Arguments.checkNotNull(sym, "sym");
-
+  public static Object valueOf(@NonNull Symbol sym) {
     Identifier id = sym.asIdentifier();
     if (id != null) {
       return id;
@@ -175,7 +173,7 @@ public class Symbols {
    * @return List of symbols
    */
   public static List<Symbol> asList(SymbolFactory factory, Object... objects) {
-    List<Symbol> result = new ArrayList<Symbol>(objects.length);
+    List<Symbol> result = new ArrayList<>(objects.length);
     for (Object o : objects) {
       result.add(create(factory, o));
     }
@@ -208,7 +206,7 @@ public class Symbols {
   /**
    * Parse and find an identifier from a string, for example <code>S123</code>.
    *
-   * @param symbols the symbol factory
+   * @param symbols  the symbol factory
    * @param idString the id string
    * @return the identifier, or {@code null} if parse failed, or the id doesn't exist.
    */
@@ -226,13 +224,14 @@ public class Symbols {
       return null;
     }
   }
+
   /**
    * sml_KernelHelpers.cpp:731:read_attribute_from_string
    *
    * <p>TODO: This probably shouldn't be here because of the Agent dependency
    *
    * @param agent the agent
-   * @param s the attribute as a string
+   * @param s     the attribute as a string
    * @return the associated symbol, or {@code null} if not found.
    */
   public static Symbol readAttributeFromString(Agent agent, String s) {

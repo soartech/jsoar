@@ -5,7 +5,10 @@
  */
 package org.jsoar.kernel.symbols;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,8 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoar.JSoarTest;
 import org.junit.Test;
 
-/** @author ray */
+/**
+ * @author ray
+ */
 public class SymbolsTest extends JSoarTest {
+
   @Test
   public void testCreateWithNewIdCreatesANewIdentifier() {
     final Symbol s = Symbols.create(syms, Symbols.NEW_ID);
@@ -157,4 +163,15 @@ public class SymbolsTest extends JSoarTest {
   public void testGetFirstLetterOfAlphabeticString() {
     assertEquals('C', Symbols.getFirstLetter("Cat"));
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCreateThrowsExceptionIfFactoryIsNull() {
+    Symbols.create(null, "TEST");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testValueOfThrowsExceptionIfSymbolIsNull() {
+    Symbols.valueOf(null);
+  }
+
 }
