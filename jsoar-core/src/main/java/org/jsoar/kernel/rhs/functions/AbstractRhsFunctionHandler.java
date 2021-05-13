@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import lombok.NonNull;
 import org.jsoar.util.Arguments;
 
 /**
@@ -35,8 +36,7 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler {
    * @throws IllegalArgumentException If name is <code>null</code> or minArgs is greater than
    *     maxArgs
    */
-  public AbstractRhsFunctionHandler(String name, int minArgs, int maxArgs) {
-    Arguments.checkNotNull(name, "name");
+  public AbstractRhsFunctionHandler(@NonNull String name, int minArgs, int maxArgs) {
     Arguments.check(minArgs <= maxArgs, "minArgs > maxArgs");
     Arguments.check(minArgs >= 0, "minArgs < 0");
 
