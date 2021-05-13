@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -36,10 +37,7 @@ public class WorkingMemoryPrinter {
    * @param idIn
    * @param pattern
    */
-  public void print(Agent agent, Printer printer, Symbol idIn, String pattern) {
-    Arguments.checkNotNull(agent, "agent");
-    Arguments.checkNotNull(printer, "printer");
-
+  public void print(@NonNull Agent agent, @NonNull Printer printer, Symbol idIn, String pattern) {
     this.printer = printer;
 
     if (idIn == null) {
