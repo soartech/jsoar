@@ -1,6 +1,5 @@
 package org.jsoar.kernel.io;
 
-
 import org.junit.Test;
 
 public class ProductionCountInputTest {

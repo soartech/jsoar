@@ -9,5 +9,4 @@ public class WaitManagerTest {
     WaitManager manager = new WaitManager();
     manager.attach(null);
   }
-
 }

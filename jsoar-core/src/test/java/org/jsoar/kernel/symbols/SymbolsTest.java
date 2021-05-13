@@ -16,9 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.jsoar.JSoarTest;
 import org.junit.Test;
 
-/**
- * @author ray
- */
+/** @author ray */
 public class SymbolsTest extends JSoarTest {
 
   @Test
@@ -173,5 +171,4 @@ public class SymbolsTest extends JSoarTest {
   public void testValueOfThrowsExceptionIfSymbolIsNull() {
     Symbols.valueOf(null);
   }
-
 }

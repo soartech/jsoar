@@ -80,15 +80,13 @@ public class ReteUnitTest extends JSoarTest {
      */
     @Override
     public void startRefraction(
-        Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node) {
-    }
+        Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node) {}
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
      */
     @Override
-    public void removingProductionNode(Rete rete, ReteNode p_node) {
-    }
+    public void removingProductionNode(Rete rete, ReteNode p_node) {}
   }
 
   /* (non-Javadoc)
@@ -402,32 +400,51 @@ public class ReteUnitTest extends JSoarTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfTraceIsNull() {
-    new Rete(null, mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
-        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+    new Rete(
+        null,
+        mock(SymbolFactoryImpl.class),
+        mock(EpisodicMemory.class),
+        mock(SemanticMemory.class),
+        mock(ReinforcementLearningParams.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfSymsIsNull() {
-    new Rete(mock(Trace.class), null, mock(EpisodicMemory.class),
-        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+    new Rete(
+        mock(Trace.class),
+        null,
+        mock(EpisodicMemory.class),
+        mock(SemanticMemory.class),
+        mock(ReinforcementLearningParams.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfEpisodicMemoryIsNull() {
-    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), null,
-        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+    new Rete(
+        mock(Trace.class),
+        mock(SymbolFactoryImpl.class),
+        null,
+        mock(SemanticMemory.class),
+        mock(ReinforcementLearningParams.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfSemanticMemoryIsNull() {
-    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
-        null, mock(ReinforcementLearningParams.class));
+    new Rete(
+        mock(Trace.class),
+        mock(SymbolFactoryImpl.class),
+        mock(EpisodicMemory.class),
+        null,
+        mock(ReinforcementLearningParams.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfReinforcementLearningParamsIsNull() {
-    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
-        mock(SemanticMemory.class), null);
+    new Rete(
+        mock(Trace.class),
+        mock(SymbolFactoryImpl.class),
+        mock(EpisodicMemory.class),
+        mock(SemanticMemory.class),
+        null);
   }
-
 }

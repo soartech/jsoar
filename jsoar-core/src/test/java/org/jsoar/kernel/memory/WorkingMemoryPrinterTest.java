@@ -12,12 +12,12 @@ public class WorkingMemoryPrinterTest {
   @Test(expected = IllegalArgumentException.class)
   public void testPrintThrowsExceptionIfAgentIsNull() {
     WorkingMemoryPrinter printer = new WorkingMemoryPrinter();
-    printer.print(null,mock(Printer.class), mock(Symbol.class),"TEST");
+    printer.print(null, mock(Printer.class), mock(Symbol.class), "TEST");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPrintThrowsExceptionIfPrinterIsNull() {
     WorkingMemoryPrinter printer = new WorkingMemoryPrinter();
-    printer.print(mock(Agent.class),null, mock(Symbol.class),"TEST");
+    printer.print(mock(Agent.class), null, mock(Symbol.class), "TEST");
   }
 }

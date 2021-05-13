@@ -164,19 +164,18 @@ public class RecognitionMemoryTest {
   @Test(expected = IllegalArgumentException.class)
   public void testAddWmeThrowsExceptionIfIdIsNull() {
     RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
-    memory.getRhsFunctionContext().addWme(null,mock(Symbol.class), mock(Symbol.class));
+    memory.getRhsFunctionContext().addWme(null, mock(Symbol.class), mock(Symbol.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddWmeThrowsExceptionIfAttrIsNull() {
     RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
-    memory.getRhsFunctionContext().addWme(mock(Identifier.class),null, mock(Symbol.class));
+    memory.getRhsFunctionContext().addWme(mock(Identifier.class), null, mock(Symbol.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testAddWmeThrowsExceptionIfValueIsNull() {
     RecognitionMemory memory = new RecognitionMemory(mock(Agent.class));
-    memory.getRhsFunctionContext().addWme(mock(Identifier.class),mock(Symbol.class), null);
+    memory.getRhsFunctionContext().addWme(mock(Identifier.class), mock(Symbol.class), null);
   }
-
 }

@@ -8,5 +8,4 @@ public class ReteNetWriterTest {
   public void testConstructorThrowsExceptionIfContextIsNull() {
     new ReteNetWriter(null);
   }
-
 }

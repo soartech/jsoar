@@ -9,12 +9,11 @@ public class OriginalParserImplTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfVariableGeneratorIsNull() {
-    new OriginalParserImpl(null,mock(Lexer.class));
+    new OriginalParserImpl(null, mock(Lexer.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorThrowsExceptionIfLexerIsNull() {
     new OriginalParserImpl(mock(VariableGenerator.class), null);
   }
-
 }

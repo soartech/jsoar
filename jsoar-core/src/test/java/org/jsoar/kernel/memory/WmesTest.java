@@ -102,6 +102,6 @@ public class WmesTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNewMatcherThrowsExceptionIfSymbolFactoryIsNull() {
-    Wmes.newMatcher(null,mock(Identifier.class),"test", "test", 0);
+    Wmes.newMatcher(null, mock(Identifier.class), "test", "test", 0);
   }
 }

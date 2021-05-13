@@ -1,7 +1,6 @@
 package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
-import org.jsoar.kernel.rete.ReteNetWriter;
 import org.jsoar.kernel.symbols.Symbol;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class AbstractRhsFunctionHandlerTest {
     /**
      * Execute the function and return a result.
      *
-     * @param context   Context info for the function including symbol factory
+     * @param context Context info for the function including symbol factory
      * @param arguments List of arguments
      * @return Result symbol
      * @throws RhsFunctionException if an error occurs
@@ -32,5 +31,4 @@ public class AbstractRhsFunctionHandlerTest {
   public void testConstructorThrowsExceptionIfNameIsNull() {
     new DummyRhsFunctionHandler(null);
   }
-
 }

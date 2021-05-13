@@ -56,7 +56,6 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.LongPropertyProvider;

@@ -35,5 +35,4 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     manager.isDisabled(null);
   }
-
 }

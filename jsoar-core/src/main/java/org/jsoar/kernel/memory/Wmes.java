@@ -19,7 +19,6 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.StringTools;
 
 /**

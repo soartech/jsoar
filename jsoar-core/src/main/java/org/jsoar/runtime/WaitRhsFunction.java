@@ -15,7 +15,6 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.Arguments;
 
 /**
  * A "wait" RHS function used in conjunction with a {@link ThreadedAgent}.

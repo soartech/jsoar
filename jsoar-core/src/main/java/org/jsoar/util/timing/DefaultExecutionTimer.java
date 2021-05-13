@@ -23,7 +23,7 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer {
 
   /**
    * @return A new instance of this timer using the first source implementation found by the
-   * ServiceLoader.
+   *     ServiceLoader.
    */
   public static ExecutionTimer newInstance() {
     return new DefaultExecutionTimer();
@@ -52,9 +52,7 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer {
     }
   }
 
-  /**
-   * @param source
-   */
+  /** @param source */
   private DefaultExecutionTimer(@NonNull ExecutionTimeSource source) {
     this.source = source;
   }

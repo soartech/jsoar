@@ -80,5 +80,4 @@ public class WmeSupportInfoTest {
   public void testGetThrowsExceptionIfWmeIsNull() {
     WmeSupportInfo.get(mock(Agent.class), null);
   }
-
 }

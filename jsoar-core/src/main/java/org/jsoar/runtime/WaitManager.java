@@ -20,8 +20,7 @@ import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * Manages "wait" state for an agent. See {@link WaitRhsFunction}. Note that a wait manager is
- * automatically created by ThreadedAgent so it should never be necessary to instantiate this
- * class.
+ * automatically created by ThreadedAgent so it should never be necessary to instantiate this class.
  *
  * @author ray
  * @see WaitRhsFunction
@@ -36,8 +35,7 @@ public class WaitManager {
   private SoarEventListener afterInputListener;
   private SoarEventListener afterDecisionCycleListener;
   private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
-  private final AtomicReference<WaitInfo> waitInfo =
-      new AtomicReference<>(WaitInfo.NOT_WAITING);
+  private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<>(WaitInfo.NOT_WAITING);
   private final PropertyProvider<WaitInfo> waitInfoProp =
       new PropertyProvider<WaitInfo>() {
 
@@ -112,9 +110,7 @@ public class WaitManager {
     this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
   }
 
-  /**
-   * Detach this wait manager from the agent
-   */
+  /** Detach this wait manager from the agent */
   public void detach() {
     if (agent != null) {
       agent.getEvents().removeListener(null, inputReadyListener);
@@ -124,9 +120,7 @@ public class WaitManager {
     }
   }
 
-  /**
-   * @return the agent this manager is attach to, or {@code null} if not attached.
-   */
+  /** @return the agent this manager is attach to, or {@code null} if not attached. */
   public ThreadedAgent getAgent() {
     return agent;
   }
@@ -153,9 +147,7 @@ public class WaitManager {
     }
   }
 
-  /**
-   * Wake the agent up if it is currently sleeping
-   */
+  /** Wake the agent up if it is currently sleeping */
   public void requestResume() {
     if (this.agent != null) {
       this.agent.getInputOutput().asynchronousInputReady();

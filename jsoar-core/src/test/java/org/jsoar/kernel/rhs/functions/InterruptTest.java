@@ -45,5 +45,4 @@ public class InterruptTest {
   public void testConstructorThrowsExceptionIfDecisionCycleIsNull() {
     new Interrupt(null);
   }
-
 }

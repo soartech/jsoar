@@ -18,7 +18,6 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.TraceFormats;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 

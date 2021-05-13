@@ -51,8 +51,7 @@ public class Symbols {
     throw new IllegalArgumentException("Don't know integer type of symbol " + sym);
   }
 
-  private Symbols() {
-  }
+  private Symbols() {}
 
   /**
    * Sentinel value passed to {@link #create(SymbolFactory, Object)} to indicate that a new
@@ -82,7 +81,7 @@ public class Symbols {
    * </ul>
    *
    * @param factory the symbol factory to use
-   * @param value   the object to convert
+   * @param value the object to convert
    * @return new symbol
    */
   public static Symbol create(@NonNull SymbolFactory factory, Object value) {
@@ -138,7 +137,7 @@ public class Symbols {
    * @param sym The symbol to convert, not <code>null</code>
    * @return Symbol value as a Java object
    * @throws IllegalArgumentException if sym is <code>null</code>
-   * @throws IllegalStateException    if sym type is unknown
+   * @throws IllegalStateException if sym type is unknown
    */
   public static Object valueOf(@NonNull Symbol sym) {
     Identifier id = sym.asIdentifier();
@@ -206,7 +205,7 @@ public class Symbols {
   /**
    * Parse and find an identifier from a string, for example <code>S123</code>.
    *
-   * @param symbols  the symbol factory
+   * @param symbols the symbol factory
    * @param idString the id string
    * @return the identifier, or {@code null} if parse failed, or the id doesn't exist.
    */
@@ -231,7 +230,7 @@ public class Symbols {
    * <p>TODO: This probably shouldn't be here because of the Agent dependency
    *
    * @param agent the agent
-   * @param s     the attribute as a string
+   * @param s the attribute as a string
    * @return the associated symbol, or {@code null} if not found.
    */
   public static Symbol readAttributeFromString(Agent agent, String s) {

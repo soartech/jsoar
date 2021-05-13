@@ -10,9 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/**
- * @author ray
- */
+/** @author ray */
 public class DefaultExecutionTimerTest {
 
   @Test
@@ -27,5 +25,4 @@ public class DefaultExecutionTimerTest {
   public void testNewInstanceThrowsExceptionIfSourceIsNull() {
     DefaultExecutionTimer.newInstance(null);
   }
-
 }

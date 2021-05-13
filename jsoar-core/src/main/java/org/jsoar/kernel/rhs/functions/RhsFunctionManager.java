@@ -21,10 +21,8 @@ import org.jsoar.kernel.symbols.Symbol;
 public class RhsFunctionManager {
 
   private final RhsFunctionContext rhsContext;
-  private final Map<String, RhsFunctionHandler> handlers =
-      new ConcurrentHashMap<>();
-  private final Map<String, RhsFunctionHandler> disabledHandlers =
-      new ConcurrentHashMap<>();
+  private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<>();
+  private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<>();
 
   /**
    * Construct a new RHS function manager with the given execution context
@@ -109,7 +107,7 @@ public class RhsFunctionManager {
    *
    * @param name Name of handler to check/
    * @return true if the handler is disabled; otherwise--if it is enabled or not registered--returns
-   * false.
+   *     false.
    */
   public boolean isDisabled(@NonNull String name) {
     return disabledHandlers.containsKey(name);
@@ -122,7 +120,7 @@ public class RhsFunctionManager {
   /**
    * Execute the named RHS function with the given arguments.
    *
-   * @param name      The name of the RHS function to execute
+   * @param name The name of the RHS function to execute
    * @param arguments The arguments
    * @return The result
    * @throws RhsFunctionException if an error occurs or there is no such RHS function.

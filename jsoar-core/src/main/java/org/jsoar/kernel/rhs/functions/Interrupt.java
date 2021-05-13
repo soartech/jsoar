@@ -19,9 +19,7 @@ public class Interrupt extends AbstractRhsFunctionHandler {
 
   private final DecisionCycle decisionCycle;
 
-  /**
-   * @param decisionCycle the agent's decision cycle object
-   */
+  /** @param decisionCycle the agent's decision cycle object */
   public Interrupt(@NonNull DecisionCycle decisionCycle) {
     super("interrupt", 0, 0);
 
