@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
@@ -56,9 +57,7 @@ public class ReteNetWriter {
   private Map<Symbol, Integer> symbolIndex;
   private Map<AlphaMemory, Integer> amIndex;
 
-  protected ReteNetWriter(Agent context) {
-    Arguments.checkNotNull(context, "context");
-
+  protected ReteNetWriter(@NonNull Agent context) {
     this.context = context;
     this.syms = Adaptables.require(getClass(), this.context, SymbolFactoryImpl.class);
     this.rete = Adaptables.require(getClass(), context, Rete.class);
