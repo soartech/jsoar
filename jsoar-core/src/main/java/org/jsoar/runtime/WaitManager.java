@@ -9,23 +9,25 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import lombok.NonNull;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.PhaseEvents.AfterInput;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * Manages "wait" state for an agent. See {@link WaitRhsFunction}. Note that a wait manager is
- * automatically created by ThreadedAgent so it should never be necessary to instantiate this class.
+ * automatically created by ThreadedAgent so it should never be necessary to instantiate this
+ * class.
  *
  * @author ray
  * @see WaitRhsFunction
  */
 public class WaitManager {
+
   private ThreadedAgent agent;
   private boolean inputReady = false;
   private SoarEventListener inputReadyListener;
@@ -35,7 +37,7 @@ public class WaitManager {
   private SoarEventListener afterDecisionCycleListener;
   private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
   private final AtomicReference<WaitInfo> waitInfo =
-      new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
+      new AtomicReference<>(WaitInfo.NOT_WAITING);
   private final PropertyProvider<WaitInfo> waitInfoProp =
       new PropertyProvider<WaitInfo>() {
 
@@ -56,8 +58,7 @@ public class WaitManager {
    *
    * @param agent the agent
    */
-  public void attach(ThreadedAgent agent) {
-    Arguments.checkNotNull(agent, "agent");
+  public void attach(@NonNull ThreadedAgent agent) {
     if (this.agent != null) {
       throw new IllegalStateException("Already attached to agent");
     }
@@ -111,7 +112,9 @@ public class WaitManager {
     this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
   }
 
-  /** Detach this wait manager from the agent */
+  /**
+   * Detach this wait manager from the agent
+   */
   public void detach() {
     if (agent != null) {
       agent.getEvents().removeListener(null, inputReadyListener);
@@ -121,7 +124,9 @@ public class WaitManager {
     }
   }
 
-  /** @return the agent this manager is attach to, or {@code null} if not attached. */
+  /**
+   * @return the agent this manager is attach to, or {@code null} if not attached.
+   */
   public ThreadedAgent getAgent() {
     return agent;
   }
@@ -148,7 +153,9 @@ public class WaitManager {
     }
   }
 
-  /** Wake the agent up if it is currently sleeping */
+  /**
+   * Wake the agent up if it is currently sleeping
+   */
   public void requestResume() {
     if (this.agent != null) {
       this.agent.getInputOutput().asynchronousInputReady();
@@ -211,6 +218,7 @@ public class WaitManager {
   }
 
   private class AsynchronousInputReadyCommand implements Callable<Void> {
+
     @Override
     public Void call() throws Exception {
       inputReady = true;
