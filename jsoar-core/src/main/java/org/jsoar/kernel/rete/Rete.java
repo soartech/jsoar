@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import lombok.NonNull;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
@@ -106,17 +107,11 @@ public class Rete {
   private final ReinforcementLearningParams reinforcementLearningParams;
 
   public Rete(
-      Trace trace,
-      SymbolFactoryImpl syms,
-      EpisodicMemory episodicMemory,
-      SemanticMemory semanticMemory,
-      ReinforcementLearningParams reinforcementLearningParams) {
-    Arguments.checkNotNull(trace, "trace");
-    Arguments.checkNotNull(syms, "syms");
-    Arguments.checkNotNull(episodicMemory, "episodicMemory");
-    Arguments.checkNotNull(semanticMemory, "semanticMemory");
-    Arguments.checkNotNull(reinforcementLearningParams, "reinforcementLearningParams");
-
+      @NonNull Trace trace,
+      @NonNull SymbolFactoryImpl syms,
+      @NonNull EpisodicMemory episodicMemory,
+      @NonNull SemanticMemory semanticMemory,
+      @NonNull ReinforcementLearningParams reinforcementLearningParams) {
     this.trace = trace;
     this.syms = syms;
     this.episodicMemory = episodicMemory;

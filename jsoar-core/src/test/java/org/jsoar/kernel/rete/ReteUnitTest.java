@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.io.StringReader;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -26,6 +28,7 @@ import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.original.OriginalParser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -37,12 +40,14 @@ import org.junit.Test;
 
 /** @author ray */
 public class ReteUnitTest extends JSoarTest {
+
   private Rete rete;
   private Listener listener;
   private DefaultEpisodicMemory episodicMemory;
   private DefaultSemanticMemory semanticMemory;
 
   private class Listener implements ReteListener {
+
     Set<Production> matching = new HashSet<Production>();
 
     /* (non-Javadoc)
@@ -75,13 +80,15 @@ public class ReteUnitTest extends JSoarTest {
      */
     @Override
     public void startRefraction(
-        Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node) {}
+        Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node) {
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
      */
     @Override
-    public void removingProductionNode(Rete rete, ReteNode p_node) {}
+    public void removingProductionNode(Rete rete, ReteNode p_node) {
+    }
   }
 
   /* (non-Javadoc)
@@ -392,4 +399,35 @@ public class ReteUnitTest extends JSoarTest {
     assertNotNull(result);
     assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfTraceIsNull() {
+    new Rete(null, mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
+        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfSymsIsNull() {
+    new Rete(mock(Trace.class), null, mock(EpisodicMemory.class),
+        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfEpisodicMemoryIsNull() {
+    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), null,
+        mock(SemanticMemory.class), mock(ReinforcementLearningParams.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfSemanticMemoryIsNull() {
+    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
+        null, mock(ReinforcementLearningParams.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfReinforcementLearningParamsIsNull() {
+    new Rete(mock(Trace.class), mock(SymbolFactoryImpl.class), mock(EpisodicMemory.class),
+        mock(SemanticMemory.class), null);
+  }
+
 }
