@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
@@ -18,13 +18,11 @@ import org.junit.Test;
 public class InterruptTest {
   private Agent agent;
 
-  /** @throws java.lang.Exception */
   @Before
   public void setUp() throws Exception {
     this.agent = new Agent();
   }
 
-  /** @throws java.lang.Exception */
   @After
   public void tearDown() throws Exception {}
 
@@ -42,4 +40,10 @@ public class InterruptTest {
     assertEquals("*** Interrupt from production testInterrupt ***", this.agent.getReasonForStop());
     assertEquals(45, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorThrowsExceptionIfDecisionCycleIsNull() {
+    new Interrupt(null);
+  }
+
 }

@@ -6,9 +6,9 @@
 package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
+import lombok.NonNull;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.Arguments;
 
 /**
  * rhsfun.cpp:223:interrupt_rhs_function_code
@@ -16,13 +16,14 @@ import org.jsoar.util.Arguments;
  * @author ray
  */
 public class Interrupt extends AbstractRhsFunctionHandler {
+
   private final DecisionCycle decisionCycle;
 
-  /** @param decisionCycle the agent's decision cycle object */
-  public Interrupt(DecisionCycle decisionCycle) {
+  /**
+   * @param decisionCycle the agent's decision cycle object
+   */
+  public Interrupt(@NonNull DecisionCycle decisionCycle) {
     super("interrupt", 0, 0);
-
-    Arguments.checkNotNull(decisionCycle, "decisionCycle");
 
     this.decisionCycle = decisionCycle;
   }
