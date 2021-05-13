@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.Production;
@@ -64,8 +65,7 @@ public class ReteNetReader {
   private List<Symbol> symbolMap;
   private List<AlphaMemory> alphaMemories;
 
-  protected ReteNetReader(Agent context) {
-    Arguments.checkNotNull(context, "context");
+  protected ReteNetReader(@NonNull Agent context) {
     this.context = context;
     this.syms = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
     this.rete = Adaptables.require(getClass(), context, Rete.class);
