@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
+import lombok.NonNull;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.ProductionType;
@@ -119,10 +120,7 @@ class OriginalParserImpl {
   private SourceLocation location = DefaultSourceLocation.UNKNOWN;
   private LongTermIdentifierSource ltis = new DefaultLtiSource();
 
-  public OriginalParserImpl(VariableGenerator varGen, Lexer lexer) {
-    Arguments.checkNotNull(varGen, "varGen");
-    Arguments.checkNotNull(lexer, "lexer");
-
+  public OriginalParserImpl(@NonNull VariableGenerator varGen, @NonNull Lexer lexer) {
     this.printer = lexer.getPrinter();
     this.varGen = varGen;
     this.syms = varGen.getSyms();
