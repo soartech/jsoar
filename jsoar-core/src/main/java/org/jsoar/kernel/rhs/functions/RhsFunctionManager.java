@@ -5,10 +5,10 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -33,16 +33,9 @@ public class RhsFunctionManager {
     this.rhsContext = rhsContext;
   }
 
-  /**
-   * Returns a list of all registered RHS function handlers. The list is a copy and may be modified
-   * by the caller.
-   *
-   * <p>This method may be called from any thread
-   *
-   * @return Copy of list of all registered RHS function handlers
-   */
+  /** Returns a unmodifiable list of all registered RHS function handlers. */
   public List<RhsFunctionHandler> getHandlers() {
-    return new ArrayList<>(handlers.values());
+    return handlers.values().stream().collect(Collectors.toUnmodifiableList());
   }
 
   /**
@@ -97,16 +90,15 @@ public class RhsFunctionManager {
    * @param name Name of handler to enable.
    */
   public void enableHandler(@NonNull String name) {
-    // TODO: create test and replace by Map.computeIfAbsent()
-    if (disabledHandlers.containsKey(name) && !handlers.containsKey(name)) {
-      handlers.put(name, disabledHandlers.remove(name));
+    if (disabledHandlers.containsKey(name)) {
+      handlers.computeIfAbsent(name, k -> disabledHandlers.remove(name));
     }
   }
 
   /**
    * Checks to see if a function handler is disabled.
    *
-   * @param name Name of handler to check/
+   * @param name Name of handler to check
    * @return true if the handler is disabled; otherwise--if it is enabled or not registered--returns
    *     false.
    */
@@ -114,8 +106,9 @@ public class RhsFunctionManager {
     return disabledHandlers.containsKey(name);
   }
 
+  /** Returns a unmodifiable list of all disabled RHS function handlers. */
   public List<RhsFunctionHandler> getDisabledHandlers() {
-    return new ArrayList<>(disabledHandlers.values());
+    return disabledHandlers.values().stream().collect(Collectors.toUnmodifiableList());
   }
 
   /**

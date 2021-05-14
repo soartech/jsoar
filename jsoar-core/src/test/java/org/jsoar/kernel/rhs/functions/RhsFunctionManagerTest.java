@@ -11,7 +11,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import org.jsoar.kernel.symbols.Symbol;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class RhsFunctionManagerTest {
   public void testRegisterHandler() {
     // Given a RHS function handler
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     // And RHS function manager
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
 
@@ -48,7 +47,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is enabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
 
     // When unregistering handler
@@ -65,7 +64,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is disabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
     manager.disableHandler(handler.getName());
 
@@ -88,7 +87,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is enabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
 
     // When disabling handler
@@ -107,7 +106,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is enabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
 
     // When disabling non existing handler
@@ -130,7 +129,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is disabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
     manager.disableHandler(handler.getName());
 
@@ -151,7 +150,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(mock(RhsFunctionContext.class));
     // And a registered RHS function handler which is disabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
     manager.disableHandler(handler.getName());
 
@@ -185,8 +184,8 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(context);
     // And a registered RHS function handler which is enabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.execute(any(),any())).thenReturn(expectedResultExecution);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.execute(any(), any())).thenReturn(expectedResultExecution);
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
 
     // When executing RHS function
@@ -194,7 +193,7 @@ public class RhsFunctionManagerTest {
     Symbol resultExecution = manager.execute(handler.getName(), arguments);
 
     // Then RHS function is invoked
-    verify(handler).execute(context,arguments);
+    verify(handler).execute(context, arguments);
     // And result matches expected result
     assertEquals(expectedResultExecution, resultExecution);
   }
@@ -206,7 +205,7 @@ public class RhsFunctionManagerTest {
     RhsFunctionManager manager = new RhsFunctionManager(context);
     // And a registered RHS function handler which is disabled
     RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
-    when(handler.getName()).thenReturn("TEST-REGISTER-HANDLER");
+    when(handler.getName()).thenReturn("TEST-HANDLER");
     manager.registerHandler(handler);
     manager.disableHandler(handler.getName());
 
@@ -229,5 +228,57 @@ public class RhsFunctionManagerTest {
     // When executing non existing RHS function
     // Then exception is thrown
     manager.execute("NON-EXISTING", List.of(mock(Symbol.class)));
+  }
+
+  @Test
+  public void testGetHandler() {
+    // Given a RHS function manager
+    RhsFunctionContext context = mock(RhsFunctionContext.class);
+    RhsFunctionManager manager = new RhsFunctionManager(context);
+    // And a registered RHS function handler which is enabled
+    RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
+    when(handler.getName()).thenReturn("TEST-HANDLER");
+    manager.registerHandler(handler);
+
+    // When retrieving handler by name
+    RhsFunctionHandler foundHandler = manager.getHandler(handler.getName());
+
+    // Then returned handler matches enabled handler
+    assertEquals(handler, foundHandler);
+  }
+
+  @Test
+  public void testGetDisabledHandler() {
+    // Given a RHS function manager
+    RhsFunctionContext context = mock(RhsFunctionContext.class);
+    RhsFunctionManager manager = new RhsFunctionManager(context);
+    // And a registered RHS function handler which is disabled
+    RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
+    when(handler.getName()).thenReturn("TEST-HANDLER");
+    manager.registerHandler(handler);
+    manager.disableHandler(handler.getName());
+
+    // When retrieving handler by name
+    RhsFunctionHandler foundHandler = manager.getHandler(handler.getName());
+
+    // Then returned handler matches enabled handler
+    assertNull(foundHandler);
+  }
+
+  @Test
+  public void testGetNonExistingHandler() {
+    // Given a RHS function manager
+    RhsFunctionContext context = mock(RhsFunctionContext.class);
+    RhsFunctionManager manager = new RhsFunctionManager(context);
+    // And a registered RHS function handler which is enabled
+    RhsFunctionHandler handler = mock(RhsFunctionHandler.class);
+    when(handler.getName()).thenReturn("TEST-HANDLER");
+    manager.registerHandler(handler);
+
+    // When retrieving non existing handler by name
+    RhsFunctionHandler foundHandler = manager.getHandler("NON-EXISTING");
+
+    // Then returned handler matches enabled handler
+    assertNull(foundHandler);
   }
 }
