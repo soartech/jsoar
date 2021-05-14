@@ -97,6 +97,7 @@ public class RhsFunctionManager {
    * @param name Name of handler to enable.
    */
   public void enableHandler(@NonNull String name) {
+    // TODO: create test and replace by Map.computeIfAbsent()
     if (disabledHandlers.containsKey(name) && !handlers.containsKey(name)) {
       handlers.put(name, disabledHandlers.remove(name));
     }
