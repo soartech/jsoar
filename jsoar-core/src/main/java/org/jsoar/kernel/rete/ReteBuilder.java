@@ -9,12 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.NonNull;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
-import org.jsoar.kernel.lhs.ConjunctiveTest;
-import org.jsoar.kernel.lhs.DisjunctionTest;
-import org.jsoar.kernel.lhs.EqualityTest;
-import org.jsoar.kernel.lhs.GoalIdTest;
-import org.jsoar.kernel.lhs.ImpasseIdTest;
 import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
@@ -40,7 +34,7 @@ import org.jsoar.util.markers.Marker;
  *
  * @author ray
  */
-/*package*/ class ReteBuilder {
+class ReteBuilder {
 
   /* ---------------------------------------------------------------------
 
@@ -60,8 +54,8 @@ import org.jsoar.util.markers.Marker;
   in soarkernel.h for the types of complex_test's */
   /*package*/ static final int EQUAL_TEST_TYPE = 254;
   private static final int ERROR_TEST_TYPE = 255;
-  private static final int test_type_to_relational_test_type[];
-  /*package*/ static final int relational_test_type_to_test_type[];
+  private static final int[] test_type_to_relational_test_type;
+  /*package*/ static final int[] relational_test_type_to_test_type;
 
   static {
     // rete.cpp:2773:init_test_type_conversion_tables
@@ -96,7 +90,8 @@ import org.jsoar.util.markers.Marker;
         RelationalTest.SAME_TYPE_TEST;
   }
 
-  private ReteBuilder() {}
+  private ReteBuilder() {
+  }
 
   /**
    * This is used for converting tests (from conditions) into the appropriate rete_test's and/or
@@ -115,13 +110,6 @@ import org.jsoar.util.markers.Marker;
    * conditions, and sparsely for the current condition.
    *
    * <p>rete.cpp:2819:add_rete_tests_for_test
-   *
-   * @param rete
-   * @param t
-   * @param current_depth
-   * @param field_num
-   * @param rt
-   * @param alpha_constant
    */
   static void add_rete_tests_for_test(
       Rete rete,
@@ -134,7 +122,7 @@ import org.jsoar.util.markers.Marker;
       return;
     }
 
-    final EqualityTest eq = t.asEqualityTest();
+    final var eq = t.asEqualityTest();
     if (eq != null) {
       final SymbolImpl referent = eq.getReferent();
 
@@ -146,7 +134,7 @@ import org.jsoar.util.markers.Marker;
 
       // if constant, make = constant test
       if (referent.asVariable() == null) {
-        ReteTest new_rt =
+        var new_rt =
             ReteTest.createConstantTest(ReteTest.RELATIONAL_EQUAL, field_num, referent);
 
         new_rt.next = rt.value;
@@ -155,7 +143,7 @@ import org.jsoar.util.markers.Marker;
       }
 
       // variable: if binding is for current field, do nothing
-      final VarLocation where = VarLocation.find(referent.asVariable(), current_depth);
+      final var where = VarLocation.find(referent.asVariable(), current_depth);
       if (where == null) {
         throw new IllegalStateException("Error: Rete build found test of unbound var: " + referent);
       }
@@ -164,7 +152,7 @@ import org.jsoar.util.markers.Marker;
       }
 
       // else make variable equality test
-      final ReteTest new_rt =
+      final var new_rt =
           ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL, field_num, where);
 
       new_rt.next = rt.value;
@@ -172,12 +160,12 @@ import org.jsoar.util.markers.Marker;
       return;
     }
 
-    final RelationalTest relational = t.asRelationalTest();
+    final var relational = t.asRelationalTest();
     if (relational != null) {
 
       // if constant, make constant test
       if (relational.referent.asVariable() == null) {
-        ReteTest new_rt =
+        var new_rt =
             ReteTest.createConstantTest(
                 test_type_to_relational_test_type[relational.type], field_num, relational.referent);
 
@@ -186,12 +174,12 @@ import org.jsoar.util.markers.Marker;
         return;
       }
       // else make variable test
-      VarLocation where = VarLocation.find(relational.referent.asVariable(), current_depth);
+      var where = VarLocation.find(relational.referent.asVariable(), current_depth);
       if (where == null) {
         throw new IllegalStateException(
             "Error: Rete build found test of unbound var: " + relational.referent);
       }
-      ReteTest new_rt =
+      var new_rt =
           ReteTest.createVariableTest(
               test_type_to_relational_test_type[relational.type], field_num, where);
 
@@ -200,17 +188,17 @@ import org.jsoar.util.markers.Marker;
       return;
     }
 
-    final DisjunctionTest dt = t.asDisjunctionTest();
+    final var dt = t.asDisjunctionTest();
     if (dt != null) {
       // disjunct list is immutable so it's safe to just pass in
-      ReteTest new_rt = ReteTest.createDisjunctionTest(field_num, dt.disjunction_list);
+      var new_rt = ReteTest.createDisjunctionTest(field_num, dt.disjunction_list);
 
       new_rt.next = rt.value;
       rt.value = new_rt;
       return;
     }
 
-    final ConjunctiveTest ct = t.asConjunctiveTest();
+    final var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
         add_rete_tests_for_test(rete, c, current_depth, field_num, rt, alpha_constant);
@@ -218,18 +206,18 @@ import org.jsoar.util.markers.Marker;
       return;
     }
 
-    final GoalIdTest gid = t.asGoalIdTest();
+    final var gid = t.asGoalIdTest();
     if (gid != null) {
-      ReteTest new_rt = ReteTest.createGoalIdTest();
+      var new_rt = ReteTest.createGoalIdTest();
 
       new_rt.next = rt.value;
       rt.value = new_rt;
       return;
     }
 
-    final ImpasseIdTest iid = t.asImpasseIdTest();
+    final var iid = t.asImpasseIdTest();
     if (iid != null) {
-      ReteTest new_rt = ReteTest.createImpasseIdTest();
+      var new_rt = ReteTest.createImpasseIdTest();
 
       new_rt.next = rt.value;
       rt.value = new_rt;
@@ -249,9 +237,6 @@ import org.jsoar.util.markers.Marker;
    * sharing.)
    *
    * <p>rete.cpp:2979:single_rete_tests_are_identical
-   *
-   * @param rt1
-   * @param rt2
    */
   private static boolean single_rete_tests_are_identical(ReteTest rt1, ReteTest rt2) {
     if (rt1.type != rt2.type) {
@@ -289,9 +274,6 @@ import org.jsoar.util.markers.Marker;
    * that the lists have to be in the order; the code here doesn't check all possible orderings.)
    *
    * <p>rete.cpp:3016
-   *
-   * @param rt1
-   * @param rt2
    */
   private static boolean rete_test_lists_are_identical(ReteTest rt1, ReteTest rt2) {
     while (rt1 != null && rt2 != null) {
@@ -310,9 +292,6 @@ import org.jsoar.util.markers.Marker;
    * destructively modified to splice out the extracted test.
    *
    * <p>rete.cpp:3042:extract_rete_test_to_hash_with
-   *
-   * @param rt
-   * @param dest_hash_loc
    */
   private static boolean extract_rete_test_to_hash_with(
       ByRef<ReteTest> rt, ByRef<VarLocation> dest_hash_loc) {
@@ -352,13 +331,9 @@ import org.jsoar.util.markers.Marker;
    *
    * <p>rete.cpp:3069:make_node_for_positive_cond
    *
-   * <p>TODO: Check where nonnull checks should be applied on public interfaces; checks like nonnull
+   * <p>TODO: Check where nonnull checks should be applied on public interfaces; checks like
+   * nonnull
    * should be done at the gates of the class.
-   *
-   * @param rete
-   * @param cond
-   * @param current_depth
-   * @param parent
    */
   private static ReteNode make_node_for_positive_cond(
       @NonNull Rete rete,
@@ -424,8 +399,8 @@ import org.jsoar.util.markers.Marker;
     for (mem_node = parent.first_child; mem_node != null; mem_node = mem_node.next_sibling) {
       if ((mem_node.node_type == mem_node_type)
           && ((!hash_this_node)
-              || ((mem_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-                  && (mem_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
+          || ((mem_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+          && (mem_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
         break;
       }
     }
@@ -458,8 +433,8 @@ import org.jsoar.util.markers.Marker;
     for (mp_node = parent.first_child; mp_node != null; mp_node = mp_node.next_sibling) {
       if ((mp_node.node_type == mp_node_type)
           && ((!hash_this_node)
-              || ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-                  && (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
+          || ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+          && (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
         break;
       }
     }
@@ -492,11 +467,6 @@ import org.jsoar.util.markers.Marker;
    * routine returns a pointer to the (newly-created or shared) node.
    *
    * <p>rete.cpp:3194:make_node_for_negative_cond
-   *
-   * @param rete
-   * @param cond
-   * @param current_depth
-   * @param parent
    */
   private static ReteNode make_node_for_negative_cond(
       Rete rete, NegativeCondition cond, int current_depth, ReteNode parent) {
@@ -542,8 +512,8 @@ import org.jsoar.util.markers.Marker;
       if ((node.node_type == node_type)
           && (am == node.b_posneg().alpha_mem_)
           && ((!hash_this_node)
-              || ((node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-                  && (node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))
+          || ((node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+          && (node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))
           && rete_test_lists_are_identical(node.b_posneg().other_tests, rt.value)) {
         break;
       }
@@ -565,7 +535,8 @@ import org.jsoar.util.markers.Marker;
 
   /**
    * This routine builds or shares the Rete network for the conditions in the given {@code
-   * <cond_list>}. {@code <Depth_of_first_cond>} tells the depth of the first condition/node; {@code
+   * <cond_list>}. {@code <Depth_of_first_cond>} tells the depth of the first condition/node;
+   * {@code
    * <parent>} gives the parent node under which the network should be built or shared.
    *
    * <p>Three "dest" parameters may be used for returing results from this routine. If {@code
@@ -578,14 +549,6 @@ import org.jsoar.util.markers.Marker;
    * this routine pops the bindings, and the caller does not have to do the cleanup.
    *
    * <p>rete.cpp:3257:build_network_for_condition_list
-   *
-   * @param rete
-   * @param cond_list
-   * @param depth_of_first_cond
-   * @param parent
-   * @param dest_bottom_node
-   * @param dest_bottom_depth
-   * @param dest_vars_bound
    */
   static /*package*/ void build_network_for_condition_list(
       Rete rete,
@@ -602,9 +565,9 @@ import org.jsoar.util.markers.Marker;
     final ListHead<Variable> vars_bound = ListHead.newInstance();
 
     for (Condition cond = cond_list; cond != null; cond = cond.next) {
-      final PositiveCondition pc = cond.asPositiveCondition();
-      final NegativeCondition nc = cond.asNegativeCondition();
-      final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+      final var pc = cond.asPositiveCondition();
+      final var nc = cond.asNegativeCondition();
+      final var ncc = cond.asConjunctiveNegationCondition();
       if (pc != null) {
         new_node = make_node_for_positive_cond(rete, pc, current_depth, node);
         /* --- Add dense variable bindings for this condition --- */
@@ -671,10 +634,10 @@ import org.jsoar.util.markers.Marker;
    * <p>rete.cpp:3424:fixup_rhs_value_variable_references
    *
    * @param rete
-   * @param rv RHS value to fix up
+   * @param rv                            RHS value to fix up
    * @param bottom_depth
    * @param rhs_unbound_vars_for_new_prod Receives unbound variables
-   * @param rhs_unbound_vars_tc TC number for finding unbound variables
+   * @param rhs_unbound_vars_tc           TC number for finding unbound variables
    * @return The value to replace rv, possibly rv itself
    */
   /*package*/
@@ -686,18 +649,18 @@ import org.jsoar.util.markers.Marker;
       Marker rhs_unbound_vars_tc) {
     final RhsSymbolValue rvsym = rv.asSymbolValue();
     if (rvsym != null) {
-      final Variable var = rvsym.getSym().asVariable();
+      final var var = rvsym.getSym().asVariable();
       if (var == null) {
         return rv;
       }
       /* --- Found a variable. Is is bound on the LHS? --- */
-      final VarLocation var_loc = VarLocation.find(var, bottom_depth + 1);
+      final var var_loc = VarLocation.find(var, bottom_depth + 1);
       if (var_loc != null) {
         /* --- Yes, replace it with reteloc --- */
         return ReteLocation.create(var_loc.field_num, var_loc.levels_up - 1);
       } else {
         /* --- No, replace it with rhs_unboundvar --- */
-        int index = 0;
+        var index = 0;
         if (var.tc_number != rhs_unbound_vars_tc) {
           // index of v
           index = rhs_unbound_vars_for_new_prod.size();
@@ -718,7 +681,7 @@ import org.jsoar.util.markers.Marker;
       final List<RhsValue> args = fc.getArguments();
       assert args == fc.getArguments(); // just make sure this stays by
       // ref
-      for (int i = 0; i < args.size(); ++i) {
+      for (var i = 0; i < args.size(); ++i) {
         RhsValue newV =
             fixup_rhs_value_variable_references(
                 rete,
