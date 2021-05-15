@@ -23,7 +23,6 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.rete.PartialMatches;
 import org.jsoar.kernel.rete.PartialMatches.Entry;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 

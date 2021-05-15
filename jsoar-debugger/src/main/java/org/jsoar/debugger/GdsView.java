@@ -26,7 +26,6 @@ import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;

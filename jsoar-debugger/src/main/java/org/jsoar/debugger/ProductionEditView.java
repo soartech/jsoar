@@ -16,7 +16,6 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;

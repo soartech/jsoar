@@ -51,7 +51,6 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

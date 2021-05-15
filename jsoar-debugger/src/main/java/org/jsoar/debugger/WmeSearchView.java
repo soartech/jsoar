@@ -33,7 +33,6 @@ import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 
 /**
  * 

@@ -3,9 +3,11 @@
  *
  * Created on Mar 21, 2009
  */
-package org.jsoar.runtime;
+package org.jsoar.debugger;
 
 import javax.swing.SwingUtilities;
+
+import org.jsoar.runtime.CompletionHandler;
 
 /**
  * Wrap a completion handler in logic to ensure that it executes on the 

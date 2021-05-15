@@ -101,7 +101,6 @@ public class StandardFunctions
                 new FromManualTypeXml(),
                 new ToSoarTechXml(),
                 new GetUrl(), 
-                new AcceptRhsFunction(),
                 new ListRhsFunction(),
                 new FormatRhsFunction(),
                 new Timestamp(),

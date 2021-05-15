@@ -70,7 +70,6 @@ import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -208,6 +207,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         this.agent = proxy;
         proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
+        proxy.getInterpreter().addCommand("edit-production", new EditProductionCommand(agent.getAgent()));
+        agent.getAgent().getRhsFunctions().registerHandler(new AcceptRhsFunction());
 
         this.docking = new CControl(this.frame);
         this.docking.setTheme(ThemeMap.KEY_ECLIPSE_THEME);

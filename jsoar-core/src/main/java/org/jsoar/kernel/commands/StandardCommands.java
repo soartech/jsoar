@@ -38,7 +38,6 @@ public class StandardCommands
         interp.addCommand("print", printCommand);
         
         interp.addCommand("preferences", new PreferencesCommand(agent));
-        interp.addCommand("edit-production", new EditProductionCommand(agent));
 
         
         interp.addCommand("set-parser", new SetParserCommand(agent));

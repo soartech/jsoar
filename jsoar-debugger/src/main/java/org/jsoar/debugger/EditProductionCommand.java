@@ -1,4 +1,4 @@
-package org.jsoar.kernel.commands;
+package org.jsoar.debugger;
 
 import java.awt.Desktop;
 import java.io.File;

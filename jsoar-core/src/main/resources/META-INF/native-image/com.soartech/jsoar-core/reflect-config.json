@@ -55,19 +55,6 @@
   "name":"int[]"
 },
 {
-  "name":"java.awt.Point",
-  "allPublicMethods":true,
-  "fields":[
-    {"name":"x"}, 
-    {"name":"y"}
-  ],
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"java.awt.geom.Point2D",
-  "allPublicMethods":true
-},
-{
   "name":"java.beans.PropertyVetoException"
 },
 {

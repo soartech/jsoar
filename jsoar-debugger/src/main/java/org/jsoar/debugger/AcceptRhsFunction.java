@@ -3,7 +3,7 @@
  *
  * Created on Jun 9, 2009
  */
-package org.jsoar.kernel.rhs.functions;
+package org.jsoar.debugger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -12,6 +12,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
+import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**

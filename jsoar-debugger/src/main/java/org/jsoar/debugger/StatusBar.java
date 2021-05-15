@@ -20,7 +20,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 

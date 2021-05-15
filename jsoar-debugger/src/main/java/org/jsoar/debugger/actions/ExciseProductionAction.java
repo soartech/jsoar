@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.jsoar.debugger.Images;
+import org.jsoar.debugger.SwingCompletionHandler;
 import org.jsoar.kernel.Production;
 import org.jsoar.runtime.CompletionHandler;
-import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 

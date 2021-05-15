@@ -8,8 +8,6 @@ package org.jsoar.kernel.io.beans;
 
 import static org.junit.Assert.*;
 
-import java.awt.Point;
-
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
@@ -54,6 +52,12 @@ public class SoarBeanOutputManagerTest
         this.output.dispose();
     }
 
+    public static class Point
+    {
+        public int x;
+        public int y;
+    }
+    
     public static class MoveToPoint
     {
         public Point target;
@@ -77,12 +81,12 @@ public class SoarBeanOutputManagerTest
         output.registerHandler("move-to-point", handler, MoveToPoint.class);
         
         agent.getProductions().loadProduction("testRegisterHandler\n" +
-        		"(state <s> ^superstate nil ^io.output-link <ol>)" +
-        		"-->\n" +
-        		"(<ol> ^move-to-point <mtp>)\n" +
-        		"(<mtp> ^speed 5 ^target <tgt>)\n" +
-        		"(<tgt> ^x 1 ^y 2)\n" +
-        		"");
+                "(state <s> ^superstate nil ^io.output-link <ol>)" +
+                "-->\n" +
+                "(<ol> ^move-to-point <mtp>)\n" +
+                "(<mtp> ^speed 5 ^target <tgt>)\n" +
+                "(<tgt> ^x 1 ^y 2)\n" +
+                "");
         
         agent.runFor(1, RunType.DECISIONS);
         
