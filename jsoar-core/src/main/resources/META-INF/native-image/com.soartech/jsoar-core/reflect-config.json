@@ -516,11 +516,6 @@
   "allDeclaredMethods":true
 },
 {
-  "name":"org.jsoar.kernel.commands.EditProductionCommand$EditProduction",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
   "name":"org.jsoar.kernel.commands.ExplainBacktracesCommand$ExplainBacktraces",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
