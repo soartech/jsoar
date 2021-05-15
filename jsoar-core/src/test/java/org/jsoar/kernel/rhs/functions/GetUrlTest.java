@@ -25,6 +25,14 @@ import org.junit.Test;
 public class GetUrlTest extends JSoarTest {
 
   @Test
+  public void createGetUrlProduction() {
+    GetUrl production = new GetUrl();
+    assertEquals("get-url", production.getName());
+    assertEquals(1, production.getMinArguments());
+    assertEquals(1, production.getMaxArguments());
+  }
+
+  @Test
   public void testCanReadTheContentsOfAUrl() throws Exception {
     // Given a external resource
     // TODO: Create temp file with content

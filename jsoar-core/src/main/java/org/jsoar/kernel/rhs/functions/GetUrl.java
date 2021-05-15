@@ -25,16 +25,12 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class GetUrl extends AbstractRhsFunctionHandler {
 
-  /**
-   *
-   */
+  /** */
   public GetUrl() {
     super("get-url", 1, 1);
   }
 
-  /**
-   * Returns the URL from the passed arguments
-   */
+  /** Returns the URL from the passed arguments */
   private URL getUrl(List<Symbol> arguments) throws RhsFunctionException {
     try {
       return new URL(arguments.get(0).toString());
