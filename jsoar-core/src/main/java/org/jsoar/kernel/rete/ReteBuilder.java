@@ -90,8 +90,7 @@ class ReteBuilder {
         RelationalTest.SAME_TYPE_TEST;
   }
 
-  private ReteBuilder() {
-  }
+  private ReteBuilder() {}
 
   /**
    * This is used for converting tests (from conditions) into the appropriate rete_test's and/or
@@ -134,8 +133,7 @@ class ReteBuilder {
 
       // if constant, make = constant test
       if (referent.asVariable() == null) {
-        var new_rt =
-            ReteTest.createConstantTest(ReteTest.RELATIONAL_EQUAL, field_num, referent);
+        var new_rt = ReteTest.createConstantTest(ReteTest.RELATIONAL_EQUAL, field_num, referent);
 
         new_rt.next = rt.value;
         rt.value = new_rt;
@@ -152,8 +150,7 @@ class ReteBuilder {
       }
 
       // else make variable equality test
-      final var new_rt =
-          ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL, field_num, where);
+      final var new_rt = ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL, field_num, where);
 
       new_rt.next = rt.value;
       rt.value = new_rt;
@@ -331,8 +328,7 @@ class ReteBuilder {
    *
    * <p>rete.cpp:3069:make_node_for_positive_cond
    *
-   * <p>TODO: Check where nonnull checks should be applied on public interfaces; checks like
-   * nonnull
+   * <p>TODO: Check where nonnull checks should be applied on public interfaces; checks like nonnull
    * should be done at the gates of the class.
    */
   private static ReteNode make_node_for_positive_cond(
@@ -399,8 +395,8 @@ class ReteBuilder {
     for (mem_node = parent.first_child; mem_node != null; mem_node = mem_node.next_sibling) {
       if ((mem_node.node_type == mem_node_type)
           && ((!hash_this_node)
-          || ((mem_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-          && (mem_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
+              || ((mem_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+                  && (mem_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
         break;
       }
     }
@@ -433,8 +429,8 @@ class ReteBuilder {
     for (mp_node = parent.first_child; mp_node != null; mp_node = mp_node.next_sibling) {
       if ((mp_node.node_type == mp_node_type)
           && ((!hash_this_node)
-          || ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-          && (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
+              || ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+                  && (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))) {
         break;
       }
     }
@@ -512,8 +508,8 @@ class ReteBuilder {
       if ((node.node_type == node_type)
           && (am == node.b_posneg().alpha_mem_)
           && ((!hash_this_node)
-          || ((node.left_hash_loc_field_num == left_hash_loc.value.field_num)
-          && (node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))
+              || ((node.left_hash_loc_field_num == left_hash_loc.value.field_num)
+                  && (node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))
           && rete_test_lists_are_identical(node.b_posneg().other_tests, rt.value)) {
         break;
       }
@@ -535,8 +531,7 @@ class ReteBuilder {
 
   /**
    * This routine builds or shares the Rete network for the conditions in the given {@code
-   * <cond_list>}. {@code <Depth_of_first_cond>} tells the depth of the first condition/node;
-   * {@code
+   * <cond_list>}. {@code <Depth_of_first_cond>} tells the depth of the first condition/node; {@code
    * <parent>} gives the parent node under which the network should be built or shared.
    *
    * <p>Three "dest" parameters may be used for returing results from this routine. If {@code
@@ -634,10 +629,10 @@ class ReteBuilder {
    * <p>rete.cpp:3424:fixup_rhs_value_variable_references
    *
    * @param rete
-   * @param rv                            RHS value to fix up
+   * @param rv RHS value to fix up
    * @param bottom_depth
    * @param rhs_unbound_vars_for_new_prod Receives unbound variables
-   * @param rhs_unbound_vars_tc           TC number for finding unbound variables
+   * @param rhs_unbound_vars_tc TC number for finding unbound variables
    * @return The value to replace rv, possibly rv itself
    */
   /*package*/
