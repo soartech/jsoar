@@ -24,28 +24,6 @@
   ]
 },
 {
-  "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.tools.javac.jvm.ClassWriter$StackMapTableFrame[]"
-},
-{
-  "name":"com.sun.tools.javac.jvm.Code$LocalVar[]"
-},
-{
   "name":"double[]"
 },
 {
@@ -53,18 +31,6 @@
 },
 {
   "name":"int[]"
-},
-{
-  "name":"java.beans.PropertyVetoException"
-},
-{
-  "name":"java.beans.Statement"
-},
-{
-  "name":"java.beans.XMLDecoder"
-},
-{
-  "name":"java.beans.XMLEncoder"
 },
 {
   "name":"java.io.FilePermission"
@@ -92,10 +58,6 @@
 {
   "name":"java.lang.Class",
   "methods":[{"name":"isInstance","parameterTypes":["java.lang.Object"] }]
-},
-{
-  "name":"java.lang.ClassLoader",
-  "methods":[{"name":"getPlatformClassLoader","parameterTypes":[] }]
 },
 {
   "name":"java.lang.Class[]"
@@ -147,13 +109,6 @@
   "name":"java.lang.Object[]"
 },
 {
-  "name":"java.lang.ProcessHandle",
-  "methods":[
-    {"name":"current","parameterTypes":[] }, 
-    {"name":"pid","parameterTypes":[] }
-  ]
-},
-{
   "name":"java.lang.RuntimeException"
 },
 {
@@ -168,10 +123,6 @@
 },
 {
   "name":"java.lang.String[]"
-},
-{
-  "name":"java.lang.System",
-  "methods":[{"name":"console","parameterTypes":[] }]
 },
 {
   "name":"java.lang.Throwable",
@@ -195,12 +146,6 @@
   "name":"java.math.BigInteger[]"
 },
 {
-  "name":"java.net.NetPermission"
-},
-{
-  "name":"java.net.SocketPermission"
-},
-{
   "name":"java.net.URLPermission",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
@@ -215,46 +160,10 @@
   "methods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
 },
 {
-  "name":"java.security.AccessController"
-},
-{
-  "name":"java.security.AllPermission"
-},
-{
-  "name":"java.security.MessageDigestSpi"
-},
-{
-  "name":"java.security.SecureRandomParameters"
-},
-{
-  "name":"java.security.SecurityPermission"
-},
-{
-  "name":"java.sql.Connection"
-},
-{
   "name":"java.sql.Date[]"
 },
 {
-  "name":"java.sql.Driver"
-},
-{
-  "name":"java.sql.DriverManager",
-  "methods":[
-    {"name":"getConnection","parameterTypes":["java.lang.String"] }, 
-    {"name":"getDriver","parameterTypes":["java.lang.String"] }
-  ]
-},
-{
-  "name":"java.sql.Time",
-  "methods":[{"name":"<init>","parameterTypes":["long"] }]
-},
-{
   "name":"java.sql.Time[]"
-},
-{
-  "name":"java.sql.Timestamp",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.sql.Timestamp[]"
@@ -363,80 +272,6 @@
 },
 {
   "name":"java.util.PropertyPermission"
-},
-{
-  "name":"javax.management.ObjectName"
-},
-{
-  "name":"javax.tools.ToolProvider"
-},
-{
-  "name":"jdk.dynalink.DynamicLinker",
-  "methods":[{"name":"relink","parameterTypes":["jdk.dynalink.RelinkableCallSite","int","java.lang.Object[]"] }]
-},
-{
-  "name":"jdk.dynalink.beans.AbstractJavaLinker",
-  "methods":[
-    {"name":"getDynamicMethod","parameterTypes":["java.lang.Object"] }, 
-    {"name":"getPropertyGetterHandle","parameterTypes":["java.lang.Object"] }, 
-    {"name":"getPropertySetterHandle","parameterTypes":["jdk.dynalink.CallSiteDescriptor","jdk.dynalink.linker.LinkerServices","java.lang.Object"] }
-  ]
-},
-{
-  "name":"jdk.dynalink.beans.AbstractJavaLinker$AnnotatedDynamicMethod",
-  "methods":[{"name":"getTarget","parameterTypes":["jdk.dynalink.CallSiteDescriptor","jdk.dynalink.linker.LinkerServices"] }]
-},
-{
-  "name":"jdk.dynalink.beans.BeanLinker",
-  "methods":[
-    {"name":"noOp","parameterTypes":[] }, 
-    {"name":"rangeCheck","parameterTypes":["java.lang.Object","java.lang.Object"] }, 
-    {"name":"rangeCheck","parameterTypes":["java.util.List","java.lang.Object"] }
-  ]
-},
-{
-  "name":"jdk.dynalink.beans.OverloadedMethod",
-  "methods":[
-    {"name":"selectMethod","parameterTypes":["java.lang.Object[]"] }, 
-    {"name":"throwAmbiguousMethod","parameterTypes":["java.lang.Class[]","java.util.List"] }, 
-    {"name":"throwNoSuchMethod","parameterTypes":["java.lang.Class[]"] }
-  ]
-},
-{
-  "name":"jdk.dynalink.beans.SingleDynamicMethod",
-  "methods":[{"name":"canConvertTo","parameterTypes":["jdk.dynalink.linker.LinkerServices","java.lang.Class","java.lang.Object"] }]
-},
-{
-  "name":"jdk.dynalink.beans.StaticClass",
-  "methods":[{"name":"getRepresentedClass","parameterTypes":[] }]
-},
-{
-  "name":"jdk.dynalink.beans.StaticClassLinker",
-  "methods":[{"name":"isClass","parameterTypes":["java.lang.Class","java.lang.Object"] }]
-},
-{
-  "name":"jdk.dynalink.linker.support.DefaultInternalObjectFilter",
-  "methods":[{"name":"filterVarArgs","parameterTypes":["java.lang.invoke.MethodHandle","java.lang.Object[]"] }]
-},
-{
-  "name":"jdk.dynalink.linker.support.Guards",
-  "methods":[
-    {"name":"isArray","parameterTypes":["java.lang.Object"] }, 
-    {"name":"isIdentical","parameterTypes":["java.lang.Object","java.lang.Object"] }, 
-    {"name":"isNotNull","parameterTypes":["java.lang.Object"] }, 
-    {"name":"isNull","parameterTypes":["java.lang.Object"] }, 
-    {"name":"isOfClass","parameterTypes":["java.lang.Class","java.lang.Object"] }
-  ]
-},
-{
-  "name":"jdk.dynalink.support.ChainedCallSite",
-  "methods":[{"name":"prune","parameterTypes":["java.lang.invoke.MethodHandle","boolean"] }]
-},
-{
-  "name":"long[]"
-},
-{
-  "name":"netscape.javascript.JSObject"
 },
 {
   "name":"org.jsoar.kernel.Agent",
@@ -757,109 +592,6 @@
   "allDeclaredMethods":true
 },
 {
-  "name":"org.jsoar.kernel.epmem.EpisodicMemoryDatabase",
-  "fields":[
-    {"name":"add_epmem_wmes_constant"}, 
-    {"name":"add_epmem_wmes_constant_now"}, 
-    {"name":"add_epmem_wmes_constant_point"}, 
-    {"name":"add_epmem_wmes_constant_range"}, 
-    {"name":"add_epmem_wmes_identifier"}, 
-    {"name":"add_epmem_wmes_identifier_now"}, 
-    {"name":"add_epmem_wmes_identifier_point"}, 
-    {"name":"add_epmem_wmes_identifier_range"}, 
-    {"name":"add_node"}, 
-    {"name":"add_time"}, 
-    {"name":"backup"}, 
-    {"name":"begin"}, 
-    {"name":"commit"}, 
-    {"name":"database_version"}, 
-    {"name":"delete_epmem_wmes_constant_now"}, 
-    {"name":"delete_epmem_wmes_identifier_now"}, 
-    {"name":"drop_epmem_episodes"}, 
-    {"name":"drop_epmem_lti"}, 
-    {"name":"drop_epmem_nodes"}, 
-    {"name":"drop_epmem_persistent_variables"}, 
-    {"name":"drop_epmem_rit_left_nodes"}, 
-    {"name":"drop_epmem_rit_right_nodes"}, 
-    {"name":"drop_epmem_symbols_float"}, 
-    {"name":"drop_epmem_symbols_integer"}, 
-    {"name":"drop_epmem_symbols_string"}, 
-    {"name":"drop_epmem_symbols_type"}, 
-    {"name":"drop_epmem_wmes_constant"}, 
-    {"name":"drop_epmem_wmes_constant_now"}, 
-    {"name":"drop_epmem_wmes_constant_point"}, 
-    {"name":"drop_epmem_wmes_constant_range"}, 
-    {"name":"drop_epmem_wmes_identifier"}, 
-    {"name":"drop_epmem_wmes_identifier_now"}, 
-    {"name":"drop_epmem_wmes_identifier_point"}, 
-    {"name":"drop_epmem_wmes_identifier_range"}, 
-    {"name":"edge_unique_select"}, 
-    {"name":"find_epmem_wmes_constant"}, 
-    {"name":"find_epmem_wmes_identifier"}, 
-    {"name":"find_epmem_wmes_identifier_shared"}, 
-    {"name":"find_lti"}, 
-    {"name":"find_lti_promotion_time"}, 
-    {"name":"get_max_time"}, 
-    {"name":"get_schema_version"}, 
-    {"name":"get_wmes_with_constant_values"}, 
-    {"name":"get_wmes_with_identifier_values"}, 
-    {"name":"hash_add_float"}, 
-    {"name":"hash_add_int"}, 
-    {"name":"hash_add_str"}, 
-    {"name":"hash_add_type"}, 
-    {"name":"hash_get_float"}, 
-    {"name":"hash_get_int"}, 
-    {"name":"hash_get_str"}, 
-    {"name":"hash_get_type"}, 
-    {"name":"hash_rev_float"}, 
-    {"name":"hash_rev_int"}, 
-    {"name":"hash_rev_str"}, 
-    {"name":"minmax_select_edge"}, 
-    {"name":"minmax_select_node"}, 
-    {"name":"next_episode"}, 
-    {"name":"now_delete_edge"}, 
-    {"name":"now_delete_node"}, 
-    {"name":"now_select_edge"}, 
-    {"name":"now_select_node"}, 
-    {"name":"pool_dummy"}, 
-    {"name":"pool_find_edge_queries_0_0"}, 
-    {"name":"pool_find_edge_queries_0_1"}, 
-    {"name":"pool_find_edge_queries_1_0"}, 
-    {"name":"pool_find_edge_queries_1_1"}, 
-    {"name":"pool_find_interval_queries_0_0_0"}, 
-    {"name":"pool_find_interval_queries_0_0_1"}, 
-    {"name":"pool_find_interval_queries_0_0_2"}, 
-    {"name":"pool_find_interval_queries_0_1_0"}, 
-    {"name":"pool_find_interval_queries_0_1_1"}, 
-    {"name":"pool_find_interval_queries_0_1_2"}, 
-    {"name":"pool_find_interval_queries_1_0_0"}, 
-    {"name":"pool_find_interval_queries_1_0_1"}, 
-    {"name":"pool_find_interval_queries_1_0_2"}, 
-    {"name":"pool_find_interval_queries_1_1_0"}, 
-    {"name":"pool_find_interval_queries_1_1_1"}, 
-    {"name":"pool_find_interval_queries_1_1_2"}, 
-    {"name":"pool_find_lti_queries_0_0"}, 
-    {"name":"pool_find_lti_queries_0_1"}, 
-    {"name":"pool_find_lti_queries_0_2"}, 
-    {"name":"pool_find_lti_queries_1_0"}, 
-    {"name":"pool_find_lti_queries_1_1"}, 
-    {"name":"pool_find_lti_queries_1_2"}, 
-    {"name":"prev_episode"}, 
-    {"name":"promote_id"}, 
-    {"name":"restore"}, 
-    {"name":"rit_add_left"}, 
-    {"name":"rit_add_right"}, 
-    {"name":"rit_truncate_left"}, 
-    {"name":"rit_truncate_right"}, 
-    {"name":"rollback"}, 
-    {"name":"set_schema_version"}, 
-    {"name":"update_epmem_wmes_identifier_last_episode_id"}, 
-    {"name":"valid_episode"}, 
-    {"name":"var_get"}, 
-    {"name":"var_set"}
-  ]
-},
-{
   "name":"org.jsoar.kernel.epmem.EpmemCommand$EpmemC",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
@@ -883,85 +615,6 @@
   "allPublicMethods":true
 },
 {
-  "name":"org.jsoar.kernel.smem.SemanticMemoryDatabase",
-  "fields":[
-    {"name":"act_lti_child_ct_get"}, 
-    {"name":"act_lti_child_ct_set"}, 
-    {"name":"act_lti_get"}, 
-    {"name":"act_lti_set"}, 
-    {"name":"act_set"}, 
-    {"name":"attribute_frequency_add"}, 
-    {"name":"attribute_frequency_check"}, 
-    {"name":"attribute_frequency_get"}, 
-    {"name":"attribute_frequency_update"}, 
-    {"name":"backup"}, 
-    {"name":"begin"}, 
-    {"name":"commit"}, 
-    {"name":"drop_smem_activation_history"}, 
-    {"name":"drop_smem_ascii"}, 
-    {"name":"drop_smem_attribute_frequency"}, 
-    {"name":"drop_smem_augmentations"}, 
-    {"name":"drop_smem_lti"}, 
-    {"name":"drop_smem_persistent_variables"}, 
-    {"name":"drop_smem_symbols_float"}, 
-    {"name":"drop_smem_symbols_integer"}, 
-    {"name":"drop_smem_symbols_string"}, 
-    {"name":"drop_smem_symbols_type"}, 
-    {"name":"drop_smem_wmes_constant_frequency"}, 
-    {"name":"drop_smem_wmes_lti_frequency"}, 
-    {"name":"get_schema_version"}, 
-    {"name":"hash_add_float"}, 
-    {"name":"hash_add_int"}, 
-    {"name":"hash_add_str"}, 
-    {"name":"hash_add_type"}, 
-    {"name":"hash_get_float"}, 
-    {"name":"hash_get_int"}, 
-    {"name":"hash_get_str"}, 
-    {"name":"hash_rev_float"}, 
-    {"name":"hash_rev_int"}, 
-    {"name":"hash_rev_str"}, 
-    {"name":"hash_rev_type"}, 
-    {"name":"history_add"}, 
-    {"name":"history_get"}, 
-    {"name":"history_push"}, 
-    {"name":"lti_access_get"}, 
-    {"name":"lti_access_set"}, 
-    {"name":"lti_add"}, 
-    {"name":"lti_get"}, 
-    {"name":"lti_get_t"}, 
-    {"name":"lti_letter_num"}, 
-    {"name":"lti_max"}, 
-    {"name":"restore"}, 
-    {"name":"rollback"}, 
-    {"name":"set_schema_version"}, 
-    {"name":"var_create"}, 
-    {"name":"var_get"}, 
-    {"name":"var_set"}, 
-    {"name":"vis_lti"}, 
-    {"name":"vis_lti_act"}, 
-    {"name":"vis_value_const"}, 
-    {"name":"vis_value_lti"}, 
-    {"name":"web_add"}, 
-    {"name":"web_all"}, 
-    {"name":"web_attr_all"}, 
-    {"name":"web_attr_child"}, 
-    {"name":"web_const_all"}, 
-    {"name":"web_const_child"}, 
-    {"name":"web_expand"}, 
-    {"name":"web_lti_all"}, 
-    {"name":"web_lti_child"}, 
-    {"name":"web_truncate"}, 
-    {"name":"wmes_constant_frequency_add"}, 
-    {"name":"wmes_constant_frequency_check"}, 
-    {"name":"wmes_constant_frequency_get"}, 
-    {"name":"wmes_constant_frequency_update"}, 
-    {"name":"wmes_lti_frequency_add"}, 
-    {"name":"wmes_lti_frequency_check"}, 
-    {"name":"wmes_lti_frequency_get"}, 
-    {"name":"wmes_lti_frequency_update"}
-  ]
-},
-{
   "name":"org.jsoar.kernel.smem.SmemCommand$SmemC",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
@@ -979,17 +632,6 @@
   "name":"org.jsoar.kernel.wma.WMActivationCommand$WMA",
   "allDeclaredFields":true,
   "allDeclaredMethods":true
-},
-{
-  "name":"org.jsoar.script.ScriptCommand$Script",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.jsoar.script.ScriptContext",
-  "allPublicFields":true,
-  "allPublicMethods":true,
-  "allPublicClasses":true
 },
 {
   "name":"org.jsoar.util.commands.DefaultInterpreter$AliasCommand$Alias",
@@ -1017,61 +659,9 @@
   "name":"org.springframework.util.ConcurrentReferenceHashMap$Segment[]"
 },
 {
-  "name":"org.sqlite.Function",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.sqlite.Function$Aggregate",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.sqlite.Function$Window",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.sqlite.JDBC"
-},
-{
-  "name":"org.sqlite.ProgressHandler",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.sqlite.core.DB$ProgressObserver",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
-  "name":"org.sqlite.core.NativeDB",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
-},
-{
   "name":"picocli.CommandLine$HelpCommand",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"short[]"
-},
-{
-  "name":"sun.misc.Unsafe",
-  "allDeclaredFields":true
-},
-{
-  "name":"sun.security.provider.DRBG",
-  "methods":[{"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
-},
-{
-  "name":"sun.security.provider.SHA",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 }
 ]
