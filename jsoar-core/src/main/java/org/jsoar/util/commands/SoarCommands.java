@@ -44,10 +44,12 @@ public class SoarCommands
     {
         if(any instanceof File)
         {
+            logger.debug("Loading as File: {}", any);
             interp.source((File) any);
         }
         else if(any instanceof URL)
         {
+            logger.debug("Loading as URL: {}", any);
             interp.source((URL) any);
         }
         else
@@ -56,10 +58,12 @@ public class SoarCommands
             final URL url = FileTools.asUrl(s);
             if(url != null)
             {
+                logger.debug("Attempting load as URL: {}", url);
                 interp.source(url);
             }
             else
             {
+                logger.debug("Attempting load as File: {}", s);
                 interp.source(new File(s));
             }
         }
@@ -69,10 +73,12 @@ public class SoarCommands
     {
         if(any instanceof File)
         {
+            logger.debug("Loading as File: {}", any);
             interp.loadRete((File) any);
         }
         else if(any instanceof URL)
         {
+            logger.debug("Loading as URL: {}", any);
             interp.loadRete((URL) any);
         }
         else
@@ -81,11 +87,14 @@ public class SoarCommands
             final URL url = FileTools.asUrl(s);
             if(url != null)
             {
+                logger.debug("Attempting load as URL: {}", url);
                 interp.loadRete(url);
             }
             else
             {
-                interp.loadRete(new File(s));
+                File file = new File(s);
+                logger.debug("Attempting to load {} as File: {}, exists?: {}", s, file, file.exists());
+                interp.loadRete(file);
             }
         }
     }
