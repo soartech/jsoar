@@ -10,10 +10,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import java.io.StringWriter;
+import java.io.FileOutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import org.jsoar.JSoarTest;
@@ -35,11 +35,13 @@ public class GetUrlTest extends JSoarTest {
   @Test
   public void testCanReadTheContentsOfAUrl() throws Exception {
     // Given a external resource
-    // TODO: Create temp file with content
+    final String content = "TEST READ RESOURCE FROM URL";
+    Path resource = Files.createTempFile("resource", "test");
+    try (FileOutputStream outputStream = new FileOutputStream(resource.toFile())) {
+      outputStream.write(content.getBytes());
+    }
     // And a URL pointing to the external resource
-    final URL urlToGet =
-        GetUrlTest.class.getResource("GetUrlTest_testCanReadTheContentsOfAUrl.txt");
-    assertNotNull(urlToGet);
+    final URL urlToGet = resource.toUri().toURL();
     // And a get-url production
     final GetUrl get = new GetUrl();
 
@@ -51,10 +53,7 @@ public class GetUrlTest extends JSoarTest {
     assertNotNull(result);
     final StringSymbol resultAsString = result.asString();
     assertNotNull(resultAsString);
-
-    final StringWriter expected = new StringWriter();
-    Resources.asCharSource(urlToGet, Charsets.UTF_8).copyTo(expected);
-    assertEquals(expected.toString(), resultAsString.toString());
+    assertEquals(content, resultAsString.toString());
   }
 
   @Test(expected = RhsFunctionException.class)
