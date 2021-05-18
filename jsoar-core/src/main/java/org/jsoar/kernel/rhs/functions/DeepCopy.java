@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.symbols.Identifier;
@@ -43,17 +44,17 @@ public class DeepCopy extends AbstractRhsFunctionHandler {
    * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
    */
   @Override
-  public Symbol execute(RhsFunctionContext context, List<Symbol> arguments)
+  public Symbol execute(@NonNull RhsFunctionContext context, @NonNull List<Symbol> arguments)
       throws RhsFunctionException {
     RhsFunctions.checkArgumentCount(this, arguments);
 
-    Identifier startId = arguments.get(0).asIdentifier();
+    var startId = arguments.get(0).asIdentifier();
     if (startId == null) {
       throw new RhsFunctionException(
           "Only argument to '" + getName() + "' RHS function must be an identifier.");
     }
 
-    Map<Identifier, Identifier> idMap = new HashMap<Identifier, Identifier>();
+    Map<Identifier, Identifier> idMap = new HashMap<>();
 
     return copy(context, startId, idMap);
   }
@@ -81,7 +82,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler {
       final Wme w = it.next();
 
       final Symbol value = w.getValue();
-      Identifier valueId = value.asIdentifier();
+      var valueId = value.asIdentifier();
       if (valueId == null) {
         // Terminal WME. Just add and move on.
         context.addWme(targetId, w.getAttribute(), value);
