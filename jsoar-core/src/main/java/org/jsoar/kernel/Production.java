@@ -5,12 +5,13 @@
  */
 package org.jsoar.kernel;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.jsoar.kernel.learning.rl.RLRuleInfo;
 import org.jsoar.kernel.learning.rl.RLTemplateInfo;
 import org.jsoar.kernel.lhs.Condition;
@@ -37,11 +38,15 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
- * Represents a production rule in Soar.
+ * Represents a production rule in Soar. Each production has three required components: a name, a
+ * set of conditions (also called the left-hand side, or LHS), and a set of actions (also called the
+ * right-hand side, or RHS). There are also two optional components: a documentation string and a
+ * type.
  *
  * @author ray
  */
 public class Production {
+
   private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
 
   /**
@@ -60,27 +65,36 @@ public class Production {
     UNDECLARED,
 
     /**
-     * The production has been declared with {@code :o-support}.
+     * The production has been declared with {@code o-support} (operator support). Operator
+     * productions do not retract their actions, even if they no longer match working memory.
      *
-     * <p>production.h:66:DECLARED_O_SUPPORT
+     * <p>NOTE: WMEs with {@code o-support} are maintained throughout the existence of the state in
+     * which the operator is applied, unless explicitly removed (or if they become unlinked).
+     *
+     * <p>{@code production.h:66:DECLARED_O_SUPPORT}
      */
     DECLARED_O_SUPPORT,
 
     /**
-     * The production has been declared with {@code :i-support}.
+     * The production has been declared with {@code i-support} (instantiation support).
      *
-     * <p>production.h:66:DECLARED_I_SUPPORT
+     * <p>NOTE: WMEs with {@code i-support} disappear as soon as the production that created them
+     * retract
+     *
+     * <p>{@code production.h:66:DECLARED_I_SUPPORT}
      */
     DECLARED_I_SUPPORT
   }
 
   /** Builder class used to construct productions. */
   public static class Builder {
+
     private ProductionType type;
     private SourceLocation location = DefaultSourceLocation.UNKNOWN;
     private String name;
     private String documentation = "";
-    private Condition topCondition, bottomCondition;
+    private Condition topCondition;
+    private Condition bottomCondition;
     private Action actions;
     private Support support = Support.UNDECLARED;
     private boolean interrupt = false;
@@ -144,11 +158,18 @@ public class Production {
     return new Builder();
   }
 
-  private final ProductionType type;
-  private final SourceLocation location;
-  private final String name;
-  private String documentation; // 	This can be set by some of the RL stuff
-  private final Support declared_support;
+  @Getter private final ProductionType type;
+
+  @Getter private final SourceLocation location;
+
+  @Getter private final String name;
+
+  /** The documentation string of this production */
+  @Getter @Setter @NonNull private String documentation;
+
+  /** Contains whether the actions of this Production is instantiation or operator support. */
+  @Getter private final Support declaredSupport;
+
   private final boolean interrupt;
 
   private Condition condition_list;
@@ -159,10 +180,13 @@ public class Production {
   private final AtomicBoolean breakpointEnabled = new AtomicBoolean();
 
   private final AtomicLong firingCount = new AtomicLong(0);
+
   private final AtomicBoolean traceFirings = new AtomicBoolean();
 
   private Rete rete;
-  private ReteNode p_node;
+
+  /** Production's rete node */
+  @Getter private ReteNode reteNode;
 
   /**
    * List of instantiations of this production. Use {@link Instantiation#nextInProdList} to iterate.
@@ -200,7 +224,7 @@ public class Production {
       @NonNull ProductionType type,
       @NonNull SourceLocation location,
       @NonNull String name,
-      String doc,
+      String documentation,
       Condition lhs_top_in,
       Condition lhs_bottom_in,
       Action rhs_top_in,
@@ -212,47 +236,14 @@ public class Production {
     this.type = type;
     this.location = location;
     this.name = name;
-    this.documentation = doc;
+    this.documentation = documentation == null ? "" : documentation;
     this.condition_list = lhs_top_in;
     this.bottomOfConditionList = lhs_bottom_in;
     this.action_list = rhs_top_in;
-    this.declared_support = support;
+    this.declaredSupport = support;
     this.interrupt = interrupt;
 
     rlTemplateInfo = type == ProductionType.TEMPLATE ? new RLTemplateInfo() : null;
-  }
-
-  /** @return the type of this production */
-  public ProductionType getType() {
-    return type;
-  }
-
-  /** @return the source location of the production */
-  public SourceLocation getLocation() {
-    return location;
-  }
-
-  /** @return the name of this production */
-  public String getName() {
-    return name;
-  }
-
-  /** @return the documentation string of this production */
-  public String getDocumentation() {
-    return documentation != null ? documentation : "";
-  }
-
-  /** Set the documentation string of this production */
-  public void setDocumentation(String newDoc) {
-    documentation = newDoc;
-  }
-
-  /**
-   * @return the declared support of the production
-   * @see Support
-   */
-  public Support getDeclaredSupport() {
-    return declared_support;
   }
 
   /**
@@ -351,7 +342,7 @@ public class Production {
       return;
     }
 
-    rete.print_partial_match_information(printer, p_node, wtt, showNodeIds);
+    rete.print_partial_match_information(printer, reteNode, wtt, showNodeIds);
   }
 
   /**
@@ -361,9 +352,9 @@ public class Production {
    */
   public PartialMatches getPartialMatches() {
     if (rete == null) {
-      return new PartialMatches(new ArrayList<PartialMatches.Entry>());
+      return new PartialMatches(Collections.emptyList());
     }
-    return rete.getPartialMatches(p_node);
+    return rete.getPartialMatches(reteNode);
   }
 
   /**
@@ -380,7 +371,7 @@ public class Production {
    * @return token count, or 0 if not in rete
    */
   public int getReteTokenCount() {
-    return rete != null ? rete.count_rete_tokens_for_production(p_node) : 0;
+    return rete != null ? rete.countTokensProduction(reteNode) : 0;
   }
 
   /**
@@ -431,7 +422,7 @@ public class Production {
       /* force run-time o-support (it'll only be done once) */
 
       // TODO: Is this necessary since this is the default value?
-      for (Action a = action_list; a != null; a = a.next) {
+      for (var a = action_list; a != null; a = a.next) {
         a.support = ActionSupport.UNKNOWN_SUPPORT;
       }
     }
@@ -464,21 +455,12 @@ public class Production {
    * @param p_node
    */
   public void setReteNode(Rete rete, ReteNode p_node) {
-    if ((this.rete != null || this.p_node != null) && (rete != null || p_node != null)) {
+    if ((this.rete != null || this.reteNode != null) && (rete != null || p_node != null)) {
       throw new IllegalStateException("Production " + this + " is already in rete");
     }
 
     this.rete = rete;
-    this.p_node = p_node;
-  }
-
-  /**
-   * Get this production's rete node. This is not a public API.
-   *
-   * @return This production's rete node.
-   */
-  public ReteNode getReteNode() {
-    return p_node;
+    this.reteNode = p_node;
   }
 
   /* (non-Javadoc)
@@ -486,7 +468,7 @@ public class Production {
    */
   @Override
   public String toString() {
-    return name.toString() + " (" + type + ") " + firingCount;
+    return name + " (" + type + ") " + firingCount;
   }
 
   /**
@@ -499,7 +481,7 @@ public class Production {
    * @param internal true for internal representation, false otherwise
    */
   public void print(Printer printer, boolean internal) {
-    if (rete == null || p_node == null) {
+    if (rete == null || reteNode == null) {
       printer.print("%s has been excised", this.name);
       return;
     }
@@ -530,7 +512,7 @@ public class Production {
         break;
     }
 
-    switch (declared_support) {
+    switch (declaredSupport) {
       case DECLARED_O_SUPPORT:
         printer.print("    :o-support\n");
         break;
@@ -546,7 +528,7 @@ public class Production {
     }
 
     // print the LHS and RHS
-    ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
+    ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(reteNode, null, null, true);
     printer.print("   ");
 
     Conditions.print_condition_list(printer, cns.top, 3, internal);
