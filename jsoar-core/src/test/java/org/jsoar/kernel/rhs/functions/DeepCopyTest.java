@@ -19,9 +19,7 @@ import org.jsoar.util.ByRef;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author ray
- */
+/** @author ray */
 public class DeepCopyTest {
 
   private Agent agent;
