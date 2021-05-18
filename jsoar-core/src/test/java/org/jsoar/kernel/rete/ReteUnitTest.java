@@ -135,6 +135,11 @@ public class ReteUnitTest extends JSoarTest {
   }
 
   @Test
+  public void testCountTokensProductionIfNodeIsNull() {
+    assertEquals(0, rete.countTokensProduction(null));
+  }
+
+  @Test
   public void testInitDummyTopNode() throws Exception {
     assertNotNull(rete.dummy_top_node);
     assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);

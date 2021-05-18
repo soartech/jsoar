@@ -2468,8 +2468,7 @@ public class Rete {
   }
 
   /**
-   * Returns a count of the number of tokens currently in use for the given production. The count
-   * does not include:
+   * Counts number of tokens currently in use for the given production. The count does not include:
    *
    * <ul>
    *   <li>tokens in the p_node (i.e., tokens representing complete matches)
@@ -2483,7 +2482,7 @@ public class Rete {
    * @param p_node the production p-node
    * @return token count, or 0 if p_node is <code>null</code>
    */
-  public int count_rete_tokens_for_production(ReteNode p_node) {
+  public int countTokensProduction(ReteNode p_node) {
     if (p_node == null) return 0;
     ReteNode node = p_node.parent;
     int count = 0;
