@@ -23,7 +23,7 @@ public interface SymbolFactory {
    * @param nameNumber The name number of the desired id
    * @return The identifier, or <code>null</code> if not found
    */
-  public Identifier findIdentifier(char nameLetter, long nameNumber);
+  Identifier findIdentifier(char nameLetter, long nameNumber);
 
   /**
    * Create a new identifier
@@ -35,7 +35,7 @@ public interface SymbolFactory {
    * @param nameLetter The letter of the id
    * @return A new identifier
    */
-  public Identifier createIdentifier(char nameLetter);
+  Identifier createIdentifier(char nameLetter);
 
   /**
    * Find an identifier by letter and number, and create a new one with the given letter if none was
@@ -48,7 +48,7 @@ public interface SymbolFactory {
    * @param nameNumber The name number of the id
    * @return The identifier
    */
-  public Identifier findOrCreateIdentifier(char nameLetter, long nameNumber);
+  Identifier findOrCreateIdentifier(char nameLetter, long nameNumber);
 
   /**
    * Find an existing string symbol
@@ -58,7 +58,7 @@ public interface SymbolFactory {
    * @param value The string value of the symbol
    * @return The symbol, or <code>null</code> if not found
    */
-  public StringSymbol findString(String value);
+  StringSymbol findString(String value);
 
   /**
    * Create a new string symbol.
@@ -70,7 +70,7 @@ public interface SymbolFactory {
    * @param value The string value of the symbol
    * @return A symbol. Subsequent calls with the same value will return the same object.
    */
-  public StringSymbol createString(String value);
+  StringSymbol createString(String value);
 
   /**
    * symtab.cpp:546:generate_new_sym_constant
@@ -79,7 +79,7 @@ public interface SymbolFactory {
    * @param number Starting index for search. Receives one more than final value of postfix index.
    * @return New string
    */
-  public StringSymbol generateUniqueString(String prefix, ByRef<Integer> number);
+  StringSymbol generateUniqueString(String prefix, ByRef<Integer> number);
 
   /**
    * Create a new integer symbol
@@ -91,7 +91,7 @@ public interface SymbolFactory {
    * @param value The integer value of the symbol
    * @return A symbol. Subsequent calls with the same value will return the same object.
    */
-  public IntegerSymbol createInteger(long value);
+  IntegerSymbol createInteger(long value);
 
   /**
    * Find an existing integer symbol
@@ -101,7 +101,7 @@ public interface SymbolFactory {
    * @param value The integer value of the symbol
    * @return The symbol, or <code>null</code> if not found
    */
-  public IntegerSymbol findInteger(long value);
+  IntegerSymbol findInteger(long value);
 
   /**
    * Create a new double symbol
@@ -113,7 +113,7 @@ public interface SymbolFactory {
    * @param value The double value of the symbol
    * @return The symbol
    */
-  public DoubleSymbol createDouble(double value);
+  DoubleSymbol createDouble(double value);
 
   /**
    * Find an existing double symbol
@@ -123,7 +123,7 @@ public interface SymbolFactory {
    * @param value The double value of the symbol
    * @return A symbol. Subsequent calls with the same value will return the same object.
    */
-  public DoubleSymbol findDouble(double value);
+  DoubleSymbol findDouble(double value);
 
   /**
    * Create a Java symbol for the given value.
@@ -131,7 +131,7 @@ public interface SymbolFactory {
    * @param value The Java object value
    * @return The symbol
    */
-  public JavaSymbol createJavaSymbol(Object value);
+  JavaSymbol createJavaSymbol(Object value);
 
   /**
    * Look up a Java symbol for the given value.
@@ -139,7 +139,7 @@ public interface SymbolFactory {
    * @param value The Java object value
    * @return The symbol, or <code>null</code> if not found
    */
-  public JavaSymbol findJavaSymbol(Object value);
+  JavaSymbol findJavaSymbol(Object value);
 
   /**
    * Import a symbol, possibly from another symbol factory into this factory.
@@ -152,5 +152,5 @@ public interface SymbolFactory {
    * @return imported symbol
    * @throws IllegalArgumentException if the symbol is an identifier
    */
-  public Symbol importSymbol(Symbol s);
+  Symbol importSymbol(Symbol s);
 }
