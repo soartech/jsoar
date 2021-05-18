@@ -6,7 +6,9 @@
 package org.jsoar.kernel.rhs.functions;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
@@ -14,6 +16,44 @@ import org.junit.Test;
 
 /** @author ray */
 public class DivTest extends JSoarTest {
+
+  @Test
+  public void testCreateDivProduction() {
+    // When creating new div production
+    Div production = new Div();
+
+    // Then name of production is get-url
+    assertEquals("div", production.getName());
+    // And production requires 2 mandatory argument
+    assertEquals(2, production.getMinArguments());
+    assertEquals(2, production.getMaxArguments());
+  }
+
+  @Test(expected = RhsFunctionException.class)
+  public void testExecuteThrowsExceptionIfDividendIsNotInteger() throws RhsFunctionException {
+    // Given a div production
+    Div div = new Div();
+    // And dividend is string
+    // And divider is integer
+    List<Symbol> arguments = Symbols.asList(syms, "DIVIDENT", 1);
+
+    // When executing production
+    // Then exception is thrown
+    div.execute(mock(RhsFunctionContext.class), arguments);
+  }
+
+  @Test(expected = RhsFunctionException.class)
+  public void testExecuteThrowsExceptionIfDividerIsNotInteger() throws RhsFunctionException {
+    // Given a div production
+    Div div = new Div();
+    // And dividend is integer
+    // And divider is string
+    List<Symbol> arguments = Symbols.asList(syms, 1, "DIVIDER");
+
+    // When executing production
+    // Then exception is thrown
+    div.execute(mock(RhsFunctionContext.class), arguments);
+  }
 
   @Test
   public void testDiv() throws Exception {

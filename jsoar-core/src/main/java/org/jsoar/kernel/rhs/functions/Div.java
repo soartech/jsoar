@@ -23,11 +23,14 @@ public class Div extends AbstractRhsFunctionHandler {
       throws RhsFunctionException {
     RhsFunctions.checkArgumentCount(this, arguments);
 
+    // Check whether dividend is specified
     final IntegerSymbol a = arguments.get(0).asInteger();
     if (a == null) {
       throw new RhsFunctionException(
           String.format("Non-integer (%s) passed to '%s' function", arguments.get(0), getName()));
     }
+
+    // Check whether divider is specified
     final IntegerSymbol b = arguments.get(1).asInteger();
     if (b == null) {
       throw new RhsFunctionException(
