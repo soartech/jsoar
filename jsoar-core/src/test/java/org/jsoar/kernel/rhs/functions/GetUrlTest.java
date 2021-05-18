@@ -25,9 +25,13 @@ import org.junit.Test;
 public class GetUrlTest extends JSoarTest {
 
   @Test
-  public void createGetUrlProduction() {
+  public void testCreateGetUrlProduction() {
+    // When creating new get-url production
     GetUrl production = new GetUrl();
+
+    // Then name of production is get-url
     assertEquals("get-url", production.getName());
+    // And production requires 1 mandatory argument
     assertEquals(1, production.getMinArguments());
     assertEquals(1, production.getMaxArguments());
   }
