@@ -17,12 +17,12 @@ import org.jsoar.kernel.symbols.Symbol;
  * @author ray
  */
 public class Debug extends StandaloneRhsFunctionHandler {
+
   private final Agent agent;
 
   /** @param agent the agent */
   public Debug(Agent agent) {
     super("debug", 0, 0);
-
     this.agent = agent;
   }
 

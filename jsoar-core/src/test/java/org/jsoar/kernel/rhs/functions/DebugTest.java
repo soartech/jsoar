@@ -6,9 +6,16 @@
 package org.jsoar.kernel.rhs.functions;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import org.jsoar.kernel.AbstractDebuggerProvider;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.ByRef;
@@ -31,26 +38,48 @@ public class DebugTest {
   public void tearDown() throws Exception {}
 
   @Test
-  public void testDebugCallsOpenDebugger() throws Exception {
-    final ByRef<Boolean> called = ByRef.create(false);
-    agent.setDebuggerProvider(
-        new AbstractDebuggerProvider() {
+  public void testCreateDebugProduction() {
+    // When creating new debug production
+    Debug production = new Debug(mock(Agent.class));
 
-          @Override
-          public void openDebugger(Agent agent) {
-            assertSame(DebugTest.this.agent, agent);
-            called.value = true;
-          }
-
-          @Override
-          public void openDebuggerAndWait(Agent agent) throws SoarException, InterruptedException {
-            throw new UnsupportedOperationException("openDebuggerAndWait");
-          }
-        });
-    agent
-        .getProductions()
-        .loadProduction("testDebugCallsOpenDebugger (state <s> ^superstate nil) --> (debug)");
-    agent.runFor(1, RunType.DECISIONS);
-    assertTrue(called.value.booleanValue());
+    // Then name of production is get-url
+    assertEquals("debug", production.getName());
+    // And production requires 0 arguments
+    assertEquals(0, production.getMinArguments());
+    assertEquals(0, production.getMaxArguments());
   }
+
+  @Test(expected = RhsFunctionException.class)
+  public void testExecuteThrowsExceptionIfOpeningDebuggerFails()
+      throws SoarException, RhsFunctionException {
+    // Given Agent
+    Agent agent = mock(Agent.class);
+    // And a debug production instance
+    Debug debug = new Debug(agent);
+
+    // When executing debug production
+    // and opening debugger fails
+    DebuggerProvider debuggerProvider = mock(DebuggerProvider.class);
+    when(agent.getDebuggerProvider()).thenReturn(debuggerProvider);
+    doThrow(SoarException.class).when(debuggerProvider).openDebugger(agent);
+    debug.execute(mock(RhsFunctionContext.class), Collections.emptyList());
+  }
+
+  @Test
+  public void testExecute() throws RhsFunctionException, SoarException {
+    // Given a Agent
+    Agent agent = mock(Agent.class);
+    // And a debugger provider
+    DebuggerProvider debuggerProvider = mock(DebuggerProvider.class);
+    when(agent.getDebuggerProvider()).thenReturn(debuggerProvider);
+    // And a debug production
+    Debug debug = new Debug(agent);
+
+    // When executing debug production
+    debug.execute(mock(RhsFunctionContext.class), Collections.emptyList());
+
+    // Then debugger of specified provider is opened
+    verify(debuggerProvider, times(1)).openDebugger(agent);
+  }
+
 }
