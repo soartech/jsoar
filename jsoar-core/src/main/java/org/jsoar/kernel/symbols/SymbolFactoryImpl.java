@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
+import lombok.Value;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.util.ByRef;
 
@@ -329,13 +331,9 @@ public class SymbolFactoryImpl implements SymbolFactory {
   /* (non-Javadoc)
    * @see org.jsoar.kernel.symbols.SymbolFactory#make_sym_constant(java.lang.String)
    */
-  public StringSymbolImpl createString(String name) {
-    StringSymbolImpl sym = findString(name);
-    if (sym == null) {
-      sym = new StringSymbolImpl(this, get_next_hash_id(), name);
-      symConstants.put(name, sym);
-    }
-    return sym;
+  public StringSymbolImpl createString(@NonNull String name) {
+    return symConstants.computeIfAbsent(
+        name, k -> new StringSymbolImpl(this, get_next_hash_id(), name));
   }
 
   /**
@@ -432,44 +430,12 @@ public class SymbolFactoryImpl implements SymbolFactory {
   }
 
   private static IdKey getIdKey(char letter, long number) {
-    // Using just a packed only has very minor memory usage or
-    // performance gains, so don't bother. IdKey is clearer.
-    // return (((long) letter) << 48) | number;
     return new IdKey(letter, number);
   }
 
+  @Value
   private static class IdKey {
     private final char letter;
     private final long number;
-
-    public IdKey(char letter, long number) {
-      this.letter = letter;
-      this.number = number;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-      final var prime = 31;
-      var result = 1;
-      result = prime * result + letter;
-      // See Long.hashCode() for where this comes from...
-      result = prime * result + (int) (number ^ (number >>> 32));
-      return result;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) return true;
-      final IdKey other = (IdKey) obj;
-      if (letter != other.letter) return false;
-      if (number != other.number) return false;
-      return true;
-    }
   }
 }
