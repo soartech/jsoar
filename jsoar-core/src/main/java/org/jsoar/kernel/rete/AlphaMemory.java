@@ -66,9 +66,9 @@ public class AlphaMemory extends HashTableItem {
 
   /** rete.cpp:1372:alpha_hash_value */
   static int alpha_hash_value(SymbolImpl i, SymbolImpl a, SymbolImpl v, int num_bits) {
-    return ((((i != null) ? (i).hash_id : 0)
-            ^ ((a != null) ? (a).hash_id : 0)
-            ^ ((v != null) ? (v).hash_id : 0))
+    return ((((i != null) ? (i).getHash() : 0)
+            ^ ((a != null) ? (a).getHash() : 0)
+            ^ ((v != null) ? (v).getHash() : 0))
         & HashTable.masks_for_n_low_order_bits[num_bits]);
   }
 

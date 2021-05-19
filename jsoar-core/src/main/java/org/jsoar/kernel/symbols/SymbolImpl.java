@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import lombok.Getter;
 import org.jsoar.kernel.Decider.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -27,7 +28,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol {
   final SymbolFactory factory;
   public DeciderFlag decider_flag;
   public WmeImpl decider_wme;
-  public final int hash_id;
+
+  @Getter private final int hash;
+
   private RhsSymbolValue rhsValue;
 
   public /*smem_hash_id*/ long smem_hash;
@@ -36,9 +39,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol {
   public /*epmem_hash_id*/ long epmem_hash_id;
   public /*uint64_t*/ long epmem_valid;
 
-  /*package*/ SymbolImpl(SymbolFactory factory, int hash_id) {
+  SymbolImpl(SymbolFactory factory, int hash) {
     this.factory = factory;
-    this.hash_id = hash_id;
+    this.hash = hash;
   }
 
   public RhsSymbolValue toRhsValue() {

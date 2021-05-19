@@ -78,7 +78,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @return a list of all known symbols.
    */
   public List<Symbol> getAllSymbols() {
-    final List<Symbol> result = new ArrayList<Symbol>();
+    final List<Symbol> result = new ArrayList<>();
     result.addAll(identifiers.values());
     result.addAll(symConstants.values());
     result.addAll(intConstants.values());
@@ -98,17 +98,17 @@ public class SymbolFactoryImpl implements SymbolFactory {
   @SuppressWarnings("unchecked")
   public <T extends Symbol> List<T> getSymbols(Class<T> klass) {
     if (klass.isAssignableFrom(StringSymbolImpl.class)) {
-      return new ArrayList<T>((Collection<? extends T>) symConstants.values());
+      return new ArrayList<>((Collection<? extends T>) symConstants.values());
     } else if (klass.isAssignableFrom(IntegerSymbolImpl.class)) {
-      return new ArrayList<T>((Collection<? extends T>) intConstants.values());
+      return new ArrayList<>((Collection<? extends T>) intConstants.values());
     } else if (klass.isAssignableFrom(DoubleSymbol.class)) {
-      return new ArrayList<T>((Collection<? extends T>) floatConstants.values());
+      return new ArrayList<>((Collection<? extends T>) floatConstants.values());
     } else if (klass.isAssignableFrom(IdentifierImpl.class)) {
-      return new ArrayList<T>((Collection<? extends T>) identifiers.values());
+      return new ArrayList<>((Collection<? extends T>) identifiers.values());
     } else if (klass.isAssignableFrom(Variable.class)) {
-      return new ArrayList<T>((Collection<? extends T>) variables.values());
+      return new ArrayList<>((Collection<? extends T>) variables.values());
     } else if (klass.isAssignableFrom(JavaSymbolImpl.class)) {
-      List<T> result = new ArrayList<T>((Collection<? extends T>) javaSyms.values());
+      List<T> result = new ArrayList<>((Collection<? extends T>) javaSyms.values());
       result.add((T) nullJavaSym);
       return result;
     } else {
@@ -134,7 +134,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
       }
     }
 
-    for (int i = 0; i < id_counter.length; ++i) {
+    for (var i = 0; i < id_counter.length; ++i) {
       id_counter[i] = 1;
     }
 
@@ -203,7 +203,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @return a new variable
    */
   public Variable make_variable(String name) {
-    Variable v = find_variable(name);
+    var v = find_variable(name);
     if (v == null) {
       v = new Variable(this, get_next_hash_id(), name);
       variables.put(v.name, v);
@@ -250,7 +250,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
     name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
     long name_number = id_counter[name_letter - 'A']++;
 
-    IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
+    var id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
 
     id.level = level;
     id.promotion_level = level;
@@ -275,7 +275,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
     if (name_number >= id_counter[name_letter - 'A']) {
       id_counter[name_letter - 'A'] = name_number + 1;
     }
-    IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
+    var id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
 
     id.level = level;
     id.promotion_level = level;
@@ -359,12 +359,8 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @see org.jsoar.kernel.symbols.SymbolFactory#createInteger(long)
    */
   public IntegerSymbolImpl createInteger(long value) {
-    IntegerSymbolImpl sym = findInteger(value);
-    if (sym == null) {
-      sym = new IntegerSymbolImpl(this, get_next_hash_id(), value);
-      intConstants.put(value, sym);
-    }
-    return sym;
+    return intConstants.computeIfAbsent(
+        value, k -> new IntegerSymbolImpl(this, get_next_hash_id(), value));
   }
 
   /* (non-Javadoc)
@@ -456,8 +452,8 @@ public class SymbolFactoryImpl implements SymbolFactory {
      */
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + letter;
       // See Long.hashCode() for where this comes from...
       result = prime * result + (int) (number ^ (number >>> 32));

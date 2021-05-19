@@ -15,7 +15,6 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.symbols.VariableGenerator;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -98,7 +97,7 @@ public class ConditionReorderer {
     if (roots.isEmpty()) {
 
       for (Condition cond = lhs_top.value; cond != null; cond = cond.next) {
-        PositiveCondition pc = cond.asPositiveCondition();
+        var pc = cond.asPositiveCondition();
         if (pc != null && (Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, false))) {
           pc.id_test.addBoundVariables(tc, roots);
           if (!roots.isEmpty()) {
@@ -109,7 +108,7 @@ public class ConditionReorderer {
     }
 
     if (roots.isEmpty()) {
-      final String message =
+      final var message =
           String.format("Error: in production %s,\n" + " The LHS has no roots.\n", prodName);
       trace.getPrinter().print(message);
       throw new ReordererException(message);
@@ -153,7 +152,7 @@ public class ConditionReorderer {
     final ListHead<Variable> new_vars = ListHead.newInstance();
     for (Condition cond = conds_list; cond != null; cond = cond.next) {
       if (cond.asPositiveCondition() != null) {
-        PositiveCondition pc = cond.asPositiveCondition();
+        var pc = cond.asPositiveCondition();
 
         ByRef<Test> id_test = ByRef.create(pc.id_test);
         tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore, false);
@@ -177,7 +176,7 @@ public class ConditionReorderer {
       }
     }
     if (tests_to_restore != null) {
-      final Printer p = trace.getPrinter();
+      final var p = trace.getPrinter();
       if (p.isPrintWarnings()) {
         p.warn(
             "\nWarning: in production %s,\n ignoring test(s) whose referent is unbound:\n",
@@ -199,7 +198,7 @@ public class ConditionReorderer {
     SavedTest st = tests_to_restore;
     while (st != null) {
       next_st = st.next;
-      boolean added_it = false;
+      var added_it = false;
 
       if ((is_id_field
               && (st.the_test.asGoalIdTest() != null || st.the_test.asImpasseIdTest() != null))
@@ -209,7 +208,7 @@ public class ConditionReorderer {
           added_it = true;
         }
       }
-      RelationalTest rt = st.the_test.asRelationalTest();
+      var rt = st.the_test.asRelationalTest();
       if (rt != null) // relational test other than equality
       {
         SymbolImpl referent = rt.referent;
@@ -251,7 +250,7 @@ public class ConditionReorderer {
   /** reorder.cpp:53 */
   private static boolean symbol_is_constant_or_marked_variable(
       SymbolImpl referent, Marker bound_vars_tc_number) {
-    Variable var = referent.asVariable();
+    var var = referent.asVariable();
     return var == null || var.tc_number == bound_vars_tc_number;
   }
 
@@ -280,8 +279,8 @@ public class ConditionReorderer {
     while (remaining_conds != null) {
       /* --- find min-cost set --- */
       Condition min_cost_conds = null;
-      int min_cost = 0;
-      int cost = 0;
+      var min_cost = 0;
+      var cost = 0;
       for (Condition cond = remaining_conds; cond != null; cond = cond.next) {
         cost = cost_of_adding_condition(cond, bound_vars_tc_number, roots);
         if (min_cost_conds == null || cost < min_cost) {
@@ -376,7 +375,7 @@ public class ConditionReorderer {
       last_cond = Condition.insertAtEnd(last_cond, chosen);
 
       // if a conjunctive negation, recursively reorder its conditions
-      ConjunctiveNegationCondition ncc = chosen.asConjunctiveNegationCondition();
+      var ncc = chosen.asConjunctiveNegationCondition();
       if (ncc != null && reorder_nccs) {
         final ListHead<Variable> ncc_roots =
             Conditions.collect_root_variables(
@@ -393,7 +392,7 @@ public class ConditionReorderer {
 
       // if all roots are bound, set roots=NIL: don't need 'em anymore
       if (!roots.isEmpty()) {
-        boolean allBound = true;
+        var allBound = true;
         for (ListItem<Variable> v = roots.first; v != null; v = v.next) {
           if (v.item.tc_number != bound_vars_tc_number) {
             allBound = false;
@@ -414,17 +413,17 @@ public class ConditionReorderer {
 
   /** production.cpp:503:canonical_test */
   private int canonical_test(Test t) {
-    final int NON_EQUAL_TEST_RETURN_VAL = 0; /* some unusual number */
+    final var NON_EQUAL_TEST_RETURN_VAL = 0; /* some unusual number */
 
     if (Tests.isBlank(t)) {
       return NON_EQUAL_TEST_RETURN_VAL;
     }
 
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       SymbolImpl sym = eq.getReferent();
       if (sym.asString() != null || sym.asInteger() != null || sym.asDouble() != null) {
-        return sym.hash_id;
+        return sym.getHash();
       }
       return NON_EQUAL_TEST_RETURN_VAL;
     }
@@ -493,7 +492,7 @@ public class ConditionReorderer {
     int result;
 
     /* --- handle the common simple case quickly up front --- */
-    final PositiveCondition pc = cond.asPositiveCondition();
+    final var pc = cond.asPositiveCondition();
     if (root_vars_not_bound_yet.isEmpty()
         && pc != null
         && !Tests.isBlank(pc.id_test)
@@ -565,7 +564,7 @@ public class ConditionReorderer {
       return false;
     }
 
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       SymbolImpl referent = eq.getReferent();
       if (symbol_is_constant_or_marked_variable(referent, tc)) {
@@ -574,7 +573,7 @@ public class ConditionReorderer {
       return extra_vars.contains(referent);
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test child : ct.conjunct_list) {
         if (test_covered_by_bound_vars(child, tc, extra_vars)) {
@@ -590,7 +589,7 @@ public class ConditionReorderer {
     SavedTest sts = null;
     for (Condition c = conds_list; c != null; c = c.next) {
       if (c.asPositiveCondition() != null) {
-        PositiveCondition pc = c.asPositiveCondition();
+        var pc = c.asPositiveCondition();
 
         ByRef<Test> id_test = ByRef.create(pc.id_test);
         sts = simplify_test(id_test, sts);
@@ -620,12 +619,12 @@ public class ConditionReorderer {
       return old_sts;
     }
 
-    ConjunctiveTest ct = t.value.asConjunctiveTest();
+    var ct = t.value.asConjunctiveTest();
     if (ct != null) {
       // look at subtests for an equality test
       SymbolImpl sym = null;
       for (Test subtest : ct.conjunct_list) {
-        final EqualityTest eq = subtest.asEqualityTest();
+        final var eq = subtest.asEqualityTest();
         if (eq != null) {
           sym = eq.getReferent();
         }
@@ -633,16 +632,16 @@ public class ConditionReorderer {
       // if no equality test was found, generate a variable for it
       if (sym == null) {
         sym = vars.generate_new_variable("dummy-");
-        EqualityTest newTest = SymbolImpl.makeEqualityTest(sym);
+        var newTest = SymbolImpl.makeEqualityTest(sym);
         ct.conjunct_list.add(0, newTest); // push(newTest);
       }
       // scan through, create saved_test for subtests except equality
       final Iterator<Test> it = ct.conjunct_list.iterator();
       while (it.hasNext()) {
-        final Test subtest = it.next();
+        final var subtest = it.next();
         if (subtest.asEqualityTest() == null) {
           // create saved_test, splice this cons out of conjunct_list
-          final SavedTest saved = new SavedTest(old_sts, sym, subtest.asComplexTest());
+          final var saved = new SavedTest(old_sts, sym, subtest.asComplexTest());
 
           old_sts = saved;
 
@@ -651,9 +650,9 @@ public class ConditionReorderer {
       }
     } else {
       // goal/impasse, disjunction, and non-equality relational tests
-      final Variable var = vars.generate_new_variable("dummy-");
-      final EqualityTest New = SymbolImpl.makeEqualityTest(var);
-      final SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
+      final var var = vars.generate_new_variable("dummy-");
+      final var New = SymbolImpl.makeEqualityTest(var);
+      final var saved = new SavedTest(old_sts, var, t.value.asComplexTest());
 
       old_sts = saved;
       t.value = New;
@@ -670,11 +669,11 @@ public class ConditionReorderer {
   private void remove_vars_requiring_bindings(Condition cond_list) {
     // scan through negated and NC cond's, remove lists from them
     for (Condition c = cond_list; c != null; c = c.next) {
-      final PositiveCondition pc = c.asPositiveCondition();
+      final var pc = c.asPositiveCondition();
       if (pc == null) {
         reorder_vars_requiring_bindings.get(c).clear();
       }
-      final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+      final var ncc = c.asConjunctiveNegationCondition();
       if (ncc != null) {
         remove_vars_requiring_bindings(ncc.top);
       }
@@ -694,7 +693,7 @@ public class ConditionReorderer {
     ByRef<Boolean> b = ByRef.create(false);
 
     for (Condition cond = lhs_top.value; cond != null; cond = cond.next) {
-      PositiveCondition pc = cond.asPositiveCondition();
+      var pc = cond.asPositiveCondition();
       if (pc != null
           && pc.id_test.asComplexTest() != null
           && Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)
@@ -714,7 +713,7 @@ public class ConditionReorderer {
     // add anything bound in a positive condition at this level
     ListHead<Variable> new_bound_vars = ListHead.newInstance();
     for (Condition c = cond_list; c != null; c = c.next) {
-      PositiveCondition pc = c.asPositiveCondition();
+      var pc = c.asPositiveCondition();
       if (pc != null) {
         pc.addBoundVariables(tc, new_bound_vars);
       }
@@ -722,12 +721,12 @@ public class ConditionReorderer {
 
     // scan through negated and NC cond's, fill in stuff
     for (Condition c = cond_list; c != null; c = c.next) {
-      PositiveCondition pc = c.asPositiveCondition();
+      var pc = c.asPositiveCondition();
       if (pc == null) {
         reorder_vars_requiring_bindings.put(
             c, collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>()));
       }
-      ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+      var ncc = c.asConjunctiveNegationCondition();
       if (ncc != null) {
         fill_in_vars_requiring_bindings(ncc.top, tc);
       }
@@ -748,14 +747,14 @@ public class ConditionReorderer {
   private LinkedList<Variable> collect_vars_tested_by_cond_that_are_bound(
       Condition cond, Marker tc, @NonNull LinkedList<Variable> starting_list) {
 
-    ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+    var ncc = cond.asConjunctiveNegationCondition();
     if (ncc != null) {
       for (Condition c = ncc.top; c != null; c = c.next) {
         collect_vars_tested_by_cond_that_are_bound(c, tc, starting_list);
       }
     }
     // Positive and Negative conditions
-    ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+    var tfc = cond.asThreeFieldCondition();
     if (tfc != null) {
       collect_vars_tested_by_test_that_are_bound(tfc.id_test, tc, starting_list);
       collect_vars_tested_by_test_that_are_bound(tfc.attr_test, tc, starting_list);
@@ -781,25 +780,25 @@ public class ConditionReorderer {
       return;
     }
 
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
-      Variable referent = eq.getReferent().asVariable();
+      var referent = eq.getReferent().asVariable();
       if (referent != null && referent.tc_number == tc && !starting_list.contains(referent)) {
         starting_list.push(referent);
       }
       return;
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
         collect_vars_tested_by_test_that_are_bound(c, tc, starting_list);
       }
       return;
     }
-    RelationalTest rt = t.asRelationalTest();
+    var rt = t.asRelationalTest();
     if (rt != null) {
-      Variable referent = rt.referent.asVariable();
+      var referent = rt.referent.asVariable();
       if (referent != null && referent.tc_number == tc && !starting_list.contains(referent)) {
         starting_list.add(referent);
       }
@@ -845,11 +844,11 @@ public class ConditionReorderer {
     /* --- add anything bound in a positive condition at this level --- */
     /* --- recurse in to NCCs --- */
     for (Condition c = cond_list; c != null; c = c.next) {
-      PositiveCondition pc = c.asPositiveCondition();
+      var pc = c.asPositiveCondition();
       if (pc != null) {
         PositiveCondition.addBoundVariables(c, tc, bound_vars);
       } else {
-        ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+        var ncc = c.asConjunctiveNegationCondition();
         if (ncc != null) {
           check_negative_relational_test_bindings(ncc.top, tc);
         }
@@ -858,7 +857,7 @@ public class ConditionReorderer {
 
     /* --- find referents of non-equality tests in conjunctive tests in negated conditions ---*/
     for (Condition c = cond_list; c != null; c = c.next) {
-      NegativeCondition nc = c.asNegativeCondition();
+      var nc = c.asNegativeCondition();
       if (nc != null) {
         check_unbound_negative_relational_test_referents(nc.id_test, tc);
         check_unbound_negative_relational_test_referents(nc.attr_test, tc);
@@ -883,12 +882,12 @@ public class ConditionReorderer {
     if (Tests.isBlank(t)) {
       return;
     }
-    final EqualityTest eq = t.asEqualityTest();
+    final var eq = t.asEqualityTest();
     if (eq != null) {
       return;
     }
 
-    final ConjunctiveTest ct = t.asConjunctiveTest();
+    final var ct = t.asConjunctiveTest();
     if (ct != null) {
       // we do need to loop over conjunctive tests, however
       for (Test subtest : ct.conjunct_list) {
@@ -896,12 +895,12 @@ public class ConditionReorderer {
       }
     }
 
-    final RelationalTest rt = t.asRelationalTest();
+    final var rt = t.asRelationalTest();
     if (rt != null) {
       /* --- relational tests other than equality --- */
-      Variable referent = rt.referent.asVariable();
+      var referent = rt.referent.asVariable();
       if (referent != null && referent.tc_number != tc) {
-        String message =
+        var message =
             String.format(
                 "Error: production %s has an unbound referent in negated relational test %s",
                 this.prodName, t);

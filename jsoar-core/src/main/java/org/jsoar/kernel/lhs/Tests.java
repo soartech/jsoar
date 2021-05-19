@@ -38,12 +38,12 @@ public class Tests {
       throw new IllegalStateException("Internal error: can't find equality test in blank test");
     }
 
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       return (EqualityTest) eq.copy();
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test child : ct.conjunct_list) {
         if (!Tests.isBlank(child) && child.asEqualityTest() != null) {
@@ -75,7 +75,7 @@ public class Tests {
     }
 
     // if *t isn't already a conjunctive test, make it into one
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct == null) {
       ct = new ConjunctiveTest();
       ct.conjunct_list.add(0, t); // .push(t);
@@ -91,13 +91,13 @@ public class Tests {
     if (Tests.isBlank(test)) {
       return false;
     }
-    EqualityTest eq = test.asEqualityTest();
+    var eq = test.asEqualityTest();
     if (eq != null) {
       if (sym != null) return eq.getReferent() == sym;
       return true;
     }
 
-    ConjunctiveTest ct = test.asConjunctiveTest();
+    var ct = test.asConjunctiveTest();
     if (ct != null) {
       for (Test child : ct.conjunct_list) {
         if (test_includes_equality_test_for_symbol(child, sym)) {
@@ -120,13 +120,10 @@ public class Tests {
     if (look_for_impasse && t.asImpasseIdTest() != null) {
       return true;
     }
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
-        if (test_includes_goal_or_impasse_id_test(c, look_for_goal, look_for_impasse)) {
-          return true;
-        }
-        return false;
+        return test_includes_goal_or_impasse_id_test(c, look_for_goal, look_for_impasse);
       }
     }
     return false;
@@ -144,13 +141,13 @@ public class Tests {
       return false;
     }
 
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
-      Variable referent = eq.getReferent().asVariable();
+      var referent = eq.getReferent().asVariable();
       return referent != null && roots.contains(referent);
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
         if (test_tests_for_root(c, roots)) {
@@ -160,9 +157,9 @@ public class Tests {
       return false;
     }
 
-    RelationalTest rt = t.asRelationalTest();
+    var rt = t.asRelationalTest();
     if (rt != null) {
-      Variable referent = rt.referent.asVariable();
+      var referent = rt.referent.asVariable();
       return referent != null && roots.contains(referent);
     }
 
@@ -196,17 +193,17 @@ public class Tests {
       removed_impasse.value = true;
       return null; // blank test
     }
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       Test new_t = null;
       for (Test c : ct.conjunct_list) {
-        Test temp = copy_test_removing_goal_impasse_tests(c, removed_goal, removed_impasse);
+        var temp = copy_test_removing_goal_impasse_tests(c, removed_goal, removed_impasse);
         if (!Tests.isBlank(temp)) {
           new_t = add_new_test_to_test(new_t, temp);
         }
       }
       // TODO I don't think reverse is correct here.
-      ConjunctiveTest newct = new_t.asConjunctiveTest();
+      var newct = new_t.asConjunctiveTest();
       if (newct != null) {
         Collections.reverse(newct.conjunct_list);
       }
@@ -220,7 +217,7 @@ public class Tests {
     if (Tests.isBlank(t)) {
       return '*';
     }
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       return eq.getReferent().getFirstLetter();
     }
@@ -231,7 +228,7 @@ public class Tests {
     if (t.asImpasseIdTest() != null) {
       return 'i';
     }
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test child : ct.conjunct_list) {
         char ch = first_letter_from_test(child);
@@ -261,7 +258,7 @@ public class Tests {
       return t;
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test child : ct.conjunct_list) {
         if (tests_are_equal(child, add_me, neg)) {
@@ -293,9 +290,9 @@ public class Tests {
     if (Tests.isBlank(t)) {
       return;
     }
-    final EqualityTest eq = t.asEqualityTest();
+    final var eq = t.asEqualityTest();
     if (eq != null) {
-      Variable referent = eq.getReferent().asVariable();
+      var referent = eq.getReferent().asVariable();
       if (referent == null) // not a variable
       {
         return;
@@ -308,7 +305,7 @@ public class Tests {
       return;
     }
 
-    final ConjunctiveTest ct = t.asConjunctiveTest();
+    final var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
         bind_variables_in_test(c, depth, field_num, dense, varlist);
@@ -332,12 +329,12 @@ public class Tests {
       return false;
     }
 
-    EqualityTest eq1 = t1.asEqualityTest();
+    var eq1 = t1.asEqualityTest();
     if (eq1 != null) {
       if (neg) {
         // ignore variables in negation tests, bug 510
         if (eq1.getReferent().asVariable() != null) {
-          EqualityTest eq2 = t2.asEqualityTest();
+          var eq2 = t2.asEqualityTest();
           if (eq2 != null && eq2.getReferent().asVariable() != null) {
             return true;
           }
@@ -349,12 +346,12 @@ public class Tests {
     if (t1.asGoalIdTest() != null || t1.asImpasseIdTest() != null) {
       return true;
     }
-    DisjunctionTest dt = t1.asDisjunctionTest();
+    var dt = t1.asDisjunctionTest();
     if (dt != null) {
       return dt.disjunction_list.equals(t2.asDisjunctionTest().disjunction_list);
     }
 
-    ConjunctiveTest ct = t1.asConjunctiveTest();
+    var ct = t1.asConjunctiveTest();
     if (ct != null) {
       List<Test> c1 = ct.conjunct_list;
       List<Test> c2 = t2.asConjunctiveTest().conjunct_list;
@@ -364,15 +361,15 @@ public class Tests {
       // ignore order of test members in conjunctions, bug 510
       // TODO: consider reorder before comparing
       final List<Test> copy2 = Lists.newLinkedList(c2);
-      for (int i = 0; i < c1.size(); ++i) {
-        for (int j = 0; j < copy2.size(); ++j) {
+      for (var i = 0; i < c1.size(); ++i) {
+        for (var j = 0; j < copy2.size(); ++j) {
           if (tests_are_equal(c1.get(i), copy2.get(j), neg)) {
             copy2.remove(j);
             break;
           }
         }
       }
-      return copy2.size() == 0;
+      return copy2.isEmpty();
     }
 
     return t1.asRelationalTest().referent == t2.asRelationalTest().referent;
@@ -391,13 +388,13 @@ public class Tests {
   static void add_test_to_tc(
       Test t, Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list) {
     if (Tests.isBlank(t)) return;
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       eq.getReferent().add_symbol_to_tc(tc, id_list, var_list);
       return;
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) add_test_to_tc(c, tc, id_list, var_list);
     }
@@ -412,12 +409,12 @@ public class Tests {
    */
   static boolean test_is_in_tc(Test t, Marker tc) {
     if (Tests.isBlank(t)) return false;
-    EqualityTest eq = t.asEqualityTest();
+    var eq = t.asEqualityTest();
     if (eq != null) {
       return eq.getReferent().symbol_is_in_tc(tc);
     }
 
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) if (test_is_in_tc(c, tc)) return true;
       return false;
@@ -438,8 +435,8 @@ public class Tests {
   public static int hash_test(Test t) {
     if (Tests.isBlank(t)) return 0;
 
-    EqualityTest eq = t.asEqualityTest();
-    if (eq != null) return eq.getReferent().hash_id;
+    var eq = t.asEqualityTest();
+    if (eq != null) return eq.getReferent().getHash();
 
     if (t.asGoalIdTest() != null) {
       return 34894895; /* just use some unusual number */
@@ -447,23 +444,23 @@ public class Tests {
     if (t.asImpasseIdTest() != null) {
       return 2089521;
     }
-    DisjunctionTest dt = t.asDisjunctionTest();
+    var dt = t.asDisjunctionTest();
     if (dt != null) {
-      int result = 7245;
-      for (SymbolImpl c : dt.disjunction_list) result = result + c.hash_id;
+      var result = 7245;
+      for (SymbolImpl c : dt.disjunction_list) result = result + c.getHash();
       return result;
     }
-    ConjunctiveTest ct = t.asConjunctiveTest();
+    var ct = t.asConjunctiveTest();
     if (ct != null) {
-      int result = 100276;
+      var result = 100276;
       // bug 510: conjunctive tests' order needs to be ignored
       // for (Test c : ct.conjunct_list)
       //    result = result + hash_test(c);
       return result;
     }
-    RelationalTest rt = t.asRelationalTest();
+    var rt = t.asRelationalTest();
     if (rt != null) {
-      return (rt.type << 24) + rt.referent.hash_id;
+      return (rt.type << 24) + rt.referent.getHash();
     }
     throw new IllegalStateException("Error: bad test type in hash_test: " + t);
   }

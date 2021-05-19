@@ -19,9 +19,7 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ChunkStop;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
-import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
-import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.GoalIdTest;
 import org.jsoar.kernel.lhs.ImpasseIdTest;
 import org.jsoar.kernel.lhs.NegativeCondition;
@@ -35,8 +33,6 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.PartialMatches.Entry;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.rhs.FunctionAction;
-import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.smem.MockSmem;
 import org.jsoar.kernel.smem.SemanticMemory;
@@ -119,7 +115,7 @@ public class Rete {
 
     // rete.cpp:8864
     alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
-    for (int i = 0; i < 16; ++i) {
+    for (var i = 0; i < 16; ++i) {
       alpha_hash_tables.add(
           new HashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION, AlphaMemory.class));
     }
@@ -229,7 +225,7 @@ public class Rete {
    */
   public ProductionAddResult add_production_to_rete(
       Production p, Instantiation refracted_inst, boolean warn_on_duplicates, boolean ignore_rhs) {
-    final Condition lhs_top = p.getFirstCondition();
+    final var lhs_top = p.getFirstCondition();
     ProductionAddResult production_addition_result;
 
     final ByRef<ReteNode> bottom_node = ByRef.create(null);
@@ -244,8 +240,8 @@ public class Rete {
 
     final List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
     final Marker rhs_unbound_vars_tc = DefaultMarker.create();
-    for (Action a = p.getFirstAction(); a != null; a = a.next) {
-      MakeAction ma = a.asMakeAction();
+    for (var a = p.getFirstAction(); a != null; a = a.next) {
+      var ma = a.asMakeAction();
       if (ma != null) {
         ma.value =
             ReteBuilder.fixup_rhs_value_variable_references(
@@ -281,7 +277,7 @@ public class Rete {
                   rhs_unbound_vars_tc);
         }
       } else {
-        FunctionAction fa = a.asFunctionAction();
+        var fa = a.asFunctionAction();
         RhsValue result =
             ReteBuilder.fixup_rhs_value_variable_references(
                 this,
@@ -335,7 +331,7 @@ public class Rete {
     }
 
     /* --- build a new p node --- */
-    ReteNode p_node = ReteNode.make_new_production_node(this, bottom_node.value, p);
+    var p_node = ReteNode.make_new_production_node(this, bottom_node.value, p);
     // adjust_sharing_factors_from_here_to_top (p_node, 1);
 
     /*
@@ -420,7 +416,7 @@ public class Rete {
     // remove_production_from_stat_lists(prod_to_be_excised);
     // #endif
 
-    ReteNode p_node = p.getReteNode();
+    var p_node = p.getReteNode();
     p.setReteNode(null, null); // mark production as not being in the rete anymore
     ReteNode parent = p_node.parent;
 
@@ -483,9 +479,9 @@ public class Rete {
     w.tokens = null;
 
     /* --- add w to the appropriate alpha_mem in each of 8 possible tables --- */
-    int hi = w.id.hash_id;
-    int ha = w.attr.hash_id;
-    int hv = w.value.hash_id;
+    int hi = w.id.getHash();
+    int ha = w.attr.getHash();
+    int hv = w.value.getHash();
 
     if (w.acceptable) {
       add_wme_to_aht(alpha_hash_tables.get(8), xor_op(0, 0, 0), w);
@@ -595,7 +591,7 @@ public class Rete {
       if (tok.parent == null) {
         /* Note: parent pointer is NIL only on negative node negrm tokens */
         RightToken rt = (RightToken) tok;
-        LeftToken left = rt.getLeftToken();
+        var left = rt.getLeftToken();
         tok.removeFromWme();
         left.removeNegRightToken(rt);
 
@@ -626,10 +622,10 @@ public class Rete {
    */
   void add_wme_to_alpha_mem(WmeImpl w, AlphaMemory am) {
     /* --- allocate new right_mem, fill it fields --- */
-    final RightMemory rm = new RightMemory(w, am);
+    final var rm = new RightMemory(w, am);
 
     /* --- add it to dll's for the hash bucket, alpha mem, and wme --- */
-    final int hv = am.am_id ^ w.id.hash_id;
+    final int hv = am.am_id ^ w.id.getHash();
     right_ht.insertAtHeadOfBucket(hv, rm);
     am.insertRightMemoryAtHead(rm);
     w.addRightMemory(rm);
@@ -647,7 +643,7 @@ public class Rete {
     final AlphaMemory am = rm.am;
 
     /* --- remove it from dll's for the hash bucket, alpha mem, and wme --- */
-    final int hv = am.am_id ^ w.id.hash_id;
+    final int hv = am.am_id ^ w.id.getHash();
     right_ht.removeFromBucket(hv, rm);
     am.removeRightMemory(rm);
     w.removeRightMemory(rm);
@@ -894,8 +890,7 @@ public class Rete {
    * @param first_letter
    */
   private Test add_gensymmed_equality_test(Test t, char first_letter) {
-    Variable New =
-        syms.getVariableGenerator().generate_new_variable(Character.toString(first_letter));
+    var New = syms.getVariableGenerator().generate_new_variable(Character.toString(first_letter));
     Test eq_test = SymbolImpl.makeEqualityTest(New);
     return Tests.add_new_test_to_test(t, eq_test);
   }
@@ -921,7 +916,7 @@ public class Rete {
       cond = cond.prev;
     }
 
-    final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+    final var tfc = cond.asThreeFieldCondition();
     if (tfc == null) {
       throw new IllegalStateException("Expected ThreeFieldCondition, got " + cond);
     }
@@ -940,15 +935,15 @@ public class Rete {
       throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
     }
 
-    final EqualityTest eq = t.asEqualityTest();
+    final var eq = t.asEqualityTest();
     if (eq != null) {
       return eq.getReferent();
     }
 
-    final ConjunctiveTest ct = t.asConjunctiveTest();
+    final var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (Test c : ct.conjunct_list) {
-        EqualityTest eq2 = c.asEqualityTest();
+        var eq2 = c.asEqualityTest();
         if (!Tests.isBlank(c) && eq2 != null) {
           return eq2.getReferent();
         }
@@ -1059,10 +1054,10 @@ public class Rete {
       }
     }
 
-    final int hv = node.node_id ^ referent.hash_id;
+    final int hv = node.node_id ^ referent.getHash();
 
     // build new left token, add it to the hash table
-    final LeftToken New = new LeftToken(node, tok, w, referent);
+    final var New = new LeftToken(node, tok, w, referent);
     left_ht.insert_token_into_left_ht(New, hv);
 
     // inform each linked child (positive join) node
@@ -1086,7 +1081,7 @@ public class Rete {
     final int hv = node.node_id;
 
     // build new left token, add it to the hash table
-    final LeftToken New = new LeftToken(node, tok, w, null);
+    final var New = new LeftToken(node, tok, w, null);
     left_ht.insert_token_into_left_ht(New, hv);
 
     // inform each linked child (positive join) node
@@ -1118,14 +1113,14 @@ public class Rete {
     }
 
     // look through right memory for matches
-    final int right_hv = am.am_id ^ hash_referent.hash_id;
+    final int right_hv = am.am_id ^ hash_referent.getHash();
     for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket) {
       if (rm.am != am) continue;
       /* --- does rm->w match New? --- */
       if (hash_referent != rm.w.id) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1161,7 +1156,7 @@ public class Rete {
     // look through right memory for matches
     for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am) {
       /* --- does rm->w match new? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1202,10 +1197,10 @@ public class Rete {
       }
     }
 
-    final int hv = node.node_id ^ referent.hash_id;
+    final int hv = node.node_id ^ referent.getHash();
 
     /* --- build new left token, add it to the hash table --- */
-    final LeftToken New = new LeftToken(node, tok, w, referent);
+    final var New = new LeftToken(node, tok, w, referent);
     left_ht.insert_token_into_left_ht(New, hv);
 
     if (node.mp_bnode_is_left_unlinked()) {
@@ -1223,7 +1218,7 @@ public class Rete {
     }
 
     /* --- look through right memory for matches --- */
-    final int right_hv = am.am_id ^ referent.hash_id;
+    final int right_hv = am.am_id ^ referent.getHash();
     for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket) {
       if (rm.am != am) {
         continue;
@@ -1232,7 +1227,7 @@ public class Rete {
       if (referent != rm.w.id) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1259,7 +1254,7 @@ public class Rete {
     int hv = node.node_id;
 
     /* --- build new left token, add it to the hash table --- */
-    LeftToken New = new LeftToken(node, tok, w, null);
+    var New = new LeftToken(node, tok, w, null);
     left_ht.insert_token_into_left_ht(New, hv);
 
     if (node.mp_bnode_is_left_unlinked()) {
@@ -1277,7 +1272,7 @@ public class Rete {
     /* --- look through right memory for matches --- */
     for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am) {
       /* --- does rm->w match new? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1311,7 +1306,7 @@ public class Rete {
     }
 
     final SymbolImpl referent = w.id;
-    final int hv = node.parent.node_id ^ referent.hash_id;
+    final int hv = node.parent.node_id ^ referent.getHash();
 
     for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket) {
       if (tok.node != node.parent) {
@@ -1321,7 +1316,7 @@ public class Rete {
       if (tok.referent != referent) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1359,7 +1354,7 @@ public class Rete {
         continue;
       }
       /* --- does tok match w? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1393,7 +1388,7 @@ public class Rete {
     }
 
     final SymbolImpl referent = w.id;
-    final int hv = node.node_id ^ referent.hash_id;
+    final int hv = node.node_id ^ referent.getHash();
 
     for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket) {
       if (tok.node != node) {
@@ -1403,7 +1398,7 @@ public class Rete {
       if (tok.referent != referent) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1443,7 +1438,7 @@ public class Rete {
         continue;
       }
       /* --- does tok match w? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1488,15 +1483,15 @@ public class Rete {
       }
     }
 
-    int hv = node.node_id ^ referent.hash_id;
+    int hv = node.node_id ^ referent.getHash();
 
     /* --- build new token, add it to the hash table --- */
-    LeftToken New = new LeftToken(node, tok, w, referent);
+    var New = new LeftToken(node, tok, w, referent);
     left_ht.insert_token_into_left_ht(New, hv);
 
     /* --- look through right memory for matches --- */
     AlphaMemory am = node.b_posneg().alpha_mem_;
-    int right_hv = am.am_id ^ referent.hash_id;
+    int right_hv = am.am_id ^ referent.getHash();
     for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket) {
       if (rm.am != am) {
         continue;
@@ -1505,7 +1500,7 @@ public class Rete {
       if (referent != rm.w.id) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1542,13 +1537,13 @@ public class Rete {
     int hv = node.node_id;
 
     /* --- build new token, add it to the hash table --- */
-    LeftToken New = new LeftToken(node, tok, w, null);
+    var New = new LeftToken(node, tok, w, null);
     left_ht.insert_token_into_left_ht(New, hv);
 
     /* --- look through right memory for matches --- */
     for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am) {
       /* --- does rm->w match new? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w)) {
           failed_a_test = true;
@@ -1578,7 +1573,7 @@ public class Rete {
    */
   private void negative_node_right_addition(ReteNode node, WmeImpl w) {
     SymbolImpl referent = w.id;
-    int hv = node.node_id ^ referent.hash_id;
+    int hv = node.node_id ^ referent.getHash();
 
     for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket) {
       if (tok.node != node) {
@@ -1588,7 +1583,7 @@ public class Rete {
       if (tok.referent != referent) {
         continue;
       }
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1621,7 +1616,7 @@ public class Rete {
         continue;
       }
       /* --- does tok match w? --- */
-      boolean failed_a_test = false;
+      var failed_a_test = false;
       for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
         if (!ReteTestRoutines.match_left_and_right(rt, tok, w)) {
           failed_a_test = true;
@@ -1658,7 +1653,7 @@ public class Rete {
     }
 
     // build left token, add it to the hash table
-    final LeftToken New = new LeftToken(node, tok, w, null);
+    final var New = new LeftToken(node, tok, w, null);
     left_ht.insert_token_into_left_ht(New, hv);
 
     // pass the new token on to each child node
@@ -1682,7 +1677,7 @@ public class Rete {
     // Can this be created at "negrm_tok.left_token = left;" below so
     // that left_token can be final and list insertion can happen in constructor?
     // Answer: No. I tried this and things didn't work.
-    final RightToken negrm_tok = RightToken.create(node, tok, w, null);
+    final var negrm_tok = RightToken.create(node, tok, w, null);
 
     // advance (tok,w) up to the token from the top of the branch
     ReteNode temp = node.parent;
@@ -1729,7 +1724,7 @@ public class Rete {
   private void p_node_left_addition(ReteNode node, Token tok, WmeImpl w) {
     // build new left token (used only for tree-based remove)
     @SuppressWarnings("unused")
-    LeftToken New = new LeftToken(node, tok, w, null);
+    var New = new LeftToken(node, tok, w, null);
 
     listener.p_node_left_addition(this, node, tok, w);
   }
@@ -1763,7 +1758,7 @@ public class Rete {
       // for merged Mem/Pos nodes
       if ((node_type == ReteNodeType.MP_BNODE) || (node_type == ReteNodeType.UNHASHED_MP_BNODE)) {
         LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
-        int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+        int hv = node.node_id ^ (lt.referent != null ? lt.referent.getHash() : 0);
         left_ht.remove_token_from_left_ht(lt, hv);
         if (!node.mp_bnode_is_left_unlinked()) {
           if (node.a_np().tokens == null) {
@@ -1779,7 +1774,7 @@ public class Rete {
       } else if ((node_type == ReteNodeType.NEGATIVE_BNODE)
           || (node_type == ReteNodeType.UNHASHED_NEGATIVE_BNODE)) {
         LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
-        int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+        int hv = node.node_id ^ (lt.referent != null ? lt.referent.getHash() : 0);
         left_ht.remove_token_from_left_ht(lt, hv);
         if (node.a_np().tokens == null) {
           node.unlink_from_right_mem();
@@ -1792,7 +1787,7 @@ public class Rete {
       } else if ((node_type == ReteNodeType.MEMORY_BNODE)
           || (node_type == ReteNodeType.UNHASHED_MEMORY_BNODE)) {
         LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
-        int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+        int hv = node.node_id ^ (lt.referent != null ? lt.referent.getHash() : 0);
         left_ht.remove_token_from_left_ht(lt, hv);
 
         //      #ifdef DO_ACTIVATION_STATS_ON_REMOVALS
@@ -1831,7 +1826,7 @@ public class Rete {
         /* --- for CN Partner nodes --- */
       } else if (node_type == ReteNodeType.CN_PARTNER_BNODE) {
         RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
-        LeftToken left = rt.getLeftToken();
+        var left = rt.getLeftToken();
         left.removeNegRightToken(rt);
 
         if (!left.hasNegRightTokens()) {
@@ -1868,7 +1863,7 @@ public class Rete {
    */
   public ConditionsAndNots p_node_to_conditions_and_nots(
       ReteNode p_node, Token tok, WmeImpl w, boolean doRhs) {
-    ConditionsAndNots result = new ConditionsAndNots();
+    var result = new ConditionsAndNots();
 
     Production prod = p_node.b_p().prod;
 
@@ -1886,7 +1881,7 @@ public class Rete {
     if (doRhs) {
       this.highest_rhs_unboundvar_index = -1;
       if (!prod.getRhsUnboundVariables().isEmpty()) {
-        int i = 0;
+        var i = 0;
         for (SymbolImpl c : prod.getRhsUnboundVariables()) {
           this.rhs_variable_bindings[i++] = c;
           this.highest_rhs_unboundvar_index++;
@@ -1895,7 +1890,7 @@ public class Rete {
       result.actions =
           Action.copy_action_list_and_substitute_varnames(
               this, prod.getFirstAction(), result.bottom);
-      int index = 0;
+      var index = 0;
       while (index <= highest_rhs_unboundvar_index) rhs_variable_bindings[index++] = null;
     }
 
@@ -2034,7 +2029,7 @@ public class Rete {
         SymbolImpl referent = rt.constant_referent;
         if (referent.asIdentifier() == null) continue;
 
-        NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
+        var new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
         new_not.next = nots_found_in_production;
         nots_found_in_production = new_not;
         continue;
@@ -2046,7 +2041,7 @@ public class Rete {
                 cond, rt.variable_referent.field_num, rt.variable_referent.levels_up);
         if (referent.asIdentifier() == null) continue;
 
-        NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
+        var new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
         new_not.next = nots_found_in_production;
         nots_found_in_production = new_not;
         continue;
@@ -2103,7 +2098,7 @@ public class Rete {
       Token tok,
       WmeImpl w,
       Condition conds_for_cutoff_and_up) {
-    ReteNodeToConditionsResult result = new ReteNodeToConditionsResult();
+    var result = new ReteNodeToConditionsResult();
     // Can't change Condition type on the fly, so this is a little differnt
     // than CSoar...
     Condition cond;
@@ -2145,7 +2140,7 @@ public class Rete {
     result.dest_bottom_cond = cond;
 
     if (node.node_type == ReteNodeType.CN_BNODE) {
-      ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+      var ncc = cond.asConjunctiveNegationCondition();
       ReteNodeToConditionsResult sub =
           rete_node_to_conditions(
               node.b_cn().partner.parent,
@@ -2168,7 +2163,7 @@ public class Rete {
       ncc.top.prev = null;
     } else {
       if (w != null && cond.asPositiveCondition() != null) {
-        final PositiveCondition pc = cond.asPositiveCondition();
+        final var pc = cond.asPositiveCondition();
         // make simple tests and collect nots
         pc.id_test = SymbolImpl.makeEqualityTest(w.id);
         pc.attr_test = SymbolImpl.makeEqualityTest(w.attr);
@@ -2183,7 +2178,7 @@ public class Rete {
       } else {
         // Here (because of w != null in test above), the condition can still be
         // positive or negative, i.e. just a three-field condition
-        final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+        final var tfc = cond.asThreeFieldCondition();
         final AlphaMemory am = node.b_posneg().alpha_mem_;
         tfc.id_test = SymbolImpl.makeEqualityTest(am.id);
         tfc.attr_test = SymbolImpl.makeEqualityTest(am.attr);
@@ -2264,7 +2259,7 @@ public class Rete {
   private void dummy_matches_node_left_addition(ReteNode node, Token tok, WmeImpl w) {
     assert node.node_type == ReteNodeType.DUMMY_MATCHES_BNODE;
     // just add a token record to dummy_matches_node_tokens
-    Token New = Token.createMatchesToken(tok, w);
+    var New = Token.createMatchesToken(tok, w);
     New.next_of_node = dummy_matches_node_tokens;
     this.dummy_matches_node_tokens = New;
   }
@@ -2276,7 +2271,7 @@ public class Rete {
    */
   private Token get_all_left_tokens_emerging_from_node(ReteNode node) {
     this.dummy_matches_node_tokens = null;
-    ReteNode dummy = ReteNode.createMatchesNode(node);
+    var dummy = ReteNode.createMatchesNode(node);
     update_node_with_matches_from_above(dummy);
     Token result = this.dummy_matches_node_tokens;
     this.dummy_matches_node_tokens = null;
@@ -2329,7 +2324,7 @@ public class Rete {
 
     // Form string for current match count: If an earlier cond had no
     // matches, just leave it blank; if this is the first 0, use ">>>>"
-    String match_count_string = "";
+    var match_count_string = "";
     if (matches_one_level_up == 0) {
       match_count_string = "    ";
     } else if (matches_at_this_level == 0) {
@@ -2345,7 +2340,7 @@ public class Rete {
     // print extra indentation spaces
     printer.spaces(indent);
 
-    ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+    var ncc = cond.asConjunctiveNegationCondition();
     if (ncc != null) {
       // recursively print match counts for the NCC subconditions
       printer.print("    -{\n");
@@ -2365,8 +2360,8 @@ public class Rete {
       if (matches_one_level_up != 0 && matches_at_this_level == 0) {
         if (wtt != WmeTraceType.NONE) {
           printer.spaces(indent).print("*** Matches For Left ***\n");
-          final Token parent_tokens = get_all_left_tokens_emerging_from_node(parent);
-          for (Token t = parent_tokens; t != null; t = t.next_of_node) {
+          final var parent_tokens = get_all_left_tokens_emerging_from_node(parent);
+          for (var t = parent_tokens; t != null; t = t.next_of_node) {
             printer.spaces(indent);
             print_whole_token(printer, t, wtt);
             printer.print("\n");
@@ -2406,8 +2401,8 @@ public class Rete {
     printer.print("\n%d complete matches.\n", n);
     if (n != 0 && (wtt != WmeTraceType.NONE)) {
       printer.print("*** Complete Matches ***\n");
-      Token tokens = get_all_left_tokens_emerging_from_node(p_node.parent);
-      for (Token t = tokens; t != null; t = t.next_of_node) {
+      var tokens = get_all_left_tokens_emerging_from_node(p_node.parent);
+      for (var t = tokens; t != null; t = t.next_of_node) {
         print_whole_token(printer, t, wtt);
         printer.print("\n");
       }
@@ -2427,7 +2422,7 @@ public class Rete {
     final ReteNode parent = node.real_parent_node();
     getPartialMatchesAux(entries, parent, cutoff, cond.prev);
 
-    final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+    final var ncc = cond.asConjunctiveNegationCondition();
     if (ncc != null) {
       // recursively print match counts for the NCC subconditions
       entries.add(
@@ -2461,9 +2456,9 @@ public class Rete {
    */
   private int getMatchCountForNode(ReteNode node) {
     // find the number of matches for this condition
-    final Token tokens = get_all_left_tokens_emerging_from_node(node);
-    int matches_at_this_level = 0;
-    for (Token t = tokens; t != null; t = t.next_of_node) matches_at_this_level++;
+    final var tokens = get_all_left_tokens_emerging_from_node(node);
+    var matches_at_this_level = 0;
+    for (var t = tokens; t != null; t = t.next_of_node) matches_at_this_level++;
     return matches_at_this_level;
   }
 
@@ -2485,7 +2480,7 @@ public class Rete {
   public int countTokensProduction(ReteNode p_node) {
     if (p_node == null) return 0;
     ReteNode node = p_node.parent;
-    int count = 0;
+    var count = 0;
     while (node != dummy_top_node) {
       if ((node.node_type != ReteNodeType.POSITIVE_BNODE)
           && (node.node_type != ReteNodeType.UNHASHED_POSITIVE_BNODE)) {

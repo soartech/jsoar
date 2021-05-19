@@ -37,7 +37,7 @@ public class SymbolFactoryImplTest {
     assertEquals('S', s.getNameLetter());
     assertEquals(1, s.getNameNumber());
     assertEquals(1, s.level);
-    assertFalse(s.hash_id == 0);
+    assertNotEquals(0, s.getHash());
     assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
 
     // Make another id and make sure the id increments
@@ -46,7 +46,7 @@ public class SymbolFactoryImplTest {
     assertEquals('S', s.getNameLetter());
     assertEquals(2, s.getNameNumber());
     assertEquals(4, s.level);
-    assertFalse(s.hash_id == 0);
+    assertNotEquals(0, s.getHash());
     assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
   }
 
@@ -55,19 +55,45 @@ public class SymbolFactoryImplTest {
     DoubleSymbolImpl s = syms.createDouble(3.14);
     assertNotNull(s);
     assertEquals(3.14, s.getValue(), 0.0001);
-    assertFalse(s.hash_id == 0);
+    assertNotEquals(0, s.getHash());
     assertSame(s, syms.findDouble(s.getValue()));
     assertSame(s, syms.createDouble(s.getValue()));
   }
 
   @Test
-  public void testMakeIntConstant() {
-    IntegerSymbolImpl s = syms.createInteger(99);
-    assertNotNull(s);
-    assertEquals(99, s.getValue());
-    assertFalse(s.hash_id == 0);
-    assertSame(s, syms.findInteger(s.getValue()));
-    assertSame(s, syms.createInteger(s.getValue()));
+  public void testCreateIntegerSymbol() {
+    // given a integer value
+    int value = 99;
+
+    // When creating a integer symbol
+    IntegerSymbolImpl symbol = syms.createInteger(value);
+
+    // Then created symbol is not null
+    assertNotNull(symbol);
+    // And value of symbol matches given integer value
+    assertEquals(value, symbol.getValue());
+    // And hash of symbol is not 0
+    assertNotEquals(0, symbol.getHash());
+  }
+
+  @Test
+  public void testCreateIntegerSymbolExistingValue() {
+    // given a exist integer symbol for integer value
+    IntegerSymbolImpl symbol = syms.createInteger(32);
+
+    // When creating integer symbol for same integer value
+    // Then existing integer symbol for value is returned
+    assertSame(symbol, syms.createInteger(symbol.getValue()));
+  }
+
+  @Test
+  public void testFindIntegerSymbol() {
+    // given a exist integer symbol for integer value
+    IntegerSymbolImpl symbol = syms.createInteger(27);
+
+    // When searching for integer symbol with same value
+    // Then existing integer symbol for value is returned
+    assertSame(symbol, syms.findInteger(symbol.getValue()));
   }
 
   @Test
@@ -75,7 +101,7 @@ public class SymbolFactoryImplTest {
     IntegerSymbolImpl s = syms.createInteger(999999999999L);
     assertNotNull(s);
     assertEquals(999999999999L, s.getValue());
-    assertFalse(s.hash_id == 0);
+    assertNotEquals(0, s.getHash());
     assertSame(s, syms.findInteger(s.getValue()));
     assertSame(s, syms.createInteger(s.getValue()));
   }
@@ -85,7 +111,7 @@ public class SymbolFactoryImplTest {
     StringSymbolImpl s = syms.createString("A sym constant");
     assertNotNull(s);
     assertEquals("A sym constant", s.getValue());
-    assertFalse(s.hash_id == 0);
+    assertNotEquals(0, s.getHash());
     assertSame(s, syms.findString(s.getValue()));
     assertSame(s, syms.createString(s.getValue()));
   }
