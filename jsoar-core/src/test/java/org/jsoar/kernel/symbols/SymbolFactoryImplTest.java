@@ -5,7 +5,13 @@
  */
 package org.jsoar.kernel.symbols;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -16,15 +22,14 @@ import org.junit.Test;
 
 /** @author ray */
 public class SymbolFactoryImplTest {
+
   private SymbolFactoryImpl syms;
 
-  /** @throws java.lang.Exception */
   @Before
   public void setUp() throws Exception {
     syms = new SymbolFactoryImpl();
   }
 
-  /** @throws java.lang.Exception */
   @After
   public void tearDown() throws Exception {
     syms = null;
@@ -48,6 +53,34 @@ public class SymbolFactoryImplTest {
     assertEquals(4, s.level);
     assertNotEquals(0, s.getHash());
     assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
+  }
+
+  @Test
+  public void testReset() {
+    // Given a symbol factory
+    // And a short term identifier
+    IdentifierImpl shortTermIdentifier = syms.createIdentifier('A');
+    shortTermIdentifier.smem_lti = 0;
+    // And a Long Term Identifier within the semantic memory
+    IdentifierImpl longTermIdentifier = syms.createIdentifier('B');
+    longTermIdentifier.smem_lti = 1;
+
+    // When resetting identifier factory
+    syms.reset();
+
+    // Then short term identifier is removed
+    assertNull(
+        syms.findIdentifier(
+            shortTermIdentifier.getNameLetter(), shortTermIdentifier.getNameNumber()));
+    // And Long Term Identifier still exist
+    assertNotNull(
+        syms.findIdentifier(
+            longTermIdentifier.getNameLetter(), longTermIdentifier.getNameNumber()));
+    // And Id counters for all letters are 1
+    char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+    for (char letter : alphabet) {
+      assertEquals(1, syms.getIdNumber(letter));
+    }
   }
 
   @Test
@@ -107,13 +140,56 @@ public class SymbolFactoryImplTest {
   }
 
   @Test
-  public void testMakeNewSymConstant() {
-    StringSymbolImpl s = syms.createString("A sym constant");
-    assertNotNull(s);
-    assertEquals("A sym constant", s.getValue());
-    assertNotEquals(0, s.getHash());
-    assertSame(s, syms.findString(s.getValue()));
-    assertSame(s, syms.createString(s.getValue()));
+  public void testCreateStringSymbol() {
+    // given a string value
+    String value = "A sym constant";
+
+    // When creating a string symbol
+    StringSymbolImpl symbol = syms.createString(value);
+
+    // Then created symbol is not null
+    assertNotNull(symbol);
+    // And value of symbol matches given string value
+    assertEquals(value, symbol.getValue());
+    // And hash of symbol is not 0
+    assertNotEquals(0, symbol.getHash());
+  }
+
+  @Test
+  public void testCreateStringSymbolExistingValue() {
+    // given a existig string symbol
+    StringSymbol symbol = syms.createString("Another sym constant");
+
+    // When creating integer symbol for same string value
+    // Then existing string symbol for value is returned
+    assertSame(symbol, syms.createString(symbol.getValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCreateStringSymbolThrowsExceptionIfValueIsNull() {
+    // given a string value null
+    String value = null;
+
+    // When creating a string symbol with value null
+    // Then IllegalArgumentException is thrown
+    StringSymbolImpl symbol = syms.createString(null);
+  }
+
+  @Test
+  public void testFindStringSymbol() {
+    // given a exist string symbol for integer value
+    StringSymbol symbol = syms.createString("A third sym constant");
+
+    // When searching for string symbol with same value
+    // Then existing string symbol for value is returned
+    assertSame(symbol, syms.findString(symbol.getValue()));
+  }
+
+  @Test
+  public void testFindNonExistingStringSymbol() {
+    // When searching for non existing string symbol
+    // Then null is returned
+    assertNull(syms.findString("NON-EXISTING"));
   }
 
   @Test

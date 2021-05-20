@@ -7,8 +7,8 @@ package org.jsoar.kernel.symbols;
 
 import com.google.common.collect.MapMaker;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
@@ -53,7 +53,9 @@ public class SymbolFactoryImpl implements SymbolFactory {
     return new MapMaker().weakValues().makeMap();
   }
 
-  private final long id_counter[] = new long[26];
+  /** Contains per letter the number of generated IDs? */
+  private final long[] id_counter = new long[26];
+
   private final Map<String, StringSymbolImpl> symConstants = newReferenceMap();
   private final Map<Long, IntegerSymbolImpl> intConstants = newReferenceMap();
   private final Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
@@ -128,17 +130,11 @@ public class SymbolFactoryImpl implements SymbolFactory {
     // reinitializing, it should be fine to throw out all the existing ids
     // and start over.
 
-    // SMEM - only clear non LTIs
-    for (final Iterator<IdentifierImpl> it = identifiers.values().iterator(); it.hasNext(); ) {
-      final IdentifierImpl id = it.next();
-      if (id.smem_lti == 0) {
-        it.remove();
-      }
-    }
+    // Remove all Identifiers which are not a Long Term Identifier (LTI) within the semantic memory.
+    identifiers.values().removeIf(id -> id.smem_lti == 0);
 
-    for (var i = 0; i < id_counter.length; ++i) {
-      id_counter[i] = 1;
-    }
+    // Reset id counters
+    Arrays.fill(id_counter, 1);
 
     // SMEM - id counters are reset externally to this call.
   }
@@ -165,14 +161,11 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * given, bump it up to max plus one.
    *
    * <p>semantic_memory.cpp:1082:smem_reset_id_counters
-   *
-   * @param name_letter
-   * @param letter_max
    */
   public void resetIdNumber(char name_letter, long letter_max) {
     final int name_letter_index = name_letter - 'A';
     if (id_counter[name_letter_index] <= letter_max) {
-      id_counter[name_letter_index] = (int) letter_max + 1; // TODO SMEM make name numbers long
+      id_counter[name_letter_index] = letter_max + 1;
     }
   }
 
@@ -224,7 +217,6 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * Tries to find an identifier and if it finds it in the map of identifiers, sets the value of the
    * key to be null.
    *
-   * @param identifier
    * @return Whether or not the identifier was found. Will also return false if identifier is null.
    */
   public boolean findAndNullIdentifier(IdentifierImpl identifier) {
@@ -271,8 +263,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @param level the goal stack level of the id
    * @return the new identifier
    */
-  public IdentifierImpl make_new_identifier(
-      char name_letter, long name_number, int /*goal_stack_level*/ level) {
+  public IdentifierImpl make_new_identifier(char name_letter, long name_number, int level) {
     name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
     if (name_number >= id_counter[name_letter - 'A']) {
       id_counter[name_letter - 'A'] = name_number + 1;
@@ -426,7 +417,8 @@ public class SymbolFactoryImpl implements SymbolFactory {
 
   /** symtab.cpp:153:get_next_hash_id */
   private int get_next_hash_id() {
-    return current_symbol_hash_id += 137;
+    current_symbol_hash_id += 137;
+    return current_symbol_hash_id;
   }
 
   private static IdKey getIdKey(char letter, long number) {
