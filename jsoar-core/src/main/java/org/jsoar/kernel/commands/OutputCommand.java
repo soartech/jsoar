@@ -27,7 +27,7 @@ import picocli.CommandLine.Spec;
 public final class OutputCommand extends PicocliSoarCommand {
 
   public OutputCommand(Agent agent, Print printCommand) {
-    super(agent, new Output(agent, printCommand, new LinkedList<Writer>()));
+    super(agent, new Output(agent, printCommand, new LinkedList<>()));
   }
 
   @Command(
@@ -40,9 +40,10 @@ public final class OutputCommand extends PicocliSoarCommand {
         OutputCommand.Warnings.class
       })
   public static class Output implements Runnable {
-    private Agent agent;
-    private Print printCommand;
-    private LinkedList<Writer> writerStack;
+
+    private final Agent agent;
+    private final Print printCommand;
+    private final LinkedList<Writer> writerStack;
 
     public Output(Agent agent, Print printCommand, LinkedList<Writer> writerStack) {
       this.agent = agent;
@@ -57,9 +58,11 @@ public final class OutputCommand extends PicocliSoarCommand {
           .getPrinter()
           .startNewLine()
           .print(
-              "=======================================================\n"
-                  + "-                    Output Status                    -\n"
-                  + "=======================================================\n");
+              """
+              =======================================================
+              -                    Output Status                    -
+              =======================================================
+              """);
     }
   }
 
@@ -68,6 +71,7 @@ public final class OutputCommand extends PicocliSoarCommand {
       description = "Changes output log settings",
       subcommands = {HelpCommand.class})
   public static class Log implements Runnable {
+
     @ParentCommand Output parent; // injected by picocli
 
     @Option(
@@ -148,6 +152,7 @@ public final class OutputCommand extends PicocliSoarCommand {
       description = "Adjusts or displays the print-depth",
       subcommands = {HelpCommand.class})
   public static class PrintDepth implements Runnable {
+
     @ParentCommand Output parent; // injected by picocli
 
     @Spec CommandSpec spec; // injected by picocli
@@ -162,9 +167,9 @@ public final class OutputCommand extends PicocliSoarCommand {
             .agent
             .getPrinter()
             .startNewLine()
-            .print("print-depth is " + Integer.toString(parent.printCommand.getDefaultDepth()));
+            .print("print-depth is " + parent.printCommand.getDefaultDepth());
       } else {
-        int depth = Integer.valueOf(printDepth);
+        int depth = printDepth;
         try {
           parent.printCommand.setDefaultDepth(depth);
         } catch (SoarException e) {
@@ -180,6 +185,7 @@ public final class OutputCommand extends PicocliSoarCommand {
       description = "Toggles output warnings",
       subcommands = {HelpCommand.class})
   public static class Warnings implements Runnable {
+
     @ParentCommand Output parent; // injected by picocli
 
     @Option(
