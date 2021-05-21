@@ -10,7 +10,7 @@ public class SwingCompletionHandlerTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNewInstanceThrowsExceptionWhenInnerCompletionHandlerIsNull() {
-   SwingCompletionHandler.newInstance(null);
+    SwingCompletionHandler.newInstance(null);
   }
 
   @Test
@@ -18,7 +18,8 @@ public class SwingCompletionHandlerTest {
     // Given a Swing completion handler
     // And a nested inner completion handler
     CompletionHandler<String> innerCompletionHandler = mock(CompletionHandler.class);
-    CompletionHandler<String> swingCompletionHandler = SwingCompletionHandler.newInstance(innerCompletionHandler);
+    CompletionHandler<String> swingCompletionHandler =
+        SwingCompletionHandler.newInstance(innerCompletionHandler);
 
     // When finishing with result
     String result = "RESULT";
@@ -26,6 +27,6 @@ public class SwingCompletionHandlerTest {
 
     // Then finish on inner completion handler is called
     // And result is passed
-    verify(innerCompletionHandler,times(1)).finish(result);
+    verify(innerCompletionHandler, times(1)).finish(result);
   }
 }
