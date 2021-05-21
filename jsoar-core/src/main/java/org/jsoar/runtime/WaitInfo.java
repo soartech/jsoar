@@ -17,6 +17,7 @@ import org.jsoar.util.Arguments;
  * @author ray
  */
 public class WaitInfo {
+
   /** Constant indicating that the agent is not waiting. */
   public static final WaitInfo NOT_WAITING = new WaitInfo(false, Long.MAX_VALUE, null);
 
@@ -47,10 +48,13 @@ public class WaitInfo {
    * @see java.lang.Object#toString()
    */
   public String toString() {
-    return waiting
-        ? String.format(
-            "Waiting %s [%s]",
-            timeout != Long.MAX_VALUE ? Long.toString(timeout) + " ms" : "forever", cause)
-        : "No wait";
+    String output;
+    if (waiting) {
+      String duration = timeout == Long.MAX_VALUE ? "forever" : timeout + " ms";
+      output = String.format("Waiting %s [%s]", duration, cause);
+    } else {
+      output = "No wait";
+    }
+    return output;
   }
 }
