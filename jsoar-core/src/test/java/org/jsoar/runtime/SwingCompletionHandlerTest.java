@@ -1,13 +1,9 @@
 package org.jsoar.runtime;
 
-import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 public class SwingCompletionHandlerTest {
@@ -18,7 +14,7 @@ public class SwingCompletionHandlerTest {
   }
 
   @Test
-  public void testFinish() throws InterruptedException {
+  public void testFinish() {
     // Given a Swing completion handler
     // And a nested inner completion handler
     CompletionHandler<String> innerCompletionHandler = mock(CompletionHandler.class);
