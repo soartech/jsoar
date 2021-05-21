@@ -6,6 +6,7 @@
 package org.jsoar.runtime;
 
 import javax.swing.SwingUtilities;
+import lombok.NonNull;
 
 /**
  * Wrap a completion handler in logic to ensure that it executes on the Swing event thread. Do not
@@ -16,8 +17,8 @@ import javax.swing.SwingUtilities;
 public class SwingCompletionHandler<T> implements CompletionHandler<T> {
   private final CompletionHandler<T> inner;
 
-  public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner) {
-    return new SwingCompletionHandler<V>(inner);
+  public static <V> CompletionHandler<V> newInstance(@NonNull CompletionHandler<V> inner) {
+    return new SwingCompletionHandler<>(inner);
   }
 
   private SwingCompletionHandler(CompletionHandler<T> inner) {
@@ -33,13 +34,7 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T> {
       inner.finish(result);
     } else {
       SwingUtilities.invokeLater(
-          new Runnable() {
-
-            @Override
-            public void run() {
-              inner.finish(result);
-            }
-          });
+          () -> inner.finish(result));
     }
   }
 }
