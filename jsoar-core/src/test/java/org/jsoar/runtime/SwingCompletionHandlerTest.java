@@ -14,7 +14,7 @@ public class SwingCompletionHandlerTest {
   }
 
   @Test
-  public void testFinish() {
+  public void testFinish() throws InterruptedException {
     // Given a Swing completion handler
     // And a nested inner completion handler
     CompletionHandler<String> innerCompletionHandler = mock(CompletionHandler.class);
@@ -27,6 +27,8 @@ public class SwingCompletionHandlerTest {
 
     // Then finish on inner completion handler is called
     // And result is passed
+    // NOTE: Since event is put on queue and not immediately executed wait for a while, might be buggy
+    Thread.sleep(500);
     verify(innerCompletionHandler, times(1)).finish(result);
   }
 }
