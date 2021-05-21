@@ -1,9 +1,13 @@
 package org.jsoar.runtime;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 
 public class SwingCompletionHandlerTest {
@@ -27,9 +31,7 @@ public class SwingCompletionHandlerTest {
 
     // Then finish on inner completion handler is called
     // And result is passed
-    // NOTE: Since event is put on queue and not immediately executed wait for a while, might be
-    // buggy
-    Thread.sleep(500);
-    verify(innerCompletionHandler, times(1)).finish(result);
+    // NOTE: Since finish invocation is put on queue and not immediately executed included timeout
+    verify(innerCompletionHandler, timeout(10000).times(1)).finish(result);
   }
 }
