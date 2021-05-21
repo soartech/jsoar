@@ -15,6 +15,7 @@ import lombok.NonNull;
  * @author ray
  */
 public class SwingCompletionHandler<T> implements CompletionHandler<T> {
+
   private final CompletionHandler<T> inner;
 
   public static <V> CompletionHandler<V> newInstance(@NonNull CompletionHandler<V> inner) {
@@ -33,8 +34,7 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T> {
     if (SwingUtilities.isEventDispatchThread()) {
       inner.finish(result);
     } else {
-      SwingUtilities.invokeLater(
-          () -> inner.finish(result));
+      SwingUtilities.invokeLater(() -> inner.finish(result));
     }
   }
 }
