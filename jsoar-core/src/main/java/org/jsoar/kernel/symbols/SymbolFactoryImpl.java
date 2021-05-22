@@ -249,7 +249,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
     }
     var id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
 
-    id.level = level;
+    id.setLevel(level);
     id.promotion_level = level;
 
     identifiers.put(getIdKey(id.getNameLetter(), id.getNameNumber()), id);

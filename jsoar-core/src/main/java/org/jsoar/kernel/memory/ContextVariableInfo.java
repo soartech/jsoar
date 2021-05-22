@@ -64,10 +64,10 @@ public class ContextVariableInfo {
       levels_up = 2;
       attribute = predefinedSyms.operator_symbol;
     } else if (v == predefinedSyms.ts_context_variable) {
-      levels_up = top_goal != null ? bottom_goal.level - top_goal.level : 0;
+      levels_up = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
       attribute = predefinedSyms.state_symbol;
     } else if (v == predefinedSyms.to_context_variable) {
-      levels_up = top_goal != null ? bottom_goal.level - top_goal.level : 0;
+      levels_up = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
       attribute = predefinedSyms.operator_symbol;
     } else {
       return new ContextVariableInfo(null, null, null);

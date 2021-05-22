@@ -4103,7 +4103,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
             // This instantiation of level is shadowing the function parameter, which java does not
             // allow, so were going to have to rename it here.
             @SuppressWarnings("unused")
-            int /*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
+            int /*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.getLevel();
             // mapping identifier
             SymbolImpl mapping = symbols.createIdentifier('M', level);
             epmem_buffer_add_wme(
@@ -5207,7 +5207,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
     // create a new ^retrieved header for this result
     SymbolImpl retrieved_header;
-    retrieved_header = symbols.createIdentifier('R', result_header.asIdentifier().level);
+    retrieved_header = symbols.createIdentifier('R', result_header.asIdentifier().getLevel());
     // if ( id_record )
     if (id_record != null) {
       id_record.put(EPMEM_NODEID_ROOT, retrieved_header);
@@ -5743,7 +5743,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
                       ((Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE)
                           ? (attr.getFirstLetter())
                           : ('E')),
-                      parent.asIdentifier().level),
+                      parent.asIdentifier().getLevel()),
                   true));
         }
         id_p = ids.get(child_n_id);
@@ -5775,7 +5775,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
                 smem.smem_lti_get_id(val_letter, val_num),
                 val_letter,
                 val_num,
-                parent.asIdentifier().level);
+                parent.asIdentifier().getLevel());
 
         // if ( id_record )
         if (id_record != null) {

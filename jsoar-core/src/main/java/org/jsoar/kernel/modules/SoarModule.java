@@ -101,7 +101,7 @@ public class SoarModule {
     // allocate_with_pool( my_agent, &( my_agent->instantiation_pool ), &inst );
     inst.nextInProdList = inst.prevInProdList = null;
     inst.match_goal = state.asIdentifier();
-    inst.match_goal_level = state.asIdentifier().level;
+    inst.match_goal_level = state.asIdentifier().getLevel();
     // This is missing from the instantiation classes, and it looks liek all the
     // ported code that was using has written in out.  --ACN
     // inst.reliable = true;
@@ -176,7 +176,7 @@ public class SoarModule {
         }
          */
 
-        conditionBacktraceInfo.level = c_it.id.level;
+        conditionBacktraceInfo.level = c_it.id.getLevel();
         conditionBacktraceInfo.trace = c_it.preference;
 
         if (cond.bt().trace != null) {

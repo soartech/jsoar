@@ -56,7 +56,7 @@ public class TemporaryMemory {
   public void mark_slot_as_changed(Slot s) {
     if (s.isa_context_slot) {
       if (this.highest_goal_whose_context_changed != null) {
-        if (s.id.level < this.highest_goal_whose_context_changed.level) {
+        if (s.id.getLevel() < this.highest_goal_whose_context_changed.getLevel()) {
           this.highest_goal_whose_context_changed = s.id;
         }
       } else {

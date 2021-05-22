@@ -251,7 +251,7 @@ public class Chunker {
   private void add_results_if_needed(SymbolImpl sym) {
     IdentifierImpl id = sym.asIdentifier();
     if (id != null)
-      if ((id.level >= results_match_goal_level) && (id.tc_number != results_tc_number))
+      if ((id.getLevel() >= results_match_goal_level) && (id.tc_number != results_tc_number))
         add_results_for_id(id);
   }
 
@@ -326,7 +326,7 @@ public class Chunker {
     this.results_tc_number = DefaultMarker.create();
     this.extra_result_prefs_from_instantiation = inst.preferences_generated;
     for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next) {
-      if ((pref.id.level < this.results_match_goal_level)
+      if ((pref.id.getLevel() < this.results_match_goal_level)
           && (pref.id.tc_number != this.results_tc_number)) {
         add_pref_to_results(pref);
       }
@@ -791,9 +791,9 @@ public class Chunker {
       return Productions.generateUniqueName(
           context.getProductions(), chunk_name_prefix, chunk_count);
 
-    int lowest_result_level = decider.topGoal().level;
+    int lowest_result_level = decider.topGoal().getLevel();
     for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
-      if (p.id.level > lowest_result_level) lowest_result_level = p.id.level;
+      if (p.id.getLevel() > lowest_result_level) lowest_result_level = p.id.getLevel();
 
     IdentifierImpl goal = decider.find_goal_at_goal_stack_level(lowest_result_level);
 
@@ -965,7 +965,7 @@ public class Chunker {
      * superstate, don't make chunks for intermediate justifications.
      */
     for (Preference p = inst.preferences_generated; p != null; p = p.inst_next) {
-      if (p.id.level < inst.match_goal_level - 1) {
+      if (p.id.getLevel() < inst.match_goal_level - 1) {
         return false;
       }
     }
@@ -998,7 +998,7 @@ public class Chunker {
     // if no preference is above the match goal level, exit
     Preference pref = null;
     for (Preference i = inst.preferences_generated; i != null; i = i.inst_next) {
-      if (i.id.level < inst.match_goal_level) {
+      if (i.id.getLevel() < inst.match_goal_level) {
         pref = i;
         break;
       }

@@ -797,7 +797,7 @@ public class TraceFormats {
 
         case SUBGOAL_DEPTH_TFT:
           if (tparams.current_s != null) {
-            result.append(tparams.current_s.level - 1);
+            result.append(tparams.current_s.getLevel() - 1);
           } else {
             found_undefined = true;
           }
@@ -806,7 +806,7 @@ public class TraceFormats {
         case REPEAT_SUBGOAL_DEPTH_TFT:
           if (tparams.current_s != null) {
             String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
-            for (int i = tparams.current_s.level - 1; i > 0; i--) result.append(temp_gs);
+            for (int i = tparams.current_s.getLevel() - 1; i > 0; i--) result.append(temp_gs);
           } else {
             found_undefined = true;
           }

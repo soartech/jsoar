@@ -44,7 +44,7 @@ public class SymbolFactoryImplTest {
     // Then created identifier has name letter 'A'
     assertEquals('A', identifier.getNameLetter());
     // And level of identifier is SoarConstants.TOP_GOAL_LEVEL
-    assertEquals(SoarConstants.TOP_GOAL_LEVEL, identifier.level);
+    assertEquals(SoarConstants.TOP_GOAL_LEVEL, identifier.getLevel());
     // And name number is >= 1
     assertTrue(identifier.getNameNumber() >= 1);
     // And hash is not null
@@ -59,7 +59,7 @@ public class SymbolFactoryImplTest {
     // Then created identifier has name letter 'C'
     assertEquals('C', identifier.getNameLetter());
     // And level of identifier is 5
-    assertEquals(5, identifier.level);
+    assertEquals(5, identifier.getLevel());
     // And name number is >=1
     assertTrue(identifier.getNameNumber() >= 1);
     // And hash is not null

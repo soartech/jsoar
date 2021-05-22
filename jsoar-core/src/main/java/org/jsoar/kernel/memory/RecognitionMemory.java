@@ -312,8 +312,8 @@ public class RecognitionMemory {
       final IdentifierImpl resultAsId = result.asIdentifier();
       if (resultAsId != null
           && resultAsId.smem_lti != 0
-          && resultAsId.level == SemanticMemory.LTI_UNKNOWN_LEVEL) {
-        resultAsId.level = new_id_level;
+          && resultAsId.getLevel() == SemanticMemory.LTI_UNKNOWN_LEVEL) {
+        resultAsId.setLevel(new_id_level);
         resultAsId.promotion_level = new_id_level;
       }
       return result;
@@ -433,21 +433,21 @@ public class RecognitionMemory {
       return null; // goto abort_execute_action;
     }
 
-    final SymbolImpl attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
+    final SymbolImpl attr = instantiate_rhs_value(ma.attr, id.getLevel(), 'a', tok, w);
     if (attr == null) {
       return null;
     }
 
     final char first_letter = attr.getFirstLetter();
 
-    final SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
+    final SymbolImpl value = instantiate_rhs_value(ma.value, id.getLevel(), first_letter, tok, w);
     if (value == null) {
       return null; // goto abort_execute_action;
     }
 
     SymbolImpl referent = null;
     if (a.preference_type.isBinary()) {
-      referent = instantiate_rhs_value(ma.referent, id.level, first_letter, tok, w);
+      referent = instantiate_rhs_value(ma.referent, id.getLevel(), first_letter, tok, w);
       if (referent == null) {
         return null; // goto abort_execute_action;
       }
@@ -630,7 +630,7 @@ public class RecognitionMemory {
       final PositiveCondition pc = cond.asPositiveCondition();
       if (pc != null) {
         final BackTraceInfo bt = pc.bt();
-        bt.level = bt.wme_.id.level;
+        bt.level = bt.wme_.id.getLevel();
         bt.trace = bt.wme_.preference;
       }
     }
@@ -775,7 +775,7 @@ public class RecognitionMemory {
         continue;
       }
 
-      if (id.level <= decider.change_level) {
+      if (id.getLevel() <= decider.change_level) {
         context
             .getTrace()
             .print(
@@ -783,7 +783,7 @@ public class RecognitionMemory {
                 "*** Waterfall: aborting firing because (%s * *)"
                     + " level %d is on or higher (lower int) than change level %d\n",
                 id,
-                id.level,
+                id.getLevel(),
                 decider.change_level);
         return false;
       }
@@ -1457,7 +1457,7 @@ public class RecognitionMemory {
       }
 
       if (decider.active_goal != null) {
-        decider.active_level = decider.active_goal.level;
+        decider.active_level = decider.active_goal.getLevel();
       } else {
         trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
         break;

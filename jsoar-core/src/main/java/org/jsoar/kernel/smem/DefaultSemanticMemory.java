@@ -1219,8 +1219,8 @@ public class DefaultSemanticMemory implements SemanticMemory {
     if (return_val == null) {
       return_val = symbols.createIdentifier(name_letter, name_number, level);
     } else {
-      if ((return_val.level == LTI_UNKNOWN_LEVEL) && (level != LTI_UNKNOWN_LEVEL)) {
-        return_val.level = level;
+      if ((return_val.getLevel() == LTI_UNKNOWN_LEVEL) && (level != LTI_UNKNOWN_LEVEL)) {
+        return_val.setLevel(level);
         return_val.promotion_level = level;
       }
     }
@@ -1867,7 +1867,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
         ;
         lti =
             smem_lti_soar_make(
-                lti_id, (char) rs.getLong(0 + 1), rs.getLong(1 + 1), result_header.level);
+                lti_id, (char) rs.getLong(0 + 1), rs.getLong(1 + 1), result_header.getLevel());
       } finally {
         rs.close();
       }
@@ -1909,7 +1909,8 @@ public class DefaultSemanticMemory implements SemanticMemory {
           final long lti_rs = rs.getLong(6 + 1);
           if (lti_rs != SMEM_AUGMENTATIONS_NULL) {
             value_sym =
-                smem_lti_soar_make(lti_rs, (char) rs.getLong(4 + 1), rs.getLong(5 + 1), lti.level);
+                smem_lti_soar_make(
+                    lti_rs, (char) rs.getLong(4 + 1), rs.getLong(5 + 1), lti.getLevel());
           } else {
             value_sym = smem_reverse_hash(rs.getInt(2 + 1), rs.getLong(3 + 1));
           }

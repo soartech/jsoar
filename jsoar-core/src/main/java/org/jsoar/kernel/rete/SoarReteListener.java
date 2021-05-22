@@ -243,7 +243,7 @@ public class SoarReteListener implements ReteListener {
 
     // Find the goal and level for this ms change
     msc.goal = msc.find_goal_for_match_set_change_assertion(rete.dummy_top_token);
-    msc.level = msc.goal.level;
+    msc.level = msc.goal.getLevel();
 
     SavedFiringType prod_type = SavedFiringType.IE_PRODS;
 
@@ -323,7 +323,7 @@ public class SoarReteListener implements ReteListener {
                   if (lowest_goal_wme == null) {
                     lowest_goal_wme = temp_tok.w;
                   } else {
-                    if (temp_tok.w.id.level > lowest_goal_wme.id.level) {
+                    if (temp_tok.w.id.getLevel() > lowest_goal_wme.id.getLevel()) {
                       lowest_goal_wme = temp_tok.w;
                     }
                   }
@@ -502,7 +502,7 @@ public class SoarReteListener implements ReteListener {
       // Determine what the goal of the msc is and add it to that
       // goal's list of retractions
       msc.goal = msc.find_goal_for_match_set_change_retraction();
-      msc.level = msc.goal.level;
+      msc.level = msc.goal.getLevel();
 
       // #ifdef DEBUG_WATERFALL
       // print("\n Level of retraction is: %d", msc->level);

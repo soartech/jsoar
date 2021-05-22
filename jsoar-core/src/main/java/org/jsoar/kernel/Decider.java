@@ -280,7 +280,7 @@ public class Decider {
    */
   public IdentifierImpl find_goal_at_goal_stack_level(int level) {
     for (IdentifierImpl g = topGoal; g != null; g = g.goalInfo.lower_goal) {
-      if (g.level == level) {
+      if (g.getLevel() == level) {
         return (g);
       }
     }
@@ -521,7 +521,7 @@ public class Decider {
    */
   private void promote_id_and_tc(IdentifierImpl id, /* goal_stack_level */ int new_level) {
     // if it's already that high, or is going to be soon, don't bother
-    if (id.level <= new_level) {
+    if (id.getLevel() <= new_level) {
       return;
     }
     if (id.promotion_level < new_level) {
@@ -529,7 +529,7 @@ public class Decider {
     }
 
     // update its level, etc.
-    id.level = new_level;
+    id.setLevel(new_level);
     id.promotion_level = new_level;
     id.could_be_a_link_from_below = true;
 
@@ -590,9 +590,11 @@ public class Decider {
       if (from != null) {
         context
             .getPrinter()
-            .print("\nRemoving link from %s to %s (%d to %d)", from, to, from.level, to.level);
+            .print(
+                "\nRemoving link from %s to %s (%d to %d)",
+                from, to, from.getLevel(), to.getLevel());
       } else {
-        context.getPrinter().print("\nRemoving special link to %s  (%d)", to, to.level);
+        context.getPrinter().print("\nRemoving special link to %s  (%d)", to, to.getLevel());
       }
       context.getPrinter().print(" (count=%d)", to.link_count);
     }
@@ -616,7 +618,7 @@ public class Decider {
 
     // if removing a link from a different level, there must be some
     // other link at the same level, so we can ignore this change
-    if (from != null && (from.level != to.level)) {
+    if (from != null && (from.getLevel() != to.getLevel())) {
       return;
     }
 
@@ -701,7 +703,7 @@ public class Decider {
 
       // don't mark anything higher up as disconnected--in order to be higher
       // up, it must have a link to it up there
-      if (id.level < this.level_at_which_marking_started) {
+      if (id.getLevel() < this.level_at_which_marking_started) {
         continue;
       }
 
@@ -709,11 +711,11 @@ public class Decider {
       id.tc_number = this.mark_tc_number;
 
       // update range of goal stack levels we'll need to walk
-      if (id.level < this.highest_level_anything_could_fall_from) {
-        this.highest_level_anything_could_fall_from = id.level;
+      if (id.getLevel() < this.highest_level_anything_could_fall_from) {
+        this.highest_level_anything_could_fall_from = id.getLevel();
       }
-      if (id.level > this.lowest_level_anything_could_fall_to) {
-        this.lowest_level_anything_could_fall_to = id.level;
+      if (id.getLevel() > this.lowest_level_anything_could_fall_to) {
+        this.lowest_level_anything_could_fall_to = id.getLevel();
       }
       if (id.could_be_a_link_from_below) {
         this.lowest_level_anything_could_fall_to = LOWEST_POSSIBLE_GOAL_LEVEL;
@@ -787,7 +789,7 @@ public class Decider {
       id.tc_number = this.walk_tc_number;
 
       // if we already know its level, and it's higher up, then exit
-      if ((id.unknown_level == null) && (id.level < this.walk_level)) {
+      if ((id.unknown_level == null) && (id.getLevel() < this.walk_level)) {
         continue;
       }
 
@@ -795,7 +797,7 @@ public class Decider {
       if (id.unknown_level != null) {
         id.unknown_level.remove(this.ids_with_unknown_level);
         id.unknown_level = null;
-        id.level = this.walk_level;
+        id.setLevel(this.walk_level);
         id.promotion_level = this.walk_level;
       }
 
@@ -867,7 +869,7 @@ public class Decider {
     this.mark_tc_number = DefaultMarker.create();
     for (dc = this.ids_with_unknown_level.first; dc != null; dc = dc.next) {
       final IdentifierImpl id = dc.item;
-      this.level_at_which_marking_started = id.level;
+      this.level_at_which_marking_started = id.getLevel();
       mark_id_and_tc_as_unknown_level(id);
     }
 
@@ -877,11 +879,11 @@ public class Decider {
       if (g == null) {
         break;
       }
-      if (g.level > this.lowest_level_anything_could_fall_to) {
+      if (g.getLevel() > this.lowest_level_anything_could_fall_to) {
         break;
       }
-      if (g.level >= this.highest_level_anything_could_fall_from) {
-        this.walk_level = g.level;
+      if (g.getLevel() >= this.highest_level_anything_could_fall_from) {
+        this.walk_level = g.getLevel();
         this.walk_tc_number = DefaultMarker.create();
         walk_and_update_levels(g);
       }
@@ -983,7 +985,7 @@ public class Decider {
     boolean do_CDPS =
         (s.isa_context_slot
             && !consistency
-            && (s.id.level > SoarConstants.TOP_GOAL_LEVEL)
+            && (s.id.getLevel() > SoarConstants.TOP_GOAL_LEVEL)
             && chunker.chunkThroughEvaluationRules);
 
     /* Empty the context-dependent preference set in the slot */
@@ -1736,7 +1738,7 @@ public class Decider {
     final Instantiation inst = new Instantiation(null, null, null);
     pref.setInstantiation(inst);
     inst.match_goal = goal;
-    inst.match_goal_level = goal.level;
+    inst.match_goal_level = goal.getLevel();
     inst.reliable = true;
     inst.backtrace_number = 0;
     inst.in_ms = false;
@@ -1750,7 +1752,7 @@ public class Decider {
     cond.value_test = SymbolImpl.makeEqualityTest(ap_wme.value);
     cond.test_for_acceptable_preference = true;
     cond.bt().wme_ = ap_wme;
-    cond.bt().level = ap_wme.id.level;
+    cond.bt().level = ap_wme.id.getLevel();
 
     inst.top_of_instantiated_conditions = cond;
     inst.bottom_of_instantiated_conditions = cond;
@@ -1966,7 +1968,7 @@ public class Decider {
             if (w.preference.inst.match_goal.goalInfo.gds == null) {
               /* If there is no GDS yet for this goal,
                * then we need to create one */
-              if (w.preference.inst.match_goal_level == w.preference.id.level) {
+              if (w.preference.inst.match_goal_level == w.preference.id.getLevel()) {
 
                 create_gds_for_goal(w.preference.inst.match_goal);
 
@@ -2018,7 +2020,8 @@ public class Decider {
                 if (DEBUG_GDS_HIGH) {
                   context
                       .getPrinter()
-                      .print("\n\n   %s   Goal level of preference: %d\n", pref, pref.id.level);
+                      .print(
+                          "\n\n   %s   Goal level of preference: %d\n", pref, pref.id.getLevel());
                 }
 
                 if (pref.inst.GDS_evaluated_already == false) {
@@ -2029,7 +2032,7 @@ public class Decider {
                             "   Match goal lev of instantiation %s is %d\n",
                             pref.inst.prod.getName(), pref.inst.match_goal_level);
                   }
-                  if (pref.inst.match_goal_level > pref.id.level) {
+                  if (pref.inst.match_goal_level > pref.id.getLevel()) {
                     if (DEBUG_GDS_HIGH) {
                       context
                           .getPrinter()
@@ -2326,7 +2329,7 @@ public class Decider {
 
     if (bottomGoal != null) {
       // Creating a sub-goal (or substate)
-      id = create_new_impasse(bottomGoal, attr_of_impasse, impasse_type, bottomGoal.level + 1);
+      id = create_new_impasse(bottomGoal, attr_of_impasse, impasse_type, bottomGoal.getLevel() + 1);
 
       // Insert into goal stack
       id.goalInfo.higher_goal = bottomGoal;
@@ -2334,7 +2337,7 @@ public class Decider {
       bottomGoal = id;
 
       add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
-      if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottomGoal.level)) {
+      if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottomGoal.getLevel())) {
         // appear to be SNC'ing deep in goalstack, so interrupt and warn user
         // KJC note: we actually halt, because there is no interrupt function in SoarKernel
         // in the gSKI Agent code, if system_halted, MAX_GOAL_DEPTH is checked and if exceeded
@@ -2884,7 +2887,7 @@ public class Decider {
                         "\n       .....GDS' goal is NIL so switching from old to new GDS list....\n");
               }
 
-            } else if (wme_matching_this_cond.gds.getGoal().level > inst.match_goal_level) {
+            } else if (wme_matching_this_cond.gds.getGoal().getLevel() > inst.match_goal_level) {
               // if the WME currently belongs to the GDS of a goal below the current one
               // 1. Take WME off old (current) GDS list
               // 2. Check to see if old GDS WME list is empty.  If so, remove(free) it.
@@ -2921,7 +2924,7 @@ public class Decider {
                 .getPrinter()
                 .print(
                     "            Added WME to GDS for goal = %d [%s]\n",
-                    wme_matching_this_cond.gds.getGoal().level,
+                    wme_matching_this_cond.gds.getGoal().getLevel(),
                     wme_matching_this_cond.gds.getGoal());
           }
         } /* end "wme in supergoal or arch-supported" */ else {
@@ -3002,7 +3005,8 @@ public class Decider {
                             .print(
                                 "\n       .....GDS' goal is NIL so switching from old to new GDS list....\n");
                       }
-                    } else if (fake_inst_wme_cond.gds.getGoal().level > inst.match_goal_level) {
+                    } else if (fake_inst_wme_cond.gds.getGoal().getLevel()
+                        > inst.match_goal_level) {
                       // if the WME currently belongs to the GDS of a goal below the current one
                       // 1. Take WME off old (current) GDS list
                       // 2. Check to see if old GDS WME list is empty. If so, remove(free) it.
@@ -3040,7 +3044,7 @@ public class Decider {
                         .getPrinter()
                         .print(
                             "            Added WME to GDS for goal = %d [%s]\n",
-                            fake_inst_wme_cond.gds.getGoal().level,
+                            fake_inst_wme_cond.gds.getGoal().getLevel(),
                             fake_inst_wme_cond.gds.getGoal());
                   }
                 } /* matches { wme *fake_inst_wme_cond  */
@@ -3203,7 +3207,7 @@ public class Decider {
      */
 
     if (tempMemory.highest_goal_whose_context_changed != null) {
-      if (tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level) {
+      if (tempMemory.highest_goal_whose_context_changed.getLevel() >= w.gds.getGoal().getLevel()) {
         tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().goalInfo.higher_goal;
       }
     } else {

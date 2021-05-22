@@ -10,7 +10,9 @@ import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.memory.Slot;
@@ -46,7 +48,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public short isa_operator;
 
   public boolean could_be_a_link_from_below;
-  public int level;
+
+  @Getter @Setter private int level;
+
   public int promotion_level;
   public int link_count;
   public ListItem<IdentifierImpl> unknown_level;

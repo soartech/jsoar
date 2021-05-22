@@ -469,14 +469,15 @@ public class ReinforcementLearning {
                 .instantiate_rhs_value(my_action.asMakeAction().id, -1, 's', tok, w)
                 .asIdentifier();
         final SymbolImpl attr =
-            recMemory.instantiate_rhs_value(my_action.asMakeAction().attr, id.level, 'a', tok, w);
+            recMemory.instantiate_rhs_value(
+                my_action.asMakeAction().attr, id.getLevel(), 'a', tok, w);
         final char first_letter = attr.getFirstLetter();
         final SymbolImpl value =
             recMemory.instantiate_rhs_value(
-                my_action.asMakeAction().value, id.level, first_letter, tok, w);
+                my_action.asMakeAction().value, id.getLevel(), first_letter, tok, w);
         final SymbolImpl referent =
             recMemory.instantiate_rhs_value(
-                my_action.asMakeAction().referent, id.level, first_letter, tok, w);
+                my_action.asMakeAction().referent, id.getLevel(), first_letter, tok, w);
 
         // make new action list
         final Action new_action = rl_make_simple_action(id, attr, value, referent);

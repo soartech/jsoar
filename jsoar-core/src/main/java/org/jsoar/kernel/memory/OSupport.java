@@ -231,7 +231,7 @@ public class OSupport {
                   if (lowest_goal_wme == null) {
                     lowest_goal_wme = w;
                   } else {
-                    if (w.id.level > lowest_goal_wme.id.level) {
+                    if (w.id.getLevel() > lowest_goal_wme.id.getLevel()) {
                       lowest_goal_wme = w;
                     }
                   }

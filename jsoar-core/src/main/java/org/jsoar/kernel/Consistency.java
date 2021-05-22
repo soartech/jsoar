@@ -283,7 +283,7 @@ public class Consistency {
     /* Check only those goals where preferences have changes that are at or above the level
     of the consistency check */
     for (IdentifierImpl goal = tempMemory.highest_goal_whose_context_changed;
-        goal != null && goal.level <= level;
+        goal != null && goal.getLevel() <= level;
         goal = goal.goalInfo.lower_goal) {
       printDebugMessage("    Looking at goal [%s] to see if its preferences have changed\n", goal);
 
@@ -481,7 +481,7 @@ public class Consistency {
     // #endif
 
     if (DEBUG_CONSISTENCY_CHECK) {
-      context.getPrinter().print("\nStart: CONSISTENCY CHECK at level %d\n", goal.level);
+      context.getPrinter().print("\nStart: CONSISTENCY CHECK at level %d\n", goal.getLevel());
 
       /* Just a bunch of debug stuff for now */
       if (tempMemory.highest_goal_whose_context_changed != null) {
@@ -495,7 +495,7 @@ public class Consistency {
       }
     }
 
-    boolean test = check_context_slot_decisions(goal.level);
+    boolean test = check_context_slot_decisions(goal.getLevel());
 
     printDebugMessage("\nEnd:   CONSISTENCY CHECK\n");
 
@@ -574,7 +574,7 @@ public class Consistency {
     /* Determine the new highest level of activity */
     decider.active_goal = highest_active_goal_apply(decider.topGoal(), false);
     if (decider.active_goal != null) {
-      decider.active_level = decider.active_goal.level;
+      decider.active_level = decider.active_goal.getLevel();
     } else {
       decider.active_level = 0; /* Necessary for get_next_retraction */
     }
@@ -738,7 +738,7 @@ public class Consistency {
     /* Determine the new highest level of activity */
     decider.active_goal = highest_active_goal_propose(decider.topGoal(), false);
     if (decider.active_goal != null) {
-      decider.active_level = decider.active_goal.level;
+      decider.active_level = decider.active_goal.getLevel();
     } else {
       decider.active_level = 0; /* Necessary for get_next_retraction */
     }
