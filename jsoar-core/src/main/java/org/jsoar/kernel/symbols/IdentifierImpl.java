@@ -39,7 +39,8 @@ import org.jsoar.util.markers.Marker;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier {
   private final long name_number; // TODO make this a long
-  private final char name_letter;
+
+  @Getter private final char nameLetter;
 
   /**
    * This value is incremented for every incoming ^operator link pointing to this identifier. It is
@@ -65,7 +66,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
 
   public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
-  public /*smem_lti*/ long smem_lti = 0;
+  /* Contains Long Term Identifier for Semantic Memory. Is 0 in case of short term identifier*/
+  public long smem_lti = 0;
+
   public /*epmem_time_id*/ long smem_time_id = 0;
   public /*uint_ptr_t*/ long id_smem_valid = 0;
 
@@ -75,16 +78,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   IdentifierImpl(SymbolFactory factory, int hash_id, char name_letter, long name_number) {
     super(factory, hash_id);
 
-    this.name_letter = name_letter;
+    this.nameLetter = name_letter;
     this.name_number = name_number;
-  }
-
-  /* (non-Javadoc)
-   * @see org.jsoar.kernel.symbols.IdSymbol#getNameLetter()
-   */
-  @Override
-  public char getNameLetter() {
-    return name_letter;
   }
 
   /* (non-Javadoc)
@@ -136,7 +131,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    */
   @Override
   public char getFirstLetter() {
-    return name_letter;
+    return nameLetter;
   }
 
   /* (non-Javadoc)
@@ -245,10 +240,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public boolean numericLess(SymbolImpl other) {
     IdentifierImpl i = other.asIdentifier();
     if (i != null) {
-      if (this.name_letter == i.name_letter) {
+      if (this.nameLetter == i.nameLetter) {
         return this.name_number < i.name_number;
       } else {
-        return this.name_letter < i.name_letter;
+        return this.nameLetter < i.nameLetter;
       }
     }
 
@@ -262,10 +257,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public boolean numericLessOrEqual(SymbolImpl other) {
     IdentifierImpl i = other.asIdentifier();
     if (i != null) {
-      if (this.name_letter == i.name_letter) {
+      if (this.nameLetter == i.nameLetter) {
         return this.name_number <= i.name_number;
       } else {
-        return this.name_letter <= i.name_letter;
+        return this.nameLetter <= i.nameLetter;
       }
     }
 
@@ -279,10 +274,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public boolean numericGreater(SymbolImpl other) {
     IdentifierImpl i = other.asIdentifier();
     if (i != null) {
-      if (this.name_letter == i.name_letter) {
+      if (this.nameLetter == i.nameLetter) {
         return this.name_number > i.name_number;
       } else {
-        return this.name_letter > i.name_letter;
+        return this.nameLetter > i.nameLetter;
       }
     }
 
@@ -296,10 +291,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public boolean numericGreaterOrEqual(SymbolImpl other) {
     IdentifierImpl i = other.asIdentifier();
     if (i != null) {
-      if (this.name_letter == i.name_letter) {
+      if (this.nameLetter == i.nameLetter) {
         return this.name_number >= i.name_number;
       } else {
-        return this.name_letter >= i.name_letter;
+        return this.nameLetter >= i.nameLetter;
       }
     }
 
@@ -311,7 +306,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    */
   @Override
   public String toString() {
-    return (smem_lti != 0 ? "@" : "") + name_letter + name_number;
+    return (smem_lti != 0 ? "@" : "") + nameLetter + name_number;
   }
 
   /* (non-Javadoc)
@@ -319,7 +314,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    */
   @Override
   public void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format((smem_lti != 0 ? "@" : "") + name_letter + name_number);
+    formatter.format((smem_lti != 0 ? "@" : "") + nameLetter + name_number);
   }
 
   /* (non-Javadoc)

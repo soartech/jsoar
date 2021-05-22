@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.db.AbstractSoarDatabase;
 import org.jsoar.util.db.SoarPreparedStatement;
@@ -256,7 +255,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase {
 
   public boolean backupDb(final String fileName) throws SQLException {
 
-    Connection connection = getConnection();
+    var connection = getConnection();
 
     if (connection.getAutoCommit()) {
       commit.execute();
@@ -264,7 +263,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase {
     }
 
     // See sqlite-jdbc notes; causes a Security Hotspot in sonar
-    try (Statement statement = connection.createStatement()) {
+    try (var statement = connection.createStatement()) {
       statement.executeUpdate(backup.getQuery() + " " + fileName);
     }
 

@@ -51,7 +51,10 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase {
   PreparedStatement hash_add_str;
 
   PreparedStatement lti_add;
+
+  /** Prepared statement for getting Long Term Identifier */
   PreparedStatement lti_get;
+
   PreparedStatement lti_letter_num;
   PreparedStatement lti_max;
   PreparedStatement lti_access_get;
