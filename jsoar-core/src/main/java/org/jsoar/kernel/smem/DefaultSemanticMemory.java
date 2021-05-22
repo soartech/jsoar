@@ -1183,11 +1183,11 @@ public class DefaultSemanticMemory implements SemanticMemory {
     final IdentifierImpl id = s.asIdentifier();
     if ((id != null) && (!id.isLongTermIdentifier())) {
       // try to find existing lti
-      id.semanticMemoryId = smem_lti_get_id(id.getNameLetter(), id.getNameNumber());
+      id.setSemanticMemoryId(smem_lti_get_id(id.getNameLetter(), id.getNameNumber()));
 
       // if doesn't exist, add
       if (!id.isLongTermIdentifier()) {
-        id.semanticMemoryId = smem_lti_add_id(id.getNameLetter(), id.getNameNumber());
+        id.setSemanticMemoryId(smem_lti_add_id(id.getNameLetter(), id.getNameNumber()));
 
         id.smem_time_id = epmem.getStats().getTime();
         id.id_smem_valid = epmem.epmem_validation();
@@ -1196,7 +1196,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
       }
     }
 
-    return id.semanticMemoryId;
+    return id.getSemanticMemoryId();
   }
 
   /*
@@ -1226,7 +1226,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
     }
 
     // set lti field irrespective
-    return_val.semanticMemoryId = lti;
+    return_val.setSemanticMemoryId(lti);
 
     return return_val;
   }
@@ -1518,7 +1518,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
               vAsLti.lti_id = value_lti;
 
               if (vAsLti.soar_id != null) {
-                vAsLti.soar_id.semanticMemoryId = value_lti;
+                vAsLti.soar_id.setSemanticMemoryId(value_lti);
                 vAsLti.soar_id.smem_time_id = epmem.getStats().getTime();
                 vAsLti.soar_id.id_smem_valid = epmem.epmem_validation();
 
@@ -1794,7 +1794,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
           // if doesn't exist, add; else use existing
           if (c == null) {
             final smem_chunk_lti lti = new smem_chunk_lti();
-            lti.lti_id = valueId.semanticMemoryId;
+            lti.lti_id = valueId.getSemanticMemoryId();
             lti.lti_letter = valueId.getNameLetter();
             lti.lti_number = valueId.getNameNumber();
             lti.slots = null;
@@ -1817,7 +1817,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
         s.add(v);
       }
 
-      smem_store_chunk(id.semanticMemoryId, slots, true, id);
+      smem_store_chunk(id.getSemanticMemoryId(), slots, true, id);
 
       // clean up
       // Nothing to do in JSoar
@@ -2007,7 +2007,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
         } else {
           // If we get here on a math query, the value may not be an identifier
           if (w.value.asIdentifier() != null) {
-            value_lti = w.value.asIdentifier().semanticMemoryId;
+            value_lti = w.value.asIdentifier().getSemanticMemoryId();
           } else {
             value_lti = 0;
           }
@@ -3258,7 +3258,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
                       symbols.findIdentifier(c_new.lti_letter, c_new.lti_number);
                   if (id_parent != null) {
                     // if so we make it an lti manually
-                    id_parent.semanticMemoryId = c_new.lti_id;
+                    id_parent.setSemanticMemoryId(c_new.lti_id);
 
                     id_parent.smem_time_id = epmem.getStats().getTime();
                   }
@@ -3536,7 +3536,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
               // install memory directly onto the retrieve
               // identifier
               smem_install_memory(
-                  state, retrieve.semanticMemoryId, retrieve, true, meta_wmes, retrieval_wmes);
+                  state, retrieve.getSemanticMemoryId(), retrieve, true, meta_wmes, retrieval_wmes);
 
               // add one to the expansions stat
               stats.retrieves.set(stats.retrieves.get() + 1);
@@ -3547,7 +3547,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
             final Set<Long> /* smem_lti_set */ prohibit_lti = new LinkedHashSet<Long>();
 
             for (IdentifierImpl sym_p : prohibit) {
-              prohibit_lti.add(sym_p.semanticMemoryId);
+              prohibit_lti.add(sym_p.getSemanticMemoryId());
             }
 
             smem_process_query(
