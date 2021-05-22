@@ -67,7 +67,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
   /* Contains Long Term Identifier for Semantic Memory. Is 0 in case of short term identifier*/
-  public long smem_lti = 0;
+  public long semanticMemoryId = 0;
 
   public /*epmem_time_id*/ long smem_time_id = 0;
   public /*uint_ptr_t*/ long id_smem_valid = 0;
@@ -140,7 +140,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    * @return true if Long Term Identifier Semantic memory; false otherwise
    */
   public boolean isLongTermIdentifier() {
-    return smem_lti != 0;
+    return semanticMemoryId != 0;
   }
 
   /* (non-Javadoc)

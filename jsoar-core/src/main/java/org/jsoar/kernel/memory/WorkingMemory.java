@@ -250,7 +250,7 @@ public class WorkingMemory {
       // - ALT
       if (smem.smem_enabled()) {
         // Make sure it is an LTI
-        if (w.item.id != null && w.item.id.smem_lti > 0) {
+        if (w.item.id != null && w.item.id.isLongTermIdentifier()) {
           symbols.removeIdentifier(w.item.id);
         }
       }

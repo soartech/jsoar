@@ -43,7 +43,7 @@ public class IdentifierImplTest extends JSoarTest {
     // Given Identifier
     identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
     // And identifier has semantic memory id
-    identifier.smem_lti = 123;
+    identifier.semanticMemoryId = 123;
 
     // Then identifier is a long term identifier
     assertTrue(identifier.isLongTermIdentifier());
@@ -51,7 +51,7 @@ public class IdentifierImplTest extends JSoarTest {
     // Given Identifier
     identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
     // And identifier has NO semantic memory id
-    identifier.smem_lti = 0;
+    identifier.semanticMemoryId = 0;
 
     // Then identifier is a short term identifier
     assertFalse(identifier.isLongTermIdentifier());
@@ -62,7 +62,7 @@ public class IdentifierImplTest extends JSoarTest {
     // Given Identifier with name letter 'A' and number 6
     IdentifierImpl identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
     // And Identifier is Long Term Identifier
-    identifier.smem_lti = 123;
+    identifier.semanticMemoryId = 123;
 
     // When getting textual representation of identifier
     String text = identifier.toString();
@@ -77,7 +77,7 @@ public class IdentifierImplTest extends JSoarTest {
     // Given Identifier with name letter 'A' and number 6
     IdentifierImpl identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
     // And Identifier is Short Term Identifier
-    identifier.smem_lti = 0;
+    identifier.semanticMemoryId = 0;
 
     // When getting textual representation of identifier
     String text = identifier.toString();
@@ -134,7 +134,7 @@ public class IdentifierImplTest extends JSoarTest {
   @Test
   public void testFormatsLongTermIdentifiersCorrectly() {
     final IdentifierImpl id = syms.createIdentifier('S');
-    id.smem_lti = 99;
+    id.semanticMemoryId = 99;
     assertEquals("@S" + id.getNameNumber(), String.format("%s", id));
   }
 

@@ -115,10 +115,10 @@ public class SymbolFactoryImplTest {
     // Given a symbol factory
     // And a short term identifier
     IdentifierImpl shortTermIdentifier = syms.createIdentifier('A');
-    shortTermIdentifier.smem_lti = 0;
+    shortTermIdentifier.semanticMemoryId = 0;
     // And a Long Term Identifier within the semantic memory
     IdentifierImpl longTermIdentifier = syms.createIdentifier('B');
-    longTermIdentifier.smem_lti = 1;
+    longTermIdentifier.semanticMemoryId = 1;
 
     // When resetting identifier factory
     syms.reset();

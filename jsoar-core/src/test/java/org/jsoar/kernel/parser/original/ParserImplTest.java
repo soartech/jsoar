@@ -428,7 +428,7 @@ public class ParserImplTest extends JSoarTest {
             assertEquals('L', nameLetter);
             assertEquals(1, nameNumber);
             final IdentifierImpl result = syms.createIdentifier(nameLetter, level);
-            result.smem_lti = lti;
+            result.semanticMemoryId = lti;
             return result;
           }
 
@@ -450,7 +450,7 @@ public class ParserImplTest extends JSoarTest {
             .asIdentifier();
     assertEquals('L', id.getNameLetter());
     assertEquals(1, id.getNameNumber());
-    assertEquals(expectedLti, id.smem_lti);
+    assertEquals(expectedLti, id.semanticMemoryId);
   }
 
   @Test
@@ -473,7 +473,7 @@ public class ParserImplTest extends JSoarTest {
             assertEquals('L', nameLetter);
             assertEquals(2, nameNumber);
             final IdentifierImpl result = syms.createIdentifier(nameLetter, level);
-            result.smem_lti = lti;
+            result.semanticMemoryId = lti;
             return result;
           }
 
@@ -490,7 +490,7 @@ public class ParserImplTest extends JSoarTest {
         p.getFirstAction().asMakeAction().value.asSymbolValue().getSym().asIdentifier();
     assertEquals('L', id.getNameLetter());
     assertEquals(1, id.getNameNumber());
-    assertEquals(expectedLti, id.smem_lti);
+    assertEquals(expectedLti, id.semanticMemoryId);
   }
 
   @Test
