@@ -41,17 +41,17 @@ public class EpisodicMemoryStateInfo {
 
   public EpisodicMemoryStateInfo(DefaultEpisodicMemory epmem, WorkingMemory wm, IdentifierImpl id) {
     // id->id.epmem_header = make_new_identifier( thisAgent, 'E', level );
-    epmem_header = epmem.symbols.make_new_identifier('E', id.level);
+    epmem_header = epmem.symbols.createIdentifier('E', id.level);
     // soar_module::add_module_wme( thisAgent, id, thisAgent->epmem_sym, id->id.epmem_header );
     SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym, epmem_header);
     // id->id.epmem_cmd_header = make_new_identifier( thisAgent, 'C', level );
-    epmem_cmd_header = epmem.symbols.make_new_identifier('C', id.level);
+    epmem_cmd_header = epmem.symbols.createIdentifier('C', id.level);
     // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd,
     // id->id.epmem_cmd_header );
     SoarModule.add_module_wme(
         wm, epmem_header, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
     // id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
-    epmem_result_header = epmem.symbols.make_new_identifier('R', id.level);
+    epmem_result_header = epmem.symbols.createIdentifier('R', id.level);
     // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result,
     // id->id.epmem_result_header );
     SoarModule.add_module_wme(

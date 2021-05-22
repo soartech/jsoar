@@ -36,11 +36,11 @@ public class SemanticMemoryStateInfo {
 
   public SemanticMemoryStateInfo(DefaultSemanticMemory smem, WorkingMemory wm, IdentifierImpl id) {
     // decide.cpp:create_new_impasse
-    smem_header = smem.symbols.make_new_identifier('S', id.level);
+    smem_header = smem.symbols.createIdentifier('S', id.level);
     SoarModule.add_module_wme(wm, id, smem.predefinedSyms.smem_sym, smem_header);
-    smem_cmd_header = smem.symbols.make_new_identifier('C', id.level);
+    smem_cmd_header = smem.symbols.createIdentifier('C', id.level);
     SoarModule.add_module_wme(wm, smem_header, smem.predefinedSyms.smem_sym_cmd, smem_cmd_header);
-    smem_result_header = smem.symbols.make_new_identifier('R', id.level);
+    smem_result_header = smem.symbols.createIdentifier('R', id.level);
     SoarModule.add_module_wme(
         wm, smem_header, smem.predefinedSyms.smem_sym_result, smem_result_header);
   }

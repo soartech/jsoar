@@ -42,6 +42,7 @@ import org.jsoar.util.ByRef;
  * @author ray
  */
 public class SymbolFactoryImpl implements SymbolFactory {
+
   /**
    * A helper method to make the initializations below a little less ugly.
    *
@@ -213,24 +214,10 @@ public class SymbolFactoryImpl implements SymbolFactory {
     return identifiers.get(getIdKey(name_letter, name_number));
   }
 
-  /**
-   * Tries to find an identifier and if it finds it in the map of identifiers, sets the value of the
-   * key to be null.
-   *
-   * @return Whether or not the identifier was found. Will also return false if identifier is null.
-   */
-  public boolean findAndNullIdentifier(IdentifierImpl identifier) {
-    if (identifier == null) {
-      return false;
-    }
-
-    boolean found = identifiers.containsValue(identifier);
-
-    if (found) {
+  public void removeIdentifier(IdentifierImpl identifier) {
+    if (identifier != null) {
       identifiers.remove(new IdKey(identifier.getNameLetter(), identifier.getNameNumber()));
     }
-
-    return found;
   }
 
   /**
@@ -240,17 +227,9 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @param level the goal stack level of the id
    * @return the new identifier
    */
-  public IdentifierImpl make_new_identifier(char name_letter, int /*goal_stack_level*/ level) {
+  public IdentifierImpl createIdentifier(char name_letter, int level) {
     name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
-    long name_number = id_counter[name_letter - 'A']++;
-
-    var id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
-
-    id.level = level;
-    id.promotion_level = level;
-
-    identifiers.put(getIdKey(id.getNameLetter(), id.getNameNumber()), id);
-    return id;
+    return createIdentifier(name_letter, id_counter[name_letter - 'A'], level);
   }
 
   /**
@@ -263,7 +242,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @param level the goal stack level of the id
    * @return the new identifier
    */
-  public IdentifierImpl make_new_identifier(char name_letter, long name_number, int level) {
+  public IdentifierImpl createIdentifier(char name_letter, long name_number, int level) {
     name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
     if (name_number >= id_counter[name_letter - 'A']) {
       id_counter[name_letter - 'A'] = name_number + 1;
@@ -281,7 +260,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
    * @see org.jsoar.kernel.symbols.SymbolFactory#createIdentifier(char)
    */
   public IdentifierImpl createIdentifier(char name_letter) {
-    return make_new_identifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
+    return createIdentifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
   }
 
   /* (non-Javadoc)
@@ -306,7 +285,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
     IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
     if (id == null) {
-      id = make_new_identifier(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
+      id = createIdentifier(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
     }
 
     return id;
@@ -427,6 +406,7 @@ public class SymbolFactoryImpl implements SymbolFactory {
 
   @Value
   private static class IdKey {
+
     private final char letter;
     private final long number;
   }

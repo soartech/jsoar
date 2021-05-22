@@ -4105,7 +4105,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
             @SuppressWarnings("unused")
             int /*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
             // mapping identifier
-            SymbolImpl mapping = symbols.make_new_identifier('M', level);
+            SymbolImpl mapping = symbols.createIdentifier('M', level);
             epmem_buffer_add_wme(
                 meta_wmes,
                 epmem_info(state).epmem_result_header,
@@ -4118,7 +4118,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
             for (Entry<EpmemLiteral, EpmemNodePair> iter : best_bindings.entrySet()) {
               if (iter.getKey().value_is_id != 0) {
                 // create the node
-                temp_sym = symbols.make_new_identifier('N', level);
+                temp_sym = symbols.createIdentifier('N', level);
                 epmem_buffer_add_wme(
                     meta_wmes,
                     mapping,
@@ -5207,7 +5207,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
     // create a new ^retrieved header for this result
     SymbolImpl retrieved_header;
-    retrieved_header = symbols.make_new_identifier('R', result_header.asIdentifier().level);
+    retrieved_header = symbols.createIdentifier('R', result_header.asIdentifier().level);
     // if ( id_record )
     if (id_record != null) {
       id_record.put(EPMEM_NODEID_ROOT, retrieved_header);
@@ -5739,7 +5739,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
           ids.put(
               child_n_id,
               new SymbolBooleanPair(
-                  symbols.make_new_identifier(
+                  symbols.createIdentifier(
                       ((Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE)
                           ? (attr.getFirstLetter())
                           : ('E')),

@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
+import org.jsoar.kernel.SoarConstants;
 import org.jsoar.util.ByRef;
 import org.junit.After;
 import org.junit.Before;
@@ -36,23 +37,77 @@ public class SymbolFactoryImplTest {
   }
 
   @Test
-  public void testMakeNewIdentifier() {
-    IdentifierImpl s = syms.make_new_identifier('s', (short) 1);
-    assertNotNull(s);
-    assertEquals('S', s.getNameLetter());
-    assertEquals(1, s.getNameNumber());
-    assertEquals(1, s.level);
-    assertNotEquals(0, s.getHash());
-    assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
+  public void testCreateIdentifierWithDefaultGoalStackLevel() {
+    // When creating identifier with name letter 'A'
+    IdentifierImpl identifier = syms.createIdentifier('A');
 
-    // Make another id and make sure the id increments
-    s = syms.make_new_identifier('s', (short) 4);
-    assertNotNull(s);
-    assertEquals('S', s.getNameLetter());
-    assertEquals(2, s.getNameNumber());
-    assertEquals(4, s.level);
-    assertNotEquals(0, s.getHash());
-    assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
+    // Then created identifier has name letter 'A'
+    assertEquals('A', identifier.getNameLetter());
+    // And level of identifier is SoarConstants.TOP_GOAL_LEVEL
+    assertEquals(SoarConstants.TOP_GOAL_LEVEL, identifier.level);
+    // And name number is >= 1
+    assertTrue(identifier.getNameNumber() >= 1);
+    // And hash is not null
+    assertNotEquals(0, identifier.getHash());
+  }
+
+  @Test
+  public void testCreateIdentifierWithSpecificGoalStackLevel() {
+    // When creating identifier with name letter 'C' and level 5
+    IdentifierImpl identifier = syms.createIdentifier('C', 5);
+
+    // Then created identifier has name letter 'C'
+    assertEquals('C', identifier.getNameLetter());
+    // And level of identifier is 5
+    assertEquals(5, identifier.level);
+    // And name number is >=1
+    assertTrue(identifier.getNameNumber() >= 1);
+    // And hash is not null
+    assertNotEquals(0, identifier.getHash());
+  }
+
+  @Test
+  public void testCreateIdentifierWithExistingNameNumber() {
+    // Given a Identifier with name letter 'A' and number '4'
+    IdentifierImpl identifier = syms.createIdentifier('A', 4, 0);
+    assertEquals(identifier, syms.findIdentifier('A', 4));
+
+    // When creating new Identifier with same name letter and number
+    IdentifierImpl newIdentifier = syms.createIdentifier('A', 4, 0);
+
+    // Then existing identifier is replaced by new identifier
+    assertSame(newIdentifier, syms.findIdentifier('A', 4));
+  }
+
+  @Test
+  public void testCreateIdentifierWithNameLetterIsLowerCase() {
+    // When creating a identifier with name letter 'd'
+    IdentifierImpl identifier = syms.createIdentifier('d');
+
+    // Then name letter of identifier is 'D'
+    assertEquals('D', identifier.getNameLetter());
+  }
+
+  @Test
+  public void testCreateIdentifierSuccessor() {
+    // Given a existing identifier for name letter 'S'
+    IdentifierImpl firstIdentifier = syms.createIdentifier('S');
+
+    // When creating next identifier for name letter 'S'
+    IdentifierImpl nextIdentifier = syms.createIdentifier('S');
+
+    // Then name number of next identifier is incremented
+    assertEquals(firstIdentifier.getNameNumber() + 1, nextIdentifier.getNameNumber());
+  }
+
+  @Test
+  public void testCreateIdentifierWithNameLetterIsNumber() {
+    //  Given a Symbol Factory
+    // When creating a identifier and passed name letter is a number
+    IdentifierImpl identifier = syms.createIdentifier('1');
+
+    // Then name letter of identifier is 'I'
+    assertEquals('I', identifier.getNameLetter());
   }
 
   @Test
@@ -183,6 +238,32 @@ public class SymbolFactoryImplTest {
     // When searching for string symbol with same value
     // Then existing string symbol for value is returned
     assertSame(symbol, syms.findString(symbol.getValue()));
+  }
+
+  @Test
+  public void testRemoveIdentifier() {
+    // Given a Symbol Factory
+    // And a existing identifier
+    IdentifierImpl identifier = syms.createIdentifier('B');
+
+    // When removing the identifier
+    syms.removeIdentifier(identifier);
+
+    // Then identifier can't be found anymore
+    assertNull(syms.findIdentifier(identifier.getNameLetter(), identifier.getNameNumber()));
+  }
+
+  @Test
+  public void testRemoveIdentifierNull() {
+    // Given a Symbol Factory
+    // And a existing identifier
+    IdentifierImpl identifier = syms.createIdentifier('C');
+
+    // When removing identifier null
+    syms.removeIdentifier(null);
+
+    // Then nothing has changed
+    assertNotNull(syms.findIdentifier(identifier.getNameLetter(), identifier.getNameNumber()));
   }
 
   @Test

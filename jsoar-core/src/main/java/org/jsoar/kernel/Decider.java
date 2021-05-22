@@ -1638,7 +1638,7 @@ public class Decider {
       SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type, int level) {
     final PredefinedSymbols predefined = predefinedSyms; // reduce typing
 
-    final IdentifierImpl id = predefined.getSyms().make_new_identifier('S', level);
+    final IdentifierImpl id = predefined.getSyms().createIdentifier('S', level);
     post_link_addition(null, id); // add the special link
 
     id.goalInfo = new GoalIdentifierInfo(id);
@@ -1679,7 +1679,7 @@ public class Decider {
         Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
 
     // Create RL link
-    id.goalInfo.reward_header = predefined.getSyms().make_new_identifier('R', level);
+    id.goalInfo.reward_header = predefined.getSyms().createIdentifier('R', level);
     SoarModule.add_module_wme(
         workingMemory, id, predefined.rl_sym_reward_link, id.goalInfo.reward_header);
 

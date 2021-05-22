@@ -330,13 +330,13 @@ public class RecognitionMemory {
 
       final SymbolFactoryImpl syms = predefinedSyms.getSyms();
       if (sym == null) {
-        sym = syms.make_new_identifier(new_id_letter, new_id_level);
+        sym = syms.createIdentifier(new_id_letter, new_id_level);
         this.rete.setRhsVariableBinding(index, sym);
         return sym;
       } else if (sym.asVariable() != null) {
         final Variable v = sym.asVariable();
         new_id_letter = v.getFirstLetter();
-        sym = syms.make_new_identifier(new_id_letter, new_id_level);
+        sym = syms.createIdentifier(new_id_letter, new_id_level);
         this.rete.setRhsVariableBinding(index, sym);
         return sym;
       } else {

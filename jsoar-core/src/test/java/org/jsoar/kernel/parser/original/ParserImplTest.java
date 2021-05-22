@@ -292,7 +292,7 @@ public class ParserImplTest extends JSoarTest {
   @Test
   public void testParseAttributeValueMake() throws Exception {
     OriginalParserImpl parser = createParser(" ^test 99 - )");
-    IdentifierImpl id = syms.make_new_identifier('s', (short) 0);
+    IdentifierImpl id = syms.createIdentifier('s', (short) 0);
     Action a = parser.parse_attr_value_make(id);
     assertNotNull(a);
     MakeAction ma = a.asMakeAction();
@@ -427,7 +427,7 @@ public class ParserImplTest extends JSoarTest {
             assertEquals(expectedLti, lti);
             assertEquals('L', nameLetter);
             assertEquals(1, nameNumber);
-            final IdentifierImpl result = syms.make_new_identifier(nameLetter, level);
+            final IdentifierImpl result = syms.createIdentifier(nameLetter, level);
             result.smem_lti = lti;
             return result;
           }
@@ -472,7 +472,7 @@ public class ParserImplTest extends JSoarTest {
             assertEquals(expectedLti, lti);
             assertEquals('L', nameLetter);
             assertEquals(2, nameNumber);
-            final IdentifierImpl result = syms.make_new_identifier(nameLetter, level);
+            final IdentifierImpl result = syms.createIdentifier(nameLetter, level);
             result.smem_lti = lti;
             return result;
           }

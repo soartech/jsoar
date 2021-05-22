@@ -22,7 +22,7 @@ public class WmeTest extends JSoarTest {
     // Acceptable, with and without timetag
     WmeImpl w1 =
         new WmeImpl(
-            syms.make_new_identifier('S', 0),
+            syms.createIdentifier('S', 0),
             syms.createString("superstate"),
             syms.createString("nil"),
             true,
@@ -33,7 +33,7 @@ public class WmeTest extends JSoarTest {
     // Not-acceptable, with and without timetag
     WmeImpl w2 =
         new WmeImpl(
-            syms.make_new_identifier('S', 1),
+            syms.createIdentifier('S', 1),
             syms.createString("value"),
             syms.createInteger(100),
             false,

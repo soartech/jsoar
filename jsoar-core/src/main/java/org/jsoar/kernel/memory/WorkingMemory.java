@@ -251,7 +251,7 @@ public class WorkingMemory {
       if (smem.smem_enabled()) {
         // Make sure it is an LTI
         if (w.item.id != null && w.item.id.smem_lti > 0) {
-          symbols.findAndNullIdentifier(w.item.id);
+          symbols.removeIdentifier(w.item.id);
         }
       }
     }

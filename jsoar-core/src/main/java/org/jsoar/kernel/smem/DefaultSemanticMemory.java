@@ -1217,7 +1217,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
     // otherwise create
     if (return_val == null) {
-      return_val = symbols.make_new_identifier(name_letter, name_number, level);
+      return_val = symbols.createIdentifier(name_letter, name_number, level);
     } else {
       if ((return_val.level == LTI_UNKNOWN_LEVEL) && (level != LTI_UNKNOWN_LEVEL)) {
         return_val.level = level;

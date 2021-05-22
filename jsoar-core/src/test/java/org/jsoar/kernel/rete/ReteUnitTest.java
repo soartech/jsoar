@@ -186,7 +186,7 @@ public class ReteUnitTest extends JSoarTest {
     assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
 
     // Add WMEs one at a time and make sure there isn't a match until the last WME is added
-    IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+    IdentifierImpl root = syms.createIdentifier('R', (short) 0);
     WmeImpl intWme =
         new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
     rete.add_wme_to_rete(intWme);
@@ -203,8 +203,7 @@ public class ReteUnitTest extends JSoarTest {
     assertFalse(listener.matching.contains(p));
 
     WmeImpl idWme =
-        new WmeImpl(
-            root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        new WmeImpl(root, syms.createString("id"), syms.createIdentifier('i', (short) 0), false, 0);
     rete.add_wme_to_rete(idWme);
     assertTrue(listener.matching.contains(p));
 
@@ -245,7 +244,7 @@ public class ReteUnitTest extends JSoarTest {
     assertNotNull(result);
     assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
 
-    IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+    IdentifierImpl root = syms.createIdentifier('R', (short) 0);
     WmeImpl intWme =
         new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
     rete.add_wme_to_rete(intWme);
@@ -266,8 +265,7 @@ public class ReteUnitTest extends JSoarTest {
     assertTrue(listener.matching.contains(p));
 
     WmeImpl idWme =
-        new WmeImpl(
-            root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        new WmeImpl(root, syms.createString("id"), syms.createIdentifier('i', (short) 0), false, 0);
     rete.add_wme_to_rete(idWme);
 
     // Addint this WME makes the NCC true, so the production unmatches
@@ -298,7 +296,7 @@ public class ReteUnitTest extends JSoarTest {
     assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
 
     // Add WMEs one at a time and make sure there isn't a match until the last WME is added
-    IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+    IdentifierImpl root = syms.createIdentifier('R', (short) 0);
     WmeImpl intWme =
         new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
     rete.add_wme_to_rete(intWme);
@@ -315,8 +313,7 @@ public class ReteUnitTest extends JSoarTest {
     assertFalse(listener.matching.contains(p));
 
     WmeImpl idWme =
-        new WmeImpl(
-            root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        new WmeImpl(root, syms.createString("id"), syms.createIdentifier('i', (short) 0), false, 0);
     rete.add_wme_to_rete(idWme);
     assertTrue(listener.matching.contains(p));
 
