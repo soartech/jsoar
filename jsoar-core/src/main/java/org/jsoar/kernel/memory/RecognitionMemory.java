@@ -311,7 +311,7 @@ public class RecognitionMemory {
       // See recmem.cpp:instantiate_rhs_value() for long-winded explanation of the following
       final IdentifierImpl resultAsId = result.asIdentifier();
       if (resultAsId != null
-          && resultAsId.smem_lti != 0
+          && resultAsId.isLongTermIdentifier()
           && resultAsId.getLevel() == SemanticMemory.LTI_UNKNOWN_LEVEL) {
         resultAsId.setLevel(new_id_level);
         resultAsId.promotion_level = new_id_level;

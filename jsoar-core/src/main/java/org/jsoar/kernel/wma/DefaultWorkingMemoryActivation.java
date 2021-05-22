@@ -820,7 +820,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation {
             current.forget_cycle = WMA_FORGOTTEN_CYCLE;
 
             if (!forget_only_lti
-                || ((IdentifierImpl) current.this_wme.getIdentifier()).smem_lti != 0) {
+                || ((IdentifierImpl) current.this_wme.getIdentifier()).isLongTermIdentifier()) {
               do_forget = true;
 
               // implements all-or-nothing check for lti mode
@@ -892,7 +892,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation {
     for (Wme w : rete.getAllWmes()) {
       final wma_decay_element wma_decay_el = wmaDecayElements.get(w);
       if (wma_decay_el != null
-          && (!forget_only_lti || (((IdentifierImpl) w.getIdentifier()).smem_lti != 0))) {
+          && (!forget_only_lti || (((IdentifierImpl) w.getIdentifier()).isLongTermIdentifier()))) {
         // to be forgotten, wme must...
         // - have been accessed (can't imagine why not, but just in case)
         // - not have been accessed this cycle (i.e. no decay)

@@ -134,6 +134,15 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
     return nameLetter;
   }
 
+  /**
+   * Returns whether this Identifier is a Long Term Identifier (LTI) within the semantic memory
+   *
+   * @return true if Long Term Identifier Semantic memory; false otherwise
+   */
+  public boolean isLongTermIdentifier() {
+    return smem_lti != 0;
+  }
+
   /* (non-Javadoc)
    * @see org.jsoar.kernel.symbols.Identifier#isGoal()
    */
@@ -306,7 +315,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    */
   @Override
   public String toString() {
-    return (smem_lti != 0 ? "@" : "") + nameLetter + name_number;
+    return (isLongTermIdentifier() ? "@" : "") + nameLetter + name_number;
   }
 
   /* (non-Javadoc)
@@ -314,7 +323,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
    */
   @Override
   public void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format((smem_lti != 0 ? "@" : "") + nameLetter + name_number);
+    formatter.format(toString());
   }
 
   /* (non-Javadoc)

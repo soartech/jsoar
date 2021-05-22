@@ -1637,7 +1637,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
       if (wme.value.asIdentifier() != null
           && (wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD
               && wme.value.asIdentifier().epmem_valid == epmem_validation)
-          && wme.value.asIdentifier().smem_lti == 0) {
+          && !wme.value.asIdentifier().isLongTermIdentifier()) {
         // prevent exclusions from being recorded
         if (params.exclusions.contains(wme.attr)) {
           // fprintf(stderr, "   WME excluded.  Skipping.\n");
@@ -1722,7 +1722,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
         // if long-term identifier as value, special processing (we may need to promote, we don't
         // add to/take from any pools
-        if (wmeValueId.smem_lti != 0) {
+        if (wmeValueId.isLongTermIdentifier()) {
           // find the lti or add new one
           if (!value_known_apriori) {
             // fprintf(stderr, "   Value is an LTI  Doing processing we haven't looke at!\n");
@@ -1976,7 +1976,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
 
           log.debug("   Incrementing and setting wme id to {} \n", wme.epmem_id);
 
-          if (wmeValueId.smem_lti == 0) {
+          if (!wmeValueId.isLongTermIdentifier()) {
             // replace the epmem_id and wme id in the right place
             epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
           }
@@ -4891,7 +4891,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
       literal.is_leaf = true;
       literal.child_n_id = epmem_temporal_hash(value);
       leaf_literals.add(literal);
-    } else if (identifier.smem_lti != 0) { // WME is an LTI
+    } else if (identifier.isLongTermIdentifier()) { // WME is an LTI
       // if we can find the LTI node id, cache it; otherwise, return failure
       // my_agent->epmem_stmts_graph->find_lti->bind_int(1, identifier.getNameLetter());
       // my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
@@ -6137,7 +6137,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory {
     var was_encoded = false;
 
     if (w.value.asIdentifier() != null) {
-      boolean lti = (w.value.asIdentifier().smem_lti != 0);
+      boolean lti = (w.value.asIdentifier().isLongTermIdentifier());
 
       if ((w.epmem_id != EPMEM_NODEID_BAD) && (w.epmem_valid == epmem_validation)) {
         was_encoded = true;

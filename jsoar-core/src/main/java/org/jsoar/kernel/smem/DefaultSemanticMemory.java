@@ -990,7 +990,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
     final EqualityTest eq = t.asEqualityTest();
     if (eq != null) {
       final IdentifierImpl referent = eq.getReferent().asIdentifier();
-      if (referent != null && referent.smem_lti != 0) {
+      if (referent != null && referent.isLongTermIdentifier()) {
         valid_ltis.add(referent);
       }
 
@@ -1017,7 +1017,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
     final RhsSymbolValue rsv = rv.asSymbolValue();
     if (rsv != null) {
       final IdentifierImpl sym = rsv.getSym().asIdentifier();
-      if (sym != null && sym.smem_lti != 0) {
+      if (sym != null && sym.isLongTermIdentifier()) {
         valid_ltis.add(sym);
       }
     } else {
@@ -1074,7 +1074,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
               good_action = true;
             }
             // short-term identifiers are ok
-            else if (id.smem_lti == 0) {
+            else if (!id.isLongTermIdentifier()) {
               good_action = true;
             }
             // valid long-term identifiers are ok
@@ -1181,12 +1181,12 @@ public class DefaultSemanticMemory implements SemanticMemory {
   private /* smem_lti_id */ long smem_lti_soar_add(SymbolImpl s)
       throws SoarException, SQLException {
     final IdentifierImpl id = s.asIdentifier();
-    if ((id != null) && (id.smem_lti == 0)) {
+    if ((id != null) && (!id.isLongTermIdentifier())) {
       // try to find existing lti
       id.smem_lti = smem_lti_get_id(id.getNameLetter(), id.getNameNumber());
 
       // if doesn't exist, add
-      if (id.smem_lti == 0) {
+      if (!id.isLongTermIdentifier()) {
         id.smem_lti = smem_lti_add_id(id.getNameLetter(), id.getNameNumber());
 
         id.smem_time_id = epmem.getStats().getTime();
@@ -3468,7 +3468,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
             } else if (w_p.attr == predefinedSyms.smem_sym_prohibit) {
               if ((w_p.value.asIdentifier() != null)
                   && ((path == path_type.blank_slate) || (path == path_type.cmd_query))
-                  && (w_p.value.asIdentifier().smem_lti != 0)) {
+                  && (w_p.value.asIdentifier().isLongTermIdentifier())) {
                 prohibit.add(w_p.value.asIdentifier()); // push_back
                 path = path_type.cmd_query;
               } else {
@@ -3518,7 +3518,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
           // retrieve
           if (path == path_type.cmd_retrieve) {
-            if (retrieve.smem_lti == 0) {
+            if (!retrieve.isLongTermIdentifier()) {
               // retrieve is not pointing to an lti!
               smem_buffer_add_wme(
                   meta_wmes,

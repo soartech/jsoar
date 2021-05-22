@@ -513,7 +513,7 @@ public class Rete {
         if ((id != null)
             && (id.epmem_id != DefaultEpisodicMemory.EPMEM_NODEID_BAD)
             && (id.epmem_valid == episodicMemory.epmem_validation())
-            && (id.smem_lti == 0)) // ( !w->value->id.smem_lti )
+            && (!id.isLongTermIdentifier())) // ( !w->value->id.smem_lti )
         {
           // add id ref count
           // (*thisAgent->epmem_id_ref_counts)[ w->value->id.epmem_id ]->insert( w );
@@ -529,7 +529,7 @@ public class Rete {
       }
     }
 
-    if ((w.id.smem_lti != 0)
+    if ((w.id.isLongTermIdentifier())
         && (!semanticMemory.smem_ignore_changes())
         && semanticMemory.smem_enabled()
         && semanticMemory.isMirroringEnabled() == true) {

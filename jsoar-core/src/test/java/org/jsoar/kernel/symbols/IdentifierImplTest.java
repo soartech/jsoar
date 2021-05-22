@@ -36,6 +36,57 @@ public class IdentifierImplTest extends JSoarTest {
     this.agent = new Agent();
   }
 
+  @Test
+  public void testIsLongTermIdentifier() {
+    IdentifierImpl identifier;
+
+    // Given Identifier
+    identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
+    // And identifier has semantic memory id
+    identifier.smem_lti = 123;
+
+    // Then identifier is a long term identifier
+    assertTrue(identifier.isLongTermIdentifier());
+
+    // Given Identifier
+    identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
+    // And identifier has NO semantic memory id
+    identifier.smem_lti = 0;
+
+    // Then identifier is a short term identifier
+    assertFalse(identifier.isLongTermIdentifier());
+  }
+
+  @Test
+  public void testToStringLongTermIdentifier() {
+    // Given Identifier with name letter 'A' and number 6
+    IdentifierImpl identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
+    // And Identifier is Long Term Identifier
+    identifier.smem_lti = 123;
+
+    // When getting textual representation of identifier
+    String text = identifier.toString();
+
+    // Then identifier starts with @
+    // Followed by name letter and name number
+    assertEquals("@A6", text);
+  }
+
+  @Test
+  public void testToStringShortTermIdentifier() {
+    // Given Identifier with name letter 'A' and number 6
+    IdentifierImpl identifier = new IdentifierImpl(mock(SymbolFactoryImpl.class), 0, 'A', 6);
+    // And Identifier is Short Term Identifier
+    identifier.smem_lti = 0;
+
+    // When getting textual representation of identifier
+    String text = identifier.toString();
+
+    // Then identifier starts with @
+    // Followed by name letter and name number
+    assertEquals("A6", text);
+  }
+
   /** Test method for {@link org.jsoar.kernel.symbols.IdentifierImpl#getWmes()}. */
   @Test
   public void testGetWmes() throws Exception {

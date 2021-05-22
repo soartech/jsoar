@@ -131,8 +131,8 @@ public class SymbolFactoryImpl implements SymbolFactory {
     // reinitializing, it should be fine to throw out all the existing ids
     // and start over.
 
-    // Remove all Identifiers which are not a Long Term Identifier (LTI) within the semantic memory.
-    identifiers.values().removeIf(id -> id.smem_lti == 0);
+    // Remove all Short Term identifiers.
+    identifiers.values().removeIf(id -> !id.isLongTermIdentifier());
 
     // Reset id counters
     Arrays.fill(id_counter, 1);

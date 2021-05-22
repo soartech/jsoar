@@ -348,7 +348,7 @@ public class Chunker {
     if (id == null) return sym;
 
     // don't variablize lti (long term identifiers)
-    if (id.smem_lti != 0) {
+    if (id.isLongTermIdentifier()) {
       id.tc_number = variablization_tc;
       id.variablization = sym;
       return sym;
