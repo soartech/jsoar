@@ -2333,10 +2333,13 @@ public class Decider {
         context
             .getPrinter()
             .warn(
-                "\nGoal stack depth exceeded %d on a no-change impasse.\n"
-                    + "Soar appears to be in an infinite loop.  \n"
-                    + "Continuing to subgoal may cause Soar to \n"
-                    + "exceed the program stack of your system.\n",
+                """
+
+                    Goal stack depth exceeded %d on a no-change impasse.
+                    Soar appears to be in an infinite loop. \s
+                    Continuing to subgoal may cause Soar to\s
+                    exceed the program stack of your system.
+                    """,
                 MAX_GOAL_DEPTH);
 
         this.decisionCycle.halt("Max Goal Depth (" + MAX_GOAL_DEPTH + ") exceeded");
