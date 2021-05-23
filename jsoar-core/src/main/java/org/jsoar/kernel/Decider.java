@@ -136,7 +136,7 @@ public class Decider {
   }
 
   private static final boolean DEBUG_GDS =
-      Boolean.valueOf(System.getProperty("jsoar.gds.debug", "false"));
+      Boolean.parseBoolean(System.getProperty("jsoar.gds.debug", "false"));
   private static final boolean DEBUG_GDS_HIGH = false;
   private static final boolean DEBUG_LINKS = false;
 
