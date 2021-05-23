@@ -175,7 +175,7 @@ public class Decider {
    *
    * <p>agent.h:615:promoted_ids
    */
-  private final List<IdentifierImpl> promoted_ids = new ArrayList<IdentifierImpl>();
+  private final List<IdentifierImpl> promoted_ids = new ArrayList<>();
 
   /** agent.h:616:link_update_mode */
   private LinkUpdateType link_update_mode = LinkUpdateType.UPDATE_LINKS_NORMALLY;
@@ -261,7 +261,7 @@ public class Decider {
   }
 
   public List<Goal> getGoalStack() {
-    final List<Goal> result = new ArrayList<Goal>();
+    final List<Goal> result = new ArrayList<>();
     for (IdentifierImpl g = topGoal; g != null; g = g.goalInfo.lower_goal) {
       final var goal = Adaptables.adapt(g, Goal.class);
       assert goal != null;
@@ -298,7 +298,7 @@ public class Decider {
       return;
     }
 
-    ListItem<Slot> dc = new ListItem<Slot>(s);
+    ListItem<Slot> dc = new ListItem<>(s);
     s.acceptable_preference_changed = dc;
     dc.insertAtHead(this.context_slots_with_changed_acceptable_preferences);
   }
@@ -608,7 +608,7 @@ public class Decider {
         dc.remove(this.ids_with_unknown_level);
         dc.insertAtHead(this.disconnected_ids);
       } else {
-        to.unknown_level = new ListItem<IdentifierImpl>(to);
+        to.unknown_level = new ListItem<>(to);
         to.unknown_level.insertAtHead(this.disconnected_ids);
       }
       return;
@@ -621,7 +621,7 @@ public class Decider {
     }
 
     if (to.unknown_level == null) {
-      to.unknown_level = new ListItem<IdentifierImpl>(to);
+      to.unknown_level = new ListItem<>(to);
       to.unknown_level.insertAtHead(this.ids_with_unknown_level);
     }
   }
@@ -688,7 +688,7 @@ public class Decider {
    * @param root
    */
   private void mark_id_and_tc_as_unknown_level(IdentifierImpl root) {
-    final Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<IdentifierImpl>();
+    final Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<>();
     ids_to_walk.push(root);
 
     while (!ids_to_walk.isEmpty()) {
@@ -721,7 +721,7 @@ public class Decider {
 
       // add id to the set of ids with unknown level
       if (id.unknown_level == null) {
-        id.unknown_level = new ListItem<IdentifierImpl>(id);
+        id.unknown_level = new ListItem<>(id);
         id.unknown_level.insertAtHead(ids_with_unknown_level);
       }
 
@@ -777,7 +777,7 @@ public class Decider {
    * @param root
    */
   private void walk_and_update_levels(IdentifierImpl root) {
-    Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<IdentifierImpl>();
+    Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<>();
     ids_to_walk.push(root);
 
     while (!ids_to_walk.isEmpty()) {
