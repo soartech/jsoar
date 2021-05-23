@@ -164,7 +164,7 @@ public class Decider {
    *
    * <p>Defaults to 100 in init_soar()
    */
-  private int MAX_GOAL_DEPTH = 100;
+  private final int MAX_GOAL_DEPTH = 100;
 
   /** agent.h:603:context_slots_with_changed_acceptable_preferences */
   private final ListHead<Slot> context_slots_with_changed_acceptable_preferences =
