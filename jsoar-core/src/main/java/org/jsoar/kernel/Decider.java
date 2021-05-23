@@ -973,6 +973,7 @@ public class Decider {
       ByRef<Preference> result_candidates,
       boolean consistency /* = false */,
       boolean predict /* = false */) {
+
     /* Set a flag to determine if a context-dependent preference set makes sense in this context.
      * We can ignore the CDPS when:
      * - Run_preference_semantics is called for a consistency check (don't want side effects)
@@ -2925,7 +2926,6 @@ public class Decider {
             if (DEBUG_GDS) {
               context.getPrinter().print("         this wme is local and o-supported\n");
             }
-            continue;
           } else {
             // wme's pref is i-supported, so remember it's instantiation
             // for later examination
@@ -2944,7 +2944,6 @@ public class Decider {
                   }
                 }
               }
-              continue;
             } else {
               /* (inst->match_goal_level != 1) */
               if (DEBUG_GDS) {
