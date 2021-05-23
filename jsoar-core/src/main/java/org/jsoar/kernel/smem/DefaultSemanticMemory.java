@@ -204,8 +204,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
   /* private */ SemanticMemorySymbols predefinedSyms;
 
-  private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos =
-      new LinkedHashMap<>();
+  private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new LinkedHashMap<>();
 
   private Set<IdentifierImpl> smem_changed_ids = new LinkedHashSet<>();
 
@@ -1448,10 +1447,8 @@ public class DefaultSemanticMemory implements SemanticMemory {
     // get new edges
     // if didn't disconnect, entails lookups in existing edges
     Set<Long /* smem_hash_id */> attr_new = new LinkedHashSet<>();
-    Set<SmemHashIdLongPair /* smem_hash_id->smem_hash_id */> const_new =
-        new LinkedHashSet<>();
-    Set<SmemHashIdLongPair /* smem_hash_id->smem_lti_id */> lti_new =
-        new LinkedHashSet<>();
+    Set<SmemHashIdLongPair /* smem_hash_id->smem_hash_id */> const_new = new LinkedHashSet<>();
+    Set<SmemHashIdLongPair /* smem_hash_id->smem_lti_id */> lti_new = new LinkedHashSet<>();
     {
       long /* smem_hash_id */ attr_hash = 0;
       long /* smem_hash_id */ value_hash = 0;
@@ -1771,8 +1768,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
     // encode this level
     {
-      final Map<IdentifierImpl, smem_chunk_lti> sym_to_chunk =
-          new LinkedHashMap<>();
+      final Map<IdentifierImpl, smem_chunk_lti> sym_to_chunk = new LinkedHashMap<>();
 
       final Map<SymbolImpl, List<Object>> slots = smem_chunk_lti.newSlotMap();
 
@@ -3969,8 +3965,7 @@ public class DefaultSemanticMemory implements SemanticMemory {
 
     final Queue<smem_vis_lti> bfs = new ArrayDeque<>();
 
-    final Map<Long /* smem_lti_id */, smem_vis_lti> close_list =
-        new LinkedHashMap<>();
+    final Map<Long /* smem_lti_id */, smem_vis_lti> close_list = new LinkedHashMap<>();
 
     // header
     return_val.append("digraph smem_lti {");

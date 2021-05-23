@@ -10,11 +10,52 @@ import static org.mockito.Mockito.mock;
 
 import org.jsoar.kernel.Production.Builder;
 import org.jsoar.kernel.lhs.PositiveCondition;
+import org.jsoar.kernel.rete.Rete;
+import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.junit.Test;
 
 public class ProductionTest {
+
+  @Test
+  public void testSetReteNode() {
+    // Given a production
+    Production production = Production.newBuilder().type(ProductionType.USER).name("test'").build();
+    // And Rete node
+    ReteNode reteNode = mock(ReteNode.class);
+
+    // When setting rete node
+    production.setReteNode(mock(Rete.class), reteNode);
+
+    // Then rete node of Production matches passed rete node
+    assertEquals(reteNode, production.getReteNode());
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testSetReteNodeThrowsExceptionIfReteAlreadySet() {
+    // Given a Production
+    Production production = Production.newBuilder().type(ProductionType.USER).name("test'").build();
+    // And rete set
+    production.setReteNode(mock(Rete.class), null);
+
+    // When setting rete node
+    // Then IllegalStateException is thrown
+    production.setReteNode(mock(Rete.class), null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testSetReteNodeThrowsExceptionIfReteNodeAlreadySet() {
+    // Given a Production
+    Production production = Production.newBuilder().type(ProductionType.USER).name("test'").build();
+    // And rete node set
+    production.setReteNode(null, mock(ReteNode.class));
+
+    // When setting rete node
+    // Then IllegalStateException is thrown
+    production.setReteNode(null, mock(ReteNode.class));
+  }
 
   @Test
   public void testSetBreakpointEnabledHasNoAffectWhenInterruptFlagIsSet() {
@@ -85,15 +126,14 @@ public class ProductionTest {
     // And mandatory properties values
     ProductionType type = ProductionType.TEMPLATE;
     final String name = "TEST-BUILDER";
-    SourceLocation location = mock(SourceLocation.class);
 
     // When building production
-    Production production = builder.type(type).name(name).location(location).build();
+    Production production = builder.type(type).name(name).build();
 
     // Then Production instance property values match passed values
     assertEquals(name, production.getName());
     assertEquals(type, production.getType());
-    assertEquals(location, production.getLocation());
+    assertEquals(DefaultSourceLocation.UNKNOWN, production.getLocation());
     // And firing count is zero
     assertEquals(0, production.getFiringCount());
   }
