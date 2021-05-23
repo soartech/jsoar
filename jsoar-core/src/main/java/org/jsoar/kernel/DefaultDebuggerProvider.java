@@ -6,8 +6,7 @@
 package org.jsoar.kernel;
 
 import java.lang.reflect.InvocationTargetException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is the default implementation of the {@link DebuggerProvider} interface.
@@ -25,8 +24,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author ray
  */
+@Slf4j
 public class DefaultDebuggerProvider extends AbstractDebuggerProvider {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
 
   public static final String PROPERTY = "jsoar.debugger.provider";
   public static final String DEFAULT_CLASS = "org.jsoar.debugger.DefaultDebuggerProvider";
@@ -57,12 +56,12 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider {
         p.setProperties(getProperties());
         return p;
       } else {
-        logger.error("Expected instance of " + DebuggerProvider.class + ", got " + klass);
+        log.error("Expected instance of {}, got {}", DebuggerProvider.class, klass);
         throw new SoarException(
             "Expected instance of " + DebuggerProvider.class + ", got " + klass);
       }
     } catch (ClassNotFoundException e) {
-      logger.error("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
+      log.error("Could not find default debugger provider class '{}'", DEFAULT_CLASS);
       throw new SoarException(
           "Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
     } catch (InstantiationException
@@ -71,7 +70,7 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider {
         | InvocationTargetException
         | NoSuchMethodException
         | SecurityException e) {
-      logger.error(
+      log.error(
           "Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(),
           e);
       throw new SoarException(
