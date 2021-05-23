@@ -23,7 +23,7 @@ public class EchoCommand extends PicocliSoarCommand {
       description = "Outputs the given string",
       subcommands = {HelpCommand.class})
   public static class Echo implements Runnable {
-    private Agent agent;
+    private final Agent agent;
 
     public Echo(Agent agent) {
       this.agent = agent;
@@ -41,7 +41,7 @@ public class EchoCommand extends PicocliSoarCommand {
     @Override
     public void run() {
       if (outputString != null) {
-        for (int i = 0; i < outputString.length; i++) {
+        for (var i = 0; i < outputString.length; i++) {
           if (i != 0) {
             agent.getPrinter().print(" ");
           }
