@@ -37,8 +37,6 @@ import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.GoalIdentifierInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.ByRef;
@@ -265,7 +263,7 @@ public class Decider {
   public List<Goal> getGoalStack() {
     final List<Goal> result = new ArrayList<Goal>();
     for (IdentifierImpl g = topGoal; g != null; g = g.goalInfo.lower_goal) {
-      final Goal goal = Adaptables.adapt(g, Goal.class);
+      final var goal = Adaptables.adapt(g, Goal.class);
       assert goal != null;
       result.add(goal);
     }
@@ -319,10 +317,10 @@ public class Decider {
     }
 
     // now mark values for which we WANT a wme as "CANDIDATE" values
-    for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.CANDIDATE;
     }
-    for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.CANDIDATE;
     }
 
@@ -355,7 +353,7 @@ public class Decider {
 
     // add the necessary wme's that don't ALREADY_EXIST
 
-    for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
       if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME) {
         // found existing wme, so just update its trace
         WmeImpl wme = p.value.decider_wme;
@@ -372,7 +370,7 @@ public class Decider {
       }
     }
 
-    for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
       if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME) {
         // found existing wme, so just update its trace
         WmeImpl wme = p.value.decider_wme;
@@ -448,7 +446,7 @@ public class Decider {
    */
   private void do_buffered_acceptable_preference_wme_changes() {
     while (!context_slots_with_changed_acceptable_preferences.isEmpty()) {
-      Slot s = context_slots_with_changed_acceptable_preferences.pop();
+      var s = context_slots_with_changed_acceptable_preferences.pop();
       do_acceptable_preference_wme_changes_for_slot(s);
       s.acceptable_preference_changed = null;
     }
@@ -548,7 +546,7 @@ public class Decider {
     }
 
     for (Slot s = id.slots; s != null; s = s.next) {
-      for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
+      for (var pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
         promote_if_needed(pref.value, new_level);
         if (pref.type.isBinary()) {
           promote_if_needed(pref.referent, new_level);
@@ -656,7 +654,7 @@ public class Decider {
       s.removeAllWmes();
 
       // remove all preferences for the slot
-      Preference pref = s.getAllPreferences();
+      var pref = s.getAllPreferences();
       while (pref != null) {
         final Preference next_pref = pref.nextOfSlot;
         recMemory.remove_preference_from_tm(pref);
@@ -735,7 +733,7 @@ public class Decider {
       }
 
       for (Slot s = id.slots; s != null; s = s.next) {
-        for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
+        for (var pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
           if (mark_level_unknown_needed(pref.value)) {
             ids_to_walk.push(pref.value.asIdentifier());
           }
@@ -808,7 +806,7 @@ public class Decider {
         }
       }
       for (Slot s = id.slots; s != null; s = s.next) {
-        for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
+        for (var pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
           if (level_update_needed(pref.value)) {
             ids_to_walk.push(pref.value.asIdentifier());
           }
@@ -1029,8 +1027,8 @@ public class Decider {
 
     /* If debugging a context-slot, print all preferences that we're deciding through */
 
-    final Trace trace = context.getTrace();
-    final Printer printer = trace.getPrinter();
+    final var trace = context.getTrace();
+    final var printer = trace.getPrinter();
     final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
 
     if (traceBacktracing && s.isa_context_slot) {
@@ -1040,7 +1038,7 @@ public class Decider {
       printer.print("All Preferences for slot:");
 
       for (PreferenceType type : PreferenceType.values()) {
-        Preference pref = s.getPreferencesByType(type);
+        var pref = s.getPreferencesByType(type);
 
         if (pref != null) {
           printer.print("\n %ss:\n", type.getDisplayName());
@@ -1059,12 +1057,12 @@ public class Decider {
 
       // Collect set of required items into candidates list
 
-      for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
         p.value.decider_flag = DeciderFlag.NOTHING;
       }
 
       Preference candidates = null;
-      for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next) {
         if (p.value.decider_flag == DeciderFlag.NOTHING) {
           p.next_candidate = candidates;
           candidates = p;
@@ -1087,7 +1085,7 @@ public class Decider {
        */
 
       SymbolImpl value = candidates.value;
-      for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next) {
         if (p.value == value) {
           return ImpasseType.CONSTRAINT_FAILURE;
         }
@@ -1113,17 +1111,17 @@ public class Decider {
 
     // Mark every acceptable preference as a possible candidate
 
-    for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.CANDIDATE;
     }
 
     /* Unmark any preferences that have a prohibit or reject. Note that this may
      * remove the candidate_decider_flag set in the last loop
      */
-    for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.NOTHING;
     }
-    for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.NOTHING;
     }
 
@@ -1131,7 +1129,7 @@ public class Decider {
      * have the CANDIDATE_DECIDER_FLAG reversed by prohibit or reject prefs.
      */
     Preference candidates = null;
-    for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next) {
       if (p.value.decider_flag == DeciderFlag.CANDIDATE) {
         p.next_candidate = candidates;
         candidates = p;
@@ -1152,12 +1150,10 @@ public class Decider {
     if (do_CDPS) {
       if (s.getPreferencesByType(PreferenceType.PROHIBIT) != null
           || s.getPreferencesByType(PreferenceType.REJECT) != null) {
-        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT);
-            p != null;
-            p = p.next) {
+        for (var p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next) {
           s.add_to_CDPS(context, p);
         }
-        for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next) {
+        for (var p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next) {
           s.add_to_CDPS(context, p);
         }
       }
@@ -1186,11 +1182,11 @@ public class Decider {
 
       // Initialize decider flags
 
-      for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next) {
         p.value.decider_flag = DeciderFlag.NOTHING;
         p.referent.decider_flag = DeciderFlag.NOTHING;
       }
-      for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next) {
         p.value.decider_flag = DeciderFlag.NOTHING;
         p.referent.decider_flag = DeciderFlag.NOTHING;
       }
@@ -1204,7 +1200,7 @@ public class Decider {
        * the conflicted list later. We first do this for both the referent
        * half of better and then the value half of worse preferences.
        */
-      for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next) {
         final SymbolImpl j = p.value;
         final SymbolImpl k = p.referent;
         if (j == k) {
@@ -1217,7 +1213,7 @@ public class Decider {
         }
       }
 
-      for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next) {
         final SymbolImpl j = p.value;
         final SymbolImpl k = p.referent;
         if (j == k) {
@@ -1286,16 +1282,12 @@ public class Decider {
         } else {
           if (do_CDPS) {
             /* Add better/worse preferences to CDPS */
-            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER);
-                p != null;
-                p = p.next) {
+            for (var p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next) {
               if (p.value == cand.value) {
                 s.add_to_CDPS(context, p);
               }
             }
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE);
-                p != null;
-                p = p.next) {
+            for (var p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next) {
               if (p.referent == cand.value) {
                 s.add_to_CDPS(context, p);
               }
@@ -1333,7 +1325,7 @@ public class Decider {
       }
 
       // Mark flag for those with a best preference
-      for (Preference p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next) {
         p.value.decider_flag = DeciderFlag.BEST;
       }
 
@@ -1342,9 +1334,7 @@ public class Decider {
       for (cand = candidates; cand != null; cand = cand.next_candidate) {
         if (cand.value.decider_flag == DeciderFlag.BEST) {
           if (do_CDPS) {
-            for (Preference p = s.getPreferencesByType(PreferenceType.BEST);
-                p != null;
-                p = p.next) {
+            for (var p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next) {
               if (p.value == cand.value) {
                 s.add_to_CDPS(context, p);
               }
@@ -1389,7 +1379,7 @@ public class Decider {
       }
 
       // Mark flag for those with a worst preference
-      for (Preference p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next) {
+      for (var p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next) {
         p.value.decider_flag = DeciderFlag.WORST;
       }
 
@@ -1399,7 +1389,7 @@ public class Decider {
        * if there's at least one non-worst candidate.
        */
 
-      boolean some_not_worst = false;
+      var some_not_worst = false;
       if (do_CDPS) {
         for (cand = candidates; cand != null; cand = cand.next_candidate) {
           if (cand.value.decider_flag != DeciderFlag.WORST) {
@@ -1420,9 +1410,7 @@ public class Decider {
         } else {
           if (do_CDPS && some_not_worst) {
             /* Add this worst preference to CDPS */
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORST);
-                p != null;
-                p = p.next) {
+            for (var p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next) {
               if (p.value == cand.value) {
                 s.add_to_CDPS(context, p);
               }
@@ -1461,13 +1449,11 @@ public class Decider {
 
     // Mark flag for unary or numeric indifferent preferences
 
-    for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT);
-        p != null;
-        p = p.next) {
+    for (var p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT); p != null; p = p.next) {
       p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT;
     }
 
-    for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT);
+    for (var p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT);
         p != null;
         p = p.next) {
       p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
@@ -1480,8 +1466,8 @@ public class Decider {
      * indifferent preferences at all.
      */
 
-    boolean not_all_indifferent = false;
-    boolean some_numeric = false;
+    var not_all_indifferent = false;
+    var some_numeric = false;
 
     for (Preference cand = candidates; cand != null; cand = cand.next_candidate) {
       /*
@@ -1507,8 +1493,8 @@ public class Decider {
         if (p == cand) {
           continue;
         }
-        boolean match_found = false;
-        for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
+        var match_found = false;
+        for (var p2 = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
             p2 != null;
             p2 = p2.next) {
           if (((p2.value == cand.value) && (p2.referent == p.value))
@@ -1548,7 +1534,7 @@ public class Decider {
              * duplicates.
              */
 
-            for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT);
+            for (var p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT);
                 p != null;
                 p = p.next) {
               if (p.value == result_candidates.value.value) {
@@ -1561,7 +1547,7 @@ public class Decider {
              * does NOT have a numeric preference.
              */
 
-            for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
+            for (var p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
                 p != null;
                 p = p.next) {
               if ((p.value == result_candidates.value.value)
@@ -1576,14 +1562,14 @@ public class Decider {
             /* This decision was non-numeric, so add all non-numeric preferences associated with the
              * chosen candidate to the CDPS.*/
 
-            for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT);
+            for (var p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT);
                 p != null;
                 p = p.next) {
               if (p.value == result_candidates.value.value) {
                 s.add_to_CDPS(context, p);
               }
             }
-            for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
+            for (var p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
                 p != null;
                 p = p.next) {
               if ((p.value == result_candidates.value.value)
@@ -1727,7 +1713,7 @@ public class Decider {
       throw new IllegalStateException("Internal error: couldn't find acceptable pref wme");
     }
     // make the fake preference
-    final Preference pref =
+    final var pref =
         new Preference(
             PreferenceType.ACCEPTABLE, goal, predefinedSyms.item_symbol, cand.value, null);
     goal.goalInfo.addGoalPreference(pref);
@@ -1735,7 +1721,7 @@ public class Decider {
     pref.preference_add_ref();
 
     // make the fake instantiation
-    final Instantiation inst = new Instantiation(null, null, null);
+    final var inst = new Instantiation(null, null, null);
     pref.setInstantiation(inst);
     inst.match_goal = goal;
     inst.match_goal_level = goal.getLevel();
@@ -1744,7 +1730,7 @@ public class Decider {
     inst.in_ms = false;
 
     // make the fake condition
-    final PositiveCondition cond = new PositiveCondition();
+    final var cond = new PositiveCondition();
 
     cond.id_test = SymbolImpl.makeEqualityTest(ap_wme.id); // make_equality_test
     // (ap_wme->id);
@@ -2110,7 +2096,7 @@ public class Decider {
   private void decide_non_context_slots() {
     final ListHead<Slot> changed_slots = tempMemory.changed_slots;
     while (!changed_slots.isEmpty()) {
-      Slot s = changed_slots.pop();
+      var s = changed_slots.pop();
       decide_non_context_slot(s);
       s.changed = null;
     }
@@ -2188,7 +2174,7 @@ public class Decider {
     /* --- remove any preferences supported by this goal --- */
     if (SoarConstants.DO_TOP_LEVEL_REF_CTS) {
       while (goal.goalInfo.preferences_from_goal != null) {
-        final Preference p = goal.goalInfo.popGoalPreference();
+        final var p = goal.goalInfo.popGoalPreference();
         p.on_goal_list = false;
 
         if (!p.remove_preference_from_clones(recMemory)) {
@@ -2487,7 +2473,7 @@ public class Decider {
             } else {
               final IdentifierImpl tempId = candidates.value.value.asIdentifier();
               // TODO can this be null?
-              final String temp = String.format("%s", tempId);
+              final var temp = String.format("%s", tempId);
               decisionManip.predict_set(temp);
             }
             break;
@@ -2674,7 +2660,7 @@ public class Decider {
 
   /** decide.cpp:2373:do_working_memory_phase */
   public void do_working_memory_phase() {
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     if (trace.isEnabled() && trace.isEnabled(Category.PHASES)) {
       if (this.decisionCycle.current_phase.get() == Phase.APPLY) { // it's always IE for PROPOSE
         // TODO xml
@@ -2777,7 +2763,7 @@ public class Decider {
       }
     } /* end for loop */
 
-    ParentInstantiation new_pi = new ParentInstantiation();
+    var new_pi = new ParentInstantiation();
     new_pi.next = null;
     new_pi.prev = null;
     new_pi.inst = inst;
@@ -2829,7 +2815,7 @@ public class Decider {
       }
 
       for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-        PositiveCondition pc = cond.asPositiveCondition();
+        var pc = cond.asPositiveCondition();
         if (pc == null) {
           continue;
         }
@@ -2961,7 +2947,7 @@ public class Decider {
               if (DEBUG_GDS) {
                 context.getPrinter().print("         this wme is local and i-supported\n");
               }
-              Slot s = Slot.find_slot(pref_for_this_wme.id, pref_for_this_wme.attr);
+              var s = Slot.find_slot(pref_for_this_wme.id, pref_for_this_wme.attr);
               if (s == null) {
                 // this must be an arch-wme from a fake instantiation
 
@@ -3050,7 +3036,7 @@ public class Decider {
                 } /* matches { wme *fake_inst_wme_cond  */
               } else {
                 // this was the original "local & i-supported" action
-                for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE);
+                for (var pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE);
                     pref != null;
                     pref = pref.next) {
                   if (DEBUG_GDS) {
@@ -3223,7 +3209,7 @@ public class Decider {
       }
     }
 
-    final Goal goal = Adaptables.adapt(w.gds.getGoal(), Goal.class);
+    final var goal = Adaptables.adapt(w.gds.getGoal(), Goal.class);
     remove_existing_context_and_descendents(w.gds.getGoal());
     /* BUG: Need to reset highest_goal here ???*/
 
