@@ -14,14 +14,14 @@ import java.util.Map;
  * @author ray
  */
 public abstract class AbstractDebuggerProvider implements DebuggerProvider {
-  private Map<String, Object> properties = new HashMap<String, Object>();
+  private final Map<String, Object> properties = new HashMap<>();
 
   /* (non-Javadoc)
    * @see org.jsoar.kernel.DebuggerProvider#getProperties()
    */
   @Override
   public synchronized Map<String, Object> getProperties() {
-    return new HashMap<String, Object>(properties);
+    return new HashMap<>(properties);
   }
 
   /* (non-Javadoc)
