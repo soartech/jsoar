@@ -14,7 +14,7 @@ import org.jsoar.kernel.memory.Wme;
  * @author ray
  */
 public interface MatchSetEntry {
-  public static enum EntryType {
+  enum EntryType {
     O_ASSERTION,
     I_ASSERTION,
     RETRACTION
