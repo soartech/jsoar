@@ -83,13 +83,13 @@ public class DecisionCycle {
 
   /** agent.h:324:current_phase agent.cpp:153 (init) */
   public final EnumPropertyProvider<Phase> current_phase =
-      new EnumPropertyProvider<Phase>(SoarProperties.CURRENT_PHASE);
+      new EnumPropertyProvider<>(SoarProperties.CURRENT_PHASE);
 
   /** agent.h:349:go_type agent.cpp:146 (init) */
   private GoType go_type = GoType.GO_DECISION;
 
   private EnumPropertyProvider<Phase> stopPhase =
-      new EnumPropertyProvider<Phase>(SoarProperties.STOP_PHASE);
+      new EnumPropertyProvider<>(SoarProperties.STOP_PHASE);
 
   int e_cycles_this_d_cycle;
 
