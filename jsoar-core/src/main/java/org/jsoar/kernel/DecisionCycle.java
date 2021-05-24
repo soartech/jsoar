@@ -108,11 +108,16 @@ public class DecisionCycle {
   @SuppressWarnings("unused")
   private int run_generated_output_count;
 
-  public final LongPropertyProvider d_cycle_count = new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
-  private final LongPropertyProvider decision_phases_count = new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
-  private final LongPropertyProvider e_cycle_count = new LongPropertyProvider(SoarProperties.E_CYCLE_COUNT);
-  private final LongPropertyProvider pe_cycle_count = new LongPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
-  public final LongPropertyProvider inner_e_cycle_count = new LongPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
+  public final LongPropertyProvider d_cycle_count =
+      new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
+  private final LongPropertyProvider decision_phases_count =
+      new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
+  private final LongPropertyProvider e_cycle_count =
+      new LongPropertyProvider(SoarProperties.E_CYCLE_COUNT);
+  private final LongPropertyProvider pe_cycle_count =
+      new LongPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
+  public final LongPropertyProvider inner_e_cycle_count =
+      new LongPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
 
   /** gsysparam.h:MAX_ELABORATIONS_SYSPARAM */
   private final IntegerPropertyProvider maxElaborations =

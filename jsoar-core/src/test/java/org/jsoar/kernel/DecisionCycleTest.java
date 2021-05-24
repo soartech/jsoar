@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -134,6 +135,99 @@ public class DecisionCycleTest {
         assertTrue(decisionCycle.isStopped());
       }
     }
+  }
+
+  @Test
+  public void testStopDecisionCycle() {
+    // Given a active decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+    assertFalse(cycle.isStopped());
+
+    // When stopping decision cycle
+    cycle.stop();
+
+    // Then decision cycle is stopped
+    assertTrue(cycle.isStopped());
+    // And reason for stop is 'Stopped by user.'
+    assertEquals("Stopped by user.", cycle.getReasonForStop());
+  }
+
+  @Test
+  public void testStopDecisionCycleWhichIsHalted() {
+    final String reasonForHalting = "REASON";
+
+    // Given a halted decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+    cycle.halt(reasonForHalting);
+
+    // When stopping decision cycle
+    cycle.stop();
+
+    // Then decision cycle is stopped
+    assertTrue(cycle.isStopped());
+    // And reason for stop is unchanged
+    assertEquals(reasonForHalting, cycle.getReasonForStop());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRunForThrowsExceptionIfRunTypePhasesAndNumberOfPhasesSmallerThanZero() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(-1, RunType.PHASES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRunForThrowsExceptionIfRunTypeElaborationsAndNumberOfPhasesSmallerThanZero() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(-1, RunType.ELABORATIONS);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRunForThrowsExceptionIfRunTypeDecisionsAndNumberOfPhasesSmallerThanZero() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(-1, RunType.DECISIONS);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void
+      testRunForThrowsExceptionIfRunTypeModificationsOfOutputAndNumberOfPhasesSmallerThanZero() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(-1, RunType.MODIFICATIONS_OF_OUTPUT);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRunForThrowsExceptionIfRunTypeForeverNumberOfPhasesSmallerThanZero() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(-1, RunType.FOREVER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRunForThrowsExceptionIfRunTypeIsNull() {
+    // Given a decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+
+    // When running for individual phases for less than zero cycles
+    // Then IllegalArgumentException is thrown
+    cycle.runFor(1, null);
   }
 
   private void validateLastOperator(long number) {

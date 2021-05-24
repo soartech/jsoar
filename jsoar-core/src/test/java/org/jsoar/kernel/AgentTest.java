@@ -40,6 +40,11 @@ public class AgentTest {
     assertEquals(Phase.DECISION, agent.getProperties().get(SoarProperties.STOP_PHASE));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetMaxElaborationsThrowsExceptionIfSmallerThanZero() {
+    agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, -1);
+  }
+
   @Test
   public void testGetGoalStack() {
     agent.runFor(3, RunType.DECISIONS);
