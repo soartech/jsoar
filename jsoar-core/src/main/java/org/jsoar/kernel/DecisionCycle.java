@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.AbstractPhaseEvent;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
@@ -88,7 +89,7 @@ public class DecisionCycle {
   /** agent.h:349:go_type agent.cpp:146 (init) */
   private GoType go_type = GoType.GO_DECISION;
 
-  private EnumPropertyProvider<Phase> stopPhase =
+  private final EnumPropertyProvider<Phase> stopPhase =
       new EnumPropertyProvider<>(SoarProperties.STOP_PHASE);
 
   int e_cycles_this_d_cycle;
@@ -107,19 +108,14 @@ public class DecisionCycle {
   @SuppressWarnings("unused")
   private int run_generated_output_count;
 
-  public LongPropertyProvider d_cycle_count =
-      new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
-  private LongPropertyProvider decision_phases_count =
-      new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
-  private LongPropertyProvider e_cycle_count =
-      new LongPropertyProvider(SoarProperties.E_CYCLE_COUNT);
-  private LongPropertyProvider pe_cycle_count =
-      new LongPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
-  public LongPropertyProvider inner_e_cycle_count =
-      new LongPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
+  public final LongPropertyProvider d_cycle_count = new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
+  private final LongPropertyProvider decision_phases_count = new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
+  private final LongPropertyProvider e_cycle_count = new LongPropertyProvider(SoarProperties.E_CYCLE_COUNT);
+  private final LongPropertyProvider pe_cycle_count = new LongPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
+  public final LongPropertyProvider inner_e_cycle_count = new LongPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
 
   /** gsysparam.h:MAX_ELABORATIONS_SYSPARAM */
-  private IntegerPropertyProvider maxElaborations =
+  private final IntegerPropertyProvider maxElaborations =
       new IntegerPropertyProvider(SoarProperties.MAX_ELABORATIONS) {
         @Override
         public Integer set(Integer value) {
@@ -772,8 +768,6 @@ public class DecisionCycle {
    * @throws IllegalArgumentException if n is negative
    */
   private void run_for_n_phases(long n) {
-    Arguments.check(n >= 0, "n must be non-negative");
-
     startTopLevelTimers();
 
     stop_soar = false;
@@ -796,8 +790,6 @@ public class DecisionCycle {
    * @throws IllegalArgumentException if n is negative
    */
   private void run_for_n_elaboration_cycles(long n) {
-    Arguments.check(n >= 0, "n must be non-negative");
-
     startTopLevelTimers();
 
     stop_soar = false;
@@ -829,8 +821,6 @@ public class DecisionCycle {
    * @throws IllegalArgumentException if n is negative
    */
   private void run_for_n_modifications_of_output(long n) {
-    Arguments.check(n >= 0, "n must be non-negative");
-
     startTopLevelTimers();
 
     stop_soar = false;
@@ -863,7 +853,6 @@ public class DecisionCycle {
    * @throws IllegalArgumentException if n is negative
    */
   private void run_for_n_decision_cycles(long n) {
-    Arguments.check(n >= 0, "n must be non-negative");
     final Phase stopPhase = this.stopPhase.get(); // save in case this changes during run
 
     startTopLevelTimers();
@@ -888,10 +877,12 @@ public class DecisionCycle {
   /**
    * Client code should use {@link Agent#runFor(long, RunType)}
    *
-   * @param n
+   * @param n number of cycles
    * @param runType
    */
-  public void runFor(long n, RunType runType) {
+  public void runFor(long n, @NonNull RunType runType) {
+    Arguments.check(n >= 0, "n must be non-negative");
+
     if (checkForSystemHaltedAtStartOfTopLevel()) {
       return;
     }
@@ -906,9 +897,7 @@ public class DecisionCycle {
         run_for_n_phases(n);
         break;
       case MODIFICATIONS_OF_OUTPUT:
-        for (long i = 0; i < n; ++i) {
-          run_for_n_modifications_of_output(1);
-        }
+        run_for_n_modifications_of_output(n);
         break;
       case FOREVER:
         runForever();
