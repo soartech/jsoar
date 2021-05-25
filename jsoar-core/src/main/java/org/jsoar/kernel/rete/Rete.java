@@ -463,7 +463,7 @@ public class Rete {
   }
 
   /**
-   * Add a WME to the rete.
+   * Add a Working Memory Elemment (WME) to the rete.
    *
    * <p>rete.cpp:1552:add_wme_to_rete
    *

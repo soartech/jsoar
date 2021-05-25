@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import lombok.NonNull;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.AbstractPhaseEvent;
@@ -31,8 +32,6 @@ import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
@@ -78,9 +77,17 @@ public class DecisionCycle {
     // unused: GO_STATE, GO_OPERATOR, GO_SLOT, GO_OUTPUT
   }
 
-  private boolean system_halted = false;
-  private boolean stop_soar = false;
-  private String reason_for_stopping = null;
+  /** true if the agent is halted */
+  @Getter
+  private boolean halted = false;
+
+  /** true if this agent has been stopped, halted, or interrupted */
+  @Getter
+  private boolean stopped = false;
+
+  /** The reason for stopping, or <code>null</code> if {@link #isStopped()} is false. */
+  @Getter
+  private String reasonForStop = null;
 
   /** agent.h:324:current_phase agent.cpp:153 (init) */
   public final EnumPropertyProvider<Phase> current_phase =
@@ -141,7 +148,7 @@ public class DecisionCycle {
         @Override
         public SymbolImpl execute(RhsFunctionContext context, List<Symbol> arguments)
             throws RhsFunctionException {
-          system_halted = true;
+          halted = true;
 
           // callback AFTER_HALT_SOAR_CALLBACK is fired from decision cycle
 
@@ -202,9 +209,9 @@ public class DecisionCycle {
    */
   public void reset() {
     // Reinitialize the various halt and stop flags
-    system_halted = false;
-    stop_soar = false;
-    reason_for_stopping = null;
+    halted = false;
+    stopped = false;
+    reasonForStop = null;
     go_type = GoType.GO_DECISION;
     current_phase.set(Phase.INPUT);
 
@@ -256,8 +263,8 @@ public class DecisionCycle {
    * <p>init_soar.cpp:474:do_one_top_level_phase
    */
   private void do_one_top_level_phase() {
-    assert !system_halted;
-    assert !stop_soar;
+    assert !halted;
+    assert !stopped;
 
     ExecutionTimers.pause(context.getTotalKernelTimer());
     context.getEvents().fireEvent(pollEvent);
@@ -296,9 +303,9 @@ public class DecisionCycle {
 
     checkForSystemHalt();
 
-    if (stop_soar) {
-      if (reason_for_stopping != null && reason_for_stopping.length() > 0) {
-        context.getPrinter().print("\n%s", reason_for_stopping);
+    if (stopped) {
+      if (reasonForStop != null && reasonForStop.length() > 0) {
+        context.getPrinter().print("\n%s", reasonForStop);
       }
     }
   }
@@ -341,7 +348,7 @@ public class DecisionCycle {
 
     /* not yet cleaned up for 8.6.0 release */
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     Phase.DECISION.trace(trace, true);
 
     // #ifndef NO_TIMING_STUFF
@@ -359,7 +366,7 @@ public class DecisionCycle {
     afterPhase(Phase.DECISION);
 
     if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS)) {
-      final Printer printer = trace.getPrinter();
+      final var printer = trace.getPrinter();
       try {
         printer.startNewLine();
         traceFormats.print_lowest_slot_in_context_stack(printer.getWriter(), decider.bottomGoal());
@@ -398,7 +405,7 @@ public class DecisionCycle {
   private void doOutputPhase() {
     assert current_phase.get() == Phase.OUTPUT;
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     Phase.OUTPUT.trace(trace, true);
 
     // #ifndef NO_TIMING_STUFF
@@ -509,7 +516,7 @@ public class DecisionCycle {
   private void doApplyPhase() {
     assert current_phase.get() == Phase.APPLY;
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
 
     // added in 8.6 to clarify Soar8 decision cycle
 
@@ -606,7 +613,7 @@ public class DecisionCycle {
   private void doProposePhase() {
     assert current_phase.get() == Phase.PROPOSE;
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
 
     /* added in 8.6 to clarify Soar8 decision cycle */
 
@@ -697,7 +704,7 @@ public class DecisionCycle {
   private void doInputPhase() {
     assert current_phase.get() == Phase.INPUT;
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     Phase.INPUT.trace(trace, true);
 
     // for Operand2 mode using the new decision cycle ordering,
@@ -732,13 +739,13 @@ public class DecisionCycle {
    * @return true if the system is halted, false otherwise
    */
   private boolean checkForSystemHaltedAtStartOfTopLevel() {
-    final Printer printer = context.getPrinter();
+    final var printer = context.getPrinter();
 
-    if (system_halted) {
+    if (halted) {
       printer.print("\nSystem halted.  Use (init-soar) before running Soar again.");
       printer.flush();
-      stop_soar = true;
-      reason_for_stopping = "System halted.";
+      stopped = true;
+      reasonForStop = "System halted.";
       return true;
     }
     return false;
@@ -749,9 +756,9 @@ public class DecisionCycle {
    * the halt event and do some cleanup.
    */
   private void checkForSystemHalt() {
-    if (system_halted) {
-      stop_soar = true;
-      reason_for_stopping = "System halted.";
+    if (halted) {
+      stopped = true;
+      reasonForStop = "System halted.";
 
       context.getEvents().fireEvent(afterHaltEvent);
 
@@ -775,10 +782,10 @@ public class DecisionCycle {
   private void run_for_n_phases(long n) {
     startTopLevelTimers();
 
-    stop_soar = false;
-    reason_for_stopping = null;
+    stopped = false;
+    reasonForStop = null;
     setHitMaxElaborations(false);
-    while (!stop_soar && n != 0) {
+    while (!stopped && n != 0) {
       do_one_top_level_phase();
       n--;
     }
@@ -797,10 +804,10 @@ public class DecisionCycle {
   private void run_for_n_elaboration_cycles(long n) {
     startTopLevelTimers();
 
-    stop_soar = false;
-    reason_for_stopping = null;
+    stopped = false;
+    reasonForStop = null;
     long d_cycles_at_start = d_cycle_count.value.get();
-    int elapsed_cycles = 0;
+    var elapsed_cycles = 0;
     GoType save_go_type = GoType.GO_PHASE;
 
     elapsed_cycles = -1;
@@ -809,7 +816,7 @@ public class DecisionCycle {
     // need next line or runs only the input phases for "d 1" after init-soar
     if (d_cycles_at_start == 0) d_cycles_at_start++;
 
-    while (!stop_soar) {
+    while (!stopped) {
       elapsed_cycles++;
       if (n == elapsed_cycles) break;
       do_one_top_level_phase();
@@ -828,10 +835,10 @@ public class DecisionCycle {
   private void run_for_n_modifications_of_output(long n) {
     startTopLevelTimers();
 
-    stop_soar = false;
-    reason_for_stopping = null;
-    int count = 0;
-    while (!stop_soar && n != 0) {
+    stopped = false;
+    reasonForStop = null;
+    var count = 0;
+    while (!stopped && n != 0) {
       boolean was_output_phase = current_phase.get() == Phase.OUTPUT;
       do_one_top_level_phase();
       if (was_output_phase) {
@@ -858,21 +865,21 @@ public class DecisionCycle {
    * @throws IllegalArgumentException if n is negative
    */
   private void run_for_n_decision_cycles(long n) {
-    final Phase stopPhase = this.stopPhase.get(); // save in case this changes during run
+    final var stopPhase = this.stopPhase.get(); // save in case this changes during run
 
     startTopLevelTimers();
 
-    stop_soar = false;
-    reason_for_stopping = null;
+    stopped = false;
+    reasonForStop = null;
     long d_cycles_at_start = d_cycle_count.value.get();
     /* need next line or runs only the input phases for "d 1" after init-soar */
     if (d_cycles_at_start == 0) d_cycles_at_start++;
-    while (!stop_soar) {
+    while (!stopped) {
       if (n == (d_cycle_count.value.get() - d_cycles_at_start)) break;
       do_one_top_level_phase();
     }
 
-    while (!stop_soar && current_phase.get() != stopPhase) {
+    while (!stopped && current_phase.get() != stopPhase) {
       do_one_top_level_phase();
     }
 
@@ -923,30 +930,20 @@ public class DecisionCycle {
     }
     startTopLevelTimers();
 
-    stop_soar = false;
-    reason_for_stopping = null;
-    while (!stop_soar) {
+    stopped = false;
+    reasonForStop = null;
+    while (!stopped) {
       do_one_top_level_phase();
     }
 
     pauseTopLevelTimers();
   }
 
-  /** @return true if this agent has been stopped, halted, or interrupted */
-  public boolean isStopped() {
-    return stop_soar;
-  }
-
-  /** @return The reason for stopping, or <code>null</code> if {@link #isStopped()} is false. */
-  public String getReasonForStop() {
-    return reason_for_stopping;
-  }
-
   /** Stop the agent. */
   public void stop() {
-    if (!stop_soar) {
-      this.stop_soar = true;
-      this.reason_for_stopping = "Stopped by user.";
+    if (!stopped) {
+      this.stopped = true;
+      this.reasonForStop = "Stopped by user.";
     }
   }
 
@@ -959,13 +956,8 @@ public class DecisionCycle {
    *     unknown.
    */
   public void interrupt(String production) {
-    this.stop_soar = true;
-    this.reason_for_stopping = "*** Interrupt from production " + production + " ***";
-  }
-
-  /** @return true if the agent is halted */
-  public boolean isHalted() {
-    return system_halted;
+    this.stopped = true;
+    this.reasonForStop = "*** Interrupt from production " + production + " ***";
   }
 
   /**
@@ -974,8 +966,8 @@ public class DecisionCycle {
    * @param string Reason for the halt
    */
   public void halt(String string) {
-    stop_soar = true;
-    system_halted = true;
-    reason_for_stopping = string;
+    stopped = true;
+    halted = true;
+    reasonForStop = string;
   }
 }

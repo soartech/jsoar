@@ -63,7 +63,7 @@ public class DecisionCycleTest {
         .loadProduction(
             "test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
 
-    assertTrue(agent.getProductions().getProduction("test2").instantiations == null);
+    assertNull(agent.getProductions().getProduction("test2").instantiations );
 
     assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
     this.decisionCycle.runFor(1, RunType.PHASES);
@@ -77,7 +77,7 @@ public class DecisionCycleTest {
     this.decisionCycle.runFor(1, RunType.PHASES);
 
     // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-    assertFalse(agent.getProductions().getProduction("test2").instantiations == null);
+    assertNotNull(agent.getProductions().getProduction("test2").instantiations);
 
     // Verify that new states are being generates
     final Decider decider = Adaptables.adapt(agent, Decider.class);
@@ -135,6 +135,42 @@ public class DecisionCycleTest {
         assertTrue(decisionCycle.isStopped());
       }
     }
+  }
+
+  @Test
+  public void testHaltDecisionCycle() {
+    final String reason = "REASON HALT";
+
+    // Given a active decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+    assertFalse(cycle.isStopped());
+
+    // When halting decision cycle for specific reason
+    cycle.halt(reason);
+
+    // Then decision cycle is stopped
+    assertTrue(cycle.isStopped());
+    // And decision cycle is halted
+    assertTrue(cycle.isHalted());
+    // And reason for halt matches specified one
+    assertEquals(reason, cycle.getReasonForStop());
+  }
+
+  @Test
+  public void testInterruptDecisionCycle() {
+    final String productionName = "PRODUCTION";
+
+    // Given a active decision cycle
+    DecisionCycle cycle = new DecisionCycle(mock(Agent.class));
+    assertFalse(cycle.isStopped());
+
+    // When interrupting decision cycle
+    cycle.interrupt(productionName);
+
+    // Then decision cycle is stopped
+    assertTrue(cycle.isStopped());
+    // And reason for stop is '*** Interrupt from production .* ***'
+    assertEquals("*** Interrupt from production " + productionName + " ***", cycle.getReasonForStop());
   }
 
   @Test
