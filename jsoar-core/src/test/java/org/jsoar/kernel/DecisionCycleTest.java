@@ -63,7 +63,7 @@ public class DecisionCycleTest {
         .loadProduction(
             "test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
 
-    assertNull(agent.getProductions().getProduction("test2").instantiations );
+    assertNull(agent.getProductions().getProduction("test2").instantiations);
 
     assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
     this.decisionCycle.runFor(1, RunType.PHASES);
@@ -170,7 +170,8 @@ public class DecisionCycleTest {
     // Then decision cycle is stopped
     assertTrue(cycle.isStopped());
     // And reason for stop is '*** Interrupt from production .* ***'
-    assertEquals("*** Interrupt from production " + productionName + " ***", cycle.getReasonForStop());
+    assertEquals(
+        "*** Interrupt from production " + productionName + " ***", cycle.getReasonForStop());
   }
 
   @Test

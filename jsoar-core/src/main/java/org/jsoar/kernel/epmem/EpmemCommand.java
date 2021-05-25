@@ -4,9 +4,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.AppendDatabaseChoices;
@@ -48,6 +48,7 @@ import picocli.CommandLine.Spec;
 public class EpmemCommand extends PicocliSoarCommand {
 
   public static class Provider implements SoarCommandProvider {
+
     @Override
     public void registerCommands(SoarCommandInterpreter interp, Adaptable context) {
       interp.addCommand("epmem", new EpmemCommand((Agent) context.getAdapter(Agent.class)));
@@ -63,6 +64,7 @@ public class EpmemCommand extends PicocliSoarCommand {
       description = "Controls the behavior of episodic memory",
       subcommands = {HelpCommand.class})
   public static class EpmemC implements Runnable {
+
     private final Agent agent;
     private final DefaultEpisodicMemory epmem;
     private final SymbolFactoryImpl symbols;
@@ -144,87 +146,93 @@ public class EpmemCommand extends PicocliSoarCommand {
       final PropertyManager props = epmem.getParams().getProperties();
 
       try {
-        if (paramToSet.equals("learning")) {
-          props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
-          return "Set learning to " + Learning.valueOf(value).toString();
-        } else if (paramToSet.equals("trigger")) {
-          props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
-          return "Set trigger to " + Trigger.valueOf(value).toString();
-        } else if (paramToSet.equals("phase")) {
-          props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
-          return "Set phase to " + Phase.valueOf(value).toString();
-        } else if (paramToSet.equals("graph-match")) {
-          props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
-          return "Set graph-match to " + GraphMatchChoices.valueOf(value);
-        } else if (paramToSet.equals("graph-match-ordering")) {
-          props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
-          return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value).toString();
-        } else if (paramToSet.equals("balance")) {
-          props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
-          return "Set balance to " + Double.parseDouble(value);
-        } else if (paramToSet.equals("optimization")) {
-          props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
-          return "Set optimization to " + Optimization.valueOf(value);
-        } else if (paramToSet.equals("path")) {
-          props.set(DefaultEpisodicMemoryParams.PATH, value);
-          return "Set path to " + value;
-        } else if (paramToSet.equals("append-database")) {
-          props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
-          return "Set append to " + AppendDatabaseChoices.valueOf(value);
-        } else if (paramToSet.equals("page-size")) {
-          props.set(DefaultEpisodicMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
-          return "Set page size to " + PageChoices.valueOf(value);
-        } else if (paramToSet.equals("cache-size")) {
-          props.set(DefaultEpisodicMemoryParams.CACHE_SIZE, Long.valueOf(value));
-          return "Set cache size to " + Long.valueOf(value);
-        } else if (paramToSet.equals("lazy-commit")) {
-          if (epmem.db != null) {
-            return "Lazy commit is protected while the database is open.";
-          }
-          props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
-          return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
-        } else if (paramToSet.equals("exclusions")) {
-          DefaultEpisodicMemoryParams params = epmem.getParams();
+        switch (paramToSet) {
+          case "learning":
+            props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
+            return "Set learning to " + Learning.valueOf(value);
+          case "trigger":
+            props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
+            return "Set trigger to " + Trigger.valueOf(value);
+          case "phase":
+            props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
+            return "Set phase to " + Phase.valueOf(value);
+          case "graph-match":
+            props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
+            return "Set graph-match to " + GraphMatchChoices.valueOf(value);
+          case "graph-match-ordering":
+            props.set(DefaultEpisodicMemoryParams.GM_ORDERING, GmOrderingChoices.valueOf(value));
+            return "Set graph-match-ordering to " + GmOrderingChoices.valueOf(value);
+          case "balance":
+            props.set(DefaultEpisodicMemoryParams.BALANCE, Double.parseDouble(value));
+            return "Set balance to " + Double.parseDouble(value);
+          case "optimization":
+            props.set(DefaultEpisodicMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+            return "Set optimization to " + Optimization.valueOf(value);
+          case "path":
+            props.set(DefaultEpisodicMemoryParams.PATH, value);
+            return "Set path to " + value;
+          case "append-database":
+            props.set(DefaultEpisodicMemoryParams.APPEND_DB, AppendDatabaseChoices.valueOf(value));
+            return "Set append to " + AppendDatabaseChoices.valueOf(value);
+          case "page-size":
+            props.set(DefaultEpisodicMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+            return "Set page size to " + PageChoices.valueOf(value);
+          case "cache-size":
+            props.set(DefaultEpisodicMemoryParams.CACHE_SIZE, Long.valueOf(value));
+            return "Set cache size to " + Long.valueOf(value);
+          case "lazy-commit":
+            if (epmem.db != null) {
+              return "Lazy commit is protected while the database is open.";
+            }
+            props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, LazyCommitChoices.valueOf(value));
+            return "Set lazy-commit to " + LazyCommitChoices.valueOf(value);
+          case "exclusions":
+            {
+              DefaultEpisodicMemoryParams params = epmem.getParams();
 
-          SymbolImpl sym = symbols.createString(value);
+              SymbolImpl sym = symbols.createString(value);
 
-          // TODO Output something here?
-          if (params.exclusions.contains(sym)) {
-            params.exclusions.remove(sym);
-          } else {
-            params.exclusions.add(sym);
-          }
-        } else if (paramToSet.equals("inclusions")) {
-          DefaultEpisodicMemoryParams params = epmem.getParams();
+              // TODO Output something here?
+              if (params.exclusions.contains(sym)) {
+                params.exclusions.remove(sym);
+              } else {
+                params.exclusions.add(sym);
+              }
+              break;
+            }
+          case "inclusions":
+            {
+              DefaultEpisodicMemoryParams params = epmem.getParams();
 
-          SymbolImpl sym = symbols.createString(value);
+              SymbolImpl sym = symbols.createString(value);
 
-          // TODO Output something here?
-          if (params.inclusions.contains(sym)) {
-            params.inclusions.remove(sym);
-          } else {
-            params.inclusions.add(sym);
-          }
-        } else if (paramToSet.equals("force")) {
-          props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
-          return "EpMem| force = " + value;
-        } else if (paramToSet.equals("database")) {
-          if (value.equals("memory")) {
-            props.set(DefaultEpisodicMemoryParams.PATH, EpisodicMemoryDatabase.IN_MEMORY_PATH);
-            return "EpMem| database = memory";
-          } else if (value.equals("file")) {
-            props.set(DefaultEpisodicMemoryParams.PATH, "");
-            return "EpMem| database = file";
-          } else {
-            throw new ParameterException(
-                spec.commandLine(), "Invalid value for EpMem database parameter");
-          }
-        } else {
-          agent.getPrinter().startNewLine().print("Unknown epmem parameter '" + paramToSet + "'");
+              // TODO Output something here?
+              if (params.inclusions.contains(sym)) {
+                params.inclusions.remove(sym);
+              } else {
+                params.inclusions.add(sym);
+              }
+              break;
+            }
+          case "force":
+            props.set(DefaultEpisodicMemoryParams.FORCE, Force.valueOf(value));
+            return "EpMem| force = " + value;
+          case "database":
+            if (value.equals("memory")) {
+              props.set(DefaultEpisodicMemoryParams.PATH, EpisodicMemoryDatabase.IN_MEMORY_PATH);
+              return "EpMem| database = memory";
+            } else if (value.equals("file")) {
+              props.set(DefaultEpisodicMemoryParams.PATH, "");
+              return "EpMem| database = file";
+            } else {
+              throw new ParameterException(
+                  spec.commandLine(), "Invalid value for EpMem database parameter");
+            }
+          default:
+            agent.getPrinter().startNewLine().print("Unknown epmem parameter '" + paramToSet + "'");
         }
-      } catch (
-          IllegalArgumentException e) // this is thrown by the enums if a bad value is passed in
-      {
+      } catch (IllegalArgumentException e) {
+        // this is thrown by the enums if a bad value is passed in
         throw new ParameterException(spec.commandLine(), "Invalid value.", e);
       }
 
@@ -243,38 +251,18 @@ public class EpmemCommand extends PicocliSoarCommand {
             return "";
           }
 
-          String path = epmem.getParams().getProperties().get(pathProperty).toString();
+          var path = epmem.getParams().getProperties().get(pathProperty).toString();
           if (path.equals(EpisodicMemoryDatabase.IN_MEMORY_PATH)) {
             return "memory";
           } else {
             return "file";
           }
         } else if (paramToGet.equals("exclusions")) {
-          String exclusionStringList = "";
-
           Set<SymbolImpl> exclusions = epmem.getParams().exclusions;
-          Iterator<SymbolImpl> it = exclusions.iterator();
-          while (it.hasNext()) {
-            exclusionStringList += it.next().toString();
-            if (it.hasNext()) {
-              exclusionStringList += ", ";
-            }
-          }
-
-          return exclusionStringList;
+          return exclusions.stream().map(SymbolImpl::toString).collect(Collectors.joining(","));
         } else if (paramToGet.equals("inclusions")) {
-          String inclusionStringList = "";
-
           Set<SymbolImpl> inclusions = epmem.getParams().inclusions;
-          Iterator<SymbolImpl> it = inclusions.iterator();
-          while (it.hasNext()) {
-            inclusionStringList += it.next().toString();
-            if (it.hasNext()) {
-              inclusionStringList += ", ";
-            }
-          }
-
-          return inclusionStringList;
+          return inclusions.stream().map(SymbolImpl::toString).collect(Collectors.joining(","));
         } else {
           throw new ParameterException(
               spec.commandLine(), "Unknown parameter '" + paramToGet + "'");
@@ -284,8 +272,8 @@ public class EpmemCommand extends PicocliSoarCommand {
     }
 
     private String doEpmem() {
-      final StringWriter sw = new StringWriter();
-      final PrintWriter pw = new PrintWriter(sw);
+      final var sw = new StringWriter();
+      final var pw = new PrintWriter(sw);
 
       final DefaultEpisodicMemoryParams p = epmem.getParams();
       pw.printf(PrintHelper.generateHeader("Episodic Memory Settings", 40));
@@ -321,8 +309,8 @@ public class EpmemCommand extends PicocliSoarCommand {
       pw.printf(PrintHelper.generateItem("protocol:", p.protocol.get(), 40));
       pw.printf(PrintHelper.generateItem("append-database:", p.append_database.get(), 40));
 
-      String database = "memory";
-      String path = "";
+      var database = "memory";
+      var path = "";
       if (!p.path.get().equals(EpisodicMemoryDatabase.IN_MEMORY_PATH)) {
         database = "file";
         path = p.path.get();
@@ -348,8 +336,8 @@ public class EpmemCommand extends PicocliSoarCommand {
     }
 
     private String doStats(String statToPrint) {
-      final StringWriter sw = new StringWriter();
-      final PrintWriter pw = new PrintWriter(sw);
+      final var sw = new StringWriter();
+      final var pw = new PrintWriter(sw);
 
       if (epmem.getDatabase() == null) {
         try {
@@ -375,43 +363,28 @@ public class EpmemCommand extends PicocliSoarCommand {
           return "";
         }
 
-        Statement s = null;
-        long pageCount = 0;
-        long pageSize = 0;
-        try {
-          s = epmem.getDatabase().getConnection().createStatement();
+        long pageCount;
+        long pageSize;
+        try (var s = epmem.getDatabase().getConnection().createStatement()) {
 
-          ResultSet rs = null;
-          try {
-            rs = s.executeQuery("PRAGMA page_count");
-            pageCount = rs.getLong(0 + 1);
-          } finally {
-            rs.close();
+          try (ResultSet rs = s.executeQuery("PRAGMA page_count")) {
+            pageCount = rs.getLong(1);
           }
 
-          try {
-            rs = s.executeQuery("PRAGMA page_size");
-            pageSize = rs.getLong(0 + 1);
-          } finally {
-            rs.close();
+          try (ResultSet rs = s.executeQuery("PRAGMA page_size")) {
+            pageSize = rs.getLong(1);
           }
+
         } catch (SQLException e) {
           agent.getPrinter().startNewLine().print(e.getMessage());
           return "";
-        } finally {
-          try {
-            s.close();
-          } catch (SQLException e) {
-            agent.getPrinter().startNewLine().print(e.getMessage());
-            return "";
-          }
         }
 
         stats.mem_usage.set(pageCount * pageSize);
 
         pw.printf(
             PrintHelper.generateItem(
-                "Memory Usage:", new Double(stats.mem_usage.get()) / 1024.0 + " KB", 40));
+                "Memory Usage:", (stats.mem_usage.get() / 1024.0) + " KB", 40));
         pw.printf(PrintHelper.generateItem("Memory Highwater:", stats.mem_high.get(), 40));
         pw.printf(PrintHelper.generateItem("Retrievals:", stats.ncbr.get(), 40));
         pw.printf(PrintHelper.generateItem("Queries:", stats.cbr.get(), 40));
@@ -460,15 +433,10 @@ public class EpmemCommand extends PicocliSoarCommand {
     }
 
     private String doBackup(String[] fileName) {
-      ByRef<String> err = new ByRef<String>("");
-      boolean success = false;
+      ByRef<String> err = new ByRef<>("");
+      var success = false;
 
-      String dbFile = "";
-
-      for (int i = 0; i < fileName.length; i++) {
-        dbFile += fileName[i] + " ";
-      }
-
+      var dbFile = Arrays.stream(fileName).collect(Collectors.joining(" "));
       dbFile = dbFile.trim();
 
       try {
