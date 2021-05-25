@@ -78,16 +78,13 @@ public class DecisionCycle {
   }
 
   /** true if the agent is halted */
-  @Getter
-  private boolean halted = false;
+  @Getter private boolean halted = false;
 
   /** true if this agent has been stopped, halted, or interrupted */
-  @Getter
-  private boolean stopped = false;
+  @Getter private boolean stopped = false;
 
   /** The reason for stopping, or <code>null</code> if {@link #isStopped()} is false. */
-  @Getter
-  private String reasonForStop = null;
+  @Getter private String reasonForStop = null;
 
   /** agent.h:324:current_phase agent.cpp:153 (init) */
   public final EnumPropertyProvider<Phase> current_phase =
