@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,7 +56,8 @@ public class LogManagerTest {
   }
 
   @Test(expected = LoggerException.class)
-  public void testAddLoggerThrowsExceptionInStrictModeIfAddingExistingLogger() throws LoggerException {
+  public void testAddLoggerThrowsExceptionInStrictModeIfAddingExistingLogger()
+      throws LoggerException {
     // Given a log manager
     LogManager logManager = agent.getLogManager();
     // And log manager is strict
@@ -120,7 +120,8 @@ public class LogManagerTest {
 
     boolean success = false;
     try {
-      logManager.log("test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
+      logManager.log(
+          "test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
     } catch (LoggerException e) {
       success = true;
     } finally {
@@ -133,7 +134,8 @@ public class LogManagerTest {
 
     success = true;
     try {
-      logManager.log("test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
+      logManager.log(
+          "test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
     } catch (LoggerException e) {
       success = false;
     } finally {

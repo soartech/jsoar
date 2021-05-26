@@ -99,6 +99,20 @@ public class LogCommandTest {
   }
 
   @Test
+  public void testEnableStrictMode() throws Exception {
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "enable"});
+    assertTrue(logManager.isStrict());
+  }
+
+  @Test
+  public void testDisableStrictMode() throws Exception {
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "off"});
+    assertFalse(logManager.isStrict());
+  }
+
+  @Test
   public void testLogAddStrict() throws Exception {
     logCommand.execute(
         DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "enable"});

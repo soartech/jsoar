@@ -60,8 +60,7 @@ public class LogManager {
     }
 
     public static SourceLocationMethod fromString(String sourceLocationMethod) {
-      var val =
-          sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
+      var val = sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
       if (val == null) {
         throw new IllegalArgumentException();
       }
@@ -210,7 +209,8 @@ public class LogManager {
     result.append("strict:            " + (isStrict() ? "on" : "off") + "\n");
     result.append("echo mode:         " + getEchoMode().toString().toLowerCase() + "\n");
     result.append("log level:         " + getLogLevel().toString().toLowerCase() + "\n");
-    result.append("source location:   " + getSourceLocationMethod().toString().toLowerCase() + "\n");
+    result.append(
+        "source location:   " + getSourceLocationMethod().toString().toLowerCase() + "\n");
     result.append("abbreviate:        " + (getAbbreviate() ? "yes" : "no") + "\n");
     result.append("number of loggers: " + loggers.size() + "\n");
     result.append("------- Loggers -------\n");
@@ -256,8 +256,7 @@ public class LogManager {
       } else {
         agent
             .getPrinter()
-            .print(
-                "[" + logLevel + " " + getTimestamp() + "] " + loggerName + ": " + result);
+            .print("[" + logLevel + " " + getTimestamp() + "] " + loggerName + ": " + result);
       }
 
       agent.getPrinter().flush();

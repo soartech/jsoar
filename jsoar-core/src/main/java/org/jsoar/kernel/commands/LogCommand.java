@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.LogManager;
@@ -52,13 +53,15 @@ public class LogCommand extends PicocliSoarCommand {
       description = "Adjusts logging settings",
       subcommands = {HelpCommand.class})
   public static class Log implements Runnable {
+
     private final Agent agent;
     private final LogManager logManager;
     private final SoarCommandInterpreter interpreter;
     private SoarCommandContext context;
     private static String sourceLocationSeparator = ".";
 
-    @Spec private CommandSpec spec; // injected by picocli
+    @Spec
+    private CommandSpec spec; // injected by picocli
 
     public Log(Agent agent, SoarCommandInterpreter interpreter, SoarCommandContext context) {
       this.agent = agent;
@@ -86,8 +89,10 @@ public class LogCommand extends PicocliSoarCommand {
 
     @Option(
         names = {"-s", "--strict"},
-        description = "Enables or disables logging strictness")
-    String strict;
+        arity = "1",
+        description = "Enables or disables logging strictness",
+        converter = BooleanTypeConverter.class)
+    Optional<Boolean> strict;
 
     @Option(
         names = {"-E", "--echo"},
@@ -131,13 +136,7 @@ public class LogCommand extends PicocliSoarCommand {
     public void run() {
       // log --add <loggerName>
       if (logToAdd != null) {
-        try {
-          logManager.addLogger(logToAdd);
-        } catch (LoggerException e) {
-          throw new ParameterException(spec.commandLine(), e.getMessage(), e);
-        }
-
-        agent.getPrinter().startNewLine().print("Added logger: " + logToAdd);
+        addLogger(logToAdd);
       } else if (enable) {
         // log --enable
         if (params == null) {
@@ -161,15 +160,14 @@ public class LogCommand extends PicocliSoarCommand {
       } else if (disable) {
         // log --disable
         if (params == null) {
-          if (!logManager.isActive()) {
-            agent.getPrinter().startNewLine().print("Logging already disabled.");
-          } else {
+          if (logManager.isActive()) {
             logManager.setActive(false);
             agent.getPrinter().startNewLine().print("Logging disabled.");
+          } else {
+            agent.getPrinter().startNewLine().print("Logging already disabled.");
           }
-        }
-        // log --disable <loggerName>
-        else {
+        } else {
+          // log --disable <loggerName>
           try {
             logManager.disableLogger(params[0]);
           } catch (LoggerException e) {
@@ -183,43 +181,20 @@ public class LogCommand extends PicocliSoarCommand {
       else if (init) {
         logManager.init();
         agent.getPrinter().startNewLine().print("Log manager re-initialized.");
-      } else if (strict != null) {
-        // log --strict enable
-        if (strict.toLowerCase().equalsIgnoreCase("yes")
-            || strict.toLowerCase().equalsIgnoreCase("enable")
-            || strict.toLowerCase().equalsIgnoreCase("on")) {
-          if (logManager.isStrict()) {
-            agent.getPrinter().startNewLine().print("Logger already in strict mode.");
-          } else {
-            logManager.setStrict(true);
-            agent.getPrinter().startNewLine().print("Logger set to strict mode.");
-          }
-        }
-        // log --strict disable
-        else if (strict.toLowerCase().equalsIgnoreCase("no")
-            || strict.toLowerCase().equalsIgnoreCase("disable")
-            || strict.toLowerCase().equalsIgnoreCase("off")) {
-          if (!logManager.isStrict()) {
-            agent.getPrinter().startNewLine().print("Logger already in non-strict mode.");
-          } else {
-            logManager.setStrict(false);
-            agent.getPrinter().startNewLine().print("Logger set to non-strict mode.");
-          }
-        } else {
-          throw new ParameterException(spec.commandLine(), "Expected one argument: on | off");
-        }
+      } else if (strict.isPresent()) {
+        setStrictMode(strict.get());
       } else if (abbreviate != null) {
         // log --abbreviate enable
-        if (abbreviate.toLowerCase().equalsIgnoreCase("yes")
-            || abbreviate.toLowerCase().equalsIgnoreCase("enable")
-            || abbreviate.toLowerCase().equalsIgnoreCase("on")) {
+        if (abbreviate.equalsIgnoreCase("yes")
+            || abbreviate.equalsIgnoreCase("enable")
+            || abbreviate.equalsIgnoreCase("on")) {
           logManager.setAbbreviate(true);
           agent.getPrinter().startNewLine().print("Logger using abbreviated paths.");
         }
         // log --abbreviate disable
-        else if (abbreviate.toLowerCase().equalsIgnoreCase("no")
-            || abbreviate.toLowerCase().equalsIgnoreCase("disable")
-            || abbreviate.toLowerCase().equalsIgnoreCase("off")) {
+        else if (abbreviate.equalsIgnoreCase("no")
+            || abbreviate.equalsIgnoreCase("disable")
+            || abbreviate.equalsIgnoreCase("off")) {
           logManager.setAbbreviate(false);
           agent.getPrinter().startNewLine().print("Logger using full paths.");
         } else {
@@ -242,7 +217,7 @@ public class LogCommand extends PicocliSoarCommand {
       }
       // log --source disk/stack/none
       else if (source != null) {
-        SourceLocationMethod sourceLocationMethod = null;
+        SourceLocationMethod sourceLocationMethod;
 
         try {
           sourceLocationMethod = SourceLocationMethod.fromString(source);
@@ -338,28 +313,36 @@ public class LogCommand extends PicocliSoarCommand {
 
     public String getSourceLocation(
         SoarCommandContext context, boolean abbreviate, SourceLocationMethod sourceLocationMethod) {
-      if (sourceLocationMethod.equals(SourceLocationMethod.stack))
+      if (sourceLocationMethod.equals(SourceLocationMethod.stack)) {
         return getGoalStackLocation(abbreviate);
-      else if (sourceLocationMethod.equals(SourceLocationMethod.disk))
+      } else if (sourceLocationMethod.equals(SourceLocationMethod.disk)) {
         return getSourceFileLocation(context, abbreviate);
-      else return null;
+      } else {
+        return null;
+      }
     }
 
     public String getGoalStackLocation(boolean abbreviate) {
-      final StringBuffer location = new StringBuffer();
+      final StringBuilder location = new StringBuilder();
 
       Iterator<Goal> it = agent.getGoalStack().iterator();
       if (it.hasNext()) {
         // location.append(getOperatorNameFromGoal(it.next()));
         String thisGoal = getOperatorNameFromGoal(it.next());
-        if (!abbreviate || !it.hasNext()) location.append(thisGoal);
-        else location.append(thisGoal.charAt(0));
+        if (!abbreviate || !it.hasNext()) {
+          location.append(thisGoal);
+        } else {
+          location.append(thisGoal.charAt(0));
+        }
         while (it.hasNext()) {
           location.append(sourceLocationSeparator);
           // location.append(getOperatorNameFromGoal(it.next()));
           thisGoal = getOperatorNameFromGoal(it.next());
-          if (!abbreviate || !it.hasNext()) location.append(thisGoal);
-          else location.append(thisGoal.charAt(0));
+          if (!abbreviate || !it.hasNext()) {
+            location.append(thisGoal);
+          } else {
+            location.append(thisGoal.charAt(0));
+          }
         }
       }
 
@@ -370,8 +353,9 @@ public class LogCommand extends PicocliSoarCommand {
       SourceLocation sourceLocation = context.getSourceLocation();
       if (sourceLocation != DefaultSourceLocation.UNKNOWN) {
         String fileName = sourceLocation.getFile();
-        if (fileName != null && !fileName.isEmpty())
+        if (fileName != null && !fileName.isEmpty()) {
           return collapseFileName(fileName, interpreter.getWorkingDirectory(), abbreviate);
+        }
       }
       return null;
     }
@@ -382,7 +366,7 @@ public class LogCommand extends PicocliSoarCommand {
     }
 
     public static List<String> uberSplit(String file) throws IOException {
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
 
       File f = new File(file).getCanonicalFile();
 
@@ -390,7 +374,9 @@ public class LogCommand extends PicocliSoarCommand {
       f = f.getParentFile();
       while (f != null) {
         String n = f.getName();
-        if (!n.isEmpty()) result.add(f.getName());
+        if (!n.isEmpty()) {
+          result.add(f.getName());
+        }
         f = f.getParentFile();
       }
 
@@ -414,22 +400,51 @@ public class LogCommand extends PicocliSoarCommand {
 
       int marker;
       for (marker = 0; marker < minLength; ++marker) {
-        if (!cwdParts[marker].equals(fileParts[marker])) break;
+        if (!cwdParts[marker].equals(fileParts[marker])) {
+          break;
+        }
       }
 
       String result = "";
 
       int diff = cwdParts.length - marker;
-      if (diff > 0) result += "^" + diff + sourceLocationSeparator;
+      if (diff > 0) {
+        result += "^" + diff + sourceLocationSeparator;
+      }
 
       for (int i = marker; i < fileParts.length - 1; ++i) {
-        if (abbreviate) result += fileParts[i].charAt(0);
-        else result += fileParts[i];
+        if (abbreviate) {
+          result += fileParts[i].charAt(0);
+        } else {
+          result += fileParts[i];
+        }
         result += sourceLocationSeparator;
       }
       result += fileParts[fileParts.length - 1];
 
       return result;
+    }
+
+    /**
+     * Adds a logger with the given name
+     */
+    private void addLogger(final String logToAdd) {
+      try {
+        logManager.addLogger(logToAdd);
+      } catch (LoggerException e) {
+        throw new ParameterException(spec.commandLine(), e.getMessage(), e);
+      }
+
+      agent.getPrinter().startNewLine().print("Added logger: " + logToAdd);
+    }
+
+    private void setStrictMode(boolean enabled) {
+      if (logManager.isStrict() == enabled) {
+        agent.getPrinter().startNewLine().print("Logger already in {}} mode.", enabled ? "strict" : "non-strict");
+      } else {
+        logManager.setStrict(enabled);
+        agent.getPrinter().startNewLine().print("Logger set to {}} mode.", enabled ? "strict" : "non-strict");
+      }
     }
   }
 }
