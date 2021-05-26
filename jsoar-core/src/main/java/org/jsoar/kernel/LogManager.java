@@ -22,8 +22,8 @@ public class LogManager {
   private boolean abbreviate = true;
   private SourceLocationMethod sourceLocationMethod = SourceLocationMethod.disk;
   private LogLevel currentLogLevel = LogLevel.info;
-  private final Map<String, Logger> loggers = new HashMap<String, Logger>();
-  private final Set<String> disabledLoggers = new HashSet<String>();
+  private final Map<String, Logger> loggers = new HashMap<>();
+  private final Set<String> disabledLoggers = new HashSet<>();
 
   // private RhsFunctionHandler handler = null;
 
@@ -31,6 +31,7 @@ public class LogManager {
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
   public class LoggerException extends Exception {
+
     private static final long serialVersionUID = 1L;
 
     public LoggerException(String message) {
@@ -46,7 +47,7 @@ public class LogManager {
     private static Map<String, SourceLocationMethod> sourceLocationMethodStrings;
 
     static {
-      sourceLocationMethodStrings = new HashMap<String, SourceLocationMethod>();
+      sourceLocationMethodStrings = new HashMap<>();
       sourceLocationMethodStrings.put("NONE", none);
       sourceLocationMethodStrings.put("DISK", disk);
       sourceLocationMethodStrings.put("STACK", stack);
@@ -54,14 +55,16 @@ public class LogManager {
 
     private String stringValue;
 
-    private SourceLocationMethod(String stringValue) {
+    SourceLocationMethod(String stringValue) {
       this.stringValue = stringValue;
     }
 
     public static SourceLocationMethod fromString(String sourceLocationMethod) {
-      SourceLocationMethod val =
+      var val =
           sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
-      if (val == null) throw new IllegalArgumentException();
+      if (val == null) {
+        throw new IllegalArgumentException();
+      }
       return val;
     }
 
@@ -81,7 +84,7 @@ public class LogManager {
     private static Map<String, LogLevel> logLevelStrings;
 
     static {
-      logLevelStrings = new HashMap<String, LogLevel>();
+      logLevelStrings = new HashMap<>();
       logLevelStrings.put("INFO", info);
       logLevelStrings.put("DEBUG", debug);
       logLevelStrings.put("WARN", warn);
@@ -92,14 +95,16 @@ public class LogManager {
     private String stringValue;
     private int numericValue;
 
-    private LogLevel(String stringValue, int numericValue) {
+    LogLevel(String stringValue, int numericValue) {
       this.stringValue = stringValue;
       this.numericValue = numericValue;
     }
 
     public static LogLevel fromString(String logLevel) {
-      LogLevel val = logLevelStrings.get(logLevel.toUpperCase());
-      if (val == null) throw new IllegalArgumentException();
+      var val = logLevelStrings.get(logLevel.toUpperCase());
+      if (val == null) {
+        throw new IllegalArgumentException();
+      }
       return val;
     }
 
@@ -121,7 +126,7 @@ public class LogManager {
     private static Map<String, EchoMode> echoModeStrings;
 
     static {
-      echoModeStrings = new HashMap<String, EchoMode>();
+      echoModeStrings = new HashMap<>();
       echoModeStrings.put("OFF", off);
       echoModeStrings.put("SIMPLE", simple);
       echoModeStrings.put("ON", on);
@@ -129,13 +134,15 @@ public class LogManager {
 
     private String stringValue;
 
-    private EchoMode(String stringValue) {
+    EchoMode(String stringValue) {
       this.stringValue = stringValue;
     }
 
     public static EchoMode fromString(String echoMode) {
-      EchoMode val = echoModeStrings.get(echoMode.toUpperCase());
-      if (val == null) throw new IllegalArgumentException();
+      var val = echoModeStrings.get(echoMode.toUpperCase());
+      if (val == null) {
+        throw new IllegalArgumentException();
+      }
       return val;
     }
 
@@ -157,11 +164,12 @@ public class LogManager {
   }
 
   public Logger getLogger(String loggerName) throws LoggerException {
-    Logger logger = loggers.get(loggerName);
+    var logger = loggers.get(loggerName);
     if (logger == null) {
-      if (strict)
+      if (strict) {
         throw new LoggerException(
             "Logger [" + loggerName + "] does not exist (strict mode enabled).");
+      }
       logger = LoggerFactory.getLogger(loggerName);
       loggers.put(loggerName, logger);
     }
@@ -169,7 +177,7 @@ public class LogManager {
   }
 
   public Set<String> getLoggerNames() {
-    return new HashSet<String>(loggers.keySet());
+    return new HashSet<>(loggers.keySet());
   }
 
   public int getLoggerCount() {
@@ -177,11 +185,12 @@ public class LogManager {
   }
 
   public Logger addLogger(String loggerName) throws LoggerException {
-    Logger logger = loggers.get(loggerName);
+    var logger = loggers.get(loggerName);
     if (logger != null) {
-      if (strict)
+      if (strict) {
         throw new LoggerException(
             "Logger [" + loggerName + "] already exists (strict mode enabled).");
+      }
     } else {
       logger = LoggerFactory.getLogger(loggerName);
       loggers.put(loggerName, logger);
@@ -194,58 +203,62 @@ public class LogManager {
   }
 
   public String getLoggerStatus() {
-    String result = "      Log Settings     \n";
-    result += "=======================\n";
-    result += "logging:           " + (isActive() ? "on" : "off") + "\n";
-    result += "strict:            " + (isStrict() ? "on" : "off") + "\n";
-    result += "echo mode:         " + getEchoMode().toString().toLowerCase() + "\n";
-    result += "log level:         " + getLogLevel().toString().toLowerCase() + "\n";
-    result += "source location:   " + getSourceLocationMethod().toString().toLowerCase() + "\n";
-    result += "abbreviate:        " + (getAbbreviate() ? "yes" : "no") + "\n";
-    result += "number of loggers: " + loggers.size() + "\n";
-    result += "------- Loggers -------\n";
+    StringBuilder result = new StringBuilder();
+    result.append("      Log Settings     \n");
+    result.append("=======================\n");
+    result.append("logging:           " + (isActive() ? "on" : "off") + "\n");
+    result.append("strict:            " + (isStrict() ? "on" : "off") + "\n");
+    result.append("echo mode:         " + getEchoMode().toString().toLowerCase() + "\n");
+    result.append("log level:         " + getLogLevel().toString().toLowerCase() + "\n");
+    result.append("source location:   " + getSourceLocationMethod().toString().toLowerCase() + "\n");
+    result.append("abbreviate:        " + (getAbbreviate() ? "yes" : "no") + "\n");
+    result.append("number of loggers: " + loggers.size() + "\n");
+    result.append("------- Loggers -------\n");
 
-    List<String> loggerList = new ArrayList<String>(getLoggerNames());
+    List<String> loggerList = new ArrayList<>(getLoggerNames());
     Collections.sort(loggerList);
     for (String loggerName : loggerList) {
-      result += (disabledLoggers.contains(loggerName) ? "*" : " ") + " " + loggerName + "\n";
+      result.append((disabledLoggers.contains(loggerName) ? "*" : " ") + " " + loggerName + "\n");
     }
 
-    return result;
+    return result.toString();
   }
 
   public void log(String loggerName, LogLevel logLevel, List<String> args, boolean collapse)
       throws LoggerException {
-    if (!isActive()) return;
+    if (!isActive()) {
+      return;
+    }
 
-    Logger logger = getLogger(loggerName);
+    var logger = getLogger(loggerName);
 
     String result = formatArguments(args, collapse);
 
-    if (logLevel == LogLevel.debug) logger.debug(result);
-    else if (logLevel == LogLevel.info) logger.info(result);
-    else if (logLevel == LogLevel.warn) logger.warn(result);
-    else if (logLevel == LogLevel.trace) logger.trace(result);
-    else logger.error(result);
+    if (logLevel == LogLevel.debug) {
+      logger.debug(result);
+    } else if (logLevel == LogLevel.info) {
+      logger.info(result);
+    } else if (logLevel == LogLevel.warn) {
+      logger.warn(result);
+    } else if (logLevel == LogLevel.trace) {
+      logger.trace(result);
+    } else {
+      logger.error(result);
+    }
 
     if (echoMode != EchoMode.off
         && currentLogLevel.wouldAcceptLogLevel(logLevel)
         && !disabledLoggers.contains(loggerName)) {
       agent.getPrinter().startNewLine();
 
-      if (echoMode == EchoMode.simple) agent.getPrinter().print(result);
-      else
+      if (echoMode == EchoMode.simple) {
+        agent.getPrinter().print(result);
+      } else {
         agent
             .getPrinter()
             .print(
-                "["
-                    + logLevel.toString()
-                    + " "
-                    + getTimestamp()
-                    + "] "
-                    + loggerName
-                    + ": "
-                    + result);
+                "[" + logLevel + " " + getTimestamp() + "] " + loggerName + ": " + result);
+      }
 
       agent.getPrinter().flush();
     }
@@ -253,13 +266,14 @@ public class LogManager {
 
   private String formatArguments(List<String> args, boolean collapse) {
     if (args.size() > 1) {
-      String formatString = args.get(0);
+      var formatString = args.get(0);
       if (formatString.contains("{}")) {
         int numFields = (formatString.length() - formatString.replace("{}", "").length()) / 2;
-        if (numFields == args.size() - 1)
+        if (numFields == args.size() - 1) {
           return String.format(
               formatString.replace("{}", "%s"),
               args.subList(1, args.size()).toArray(new Object[args.size() - 1]));
+        }
       }
     }
 
@@ -312,15 +326,17 @@ public class LogManager {
 
   public void enableLogger(String name) throws LoggerException {
     getLogger(name);
-    if (isStrict() && !disabledLoggers.contains(name))
+    if (isStrict() && !disabledLoggers.contains(name)) {
       throw new LoggerException("Logger is not currently disabled (strict mode enabled).");
+    }
     disabledLoggers.remove(name);
   }
 
   public void disableLogger(String name) throws LoggerException {
     getLogger(name);
-    if (isStrict() && disabledLoggers.contains(name))
+    if (isStrict() && disabledLoggers.contains(name)) {
       throw new LoggerException("Logger is already disabled (strict mode enabled).");
+    }
     disabledLoggers.add(name);
   }
 

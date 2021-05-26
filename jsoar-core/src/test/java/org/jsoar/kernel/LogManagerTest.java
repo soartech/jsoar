@@ -1,10 +1,12 @@
 package org.jsoar.kernel;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.jsoar.kernel.LogManager.LogLevel;
@@ -31,7 +33,7 @@ public class LogManagerTest {
   }
 
   @Test
-  public void testLogManagerCreation() throws Exception {
+  public void testLogManagerCreation() {
     LogManager logManager = agent.getLogManager();
     assertNotNull(logManager);
   }
@@ -40,18 +42,32 @@ public class LogManagerTest {
   public void testLogManagerInit() throws Exception {
     LogManager logManager = agent.getLogManager();
 
-    Set<String> testSet = new HashSet<String>();
+    Set<String> testSet = new HashSet<>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger");
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.init();
     testSet.clear();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
+  }
+
+  @Test(expected = LoggerException.class)
+  public void testAddLoggerThrowsExceptionInStrictModeIfAddingExistingLogger() throws LoggerException {
+    // Given a log manager
+    LogManager logManager = agent.getLogManager();
+    // And log manager is strict
+    logManager.setStrict(true);
+    // And existing logger "existing-logger";
+    logManager.addLogger("existing-logger");
+
+    // When adding logger "existing-logger"
+    // Then LoggerException should occur
+    logManager.addLogger("existing-logger");
   }
 
   @Test
@@ -61,30 +77,30 @@ public class LogManagerTest {
     logManager.setStrict(false);
     assertFalse(logManager.isStrict());
 
-    Set<String> testSet = new HashSet<String>();
+    Set<String> testSet = new HashSet<>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger");
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger2");
     testSet.add("test-logger2");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger3");
     testSet.add("test-logger3");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.init();
     testSet.clear();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger4");
     testSet.add("test-logger4");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
   }
 
   @Test
@@ -94,17 +110,17 @@ public class LogManagerTest {
     logManager.setStrict(true);
     assertTrue(logManager.isStrict());
 
-    Set<String> testSet = new HashSet<String>();
+    Set<String> testSet = new HashSet<>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logManager.addLogger("test-logger");
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     boolean success = false;
     try {
-      logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false);
+      logManager.log("test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
     } catch (LoggerException e) {
       success = true;
     } finally {
@@ -113,11 +129,11 @@ public class LogManagerTest {
 
     logManager.addLogger("test-logger2");
     testSet.add("test-logger2");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     success = true;
     try {
-      logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false);
+      logManager.log("test-logger2", LogLevel.error, Collections.singletonList("test-string"), false);
     } catch (LoggerException e) {
       success = false;
     } finally {
@@ -135,7 +151,7 @@ public class LogManagerTest {
   }
 
   @Test
-  public void testLogEnableDisable() throws Exception {
+  public void testLogEnableDisable() {
     LogManager logManager = agent.getLogManager();
 
     logManager.setActive(true);
@@ -149,7 +165,7 @@ public class LogManagerTest {
   }
 
   @Test
-  public void testLogStrictEnableDisable() throws Exception {
+  public void testLogStrictEnableDisable() {
     LogManager logManager = agent.getLogManager();
 
     logManager.setStrict(true);
