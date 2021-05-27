@@ -12,6 +12,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.LogManager.LogLevel;
+import org.jsoar.kernel.LogManager.SourceLocationMethod;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LogCommandTest {
+
   private Agent agent;
   private StringWriter outputWriter = new StringWriter();
   private LogManager logManager;
@@ -49,89 +51,102 @@ public class LogCommandTest {
   public void testLogInit() throws Exception {
     Set<String> testSet = new HashSet<String>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--init"});
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--init"});
     testSet.clear();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
   }
 
   @Test
   public void testLogAdd() throws Exception {
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "disable"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "disable"});
     assertFalse(logManager.isStrict());
 
     Set<String> testSet = new HashSet<String>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger2"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger2"});
     testSet.add("test-logger2");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger3"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger3"});
     testSet.add("test-logger3");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--init"});
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--init"});
     testSet.clear();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger4"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger4"});
     testSet.add("test-logger4");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
   }
 
   @Test
   public void testEnableStrictMode() throws Exception {
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "enable"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "enable"});
     assertTrue(logManager.isStrict());
   }
 
   @Test
   public void testDisableStrictMode() throws Exception {
-    logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "off"});
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "off"});
     assertFalse(logManager.isStrict());
+  }
+
+  @Test
+  public void testEnableAbbreviate() throws Exception {
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--abbreviate", "enable"});
+    assertTrue(logManager.getAbbreviate());
+  }
+
+  @Test
+  public void testDisableAbbreviate() throws Exception {
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--abbreviate", "off"});
+    assertFalse(logManager.getAbbreviate());
   }
 
   @Test
   public void testLogAddStrict() throws Exception {
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--strict", "enable"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--strict", "enable"});
     assertTrue(logManager.isStrict());
 
     Set<String> testSet = new HashSet<String>();
     testSet.add("default");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
     testSet.add("test-logger");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     boolean success = false;
     try {
       logCommand.execute(
           DefaultSoarCommandContext.empty(),
-          new String[] {"log", "test-logger2", "error", "test-string"});
+          new String[]{"log", "test-logger2", "error", "test-string"});
     } catch (SoarException e) {
       success = true;
     } finally {
@@ -139,15 +154,15 @@ public class LogCommandTest {
     }
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger2"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger2"});
     testSet.add("test-logger2");
-    assertTrue(logManager.getLoggerNames().equals(testSet));
+    assertEquals(testSet, logManager.getLoggerNames());
 
     success = true;
     try {
       logCommand.execute(
           DefaultSoarCommandContext.empty(),
-          new String[] {"log", "test-logger2", "error", "test-string"});
+          new String[]{"log", "test-logger2", "error", "test-string"});
     } catch (SoarException e) {
       success = false;
     } finally {
@@ -157,7 +172,7 @@ public class LogCommandTest {
     success = false;
     try {
       logCommand.execute(
-          DefaultSoarCommandContext.empty(), new String[] {"log", "--add", "test-logger"});
+          DefaultSoarCommandContext.empty(), new String[]{"log", "--add", "test-logger"});
     } catch (SoarException e) {
       success = true;
     } finally {
@@ -166,27 +181,38 @@ public class LogCommandTest {
   }
 
   @Test
+  public void testLogEnableDisableLogger() throws Exception {
+    enableLogger("--disable", false);
+    enableLogger("--enable", true);
+    enableLogger("--no", false);
+    enableLogger("--yes", true);
+    enableLogger("--off", false);
+    enableLogger("--on", true);
+  }
+
+  private void enableLogger(String argument, boolean loggerEnabled) throws Exception {
+    final String loggerName = "LOGGER-TEST";
+    logCommand
+        .execute(DefaultSoarCommandContext.empty(), new String[]{"log", argument, loggerName});
+    assertEquals(loggerEnabled, !logManager.isDisabledLogger(loggerName));
+  }
+
+  @Test
   public void testLogEnableDisable() throws Exception {
     logManager.setActive(true);
     assertTrue(logManager.isActive());
 
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--disable"});
-    assertTrue(!logManager.isActive());
+    activateLog("--disable", false);
+    activateLog("--enable", true);
+    activateLog("--no", false);
+    activateLog("--yes", true);
+    activateLog("--off", false);
+    activateLog("--on", true);
+  }
 
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--enable"});
-    assertTrue(logManager.isActive());
-
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--no"});
-    assertTrue(!logManager.isActive());
-
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--yes"});
-    assertTrue(logManager.isActive());
-
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--off"});
-    assertTrue(!logManager.isActive());
-
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--on"});
-    assertTrue(logManager.isActive());
+  private void activateLog(String argument, boolean logActive) throws Exception {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", argument});
+    assertEquals(logActive, logManager.isActive());
   }
 
   @Test
@@ -195,25 +221,25 @@ public class LogCommandTest {
 
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "test-logger", "info", "test-string"});
+        new String[]{"log", "test-logger", "info", "test-string"});
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "test-logger", "debug", "test-string"});
+        new String[]{"log", "test-logger", "debug", "test-string"});
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "test-logger", "warn", "test-string"});
+        new String[]{"log", "test-logger", "warn", "test-string"});
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "test-logger", "error", "test-string"});
+        new String[]{"log", "test-logger", "error", "test-string"});
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "test-logger", "trace", "test-string"});
+        new String[]{"log", "test-logger", "trace", "test-string"});
 
     boolean success = false;
     try {
       logCommand.execute(
           DefaultSoarCommandContext.empty(),
-          new String[] {"log", "test-logger", "unknown", "test-string"});
+          new String[]{"log", "test-logger", "unknown", "test-string"});
     } catch (SoarException e) {
       success = true;
     } finally {
@@ -226,12 +252,12 @@ public class LogCommandTest {
     logManager.setStrict(false);
 
     logCommand.execute(
-        DefaultSoarCommandContext.empty(), new String[] {"log", "info", "test-string"});
+        DefaultSoarCommandContext.empty(), new String[]{"log", "info", "test-string"});
 
     boolean success = false;
     try {
       logCommand.execute(
-          DefaultSoarCommandContext.empty(), new String[] {"log", "unknown", "test-string"});
+          DefaultSoarCommandContext.empty(), new String[]{"log", "unknown", "test-string"});
     } catch (SoarException e) {
       success = true;
     } finally {
@@ -240,41 +266,111 @@ public class LogCommandTest {
   }
 
   @Test
-  public void testEchoBasic() throws Exception {
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--echo", "simple"});
-    assertEquals(logManager.getEchoMode(), EchoMode.simple);
-
-    clearBuffer();
-
-    logCommand.execute(
-        DefaultSoarCommandContext.empty(),
-        new String[] {"log", "info", "This", "is", "a", "simple", "test", "case."});
-    assertTrue(outputWriter.toString().equals("\nThis is a simple test case."));
+  public void testSetLogLevelToTrace() throws SoarException {
+    setLogLevel("trace", LogLevel.trace);
   }
 
   @Test
-  public void testEchoOff() throws Exception {
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--echo", "off"});
-    assertEquals(logManager.getEchoMode(), EchoMode.off);
-
-    clearBuffer();
-
-    logCommand.execute(
-        DefaultSoarCommandContext.empty(),
-        new String[] {"log", "info", "This", "is", "a", "simple", "test", "case."});
-    assertTrue(outputWriter.toString().equals(""));
+  public void testSetLogLevelToDebug() throws SoarException {
+    setLogLevel("debug", LogLevel.debug);
   }
 
   @Test
-  public void testEchoOn() throws Exception {
-    logCommand.execute(DefaultSoarCommandContext.empty(), new String[] {"log", "--echo", "on"});
-    assertEquals(logManager.getEchoMode(), EchoMode.on);
+  public void testSetLogLevelToInfo() throws SoarException {
+    setLogLevel("info", LogLevel.info);
+  }
+
+  @Test
+  public void testSetLogLevelToWarn() throws SoarException {
+    setLogLevel("warn", LogLevel.warn);
+  }
+
+  @Test
+  public void testSetLogLevelToError() throws SoarException {
+    setLogLevel("error", LogLevel.error);
+  }
+
+  private void setLogLevel(String argument, LogLevel expectedLogLevel) throws SoarException {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--level", argument});
+    assertEquals(expectedLogLevel, logManager.getLogLevel());
+  }
+
+  @Test
+  public void testSetEchoToBasic() throws SoarException {
+    setEchoMode("simple", EchoMode.simple);
+  }
+
+  @Test
+  public void testLogWithEchoBasic() throws Exception {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "simple"});
 
     clearBuffer();
 
     logCommand.execute(
         DefaultSoarCommandContext.empty(),
-        new String[] {"log", "info", "This", "is", "a", "simple", "test", "case."});
+        new String[]{"log", "info", "This", "is", "a", "simple", "test", "case."});
+    assertEquals("\nThis is a simple test case.", outputWriter.toString());
+  }
+
+  @Test
+  public void testSetSourceLocationMethodToDisk() throws Exception {
+    setSourceLocationMethod("disk", SourceLocationMethod.disk);
+  }
+
+  @Test
+  public void testSetSourceLocationMethodToStack() throws Exception {
+    setSourceLocationMethod("stack", SourceLocationMethod.stack);
+  }
+
+  @Test
+  public void testSetSourceLocationMethodToNone() throws Exception {
+    setSourceLocationMethod("none", SourceLocationMethod.none);
+  }
+
+  private void setSourceLocationMethod(String argument,
+      SourceLocationMethod expectedSourceLocationMethod)
+      throws SoarException {
+    logCommand
+        .execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--source", argument});
+    assertEquals(expectedSourceLocationMethod, logManager.getSourceLocationMethod());
+  }
+
+  @Test
+  public void testSetEchoToOff() throws Exception {
+    setEchoMode("off", EchoMode.off);
+  }
+
+  private void setEchoMode(String argument, EchoMode expectedEchoMode) throws SoarException {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", argument});
+    assertEquals(expectedEchoMode, logManager.getEchoMode());
+  }
+
+  @Test
+  public void testLogWithEchoOff() throws Exception {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "off"});
+
+    clearBuffer();
+
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(),
+        new String[]{"log", "info", "This", "is", "a", "simple", "test", "case."});
+    assertEquals("", outputWriter.toString());
+  }
+
+  @Test
+  public void testSetEchoToOn() throws Exception {
+    setEchoMode("on", EchoMode.on);
+  }
+
+  @Test
+  public void testLogWithEchoOn() throws Exception {
+    logCommand.execute(DefaultSoarCommandContext.empty(), new String[]{"log", "--echo", "on"});
+
+    clearBuffer();
+
+    logCommand.execute(
+        DefaultSoarCommandContext.empty(),
+        new String[]{"log", "info", "This", "is", "a", "simple", "test", "case."});
     assertTrue(
         Pattern.matches(
             "^\\n\\[INFO .+?\\] default: This is a simple test case\\.$", outputWriter.toString()));
@@ -294,14 +390,14 @@ public class LogCommandTest {
     for (int i = 0; i < 1000; i++) {
       logCommand.execute(
           DefaultSoarCommandContext.empty(),
-          new String[] {"log", "trace", "This", "is", "a", "simple", "test", "case."});
+          new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
     }
 
     long start = System.currentTimeMillis();
     for (int i = 0; i < 100000; i++) {
       logCommand.execute(
           DefaultSoarCommandContext.empty(),
-          new String[] {"log", "trace", "This", "is", "a", "simple", "test", "case."});
+          new String[]{"log", "trace", "This", "is", "a", "simple", "test", "case."});
     }
     long end = System.currentTimeMillis();
 

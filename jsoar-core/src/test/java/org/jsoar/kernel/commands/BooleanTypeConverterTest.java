@@ -71,6 +71,4 @@ public class BooleanTypeConverterTest {
     boolean result = converter.convert(value);
     assertEquals(expectedResult, result);
   }
-
-
 }

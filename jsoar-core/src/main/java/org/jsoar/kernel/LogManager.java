@@ -323,6 +323,10 @@ public class LogManager {
     return sourceLocationMethod;
   }
 
+  public boolean isDisabledLogger(String name) {
+    return disabledLoggers.contains(name);
+  }
+
   public void enableLogger(String name) throws LoggerException {
     getLogger(name);
     if (isStrict() && !disabledLoggers.contains(name)) {
