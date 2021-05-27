@@ -19,12 +19,12 @@ public class LogManagerTest {
   private Agent agent;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     agent = new Agent();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (agent != null) {
       agent.dispose();
       agent = null;
