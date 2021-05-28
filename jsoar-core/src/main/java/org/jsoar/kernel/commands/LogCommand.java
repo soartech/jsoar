@@ -57,10 +57,9 @@ public class LogCommand extends PicocliSoarCommand {
     private final LogManager logManager;
     private final SoarCommandInterpreter interpreter;
     private SoarCommandContext context;
-    private static final String sourceLocationSeparator = ".";
+    private static final String SOURCE_LOCATION_SEPARATOR = ".";
 
-    @Spec
-    private CommandSpec spec; // injected by picocli
+    @Spec private CommandSpec spec; // injected by picocli
 
     public Log(Agent agent, SoarCommandInterpreter interpreter, SoarCommandContext context) {
       this.agent = agent;
@@ -255,7 +254,7 @@ public class LogCommand extends PicocliSoarCommand {
           location.append(thisGoal.charAt(0));
         }
         while (it.hasNext()) {
-          location.append(sourceLocationSeparator);
+          location.append(SOURCE_LOCATION_SEPARATOR);
           // location.append(getOperatorNameFromGoal(it.next()));
           thisGoal = getOperatorNameFromGoal(it.next());
           if (!abbreviate || !it.hasNext()) {
@@ -329,7 +328,7 @@ public class LogCommand extends PicocliSoarCommand {
 
       int diff = cwdParts.length - marker;
       if (diff > 0) {
-        result += "^" + diff + sourceLocationSeparator;
+        result += "^" + diff + SOURCE_LOCATION_SEPARATOR;
       }
 
       for (int i = marker; i < fileParts.length - 1; ++i) {
@@ -338,16 +337,14 @@ public class LogCommand extends PicocliSoarCommand {
         } else {
           result += fileParts[i];
         }
-        result += sourceLocationSeparator;
+        result += SOURCE_LOCATION_SEPARATOR;
       }
       result += fileParts[fileParts.length - 1];
 
       return result;
     }
 
-    /**
-     * Adds a logger with the given name
-     */
+    /** Adds a logger with the given name */
     private void addLogger(final String logToAdd) {
       try {
         logManager.addLogger(logToAdd);
@@ -364,8 +361,7 @@ public class LogCommand extends PicocliSoarCommand {
 
       if (params == null) {
         if (logManager.isActive() == enabled) {
-          agent.getPrinter().startNewLine()
-              .print("Logging already {}.", enabledAsText);
+          agent.getPrinter().startNewLine().print("Logging already {}.", enabledAsText);
         } else {
           logManager.setActive(enabled);
           agent.getPrinter().startNewLine().print("Logging {}.", enabledAsText);
@@ -380,8 +376,7 @@ public class LogCommand extends PicocliSoarCommand {
             logManager.disableLogger(loggerName);
           }
 
-          agent.getPrinter().startNewLine()
-              .print("Logger [" + loggerName + "] {}.", enabledAsText);
+          agent.getPrinter().startNewLine().print("Logger [" + loggerName + "] {}.", enabledAsText);
 
         } catch (LoggerException e) {
           agent.getPrinter().startNewLine().print(e.getMessage());
@@ -391,7 +386,9 @@ public class LogCommand extends PicocliSoarCommand {
 
     private void setAbbreviate(boolean enabled) {
       logManager.setAbbreviate(enabled);
-      agent.getPrinter().startNewLine()
+      agent
+          .getPrinter()
+          .startNewLine()
           .print("Logger using {} paths.", enabled ? "abbreviated" : "full");
     }
 
