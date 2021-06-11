@@ -13,4 +13,16 @@ ifndef::env-github[]
 :relfilesuffix: .asciidoc
 endif::[]
 
-Purpose of the documentation is to provide information regarding the JSoar project.
+:imagesdir: images
+
+The purpose of the Software Architecture Document is to provide information that is complementary to the code.
+
+link:Context{relfilesuffix}[image:sad-document-structure-context.svg[]] link:Functional-view{relfilesuffix}[image:sad-document-structure-functional-overview.svg[]] link:Quality-attributes{relfilesuffix}[image:sad-document-structure-quality-attributes.svg[]] link:Constraints{relfilesuffix}[image:sad-document-structure-constraints.svg[]]
+
+link:Principles{relfilesuffix}[image:sad-document-structure-principles.svg[]] link:Software-architecture{relfilesuffix}[image:sad-document-structure-software-architecture.svg[]] link:External-interfaces{relfilesuffix}[image:sad-document-structure-external-interfaces.svg[]] link:Code{relfilesuffix}[image:sad-document-structure-code.svg[]]
+
+link:Data{relfilesuffix}[image:sad-document-structure-data.svg[]] link:Infrastructure-architecture{relfilesuffix}[image:sad-document-structure-infrastructure-architecture.svg[]] link:Deployment{relfilesuffix}[image:sad-document-structure-deployment.svg[]] link:Operation-and-Support{relfilesuffix}[image:sad-document-structure-operation-and-support.svg[]]
+
+NOTE: Click on one of the blocks to get additional information.
+
+Additionally you might consider including a link:decision-log/Decision-log{relfilesuffix}[log of the decisions] that have been made during the development of the software system. The purpose of this section is to simply record the major decisions that have been made, including both the technology choices (e.g. products, frameworks, etc) and the overall architecture (e.g. the structure of the software, architectural style, decomposition, patterns, etc). This section can act as a point of reference in the future. All decisions are made given a specific context and usually have trade-offs. There is usually never a perfect solution to a given problem. Articulating the decision making process after the event is often complex, particularly if you’re explaining the decision to people who are joining the team or you’re in an environment where the context changes on a regular basis.

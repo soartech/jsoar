@@ -5,17 +5,6 @@ ifndef::env-github[:relfilesuffix: .asciidoc]
 
 '''
 
-.*Presentations*
-[%collapsible]
-====
-* link:presentations/JSoar-SoarWorkshop-2009.ppt[(J)Soar workshop 2009]
-====
-
-'''
-
-.*link:Overview{relfilesuffix}[Software Architecture Document]*
-[%collapsible]
-====
 * link:Context{relfilesuffix}[Context]
 * link:Functional-view{relfilesuffix}[Functional View]
 * link:Quality-attributes{relfilesuffix}[Quality Attributes]
@@ -29,4 +18,11 @@ ifndef::env-github[:relfilesuffix: .asciidoc]
 * link:Deployment{relfilesuffix}[Deployment]
 * link:Operation-and-Support{relfilesuffix}[Operation & Support]
 * link:decision-log/decision-log{relfilesuffix}[Architectural Decision Log]
+
+'''
+
+.*Presentations*
+[%collapsible]
+====
+* link:presentations/JSoar-SoarWorkshop-2009.ppt[(J)Soar workshop 2009]
 ====
