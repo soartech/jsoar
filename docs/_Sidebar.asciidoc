@@ -13,20 +13,20 @@ ifndef::env-github[:relfilesuffix: .asciidoc]
 
 '''
 
-.*link:architecture/sad-overview{relfilesuffix}[Software Architecture Document]*
+.*link:Overview{relfilesuffix}[Software Architecture Document]*
 [%collapsible]
 ====
-* link:architecture/Context{relfilesuffix}[Context]
-* link:architecture/Functional-view{relfilesuffix}[Functional View]
-* link:architecture/Quality-attributes{relfilesuffix}[Quality Attributes]
-* link:architecture/Constraints{relfilesuffix}[Constraints]
-* link:architecture/Principles{relfilesuffix}[Principles]
-* link:architecture/Software-architecture{relfilesuffix}[Software Architecture]
-* link:architecture/External-interfaces{relfilesuffix}[External Interfaces]
-* link:architecture/Code{relfilesuffix}[Code]
-* link:architecture/Data{relfilesuffix}[Data]
-* link:architecture/Infrastructure-architecture{relfilesuffix}[Infrastructure Architecture]
-* link:architecture/Deployment{relfilesuffix}[Deployment]
-* link:architecture/Operation-and-Support{relfilesuffix}[Operation & Support]
-* link:architecture/decision-log/decision-log{relfilesuffix}[Architectural Decision Log]
+* link:Context{relfilesuffix}[Context]
+* link:Functional-view{relfilesuffix}[Functional View]
+* link:Quality-attributes{relfilesuffix}[Quality Attributes]
+* link:Constraints{relfilesuffix}[Constraints]
+* link:Principles{relfilesuffix}[Principles]
+* link:Software-architecture{relfilesuffix}[Software Architecture]
+* link:External-interfaces{relfilesuffix}[External Interfaces]
+* link:Code{relfilesuffix}[Code]
+* link:Data{relfilesuffix}[Data]
+* link:Infrastructure-architecture{relfilesuffix}[Infrastructure Architecture]
+* link:Deployment{relfilesuffix}[Deployment]
+* link:Operation-and-Support{relfilesuffix}[Operation & Support]
+* link:decision-log/decision-log{relfilesuffix}[Architectural Decision Log]
 ====
