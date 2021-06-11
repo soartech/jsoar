@@ -25,5 +25,4 @@ jobs:
         with:
           source: docs
           destination: wiki
-          branch: maven
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SYNC_WIKI }}
