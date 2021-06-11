@@ -13,7 +13,7 @@ ifndef::env-github[:relfilesuffix: .asciidoc]
 
 '''
 
-.*link:sad/Overview{relfilesuffix}[Software Architecture Document]*
+.*link:sad/sad-overview{relfilesuffix}[Software Architecture Document]*
 [%collapsible]
 ====
 * link:sad/Context{relfilesuffix}[Context]
