@@ -21,7 +21,7 @@ jobs:
         uses: kamiazya/setup-graphviz@v1
 
       - name: Publish Docs > Sync Docs to Wiki
-        uses: newrelic/wiki-sync-action@1.0.0
+        uses: newrelic/wiki-sync-action@b31d9caac5c33a4395d8901e0aa4bba7cd701ef5
         with:
           source: docs
           destination: wiki
