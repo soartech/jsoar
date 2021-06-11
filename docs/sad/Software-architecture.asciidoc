@@ -1,0 +1,33 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The software architecture is your 'big picture' and allows you to present the structure of the system through its components and their interactions. The purpose of this view is to summarise the software architecture so that the following questions can be answered:
+
+* What does the big picture look like?
+* Is there a clear structure?
+* Does it show the major technology choices?
+* Does it show the major components and their interactions?
+* What are the key consumers of the system.
+* What are the key internal interfaces.
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team.
+
+== Structure
+
+Use containers and components diagrams as the main focus for this section, accompanied by a short narrative explaining what the diagram is showing plus a summary of each container/component.
+
+Sometimes UML sequence or collaboration diagrams showing component interactions can be a useful way to illustrate how the software satisfies the major use cases/user stories/etc. Only do this if it adds value though and resist the temptation to describe how every use case/user story works!

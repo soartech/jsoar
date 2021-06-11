@@ -1,0 +1,39 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The quality attributes is about summarising the key quality factors and should answer the following type of questions:
+
+* Is there a clear understanding of the quality attributes that the system should satisfy?
+* Are the quality attributes SMART (Specific, Measurable, Achievable, Relevant, and Timely)?
+* Have quality attributes that are usually taken for granted been explicitly marked as out of scope if they are not needed? For example, "User interface elements will only be presented in English" to indicate that multi language is not explicitly catered for.
+* Are any of the quality attributes unrealistic?
+
+== Audience
+
+Since quality attributes are mostly technical in nature, this section is really targeted at technical people in the software development team.
+
+== Structure
+
+Simply listing out each of the quality attributes is a good starting point. Examples include:
+
+* Performance (e.g. latency and throughput)
+* Scalability (e.g. data and traffic volumes)
+* Availability (e.g. uptime, downtime, scheduled maintenance)
+* Security (e.g. authentication, authorisation, data confidentiality)
+* Monitoring and Management
+* Reliability
+* Fail over/disaster recovery targets (manually vs automatically, how long will it take, etc)
+* Legal and regulatory requirements (e.g. data protection act)
+* Internationalization and localisation

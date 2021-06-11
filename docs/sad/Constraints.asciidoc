@@ -1,0 +1,33 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+Software lives within the context of the real world, and the real world has constraints. This section allows you to state these constraints so that it's clear you are working within them and hew they affect your decisions.
+
+Examples of constraints include:
+
+* Time, budget and resources
+* Approved technology list and technology constraints.
+* Local standards (e.g. development guidelines, etc)
+* Public standards (e.g. HTML, XML, etc)
+* Standard protocols
+* Standard message formats
+
+Stating how they are significant to your system prevents you having to answer questions why you have made certain decisions.
+
+== Audience
+
+The audience for this section includes everybody involved with the software development process, since some constraints are technical, and some are not.
+
+== Structure

@@ -1,0 +1,30 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The deployment section is simply the mapping between the software (containers) and the infrastructure. This section answers the following types of questions:
+
+* How and where are software components installed and configured?
+* Is it clear how the software will be deployed across the infrastructure elements described in the infrastructure architecture section? (e.g. one-to-one mapping, multiple software components per server, etc)
+* Has the deployment and rollback strategy been defined?
+* What happens in the event of a software or infrastructure failure?
+* Is it clear how data is replicated across sites?
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team along with others that may help deploy, support and operate the software system.
+
+== Structure
+
+UML deployment diagrams or modified versions of the diagrams from the infrastructure architecture section showing where software will be running.

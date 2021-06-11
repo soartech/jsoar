@@ -1,0 +1,34 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The infrastructure view is used to describe the physical hardware and networks on which the software will be deployed. The purpose of this section is to answer the following types of questions:
+
+* Is there a clear physical architecture?
+* What hardware (virtual or physical) does this include across all tiers?
+* Does it cater for redundancy, fail over and disaster recovery if applicable?
+* Is it clear how the chosen hardware components have been sized?
+* If multiple servers and sites are used, what are the network links between them?
+* Who is responsible for support and maintenance of the infrastructure?
+* Are there central teams to look after common infrastructure(e.g.databases, networks, routers, switches, load balancers, reverse proxies, internet  connections, etc)?
+* Who owns the resources?
+* Are there sufficient environments for development, testing, acceptance, pre-production, production, etc?
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team along with others that may help deploy, support and operate the software system.
+
+== Structure
+
+The main focus for this section is usually an infrastructure/network diagram showing the various hardware/network components and how they fit together, with a short narrative to accompany the diagram.

@@ -1,0 +1,51 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+:imagesdir: images
+
+// Start collapsable Help
+.image:info.png[Info]
+[%collapsible]
+====
+____
+An architecture decision log (ADL) is the collection of all ADRs created and maintained for a particular project (or organization).
+____
+====
+// End help
+
+The following table list all Architectural Decision Records that transcend applications. See <<Create new ADR>> on how to add a new ADR.
+
+[%header,cols="^1,9"]
+|===
+|ID
+|Title
+|===
+
+=== Why ADRs
+
+Architecture for evolving systems has to be described and defined differently. Not all decisions are made at once, nor will all of them be done when the project begins. One of the hardest things to track during the lifetime of a system is the motivation behind certain decisions. A new person joining a team may be wondering about some past decisions. Without understanding the rationale or consequences, this person has only two choices:
+
+* *Accept the decision* - This response may be OK if the decision is still valid. It may not be good if the context has changed and the decision should be really revisited. If the system has too many of those decisions accepted without understanding, then the development team becomes afraid to change anything and the project collapses under its own weight.
+* *Change it* - This response may be OK if the decision needs to be reversed. On the other hand, changing the decision without understanding its motivation or consequences could mean damaging the project's overall value without realizing it. (E.g, the decision supported a non functional requirement that hasn't been tested yet).
+
+It's better to avoid either acceptance or reversal and keep a collection of architectural significant decisions; those that affect the structure, non functional characteristics, dependencies, interfaces, or construction techniques.
+
+One form to mitigate this is creating Architecture Decision Records (ADRs). Each record is a short text file describing a set of forces and a single decision in response to those forces. ADRs are immutable and will be numbered sequentially and not reused. If a decision is reversed, the old one will be marked as superseded and kept around (it's still relevant to know that is was the decision, but is no longer the decision).
+
+=== Create new ADR
+
+. Copy `link:ADR-template{relfilesuffix}[ADR-template]` to `ADR-NNN-title-with-dashes.asciidoc`, where `NNN` indicates the next number in sequence.
+. Edit `ADR-NNN-title-with-dashes.asciidoc`.
+. Add new ADR to `decision-log.asciidoc`, .

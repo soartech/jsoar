@@ -1,0 +1,35 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+A specific data view is worth including in your documentation if your system is data centric, managing a large quantity of data or dealing with complex data flows. This section can include information such as sizing and capacity planning including archives and backups.
+
+Questions that should be answered within the view are:
+
+* Is there a high level understanding of how much storage will be required to persist data.
+* What are the archiving and backup strategies
+* Are there any regulatory requirements for the long term archiving of business data
+* Likewise for log files and audit trails.
+
+Data in most software systems tends to outlive the software. This section can help anybody that needs to maintain and support the data on an ongoing basis, plus anybody that needs to extract reports or undertake business intelligence activities on the data.
+
+In addition this section can serve as a starting point for when the software system is rewritten in the future.
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team along with others that may help deploy, support and operate the software system.
+
+== Structure
+
+A short section for each element that you want to describe and include domain models or entity relationship diagrams if they help the reader. Keep any diagrams at a high level of abstraction rather than including every field and property. If people need this type of information, they can find it in the code or database.

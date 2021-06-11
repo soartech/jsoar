@@ -1,0 +1,29 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The functional view allows you to summarize what the key functions of the system are. It allows you to make an explicit link between the functional aspects of the system (use cases, stories, etc).
+
+A functional view should answer the following type of questions:
+
+* Is it clear what the system actually does
+* Is it clear who the key functional users are (roles, actors, etc) and how the system caters for their needs.
+
+== Audience
+
+Technical and non-technical people, inside and outside the immediate software development team.
+
+== Structure
+
+A single high-level UML use case diagram and use-case documents or list of user stories.

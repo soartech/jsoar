@@ -1,0 +1,40 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+Interfaces particularly those that are external to your software system, are one of the riskiest parts of any software system so its very useful to summarise what the interfaces are and how they work. The purpose is to answer the following type of questions:
+
+* What are key external interfaces between your system and other systems? (whether they are internal or external to your environment)
+** Any api that you are exposing for consumption
+** Any files that you are exporting from your system
+* Has each interface been thought about from a technical perspective?
+** What is the technical definition of the interface
+** If messaging is being used, which queues (point-to-point) and topics (pub-sub) are components using to communicate
+** What format are the messages
+** Are they synchronous or asynchronous
+** Can messages be received out of order and is this a problem
+** Are interfaces idempotent
+** How is performance/scalability/security/etc catered for
+* Has each interface been thought out from a non technical perspective
+** Who has ownership of the interface
+** How often does the interface change and how is versioning handled
+** Are there any service level agreements in place
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team.
+
+== Structure
+
+List out the interfaces (in the form “From X to Y”) along with a short narrative that describes the characteristics of the interface. To put the interfaces in context, include a simplified version of the containers or components diagrams that emphasise the interfaces.

@@ -1,0 +1,28 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The context section is one of the first sections of the software architecture document and is simply used to set the scene for the remainder of the document. The context section should answer questions like:
+
+* What is this software project/product/system all about?
+* How does it fit into the existing environment? (e.g. systems, business processes, etc)
+* Who is using it? (users, roles, actors, personas, etc)
+
+== Audience
+
+Technical and non-technical people, inside and outside the immediate software development team.
+
+== Structure
+
+The context section does not need to be long; a page or two is sufficient, a context diagram is a great way to tell most of the story.

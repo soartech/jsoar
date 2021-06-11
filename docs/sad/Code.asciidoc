@@ -1,0 +1,26 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+Present lower level details to explain how some components that are important, complex, significant work.
+
+The motivation for writing this section is to ensure that everybody understands how the important/significant/complex parts of the software system work so that they can maintain, enhance and extend them in a consistent and coherent manner. This section also helps new members of the team get up to speed quickly.
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team.
+
+== Structure
+
+A short section for each element that you want to describe and include diagrams if they help the reader. For example, a high-level UML class and/or sequence diagram can be useful to help explain how a component works. Resist the temptation to include all the details though, and don’t feel that your diagrams need to show everything. Keeping any diagrams at a high-level of detail means that they’re less volatile and remain up to date for longer because they can tolerate small changes to the code and yet remain valid.

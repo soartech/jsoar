@@ -1,0 +1,91 @@
+// Github
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+:imagesdir: images
+
+= ADR-<Number>: <ADR Title>
+
+// Start collapsable Help
+.image:info.png[Info]
+[%collapsible]
+====
+____
+An architecture decision record (ADR) is a document that captures an important architectural decision made along with its context and consequences.
+____
+====
+// End help
+
+[cols="h,m"]
+|===
+|*Status*|[ [blue]#Proposed#/[green]#Accepted#/[red]#Rejected#/[silver]#Deprecated#/[silver]#Superseded by ...# ]
+|*Date*|[YYYY-MM-DD when the decision was last updated]
+|*Proposer(s)*|[list everyone involved in creation of proposal]
+|*Decider(s)*|[list everyone involved in the decision]
+|===
+
+== Context
+
+// Start collapsable Help
+.image:info.png[Info]
+[%collapsible]
+====
+____
+Within this paragraph we are describing the problem we are trying to resolve. It explains the forces at play (technical, political, social, etc)
+____
+====
+// End help
+
+****
+Describe the context and problem statement, e.g., in free form using two to three sentences. You may want to articulate the problem in form of a question.
+****
+
+== Candidates
+
+// Start collapsable Help
+.image:info.png[Info]
+[%collapsible]
+====
+____
+Within this paragraph we list all candidates which are evaluated as potential solutions.
+____
+====
+// End help
+
+****
+List all candidates and related options; what are we evaluating as potential solutions?
+****
+
+## Decision
+
+// Start collapsable Help
+.image:info.png[Info]
+[%collapsible]
+====
+____
+Within this paragraph we list the chosen option and its justification.
+____
+====
+// End help
+
+****
+Describe proposed/chosen option and justify why the option was chosen
+****
+
+== Consequences
+
+****
+Describe what becomes easier or more difficult to do because of this change?
+****

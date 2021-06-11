@@ -1,0 +1,28 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches:
+      # Trigger when push on main branch
+      - maven
+
+jobs:
+  publish-documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout > Code
+        uses: actions/checkout@v2
+
+      - name: Checkout > Cleanup
+        run: git fetch --prune --unshallow
+
+      - name: Setup > Install graphviz
+        uses: kamiazya/setup-graphviz@v1
+
+      - name: Publish Docs > Sync Docs to Wiki
+        uses: newrelic/wiki-sync-action@master
+        with:
+          source: docs
+          destination: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}

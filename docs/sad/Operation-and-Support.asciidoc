@@ -1,0 +1,36 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+Operation and support will detail how people will run, monitor and manage your software in a production environment.
+
+NOTE: Production is a widely used term whose meaning varies. In this context we regard a production environment as any environment in which valuable work is performed. This usually implies a controlled environment that can be altered only through a change control process, rather that directly by developers. Consider what would happen if you accidentally remove a database content; if this is considered a disaster, you are probably working in a production environment.
+
+Questions that will be answered within this section are:
+
+* Is it clear how the system provides the ability for operators to monitor and manage the system.
+* How can operators start to diagnose problems.
+* Where are errors and information logged?
+* Do configuration changes require a restart?
+* Are there any manual housekeeping tasks that need to be performed on a regular basis?
+* Does old data need to be periodically archived?
+
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team along with others that may help deploy, support and operate the software system.
+
+== Structure
+
+This section is usually fairly narrative in nature, with a heading for each related set of information (e.g. monitoring, diagnostics, configuration, etc).

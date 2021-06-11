@@ -1,0 +1,32 @@
+// Github
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:relfilesuffix:
+endif::[]
+
+// Local
+ifndef::env-github[]
+:relfilesuffix: .asciidoc
+endif::[]
+
+The architecture principles section allow you to highlight those principles that have been used (or are used) to create the system. These could have been explicitly asked for or they could be principles YOU want to follow.
+
+Examples of principles are:
+
+* Use of framework and libraries, for example lombok to reduce the boilerplate code.
+* Common design patterns and templates for building components.
+* Common approaches (e.g. error handling, logging, etc)
+
+Principles help you to introduce consistency and clarity into a software project, so it is important that everybody on the team has a common understanding of them.
+
+== Audience
+
+The audience for this section is predominantly the technical people in the software development team.
+
+== Structure
+
+If you have an existing set of software development principles simply reference it. Otherwise, list out the principles that you are following and accompany each with a short explanation or link to further information.
