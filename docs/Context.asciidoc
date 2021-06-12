@@ -20,12 +20,13 @@ endif::[]
 [%collapsible]
 ====
 ____
-The context section is used to set the scene for the remainder of the document. The context section should answer questions like:
+The context section sets the scene for the remainder of the document. The context section should answer questions like:
 
 * What is this software project all about?
 * Who is using it? (users, roles, actors, personas, etc)
-* etc.
-----
+
+Its meant for technical and non-technical people, inside and outside the immediate software development team.
+____
 ====
 
 The goal of this project is to develop a general computational system that has the same cognitive abilities as humans. As shorthand we call these _human-level agents_. The approach we have taken for developing such human level agents is to study the _cognitive architecture_ underlying general intelligence. A cognitive architecture provides the fixed computational structures that form the building blocks for creating general intelligence systems. A cognitive architecture is not a single algorithm or method for solving a problem; rather, it is a task independent infrastructure that brings a agent's knowledge to understand a problem in order to produce behavior.
