@@ -30,3 +30,5 @@ ____
 ====
 
 The goal of this project is to develop a general computational system that has the same cognitive abilities as humans. As shorthand we call these _human-level agents_. The approach we have taken for developing such human level agents is to study the _cognitive architecture_ underlying general intelligence. A cognitive architecture provides the fixed computational structures that form the building blocks for creating general intelligence systems. A cognitive architecture is not a single algorithm or method for solving a problem; rather, it is a task independent infrastructure that brings a agent's knowledge to understand a problem in order to produce behavior.
+
+In addition to being a software system for agent development, it is also a theory of what computational structures are necessary to support human-level agents. On the one hand it is a long term research project in which we continually attempt to extend the human level capabilities we can achieve in a computer; on the other hand it is a specific architecture that you can use today for developing human-level agents.
