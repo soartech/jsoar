@@ -39,7 +39,7 @@ To do this we are combining _problem spaces_, to organize behavior, with _produc
 
 Cognitive architecture resides between the physical level and the cognitive level, providing the structures for encoding knowledge. It provides the fixed processes, memories, associated algorithms and data structures to acquire, represent, and process knowledge about the environment and tasks for moment to moment reasoning, problem-solving and goal oriented behavior.
 
-The physical level is the lowest level and provides the physical implementation of computation. for the cognitive level. The physical level itself is usually a series of layers of digital circuits, computer software and virtual machines for supporting general computation.
+The physical level is the lowest level and provides the physical implementation of computation for the cognitive level. The physical level itself is usually a series of layers of digital circuits, computer software and virtual machines for supporting general computation.
 
 At the top is the knowledge level. At the knowledge level we don't describe an agent using specific data structures, representations of knowledge, and algorithms but use the content of the knowledge and the principle of rationally.
 
@@ -48,6 +48,6 @@ image:sad-Levels-of-architecture.svg[align="center",width=100%]
 
 An agent selects actions to achieve its goals on the basis of the available knowledge. Achieving the  knowledge level requires perfect rationality, which is computationally infeasible except when an agent has simple goals or limited knowledge. The challenge for a cognitive architecture is to provide structures to approximate the knowledge level under the constraint of limited computer resources.
 
-As one progress up the hierarchy, the behavior is at longer time scales, the range of timescales at the physical level is between nano and microseconds, the cognitive level between milliseconds and tens of seconds, and the knowledge level between minutes and hours.
+As one progress up the hierarchy the behavior is at longer time scales. The timescales at the physical level is between nano and microseconds, the cognitive level between milliseconds and tens of seconds, and the knowledge level between minutes and hours.
 
 
