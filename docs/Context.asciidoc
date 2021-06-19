@@ -41,10 +41,13 @@ Cognitive architecture resides between the physical level and the cognitive leve
 
 The physical level is the lowest level and provides the physical implementation of computation. for the cognitive level. The physical level itself is usually a series of layers of digital circuits, computer software and virtual machines for supporting general computation.
 
-At the top is the knowledge level, which abstracts away from the processing of the cognitive level. At the knowledge level, an agent is not described using specific data structures, representations of knowledge, and algorithms; instead it is described using the content of the knowledge and the principle of rationally. An agent selects actions to achieve its goals on the basis of the available knowledge. Achieving the  knowledge level requires perfect rationality, which is computationally infeasible except when an agent has simple goals or limited knowledge. The challenge for a cognitive architecture is to provide structures to approximate the knowledge level under the constraint of limited computer resources.
+At the top is the knowledge level. At the knowledge level we don't describe an agent using specific data structures, representations of knowledge, and algorithms but use the content of the knowledge and the principle of rationally.
 
 .Levels of architecture
-image:sad-Levels-of-architecture.svg[align="center"]
+image:sad-Levels-of-architecture.svg[align="center",width=100%]
 
+An agent selects actions to achieve its goals on the basis of the available knowledge. Achieving the  knowledge level requires perfect rationality, which is computationally infeasible except when an agent has simple goals or limited knowledge. The challenge for a cognitive architecture is to provide structures to approximate the knowledge level under the constraint of limited computer resources.
+
+As one progress up the hierarchy, the behavior is at longer time scales, the range of timescales at the physical level is between nano and microseconds, the cognitive level between milliseconds and tens of seconds, and the knowledge level between minutes and hours.
 
 
