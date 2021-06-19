@@ -37,7 +37,7 @@ To do this we are combining _problem spaces_, to organize behavior in solving a 
 
 == Cognitive Architecture
 
-Cognitive architecture resides between the physical level and the cognitive level, providing the structures for encoding knowledge. It provides the fixed processes, memories, and their associated algorithms and data structures to acquire, represent, and process knowledge about the environment and tasks for moment to moment reasoning, problem solving and goal oriented behavior.
+Cognitive architecture resides between the physical level and the cognitive level, providing the structures for encoding knowledge. It provides the fixed processes, memories, associated algorithms and data structures to acquire, represent, and process knowledge about the environment and tasks for moment to moment reasoning, problem-solving and goal oriented behavior.
 
 The physical level is the lowest level and provides the physical implementation of computation. for the cognitive level. The physical level itself is usually a series of layers of digital circuits, computer software and virtual machines for supporting general computation.
 
