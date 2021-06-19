@@ -34,3 +34,17 @@ The goal is to develop a general computational system that has the same cognitiv
 So, in addition to being a software system for human-level agent development, it is also a theory of what computational structures are necessary to support human-level agents. On the one hand it is a long term research project in which we continually attempt to extend the human level capabilities we can achieve in a computer; on the other hand it is a specific architecture that you can use today for developing human-level agents.
 
 To do this we are combining _problem spaces_, to organize behavior in solving a problem, with _production systems_ to represent the knowledge used to control behavior. In problem spaces, behavior is decomposed into a selection of _operators_ and their application to _states_ to make progress toward a goal. States are representations of the current situation; operators are the means by which a system can make deliberate changes in the situation. In production systems, long term knowledge is encoded as rules in procedural memory; short term knowledge is encoded as declarative symbolic structures in working memory. Different problem spaces are available for different tasks, and multiple problem spaces can be used for different aspects of a single task. This provides a significant increase in generality and flexibility and by casting all activity within problem spaces, we create a uniform approach for controlling internal reasoning and external action. Production rules are used to represent the different functional aspects, proposal evaluation and application, of operators. Instead of trying to select the best rule, all matching rules fire in parallel, and the point of decision making is selecting the next _operator_. Knowledge about which operator to select is encoded in the production rules. In making a decision, the rules relevant to the current situation control behavior so that the method emerges from a combination of the knowledge and the structure of the task. Thus, as knowledge is added, the behavior of the system changes.
+
+== Cognitive Architecture
+
+Cognitive architecture resides between the physical level and the cognitive level, providing the structures for encoding knowledge. It provides the fixed processes, memories, and their associated algorithms and data structures to acquire, represent, and process knowledge about the environment and tasks for moment to moment reasoning, problem solving and goal oriented behavior.
+
+The physical level is the lowest level and provides the physical implementation of computation. for the cognitive level. The physical level itself is usually a series of layers of digital circuits, computer software and virtual machines for supporting general computation.
+
+At the top is the knowledge level, which abstracts away from the processing of the cognitive level. At the knowledge level, an agent is not described using specific data structures, representations of knowledge, and algorithms, instead it is described using the content of the knowledge and the principle of rationally. An agent selects actions to achieve its goals on the basis of the available knowledge. Achieving the  knowledge level requires perfect rationality, which is computationally infeasible except when an agent has simple goals or limited knowledge. The challenge for a cognitive architecture is to provide structures to approximate the knowledge level under the constraint of limited computer resources.
+
+.Levels of architecture
+image:sad-Levels-of-architecture.svg[align="center"]
+
+
+
