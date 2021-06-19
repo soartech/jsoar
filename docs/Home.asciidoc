@@ -25,4 +25,4 @@ link:Data{relfilesuffix}[image:sad-document-structure-data.svg[]] link:Infrastru
 
 NOTE: Click on one of the blocks to get additional information.
 
-Additionally there is a link:decision-log/Decision-log{relfilesuffix}[log of the decisions] that has been created during the development of the software system. The purpose of the decision log is to simply record the major decisions that have been made, including both the technology choices (e.g. products, frameworks, etc) and the overall architecture choices (e.g. the structure of the software, architectural style, decomposition, patterns, etc).
+Additionally there is a link:decision-log/Decision-log{relfilesuffix}[log of the decisions] that has been created during the development of the software system. The purpose of the decision log is to simply record the major decisions that have been made, including both technology (e.g. products, frameworks, etc) and the overall architecture choices (e.g. the structure of the software, architectural style, decomposition, patterns, etc).
