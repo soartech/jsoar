@@ -71,6 +71,7 @@ import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.runtime.ThreadedAgentDetachedEvent;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -714,6 +715,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 frame.setVisible(true);
 
                 debuggers.put(proxy, debugger);
+                proxy.getEvents().addListener(ThreadedAgentDetachedEvent.class, new ThreadedAgentDetachedEventListener());
             }
             else
             {
@@ -722,6 +724,27 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             return debugger;
         }
+    }
+    
+    private static class ThreadedAgentDetachedEventListener implements SoarEventListener
+    {
+
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            if(event instanceof ThreadedAgentDetachedEvent) {
+                ThreadedAgentDetachedEvent threadedAgentDetachedEvent = (ThreadedAgentDetachedEvent)event;
+                ThreadedAgent agent = threadedAgentDetachedEvent.getAgent();
+                JSoarDebugger debugger = JSoarDebugger.debuggers.get(agent);
+                if(debugger != null) {
+                    debugger.exit();
+                }
+                
+                agent.getEvents().removeListener(ThreadedAgentDetachedEvent.class, this);
+            }
+            
+        }
+        
     }
 
     public static void exit(ThreadedAgent proxy) {
