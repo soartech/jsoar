@@ -724,6 +724,22 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
     }
 
+    public static void exit(ThreadedAgent proxy) {
+        synchronized(debuggers)
+        {
+            JSoarDebugger debugger = debuggers.get(proxy);
+            if(debugger != null) {
+                debugger.exit();
+            } else {
+                logger.warn("Tried to close debugger for agent {}, but no debugger is open.", proxy.getName());
+            }
+        }
+    }
+    
+    public static JSoarDebugger getDebugger(ThreadedAgent proxy) {
+        return debuggers.get(proxy);
+    }
+    
     /**
      * Detach debugger from agent
      */

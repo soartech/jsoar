@@ -61,6 +61,18 @@ public class DebugTest
             {
                 throw new UnsupportedOperationException("openDebuggerAndWait");
             }
+
+            @Override
+            public void closeDebugger(Agent agent)
+            {
+                throw new UnsupportedOperationException("closeDebugger");
+            }
+
+            @Override
+            public Object getDebugger(Agent agent)
+            {
+                throw new UnsupportedOperationException("getDebugger");
+            }
             
         });
         agent.getProductions().loadProduction("testDebugCallsOpenDebugger (state <s> ^superstate nil) --> (debug)");

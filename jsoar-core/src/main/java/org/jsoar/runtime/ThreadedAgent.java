@@ -440,6 +440,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     public void setDebuggerProvider(DebuggerProvider p) { agent.setDebuggerProvider(p); }
     public void openDebugger() throws SoarException { agent.openDebugger(); }
     public void openDebuggerAndWait() throws SoarException, InterruptedException { agent.openDebuggerAndWait(); }
+    public void closeDebugger() throws SoarException, InterruptedException { agent.closeDebugger(); }
     
     /**
      * Schedule loading a rete in the agent thread and return

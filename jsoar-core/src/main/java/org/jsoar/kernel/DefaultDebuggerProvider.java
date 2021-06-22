@@ -37,13 +37,16 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
     public static final String PROPERTY = "jsoar.debugger.provider";
     public static final String DEFAULT_CLASS = "org.jsoar.debugger.DefaultDebuggerProvider";
     
+    private DebuggerProvider debuggerProvider;
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.DebuggerProvider#openDebugger()
      */
     @Override
     public void openDebugger(Agent agent) throws SoarException
     {
-        loadProvider().openDebugger(agent);
+        this.debuggerProvider = loadProvider();
+        this.debuggerProvider.openDebugger(agent);
     }
     
     /* (non-Javadoc)
@@ -53,7 +56,8 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
     public void openDebuggerAndWait(Agent agent) throws SoarException,
             InterruptedException
     {
-        loadProvider().openDebuggerAndWait(agent);
+        this.debuggerProvider = loadProvider();
+        this.debuggerProvider.openDebuggerAndWait(agent);
     }
 
     private synchronized DebuggerProvider loadProvider() throws SoarException
@@ -86,5 +90,17 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
             throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
         }
         
+    }
+
+    @Override
+    public void closeDebugger(Agent agent)
+    {
+        this.debuggerProvider.closeDebugger(agent);
+    }
+
+    @Override
+    public Object getDebugger(Agent agent)
+    {
+        return this.debuggerProvider.getDebugger(agent);
     }
 }

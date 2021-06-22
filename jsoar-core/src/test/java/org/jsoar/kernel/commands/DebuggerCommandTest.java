@@ -40,6 +40,18 @@ public class DebuggerCommandTest
                 assertSame(agent, a);
                 called.set(true);
             }
+
+            @Override
+            public void closeDebugger(Agent agent)
+            {
+                throw new UnsupportedOperationException("closeDebugger not supported");
+            }
+
+            @Override
+            public Object getDebugger(Agent agent)
+            {
+                throw new UnsupportedOperationException("closeDebugger not supported");
+            }
         };
         agent.setDebuggerProvider(provider);
         final DebuggerCommand command = new DebuggerCommand(agent);

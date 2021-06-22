@@ -31,7 +31,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     private final Map<String, Object> properties = new HashMap<String, Object>();
-
+    
     public DefaultDebuggerProvider()
     {
     }
@@ -62,11 +62,11 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(getRunnable(agent)); 
+            SwingUtilities.invokeLater(getOpenDebuggerRunnable(agent)); 
         }
         else
         {        
-            doIt(agent);
+            doOpenDebugger(agent);
         }
     }
 
@@ -80,7 +80,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         {
             try
             {
-                SwingUtilities.invokeAndWait(getRunnable(agent));
+                SwingUtilities.invokeAndWait(getOpenDebuggerRunnable(agent));
             }
             catch (InvocationTargetException e)
             {
@@ -97,18 +97,18 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         }
         else
         {        
-            doIt(agent);
+            doOpenDebugger(agent);
         }
     }
     
-    private Runnable getRunnable(final Agent agent)
+    private Runnable getOpenDebuggerRunnable(final Agent agent)
     {
         return new Runnable() { 
             public void run() 
             {
                 try
                 {
-                    doIt(agent);
+                    doOpenDebugger(agent);
                 }
                 catch (SoarException e)
                 {
@@ -118,7 +118,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         };
     }
 
-    private void doIt(Agent agent) throws SoarException
+    private void doOpenDebugger(Agent agent) throws SoarException
     {
         final ThreadedAgent ta = ThreadedAgent.find(agent);
         if(ta == null)
@@ -126,5 +126,51 @@ public class DefaultDebuggerProvider implements DebuggerProvider
             throw new SoarException("Can't attach debugger to agent with no ThreadedAgent proxy");
         }
         JSoarDebugger.attach(ta, getProperties());
+    }
+
+    @Override
+    public void closeDebugger(Agent agent)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(getCloseDebuggerRunnable(agent)); 
+        }
+        else
+        {        
+            doCloseDebugger(agent);
+        }
+    }
+    
+    private Runnable getCloseDebuggerRunnable(Agent agent)
+    {
+        return new Runnable() { 
+            public void run() 
+            {
+                doCloseDebugger(agent);
+            } 
+        };
+    }
+
+    private void doCloseDebugger(Agent agent)
+    {
+        final ThreadedAgent ta = ThreadedAgent.find(agent);
+        if(ta == null)
+        {
+            logger.warn("Tried to close debugger for agent {} that does not have a debugger.", agent.getName());
+            return;
+        }
+        
+        JSoarDebugger.exit(ta);
+    }
+
+    @Override
+    public JSoarDebugger getDebugger(Agent agent)
+    {
+        final ThreadedAgent ta = ThreadedAgent.find(agent);
+        if(ta == null)
+        {
+            return null;
+        }
+        return JSoarDebugger.getDebugger(ta);
     }
 }

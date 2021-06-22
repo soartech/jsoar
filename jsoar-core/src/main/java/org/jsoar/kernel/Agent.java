@@ -362,6 +362,15 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
+     * Close the debugger using the currently registered {@link DebuggerProvider}.
+     * Convenience method, equivalent to {@code getDebuggerProvider().closeDebugger(this)}.
+     */
+    public void closeDebugger()
+    {
+        getDebuggerProvider().closeDebugger(this);
+    }
+    
+    /**
      * Must be called before the agent is run. This is separate from the 
      * constructor to give client code the change to register callbacks,
      * modify the trace level or printer, etc before the agent is initialized,

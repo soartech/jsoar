@@ -84,4 +84,17 @@ public interface DebuggerProvider
      *      debugger to initialize
      */
     void openDebuggerAndWait(Agent agent) throws SoarException, InterruptedException;
+    
+    /**
+     * Closes a debugger if open. If the debugger is open, this will execute whatever
+     * close action has been defined. If there is no debugger open, this does nothing.
+     */
+    void closeDebugger(Agent agent);
+    
+    /**
+     * Returns the debugger object. It needs to be casted to a specific type, like JSoarDebugger,
+     * in order to be useful.
+     * @return
+     */
+    Object getDebugger(Agent agent);
 }
