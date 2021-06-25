@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
+import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -28,10 +29,8 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtensio
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.GoalIdTest;
 import org.jsoar.kernel.lhs.ImpasseIdTest;
-import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
-import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -61,8 +60,6 @@ import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
-import org.jsoar.util.properties.PropertyChangeEvent;
-import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -92,7 +89,6 @@ public class ReinforcementLearning {
   private Trace trace;
   private Printer printer;
 
-  /** @param context */
   public ReinforcementLearning(Adaptable context) {
     this.myContext = context;
     this.properties = ((Agent) myContext).getProperties();
@@ -125,18 +121,14 @@ public class ReinforcementLearning {
     this.trace = Adaptables.require(getClass(), myContext, Trace.class);
     this.printer = Adaptables.require(getClass(), myContext, Printer.class);
 
+    /* (non-Javadoc)
+     * @see org.jsoar.util.properties.BooleanPropertyProvider#set(java.lang.Boolean)
+     */
     properties.addListener(
         ReinforcementLearningParams.LEARNING,
-        new PropertyListener<Learning>() {
-
-          /* (non-Javadoc)
-           * @see org.jsoar.util.properties.BooleanPropertyProvider#set(java.lang.Boolean)
-           */
-          @Override
-          public void propertyChanged(PropertyChangeEvent<Learning> event) {
-            if (event.getNewValue() == Learning.off) {
-              rl_reset_data();
-            }
+        event -> {
+          if (event.getNewValue() == Learning.off) {
+            rl_reset_data();
           }
         });
 
@@ -171,11 +163,7 @@ public class ReinforcementLearning {
     }
   }
 
-  /**
-   * reinforcement_learning.cpp:158:rl_remove_refs_for_prod (9.3.0)
-   *
-   * @param prod
-   */
+  /** reinforcement_learning.cpp:158:rl_remove_refs_for_prod (9.3.0) */
   private void rl_remove_refs_for_prod(Production prod) {
     for (IdentifierImpl state = decider.top_state;
         state != null;
@@ -194,14 +182,14 @@ public class ReinforcementLearning {
 
   /** reinforcement_learning.cpp:180:rl_valid_template (9.3.0) */
   static boolean rl_valid_template(Production prod) {
-    boolean numeric_pref = false;
-    boolean var_pref = false;
-    int num_actions = 0;
+    var numeric_pref = false;
+    var var_pref = false;
+    var num_actions = 0;
 
-    for (Action a = prod.getFirstAction(); a != null; a = a.next) {
+    for (var a = prod.getFirstAction(); a != null; a = a.next) {
       num_actions++;
 
-      final MakeAction ma = a.asMakeAction();
+      final var ma = a.asMakeAction();
       if (ma != null) {
         if (a.preference_type == PreferenceType.NUMERIC_INDIFFERENT) {
           numeric_pref = true;
@@ -217,15 +205,15 @@ public class ReinforcementLearning {
 
   /** reinforcement_learning.cpp:207:rl_valid_rule (9.3.0) */
   private static boolean rl_valid_rule(Production prod) {
-    boolean numeric_pref = false;
-    int num_actions = 0;
+    var numeric_pref = false;
+    var num_actions = 0;
 
-    for (Action a = prod.getFirstAction(); a != null; a = a.next) {
+    for (var a = prod.getFirstAction(); a != null; a = a.next) {
       num_actions++;
 
-      final MakeAction ma = a.asMakeAction();
-      if (ma != null) {
-        if (a.preference_type == PreferenceType.NUMERIC_INDIFFERENT) numeric_pref = true;
+      final var ma = a.asMakeAction();
+      if ((ma != null) && (a.preference_type == PreferenceType.NUMERIC_INDIFFERENT)) {
+        numeric_pref = true;
       }
     }
 
@@ -234,7 +222,7 @@ public class ReinforcementLearning {
 
   /** misc.cpp:24;is_natural_number */
   private static boolean is_natural_number(String s) {
-    for (int i = 0; i < s.length(); ++i) {
+    for (var i = 0; i < s.length(); ++i) {
       if (!Character.isDigit(s.charAt(i))) {
         return false;
       }
@@ -249,24 +237,23 @@ public class ReinforcementLearning {
    *
    * <p>(9.3.0)
    */
-  private static int rl_get_template_id(String prod_name) {
-    String temp = prod_name;
+  private static int rl_get_template_id(String prodName) {
 
     // has to be at least "rl*a*#" (where a is a single letter/number/etc)
-    if (temp.length() < 6) return -1;
+    if (prodName.length() < 6) return -1;
 
     // check first three letters are "rl*"
-    if (!temp.startsWith("rl*")) return -1;
+    if (!prodName.startsWith("rl*")) return -1;
 
     // find last * to isolate id
-    int last_star = temp.lastIndexOf('*');
+    int last_star = prodName.lastIndexOf('*');
     if (last_star == -1) return -1;
 
     // make sure there's something left after last_star
-    if (last_star == (temp.length() - 1)) return -1;
+    if (last_star == (prodName.length() - 1)) return -1;
 
     // make sure id is a valid natural number
-    String id_str = temp.substring(last_star + 1);
+    var id_str = prodName.substring(last_star + 1);
     if (!is_natural_number(id_str)) return -1;
 
     // convert id
@@ -323,56 +310,10 @@ public class ReinforcementLearning {
   /** reinforcement_learning.cpp:297:rl_get_test_constant 9.3.0 */
   private static void rl_get_test_constant(
       Test p_test, Test i_test, Map<SymbolImpl, SymbolImpl> constants) {
-    if (Tests.isBlank(p_test)) {
-      return;
-    }
-
-    if (p_test.asEqualityTest() != null) {
+    if (!Tests.isBlank(p_test) && (p_test.asEqualityTest() != null)) {
       rl_get_symbol_constant(
           p_test.asEqualityTest().getReferent(), i_test.asEqualityTest().getReferent(), constants);
-
-      // rl_get_symbol_constant( *(reinterpret_cast<Symbol**>( p_test )),
-      // *(reinterpret_cast<Symbol**>( i_test )), constants );
-      return;
     }
-
-    // complex test stuff
-    // NLD: If the code below is uncommented, it accesses bad memory on the first
-    //      id test and segfaults.  I'm honestly unsure why (perhaps something
-    //      about state test?).  Most of this code was copied/adapted from
-    //      the variablize_test code in production.cpp.
-    /*
-    {
-        complex_test* p_ct = complex_test_from_test( *p_test );
-        complex_test* i_ct = complex_test_from_test( *i_test );
-
-        if ( ( p_ct->type == GOAL_ID_TEST ) || ( p_ct->type == IMPASSE_ID_TEST ) || ( p_ct->type == DISJUNCTION_TEST ) )
-        {
-            return;
-        }
-        else if ( p_ct->type == CONJUNCTIVE_TEST )
-        {
-            cons* p_c=p_ct->data.conjunct_list;
-            cons* i_c=i_ct->data.conjunct_list;
-
-            while ( p_c )
-            {
-                rl_get_test_constant( reinterpret_cast<test*>( &( p_c->first ) ), reinterpret_cast<test*>( &( i_c->first ) ), constants );
-
-                p_c = p_c->rest;
-                i_c = i_c->rest;
-            }
-
-            return;
-        }
-        else
-        {
-            rl_get_symbol_constant( p_ct->data.referent, i_ct->data.referent, constants );
-
-            return;
-        }
-    }
-    */
   }
 
   /** reinforcement_learning.cpp:351:rl_get_template_constants 9.3.0 */
@@ -382,7 +323,7 @@ public class ReinforcementLearning {
     Condition i_cond = i_conds;
 
     while (p_cond != null) {
-      final ThreeFieldCondition tfc = p_cond.asThreeFieldCondition();
+      final var tfc = p_cond.asThreeFieldCondition();
       if (tfc != null /* positive || negative */) {
         rl_get_test_constant(tfc.id_test, i_cond.asThreeFieldCondition().id_test, constants);
         rl_get_test_constant(tfc.attr_test, i_cond.asThreeFieldCondition().attr_test, constants);
@@ -408,9 +349,6 @@ public class ReinforcementLearning {
       Instantiation my_template_instance, Token tok, WmeImpl w) {
     SymbolImpl return_val = null;
 
-    //    	if (productions == null)
-    //        	productions = Adaptables.require(getClass(), myContext, ProductionManager.class);
-
     final RLTemplateInfo rlInfo = my_template_instance.prod.rlTemplateInfo;
     // initialize production conditions
     if (rlInfo.rl_template_conds == null) {
@@ -423,11 +361,11 @@ public class ReinforcementLearning {
 
     // initialize production instantiation set
     if (rlInfo.rl_template_instantiations == null) {
-      rlInfo.rl_template_instantiations = new HashSet<Map<SymbolImpl, SymbolImpl>>();
+      rlInfo.rl_template_instantiations = new HashSet<>();
     }
 
     // get constants
-    final Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<SymbolImpl, SymbolImpl>();
+    final Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<>();
     {
       rl_get_template_constants(
           rlInfo.rl_template_conds,
@@ -436,92 +374,88 @@ public class ReinforcementLearning {
     }
 
     // try to insert into instantiation set
-    // if ( !constant_map.empty() )
-    {
-      if (rlInfo.rl_template_instantiations.add(constant_map)) {
-        final Production my_template = my_template_instance.prod;
-        final Action my_action = my_template.getFirstAction();
+    if (rlInfo.rl_template_instantiations.add(constant_map)) {
+      final Production my_template = my_template_instance.prod;
+      final var my_action = my_template.getFirstAction();
 
-        // make unique production name
-        String new_name = "";
-        do {
-          final int new_id = rl_next_template_id();
-          new_name = "rl*" + my_template.getName() + "*" + new_id;
-        } while (syms.findString(new_name) != null);
-        SymbolImpl new_name_symbol = syms.createString(new_name);
+      // make unique production name
+      String new_name;
+      do {
+        final int new_id = rl_next_template_id();
+        new_name = "rl*" + my_template.getName() + "*" + new_id;
+      } while (syms.findString(new_name) != null);
+      SymbolImpl new_name_symbol = syms.createString(new_name);
 
-        // prep conditions
-        final ByRef<Condition> cond_top = ByRef.create(null);
-        final ByRef<Condition> cond_bottom = ByRef.create(null);
+      // prep conditions
+      final ByRef<Condition> cond_top = ByRef.create(null);
+      final ByRef<Condition> cond_bottom = ByRef.create(null);
 
-        Condition.copy_condition_list(
-            my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom);
-        rl_add_goal_or_impasse_tests_to_conds(cond_top.value);
-        syms.getVariableGenerator().reset(cond_top.value, null);
-        chunker.variablization_tc = DefaultMarker.create();
-        chunker.variablize_condition_list(cond_top.value);
-        chunker.variablize_nots_and_insert_into_conditions(
-            my_template_instance.nots, cond_top.value);
+      Condition.copy_condition_list(
+          my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom);
+      rl_add_goal_or_impasse_tests_to_conds(cond_top.value);
+      syms.getVariableGenerator().reset(cond_top.value, null);
+      chunker.variablization_tc = DefaultMarker.create();
+      chunker.variablize_condition_list(cond_top.value);
+      chunker.variablize_nots_and_insert_into_conditions(my_template_instance.nots, cond_top.value);
 
-        // get the preference value
-        final IdentifierImpl id =
-            recMemory
-                .instantiate_rhs_value(my_action.asMakeAction().id, -1, 's', tok, w)
-                .asIdentifier();
-        final SymbolImpl attr =
-            recMemory.instantiate_rhs_value(
-                my_action.asMakeAction().attr, id.getLevel(), 'a', tok, w);
-        final char first_letter = attr.getFirstLetter();
-        final SymbolImpl value =
-            recMemory.instantiate_rhs_value(
-                my_action.asMakeAction().value, id.getLevel(), first_letter, tok, w);
-        final SymbolImpl referent =
-            recMemory.instantiate_rhs_value(
-                my_action.asMakeAction().referent, id.getLevel(), first_letter, tok, w);
+      // get the preference value
+      final IdentifierImpl id =
+          recMemory
+              .instantiate_rhs_value(my_action.asMakeAction().id, -1, 's', tok, w)
+              .asIdentifier();
+      final SymbolImpl attr =
+          recMemory.instantiate_rhs_value(
+              my_action.asMakeAction().attr, id.getLevel(), 'a', tok, w);
+      final char first_letter = attr.getFirstLetter();
+      final SymbolImpl value =
+          recMemory.instantiate_rhs_value(
+              my_action.asMakeAction().value, id.getLevel(), first_letter, tok, w);
+      final SymbolImpl referent =
+          recMemory.instantiate_rhs_value(
+              my_action.asMakeAction().referent, id.getLevel(), first_letter, tok, w);
 
-        // make new action list
-        final Action new_action = rl_make_simple_action(id, attr, value, referent);
-        new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
+      // make new action list
+      final Action new_action = rl_make_simple_action(id, attr, value, referent);
+      new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
-        // make new production
-        final Production new_production =
-            Production.newBuilder()
-                .type(ProductionType.USER)
-                .location(NEW_PRODUCTION_SOURCE)
-                .name(new_name_symbol.toString())
-                .conditions(cond_top.value, cond_bottom.value)
-                .actions(new_action)
-                .build();
+      // make new production
+      final var new_production =
+          Production.newBuilder()
+              .type(ProductionType.USER)
+              .location(NEW_PRODUCTION_SOURCE)
+              .name(new_name_symbol.toString())
+              .conditions(cond_top.value, cond_bottom.value)
+              .actions(new_action)
+              .build();
 
-        new_production.rlRuleInfo = new RLRuleInfo();
+      new_production.rlRuleInfo = new RLRuleInfo();
 
-        // set initial expected reward values
-        {
-          double init_value = 0.0;
-          if (referent.asInteger() != null) {
-            init_value = referent.asInteger().getValue();
-          } else if (referent.asDouble() != null) {
-            init_value = referent.asDouble().getValue();
-          }
-
-          new_production.rlRuleInfo.rl_ecr = 0.0;
-          new_production.rlRuleInfo.rl_efr = init_value;
+      // set initial expected reward values
+      {
+        var init_value = 0.0;
+        if (referent.asInteger() != null) {
+          init_value = referent.asInteger().getValue();
+        } else if (referent.asDouble() != null) {
+          init_value = referent.asDouble().getValue();
         }
 
-        try {
-          // attempt to add to rete, remove if duplicate
-          if (my_agent.getProductions().addProduction(new_production, false)
-              == ProductionAddResult.DUPLICATE_PRODUCTION) {
-            rl_revert_template_id();
-            new_name_symbol = null;
-          }
-        } catch (ReordererException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-
-        return_val = new_name_symbol;
+        new_production.rlRuleInfo.rl_ecr = 0.0;
+        new_production.rlRuleInfo.rl_efr = init_value;
       }
+
+      try {
+        // attempt to add to rete, remove if duplicate
+        if (my_agent.getProductions().addProduction(new_production, false)
+            == ProductionAddResult.DUPLICATE_PRODUCTION) {
+          rl_revert_template_id();
+          new_name_symbol = null;
+        }
+      } catch (ReordererException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
+      return_val = new_name_symbol;
     }
 
     return return_val;
@@ -534,7 +468,7 @@ public class ReinforcementLearning {
    */
   private MakeAction rl_make_simple_action(
       IdentifierImpl id_sym, SymbolImpl attr_sym, SymbolImpl val_sym, SymbolImpl ref_sym) {
-    MakeAction rhs = new MakeAction();
+    var rhs = new MakeAction();
 
     // id
     rhs.id = this.chunker.variablize_symbol(id_sym).toRhsValue();
@@ -562,7 +496,7 @@ public class ReinforcementLearning {
     final Marker tc = DefaultMarker.create();
 
     for (Condition cond = all_conds; cond != null; cond = cond.next) {
-      PositiveCondition pc = cond.asPositiveCondition();
+      var pc = cond.asPositiveCondition();
       if (pc == null) continue;
 
       IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
@@ -586,17 +520,17 @@ public class ReinforcementLearning {
     final ReinforcementLearningInfo data = goal.goalInfo.rl_info;
 
     if (!data.prev_op_rl_rules.isEmpty()) {
-      final Slot s = Slot.find_slot(goal.goalInfo.reward_header, preSyms.rl_sym_reward);
+      final var s = Slot.find_slot(goal.goalInfo.reward_header, preSyms.rl_sym_reward);
 
-      double reward = 0.0;
-      double discount_rate = params.discount_rate.get(); // rl_params->discount_rate->get_value();
+      var reward = 0.0;
+      var discount_rate = params.discount_rate.get();
 
       if (s != null) {
-        for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
+        for (WmeImpl w : s.getWmes()) {
           if (w.value.asIdentifier() != null) {
-            final Slot t = Slot.find_slot(w.value.asIdentifier(), preSyms.rl_sym_value);
+            final var t = Slot.find_slot(w.value.asIdentifier(), preSyms.rl_sym_value);
             if (t != null) {
-              for (WmeImpl x = t.getWmes(); x != null; x = x.next) {
+              for (WmeImpl x : t.getWmes()) {
                 if (x.value.asDouble() != null) {
                   reward += x.value.asDouble().getValue();
                 } else if (x.value.asInteger() != null) {
@@ -617,11 +551,6 @@ public class ReinforcementLearning {
 
         data.reward += (reward * Math.pow(discount_rate, (double) effective_age));
       }
-
-      // update stats
-      // final double global_reward = 0.0; // TODO my_agent->rl_stats->global_reward->get_value();
-      // TODO my_agent->rl_stats->total_reward->set_value( reward );
-      // TODO my_agent->rl_stats->global_reward->set_value( global_reward + reward );
 
       if ((goal != decider.bottomGoal())
           && (params.hrl_discount.get()
@@ -659,14 +588,11 @@ public class ReinforcementLearning {
     final Symbol op = cand.value;
     data.previous_q = cand.numeric_value;
 
-    final boolean using_gaps =
-        params.temporal_extension.get()
-            == TemporalExtension
-                .on; // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
+    final boolean using_gaps = params.temporal_extension.get() == TemporalExtension.on;
 
     // Make list of just-fired prods
-    int just_fired = 0;
-    for (Preference pref =
+    var just_fired = 0;
+    for (var pref =
             goal.goalInfo.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT);
         pref != null;
         pref = pref.next) {
@@ -717,26 +643,17 @@ public class ReinforcementLearning {
    */
   public void rl_perform_update(
       double op_value, boolean op_rl, IdentifierImpl goal, boolean update_efr) {
-    final boolean using_gaps =
-        params.temporal_extension.get()
-            == TemporalExtension
-                .on; // ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
+    final boolean using_gaps = params.temporal_extension.get() == TemporalExtension.on;
 
     if (!using_gaps || op_rl) {
       final ReinforcementLearningInfo data = goal.goalInfo.rl_info;
 
       if (!data.prev_op_rl_rules.isEmpty()) {
-        final double alpha =
-            params.learning_rate.get(); // my_agent->rl_params->learning_rate->get_value();
-        final double lambda =
-            params.et_decay_rate.get(); // my_agent->rl_params->et_decay_rate->get_value();
-        final double gamma =
-            params.discount_rate.get(); // my_agent->rl_params->discount_rate->get_value();
-        final double tolerance =
-            params.et_tolerance.get(); // my_agent->rl_params->et_tolerance->get_value();
-        final double theta =
-            params.meta_learning_rate
-                .get(); // my_agent->rl_params->meta_learning_rate->get_value();
+        final double alpha = params.learning_rate.get();
+        final double lambda = params.et_decay_rate.get();
+        final double gamma = params.discount_rate.get();
+        final double tolerance = params.et_tolerance.get();
+        final double theta = params.meta_learning_rate.get();
 
         // if temporal_discount is off, don't discount for gaps
         long effective_age = data.hrl_age + 1;
@@ -772,8 +689,8 @@ public class ReinforcementLearning {
         }
 
         // Update trace for just fired prods
-        double sum_old_ecr = 0.0;
-        double sum_old_efr = 0.0;
+        var sum_old_ecr = 0.0;
+        var sum_old_efr = 0.0;
         if (!data.prev_op_rl_rules.isEmpty()) {
           final double trace_increment = (1.0 / (double) (data.prev_op_rl_rules.size()));
 
@@ -782,12 +699,7 @@ public class ReinforcementLearning {
               sum_old_ecr += p.rlRuleInfo.rl_ecr;
               sum_old_efr += p.rlRuleInfo.rl_efr;
 
-              final Double old = data.eligibility_traces.get(p);
-              if (old != null) {
-                data.eligibility_traces.put(p, old + trace_increment);
-              } else {
-                data.eligibility_traces.put(p, trace_increment);
-              }
+              data.eligibility_traces.merge(p, trace_increment, Double::sum);
             }
           }
         }
@@ -878,21 +790,13 @@ public class ReinforcementLearning {
               // Log update to file if the log file has been set
               String log_path = params.update_log_path.get();
               if (!log_path.isEmpty()) {
-                File log = new File(log_path);
-                BufferedWriter writer = null;
-                try {
+                var log = new File(log_path);
+                try (var writer = new BufferedWriter(new FileWriter(log))) {
                   //	TODO: Does this actually append to the file?
                   //	If not, fix so it does
-                  writer = new BufferedWriter(new FileWriter(log));
                   writer.write(String.format("%s%n", ss));
                 } catch (IOException e) {
                   e.printStackTrace();
-                } finally {
-                  try {
-                    writer.close();
-                  } catch (IOException e) {
-                    e.printStackTrace();
-                  }
                 }
               }
             }
@@ -905,23 +809,21 @@ public class ReinforcementLearning {
             prod.rlRuleInfo.rl_efr = new_efr;
 
             // change documentation
-            /**
+            /*
              * Here we'll do this by brute force instead of using the fancy accessors in the CSoar
              * code.
              */
             if (params.meta.get() == Meta.on) {
-              /**
+              /*
                * NOTE: This code replaces the whole documentation string with the new set of values.
                * If this user had put documentation there, it gets lost. That's how it is in CSoar,
                * so we copied it.
                */
-              StringBuilder builder = new StringBuilder();
-              builder.append(
-                  String.format("%s=%f;", "rl-updates", prod.rlRuleInfo.rl_update_count));
-              builder.append(
-                  String.format(
-                      "%s=%f;", "delta-bar-delta-h", prod.rlRuleInfo.rl_delta_bar_delta_h));
-              prod.setDocumentation(builder.toString());
+              String documentation =
+                  String.format("%s=%f;", "rl-updates", prod.rlRuleInfo.rl_update_count)
+                      + String.format(
+                          "%s=%f;", "delta-bar-delta-h", prod.rlRuleInfo.rl_delta_bar_delta_h);
+              prod.setDocumentation(documentation);
             }
 
             // Change value of preferences generated by current instantiations of this rule
@@ -954,33 +856,31 @@ public class ReinforcementLearning {
    *
    * <p>production.cpp:1507:make_production
    */
-  public void addProduction(Production p) {
+  public void addProduction(@NonNull Production p) {
     // Soar-RL stuff
     // From production.cpp:make_production
     p.rlRuleInfo = null;
-    if (p.getType() != ProductionType.JUSTIFICATION && p.getType() != ProductionType.TEMPLATE) {
-      if (rl_valid_rule(p)) {
-        p.rlRuleInfo = new RLRuleInfo();
-        p.rlRuleInfo.rl_efr =
-            Symbols.asDouble(p.getFirstAction().asMakeAction().referent.asSymbolValue().getSym());
-      }
+    if (p.getType() != ProductionType.JUSTIFICATION
+        && p.getType() != ProductionType.TEMPLATE
+        && rl_valid_rule(p)) {
+      p.rlRuleInfo = new RLRuleInfo();
+      p.rlRuleInfo.rl_efr =
+          Symbols.asDouble(p.getFirstAction().asMakeAction().referent.asSymbolValue().getSym());
     }
 
     rl_update_template_tracking(p.getName());
 
     // From parser.cpp:parse_production
-    if (p.getType() == ProductionType.TEMPLATE) {
-      if (!rl_valid_template(p)) {
-        printer.print("Invalid Soar-RL template (%s)\n\n", p.getName());
-        my_agent.getProductions().exciseProduction(p, false);
+    if ((p.getType() == ProductionType.TEMPLATE) && !rl_valid_template(p)) {
+      printer.print("Invalid Soar-RL template (%s)\n\n", p.getName());
+      my_agent.getProductions().exciseProduction(p, false);
 
-        // TODO: Throw exception?
-        return;
-      }
+      // TODO: Throw exception?
+      return;
     }
 
     // From parser.cpp:parse_production
-    if (p != null && p.rlRuleInfo != null && p.getDocumentation() != null) {
+    if (p.rlRuleInfo != null) {
       rl_rule_meta(p);
     }
   }
@@ -992,11 +892,9 @@ public class ReinforcementLearning {
    * <p>With this approach get_documentation_params is not needed.
    *
    * <p>reinforcement_learning.cpp (9.3.3+)
-   *
-   * @param prod
    */
   private void rl_rule_meta(Production prod) {
-    if (prod.getDocumentation() != null && (params.meta.get() == Meta.on)) {
+    if (params.meta.get() == Meta.on) {
       String doc = prod.getDocumentation();
 
       //	Set the prod's rl_update_count from the doc string
@@ -1024,7 +922,7 @@ public class ReinforcementLearning {
       begin_index += search_term.length();
       int end_index = doc.indexOf(";", begin_index);
       if (end_index >= 0) {
-        String param_value_str = doc.substring(begin_index, end_index);
+        var param_value_str = doc.substring(begin_index, end_index);
         return Double.parseDouble(param_value_str);
       } else {
         return Double.NaN;
@@ -1038,8 +936,6 @@ public class ReinforcementLearning {
    * Function introduced while teasing apary excise functionality
    *
    * <p>production.cpp:1595:excise_production
-   *
-   * @param prod
    */
   public void exciseProduction(Production prod) {
     // Remove RL-related pointers to this production (unnecessary if rule never fired).
