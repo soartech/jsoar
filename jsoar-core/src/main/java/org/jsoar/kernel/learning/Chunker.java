@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.learning;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import org.jsoar.kernel.Agent;
@@ -20,16 +19,11 @@ import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.Conditions;
-import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
-import org.jsoar.kernel.lhs.ConjunctiveTest;
-import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.GoalIdTest;
 import org.jsoar.kernel.lhs.ImpasseIdTest;
-import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
-import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
@@ -46,9 +40,6 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.symbols.Variable;
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.DefaultSourceLocation;
@@ -80,12 +71,6 @@ public class Chunker {
   private RecognitionMemory recMemory;
 
   public int chunks_this_d_cycle;
-  /**
-   * gsysparam.h:118:MAX_CHUNKS_SYSPARAM
-   *
-   * <p>Defaults to 50 in init_soar()
-   */
-  private int maxChunks = 50;
   /** agent.h:336:max_chunks_reached */
   private boolean maxChunksReached = false;
 
@@ -97,93 +82,50 @@ public class Chunker {
   final ChunkConditionSet negated_set = new ChunkConditionSet();
 
   /**
-   * gsysparam.h:179:CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM
-   *
-   * <p>Defaults to true in init_soar()
-   */
-  private boolean chunkThroughLocalNegations = true;
-  /**
    * gsysparam.h:195:CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM
    *
    * <p>MMA: Chunk through evaluation rules off by default
    */
   public boolean chunkThroughEvaluationRules = false;
-  /** agent.h:534:quiescence_t_flag */
-  boolean quiescence_t_flag = false;
 
-  /**
-   * gsysparam.h:143:USE_LONG_CHUNK_NAMES
-   *
-   * <p>Defaults to true in init_soar()
-   */
-  private boolean useLongChunkNames = true;
-
-  /**
-   * agent.h:535:chunk_name_prefix
-   *
-   * <p>Defautls to "chunk" in init_soar()
-   */
-  private String chunk_name_prefix = "chunk";
   /**
    * agent.h:516:chunk_count
    *
    * <p>Defautls to 1 in create_soar_agent()
    */
-  private ByRef<Integer> chunk_count = ByRef.create(Integer.valueOf(1));
+  private final ByRef<Integer> chunk_count = ByRef.create(1);
 
   /**
    * agent.h:517:justification_count
    *
    * <p>Defaults to 1 in create_soar_agent()
    */
-  private ByRef<Integer> justification_count = ByRef.create(Integer.valueOf(1));
+  private final ByRef<Integer> justification_count = ByRef.create(1);
   /**
    * gsysparam.h:123:LEARNING_ON_SYSPARAM
    *
    * <p>Defaults to false in init_soar()
    */
-  private BooleanPropertyProvider learningOn =
+  private final BooleanPropertyProvider learningOn =
       new BooleanPropertyProvider(SoarProperties.LEARNING_ON);
-
-  /**
-   * gsysparam.h:126:LEARNING_ALL_GOALS_SYSPARAM
-   *
-   * <p>Defaults to true in init_soar()
-   */
-  private boolean learningAllGoals = true;
-  /**
-   * gsysparam.h:125:LEARNING_EXCEPT_SYSPARAM
-   *
-   * <p>Defaults to false in init_soar
-   */
-  private boolean learningExcept = false;
-
-  /**
-   * gsysparam.h:124:LEARNING_ONLY_SYSPARAM
-   *
-   * <p>Defaults to false in init_soar
-   */
-  private boolean learningOnly = false;
 
   /**
    * lists of symbols (PS names) declared chunk-free
    *
    * <p>agent.h:312:chunk_free_problem_spaces
    */
-  private final LinkedList<IdentifierImpl> chunk_free_problem_spaces =
-      new LinkedList<IdentifierImpl>();
+  private final LinkedList<IdentifierImpl> chunk_free_problem_spaces = new LinkedList<>();
 
   /**
    * lists of symbols (PS names) declared chunky
    *
    * <p>agent.h:313:chunky_problem_spaces
    */
-  private final LinkedList<IdentifierImpl> chunky_problem_spaces = new LinkedList<IdentifierImpl>();
+  private final LinkedList<IdentifierImpl> chunky_problem_spaces = new LinkedList<>();
 
   /** agent.h:522:instantiations_with_nots */
-  final LinkedList<Instantiation> instantiations_with_nots = new LinkedList<Instantiation>();
+  final LinkedList<Instantiation> instantiations_with_nots = new LinkedList<>();
 
-  /** @param context */
   public Chunker(Agent context) {
     this.context = context;
 
@@ -224,42 +166,22 @@ public class Chunker {
   }
 
   public void removeGoalFromChunkyProblemSpaces(IdentifierImpl goal) {
-    final Iterator<IdentifierImpl> it = chunky_problem_spaces.iterator();
-    while (it.hasNext()) {
-      final IdentifierImpl id = it.next();
-      if (id == goal) {
-        it.remove();
-      }
-    }
+    chunky_problem_spaces.removeIf(id -> id == goal);
   }
 
   public void removeGoalFromChunkFreeProblemSpaces(IdentifierImpl goal) {
-    final Iterator<IdentifierImpl> it = chunk_free_problem_spaces.iterator();
-    while (it.hasNext()) {
-      final IdentifierImpl id = it.next();
-      if (id == goal) {
-        it.remove();
-      }
-    }
+    chunk_free_problem_spaces.removeIf(id -> id == goal);
   }
 
-  /**
-   * chunk.cpp:77:add_results_if_needed
-   *
-   * @param sym
-   */
+  /** chunk.cpp:77:add_results_if_needed */
   private void add_results_if_needed(SymbolImpl sym) {
     IdentifierImpl id = sym.asIdentifier();
-    if (id != null)
-      if ((id.getLevel() >= results_match_goal_level) && (id.tc_number != results_tc_number))
-        add_results_for_id(id);
+    if ((id != null)
+        && (id.getLevel() >= results_match_goal_level)
+        && (id.tc_number != results_tc_number)) addResultsForId(id);
   }
 
-  /**
-   * chunk.cpp:86:add_pref_to_results
-   *
-   * @param pref
-   */
+  /** chunk.cpp:86:add_pref_to_results */
   private void add_pref_to_results(Preference pref) {
     // if an equivalent pref is already a result, don't add this one
     for (Preference p = this.results; p != null; p = p.next_result) {
@@ -274,7 +196,7 @@ public class Chunker {
 
     // if pref isn't at the right level, find a clone that is
     if (pref.inst.match_goal_level != this.results_match_goal_level) {
-      Preference p = null;
+      Preference p;
       for (p = pref.next_clone; p != null; p = p.next_clone)
         if (p.inst.match_goal_level == this.results_match_goal_level) break;
       if (p == null)
@@ -293,22 +215,19 @@ public class Chunker {
     if (pref.type.isBinary()) add_results_if_needed(pref.referent);
   }
 
-  /**
-   * chunk.cpp:121:add_results_for_id
-   *
-   * @param id
-   */
-  private void add_results_for_id(IdentifierImpl id) {
+  /** chunk.cpp:121:add_results_for_id */
+  private void addResultsForId(IdentifierImpl id) {
     id.tc_number = this.results_tc_number;
 
     // scan through all preferences and wmes for all slots for this id
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) add_results_if_needed(w.value);
+    id.getInputWmes().forEach(wme -> add_results_if_needed(wme.value));
 
     for (Slot s = id.slots; s != null; s = s.next) {
-      for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
-        add_pref_to_results(pref);
+      for (var preference = s.getAllPreferences();
+          preference != null;
+          preference = preference.nextOfSlot) add_pref_to_results(preference);
 
-      for (WmeImpl w = s.getWmes(); w != null; w = w.next) add_results_if_needed(w.value);
+      s.getWmes().forEach(wme -> add_results_if_needed(wme.value));
     }
 
     // now scan through extra prefs and look for any with this id
@@ -361,7 +280,7 @@ public class Chunker {
 
     // need to create a new variable
     id.tc_number = this.variablization_tc;
-    Variable var =
+    var var =
         ((SymbolFactoryImpl) this.context.getSymbols())
             .getVariableGenerator()
             .generate_new_variable(Character.toString(id.getNameLetter()));
@@ -369,17 +288,12 @@ public class Chunker {
     return var;
   }
 
-  /**
-   * chunk.cpp:207:variablize_test
-   *
-   * @param t
-   */
+  /** chunk.cpp:207:variablize_test */
   private Test variablize_test(Test t) {
     if (Tests.isBlank(t)) return t;
 
-    final EqualityTest eq = t.asEqualityTest();
+    final var eq = t.asEqualityTest();
     if (eq != null) {
-      // eq.sym = variablize_symbol(eq.sym);
       /* Warning: this relies on the representation of tests */
       return SymbolImpl.makeEqualityTest(variablize_symbol(eq.getReferent()));
     }
@@ -388,7 +302,7 @@ public class Chunker {
       return t;
     }
 
-    final ConjunctiveTest ct = t.asConjunctiveTest();
+    final var ct = t.asConjunctiveTest();
     if (ct != null) {
       for (ListIterator<Test> it = ct.conjunct_list.listIterator(); it.hasNext(); ) {
         final Test c = it.next();
@@ -397,25 +311,21 @@ public class Chunker {
       return ct;
     }
     // relational tests other than equality
-    final RelationalTest rt = t.asRelationalTest();
+    final var rt = t.asRelationalTest();
     return rt.withNewReferent(variablize_symbol(rt.referent));
   }
 
-  /**
-   * chunk.cpp:235:variablize_condition_list
-   *
-   * @param cond
-   */
+  /** chunk.cpp:235:variablize_condition_list */
   public void variablize_condition_list(Condition cond) {
     for (; cond != null; cond = cond.next) {
-      ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+      var tfc = cond.asThreeFieldCondition();
       if (tfc != null) {
         tfc.id_test = variablize_test(tfc.id_test);
         tfc.attr_test = variablize_test(tfc.attr_test);
         tfc.value_test = variablize_test(tfc.value_test);
       }
 
-      ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+      var ncc = cond.asConjunctiveNegationCondition();
       if (ncc != null) {
         variablize_condition_list(ncc.top);
       }
@@ -426,7 +336,7 @@ public class Chunker {
   private MakeAction copy_and_variablize_result_list(Preference pref, boolean variablize) {
     if (pref == null) return null;
 
-    MakeAction a = new MakeAction();
+    var a = new MakeAction();
 
     SymbolImpl id = pref.id;
     SymbolImpl attr = pref.attr;
@@ -472,10 +382,6 @@ public class Chunker {
    * chunk.)
    *
    * <p>chunk.cpp:409:build_chunk_conds_for_grounds_and_add_negateds
-   *
-   * @param dest_top
-   * @param dest_bottom
-   * @param tc_to_use
    */
   private void build_chunk_conds_for_grounds_and_add_negateds(
       ByRef<ChunkCondition> dest_top,
@@ -489,7 +395,7 @@ public class Chunker {
     while (!backtrace.grounds.isEmpty()) {
       Condition ground = backtrace.grounds.pop();
       // make the instantiated condition
-      ChunkCondition cc = new ChunkCondition(ground);
+      var cc = new ChunkCondition(ground);
       cc.instantiated_cond = Condition.copy_condition(cc.cond);
       cc.variablized_cond = Condition.copy_condition(cc.cond);
       if (prev_cc != null) {
@@ -512,7 +418,7 @@ public class Chunker {
 
     // scan through negated conditions and check which ones are connected
     // to the grounds
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     trace.print(Category.BACKTRACING, "\n\n*** Adding Grounded Negated Conditions ***\n");
 
     while (!negated_set.all.isEmpty()) {
@@ -540,20 +446,6 @@ public class Chunker {
           cc.instantiated_cond.prev = null;
         }
         prev_cc = cc.next_prev;
-      } else {
-        // not in TC, so discard the condition
-        if (!chunkThroughLocalNegations) {
-          // this chunk will be overgeneral! don't create it
-
-          // SBW 5/07
-          // report what local negations are preventing the chunk,
-          // and set flags like we saw a ^quiescence t so it won't be
-          // created
-          backtrace.report_local_negation(cc.cond);
-          reliable.value = false;
-        }
-
-        // free_with_pool (&thisAgent.chunk_cond_pool, cc);
       }
     }
 
@@ -581,7 +473,7 @@ public class Chunker {
     // collect nots for which both id's are marked
     NotStruct collected_nots = null;
     while (!instantiations_with_nots.isEmpty()) {
-      Instantiation inst = instantiations_with_nots.pop();
+      var inst = instantiations_with_nots.pop();
 
       for (NotStruct n1 = inst.nots; n1 != null; n1 = n1.next) {
         // Are both id's marked? If no, goto next loop iteration
@@ -597,7 +489,7 @@ public class Chunker {
         if (n2 != null) continue;
 
         // Add the pair to collected_nots
-        NotStruct new_not = new NotStruct(n1.s1, n1.s2);
+        var new_not = new NotStruct(n1.s1, n1.s2);
         new_not.next = collected_nots;
         collected_nots = new_not;
       }
@@ -613,19 +505,16 @@ public class Chunker {
    * given condition list is destructively modified; the given Not list is unchanged.
    *
    * <p>chunk.cpp:561:variablize_nots_and_insert_into_conditions
-   *
-   * @param nots
-   * @param conds
    */
   public void variablize_nots_and_insert_into_conditions(NotStruct nots, Condition conds) {
     for (NotStruct n = nots; n != null; n = n.next) {
       SymbolImpl var1 = n.s1.variablization;
       SymbolImpl var2 = n.s2.variablization;
       // find where var1 is bound, and add "<> var2" to that test
-      RelationalTest t = new RelationalTest(RelationalTest.NOT_EQUAL_TEST, var2);
-      boolean added_it = false;
+      var t = new RelationalTest(RelationalTest.NOT_EQUAL_TEST, var2);
+      var added_it = false;
       for (Condition c = conds; c != null; c = c.next) {
-        PositiveCondition pc = c.asPositiveCondition();
+        var pc = c.asPositiveCondition();
         if (pc == null) continue;
 
         if (Tests.test_includes_equality_test_for_symbol(pc.id_test, var1)) {
@@ -659,14 +548,12 @@ public class Chunker {
    * part of this code is unnecessary.)
    *
    * <p>chunk.cpp:628:add_goal_or_impasse_tests
-   *
-   * @param all_ccs
    */
   private void add_goal_or_impasse_tests(ListItem<ChunkCondition> all_ccs) {
     Marker tc = DefaultMarker.create();
     for (ListItem<ChunkCondition> ccIter = all_ccs; ccIter != null; ccIter = ccIter.next) {
       ChunkCondition cc = ccIter.item;
-      PositiveCondition pc = cc.instantiated_cond.asPositiveCondition();
+      var pc = cc.instantiated_cond.asPositiveCondition();
       if (pc == null) continue;
 
       // TODO Assumes id_test is equality test of identifier
@@ -676,7 +563,7 @@ public class Chunker {
         Test t = id.isGoal() ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
 
         // TODO Assumes variablized_cond is three-field (put this assumption in class?)
-        ThreeFieldCondition tfc = cc.variablized_cond.asThreeFieldCondition();
+        var tfc = cc.variablized_cond.asThreeFieldCondition();
         tfc.id_test = Tests.add_new_test_to_test(tfc.id_test, t);
 
         id.tc_number = tc;
@@ -704,10 +591,6 @@ public class Chunker {
    * algorithm. Finally, swap those original 4 bytes back in.
    *
    * <p>chunk.cpp:680:reorder_instantiated_conditions
-   *
-   * @param top_cc
-   * @param dest_inst_top
-   * @param dest_inst_bottom
    */
   private void reorder_instantiated_conditions(
       ListHead<ChunkCondition> top_cc,
@@ -754,15 +637,12 @@ public class Chunker {
    * chunk_inst->preferences_generated}.
    *
    * <p>chunk.cpp:726:make_clones_of_results
-   *
-   * @param results
-   * @param chunk_inst
    */
   private void make_clones_of_results(Preference results, Instantiation chunk_inst) {
     chunk_inst.preferences_generated = null;
     for (Preference result_p = results; result_p != null; result_p = result_p.next_result) {
       // copy the preference
-      Preference p =
+      var p =
           new Preference(
               result_p.type, result_p.id, result_p.attr, result_p.value, result_p.referent);
 
@@ -779,17 +659,17 @@ public class Chunker {
   }
 
   /** chunk.cpp:762:find_impasse_wme_value */
-  private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr) {
-    for (WmeImpl w = id.goalInfo.getImpasseWmes(); w != null; w = w.next)
-      if (w.attr == attr) return w.value;
+  private static SymbolImpl findImpasseWmeValue(IdentifierImpl id, SymbolImpl attr) {
+    for (WmeImpl w : id.goalInfo.getImpasseWmes()) if (w.attr == attr) return w.value;
     return null;
   }
 
   /** chunk.cpp:770:generate_chunk_name_sym_constant */
   private String generate_chunk_name_sym_constant(Instantiation inst) {
-    if (!this.useLongChunkNames)
-      return Productions.generateUniqueName(
-          context.getProductions(), chunk_name_prefix, chunk_count);
+    /*
+     * <p>Defautls to "chunk" in init_soar()
+     */
+    var chunk_name_prefix = "chunk";
 
     int lowest_result_level = decider.topGoal().getLevel();
     for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
@@ -797,7 +677,7 @@ public class Chunker {
 
     IdentifierImpl goal = decider.find_goal_at_goal_stack_level(lowest_result_level);
 
-    String impass_name = null;
+    String impass_name;
     if (goal != null) {
       ImpasseType impasse_type = decider.type_of_existing_impasse(goal);
       // TODO: make this a method of ImpasseType
@@ -823,7 +703,7 @@ public class Chunker {
         case NO_CHANGE:
           {
             SymbolImpl sym =
-                find_impasse_wme_value(goal.goalInfo.lower_goal, predefinedSyms.attribute_symbol);
+                findImpasseWmeValue(goal.goalInfo.lower_goal, predefinedSyms.attribute_symbol);
 
             if (sym == null) {
               // #ifdef DEBUG_CHUNK_NAMES
@@ -889,7 +769,7 @@ public class Chunker {
     // Any user who named a production like this deserves to be burned, but we'll have mercy:
     final SymbolFactory syms = context.getSymbols();
     if (syms.findString(name) != null) {
-      int collision_count = 1;
+      var collision_count = 1;
 
       context
           .getPrinter()
@@ -922,44 +802,6 @@ public class Chunker {
       return false;
     }
 
-    if (learningExcept && chunk_free_problem_spaces.contains(inst.match_goal)) {
-      // TODO verbose
-      // if (thisAgent->soar_verbose_flag ||
-      // thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
-      // {
-      // char buf[64];
-      // std::ostringstream message;
-      // message << "\nnot chunking due to chunk-free state " <<
-      // symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
-      // print(thisAgent, message.str().c_str());
-      // xml_generate_verbose(thisAgent, message.str().c_str());
-      // }
-      return false;
-    }
-
-    if (learningOnly && !chunky_problem_spaces.contains(inst.match_goal)) {
-      // TODO verbose
-      // if (thisAgent->soar_verbose_flag ||
-      // thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
-      // {
-      // char buf[64];
-      // std::ostringstream message;
-      // message << "\nnot chunking due to non-chunky state " <<
-      // symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
-      // print(thisAgent, message.str().c_str());
-      // xml_generate_verbose(thisAgent, message.str().c_str());
-      // }
-      return false;
-    }
-
-    /*
-     * allow_bottom_up_chunks will be false if a chunk was already learned
-     * in a lower goal
-     */
-    if (!learningAllGoals && !inst.match_goal.goalInfo.allow_bottom_up_chunks) {
-      return false;
-    }
-
     /*
      * if a result is created in a state higher than the immediate
      * superstate, don't make chunks for intermediate justifications.
@@ -979,10 +821,6 @@ public class Chunker {
    * chunk-free-problem-spaces, ^quiescence t, etc.)
    *
    * <p>chunk.cpp:973:chunk_instantiation
-   *
-   * @param inst
-   * @param dont_variablize
-   * @param custom_inst_list
    */
   public void chunk_instantiation(
       Instantiation inst, boolean dont_variablize, ByRef<Instantiation> custom_inst_list) {
@@ -1047,7 +885,7 @@ public class Chunker {
       this.explain.reset_backtrace_list();
     }
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     ByRef<Boolean> reliable = new ByRef<Boolean>(true);
 
     /* --- backtrace through the instantiation that produced each result --- */
@@ -1067,7 +905,7 @@ public class Chunker {
     // backtracing done; collect the grounds into the chunk
     ByRef<ChunkCondition> top_cc = ByRef.create(null);
     ByRef<ChunkCondition> bottom_cc = ByRef.create(null);
-    NotStruct nots = null;
+    NotStruct nots;
     {
       final Marker tc_for_grounds = DefaultMarker.create();
       build_chunk_conds_for_grounds_and_add_negateds(top_cc, bottom_cc, tc_for_grounds, reliable);
@@ -1077,39 +915,29 @@ public class Chunker {
     boolean variablize = !dont_variablize && reliable.value && should_variablize(inst);
 
     // SMEM Check for LTI validity
-    if (variablize) {
-      if (top_cc.value != null) {
-        // need a temporary copy of the actions
-        variablization_tc = DefaultMarker.create();
-        final Action rhs = copy_and_variablize_result_list(results, true);
+    if ((variablize) && (top_cc.value != null)) {
+      // need a temporary copy of the actions
+      variablization_tc = DefaultMarker.create();
+      final Action rhs = copy_and_variablize_result_list(results, true);
 
-        if (!DefaultSemanticMemory.smem_valid_production(top_cc.value.variablized_cond, rhs)) {
-          variablize = false;
+      if (!DefaultSemanticMemory.smem_valid_production(top_cc.value.variablized_cond, rhs)) {
+        variablize = false;
 
-          trace.print(
-              Category.BACKTRACING,
-              "\nWarning: LTI validation failed, creating justification instead.");
-        }
-
-        // remove temporary copy
-        // deallocate_action_list (thisAgent, rhs);
+        trace.print(
+            Category.BACKTRACING,
+            "\nWarning: LTI validation failed, creating justification instead.");
       }
     }
 
     // get symbol for name of new chunk or justification
-    String prod_name = null;
-    ProductionType prod_type = null;
-    boolean print_name = false;
-    boolean print_prod = false;
+    String prod_name;
+    ProductionType prod_type;
+    var print_name = false;
+    var print_prod = false;
 
     if (variablize) {
       this.chunks_this_d_cycle++;
       prod_name = generate_chunk_name_sym_constant(inst);
-
-      /*   old way of generating chunk names ...
-      prod_name = generate_new_sym_constant ("chunk-",&thisAgent->chunk_count);
-      thisAgent->chunks_this_d_cycle)++;
-      */
 
       prod_type = ProductionType.CHUNK;
       // TODO startNewLine()?
@@ -1134,6 +962,10 @@ public class Chunker {
       return;
     }
 
+    /*
+     * <p>Defaults to 50 in init_soar()
+     */
+    var maxChunks = 50;
     if (this.chunks_this_d_cycle > maxChunks) {
       context.getPrinter().warn("\nWarning: reached max-chunks! Halting system.");
       this.maxChunksReached = true;
@@ -1169,7 +1001,7 @@ public class Chunker {
     try {
       context.getProductions().addChunk(prod);
     } catch (ReordererException e) {
-      final Printer p = context.getPrinter();
+      final var p = context.getPrinter();
       p.print("\nUnable to reorder this chunk:\n ");
       Conditions.print_condition_list(p, lhs_top, 2, false);
       p.print("\n -->\n ");
@@ -1188,7 +1020,7 @@ public class Chunker {
       return;
     }
 
-    Instantiation chunk_inst = null;
+    Instantiation chunk_inst;
 
     {
       ByRef<Condition> inst_lhs_top = ByRef.create(null);
@@ -1274,23 +1106,5 @@ public class Chunker {
     custom_inst_list.value = chunk_inst.insertAtHeadOfProdList(custom_inst_list.value);
 
     if (!maxChunksReached) chunk_instantiation(chunk_inst, dont_variablize, custom_inst_list);
-
-    // #ifndef NO_TIMING_STUFF
-    // #ifdef DETAILED_TIMING_STATS
-    //               stop_timer (thisAgent, &saved_start_tv,
-    // &thisAgent->chunking_cpu_time[thisAgent->current_phase]);
-    // #endif
-    // #endif
-    return;
-
-    // RPM 2/2013: commented out gotos above go here
-    // chunking_done:
-    // #ifndef NO_TIMING_STUFF
-    // #ifdef DETAILED_TIMING_STATS
-    // local_timer.stop();
-    // thisAgent->timers_chunking_cpu_time[thisAgent->current_phase].update(local_timer);
-    // #endif
-    // #endif
-
   }
 }
