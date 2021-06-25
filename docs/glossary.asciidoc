@@ -1,0 +1,8 @@
+[glossary]
+== Glossary
+
+[[TC]]
+TC:: Transitive Closure
+
+[[WME]]
+WME:: Working Memory Element
