@@ -6,7 +6,14 @@
 package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -69,5 +76,15 @@ public class AgentTest {
   @Test(expected = IllegalArgumentException.class)
   public void testSetDebuggerProviderThrownAnExceptionIfNull() {
     agent.setDebuggerProvider(null);
+  }
+
+  @Test
+  public void testPrintStackTrace() throws IOException {
+
+    Writer outputWriter = mock(Writer.class);
+    agent.getPrinter().addPersistentWriter(outputWriter);
+    agent.printStackTrace(true, true);
+
+    verify(outputWriter, atLeast(1)).write(any(char[].class), anyInt(), anyInt());
   }
 }
