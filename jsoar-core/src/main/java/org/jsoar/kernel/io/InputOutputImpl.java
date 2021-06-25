@@ -90,7 +90,7 @@ import org.jsoar.util.markers.Marker;
 public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
   /** io.cpp:387 */
-  private static enum OutputLinkStatus {
+  private enum OutputLinkStatus {
     UNINITIALIZED_OL_STATUS,
     NEW_OL_STATUS, /* just created it */
     UNCHANGED_OL_STATUS, /* normal status */
@@ -115,18 +115,19 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
   private IdentifierImpl io_header_output;
 
-  @SuppressWarnings("unused")
-  private WmeImpl io_header_link;
-
   private WmeImpl outputLinkWme;
   private OutputLinkStatus outputLinkStatus =
       OutputLinkStatus.UNINITIALIZED_OL_STATUS; /* current xxx_OL_STATUS */
-  private Set<IdentifierImpl> ids_in_tc = new HashSet<IdentifierImpl>(); /* ids in TC(link) */
+
+  /*
+   * Contains the IDs in Transitive Closure (link)
+   */
+  private final Set<IdentifierImpl> ids_in_tc = new HashSet<>();
   private boolean output_link_changed = false;
   private Set<Wme> lastOutputSet = null;
 
-  private final Set<Wme> pendingCommands = new HashSet<Wme>();
-  private final Set<Wme> removingCommands = new HashSet<Wme>();
+  private final Set<Wme> pendingCommands = new HashSet<>();
+  private final Set<Wme> removingCommands = new HashSet<>();
   private Marker output_link_tc_num;
 
   private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
@@ -135,12 +136,10 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
   private final AsynchronousInputReadyEvent asyncInputReadyEvent =
       new AsynchronousInputReadyEvent(this);
 
-  private final ConcurrentLinkedQueue<InputWmeImpl> wmesToRemove =
-      new ConcurrentLinkedQueue<InputWmeImpl>();
+  private final ConcurrentLinkedQueue<InputWmeImpl> wmesToRemove = new ConcurrentLinkedQueue<>();
 
   // private final Set<InputWmeImpl> allInputWmes = new LinkedHashSet<InputWmeImpl>();
 
-  /** @param context */
   public InputOutputImpl(Agent context) {
     this.context = context;
   }
@@ -195,8 +194,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     /* The following code was taken from the do_input_cycle function of io.cpp */
     // Creating the io_header and adding the top state io header wme
 
-    this.io_header_link =
-        addInputWmeInternal(decider.top_state, predefinedSyms.io_symbol, this.io_header);
+    addInputWmeInternal(decider.top_state, predefinedSyms.io_symbol, this.io_header);
 
     // RPM 9/06 changed to use this.input/output_link_symbol
     // Note we don't have to save these wmes for later release since their parent
@@ -208,39 +206,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
     // restorePreviousInput();
   }
-
-  /*
-  private Symbol findRestoredSymbol(Symbol oldSym, Map<Identifier, Identifier> idMap)
-  {
-      final Identifier oldId = oldSym.asIdentifier();
-      if(oldId != null)
-      {
-          Identifier newId = idMap.get(oldId);
-          if(newId == null)
-          {
-              newId = context.syms.findOrCreateIdentifier(oldId.getNameLetter(), oldId.getNameNumber());
-              idMap.put(oldId, newId);
-          }
-          return newId;
-      }
-      else
-      {
-          return oldSym;
-      }
-  }
-
-  private void restorePreviousInput()
-  {
-      final Map<Identifier, Identifier> idMap = new HashMap<Identifier, Identifier>();
-      for(InputWmeImpl iw : allInputWmes)
-      {
-          final Identifier newId = (Identifier) findRestoredSymbol(iw.getIdentifier(), idMap);
-          final Symbol newAttr = findRestoredSymbol(iw.getAttribute(), idMap);
-          final Symbol newValue = findRestoredSymbol(iw.getValue(), idMap);
-          iw.setInner(addInputWmeInternal(newId, newAttr, newValue));
-      }
-  }
-  */
 
   /* (non-Javadoc)
    * @see org.jsoar.kernel.io.InputOutput#getInputLink()
@@ -263,9 +228,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
    */
   @Override
   public InputWme addInputWme(Identifier id, Symbol attr, Symbol value) {
-    final InputWmeImpl iw = new InputWmeImpl(this, addInputWmeInternal(id, attr, value));
-    // allInputWmes.add(iw);
-    return iw;
+    return new InputWmeImpl(this, addInputWmeInternal(id, attr, value));
   }
 
   <T extends SymbolImpl> T checkSymbolOwnership(T s) {
@@ -306,15 +269,12 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     }
   }
 
-  public void removeInputWmeInternal(@NonNull WmeImpl wme) {
-    if (!wme.isMemberOfList(wme.id.getInputWmes())) {
-      log.warn("removeInputWmeInternal: %s is not currently in working memory. Ignoring.", wme);
+  private void removeInputWmeInternal(@NonNull final WmeImpl wme) {
+    if (!wme.id.getInputWmes().contains(wme)) {
+      log.warn("removeInputWmeInternal: {} is not currently in working memory. Ignoring.", wme);
       return;
     }
 
-    /* TODO for efficiency, it might be better to use a hash table for the
-    above test, rather than scanning the linked list.  We could have one
-    global hash table for all the input wmes in the system. */
     // go ahead and remove the wme
     wme.id.removeInputWme(wme);
 
@@ -351,7 +311,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
    */
   @Override
   public List<Wme> getPendingCommands() {
-    return new ArrayList<Wme>(pendingCommands);
+    return new ArrayList<>(pendingCommands);
   }
 
   /* (non-Javadoc)
@@ -359,7 +319,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
    */
   @Override
   public List<Wme> getRemovingCommands() {
-    return new ArrayList<Wme>(removingCommands);
+    return new ArrayList<>(removingCommands);
   }
 
   /* (non-Javadoc)
@@ -385,7 +345,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
       this.io_header = null;
       this.io_header_input = null;
       this.io_header_output = null;
-      this.io_header_link = null;
     }
 
     // if there is a top state, do the normal input cycle
@@ -440,10 +399,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
    *
    * <p>Note that we don't update all the TC information after every WM change. The TC info doesn't
    * get updated until do_output_cycle() is called.
-   *
-   * <p>io.cpp:424:update_for_top_state_wme_addition
-   *
-   * @param w
    */
   private void update_for_top_state_wme_addition(WmeImpl w) {
     // check whether the attribute is an output function
@@ -454,23 +409,12 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     }
   }
 
-  /**
-   * io.cpp:473:update_for_top_state_wme_removal
-   *
-   * @param w
-   */
   private void update_for_top_state_wme_removal(WmeImpl w) {
     if (w == outputLinkWme) {
       outputLinkStatus = OutputLinkStatus.REMOVED_OL_STATUS;
     }
   }
 
-  /**
-   * io.cpp:478:update_for_io_wme_change
-   *
-   * @param w
-   * @param added
-   */
   private void update_for_io_wme_change(WmeImpl w, boolean added) {
     if (outputLinkStatus != OutputLinkStatus.UNINITIALIZED_OL_STATUS && ids_in_tc.contains(w.id)) {
       if (w.value.asIdentifier() != null) {
@@ -500,11 +444,6 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
   /**
    * TODO: This should be a WM listener or something rather than a direct call. To decouple IO from
    * working memory.
-   *
-   * <p>io.cpp:497:inform_output_module_of_wm_changes
-   *
-   * @param wmes_being_added
-   * @param wmes_being_removed
    */
   public void inform_output_module_of_wm_changes(
       ListHead<WmeImpl> wmes_being_added, ListHead<WmeImpl> wmes_being_removed) {
@@ -539,12 +478,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     ids_in_tc.clear();
   }
 
-  /**
-   * io.cpp:576:add_id_to_output_link_tc
-   *
-   * @param id
-   */
-  private void add_id_to_output_link_tc(IdentifierImpl id) {
+  private void addIdToOutputLinkTc(final IdentifierImpl id) {
     // if id is already in the TC, exit
     if (id.tc_number == output_link_tc_num) return;
     id.tc_number = output_link_tc_num;
@@ -553,15 +487,15 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
     ids_in_tc.add(id);
 
     // do TC through working memory scan through all wmes for all slots for this id
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) {
-      IdentifierImpl valueAsId = w.value.asIdentifier();
-      if (valueAsId != null) add_id_to_output_link_tc(valueAsId);
-    }
+    id.getInputWmes().stream()
+        .filter(wme -> wme.value.asIdentifier() != null)
+        .map(wme -> wme.value.asIdentifier())
+        .forEach(this::addIdToOutputLinkTc);
     for (Slot s = id.slots; s != null; s = s.next) {
-      for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
-        IdentifierImpl valueAsId = w.value.asIdentifier();
-        if (valueAsId != null) add_id_to_output_link_tc(valueAsId);
-      }
+      s.getWmes().stream()
+          .filter(wme -> wme.value.asIdentifier() != null)
+          .map(wme -> wme.value.asIdentifier())
+          .forEach(this::addIdToOutputLinkTc);
     }
     // don't need to check impasse_wmes, because we couldn't have a pointer
     // to a goal or impasse identifier
@@ -575,7 +509,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
     // do TC starting with the link wme's value
     output_link_tc_num = DefaultMarker.create();
-    add_id_to_output_link_tc(valueAsId);
+    addIdToOutputLinkTc(valueAsId);
   }
 
   /* --------------------------------------------------------------------
@@ -588,16 +522,16 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
      get_io_wmes_for_output_link() is called.
   -------------------------------------------------------------------- */
 
-  /** io.cpp:638:get_io_wmes_for_output_link */
-  private Set<Wme> get_io_wmes_for_output_link() {
-    LinkedHashSet<Wme> io_wmes = new LinkedHashSet<Wme>();
-    io_wmes.add(outputLinkWme);
+  private Set<Wme> getIoWmesForOutputLink() {
+    LinkedHashSet<Wme> ioWmes = new LinkedHashSet<>();
+    ioWmes.add(outputLinkWme);
     for (IdentifierImpl id : ids_in_tc) {
-      for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) io_wmes.add(w);
-      for (Slot s = id.slots; s != null; s = s.next)
-        for (WmeImpl w = s.getWmes(); w != null; w = w.next) io_wmes.add(w);
+      ioWmes.addAll(id.getInputWmes());
+      for (Slot s = id.slots; s != null; s = s.next) {
+        ioWmes.addAll(s.getWmes());
+      }
     }
-    return io_wmes;
+    return ioWmes;
   }
 
   /**
@@ -608,7 +542,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
    * <p>io.cpp:677:do_output_cycle
    */
   public void do_output_cycle() {
-    Set<Wme> iw_list = null;
+    Set<Wme> iw_list;
 
     switch (outputLinkStatus) {
       case UNCHANGED_OL_STATUS:
@@ -618,7 +552,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
       case NEW_OL_STATUS:
         // calculate tc, and call the output function
         calculate_output_link_tc_info();
-        iw_list = get_io_wmes_for_output_link();
+        iw_list = getIoWmesForOutputLink();
         // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
         // &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
@@ -643,7 +577,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
 
       case MODIFIED_BUT_SAME_TC_OL_STATUS:
         // don't have to redo the TC, but do call the output function
-        iw_list = get_io_wmes_for_output_link();
+        iw_list = getIoWmesForOutputLink();
 
         // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
@@ -671,7 +605,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
         // redo the TC, and call the output function
         remove_output_link_tc_info();
         calculate_output_link_tc_info();
-        iw_list = get_io_wmes_for_output_link();
+        iw_list = getIoWmesForOutputLink();
 
         // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
@@ -698,7 +632,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme> {
       case REMOVED_OL_STATUS:
         // call the output function, and free output_link structure
         remove_output_link_tc_info(); /* sets ids_in_tc to NIL */
-        iw_list = get_io_wmes_for_output_link(); /* gives just the link wme */
+        iw_list = getIoWmesForOutputLink(); /* gives just the link wme */
 
         // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
         //      stop_timer (thisAgent, &thisAgent->start_phase_tv,
