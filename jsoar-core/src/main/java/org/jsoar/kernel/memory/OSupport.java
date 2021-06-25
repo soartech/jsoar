@@ -8,11 +8,7 @@ package org.jsoar.kernel.memory;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.rhs.MakeAction;
-import org.jsoar.kernel.rhs.ReteLocation;
-import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -35,24 +31,15 @@ public class OSupport {
   /** agent.h:659:rhs_prefs_from_instantiation */
   private final ListHead<Preference> rhs_prefs_from_instantiation = ListHead.newInstance();
 
-  /**
-   * @param syms
-   * @param printer
-   */
   public OSupport(PredefinedSymbols syms, Printer printer) {
     this.syms = syms;
     this.printer = printer;
   }
 
-  /**
-   * osupport.cpp:63:add_to_os_tc_if_needed
-   *
-   * @param sym
-   */
   private void add_to_os_tc_if_needed(SymbolImpl sym) {
     IdentifierImpl id = sym.asIdentifier();
     if (id != null) {
-      add_to_os_tc(id, false);
+      addToOperatorSlotTransitiveClosure(id, false);
     }
   }
 
@@ -62,11 +49,8 @@ public class OSupport {
    * check for the operator slot before the recursive call.
    *
    * <p>osupport.cpp:84:add_to_os_tc
-   *
-   * @param id
-   * @param isa_state
    */
-  private void add_to_os_tc(IdentifierImpl id, boolean isa_state) {
+  private void addToOperatorSlotTransitiveClosure(final IdentifierImpl id, final boolean isaState) {
     // if id is already in the TC, exit; else mark it as in the TC
     if (id.tc_number == o_support_tc) {
       return;
@@ -75,18 +59,15 @@ public class OSupport {
     id.tc_number = o_support_tc;
 
     // scan through all preferences and wmes for all slots for this id
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) {
-      add_to_os_tc_if_needed(w.value);
-    }
+    id.getInputWmes().forEach(wme -> add_to_os_tc_if_needed(wme.value));
+
     for (Slot s = id.slots; s != null; s = s.next) {
-      if ((!isa_state) || (s.attr != syms.operator_symbol)) {
-        for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
+      if ((!isaState) || (s.attr != syms.operator_symbol)) {
+        for (var pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot) {
           add_to_os_tc_if_needed(pref.value);
           if (pref.type.isBinary()) add_to_os_tc_if_needed(pref.referent);
         }
-        for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
-          add_to_os_tc_if_needed(w.value);
-        }
+        s.getWmes().forEach(wme -> add_to_os_tc_if_needed(wme.value));
       }
     } /* end of for slots loop */
     // now scan through RHS prefs and look for any with this id
@@ -94,12 +75,10 @@ public class OSupport {
         pit != null;
         pit = pit.next) {
       final Preference pref = pit.item;
-      if (pref.id == id) {
-        if ((!isa_state) || (pref.attr != syms.operator_symbol)) {
-          add_to_os_tc_if_needed(pref.value);
-          if (pref.type.isBinary()) {
-            add_to_os_tc_if_needed(pref.referent);
-          }
+      if ((pref.id == id) && ((!isaState) || (pref.attr != syms.operator_symbol))) {
+        add_to_os_tc_if_needed(pref.value);
+        if (pref.type.isBinary()) {
+          add_to_os_tc_if_needed(pref.referent);
         }
       }
     }
@@ -152,14 +131,13 @@ public class OSupport {
    * </pre>
    *
    * <p>osupport.cpp:267:calculate_support_for_instantiation_preferences
-   *
-   * @param inst
    */
   public void calculate_support_for_instantiation_preferences(Instantiation inst) {
     WmeImpl w;
     Condition c;
     Action act;
-    boolean o_support, op_elab;
+    boolean o_support;
+    boolean op_elab;
     boolean operator_proposal;
     int pass;
     WmeImpl lowest_goal_wme;
@@ -184,18 +162,17 @@ public class OSupport {
 
       operator_proposal = false;
       for (act = inst.prod.getFirstAction(); act != null; act = act.next) {
-        MakeAction ma = act.asMakeAction();
-        if (ma != null && ma.attr.asSymbolValue() != null) {
-          if (syms.operator_symbol == ma.attr.asSymbolValue().sym
-              && act.preference_type == PreferenceType.ACCEPTABLE) {
-            operator_proposal = true;
-            o_support = false;
-            break;
-          }
+        var ma = act.asMakeAction();
+        if ((ma != null && ma.attr.asSymbolValue() != null)
+            && (syms.operator_symbol == ma.attr.asSymbolValue().sym
+                && act.preference_type == PreferenceType.ACCEPTABLE)) {
+          operator_proposal = true;
+          o_support = false;
+          break;
         }
       }
 
-      if (operator_proposal == false) {
+      if (!operator_proposal) {
         /*
          * an operator wasn't being proposed, so now we need to test
          * if the operator is being tested on the LHS.
@@ -222,7 +199,7 @@ public class OSupport {
 
         for (pass = 0; pass != 2; pass++) {
           for (c = inst.top_of_instantiated_conditions; c != null; c = c.next) {
-            PositiveCondition pc = c.asPositiveCondition();
+            var pc = c.asPositiveCondition();
             if (pc != null) {
               w = pc.bt().wme_;
 
@@ -238,16 +215,16 @@ public class OSupport {
                 }
               } else {
                 if ((w.attr == syms.operator_symbol)
-                    && (w.acceptable == false)
+                    && !w.acceptable
                     && (w.id == lowest_goal_wme.id)) {
                   // former o_support_calculation_type test site
                   // iff RHS has only operator elaborations then it's IE_PROD,
                   // otherwise PE_PROD, so look for non-op-elabs in the actions KJC 1/00
                   for (act = inst.prod.getFirstAction(); act != null; act = act.next) {
-                    MakeAction ma = act.asMakeAction();
+                    var ma = act.asMakeAction();
                     if (ma != null) {
-                      RhsSymbolValue symVal = ma.id.asSymbolValue();
-                      ReteLocation reteLoc = ma.id.asReteLocation();
+                      var symVal = ma.id.asSymbolValue();
+                      var reteLoc = ma.id.asReteLocation();
                       if (symVal != null && symVal.sym == w.value) {
                         op_elab = true;
                       } else if (
@@ -270,17 +247,16 @@ public class OSupport {
 
     /* KJC 01/00: Warn if operator elabs mixed w/ applications */
     // former o_support_calculation_type (3 or 4)  test site
-    if (o_support) {
-      if (op_elab) {
-        // former o_support_calculation_type (4)  test site
-        // warn user about mixed actions
-        printer.warn(
-            "\nWARNING: operator elaborations mixed with operator applications\n"
-                + "get i_support in prod %s",
-            inst.prod.getName());
+    if (o_support && op_elab) {
+      // former o_support_calculation_type (4)  test site
+      // warn user about mixed actions
+      printer.warn(
+          """
+            WARNING: operator elaborations mixed with operator applications
+            get i_support in prod %s""",
+          inst.prod.getName());
 
-        o_support = false;
-      }
+      o_support = false;
     }
 
     // assign every preference the correct support
