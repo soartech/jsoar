@@ -5,12 +5,12 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.Variable;
 
 /**
  * Return structure used by {@link Agent#getContextVariableInfo(String)}
@@ -29,10 +29,6 @@ public class ContextVariableInfo {
    *
    * <p>utilities.cpp:132:get_context_var_info
    *
-   * @param predefinedSyms
-   * @param top_goal
-   * @param bottom_goal
-   * @param variable
    * @return information about the given context variable
    * @see Agent#getContextVariableInfo(String)
    */
@@ -41,42 +37,42 @@ public class ContextVariableInfo {
       IdentifierImpl top_goal,
       IdentifierImpl bottom_goal,
       String variable) {
-    Symbol attribute = null;
-    int levels_up = 0;
+    Symbol attribute;
+    var levelsUp = 0;
 
-    Variable v = predefinedSyms.getSyms().find_variable(variable);
+    var v = predefinedSyms.getSyms().find_variable(variable);
     if (v == predefinedSyms.s_context_variable) {
-      levels_up = 0;
+      levelsUp = 0;
       attribute = predefinedSyms.state_symbol;
     } else if (v == predefinedSyms.o_context_variable) {
-      levels_up = 0;
+      levelsUp = 0;
       attribute = predefinedSyms.operator_symbol;
     } else if (v == predefinedSyms.ss_context_variable) {
-      levels_up = 1;
+      levelsUp = 1;
       attribute = predefinedSyms.state_symbol;
     } else if (v == predefinedSyms.so_context_variable) {
-      levels_up = 1;
+      levelsUp = 1;
       attribute = predefinedSyms.operator_symbol;
     } else if (v == predefinedSyms.sss_context_variable) {
-      levels_up = 2;
+      levelsUp = 2;
       attribute = predefinedSyms.state_symbol;
     } else if (v == predefinedSyms.sso_context_variable) {
-      levels_up = 2;
+      levelsUp = 2;
       attribute = predefinedSyms.operator_symbol;
     } else if (v == predefinedSyms.ts_context_variable) {
-      levels_up = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
+      levelsUp = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
       attribute = predefinedSyms.state_symbol;
     } else if (v == predefinedSyms.to_context_variable) {
-      levels_up = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
+      levelsUp = top_goal != null ? bottom_goal.getLevel() - top_goal.getLevel() : 0;
       attribute = predefinedSyms.operator_symbol;
     } else {
       return new ContextVariableInfo(null, null, null);
     }
 
     IdentifierImpl g = bottom_goal;
-    while (g != null && levels_up != 0) {
+    while (g != null && levelsUp != 0) {
       g = g.goalInfo.higher_goal;
-      levels_up--;
+      levelsUp--;
     }
 
     if (g == null) {
@@ -87,34 +83,26 @@ public class ContextVariableInfo {
     if (attribute == predefinedSyms.state_symbol) {
       value = g;
     } else {
-      WmeImpl w = g.goalInfo.operator_slot.getWmes();
-      value = w != null ? w.getValue() : null;
+      List<WmeImpl> wmes = g.goalInfo.operator_slot.getWmes();
+      value = wmes.isEmpty() ? null : wmes.get(0).getValue();
     }
     return new ContextVariableInfo(g, attribute, value);
   }
 
-  /**
-   * @param goal
-   * @param attribute
-   * @param value
-   */
   private ContextVariableInfo(Identifier goal, Symbol attribute, Symbol value) {
     this.goal = goal;
     this.attribute = attribute;
     this.value = value;
   }
 
-  /** @return the goal */
   public Identifier getGoal() {
     return goal;
   }
 
-  /** @return the attribute */
   public Symbol getAttribute() {
     return attribute;
   }
 
-  /** @return the value */
   public Symbol getValue() {
     return value;
   }
