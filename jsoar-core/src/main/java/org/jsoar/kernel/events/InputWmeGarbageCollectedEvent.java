@@ -5,10 +5,8 @@
  */
 package org.jsoar.kernel.events;
 
-import java.util.Iterator;
-import org.jsoar.kernel.memory.Wme;
+import java.util.List;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.memory.WmeIterator;
 import org.jsoar.util.events.SoarEvent;
 
 /**
@@ -17,15 +15,9 @@ import org.jsoar.util.events.SoarEvent;
  * @author ray
  */
 public class InputWmeGarbageCollectedEvent implements SoarEvent {
-  private final WmeImpl headOfList;
+  private final List<WmeImpl> removedWmes;
 
-  /** @param headOfList Head of list of removed WMEs */
-  public InputWmeGarbageCollectedEvent(WmeImpl headOfList) {
-    this.headOfList = headOfList;
-  }
-
-  /** @return Iterator over the list of removed WMEs */
-  public Iterator<Wme> getRemovedWmes() {
-    return new WmeIterator(headOfList);
+  public InputWmeGarbageCollectedEvent(List<WmeImpl> WMEs) {
+    this.removedWmes = WMEs;
   }
 }
