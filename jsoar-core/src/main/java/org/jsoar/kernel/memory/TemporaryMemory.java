@@ -42,7 +42,7 @@ public class TemporaryMemory {
   public final ListHead<Slot> changed_slots = ListHead.newInstance();
 
   /** agent.h:605:slots_for_possible_removal */
-  private final LinkedList<Slot> slots_for_possible_removal = new LinkedList<Slot>();
+  private final LinkedList<Slot> slots_for_possible_removal = new LinkedList<>();
 
   /**
    * Mark_slot_as_changed() is called by the preference manager whenever the preferences for a slot
@@ -50,8 +50,6 @@ public class TemporaryMemory {
    * by the decider.
    *
    * <p>tempmem.cpp:116:mark_slot_as_changed
-   *
-   * @param s
    */
   public void mark_slot_as_changed(Slot s) {
     if (s.isa_context_slot) {
@@ -65,7 +63,7 @@ public class TemporaryMemory {
       s.changed = s; // just make it nonzero
     } else {
       if (s.changed == null) {
-        ListItem<Slot> dc = new ListItem<Slot>(s);
+        ListItem<Slot> dc = new ListItem<>(s);
         s.changed = dc;
         dc.insertAtHead(changed_slots);
       }
@@ -89,9 +87,9 @@ public class TemporaryMemory {
   @SuppressWarnings("unchecked")
   public void remove_garbage_slots(final Adaptable context) {
     while (!slots_for_possible_removal.isEmpty()) {
-      final Slot s = slots_for_possible_removal.pop();
+      final var s = slots_for_possible_removal.pop();
 
-      if (s.getWmes() != null || s.getAllPreferences() != null) {
+      if (!s.getWmes().isEmpty() || s.getAllPreferences() != null) {
         // don't deallocate it if it still has any wmes or preferences
         s.marked_for_possible_removal = false;
         continue;
@@ -103,7 +101,7 @@ public class TemporaryMemory {
       // s->attr);
       // #endif
 
-      final Chunker chunker = Adaptables.adapt(context, Chunker.class);
+      final var chunker = Adaptables.adapt(context, Chunker.class);
       if (s.hasContextDependentPreferenceSet() && chunker.chunkThroughEvaluationRules) {
         s.clear_CDPS(context);
       }
