@@ -6,18 +6,21 @@
 package org.jsoar.kernel.memory;
 
 import com.google.common.collect.Iterators;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.adaptables.Adaptable;
@@ -56,14 +59,18 @@ import org.jsoar.util.adaptables.Adaptables;
  * @author ray
  */
 public class Slot {
-  public Slot next, prev; // dll of slots for id
 
-  public final IdentifierImpl id;
+  public Slot next;
+  public Slot prev; // dll of slots for id
+
+  @NonNull public final IdentifierImpl id;
 
   @Getter public final SymbolImpl attr;
 
-  private WmeImpl wmes; // dll of wmes in the slot
-  private WmeImpl acceptable_preference_wmes; // dll of acceptable pref. wmes
+  private final List<WmeImpl> wmes = new ArrayList<>(); // dll of wmes in the slot
+
+  private final List<WmeImpl> acceptablePreferenceWMEs =
+      new ArrayList<>(); // dll of acceptable pref. wmes
 
   private Preference all_preferences; // dll of all pref's in the slot
 
@@ -107,7 +114,7 @@ public class Slot {
   public static Slot make_slot(
       IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol) {
     // Search for a slot first.  If it exists for the given symbol, then just return it
-    final Slot s = find_slot(id, attr);
+    final var s = find_slot(id, attr);
     if (s != null) {
       return s;
     }
@@ -132,14 +139,8 @@ public class Slot {
      * Context slots are goals and operators; operator slots get created
      * with a goal (see create_new_context).
      */
-    if ((id.isGoal()) && (attr == operator_symbol)) {
-      this.isa_context_slot = true;
-    } else {
-      this.isa_context_slot = false;
-    }
+    this.isa_context_slot = (id.isGoal()) && (attr == operator_symbol);
 
-    // s->changed = NIL;
-    // s->acceptable_preference_changed = NIL;
     this.id = id;
     this.attr = attr;
   }
@@ -180,8 +181,9 @@ public class Slot {
   }
 
   /** @return the head of the list of WMEs in this slot */
-  public WmeImpl getWmes() {
-    return this.wmes;
+  @NonNull
+  public List<WmeImpl> getWmes() {
+    return Collections.unmodifiableList(new ArrayList<>(this.wmes));
   }
 
   /**
@@ -190,7 +192,7 @@ public class Slot {
    * @param w the WME to add
    */
   public void addWme(WmeImpl w) {
-    this.wmes = w.addToList(this.wmes);
+    wmes.add(0, w);
   }
 
   /**
@@ -199,12 +201,12 @@ public class Slot {
    * @param w the WME to remove
    */
   public void removeWme(WmeImpl w) {
-    this.wmes = w.removeFromList(this.wmes);
+    wmes.remove(w);
   }
 
   /** Remove all WMEs from this slot */
   public void removeAllWmes() {
-    this.wmes = null;
+    wmes.clear();
   }
 
   /**
@@ -214,20 +216,19 @@ public class Slot {
    * @return An iterator over the wmes in this slot
    */
   public Iterator<Wme> getWmeIterator() {
-    return Iterators.concat(
-        new WmeIterator(this.acceptable_preference_wmes), new WmeIterator(this.wmes));
+    return Iterators.concat(acceptablePreferenceWMEs.iterator(), wmes.iterator());
   }
 
-  public WmeImpl getAcceptablePreferenceWmes() {
-    return acceptable_preference_wmes;
+  public List<WmeImpl> getAcceptablePreferenceWmes() {
+    return Collections.unmodifiableList(new ArrayList<>(acceptablePreferenceWMEs));
   }
 
   public void addAcceptablePreferenceWme(WmeImpl wme) {
-    this.acceptable_preference_wmes = wme.addToList(this.acceptable_preference_wmes);
+    acceptablePreferenceWMEs.add(0, wme);
   }
 
   public void removeAcceptablePreferenceWme(WmeImpl w) {
-    this.acceptable_preference_wmes = w.removeFromList(this.acceptable_preference_wmes);
+    acceptablePreferenceWMEs.remove(w);
   }
 
   /** @return Head of list of all preferences. Iterate with {@link Preference#nextOfSlot}. */
@@ -273,7 +274,7 @@ public class Slot {
   private void addPreferenceToCorrectTypeList(Preference pref) {
     // add preference to the list (in the right place, according to match
     // goal level of the instantiations) for the slot
-    Preference s_prefs = this.getPreferencesByType(pref.type);
+    var s_prefs = this.getPreferencesByType(pref.type);
     if (s_prefs == null) {
       // this is the only pref. of its type, just put it at the head
       this.addPreferenceByType(pref, null);
@@ -307,7 +308,7 @@ public class Slot {
     }
 
     if (after == null) {
-      final Preference head = preferencesByType.get(pref.type);
+      final var head = preferencesByType.get(pref.type);
       pref.next = head;
       pref.previous = null;
       if (head != null) {
@@ -393,8 +394,8 @@ public class Slot {
   }
 
   public void add_to_CDPS(Adaptable context, Preference pref, boolean unique_value /* = true */) {
-    final Trace trace = Adaptables.adapt(context, Trace.class);
-    final Printer printer = trace.getPrinter();
+    final var trace = Adaptables.adapt(context, Trace.class);
+    final var printer = trace.getPrinter();
     final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
     if (traceBacktracing) {
       printer.print("--> Adding preference to CDPS: %s", pref);
@@ -404,7 +405,7 @@ public class Slot {
       this.cdps = new LinkedList<>();
     }
 
-    boolean already_exists = false;
+    var already_exists = false;
     for (Preference p : cdps) {
       if (p == pref) {
         already_exists = true;
