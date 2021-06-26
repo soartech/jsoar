@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Stack;
 import lombok.NonNull;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
@@ -29,20 +28,15 @@ import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.BackTraceInfo;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteAssertion;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.rhs.FunctionAction;
-import org.jsoar.kernel.rhs.MakeAction;
-import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
-import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.smem.SemanticMemory;
@@ -53,7 +47,6 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
 import org.jsoar.util.ByRef;
@@ -106,7 +99,7 @@ public class RecognitionMemory {
    * @see Instantiation#insertAtHeadOfProdList(Instantiation)
    * @see Instantiation#removeFromProdList(Instantiation)
    */
-  public Instantiation newly_created_instantiations;
+  private Instantiation newly_created_instantiations;
 
   /**
    * during firing, points to the prod. being fired
@@ -125,7 +118,7 @@ public class RecognitionMemory {
   private final RhsFunctionContext rhsFuncContext = new RhsFunctionContextImpl();
 
   /** List of preferences created by currently executing RHS function */
-  private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<Preference>();
+  private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<>();
 
   /**
    * Preference type of currently executing action, used when instantiating preferences from RHS
@@ -133,7 +126,6 @@ public class RecognitionMemory {
    */
   private PreferenceType rhsFunctionPreferenceType;
 
-  /** @param context */
   public RecognitionMemory(Agent context) {
     this.context = context;
   }
@@ -197,46 +189,40 @@ public class RecognitionMemory {
 
   void build_CDPS(Instantiation inst) {
     for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-      final PositiveCondition pc = cond.asPositiveCondition();
+      final var pc = cond.asPositiveCondition();
       final BackTraceInfo bt = pc != null ? pc.bt() : null;
       if (pc != null) {
         bt.clearContextDependentPreferenceSet(context);
       }
 
-      if (pc != null && bt.trace != null) {
-        if (bt.trace.slot != null) {
-          if (this.chunker.chunkThroughEvaluationRules) {
-            if (bt.trace.slot.hasContextDependentPreferenceSet()) {
-              for (Preference pref : bt.trace.slot.getContextDependentPreferenceSet()) {
-                Preference new_pref = null;
-                if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory()) {
-                  bt.addContextDependentPreference(pref);
-                } else {
-                  new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
-                  if (new_pref != null) {
-                    if (new_pref.isInTempMemory()) {
-                      bt.addContextDependentPreference(new_pref);
-                    }
-                  }
-                }
-              }
-            }
-          } else {
-            Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
-            while (pref != null) {
-              Preference new_pref = null;
+      if (pc != null && bt.trace != null && bt.trace.slot != null) {
+        if (this.chunker.chunkThroughEvaluationRules) {
+          if (bt.trace.slot.hasContextDependentPreferenceSet()) {
+            for (Preference pref : bt.trace.slot.getContextDependentPreferenceSet()) {
+              Preference new_pref;
               if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory()) {
                 bt.addContextDependentPreference(pref);
               } else {
                 new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
-                if (new_pref != null) {
-                  if (new_pref.isInTempMemory()) {
-                    bt.addContextDependentPreference(new_pref);
-                  }
+                if (new_pref != null && new_pref.isInTempMemory()) {
+                  bt.addContextDependentPreference(new_pref);
                 }
               }
-              pref = pref.next;
             }
+          }
+        } else {
+          var pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
+          while (pref != null) {
+            Preference new_pref;
+            if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory()) {
+              bt.addContextDependentPreference(pref);
+            } else {
+              new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
+              if (new_pref != null && new_pref.isInTempMemory()) {
+                bt.addContextDependentPreference(new_pref);
+              }
+            }
+            pref = pref.next;
           }
         }
       }
@@ -252,22 +238,18 @@ public class RecognitionMemory {
    * <p>TODO Make a method of Instantiation?
    *
    * <p>recmem.cpp:149:find_match_goal
-   *
-   * @param inst
    */
   private static void find_match_goal(Instantiation inst) {
     IdentifierImpl lowest_goal_so_far = null;
     int lowest_level_so_far = -1;
     for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-      final PositiveCondition pc = cond.asPositiveCondition();
+      final var pc = cond.asPositiveCondition();
       if (pc != null) {
         final BackTraceInfo bt = pc.bt();
         final IdentifierImpl id = bt.wme_.id;
-        if (id.isGoal()) {
-          if (bt.level > lowest_level_so_far) {
-            lowest_goal_so_far = id;
-            lowest_level_so_far = bt.level;
-          }
+        if (id.isGoal() && (bt.level > lowest_level_so_far)) {
+          lowest_goal_so_far = id;
+          lowest_level_so_far = bt.level;
         }
       }
     }
@@ -319,7 +301,7 @@ public class RecognitionMemory {
       return result;
     }
 
-    final UnboundVariable uv = rv.asUnboundVariable();
+    final var uv = rv.asUnboundVariable();
     if (uv != null) {
 
       int index = uv.getIndex();
@@ -334,7 +316,7 @@ public class RecognitionMemory {
         this.rete.setRhsVariableBinding(index, sym);
         return sym;
       } else if (sym.asVariable() != null) {
-        final Variable v = sym.asVariable();
+        final var v = sym.asVariable();
         new_id_letter = v.getFirstLetter();
         sym = syms.createIdentifier(new_id_letter, new_id_level);
         this.rete.setRhsVariableBinding(index, sym);
@@ -344,7 +326,7 @@ public class RecognitionMemory {
       }
     }
 
-    final ReteLocation rl = rv.asReteLocation();
+    final var rl = rv.asReteLocation();
     if (rl != null) {
       return rl.lookupSymbol(tok, w);
     }
@@ -355,8 +337,8 @@ public class RecognitionMemory {
     }
 
     // build up list of argument values
-    final List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
-    boolean nil_arg_found = false;
+    final List<Symbol> arguments = new ArrayList<>(fc.getArguments().size());
+    var nil_arg_found = false;
     for (RhsValue arg : fc.getArguments()) {
       SymbolImpl instArg = instantiate_rhs_value(arg, new_id_level, new_id_letter, tok, w);
       if (instArg == null) {
@@ -410,13 +392,13 @@ public class RecognitionMemory {
   private Preference execute_action(Action a, Token tok, WmeImpl w) {
     rhsFunctionPreferenceType = a.preference_type;
 
-    final FunctionAction fa = a.asFunctionAction();
+    final var fa = a.asFunctionAction();
     if (fa != null) {
       instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
       return null;
     }
 
-    final MakeAction ma = a.asMakeAction();
+    final var ma = a.asMakeAction();
 
     final SymbolImpl idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
     if (idSym == null) {
@@ -519,9 +501,6 @@ public class RecognitionMemory {
    * </ul>
    *
    * <p>recmem.cpp:385:fill_in_new_instantiation_stuff
-   *
-   * @param inst
-   * @param need_to_do_support_calculations
    */
   public void fill_in_new_instantiation_stuff(
       Instantiation inst, boolean need_to_do_support_calculations) {
@@ -552,7 +531,7 @@ public class RecognitionMemory {
      */
 
     for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-      final PositiveCondition pc = cond.asPositiveCondition();
+      final var pc = cond.asPositiveCondition();
       if (pc != null) {
         // TODO This should all be a method on pc.bt. What should it be called?
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS) {
@@ -602,13 +581,13 @@ public class RecognitionMemory {
    * <p>recmem.cpp:548:create_instantiation
    */
   private void create_instantiation(Production prod, Token tok, WmeImpl w) {
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
 
     // RPM workaround for bug #139: don't fire justifications
     // code moved to do_preference_phase
     assert prod.getType() != ProductionType.JUSTIFICATION;
 
-    final Instantiation inst = new Instantiation(prod, tok, w);
+    final var inst = new Instantiation(prod, tok, w);
     this.newly_created_instantiations =
         inst.insertAtHeadOfProdList(this.newly_created_instantiations);
 
@@ -627,7 +606,7 @@ public class RecognitionMemory {
 
     // record the level of each of the wmes that was positively tested
     for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-      final PositiveCondition pc = cond.asPositiveCondition();
+      final var pc = cond.asPositiveCondition();
       if (pc != null) {
         final BackTraceInfo bt = pc.bt();
         bt.level = bt.wme_.id.getLevel();
@@ -643,7 +622,7 @@ public class RecognitionMemory {
 
     // initialize rhs_variable_bindings array with names of variables
     // (if there are any stored on the production -- for chunks there won't be any)
-    int index = 0;
+    var index = 0;
     for (Variable c : prod.getRhsUnboundVariables()) {
       this.rete.setRhsVariableBinding(index, c);
       index++;
@@ -658,9 +637,9 @@ public class RecognitionMemory {
 
     // execute the RHS actions, collect the results
     assert inst.preferences_generated == null;
-    boolean need_to_do_support_calculations = false;
-    for (Action a = prod.getFirstAction(); a != null; a = a.next) {
-      Preference pref = null;
+    var need_to_do_support_calculations = false;
+    for (var a = prod.getFirstAction(); a != null; a = a.next) {
+      Preference pref;
       if (prod.getType() != ProductionType.TEMPLATE) {
         pref = execute_action(a, tok, w);
       } else {
@@ -726,9 +705,6 @@ public class RecognitionMemory {
    * Returns true if the function create_instantiation should run for this production. Used to delay
    * firing of matches in the inner preference loop.
    *
-   * @param prod
-   * @param tok
-   * @param w
    * @return false to abort firing
    */
   private boolean shouldCreateInstantiation(Production prod, Token tok, WmeImpl w) {
@@ -741,10 +717,10 @@ public class RecognitionMemory {
     }
 
     // Scan RHS identifiers for their levels, don't fire those at or higher than the change level
-    for (Action a = prod.getFirstAction(); a != null; a = a.next) {
+    for (var a = prod.getFirstAction(); a != null; a = a.next) {
       // These next three calls get the identifier which has the level,
       // skipping anything that isn't an identifier.
-      MakeAction ma = a.asMakeAction();
+      var ma = a.asMakeAction();
       if (ma == null) {
         continue;
       }
@@ -755,14 +731,14 @@ public class RecognitionMemory {
       }
 
       // Get the symbol or determine that it is a function call
-      SymbolImpl idSym = null;
+      SymbolImpl idSym;
       RhsSymbolValue rsv = ma.id.asSymbolValue();
       if (rsv != null) {
         idSym = rsv.getSym();
       } else {
-        ReteLocation rl = ma.id.asReteLocation();
-        if (rl != null) {
-          idSym = rl.lookupSymbol(tok, w);
+        var reteLocation = ma.id.asReteLocation();
+        if (reteLocation != null) {
+          idSym = reteLocation.lookupSymbol(tok, w);
         } else {
           // It's a function call, skip it.
           continue;
@@ -795,18 +771,14 @@ public class RecognitionMemory {
   /**
    * This deallocates the given instantiation. This should only be invoked via the
    * possibly_deallocate_instantiation() macro.
-   *
-   * <p>recmem.cpp:757:deallocate_instantiation
-   *
-   * @param inst
    */
   private void deallocate_instantiation(Instantiation inst) {
     Condition cond;
     // Preference pref;
     int level;
 
-    Stack<Condition> cond_stack = new Stack<Condition>();
-    List<Instantiation> inst_list = new LinkedList<Instantiation>();
+    LinkedList<Condition> cond_stack = new LinkedList<>();
+    List<Instantiation> inst_list = new LinkedList<>();
     inst_list.add(inst);
     ListIterator<Instantiation> next_iter = inst_list.listIterator();
 
@@ -817,7 +789,7 @@ public class RecognitionMemory {
       level = inst.match_goal_level;
 
       for (cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next) {
-        final PositiveCondition pc = cond.asPositiveCondition();
+        final var pc = cond.asPositiveCondition();
         if (pc != null) {
           final BackTraceInfo bt = pc.bt();
           bt.clearContextDependentPreferenceSet(context);
@@ -836,9 +808,7 @@ public class RecognitionMemory {
                          possibly_deallocate_instantiation
                          goto loop start
           */
-          if (!SoarConstants.DO_TOP_LEVEL_REF_CTS && level <= SoarConstants.TOP_GOAL_LEVEL) {
-            continue;
-          } else {
+          if (SoarConstants.DO_TOP_LEVEL_REF_CTS && level <= SoarConstants.TOP_GOAL_LEVEL) {
             // (removed in jsoar) wme_remove_ref (thisAgent, cond->bt.wme_);
             final Preference trace = bt.trace;
             if (trace != null) {
@@ -846,16 +816,17 @@ public class RecognitionMemory {
               if (trace.reference_count == 0) {
                 // Preference clone;
 
-                boolean has_active_clones = false;
-                for (Preference clone = trace.next_clone; clone != null; clone = clone.next_clone) {
+                var has_active_clones = false;
+                for (Preference clone = trace.next_clone;
+                    (clone != null) && !has_active_clones;
+                    clone = clone.next_clone) {
                   if (clone.reference_count != 0) {
                     has_active_clones = true;
                   }
                 }
-                if (has_active_clones) {
-                  continue;
-                }
-                for (Preference clone = trace.prev_clone; clone != null; clone = clone.prev_clone) {
+                for (Preference clone = trace.prev_clone;
+                    (clone != null) && !has_active_clones;
+                    clone = clone.prev_clone) {
                   if (clone.reference_count != 0) {
                     has_active_clones = true;
                   }
@@ -886,18 +857,10 @@ public class RecognitionMemory {
                 /* --- deallocate pref --- */
                 /* --- remove it from the list of bt.trace's for its match goal --- */
                 if (trace.on_goal_list) {
-                  // The code below is an expansion of this remove_from_dll macro...
-                  // remove_from_dll(
-                  //        cond->bt.trace->inst->match_goal->id.preferences_from_goal,
-                  //        cond->bt.trace, all_of_goal_next, all_of_goal_prev );
                   trace.inst.match_goal.goalInfo.removeGoalPreference(trace);
                 }
 
                 /* --- remove it from the list of bt.trace's from that instantiation --- */
-                // The code below is an expansion of this remove_from_dll macro...
-                // remove_from_dll( cond->bt.trace->inst->preferences_generated, cond->bt.trace,
-                // inst_next, inst_prev );
-
                 trace.inst.removeGeneratedPreferece(trace);
 
                 if ((trace.inst.preferences_generated == null) && (!trace.inst.in_ms)) {
@@ -988,11 +951,7 @@ public class RecognitionMemory {
     }
   }
 
-  /**
-   * recmem.h:65:possibly_deallocate_instantiation
-   *
-   * @param inst
-   */
+  /** recmem.h:65:possibly_deallocate_instantiation */
   void possibly_deallocate_instantiation(Instantiation inst) {
     if (inst.preferences_generated == null && !inst.in_ms) deallocate_instantiation(inst);
   }
@@ -1001,16 +960,14 @@ public class RecognitionMemory {
    * This retracts the given instantiation.
    *
    * <p>recmem.cpp:814:retract_instantiation
-   *
-   * @param inst
    */
   private void retract_instantiation(Instantiation inst) {
     // TODO callback RETRACTION_CALLBACK
     // soar_invoke_callbacks(thisAgent, RETRACTION_CALLBACK, (soar_call_data) inst);
 
-    boolean retracted_a_preference = false;
+    var retracted_a_preference = false;
 
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     final boolean trace_it =
         trace.isEnabled(inst.prod.getType().getTraceCategory()) || inst.prod.isTraceFirings();
 
@@ -1075,22 +1032,24 @@ public class RecognitionMemory {
    * <p>bufdeallo Buffered preferences to deallocate after inner elaboration loop.
    */
   private void assert_new_preferences(List<Preference> bufdeallo) {
-    final Trace trace = context.getTrace();
+    final var trace = context.getTrace();
     // Note: In CSoar, this list is just build up using the next link in the
     // Preference object. When I tried to do that, I was getting some occasional
     // weird behavior. So, since this list is really supposed to be independent
     // for this function anyway, why not just use a normal list? Yay.
-    final LinkedList<Preference> o_rejects = new LinkedList<Preference>();
+    final LinkedList<Preference> o_rejects = new LinkedList<>();
 
     trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
 
     // Do an initial loop to process o-rejects, then re-loop to process
     // normal preferences.
-    Instantiation inst, next_inst;
+    Instantiation inst;
+    Instantiation next_inst;
     for (inst = this.newly_created_instantiations; inst != null; inst = next_inst) {
       next_inst = inst.nextInProdList;
 
-      Preference pref, next_pref;
+      Preference pref;
+      Preference next_pref;
       for (pref = inst.preferences_generated; pref != null; pref = next_pref) {
         next_pref = pref.inst_next;
         if ((pref.type == PreferenceType.REJECT) && (pref.o_supported)) {
@@ -1112,7 +1071,8 @@ public class RecognitionMemory {
         trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
       }
 
-      Preference pref, next_pref;
+      Preference pref;
+      Preference next_pref;
       for (pref = inst.preferences_generated; pref != null; pref = next_pref) {
         next_pref = pref.inst_next;
 
@@ -1153,7 +1113,6 @@ public class RecognitionMemory {
    *
    * <p>prefmem.cpp:330:process_o_rejects_and_deallocate_them
    *
-   * @param o_rejects
    * @param bufdeallo Preferences buffered for deallocation after inner elaboration loop completes.
    */
   private void process_o_rejects_and_deallocate_them(
@@ -1170,10 +1129,10 @@ public class RecognitionMemory {
     }
 
     for (Preference pref : o_rejects) {
-      Slot s = Slot.find_slot(pref.id, pref.attr);
+      var s = Slot.find_slot(pref.id, pref.attr);
       if (s != null) {
         // remove all pref's in the slot that have the same value
-        Preference p = s.getAllPreferences();
+        var p = s.getAllPreferences();
         while (p != null) {
           final Preference next_p = p.nextOfSlot;
           if (p.value == pref.value) {
@@ -1198,8 +1157,6 @@ public class RecognitionMemory {
    * <p>prefmem.cpp:216:add_preference_to_tm
    *
    * <p>TODO I wish this was private, but smem and epmem use it.
-   *
-   * @param pref
    */
   public void add_preference_to_tm(Preference pref) {
     //    #ifdef DEBUG_PREFS
@@ -1207,7 +1164,7 @@ public class RecognitionMemory {
     //       print_preference (thisAgent, pref);
     //    #endif
 
-    Slot s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
+    var s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
 
     pref.slot = s;
     s.addPreference(
@@ -1222,32 +1179,23 @@ public class RecognitionMemory {
     // this doesn't cause immediate memory deallocate/allocate
     // but once the WMEs are resolved, this should free the
     // memory, as opposed to lead to a "leak"
-    if (wma.wma_enabled() && !s.isa_context_slot) {
-      if (s.changed == null) {
-        if (s.wma_val_references != null) {
-          s.wma_val_references.clear();
-        }
-      }
+    if (wma.wma_enabled()
+        && !s.isa_context_slot
+        && (s.changed == null)
+        && (s.wma_val_references != null)) {
+      s.wma_val_references.clear();
     }
 
     tempMemory.mark_slot_as_changed(s);
 
     if (wma.wma_enabled() && !s.isa_context_slot) {
-      boolean exists = false;
-      WmeImpl w = pref.slot.getWmes();
-      while (!exists && w != null) {
-        if (w.getValue() == pref.value) {
-          exists = true;
-        }
-
-        w = w.next;
-      }
+      var exists = pref.slot.getWmes().stream().anyMatch(wme -> wme.getValue() == pref.value);
 
       // if wme exists, it should already have been updated
       // during assertion of new preferences
       if (!exists) {
         if (s.wma_val_references == null) {
-          s.wma_val_references = new HashMap<Symbol, Long>();
+          s.wma_val_references = new HashMap<>();
         }
 
         Long numRef = s.wma_val_references.get(pref.value);
@@ -1284,8 +1232,6 @@ public class RecognitionMemory {
    * removes a given preference from PM and TM.
    *
    * <p>prefmem.cpp:282:remove_preference_from_tm
-   *
-   * @param pref
    */
   public void remove_preference_from_tm(Preference pref) {
     Slot s = pref.slot;
@@ -1325,13 +1271,7 @@ public class RecognitionMemory {
     pref.preference_remove_ref(this);
   }
 
-  /**
-   * This routine is called from the top level to run the preference phases.
-   *
-   * <p>recmem.cpp:1035:do_preference_phase
-   *
-   * @param top_goal
-   */
+  /** This routine is called from the top level to run the preference phases. */
   public void do_preference_phase(IdentifierImpl top_goal) {
     /*
      * AGR 617/634: These are 2 bug reports that report the same problem,
@@ -1341,27 +1281,24 @@ public class RecognitionMemory {
      * or not when we're ready to print a newline. 94.11.14
      */
 
-    final Trace trace = context.getTrace();
-    if (trace.isEnabled(Category.PHASES)) {
-      if (this.decisionCycle.current_phase.get() == Phase.APPLY) {
-        /* it's always IE for PROPOSE */
-        switch (FIRING_TYPE) {
-          case PE_PRODS:
-            trace
-                .startNewLine()
-                .print(
-                    "--- Firing Productions (PE) For State At Depth %d ---", decider.active_level);
-            break;
-          case IE_PRODS:
-            trace
-                .startNewLine()
-                .print(
-                    "--- Firing Productions (IE) For State At Depth %d ---", decider.active_level);
-            break;
-          default:
-            // do nothing
-            break;
-        }
+    final var trace = context.getTrace();
+    if (trace.isEnabled(Category.PHASES)
+        && (this.decisionCycle.current_phase.get() == Phase.APPLY)) {
+      /* it's always IE for PROPOSE */
+      switch (FIRING_TYPE) {
+        case PE_PRODS:
+          trace
+              .startNewLine()
+              .print("--- Firing Productions (PE) For State At Depth %d ---", decider.active_level);
+          break;
+        case IE_PRODS:
+          trace
+              .startNewLine()
+              .print("--- Firing Productions (IE) For State At Depth %d ---", decider.active_level);
+          break;
+        default:
+          // do nothing
+          break;
       }
     }
 
@@ -1395,8 +1332,8 @@ public class RecognitionMemory {
 
       this.newly_created_instantiations = null;
 
-      SoarReteAssertion assertion = null;
-      boolean assertionsExist = false;
+      SoarReteAssertion assertion;
+      var assertionsExist = false;
       while ((assertion = this.soarReteListener.postpone_assertion()) != null) {
         assertionsExist = true;
 
@@ -1421,10 +1358,8 @@ public class RecognitionMemory {
 
       // New waterfall model: something fired or is pending to fire at this level,
       // so this active level becomes the next change level.
-      if (assertionsExist) {
-        if (decider.active_level > decider.next_change_level) {
-          decider.next_change_level = decider.active_level;
-        }
+      if (assertionsExist && (decider.active_level > decider.next_change_level)) {
+        decider.next_change_level = decider.active_level;
       }
 
       // New waterfall model: push unfired matches back on to the assertion lists
@@ -1471,7 +1406,7 @@ public class RecognitionMemory {
     decider.active_level = decider.highest_active_level;
     decider.active_goal = decider.highest_active_goal;
 
-    Instantiation inst = null;
+    Instantiation inst;
     while ((inst = this.soarReteListener.get_next_retraction()) != null) {
       retract_instantiation(inst);
     }
@@ -1508,7 +1443,7 @@ public class RecognitionMemory {
      */
     @Override
     public Void addWme(@NonNull Identifier id, @NonNull Symbol attr, @NonNull Symbol value) {
-      Preference p =
+      var p =
           new Preference(
               rhsFunctionPreferenceType,
               (IdentifierImpl) id,
