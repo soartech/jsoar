@@ -10,6 +10,7 @@ import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
 import lombok.Getter;
+import lombok.NonNull;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.io.InputWme;
@@ -80,7 +81,12 @@ import org.jsoar.util.adaptables.AbstractAdaptable;
  * @author ray
  */
 public class WmeImpl extends AbstractAdaptable implements Wme {
-  public final IdentifierImpl id;
+
+  /*
+   * Identifier of Working Memory Element
+   */
+  @NonNull public final IdentifierImpl id;
+
   public final SymbolImpl attr;
   public final SymbolImpl value;
   public final boolean acceptable;
@@ -95,22 +101,6 @@ public class WmeImpl extends AbstractAdaptable implements Wme {
   private RightMemory right_mems; // used for dll of rm's it's in
   public Token tokens = null; // dll of tokens in rete
 
-  /**
-   * next/previous pointers for lists this WME is a member of.
-   *
-   * <p>Possible list heads are:
-   *
-   * <ul>
-   *   <li>IdentifierImpl.impasse_wmes
-   *   <li>IdentifierImpl.input_wmes
-   *   <li>Slot.wmes
-   *   <li>Slot.acceptable_preference_wmes
-   * </ul>
-   */
-  public WmeImpl next;
-
-  private WmeImpl previous;
-
   public Preference preference; // pref. supporting it, or null
 
   public int grounds_tc; /* for chunker use only */
@@ -123,32 +113,18 @@ public class WmeImpl extends AbstractAdaptable implements Wme {
   public Preference chunker_bt_pref;
 
   public GoalDependencySetImpl gds;
-  public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
+  public WmeImpl gds_next;
+  public WmeImpl gds_prev; // part of dll of wmes in gds
 
   public WorkingMemoryActivation wma;
 
-  /**
-   * @param id
-   * @param attr
-   * @param value
-   * @param acceptable
-   * @param timetag
-   */
   public WmeImpl(
       IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag) {
     this(id, attr, value, acceptable, timetag, null);
   }
 
-  /**
-   * @param id
-   * @param attr
-   * @param value
-   * @param acceptable
-   * @param timetag
-   * @param wma this is optional; null value ok (but for real Soar agent, it won't be null)
-   */
   public WmeImpl(
-      IdentifierImpl id,
+      @NonNull IdentifierImpl id,
       SymbolImpl attr,
       SymbolImpl value,
       boolean acceptable,
@@ -195,50 +171,6 @@ public class WmeImpl extends AbstractAdaptable implements Wme {
         return value;
     }
     throw new IllegalArgumentException("field_num must be 0, 1, or 2, got" + field);
-  }
-
-  /**
-   * Test if this WME is a member of a WME list
-   *
-   * @param head The head of the list to search using {@link #next}/{@link #previous} list pointers.
-   * @return true if this WME is a member of the given list
-   */
-  public boolean isMemberOfList(WmeImpl head) {
-    for (WmeImpl w = head; w != null; w = w.next) {
-      if (w == this) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public WmeImpl addToList(WmeImpl head) {
-    next = head;
-    previous = null;
-    if (head != null) {
-      head.previous = this;
-    }
-    return this;
-  }
-
-  public WmeImpl removeFromList(WmeImpl head) {
-    if (next != null) {
-      next.previous = previous;
-    }
-    if (previous != null) {
-      previous.next = next;
-    } else {
-      head = next;
-    }
-    next = null;
-    previous = null;
-
-    return head;
-  }
-
-  /** @return An iterator over the {@link #next} pointer starting at this WME */
-  public Iterator<Wme> iterator() {
-    return new WmeIterator(this);
   }
 
   public RightMemory getRightMemories() {
@@ -295,7 +227,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme {
   @Override
   public Iterator<Wme> getChildren() {
     Identifier valueAsId = value.asIdentifier();
-    return valueAsId != null ? valueAsId.getWmes() : Collections.<Wme>emptyIterator();
+    return valueAsId != null ? valueAsId.getWmes() : Collections.emptyIterator();
   }
 
   /* (non-Javadoc)
