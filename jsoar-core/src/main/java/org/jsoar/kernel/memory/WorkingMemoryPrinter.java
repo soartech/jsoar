@@ -6,7 +6,6 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -22,20 +21,13 @@ import org.jsoar.util.markers.Marker;
 
 /** @author ray */
 public class WorkingMemoryPrinter {
+
   private Printer printer;
   private int depth = 1;
   private boolean internal = false;
   private boolean tree = false;
   private boolean exact = false;
 
-  /**
-   * sml_KernelHelpers.cpp::do_print_for_identifier
-   *
-   * @param agent
-   * @param printer
-   * @param idIn
-   * @param pattern
-   */
   public void print(@NonNull Agent agent, @NonNull Printer printer, Symbol idIn, String pattern) {
     this.printer = printer;
 
@@ -43,8 +35,9 @@ public class WorkingMemoryPrinter {
       // for wme patterns
       if (pattern.length() > 2
           && pattern.charAt(0) == '('
-          && pattern.charAt(pattern.length() - 1) == ')')
+          && pattern.charAt(pattern.length() - 1) == ')') {
         pattern = pattern.substring(1, pattern.length() - 1);
+      }
 
       List<Wme> wmes =
           Wmes.filter(
@@ -52,16 +45,19 @@ public class WorkingMemoryPrinter {
               WorkingMemoryPatternReader.getPredicate(agent, pattern));
       if (internal) {
         for (Wme w : wmes) {
-          if (exact) printer.print("%s", w);
-          else do_print_for_identifier((IdentifierImpl) w.getIdentifier());
+          if (exact) {
+            printer.print("%s", w);
+          } else {
+            do_print_for_identifier((IdentifierImpl) w.getIdentifier());
+          }
         }
       } else {
         // create a map of id -> wme so we can print out wmes with the
         // same id together
-        Map<Symbol, List<Wme>> objects = new HashMap<Symbol, List<Wme>>();
+        Map<Symbol, List<Wme>> objects = new HashMap<>();
         for (Wme w : wmes) {
           if (!objects.containsKey(w.getIdentifier())) {
-            objects.put(w.getIdentifier(), new ArrayList<Wme>());
+            objects.put(w.getIdentifier(), new ArrayList<>());
           }
           List<Wme> l = objects.get(w.getIdentifier());
           l.add(w);
@@ -74,7 +70,9 @@ public class WorkingMemoryPrinter {
             printer.print("(%s", id);
             for (Wme w : objects.get(id)) {
               printer.print(" ^%s %s", w.getAttribute(), w.getValue());
-              if (w.isAcceptable()) printer.print(" +");
+              if (w.isAcceptable()) {
+                printer.print(" +");
+              }
             }
             printer.print(")\n");
           } else {
@@ -145,22 +143,10 @@ public class WorkingMemoryPrinter {
 
   /** sml_KernelHelpers.cpp:246:compare_attr */
   private static final Comparator<WmeImpl> ATTRIBUTE_COMPARATOR =
-      new Comparator<WmeImpl>() {
+      Comparator.comparing(o -> o.attr.toString());
 
-        @Override
-        public int compare(WmeImpl o1, WmeImpl o2) {
-          return o1.attr.toString().compareTo(o2.attr.toString());
-        }
-      };
-
-  /**
-   * sml_KernelHelpers.cpp:264:neatly_print_wme_augmentation_of_id
-   *
-   * @param w
-   * @param indentation
-   */
-  private void neatly_print_wme_augmentation_of_id(Wme w, int indentation) {
-    final String buf =
+  private void neatly_print_wme_augmentation_of_id(Wme w) {
+    final var buf =
         String.format(" ^%s %s%s", w.getAttribute(), w.getValue(), w.isAcceptable() ? " +" : "");
 
     printer.print(buf);
@@ -190,33 +176,38 @@ public class WorkingMemoryPrinter {
     Then we qsort the array and print it out.  94.12.13 */
 
     IdentifierImpl id = idIn.asIdentifier();
-    if (id == null) return;
-    if (id.tc_number == tc && id.depth >= depth)
+    if (id == null) {
+      return;
+    }
+    if (id.tc_number == tc && id.depth >= depth) {
       return; // this has already been printed at an equal-or-lower depth, RPM 4/07 bug 988
+    }
 
     id.depth = depth; // set the depth of this id
     id.tc_number = tc;
 
     /* --- if depth<=1, we're done --- */
-    if (depth <= 1) return;
+    if (depth <= 1) {
+      return;
+    }
 
     /* --- call this routine recursively --- */
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) {
+    for (WmeImpl w : id.getInputWmes()) {
       mark_depths_augs_of_id(w.attr, depth - 1, tc);
       mark_depths_augs_of_id(w.value, depth - 1, tc);
     }
-    for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null;
-        w != null;
-        w = w.next) {
-      mark_depths_augs_of_id(w.attr, depth - 1, tc);
-      mark_depths_augs_of_id(w.value, depth - 1, tc);
-    }
-    for (Slot s = id.slots; s != null; s = s.next) {
-      for (WmeImpl w = s.getWmes(); w != null; w = w.next) {
+    if (id.goalInfo != null) {
+      for (WmeImpl w : id.goalInfo.getImpasseWmes()) {
         mark_depths_augs_of_id(w.attr, depth - 1, tc);
         mark_depths_augs_of_id(w.value, depth - 1, tc);
       }
-      for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next) {
+    }
+    for (Slot s = id.slots; s != null; s = s.next) {
+      for (WmeImpl w : s.getWmes()) {
+        mark_depths_augs_of_id(w.attr, depth - 1, tc);
+        mark_depths_augs_of_id(w.value, depth - 1, tc);
+      }
+      for (WmeImpl w : s.getAcceptablePreferenceWmes()) {
         mark_depths_augs_of_id(w.attr, depth - 1, tc);
         mark_depths_augs_of_id(w.value, depth - 1, tc);
       }
@@ -224,18 +215,10 @@ public class WorkingMemoryPrinter {
   }
 
   //
+
   /**
    * RPM 4/07: Note, mark_depths_augs_of_id must be called before the root call to print_augs_of_id
    * Thus, this should probably only be called from do_print_for_identifier
-   *
-   * <p>sml_KernelHelpers.cpp:335:print_augs_of_id
-   *
-   * @param idIn
-   * @param depth
-   * @param maxdepth
-   * @param internal
-   * @param tree
-   * @param tc
    */
   private void print_augs_of_id(
       SymbolImpl idIn, int depth, int maxdepth, boolean internal, boolean tree, Marker tc) {
@@ -245,10 +228,15 @@ public class WorkingMemoryPrinter {
     Then we qsort the array and print it out.  94.12.13 */
 
     IdentifierImpl id = idIn.asIdentifier();
-    if (id == null) return;
-    if (id.tc_number == tc) return; // this has already been printed, so return RPM 4/07 bug 988
-    if (id.depth > depth)
+    if (id == null) {
+      return;
+    }
+    if (id.tc_number == tc) {
+      return; // this has already been printed, so return RPM 4/07 bug 988
+    }
+    if (id.depth > depth) {
       return; // this can be reached via an equal or shorter path, so return without printing RPM
+    }
     // 4/07 bug 988
 
     // if we're here, then we haven't printed this id yet, so print it
@@ -261,16 +249,16 @@ public class WorkingMemoryPrinter {
 
     /* --- first, count all direct augmentations of this id --- */
     /* --- next, construct the array of wme pointers and sort them --- */
-    List<WmeImpl> list = new ArrayList<WmeImpl>();
-    for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null;
-        w != null;
-        w = w.next) list.add(w);
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) list.add(w);
-    for (Slot s = id.slots; s != null; s = s.next) {
-      for (WmeImpl w = s.getWmes(); w != null; w = w.next) list.add(w);
-      for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next) list.add(w);
+    List<WmeImpl> list = new ArrayList<>();
+    if (id.goalInfo != null) {
+      list.addAll(id.goalInfo.getImpasseWmes());
     }
-    Collections.sort(list, ATTRIBUTE_COMPARATOR);
+    list.addAll(id.getInputWmes());
+    for (Slot s = id.slots; s != null; s = s.next) {
+      list.addAll(s.getWmes());
+      list.addAll(s.getAcceptablePreferenceWmes());
+    }
+    list.sort(ATTRIBUTE_COMPARATOR);
 
     /* --- finally, print the sorted wmes and deallocate the array --- */
 
@@ -278,8 +266,11 @@ public class WorkingMemoryPrinter {
     if (tree) {
       for (WmeImpl w : list) {
         printer.spaces(indent);
-        if (internal) printer.print("%s", w);
-        else printer.print("%#s", w);
+        if (internal) {
+          printer.print("%s", w);
+        } else {
+          printer.print("%#s", w);
+        }
 
         if (depth > 1) { // we're not done yet
           /* --- call this routine recursively --- */
@@ -310,7 +301,7 @@ public class WorkingMemoryPrinter {
 
           for (attr = 0; attr < num_attr; attr++) {
             w = list.get(attr);
-            neatly_print_wme_augmentation_of_id(w, indent);
+            neatly_print_wme_augmentation_of_id(w);
           }
 
           // xml_end_tag(agnt, kWME_Id);
