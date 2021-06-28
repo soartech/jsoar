@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -107,13 +108,7 @@ public class WorkingMemory {
     current_wme_timetag = 1;
   }
 
-  /**
-   * Updates WM size stats. Extracted from do_one_top_level_phase().
-   *
-   * <p>init_soar.cpp:1060:do_one_top_level_phase
-   *
-   * @param num_wmes_in_rete
-   */
+  /** Updates WM size stats. Extracted from do_one_top_level_phase(). */
   public void updateStats(int num_wmes_in_rete) {
     if (num_wmes_in_rete > max_wm_size.longValue()) max_wm_size.value.set(num_wmes_in_rete);
     cumulative_wm_size.value.addAndGet(num_wmes_in_rete);
@@ -133,15 +128,9 @@ public class WorkingMemory {
    */
   public WmeImpl make_wme(
       IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable) {
-    WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++, wma);
-    return w;
+    return new WmeImpl(id, attr, value, acceptable, current_wme_timetag++, wma);
   }
 
-  /**
-   * wmem.cpp:122:add_wme_to_wm
-   *
-   * @param w
-   */
   public void add_wme_to_wm(WmeImpl w) {
     wmes_to_add.push(w);
     IdentifierImpl valueId = w.value.asIdentifier();
@@ -153,11 +142,6 @@ public class WorkingMemory {
     }
   }
 
-  /**
-   * wmem.cpp:135:remove_wme_from_wm
-   *
-   * @param w
-   */
   public void remove_wme_from_wm(WmeImpl w) {
     wmes_to_remove.push(w);
 
@@ -187,24 +171,16 @@ public class WorkingMemory {
     }
   }
 
-  /**
-   * wmem.cpp:167:remove_wme_list_from_wm
-   *
-   * @param w
-   * @param updateWmeMap (defaults to false in CSoar)
-   */
-  public void remove_wme_list_from_wm(WmeImpl w, boolean updateWmeMap /*=false*/) {
+  public void remove_wme_list_from_wm(List<WmeImpl> WMEs, boolean updateWmeMap /*=false*/) {
     if (updateWmeMap) {
       // Note: For jsoar, moved this out of the loop below into a single callback
       // soar_invoke_callbacks( thisAgent, INPUT_WME_GARBAGE_COLLECTED_CALLBACK,
       // reinterpret_cast<soar_call_data >( w ) );
-      eventManager.fireEvent(new InputWmeGarbageCollectedEvent(w));
+      eventManager.fireEvent(new InputWmeGarbageCollectedEvent(WMEs));
     }
 
-    while (w != null) {
-      final WmeImpl next_w = w.next;
+    for (WmeImpl w : WMEs) {
       remove_wme_from_wm(w);
-      w = next_w;
     }
   }
 
@@ -248,11 +224,8 @@ public class WorkingMemory {
       // yet and so JSoar would get wrong levels which would cause a memory leak and the
       // WM size would grow and never shrink when you query on LTIs.
       // - ALT
-      if (smem.smem_enabled()) {
-        // Make sure it is an LTI
-        if (w.item.id != null && w.item.id.isLongTermIdentifier()) {
-          symbols.removeIdentifier(w.item.id);
-        }
+      if (smem.smem_enabled() && w.item.id.isLongTermIdentifier()) {
+        symbols.removeIdentifier(w.item.id);
       }
     }
 
