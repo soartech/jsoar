@@ -13,8 +13,6 @@ import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
@@ -30,7 +28,7 @@ public class Consistency {
 
   private static final boolean DEBUG_CONSISTENCY_CHECK = false;
 
-  private static enum LevelChangeType {
+  private enum LevelChangeType {
     NEW_DECISION,
     SAME_LEVEL,
     HIGHER_LEVEL,
@@ -45,7 +43,6 @@ public class Consistency {
   private RecognitionMemory recMemory;
   private SoarReteListener soarReteListener;
 
-  /** @param context */
   public Consistency(Agent context) {
     this.context = context;
   }
@@ -65,7 +62,7 @@ public class Consistency {
    *
    * <p>consistency.cpp:116:decision_consistent_with_current_preferences
    */
-  private boolean decision_consistent_with_current_preferences(IdentifierImpl goal, Slot s) {
+  private boolean decisionConsistentWithCurrentPreferences(IdentifierImpl goal, Slot s) {
 
     if (s.isa_context_slot) {
       printDebugMessage(
@@ -80,9 +77,9 @@ public class Consistency {
     /* Determine the current operator/impasse in the slot*/
     WmeImpl current_operator;
     boolean operator_in_slot;
-    if (goal.goalInfo.operator_slot.getWmes() != null) {
+    if (!goal.goalInfo.operator_slot.getWmes().isEmpty()) {
       /* There is an operator in the slot */
-      current_operator = goal.goalInfo.operator_slot.getWmes();
+      current_operator = goal.goalInfo.operator_slot.getWmes().get(0);
       operator_in_slot = true;
     } else {
       /* There is not an operator in the slot */
@@ -91,14 +88,12 @@ public class Consistency {
     }
 
     ImpasseType current_impasse_type;
-    final SymbolImpl current_impasse_attribute;
     if (goal.goalInfo.lower_goal != null) {
       // the goal is impassed
       current_impasse_type = decider.type_of_existing_impasse(goal);
-      current_impasse_attribute = decider.attribute_of_existing_impasse(goal);
       printDebugMessage(
           "    Goal is impassed:  Impasse type: %d: Impasse attribute: [%s]\n",
-          current_impasse_type, current_impasse_attribute);
+          current_impasse_type, decider.attribute_of_existing_impasse(goal));
 
       /* Special case for an operator no-change */
       if ((operator_in_slot) && (current_impasse_type == ImpasseType.NO_CHANGE)) {
@@ -114,7 +109,6 @@ public class Consistency {
       }
     } else {
       current_impasse_type = ImpasseType.NONE;
-      current_impasse_attribute = null;
       printDebugMessage("    Goal is not impassed: ");
     }
 
@@ -234,14 +228,10 @@ public class Consistency {
     return true;
   }
 
-  /**
-   * consistency.cpp:299:remove_current_decision
-   *
-   * @param s
-   */
-  private void remove_current_decision(Slot s) {
-    final Trace trace = context.getTrace();
-    if (s.getWmes() == null) {
+  /** consistency.cpp:299:remove_current_decision */
+  private void removeCurrentDecision(final Slot s) {
+    final var trace = context.getTrace();
+    if (s.getWmes().isEmpty()) {
       trace.print(
           Category.OPERAND2_REMOVALS,
           "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n",
@@ -249,12 +239,10 @@ public class Consistency {
           s.attr);
     }
 
-    if (s.id != null) {
-      trace.print(
-          Category.OPERAND2_REMOVALS,
-          "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n",
-          s.id);
-    }
+    trace.print(
+        Category.OPERAND2_REMOVALS,
+        "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n",
+        s.id);
 
     /* If there is an operator in the slot, remove it */
     decider.remove_wmes_for_context_slot(s);
@@ -273,7 +261,7 @@ public class Consistency {
    *
    * <p>consistency.cpp:326:check_context_slot_decisions
    */
-  private boolean check_context_slot_decisions(int level) {
+  private boolean checkContextSlotDecisions(int level) {
     if (tempMemory.highest_goal_whose_context_changed != null) {
       printDebugMessage(
           "    Highest goal with changed context: [%s]\n",
@@ -289,7 +277,7 @@ public class Consistency {
 
       Slot s = goal.goalInfo.operator_slot;
 
-      if ((goal.goalInfo.lower_goal != null) || (s.getWmes() != null)) {
+      if ((goal.goalInfo.lower_goal != null) || !s.getWmes().isEmpty()) {
         /* If we are not at the bottom goal or if there is an operator in the
         bottom goal's operator slot */
         printDebugMessage(
@@ -298,7 +286,7 @@ public class Consistency {
         if (s.changed != null) {
           /* Only need to check a goal if its prefs have changed */
           printDebugMessage("      This goal's preferences have changed.\n");
-          if (!decision_consistent_with_current_preferences(goal, s)) {
+          if (!decisionConsistentWithCurrentPreferences(goal, s)) {
             printDebugMessage(
                 "   The current preferences indicate that the decision at [%s] needs to be removed.\n",
                 goal);
@@ -310,7 +298,7 @@ public class Consistency {
                     "Removing state %s because of a failed consistency check.\n",
                     goal);
             /* This doesn;t seem like it should be necessary but evidently it is: see 2.008 */
-            remove_current_decision(s);
+            removeCurrentDecision(s);
             return false; /* No need to continue once a decision is removed */
           }
         }
@@ -330,12 +318,9 @@ public class Consistency {
       return true;
     }
 
-    if (!goal.goalInfo.ms_retractions.isEmpty()) {
-      return true;
-    }
+    return !goal.goalInfo.ms_retractions.isEmpty();
 
     /* printf("\nNo instantiation found.  Returning FALSE\n");  */
-    return false;
   }
 
   /**
@@ -345,12 +330,8 @@ public class Consistency {
    * <p>consistency.cpp:400:minor_quiescence_at_goal
    */
   private boolean minor_quiescence_at_goal(IdentifierImpl goal) {
-    if ((recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
-    /* firing IEs but no more to fire == minor quiescence */ {
-      return true;
-    } else {
-      return false;
-    }
+    /* firing IEs but no more to fire == minor quiescence */
+    return (recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal));
   }
 
   /**
@@ -495,7 +476,7 @@ public class Consistency {
       }
     }
 
-    boolean test = check_context_slot_decisions(goal.getLevel());
+    boolean test = checkContextSlotDecisions(goal.getLevel());
 
     printDebugMessage("\nEnd:   CONSISTENCY CHECK\n");
 
