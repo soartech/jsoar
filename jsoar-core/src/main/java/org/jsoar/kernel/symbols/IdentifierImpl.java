@@ -6,9 +6,11 @@
 package org.jsoar.kernel.symbols;
 
 import com.google.common.collect.Iterators;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.Getter;
 import lombok.NonNull;
@@ -38,6 +40,7 @@ import org.jsoar.util.markers.Marker;
  * @author ray
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier {
+
   private final long name_number;
 
   @Getter private final char nameLetter;
@@ -61,8 +64,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
 
   public GoalIdentifierInfo goalInfo;
 
-  // fields used for Soar I/O stuff
-  private WmeImpl input_wmes;
+  private final List<WmeImpl> inputWMEs = new ArrayList<>();
 
   public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
@@ -169,20 +171,20 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
     }
   }
 
-  public WmeImpl getInputWmes() {
-    return input_wmes;
+  public List<WmeImpl> getInputWmes() {
+    return inputWMEs;
   }
 
   public void addInputWme(WmeImpl w) {
-    this.input_wmes = w.addToList(this.input_wmes);
+    inputWMEs.add(0, w);
   }
 
   public void removeInputWme(WmeImpl w) {
-    this.input_wmes = w.removeFromList(this.input_wmes);
+    inputWMEs.remove(w);
   }
 
   public void removeAllInputWmes() {
-    this.input_wmes = null;
+    inputWMEs.clear();
   }
 
   /** production.cpp:1068:unmark_identifiers_and_free_list */
@@ -341,6 +343,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
   }
 
   private static class WmeIteratorSet implements Iterator<Iterator<Wme>> {
+
     private final IdentifierImpl id;
     private boolean didImpasseWmes = false;
     private boolean didInputs = false;
@@ -363,8 +366,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
      */
     @Override
     public boolean hasNext() {
-      return (!didImpasseWmes && id.goalInfo != null && id.goalInfo.getImpasseWmes() != null)
-          || (!didInputs && id.getInputWmes() != null)
+      return (!didImpasseWmes && id.goalInfo != null && !id.goalInfo.getImpasseWmes().isEmpty())
+          || (!didInputs && !id.getInputWmes().isEmpty())
           || slot != null;
     }
 
@@ -376,15 +379,15 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
       // First try to return an iterator over the impasse wmes
       if (!didImpasseWmes && id.goalInfo != null) {
         didImpasseWmes = true;
-        if (id.goalInfo.getImpasseWmes() != null) {
-          return id.goalInfo.getImpasseWmes().iterator();
+        if (!id.goalInfo.getImpasseWmes().isEmpty()) {
+          return getIterator(id.goalInfo.getImpasseWmes());
         }
       }
       // Next try to return an iterator over the input wmes
       if (!didInputs) {
         didInputs = true;
         if (id.getInputWmes() != null) {
-          return id.getInputWmes().iterator();
+          return getIterator(id.getInputWmes());
         }
       }
       // Next return an iterator over the wmes in the current slot and
@@ -395,6 +398,11 @@ public class IdentifierImpl extends SymbolImpl implements Identifier {
       Iterator<Wme> r = slot.getWmeIterator();
       slot = slot.next;
       return r;
+    }
+
+    private Iterator<Wme> getIterator(List<WmeImpl> wmes) {
+      List<Wme> convertedWmes = new ArrayList<>(wmes);
+      return convertedWmes.iterator();
     }
 
     /* (non-Javadoc)
