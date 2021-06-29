@@ -5,6 +5,9 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.NonNull;
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
@@ -33,7 +36,7 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal {
   public boolean allow_bottom_up_chunks;
 
   public GoalDependencySetImpl gds; // pointer to a goal's dependency set
-  private WmeImpl impasse_wmes;
+  private final List<WmeImpl> impasseWMEs = new ArrayList<>();
 
   /**
    * FIRING_TYPE that must be restored if Waterfall processing returns to this level. See
@@ -49,20 +52,21 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal {
   public IdentifierImpl reward_header; // pointer to reward_link
   public ReinforcementLearningInfo rl_info; // various Soar-RL information
 
-  public WmeImpl getImpasseWmes() {
-    return impasse_wmes;
+  @NonNull
+  public List<WmeImpl> getImpasseWmes() {
+    return List.copyOf(impasseWMEs);
   }
 
   public void addImpasseWme(WmeImpl w) {
-    this.impasse_wmes = w.addToList(this.impasse_wmes);
+    impasseWMEs.add(0, w);
   }
 
   public void removeAllImpasseWmes() {
-    this.impasse_wmes = null;
+    impasseWMEs.clear();
   }
 
   public void removeImpasseWme(WmeImpl w) {
-    this.impasse_wmes = w.removeFromList(this.impasse_wmes);
+    impasseWMEs.remove(w);
   }
 
   public void addGoalPreference(Preference pref) {
@@ -91,7 +95,7 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal {
   }
 
   public Preference popGoalPreference() {
-    final Preference head = preferences_from_goal;
+    final var head = preferences_from_goal;
     if (head != null) {
       removeGoalPreference(head);
     }
@@ -111,8 +115,8 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal {
    */
   @Override
   public IdentifierImpl getOperator() {
-    final WmeImpl wmes = operator_slot != null ? operator_slot.getWmes() : null;
-    return wmes != null ? wmes.value.asIdentifier() : null;
+    final List<WmeImpl> WMEs = operator_slot != null ? operator_slot.getWmes() : null;
+    return WMEs != null && !WMEs.isEmpty() ? WMEs.get(0).value.asIdentifier() : null;
   }
 
   /* (non-Javadoc)
@@ -121,9 +125,9 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal {
   @Override
   public Symbol getOperatorName() {
     final IdentifierImpl op = getOperator();
-    final Slot slot = Slot.find_slot(op, id.factory.findString("name"));
+    final var slot = Slot.find_slot(op, id.factory.findString("name"));
 
-    return slot != null && id.slots.getWmes() != null ? slot.getWmes().getValue() : null;
+    return slot != null && !id.slots.getWmes().isEmpty() ? slot.getWmes().get(0).getValue() : null;
   }
 
   /* (non-Javadoc)
