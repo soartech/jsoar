@@ -63,6 +63,7 @@ import org.jsoar.util.markers.Marker;
  * @author ray
  */
 public class TraceFormats {
+
   private final Agent context;
   private PredefinedSymbols predefinedSyms;
   private DecisionCycle decisionCycle;
@@ -72,17 +73,17 @@ public class TraceFormats {
   private String format_string_error_message;
 
   private static Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> createMap() {
-    return new EnumMap<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>>(
-        TraceFormatRestriction.class);
+    return new EnumMap<>(TraceFormatRestriction.class);
   }
 
   // Converted to Java maps from Soar hashtables
-  private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> stack_tr_ht = createMap();
-  private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> object_tr_ht = createMap();
-  private Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything =
-      new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
-  private Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything =
-      new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
+  private final Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> stack_tr_ht = createMap();
+  private final Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> object_tr_ht =
+      createMap();
+  private final Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything =
+      new EnumMap<>(TraceFormatRestriction.class);
+  private final Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything =
+      new EnumMap<>(TraceFormatRestriction.class);
 
   /**
    * set to TRUE whenever an escape sequence result is undefined--for use with %ifdef
@@ -93,6 +94,7 @@ public class TraceFormats {
 
   /** trace.cpp:924:tracing_parameters */
   private static class TracingParameters {
+
     IdentifierImpl current_s = null; // current state, etc. -- for use in %cs, etc.
     IdentifierImpl current_o = null;
     boolean allow_cycle_counts = false; // TRUE means allow %dc and %ec
@@ -111,14 +113,13 @@ public class TraceFormats {
 
   private Marker tf_printing_tc;
 
-  /** @param context */
   public TraceFormats(Agent context) {
     this.context = context;
 
     // trace.cpp:654:init_tracing
     for (TraceFormatRestriction r : TraceFormatRestriction.values()) {
-      stack_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
-      object_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
+      stack_tr_ht.put(r, new HashMap<>());
+      object_tr_ht.put(r, new HashMap<>());
     }
   }
 
@@ -130,10 +131,6 @@ public class TraceFormats {
   /**
    * parses a format string and returns a trace_format structure for it, or NIL if any error
    * occurred. This is the top-level routine here.
-   *
-   * <p>trace.cpp:152:parse_format_string
-   *
-   * @param string
    */
   private TraceFormat parse_format_string(String string) {
     format = string;
@@ -152,12 +149,18 @@ public class TraceFormats {
         }
         return null;
       }
-      if (prev != null) prev.next = New;
-      else first = New;
+      if (prev != null) {
+        prev.next = New;
+      } else {
+        first = New;
+      }
       prev = New;
     }
-    if (prev != null) prev.next = null;
-    else first = null;
+    if (prev != null) {
+      prev.next = null;
+    } else {
+      first = null;
+    }
 
     return first;
   }
@@ -179,13 +182,13 @@ public class TraceFormats {
       offset++;
     } else {
       /* --- normal case: read the attribute path --- */
-      path = new ArrayList<Symbol>();
+      path = new ArrayList<>();
       while (true) {
-        String name = "";
+        var name = new StringBuilder();
         while ((offset != format.length())
             && (format.charAt(offset) != ']')
             && (format.charAt(offset) != '.')) {
-          name += format.charAt(offset);
+          name.append(format.charAt(offset));
           offset++;
         }
         if (offset == format.length()) {
@@ -196,8 +199,10 @@ public class TraceFormats {
           format_string_error_message = "null attribute found in attribute path";
           return null;
         }
-        path.add(context.getSymbols().createString(name));
-        if (format.charAt(offset) == ']') break;
+        path.add(context.getSymbols().createString(name.toString()));
+        if (format.charAt(offset) == ']') {
+          break;
+        }
         offset++; /* skip past '.' */
       }
     }
@@ -212,11 +217,6 @@ public class TraceFormats {
     return path;
   }
 
-  /**
-   * trace.cpp:232:parse_pattern_in_brackets
-   *
-   * @param read_opening_bracket
-   */
   private TraceFormat parse_pattern_in_brackets(boolean read_opening_bracket) {
     /* --- look for opening bracket --- */
     if (read_opening_bracket) {
@@ -235,12 +235,18 @@ public class TraceFormats {
       if (New == null) {
         return null;
       }
-      if (prev != null) prev.next = New;
-      else first = New;
+      if (prev != null) {
+        prev.next = New;
+      } else {
+        first = New;
+      }
       prev = New;
     }
-    if (prev != null) prev.next = null;
-    else first = null;
+    if (prev != null) {
+      prev.next = null;
+    } else {
+      first = null;
+    }
 
     /* --- look for closing bracket --- */
     if (format.charAt(offset) != ']') {
@@ -254,8 +260,12 @@ public class TraceFormats {
 
   /** trace.cpp:270:parse_item_from_format_string */
   private TraceFormat parse_item_from_format_string() {
-    if (offset >= format.length()) return null;
-    if (format.charAt(offset) == ']') return null;
+    if (offset >= format.length()) {
+      return null;
+    }
+    if (format.charAt(offset) == ']') {
+      return null;
+    }
     if (format.charAt(offset) == '[') {
       format_string_error_message = "unexpected '[' character";
       return null;
@@ -263,17 +273,17 @@ public class TraceFormats {
 
     if (format.charAt(offset) != '%') {
 
-      String buf = "";
+      var buf = new StringBuilder();
       while ((offset < format.length())
           && (format.charAt(offset) != '%')
           && (format.charAt(offset) != '[')
           && (format.charAt(offset) != ']')) {
-        buf += format.charAt(offset);
+        buf.append(format.charAt(offset));
         offset++;
       }
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.STRING_TFT;
-      tf.data_string = buf;
+      tf.data_string = buf.toString();
       return tf;
     }
 
@@ -282,8 +292,10 @@ public class TraceFormats {
     if (format.startsWith("%v", offset)) {
       offset += 2;
       List<Symbol> attribute_path = parse_attribute_path_in_brackets();
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.VALUES_TFT;
       tf.data_attribute_path = attribute_path;
       return tf;
@@ -292,8 +304,10 @@ public class TraceFormats {
     if (format.startsWith("%o", offset)) {
       offset += 2;
       List<Symbol> attribute_path = parse_attribute_path_in_brackets();
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.VALUES_RECURSIVELY_TFT;
       tf.data_attribute_path = attribute_path;
       return tf;
@@ -302,8 +316,10 @@ public class TraceFormats {
     if (format.startsWith("%av", offset)) {
       offset += 3;
       List<Symbol> attribute_path = parse_attribute_path_in_brackets();
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.ATTS_AND_VALUES_TFT;
       tf.data_attribute_path = attribute_path;
       return tf;
@@ -312,8 +328,10 @@ public class TraceFormats {
     if (format.startsWith("%ao", offset)) {
       offset += 3;
       List<Symbol> attribute_path = parse_attribute_path_in_brackets();
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.ATTS_AND_VALUES_RECURSIVELY_TFT;
       tf.data_attribute_path = attribute_path;
       return tf;
@@ -321,73 +339,75 @@ public class TraceFormats {
 
     if (format.startsWith("%cs", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.CURRENT_STATE_TFT;
       return tf;
     }
 
     if (format.startsWith("%co", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.CURRENT_OPERATOR_TFT;
       return tf;
     }
 
     if (format.startsWith("%dc", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.DECISION_CYCLE_COUNT_TFT;
       return tf;
     }
 
     if (format.startsWith("%ec", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.ELABORATION_CYCLE_COUNT_TFT;
       return tf;
     }
 
     if (format.startsWith("%%", offset)) {
       offset += 2;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.PERCENT_TFT;
       return tf;
     }
 
     if (format.startsWith("%[", offset)) {
       offset += 2;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.L_BRACKET_TFT;
       return tf;
     }
 
     if (format.startsWith("%]", offset)) {
       offset += 2;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.R_BRACKET_TFT;
       return tf;
     }
 
     if (format.startsWith("%sd", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.SUBGOAL_DEPTH_TFT;
       return tf;
     }
 
     if (format.startsWith("%id", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.IDENTIFIER_TFT;
       return tf;
     }
 
     if (format.startsWith("%ifdef", offset)) {
       offset += 6;
-      TraceFormat pattern = parse_pattern_in_brackets(true);
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.IF_ALL_DEFINED_TFT;
+      TraceFormat pattern = parse_pattern_in_brackets(true);
       tf.data_subformat = pattern;
       return tf;
     }
@@ -403,16 +423,20 @@ public class TraceFormats {
         format_string_error_message = "Expected number with %left";
         return null;
       }
-      int n = 0;
-      while (Character.isDigit(format.charAt(offset))) n = 10 * n + (format.charAt(offset++) - '0');
+      var n = 0;
+      while (Character.isDigit(format.charAt(offset))) {
+        n = 10 * n + (format.charAt(offset++) - '0');
+      }
       if (format.charAt(offset) != ',') {
         format_string_error_message = "Expected ',' after number in %left";
         return null;
       }
       offset++;
       TraceFormat pattern = parse_pattern_in_brackets(false);
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.LEFT_JUSTIFY_TFT;
       tf.num = n;
       tf.data_subformat = pattern;
@@ -430,16 +454,20 @@ public class TraceFormats {
         format_string_error_message = "Expected number with %right";
         return null;
       }
-      int n = 0;
-      while (Character.isDigit(format.charAt(offset))) n = 10 * n + (format.charAt(offset++) - '0');
+      var n = 0;
+      while (Character.isDigit(format.charAt(offset))) {
+        n = 10 * n + (format.charAt(offset++) - '0');
+      }
       if (format.charAt(offset) != ',') {
         format_string_error_message = "Expected ',' after number in %right";
         return null;
       }
       offset++;
       TraceFormat pattern = parse_pattern_in_brackets(false);
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.RIGHT_JUSTIFY_TFT;
       tf.num = n;
       tf.data_subformat = pattern;
@@ -449,8 +477,10 @@ public class TraceFormats {
     if (format.startsWith("%rsd", offset)) {
       offset += 4;
       TraceFormat pattern = parse_pattern_in_brackets(true);
-      if (format_string_error_message != null) return null;
-      TraceFormat tf = new TraceFormat();
+      if (format_string_error_message != null) {
+        return null;
+      }
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.REPEAT_SUBGOAL_DEPTH_TFT;
       tf.data_subformat = pattern;
       return tf;
@@ -458,7 +488,7 @@ public class TraceFormats {
 
     if (format.startsWith("%nl", offset)) {
       offset += 3;
-      TraceFormat tf = new TraceFormat();
+      var tf = new TraceFormat();
       tf.type = TraceFormatType.NEWLINE_TFT;
       return tf;
     }
@@ -471,23 +501,23 @@ public class TraceFormats {
   /**
    * returns the trace format matching a given type restriction and/or name restriction, or NIL if
    * no such format has been specified.
-   *
-   * <p>trace.cpp:665:lookup_trace_format
-   *
-   * @param stack_trace
-   * @param type_restriction
-   * @param name_restriction
    */
   private TraceFormat lookup_trace_format(
       boolean stack_trace, TraceFormatRestriction type_restriction, SymbolImpl name_restriction) {
 
     if (name_restriction != null) {
-      if (stack_trace) return stack_tr_ht.get(type_restriction).get(name_restriction);
-      else return object_tr_ht.get(type_restriction).get(name_restriction);
+      if (stack_trace) {
+        return stack_tr_ht.get(type_restriction).get(name_restriction);
+      } else {
+        return object_tr_ht.get(type_restriction).get(name_restriction);
+      }
     }
     /* --- no name restriction --- */
-    if (stack_trace) return stack_tf_for_anything.get(type_restriction);
-    else return object_tf_for_anything.get(type_restriction);
+    if (stack_trace) {
+      return stack_tf_for_anything.get(type_restriction);
+    } else {
+      return object_tf_for_anything.get(type_restriction);
+    }
   }
 
   /**
@@ -504,23 +534,21 @@ public class TraceFormats {
   public boolean remove_trace_format(
       boolean stack_trace, TraceFormatRestriction type_restriction, SymbolImpl name_restriction) {
     if (name_restriction != null) {
-      if (stack_trace) return null != stack_tr_ht.get(type_restriction).remove(name_restriction);
-      else return null != object_tr_ht.get(type_restriction).remove(name_restriction);
+      if (stack_trace) {
+        return null != stack_tr_ht.get(type_restriction).remove(name_restriction);
+      } else {
+        return null != object_tr_ht.get(type_restriction).remove(name_restriction);
+      }
     }
     /* --- no name restriction --- */
-    if (stack_trace) return null != stack_tf_for_anything.remove(type_restriction);
-    else return null != object_tf_for_anything.remove(type_restriction);
+    if (stack_trace) {
+      return null != stack_tf_for_anything.remove(type_restriction);
+    } else {
+      return null != object_tf_for_anything.remove(type_restriction);
+    }
   }
 
-  /**
-   * trace.cpp:727:add_trace_format
-   *
-   * @param stack_trace
-   * @param type_restriction
-   * @param name_restriction
-   * @param format_string
-   * @return true on success
-   */
+  /** @return true on success */
   public boolean add_trace_format(
       boolean stack_trace,
       TraceFormatRestriction type_restriction,
@@ -529,20 +557,28 @@ public class TraceFormats {
 
     // parse the format string into a trace_format
     TraceFormat new_tf = parse_format_string(format_string);
-    if (new_tf == null) return false;
+    if (new_tf == null) {
+      return false;
+    }
 
     // first remove any existing trace format with same conditions
     remove_trace_format(stack_trace, type_restriction, name_restriction);
 
     /* --- now add the new one --- */
     if (name_restriction != null) {
-      if (stack_trace) stack_tr_ht.get(type_restriction).put(name_restriction, new_tf);
-      else object_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+      if (stack_trace) {
+        stack_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+      } else {
+        object_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+      }
       return true;
     }
     /* --- no name restriction --- */
-    if (stack_trace) stack_tf_for_anything.put(type_restriction, new_tf);
-    else object_tf_for_anything.put(type_restriction, new_tf);
+    if (stack_trace) {
+      stack_tf_for_anything.put(type_restriction, new_tf);
+    } else {
+      object_tf_for_anything.put(type_restriction, new_tf);
+    }
 
     return true;
   }
@@ -556,11 +592,6 @@ public class TraceFormats {
    *
    * <p>trace.cpp:939:add_values_of_attribute_path
    *
-   * @param object
-   * @param path
-   * @param pathIndex
-   * @param result
-   * @param recursive
    * @param count the current count
    * @return the new count
    */
@@ -586,25 +617,31 @@ public class TraceFormats {
     /* --- not at end of path yet --- */
     /* --- can't follow any more path segments off of a non-identifier --- */
     IdentifierImpl id = object.asIdentifier();
-    if (id == null) return count;
+    if (id == null) {
+      return count;
+    }
 
     // call this routine recursively on any wme matching the first segment
     //   of the attribute path
-    for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null;
-        w != null;
-        w = w.next)
-      if (w.attr == path.get(pathIndex))
+    for (WmeImpl w :
+        id.goalInfo != null ? id.goalInfo.getImpasseWmes() : new ArrayList<WmeImpl>()) {
+      if (w.attr == path.get(pathIndex)) {
         count =
             add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
-      if (w.attr == path.get(pathIndex))
+      }
+    }
+    for (WmeImpl w : id.getInputWmes()) {
+      if (w.attr == path.get(pathIndex)) {
         count =
             add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
-    Slot s = Slot.find_slot(id, path.get(pathIndex));
+      }
+    }
+    var s = Slot.find_slot(id, path.get(pathIndex));
     if (s != null) {
-      for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+      for (WmeImpl w : s.getWmes()) {
         count =
             add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+      }
     }
     return count;
   }
@@ -641,14 +678,6 @@ public class TraceFormats {
    * growable_string. If "print_attributes" is TRUE, then "^att-name" is included. If "recursive" is
    * TRUE, the values are printed recursively as objects, rather than as a simple atomic value. If
    * the given path is NIL, then all values of all attributes of the given object are printed.
-   *
-   * <p>trace.cpp:1028:add_trace_for_attribute_path
-   *
-   * @param object
-   * @param path
-   * @param result
-   * @param print_attributes
-   * @param recursive
    */
   private void add_trace_for_attribute_path(
       SymbolImpl object,
@@ -656,24 +685,32 @@ public class TraceFormats {
       StringBuilder result,
       boolean print_attributes,
       boolean recursive) {
-    StringBuilder values = new StringBuilder();
+    var values = new StringBuilder();
 
     if (path.isEmpty()) {
       IdentifierImpl id = object.asIdentifier();
-      if (id == null) return;
-      for (Slot s = id.slots; s != null; s = s.next)
-        for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+      if (id == null) {
+        return;
+      }
+      for (Slot s = id.slots; s != null; s = s.next) {
+        for (WmeImpl w : s.getWmes()) {
           add_trace_for_wme(values, w, print_attributes, recursive);
-      for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null;
-          w != null;
-          w = w.next) add_trace_for_wme(values, w, print_attributes, recursive);
-      for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+        }
+      }
+      for (WmeImpl w :
+          id.goalInfo != null ? id.goalInfo.getImpasseWmes() : new ArrayList<WmeImpl>()) {
         add_trace_for_wme(values, w, print_attributes, recursive);
-      if (values.length() > 0) result.append(values.substring(1));
+      }
+      for (WmeImpl w : id.getInputWmes()) {
+        add_trace_for_wme(values, w, print_attributes, recursive);
+      }
+      if (values.length() > 0) {
+        result.append(values.substring(1));
+      }
       return;
     }
 
-    int count = 0;
+    var count = 0;
     count = add_values_of_attribute_path(object, path, 0, values, recursive, count);
     if (count == 0) {
       this.found_undefined = true;
@@ -685,25 +722,25 @@ public class TraceFormats {
       for (Iterator<Symbol> it = path.iterator(); it.hasNext(); ) {
         final Symbol c = it.next();
         result.append(String.format("%s", c));
-        if (it.hasNext()) result.append(".");
+        if (it.hasNext()) {
+          result.append(".");
+        }
       }
       result.append(" ");
     }
-    if (values.length() > 0) result.append(values.substring(1));
+    if (values.length() > 0) {
+      result.append(values.substring(1));
+    }
   }
 
   /**
    * This is the main routine here. It returns a growable_string, given a trace format list (the
    * format to use) and an object (the object being printed).
    *
-   * <p>trace.cpp:1086:trace_format_list_to_string
-   *
-   * @param tf
-   * @param object
    * @return object formatted as a string
    */
   public String trace_format_list_to_string(TraceFormat tf, SymbolImpl object) {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
 
     for (; tf != null; tf = tf.next) {
       switch (tf.type) {
@@ -737,7 +774,7 @@ public class TraceFormats {
           if (tparams.current_s == null) {
             found_undefined = true;
           } else {
-            String temp_gs = object_to_trace_string(tparams.current_s);
+            var temp_gs = object_to_trace_string(tparams.current_s);
             result.append(temp_gs);
           }
           break;
@@ -745,7 +782,7 @@ public class TraceFormats {
           if (tparams.current_o == null) {
             found_undefined = true;
           } else {
-            String temp_gs = object_to_trace_string(tparams.current_o);
+            var temp_gs = object_to_trace_string(tparams.current_o);
             result.append(temp_gs);
           }
           break;
@@ -773,24 +810,26 @@ public class TraceFormats {
           {
             boolean saved_found_undefined = found_undefined;
             found_undefined = false;
-            String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
-            if (!found_undefined) result.append(temp_gs);
+            var temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+            if (!found_undefined) {
+              result.append(temp_gs);
+            }
             found_undefined = saved_found_undefined;
           }
           break;
 
         case LEFT_JUSTIFY_TFT:
           {
-            String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+            var temp_gs = trace_format_list_to_string(tf.data_subformat, object);
             result.append(temp_gs);
-            for (int i = tf.num - temp_gs.length(); i > 0; i--) result.append(" ");
+            result.append(" ".repeat(Math.max(0, tf.num - temp_gs.length())));
           }
           break;
 
         case RIGHT_JUSTIFY_TFT:
           {
-            String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
-            for (int i = tf.num - temp_gs.length(); i > 0; i--) result.append(" ");
+            var temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+            result.append(" ".repeat(Math.max(0, tf.num - temp_gs.length())));
             result.append(temp_gs);
           }
           break;
@@ -805,8 +844,9 @@ public class TraceFormats {
 
         case REPEAT_SUBGOAL_DEPTH_TFT:
           if (tparams.current_s != null) {
-            String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
-            for (int i = tparams.current_s.getLevel() - 1; i > 0; i--) result.append(temp_gs);
+            var temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+            result.append(
+                String.valueOf(temp_gs).repeat(Math.max(0, tparams.current_s.getLevel() - 1)));
           } else {
             found_undefined = true;
           }
@@ -823,41 +863,35 @@ public class TraceFormats {
     return result.toString();
   }
 
-  /**
-   * trace.cpp:1257:find_appropriate_trace_format
-   *
-   * @param stack_trace
-   * @param type
-   * @param name
-   */
   private TraceFormat find_appropriate_trace_format(
       boolean stack_trace, TraceFormatRestriction type, SymbolImpl name) {
     // first try to find the exact one
     TraceFormat tf = lookup_trace_format(stack_trace, type, name);
-    if (tf != null) return tf;
+    if (tf != null) {
+      return tf;
+    }
 
     // failing that, try ignoring the type but retaining the name
     if (type != TraceFormatRestriction.FOR_ANYTHING_TF) {
       tf = lookup_trace_format(stack_trace, TraceFormatRestriction.FOR_ANYTHING_TF, name);
-      if (tf != null) return tf;
+      if (tf != null) {
+        return tf;
+      }
     }
 
     // failing that, try ignoring the name but retaining the type
     if (name != null) {
       tf = lookup_trace_format(stack_trace, type, null);
-      if (tf != null) return tf;
+      if (tf != null) {
+        return tf;
+      }
     }
 
     // last resort: find a format that applies to anything at all
     return lookup_trace_format(stack_trace, TraceFormatRestriction.FOR_ANYTHING_TF, null);
   }
 
-  /**
-   * trace.cpp:1283:object_to_trace_string
-   *
-   * @param object
-   * @return trace string
-   */
+  /** @return trace string */
   private String object_to_trace_string(SymbolImpl object) {
     // If it's not an identifier, just print it as an atom. Also, if it's
     // already being printed, print it as an atom to avoid getting into an
@@ -872,9 +906,13 @@ public class TraceFormats {
 
     // determine the type and name of the object
     TraceFormatRestriction type_of_object;
-    if (id.isGoal()) type_of_object = TraceFormatRestriction.FOR_STATES_TF;
-    else if (id.isa_operator != 0) type_of_object = TraceFormatRestriction.FOR_OPERATORS_TF;
-    else type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
+    if (id.isGoal()) {
+      type_of_object = TraceFormatRestriction.FOR_STATES_TF;
+    } else if (id.isa_operator != 0) {
+      type_of_object = TraceFormatRestriction.FOR_OPERATORS_TF;
+    } else {
+      type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
+    }
 
     SymbolImpl name = find_name_of_object(object, predefinedSyms.name_symbol);
 
@@ -884,7 +922,7 @@ public class TraceFormats {
     // now call trace_format_list_to_string()
     String gs = null;
     if (tf != null) {
-      TracingParameters saved_tparams = new TracingParameters(tparams);
+      var saved_tparams = new TracingParameters(tparams);
       tparams.current_s = tparams.current_o = null;
       tparams.allow_cycle_counts = false;
       gs = trace_format_list_to_string(tf, object);
@@ -898,15 +936,7 @@ public class TraceFormats {
     return gs;
   }
 
-  /**
-   * trace.cpp:1330:selection_to_trace_string
-   *
-   * @param object
-   * @param current_state
-   * @param selection_type
-   * @param allow_cycle_counts
-   * @return trace string
-   */
+  /** @return trace string */
   private String selection_to_trace_string(
       SymbolImpl object,
       IdentifierImpl current_state,
@@ -919,20 +949,23 @@ public class TraceFormats {
     TraceFormat tf = find_appropriate_trace_format(true, selection_type, name);
 
     /* --- if there's no applicable trace format, print nothing --- */
-    if (tf == null) return "";
+    if (tf == null) {
+      return "";
+    }
 
     /* --- save/restore tparams, and call trace_format_list_to_string() --- */
-    TracingParameters saved_tparams = new TracingParameters(tparams);
+    var saved_tparams = new TracingParameters(tparams);
     tparams.current_s = tparams.current_o = null;
     if (current_state != null) {
       tparams.current_s = current_state;
-      if (current_state.goalInfo.operator_slot.getWmes() != null) {
+      if (!current_state.goalInfo.operator_slot.getWmes().isEmpty()) {
         // TODO Is it safe to assume this is an IdentifierImpl?
-        tparams.current_o = current_state.goalInfo.operator_slot.getWmes().value.asIdentifier();
+        tparams.current_o =
+            current_state.goalInfo.operator_slot.getWmes().get(0).value.asIdentifier();
       }
     }
     tparams.allow_cycle_counts = allow_cycle_counts;
-    String gs = trace_format_list_to_string(tf, object);
+    var gs = trace_format_list_to_string(tf, object);
     tparams = saved_tparams;
 
     return gs;
@@ -949,7 +982,7 @@ public class TraceFormats {
    */
   public void print_object_trace(Writer writer, SymbolImpl object) throws IOException {
     tf_printing_tc = DefaultMarker.create();
-    String gs = object_to_trace_string(object);
+    var gs = object_to_trace_string(object);
     writer.append(gs);
   }
 
@@ -958,15 +991,6 @@ public class TraceFormats {
    * "slot_type" (one of FOR_OPERATORS_TF, etc.), and a flag indicating whether to allow %dc and %ec
    * escapes (this flag should normally be TRUE for watch 0 traces but FALSE during a "pgs"
    * command). It prints the trace for that context object.
-   *
-   * <p>trace.cpp:1459:print_stack_trace
-   *
-   * @param writer
-   * @param object
-   * @param state
-   * @param slot_type
-   * @param allow_cycle_counts
-   * @throws IOException
    */
   public void print_stack_trace(
       Writer writer,
@@ -976,31 +1000,24 @@ public class TraceFormats {
       boolean allow_cycle_counts)
       throws IOException {
     tf_printing_tc = DefaultMarker.create();
-    String gs = selection_to_trace_string(object, state, slot_type, allow_cycle_counts);
+    var gs = selection_to_trace_string(object, state, slot_type, allow_cycle_counts);
     writer.append(gs);
 
     // RPM 5/05
     // print_stack_trace_xml(thisAgent, object, state, slot_type, allow_cycle_counts);
   }
 
-  /**
-   * TODO This should probably go somewhere else
-   *
-   * <p>decide.cpp:2456:print_lowest_slot_in_context_stack
-   *
-   * @param writer
-   * @throws IOException
-   */
+  /** TODO This should probably go somewhere else */
   public void print_lowest_slot_in_context_stack(Writer writer, IdentifierImpl bottom_goal)
       throws IOException {
     // Note: There was commented out code from Bob Wray in 1997 here in csoar about
     // "this doesn't work yet so for now just print the last selection".
     // Presumably, whatever it was supposed to do has been lost to the ages.
 
-    if (bottom_goal.goalInfo.operator_slot.getWmes() != null) {
+    if (!bottom_goal.goalInfo.operator_slot.getWmes().isEmpty()) {
       print_stack_trace(
           writer,
-          bottom_goal.goalInfo.operator_slot.getWmes().value,
+          bottom_goal.goalInfo.operator_slot.getWmes().get(0).value,
           bottom_goal,
           TraceFormatRestriction.FOR_OPERATORS_TF,
           true);
@@ -1023,9 +1040,6 @@ public class TraceFormats {
    * a utility function for finding the value of the ^name attribute on a given object (symbol). It
    * returns the name, or NIL if the object has no name.
    *
-   * <p>wmem.cpp:295:find_name_of_object
-   *
-   * @param object
    * @return the name of the object
    */
   private static SymbolImpl find_name_of_object(SymbolImpl object, StringSymbolImpl name_symbol) {
@@ -1033,10 +1047,10 @@ public class TraceFormats {
     if (id == null) {
       return null;
     }
-    Slot s = Slot.find_slot(id, name_symbol);
+    var s = Slot.find_slot(id, name_symbol);
     if (s == null) {
       return null;
     }
-    return s.getWmes() != null ? s.getWmes().value : null;
+    return s.getWmes().isEmpty() ? null : s.getWmes().get(0).value;
   }
 }
