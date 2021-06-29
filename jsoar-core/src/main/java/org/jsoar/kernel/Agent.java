@@ -93,7 +93,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   @Getter @Setter @NonNull
   private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
 
-  private Printer printer = new Printer(new NullWriter());
+  private final Printer printer = new Printer(new NullWriter());
 
   /** The random number generator used throughout the agent */
   private final Random random = new Random();
@@ -166,7 +166,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
    */
   private final List<Object> adaptables =
       Arrays.asList(
-          (Object) printer,
+          printer,
           trace,
           decisionManip,
           exploration,
@@ -179,7 +179,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
           predefinedSyms.getSyms(),
           // TODO: Remove this from adapter and use getter instead
           decider,
-          printer,
+          // printer,
           rhsFunctions,
           workingMemory,
           tempMemory,
@@ -300,8 +300,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   /**
    * Open the debugger using the currently registered {@link DebuggerProvider}. Convenience method,
    * equivalent to {@code getDebuggerProvider().openDebugger(this)}.
-   *
-   * @throws SoarException
    */
   public void openDebugger() throws SoarException {
     getDebuggerProvider().openDebugger(this);
@@ -310,9 +308,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   /**
    * Open the debugger using the currently registered {@link DebuggerProvider}. Convenience method,
    * equivalent to {@code getDebuggerProvider().openDebuggerAndWait(this)}.
-   *
-   * @throws SoarException
-   * @throws InterruptedException
    */
   public void openDebuggerAndWait() throws SoarException, InterruptedException {
     getDebuggerProvider().openDebuggerAndWait(this);
@@ -369,8 +364,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   private SoarCommandInterpreter createInterpreter(String name) {
     final ServiceLoader<SoarCommandInterpreterFactory> loader =
         ServiceLoader.load(SoarCommandInterpreterFactory.class);
-    for (Iterator<SoarCommandInterpreterFactory> it = loader.iterator(); it.hasNext(); ) {
-      final SoarCommandInterpreterFactory factory = it.next();
+    for (final SoarCommandInterpreterFactory factory : loader) {
       if (name == null || name.equals(factory.getName())) {
         return factory.create(this);
       }
@@ -500,7 +494,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
     }
 
     final var letter = Character.toUpperCase(t.charAt(0));
-    long number = 1;
+    long number;
     try {
       number = Long.parseLong(t.substring(1));
     } catch (NumberFormatException e) {
@@ -518,16 +512,12 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
     return decider.getGoalStack();
   }
 
-  /**
-   * sml_KernelHelpers.cpp:83:PrintStackTrace
-   *
-   * @param states
-   * @param operators
-   */
+  /** sml_KernelHelpers.cpp:83:PrintStackTrace */
   public void printStackTrace(boolean states, boolean operators) {
     if (!states && !operators) {
       states = operators = true;
     }
+
     // We don't want to keep printing forever (in case we're in a state no change cascade).
     final var maxStates = 500;
     var stateCount = 0;
@@ -544,10 +534,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
           traceFormats.print_stack_trace(writer, g, g, TraceFormatRestriction.FOR_STATES_TF, false);
           writer.append('\n');
         }
-        if (operators && g.goalInfo.operator_slot.getWmes() != null) {
+        if (operators && !g.goalInfo.operator_slot.getWmes().isEmpty()) {
           traceFormats.print_stack_trace(
               writer,
-              g.goalInfo.operator_slot.getWmes().value,
+              g.goalInfo.operator_slot.getWmes().get(0).value,
               g,
               TraceFormatRestriction.FOR_OPERATORS_TF,
               false);
@@ -913,7 +903,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
     a.getInterpreter().source(new File("../performance/count-test-single.soar"));
     // a.getInterpreter().source(new File("../performance/FunctionalTests_testArithmetic.soar"));
     // a.getInterpreter().source(new File("c:/veteran.soar"));
-    System.out.println("\nLoaded " + a.getProductions().getProductionCount() + " rules");
+    logger.info("\nLoaded " + a.getProductions().getProductionCount() + " rules");
     a.getPrinter().flush();
     a.runFor(20000, RunType.DECISIONS);
     // a.runFor(40000, RunType.FOREVER);
@@ -924,7 +914,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController {
   public static void main(String[] args) throws SoarException, InterruptedException {
     final List<Agent> agents = new ArrayList<>();
     for (var i = 0; i < 1; ++i) {
-      System.out.print("\n#" + (i + 1));
+      logger.info("\n#" + (i + 1));
       agents.add(agent());
     }
     while (true) {
