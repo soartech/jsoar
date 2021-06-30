@@ -17,7 +17,6 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -114,12 +113,6 @@ public class StructuredPreferencesCommand {
     private final String source;
     private final List<Wme> sourceWmes;
 
-    /**
-     * @param pref
-     * @param osupported
-     * @param source
-     * @param sourceWmes
-     */
     private ResultEntry(
         Preference pref,
         String valueTrace,
@@ -188,7 +181,7 @@ public class StructuredPreferencesCommand {
     }
 
     final IdentifierImpl id = (IdentifierImpl) queryId;
-    final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+    final List<ResultEntry> entries = new ArrayList<>();
 
     Slot s = Slot.find_slot(id, queryAttr);
     if (s == null) {
@@ -199,7 +192,7 @@ public class StructuredPreferencesCommand {
     }
 
     final Result r =
-        new Result(queryId, queryAttr, null, entries, new ArrayList<Wme>(), new ArrayList<Wme>());
+        new Result(queryId, queryAttr, null, entries, new ArrayList<>(), new ArrayList<>());
 
     PrintPreferencesCommand ppc = new PrintPreferencesCommand();
     ppc.setAttr(queryAttr);
@@ -225,7 +218,7 @@ public class StructuredPreferencesCommand {
       throw new IllegalArgumentException("valueId");
     }
 
-    final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+    final List<ResultEntry> entries = new ArrayList<>();
     for (Wme w : agent.getAllWmesInRete()) {
       if (w.getValue() == valueId) {
         final Iterator<Preference> it = w.getPreferences();
@@ -235,7 +228,7 @@ public class StructuredPreferencesCommand {
         }
       }
     }
-    Result r = new Result(null, null, valueId, entries, new ArrayList<Wme>(), new ArrayList<Wme>());
+    Result r = new Result(null, null, valueId, entries, new ArrayList<>(), new ArrayList<>());
 
     PrintPreferencesCommand ppc = new PrintPreferencesCommand();
     ppc.setObject(false);
@@ -248,23 +241,20 @@ public class StructuredPreferencesCommand {
 
   private Result getPreferencesForObject(Agent agent, Identifier idIn) {
     final IdentifierImpl id = (IdentifierImpl) idIn;
-    final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+    final List<ResultEntry> entries = new ArrayList<>();
     // step thru dll of slots for ID, printing prefs for each one
     for (Slot s = id.slots; s != null; s = s.next) {
       for (Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot) {
         entries.add(createEntry(agent, p));
       }
     }
-    final List<Wme> impasseWmes = new ArrayList<Wme>();
-    for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null;
-        w != null;
-        w = w.next) {
-      impasseWmes.add(w);
+
+    final List<Wme> impasseWmes = new ArrayList<>();
+    if (id.goalInfo != null) {
+      impasseWmes.addAll(id.goalInfo.getImpasseWmes());
     }
-    final List<Wme> ioWmes = new ArrayList<Wme>();
-    for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) {
-      ioWmes.add(w);
-    }
+
+    final List<Wme> ioWmes = new ArrayList<>(id.getInputWmes());
 
     Result r = new Result(idIn, null, null, entries, impasseWmes, ioWmes);
 
@@ -280,8 +270,7 @@ public class StructuredPreferencesCommand {
   private ResultEntry createEntry(Agent agent, Preference pref) {
     final TraceFormats traceFormats = Adaptables.adapt(agent, TraceFormats.class);
     final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
-    final String source =
-        pref.inst.prod != null ? pref.inst.prod.getName().toString() : "[dummy production]";
+    final String source = pref.inst.prod != null ? pref.inst.prod.getName() : "[dummy production]";
     final List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
 
     final String valueTrace;
@@ -299,10 +288,6 @@ public class StructuredPreferencesCommand {
     return new ResultEntry(pref, valueTrace, pref.o_supported, source, sourceWmes);
   }
 
-  /**
-   * @param r
-   * @param ppc
-   */
   private void addPrintResult(Agent agent, Result r, PrintPreferencesCommand ppc) {
     ppc.setPrintProduction(true);
     ppc.setWmeTraceType(WmeTraceType.FULL);
