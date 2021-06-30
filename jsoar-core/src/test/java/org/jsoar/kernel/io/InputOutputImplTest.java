@@ -345,12 +345,6 @@ public class InputOutputImplTest extends JSoarTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testRemoveInputWmeInternalThrowsExceptionIfWmeIsNull() {
-    InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
-    io.removeInputWmeInternal(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testUpdateInputWmeInternalThrowsExceptionIfWmeIsNull() {
     InputOutputImpl io = new InputOutputImpl(mock(Agent.class));
     io.updateInputWme(null, mock(Symbol.class));
