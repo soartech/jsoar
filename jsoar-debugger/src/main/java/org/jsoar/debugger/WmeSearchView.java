@@ -83,13 +83,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         
         p.add(new JScrollPane(wmeTable), BorderLayout.CENTER);
         
-        final ActionListener action = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                doSearch();
-            }
-        };
+        final ActionListener action = e -> doSearch();
         
         final JPanel searchPanel = new JPanel();
         searchPanel.add(new JLabel("Pattern: ("));
@@ -205,25 +199,15 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         final String attr = attrField.getText().trim();
         final String value = valueField.getText().trim();
         
-        final Callable<List<Wme>> call = new Callable<List<Wme>>() {
-
-            @Override
-            public List<Wme> call() throws Exception
-            {
-                final Agent agent = debugger.getAgent().getAgent();
-                return Wmes.search(agent, id, attr, value);
-            }
+        final Callable<List<Wme>> call = () -> {
+            final Agent agent = debugger.getAgent().getAgent();
+            return Wmes.search(agent, id, attr, value);
         };
         
-        final CompletionHandler<List<Wme>> done = new CompletionHandler<List<Wme>>() {
-
-            @Override
-            public void finish(List<Wme> result)
-            {
-                wmeModel.setWmes(result);
-                description.setText(String.format(
-                   "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));
-            }
+        final CompletionHandler<List<Wme>> done =  result -> {
+            wmeModel.setWmes(result);
+            description.setText(String.format(
+               "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));
         };
         
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(done));

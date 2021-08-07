@@ -31,30 +31,26 @@ public class CommandsResource extends BaseAgentResource
         final Form form = new Form(entity);
         final String command = form.getFirstValue("command");
         
-        final Callable<String> callable = new Callable<String>()
+        final Callable<String> callable = () ->
         {
-            @Override
-            public String call() throws Exception
+            final Printer printer = agent.getPrinter();
+            printer.startNewLine().print(agent.getName() + "> " + command);
+            String result;
+            try
             {
-                final Printer printer = agent.getPrinter();
-                printer.startNewLine().print(agent.getName() + "> " + command);
-                String result;
-                try
+                result = agent.getInterpreter().eval(command);
+                if(result != null && result.length() != 0)
                 {
-                    result = agent.getInterpreter().eval(command);
-                    if(result != null && result.length() != 0)
-                    {
-                        printer.startNewLine().print(result).flush();
-                    }
+                    printer.startNewLine().print(result).flush();
                 }
-                catch (SoarException e)
-                {
-                    printer.startNewLine().error(e.getMessage()).flush();
-                    throw e;
-                }
-                printer.flush();
-                return result;
             }
+            catch (SoarException e)
+            {
+                printer.startNewLine().error(e.getMessage()).flush();
+                throw e;
+            }
+            printer.flush();
+            return result;
         };
         
         executeCallable(callable);

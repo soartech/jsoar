@@ -7,7 +7,6 @@ package org.jsoar.debugger.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.concurrent.Callable;
 
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
@@ -74,23 +73,21 @@ public class SourceFileAction extends AbstractDebuggerAction
         JSoarDebugger.getPreferences().put("lastSourceDir", lastDir);
         
         final SoarCommandInterpreter interp = getApplication().getAgent().getInterpreter();
-        getApplication().getAgent().execute(new Callable<Void>() {
-
-            @Override
-            public Void call()
+        
+        getApplication().getAgent().execute(() ->
+        {
+            try
             {
-                try
-                {
-                    interp.source(f);
-                }
-                catch (SoarException e)
-                {
-                    // TODO this is a little smelly.
-                    getApplication().getAgent().getPrinter().error(e.getMessage());
-                }
-                getApplication().getAgent().getPrinter().flush();
-                return null;
-            }}, getApplication().newUpdateCompleter(false));
+                interp.source(f);
+            }
+            catch (SoarException e)
+            {
+                // TODO this is a little smelly.
+                getApplication().getAgent().getPrinter().error(e.getMessage());
+            }
+            getApplication().getAgent().getPrinter().flush();
+            return null;
+        }, getApplication().newUpdateCompleter(false));
         
     }
 

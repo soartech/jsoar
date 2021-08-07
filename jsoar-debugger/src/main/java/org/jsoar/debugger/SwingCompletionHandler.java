@@ -42,13 +42,7 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T>
         }
         else
         {
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run()
-                {
-                    inner.finish(result);
-                }});
+            SwingUtilities.invokeLater(() -> inner.finish(result));
         }
     }
 

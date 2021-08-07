@@ -70,23 +70,19 @@ public class ProductionsResource extends BaseAgentResource
     @Get("txt")
     public Representation getTextRepresentation()
     {
-        final Callable<String> callable = new Callable<String>()
+        final Callable<String> callable = () ->
         {
-            @Override
-            public String call() throws Exception
+            final StringWriter writer = new StringWriter();
+            final Printer printer = new Printer(writer);
+            printer.print("# Generated from JSoar agent at %s\n", new Date());
+            printer.print("# internal = %s\n", internal);
+            for(Production p : agent.getProductions().getProductions(null))
             {
-                final StringWriter writer = new StringWriter();
-                final Printer printer = new Printer(writer);
-                printer.print("# Generated from JSoar agent at %s\n", new Date());
-                printer.print("# internal = %s\n", internal);
-                for(Production p : agent.getProductions().getProductions(null))
-                {
-                    p.print(printer, internal);
-                    printer.startNewLine();
-                }
-                printer.flush();
-                return writer.toString();
+                p.print(printer, internal);
+                printer.startNewLine();
             }
+            printer.flush();
+            return writer.toString();
         };
         
         final String result = executeCallable(callable);

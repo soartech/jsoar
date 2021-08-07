@@ -13,8 +13,6 @@ import java.util.concurrent.SynchronousQueue;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,20 +46,16 @@ public class StartEventTest
         // and therefore requires synchronization for the assert.
         final BlockingQueue<Boolean> q = new SynchronousQueue<Boolean>();
         
-        agent.getEvents().addListener(StartEvent.class, new SoarEventListener()
+        agent.getEvents().addListener(StartEvent.class, event ->
         {
-            @Override
-            public void onEvent(SoarEvent event)
+            assertEquals(event.getClass(), StartEvent.class);
+            try
             {
-                assertEquals(event.getClass(), StartEvent.class);
-                try
-                {
-                    // This blocks until q.take below
-                    q.put(Boolean.TRUE);
-                }
-                catch (InterruptedException ignored)
-                {
-                }
+                // This blocks until q.take below
+                q.put(Boolean.TRUE);
+            }
+            catch (InterruptedException ignored)
+            {
             }
         });
 

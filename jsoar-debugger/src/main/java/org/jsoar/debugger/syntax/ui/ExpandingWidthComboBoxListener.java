@@ -179,13 +179,7 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
 
         if (child instanceof BasicComboPopup)
         {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    customizePopup((BasicComboPopup)child);
-                }
-            });
+            SwingUtilities.invokeLater(() -> customizePopup((BasicComboPopup)child));
         }
     }
 

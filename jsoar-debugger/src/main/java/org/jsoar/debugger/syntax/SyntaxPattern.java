@@ -108,6 +108,7 @@ public class SyntaxPattern {
         if (regex.contains("%aliases%")) {
             StringBuilder aliasesStr = new StringBuilder();
             SoarCommandInterpreter interpreter = debugger.getAgent().getInterpreter();
+            
             if (interpreter instanceof DefaultInterpreter) {
                 List<String> aliases = new ArrayList<>(((DefaultInterpreter) interpreter).getAliasStrings());
                 Collections.sort(aliases, new Comparator<String>() {

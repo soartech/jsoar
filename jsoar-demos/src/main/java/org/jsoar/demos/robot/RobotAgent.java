@@ -63,14 +63,11 @@ public class RobotAgent
         final String source = config.getProperty(robot.name + ".agent.source");
         if(source != null)
         {
-            final Callable<Void> call = new Callable<Void>() {
-
-                @Override
-                public Void call() throws Exception
-                {
-                    SoarCommands.source(agent.getInterpreter(), source);
-                    return null;
-                }};
+            final Callable<Void> call = () ->
+            {
+                SoarCommands.source(agent.getInterpreter(), source);
+                return null;
+            };
             this.agent.execute(call, null);
         }
     }

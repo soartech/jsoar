@@ -6,14 +6,13 @@
 package org.jsoar.kernel.tracing;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.events.PrintEvent;
 import org.jsoar.util.NullWriter;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 import org.junit.After;
 import org.junit.Before;
@@ -44,15 +43,7 @@ public class PrintEventWriterTest
     public void testPrintEventIsFiredOnFlush()
     {
         final AtomicReference<String> text = new AtomicReference<String>();
-        final SoarEventListener listener = new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                text.set(((PrintEvent) event).getText());
-            }
-        };
-        events.addListener(PrintEvent.class, listener);
+        events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         printer.print("abcdefghijk");
         assertNull(text.get());
@@ -64,15 +55,7 @@ public class PrintEventWriterTest
     public void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
     {
         final AtomicReference<String> text = new AtomicReference<String>();
-        final SoarEventListener listener = new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                text.set(((PrintEvent) event).getText());
-            }
-        };
-        events.addListener(PrintEvent.class, listener);
+        events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         assertNull(text.get());
         printer.flush();

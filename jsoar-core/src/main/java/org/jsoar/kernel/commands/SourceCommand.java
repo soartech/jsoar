@@ -18,7 +18,6 @@ import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.UrlTools;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
@@ -52,19 +51,15 @@ public class SourceCommand
     
     /* package */ TopLevelState topLevelState;
     /* package */ final SoarEventManager events;
-    /* package */ final SoarEventListener eventListener = new SoarEventListener()
+    /* package */ final SoarEventListener eventListener = event ->
     {
-        @Override
-        public void onEvent(SoarEvent event)
+        if(event instanceof ProductionAddedEvent)
         {
-            if(event instanceof ProductionAddedEvent)
-            {
-                topLevelState.productionAdded(((ProductionAddedEvent) event).getProduction());
-            }
-            else if(event instanceof ProductionExcisedEvent)
-            {
-                topLevelState.productionExcised(((ProductionExcisedEvent) event).getProduction());
-            }
+            topLevelState.productionAdded(((ProductionAddedEvent) event).getProduction());
+        }
+        else if(event instanceof ProductionExcisedEvent)
+        {
+            topLevelState.productionExcised(((ProductionExcisedEvent) event).getProduction());
         }
     };
     /* package */ String[] lastTopLevelCommand = null;

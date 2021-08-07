@@ -10,11 +10,8 @@ import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,16 +97,12 @@ public class SyntaxConfigurator {
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
             comp.putClientProperty("JComponent.sizeVariant", "large");
-            comp.addDeleteButtonListener(new ActionListener()
+            comp.addDeleteButtonListener(e ->
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    syntaxList.remove(comp);
-                    syntaxList.remove(sep);
-                    settings.getSyntaxPatterns().remove(pattern);
-                    onSyntaxChanged();
-                }
+                syntaxList.remove(comp);
+                syntaxList.remove(sep);
+                settings.getSyntaxPatterns().remove(pattern);
+                onSyntaxChanged();
             });
             syntaxList.add(comp);
 
@@ -148,123 +141,98 @@ public class SyntaxConfigurator {
         frame.getContentPane().add(panel);
         frame.pack();
 
-        btnAddRegex.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final SyntaxPattern newPattern = new SyntaxPattern();
-                settings.getSyntaxPatterns().add(newPattern);
-                final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, settings.componentStyles.keySet(), debugger);
-                final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+        btnAddRegex.addActionListener(e ->
+        {
+            final SyntaxPattern newPattern = new SyntaxPattern();
+            settings.getSyntaxPatterns().add(newPattern);
+            final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, settings.componentStyles.keySet(), debugger);
+            final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 
-                comp.addDeleteButtonListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+            comp.addDeleteButtonListener(e1 ->
+            {
+                syntaxList.remove(comp);
+                syntaxList.remove(sep);
+                settings.getSyntaxPatterns().remove(newPattern);
+                onSyntaxChanged();
+            });
+            syntaxList.add(sep, syntaxList.getComponentCount() - 1);
+            syntaxList.add(comp, syntaxList.getComponentCount() - 1);
+            onSyntaxChanged();
+        });
+
+        btnAddStyle.addActionListener(e ->
+        {
+            TextStyle newStyle = new TextStyle();
+            String key = "new style";
+            int i = 1;
+            while (settings.getComponentStyles().containsKey(key)) {
+                key = "new style " + i;
+                i++;
+            }
+            settings.addTextStyle(key, newStyle);
+            addStyleComponent(key, newStyle);
+        });
+
+        btnReloadDefaults.addActionListener(e ->
+        {
+            int dialogResult = JOptionPane.showConfirmDialog(frame,"Are you sure you want to reload the default syntax? This will erase any customizations.","Are you sure?",JOptionPane.YES_NO_OPTION);
+            if (dialogResult == JOptionPane.YES_OPTION){
+                //reload the syntax
+                syntaxSettings = parent.reloadSyntaxDefaults();
+                syntaxList.removeAll();
+                LinkedList<SyntaxPattern> syntaxPatterns1 = syntaxSettings.getSyntaxPatterns();
+                Collections.sort(syntaxPatterns1, (p1, p2) -> p1.getComment().compareToIgnoreCase(p2.getComment()));
+                for (final SyntaxPattern pattern : syntaxPatterns1) {
+                    final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
+                    final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+                    syntaxList.add(sep);
+                    comp.putClientProperty("JComponent.sizeVariant", "large");
+                    comp.addDeleteButtonListener(e1 ->
+                    {
                         syntaxList.remove(comp);
                         syntaxList.remove(sep);
-                        settings.getSyntaxPatterns().remove(newPattern);
+                        syntaxSettings.getSyntaxPatterns().remove(pattern);
                         onSyntaxChanged();
-                    }
-                });
-                syntaxList.add(sep, syntaxList.getComponentCount() - 1);
-                syntaxList.add(comp, syntaxList.getComponentCount() - 1);
-                onSyntaxChanged();
-            }
-        });
+                    });
+                    syntaxList.add(comp);
 
-        btnAddStyle.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TextStyle newStyle = new TextStyle();
-                String key = "new style";
-                int i = 1;
-                while (settings.getComponentStyles().containsKey(key)) {
-                    key = "new style " + i;
-                    i++;
                 }
-                settings.addTextStyle(key, newStyle);
-                addStyleComponent(key, newStyle);
+                syntaxList.add(btnAddRegex);
+
+                styleList.removeAll();
+                styleList.setLayout(new VerticalLayout());
+                java.util.List<String> sortedKeys1 = new ArrayList<>(settings.getComponentStyles().keySet());
+                Collections.sort(sortedKeys1, String.CASE_INSENSITIVE_ORDER);
+                for (final String key : sortedKeys1) {
+                    TextStyle style = settings.getComponentStyles().get(key);
+                    addStyleComponent(key, style);
+                }
+                styleList.add(btnAddStyle);
+
             }
         });
 
-        btnReloadDefaults.addActionListener(new ActionListener()
+        btnApply.addActionListener(e -> parent.reformatText());
+
+        btnOk.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                int dialogResult = JOptionPane.showConfirmDialog(frame,"Are you sure you want to reload the default syntax? This will erase any customizations.","Are you sure?",JOptionPane.YES_NO_OPTION);
-                if (dialogResult == JOptionPane.YES_OPTION){
-                    //reload the syntax
-                    syntaxSettings = parent.reloadSyntaxDefaults();
-                    syntaxList.removeAll();
-                    LinkedList<SyntaxPattern> syntaxPatterns = syntaxSettings.getSyntaxPatterns();
-                    Collections.sort(syntaxPatterns, (p1, p2) -> p1.getComment().compareToIgnoreCase(p2.getComment()));
-                    for (final SyntaxPattern pattern : syntaxPatterns) {
-                        final SyntaxPatternComponent comp = new SyntaxPatternComponent(pattern, syntaxSettings.componentStyles.keySet(), debugger);
-                        final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-                        syntaxList.add(sep);
-                        comp.putClientProperty("JComponent.sizeVariant", "large");
-                        comp.addDeleteButtonListener(new ActionListener()
-                        {
-                            @Override
-                            public void actionPerformed(ActionEvent e)
-                            {
-                                syntaxList.remove(comp);
-                                syntaxList.remove(sep);
-                                syntaxSettings.getSyntaxPatterns().remove(pattern);
-                                onSyntaxChanged();
-                            }
-                        });
-                        syntaxList.add(comp);
-
-                    }
-                    syntaxList.add(btnAddRegex);
-
-                    styleList.removeAll();
-                    styleList.setLayout(new VerticalLayout());
-                    java.util.List<String> sortedKeys = new ArrayList<>(settings.getComponentStyles().keySet());
-                    Collections.sort(sortedKeys, String.CASE_INSENSITIVE_ORDER);
-                    for (final String key : sortedKeys) {
-                        TextStyle style = settings.getComponentStyles().get(key);
-                        addStyleComponent(key, style);
-                    }
-                    styleList.add(btnAddStyle);
-
-                }
-            }
+            parent.saveSyntax();
+            parent.reformatText();
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
 
-        btnApply.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parent.reformatText();
-            }
+        btnCancel.addActionListener(e ->
+        {
+            parent.reloadSyntax();
+            parent.reformatText();
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
 
-        btnOk.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parent.saveSyntax();
-                parent.reformatText();
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            }
-        });
-
-        btnCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                parent.reloadSyntax();
-                parent.reformatText();
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            }
-        });
-
-        ChangeListener colorChangeListener = new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
-                settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
-                settings.setSelection(btnSelectionColorDefault.getChooser().getColor());
-            }
+        ChangeListener colorChangeListener = e ->
+        {
+            settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
+            settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
+            settings.setSelection(btnSelectionColorDefault.getChooser().getColor());
         };
         btnBackgroundColorDefault.addChangeListener(colorChangeListener);
         btnForegroundColorDefault.addChangeListener(colorChangeListener);
@@ -275,14 +243,12 @@ public class SyntaxConfigurator {
         final String key = newStyleName;
         final TextStyleComponent comp = new TextStyleComponent(key, textStyle);
         final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-        comp.addDeleteButtonListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                styleList.remove(comp);
-                styleList.remove(sep);
-                syntaxSettings.getComponentStyles().remove(key);
-                onStyleChanged();
-            }
+        comp.addDeleteButtonListener(e ->
+        {
+            styleList.remove(comp);
+            styleList.remove(sep);
+            syntaxSettings.getComponentStyles().remove(key);
+            onStyleChanged();
         });
         comp.addNameChangeListener(new TextStyleComponent.NameChangeListener() {
             @Override

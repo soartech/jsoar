@@ -86,24 +86,14 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     private void getMatchOutput(final List<Object> selection)
     {
         Color background = highlighter.getPatterns().getBackground();
-        Callable<String> matchCall = new Callable<String>() {
-
-            @Override
-            public String call() throws Exception
+        Callable<String> matchCall = () -> safeGetMatchOutput(selection, background);
+        CompletionHandler<String> finish = result ->
+        {
+            if(result != null && result.length() != 0)
             {
-                return safeGetMatchOutput(selection, background);
-            }};
-        CompletionHandler<String> finish = new CompletionHandler<String>() {
-            @Override
-            public void finish(String result)
-            {
-                if(result != null && result.length() != 0)
-                {
-                    textArea.setText(result);
-                    textArea.setCaretPosition(0);
-                }
+                textArea.setText(result);
+                textArea.setCaretPosition(0);
             }
-            
         };
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }

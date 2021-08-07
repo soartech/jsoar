@@ -66,15 +66,10 @@ public class BaseAgentResource extends BaseResource
     {
         // Override html to do rendering in agent thread
         final LegilimensApplication app = getLegilimens();
-        final Callable<Representation> callable = new Callable<Representation>()
+        final Callable<Representation> callable = () ->
         {
-
-            @Override
-            public Representation call() throws Exception
-            {
-                Application.setCurrent(app);
-                return template(getTemplateName(templateName) + ".html.fmt", MediaType.TEXT_HTML);
-            }
+            Application.setCurrent(app);
+            return template(getTemplateName(templateName) + ".html.fmt", MediaType.TEXT_HTML);
         };
         
         try

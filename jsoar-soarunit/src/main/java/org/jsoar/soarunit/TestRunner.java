@@ -136,18 +136,14 @@ public class TestRunner
     
     public Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
     {
-        return new Callable<TestCaseResult>()
+        return () ->
         {
-            @Override
-            public TestCaseResult call() throws Exception
+            final TestCaseResult result = run(testCase, index);
+            if(handler != null) 
             {
-                final TestCaseResult result = run(testCase, index);
-                if(handler != null) 
-                {
-                    handler.handleTestCaseResult(result);
-                }
-                return result;
+                handler.handleTestCaseResult(result);
             }
+            return result;
         };
     }
    

@@ -15,7 +15,6 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
@@ -44,13 +43,7 @@ public class SoarBeanOutputManager
     public SoarBeanOutputManager(SoarEventManager eventManager)
     {
         this.eventManager = eventManager;
-        this.listener = new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                handleCommands((OutputEvent) event);
-            }};
+        this.listener = event -> handleCommands((OutputEvent) event);
         this.eventManager.addListener(OutputEvent.class, listener);
     }
     

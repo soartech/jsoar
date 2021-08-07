@@ -39,8 +39,6 @@ import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.properties.PropertyProvider;
@@ -196,26 +194,23 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
         this.agent.getProperties().setProvider(SoarProperties.IS_RUNNING, agentRunningProvider);
         
-        getEvents().addListener(RunLoopEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
+        getEvents().addListener(RunLoopEvent.class, event ->
+        {
+            // If the thread has been interrupted (due to shutdown), throw
+            // an exception to break us out of the agent run loop.
+            // TODO: It may be nice to have a more official way of doing this
+            // from the RunLoopEvent.
+            if(Thread.currentThread().isInterrupted()) 
             {
-                // If the thread has been interrupted (due to shutdown), throw
-                // an exception to break us out of the agent run loop.
-                // TODO: It may be nice to have a more official way of doing this
-                // from the RunLoopEvent.
-                if(Thread.currentThread().isInterrupted()) 
-                {
-                    throw new InterruptAgentException();
-                }
-                Runnable runnable = commands.poll();
-                while(runnable != null)
-                {
-                    runnable.run();
-                    runnable = commands.poll();
-                }                
-            }});
+                throw new InterruptAgentException();
+            }
+            Runnable runnable = commands.poll();
+            while(runnable != null)
+            {
+                runnable.run();
+                runnable = commands.poll();
+            }                
+        });
         
         waitManager.attach(this);
         waitFunction.attach(waitManager);
@@ -256,14 +251,11 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             this.agentThread.start();
         }
         
-        execute(new Callable<Void>()
-        {
-            public Void call() throws Exception
-            {
-                agent.initialize();
-                return null;
-            }
+        execute(() -> {
+            agent.initialize();
+            return null;
         }, done);
+        
         return this;
     }
     
@@ -379,25 +371,20 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
         agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, true, false);
         
-        execute(new Callable<Void>() {
-
-            @Override
-            public Void call()
+        execute(() -> {
+            getEvents().fireEvent(new StartEvent(agent));
+            try
             {
-                getEvents().fireEvent(new StartEvent(agent));
-                try
-                {
-                    agent.runFor(n, runType);
-                }
-                finally
-                {
-                    agentRunning.set(false);
-                    agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, false, true);
-                    getEvents().fireEvent(new StopEvent(agent));
-                }
-                return null;
+                agent.runFor(n, runType);
+            }
+            finally
+            {
+                agentRunning.set(false);
+                agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, false, true);
+                getEvents().fireEvent(new StopEvent(agent));
+            }
                 
-            }}, null);
+        });
     }
     
     /**
@@ -417,7 +404,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void stop()
     {
-        executeInternal(new Runnable() { public void run() { agent.stop(); } });
+        executeInternal(agent::stop);
     }
     
     // Convenience methods forwarded to equivalent {@link Agent} methods.
@@ -607,32 +594,29 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public <V> void execute(final Callable<V> callable, final CompletionHandler<V> finish)
     {
-        executeInternal(new Runnable() {
-
-            @Override
-            public void run()
+        executeInternal(() -> 
+        {
+            try
             {
-                try
+                final V result = callable.call();
+                if(finish != null)
                 {
-                    final V result = callable.call();
-                    if(finish != null)
-                    {
-                        finish.finish(result);
-                    }
+                    finish.finish(result);
                 }
-                catch(InterruptAgentException e)
-                {
-                    throw e;
-                }
-                catch(InterruptedException e)
-                {
-                    Thread.currentThread().interrupt();
-                }
-                catch (Exception e)
-                {
-                    processUncaughtException(e);
-                }
-            }});
+            }
+            catch(InterruptAgentException e1)
+            {
+                throw e1;
+            }
+            catch(InterruptedException e2)
+            {
+                Thread.currentThread().interrupt();
+            }
+            catch (Exception e3)
+            {
+                processUncaughtException(e3);
+            }
+        });
     }
     
     /**

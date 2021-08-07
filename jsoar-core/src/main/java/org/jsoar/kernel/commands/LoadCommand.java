@@ -17,7 +17,6 @@ import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.rete.ReteSerializer;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.PicocliSoarCommand;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
 import picocli.CommandLine.Command;
@@ -81,6 +80,20 @@ public class LoadCommand extends PicocliSoarCommand
         
         @Parameters(arity="0..*", description="File names")
         String[] fileNames;
+        
+        private final SoarEventListener eventListener = event ->
+        {
+            if (event instanceof ProductionAddedEvent)
+            {
+                parent.sourceCommand.topLevelState.productionAdded(
+                        ((ProductionAddedEvent) event).getProduction());
+            }
+            else if (event instanceof ProductionExcisedEvent)
+            {
+                parent.sourceCommand.topLevelState.productionExcised(
+                        ((ProductionExcisedEvent) event).getProduction());
+            }
+        };
         
         @Override
         public void run()
@@ -192,25 +205,7 @@ public class LoadCommand extends PicocliSoarCommand
             }
         }
         
-        private final SoarEventListener eventListener = new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                if (event instanceof ProductionAddedEvent)
-                {
-                    parent.sourceCommand.topLevelState.productionAdded(
-                            ((ProductionAddedEvent) event).getProduction());
-                }
-                else if (event instanceof ProductionExcisedEvent)
-                {
-                    parent.sourceCommand.topLevelState.productionExcised(
-                            ((ProductionExcisedEvent) event).getProduction());
-                }
-            }
-        };
     }
-    
     
     @Command(name="rete-net", description="Restores an agent's productions from "
             + "a binary file. Loading productions from a rete-net file causes all "

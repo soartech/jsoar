@@ -10,8 +10,6 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEvents;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -164,12 +162,7 @@ public class XmlToWmeTools
             throw new IllegalArgumentException("root must be of type Document or Element, got " + root.getClass());
         }
         
-        SoarEvents.listenForSingleEvent(io.getEvents(), InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                InputWmes.add(io, id, attr != null ? attr : element.getTagName(), converter.fromXml(element));
-            }});
+        SoarEvents.listenForSingleEvent(io.getEvents(), InputEvent.class, 
+                event -> InputWmes.add(io, id, attr != null ? attr : element.getTagName(), converter.fromXml(element)));
     }
 }

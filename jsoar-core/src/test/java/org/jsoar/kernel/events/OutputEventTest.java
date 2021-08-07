@@ -17,8 +17,6 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,20 +58,16 @@ public class OutputEventTest
         // Set up listener to cache changes during run
         final List<List<OutputChange>> changes = new ArrayList<List<OutputChange>>();
         final AtomicReference<Identifier> stuffId = new AtomicReference<Identifier>();
-        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener()
+        agent.getEvents().addListener(OutputEvent.class, event ->
         {
-            @Override
-            public void onEvent(SoarEvent event)
+            final OutputEvent oe = (OutputEvent) event;
+            // Catch the id of the ^stuff attribute so we can use it in tests below.
+            if(changes.size() == 0)
             {
-                final OutputEvent oe = (OutputEvent) event;
-                // Catch the id of the ^stuff attribute so we can use it in tests below.
-                if(changes.size() == 0)
-                {
-                    stuffId.set(oe.getOutputValue(oe.getInputOutput().getOutputLink(), 
-                            oe.getInputOutput().getSymbols().createString("stuff")).asIdentifier());
-                }
-                changes.add(Lists.newArrayList(oe.getChanges()));
+                stuffId.set(oe.getOutputValue(oe.getInputOutput().getOutputLink(), 
+                        oe.getInputOutput().getSymbols().createString("stuff")).asIdentifier());
             }
+            changes.add(Lists.newArrayList(oe.getChanges()));
         });
         // Run the agent until halt. Note the timeout on the test in case this goes badly.
         agent.runForever();

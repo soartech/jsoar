@@ -14,7 +14,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -55,18 +54,15 @@ public class MainPanel extends JPanel
         this.worldPanel = new WorldPanel();
         loadWorld(MainPanel.class.getResource("/org/jsoar/demos/robot/default.world"));
         
-        timer = new Timer(100, new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
+        timer = new Timer(100, e ->
+        {
+            world.update(0.1);
+            for(RobotAgent agent : agents.values())
             {
-                world.update(0.1);
-                for(RobotAgent agent : agents.values())
-                {
-                    agent.update();
-                }
-                worldPanel.repaint();
-            }});
+                agent.update();
+            }
+            worldPanel.repaint();
+        });
         
         final JToolBar bar = new JToolBar();
         bar.setFloatable(false);
@@ -104,14 +100,11 @@ public class MainPanel extends JPanel
             }});
         
         final JCheckBox follow = new JCheckBox("Follow");
-        follow.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                final Robot robot = !world.getRobots().isEmpty() ? world.getRobots().get(0) : null;
-                worldPanel.setFollow(follow.isSelected() ? robot : null);
-            }});
+        follow.addActionListener(e ->
+        {
+            final Robot robot = !world.getRobots().isEmpty() ? world.getRobots().get(0) : null;
+            worldPanel.setFollow(follow.isSelected() ? robot : null);
+        });
         bar.add(follow);
         //agents.put(robot, new RobotAgent(robot));
         
@@ -274,26 +267,23 @@ public class MainPanel extends JPanel
     {
         SwingTools.initializeLookAndFeel();
         
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run()
+        SwingUtilities.invokeLater(() -> 
+        {
+            JFrame f = new JFrame();
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            try
             {
-                JFrame f = new JFrame();
-                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                try
-                {
-                    final MainPanel contentPane = new MainPanel();
-                    f.setContentPane(contentPane);
-                    f.setSize(640, 640);
-                    f.setVisible(true);
-                    contentPane.worldPanel.fit();
-                }
-                catch (IOException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }});
+                final MainPanel contentPane = new MainPanel();
+                f.setContentPane(contentPane);
+                f.setSize(640, 640);
+                f.setVisible(true);
+                contentPane.worldPanel.fit();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -9,7 +9,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.util.concurrent.Callable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -35,7 +34,6 @@ import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -198,20 +196,9 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     private void getPreferences(final Identifier id)
     {
         agent.execute(
-            new Callable<Result>() {
-
-                @Override
-                public Result call() throws Exception
-                {
-                    return safeGetPreferences(id);
-                }},
-            SwingCompletionHandler.newInstance(new CompletionHandler<Result>() {
-
-                @Override
-                public void finish(Result result)
-                {
-                    finishGetPreferences(result);
-                }}));
+            () -> safeGetPreferences(id),
+            SwingCompletionHandler.newInstance(this::finishGetPreferences)
+        );
     }
     
     private void finishGetPreferences(Result result)

@@ -13,7 +13,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -129,24 +128,24 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
                 
                 // Handling scroll lock setting
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (scrollLock) {
-                            // Scroll to the end
-                            int length = outputWindow.getDocument().getLength();
-                            if ( length > 0 )
+                Runnable runnable = () ->
+                {
+                    if (scrollLock)
+                    {
+                        // Scroll to the end
+                        int length = outputWindow.getDocument().getLength();
+                        if ( length > 0 )
+                        {
+                            // The design of the StyledDocument synchronization is weird
+                            // they provide the Position class which should be safe to use
+                            // from other threads but then all the interface method's take
+                            // bare integers which sounds like you are just asking for trouble
+                            try
                             {
-                                // The design of the StyledDocument synchronization is weird
-                                // they provide the Position class which should be safe to use
-                                // from other threads but then all the interface method's take
-                                // bare integers which sounds like you are just asking for trouble
-                                try {
-                                    styledDocument.documentWriteLock();
-                                    outputWindow.setCaretPosition(styledDocument.getLength());
-                                } finally {
-                                    styledDocument.documentWriteUnlock();
-                                }
+                                styledDocument.documentWriteLock();
+                                outputWindow.setCaretPosition(styledDocument.getLength());
+                            } finally {
+                                styledDocument.documentWriteUnlock();
                             }
                         }
                     }
@@ -336,7 +335,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable() { public void run() { clear(); } });
+            SwingUtilities.invokeLater(this::clear);
         }
         else
         {
@@ -384,20 +383,15 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             return;
         }
-        final Callable<Object> call = new Callable<Object>() {
+        
+        final Callable<Object> call = () -> {
+            return object.retrieveSelection(debugger);
+        };
 
-            @Override
-            public Object call() throws Exception
-            {
-                return object.retrieveSelection(debugger);
-            }};
-        final CompletionHandler<Object> finish = new CompletionHandler<Object>() {
-
-            @Override
-            public void finish(Object result)
-            {
-                selectionProvider.setSelection(result);
-            }};
+        final CompletionHandler<Object> finish = result -> {
+            selectionProvider.setSelection(result);
+        };
+        
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
@@ -408,45 +402,44 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             return;
         }
-        final Callable<Void> call = new Callable<Void>() {
+        
+        final Callable<Void> call = () -> {
 
-            @Override
-            public Void call() throws Exception
+            final Object o = object.retrieveSelection(debugger);
+            final String command;
+            if(o instanceof Identifier)
             {
-                final Object o = object.retrieveSelection(debugger);
-                final String command;
-                if(o instanceof Identifier)
+                command = "print " + o;
+            }
+            else if(o instanceof Production)
+            {
+                command = "print \"" + ((Production) o).getName() + "\"";
+            }
+            else if(o instanceof Wme)
+            {
+                final Wme w = (Wme) o;
+                if(w.getValue().asIdentifier() != null)
                 {
-                    command = "print " + o;
-                }
-                else if(o instanceof Production)
-                {
-                    command = "print \"" + ((Production) o).getName() + "\"";
-                }
-                else if(o instanceof Wme)
-                {
-                    final Wme w = (Wme) o;
-                    if(w.getValue().asIdentifier() != null)
-                    {
-                        command = "print " + w.getValue();
-                    }
-                    else
-                    {
-                        command = null;
-                    }
+                    command = "print " + w.getValue();
                 }
                 else
                 {
                     command = null;
                 }
+            }
+            else
+            {
+                command = null;
+            }
 
-                if(command != null)
-                {
-                    debugger.getAgent().getPrinter().startNewLine();
-                    debugger.getAgent().getInterpreter().eval(command);
-                }
-                return null;
-            }};
+            if(command != null)
+            {
+                debugger.getAgent().getPrinter().startNewLine();
+                debugger.getAgent().getInterpreter().eval(command);
+            }
+            return null;
+        };
+        
         debugger.getAgent().execute(call, null);
     }
 
@@ -471,13 +464,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }}, 0);
 
         final JCheckBoxMenuItem scrollLockItem = new JCheckBoxMenuItem("Scroll lock", scrollLock);
-        scrollLockItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                scrollLock = !scrollLock;
-            }});
+        scrollLockItem.addActionListener(e1 -> scrollLock = !scrollLock);
         
         menu.insert(scrollLockItem, 0);
         
@@ -486,39 +473,24 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         ButtonGroup buttonGroup = new ButtonGroup();
         JRadioButtonMenuItem noHLItem = new JRadioButtonMenuItem("No Highlighting");
-        noHLItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                enableHighlighting.set(false);
-                noHLItem.setSelected(true);
-            }
-            
+        noHLItem.addActionListener(e1 ->
+        {
+            enableHighlighting.set(false);
+            noHLItem.setSelected(true);
         });
         JRadioButtonMenuItem immediateHLItem = new JRadioButtonMenuItem("Highlight Immediately");
-        immediateHLItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                enableHighlighting.set(true);
-                highlightImmediately.set(true);
-                immediateHLItem.setSelected(true);
-            }
-            
+        immediateHLItem.addActionListener(e1 ->
+        {
+            enableHighlighting.set(true);
+            highlightImmediately.set(true);
+            immediateHLItem.setSelected(true);
         });
         JRadioButtonMenuItem delayedHLItem = new JRadioButtonMenuItem("Highlight In Separate Thread");
-        delayedHLItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                enableHighlighting.set(true);
-                highlightImmediately.set(false);
-                delayedHLItem.setSelected(true);
-            }
-            
+        delayedHLItem.addActionListener(e1 ->
+        {
+            enableHighlighting.set(true);
+            highlightImmediately.set(false);
+            delayedHLItem.setSelected(true);
         });
         
         highlightingMenu.add(noHLItem);

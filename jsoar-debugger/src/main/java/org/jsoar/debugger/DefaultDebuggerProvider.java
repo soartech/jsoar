@@ -103,18 +103,16 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     
     private Runnable getOpenDebuggerRunnable(final Agent agent)
     {
-        return new Runnable() { 
-            public void run() 
+        return () -> 
+        {
+            try
             {
-                try
-                {
-                    doOpenDebugger(agent);
-                }
-                catch (SoarException e)
-                {
-                    logger.error("Failed to open new debugger: " + e.getMessage(), e);
-                }
-            } 
+                doOpenDebugger(agent);
+            }
+            catch (SoarException e)
+            {
+                logger.error("Failed to open new debugger: " + e.getMessage(), e);
+            }
         };
     }
 
@@ -143,12 +141,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     
     private Runnable getCloseDebuggerRunnable(Agent agent)
     {
-        return new Runnable() { 
-            public void run() 
-            {
-                doCloseDebugger(agent);
-            } 
-        };
+        return () -> doCloseDebugger(agent);
     }
 
     private void doCloseDebugger(Agent agent)

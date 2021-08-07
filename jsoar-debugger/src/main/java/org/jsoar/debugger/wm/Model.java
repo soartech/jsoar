@@ -202,17 +202,13 @@ class Model
     
     private void expandId(final Object id, final WmeRow.Value parent, CompletionHandler<Void> finish)
     {
-        final Callable<Void> start = new Callable<Void>()
+        final Callable<Void> start = () ->
         {
-            @Override
-            public Void call() throws Exception
+            synchronized(lock)
             {
-                synchronized(lock)
-                {
-                    expandIdInternal(id, parent);
-                }
-                return null;
+                expandIdInternal(id, parent);
             }
+            return null;
         };
         agent.execute(start, finish);
     }
@@ -435,19 +431,15 @@ class Model
     
     public void update(CompletionHandler<Void> finish)
     {
-        final Callable<Void> begin = new Callable<Void>(){
-
-            @Override
-            public Void call() throws Exception
+        final Callable<Void> begin = () ->
+        {
+            synchronized(lock)
             {
-                synchronized(lock)
-                {
-                    ts++;
-                    updateRemovedWmes();
-                    updateAddedWmes();
-                }
-                return null;
+                ts++;
+                updateRemovedWmes();
+                updateAddedWmes();
             }
+            return null;
         };
         agent.execute(begin, finish);
     }    
@@ -468,25 +460,15 @@ class Model
     {
         if(var instanceof Identifier)
         {
-            return new Callable<Identifier>() {
-                @Override
-                public Identifier call() throws Exception
-                {
-                    return (Identifier) var;
-                }
-            };
+            return () -> (Identifier) var;
         }
         else
         {
-            return new Callable<Identifier>() {
-    
-                @Override
-                public Identifier call() throws Exception
-                {
-                    final ContextVariableInfo info = agent.getAgent().getContextVariableInfo(var.toString());
-                    final Symbol value = info.getValue();
-                    return value != null ? value.asIdentifier() : null;
-                }
+            return () ->
+            {
+                final ContextVariableInfo info = agent.getAgent().getContextVariableInfo(var.toString());
+                final Symbol value = info.getValue();
+                return value != null ? value.asIdentifier() : null;
             };
         }
     }

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -27,8 +26,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEvents;
 
 public class EnvironmentAgent
@@ -44,42 +41,18 @@ public class EnvironmentAgent
         env.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         
         // It's best to source files and initialize the agent in the agent thread!
-        env.executeAndWait(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception
-            {
-                SoarCommands.source(env.getInterpreter(), getClass().getResource("env.defaults.soar"));
-                SoarCommands.source(env.getInterpreter(), source);
-                return null;
-            }
+        env.executeAndWait(() -> {
+            SoarCommands.source(env.getInterpreter(), getClass().getResource("env.defaults.soar"));
+            SoarCommands.source(env.getInterpreter(), source);
+            return null;
         }, 20, TimeUnit.SECONDS);
         
 
-        SoarEvents.listenForSingleEvent(env.getEvents(), InputEvent.class, new SoarEventListener() {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                doFirstInput();
-            }
-		});
+        SoarEvents.listenForSingleEvent(env.getEvents(), InputEvent.class, event -> doFirstInput());
         
-        env.getEvents().addListener(InputEvent.class, new SoarEventListener() {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                updateInput();
-            }
-        });
+        env.getEvents().addListener(InputEvent.class, event -> updateInput());
         
-        env.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                doOutput((OutputEvent) event);
-                
-            }
-        });
+        env.getEvents().addListener(OutputEvent.class, event -> doOutput((OutputEvent) event));
 	}
 
     private void doFirstInput()

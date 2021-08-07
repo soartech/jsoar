@@ -15,8 +15,6 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,22 +44,19 @@ public class SoarBeanReaderTest
         final SoarBeanReader converter = new SoarBeanReader();
         
         final ByRef<T> bean = ByRef.create(null);
-        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
+        agent.getEvents().addListener(OutputEvent.class, event ->
+        {
+            final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
+            assertNotNull(testCommand);
+            try
             {
-                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
-                assertNotNull(testCommand);
-                try
-                {
-                    bean.value = converter.read(testCommand.getValue().asIdentifier(), klass);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }});
+                bean.value = converter.read(testCommand.getValue().asIdentifier(), klass);
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
         
         agent.runFor(1, RunType.DECISIONS);
         assertNotNull(bean.value);

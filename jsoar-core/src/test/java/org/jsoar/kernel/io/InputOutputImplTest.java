@@ -35,8 +35,6 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,29 +108,26 @@ public class InputOutputImplTest extends JSoarTest
     public void testBasicInput() throws Exception
     {
         final int listenerCallCount[] = { 0 };
-        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                listenerCallCount[0]++;
-                
-                InputBuilder builder = InputBuilder.create(agent.getInputOutput());
-                builder.push("location").markId("L1").
-                            add("x", 3).
-                            add("y", 4).
-                            add("name", "hello").
-                            pop().
-                        push("location").markId("L2").
-                            add("x", 5).
-                            add("y", 6).
-                            add("name", "goodbye").
-                            link("a link", "L1").
-                            pop().
-                        add(99, "integer attribute").
-                        add(3.0, "double attribute").
-                        add("flag", Symbols.NEW_ID);
-            }});
+        agent.getEvents().addListener(InputEvent.class, event ->
+        {
+            listenerCallCount[0]++;
+            
+            InputBuilder builder = InputBuilder.create(agent.getInputOutput());
+            builder.push("location").markId("L1").
+                        add("x", 3).
+                        add("y", 4).
+                        add("name", "hello").
+                        pop().
+                    push("location").markId("L2").
+                        add("x", 5).
+                        add("y", 6).
+                        add("name", "goodbye").
+                        link("a link", "L1").
+                        pop().
+                    add(99, "integer attribute").
+                    add(3.0, "double attribute").
+                    add("flag", Symbols.NEW_ID);
+        });
         
         sourceTestFile("testBasicInput.soar");
         agent.runFor(3, RunType.DECISIONS);
@@ -148,22 +143,19 @@ public class InputOutputImplTest extends JSoarTest
     public void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
-        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
+        agent.getEvents().addListener(InputEvent.class, event ->
+        {
+            if(wme[0] == null)
             {
-                if(wme[0] == null)
-                {
-                    InputBuilder builder = InputBuilder.create(agent.getInputOutput());
-                    builder.add("location", "ann arbor").markWme("wme");
-                    wme[0] = builder.getWme("wme");
-                }
-                else
-                {
-                    wme[0].remove();
-                }
-            }});
+                InputBuilder builder = InputBuilder.create(agent.getInputOutput());
+                builder.add("location", "ann arbor").markWme("wme");
+                wme[0] = builder.getWme("wme");
+            }
+            else
+            {
+                wme[0].remove();
+            }
+        });
         
         sourceTestFile("testAddAndRemoveInputWme.soar");
         
@@ -185,29 +177,23 @@ public class InputOutputImplTest extends JSoarTest
         
         final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
         
-        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
+        agent.getEvents().addListener(InputEvent.class, event ->
+        {
+            if(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() == 2)
             {
-                if(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() == 2)
-                {
-                    InputBuilder builder = InputBuilder.create(agent.getInputOutput());
-                    builder.add("retract-output", "*yes*");
-                }
-            }});
-        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
+                InputBuilder builder = InputBuilder.create(agent.getInputOutput());
+                builder.add("retract-output", "*yes*");
+            }
+        });
+        agent.getEvents().addListener(OutputEvent.class, event ->
+        {
+            OutputEvent oe = (OutputEvent) event;
+            
+            if(oe.getMode() == OutputMode.MODIFIED_OUTPUT_COMMAND)
             {
-                OutputEvent oe = (OutputEvent) event;
-                
-                if(oe.getMode() == OutputMode.MODIFIED_OUTPUT_COMMAND)
-                {
-                    outputs.add(Sets.newHashSet(oe.getWmes()));
-                }
-            }});
+                outputs.add(Sets.newHashSet(oe.getWmes()));
+            }
+        });
         
         sourceTestFile("testBasicOutput.soar");
         agent.runFor(3, RunType.DECISIONS);

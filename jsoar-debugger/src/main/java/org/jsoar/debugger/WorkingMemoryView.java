@@ -6,11 +6,8 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -46,13 +43,7 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
         header.add(new JLabel("Roots:"), BorderLayout.WEST);
         header.add(roots);
         //PromptSupport.setPrompt("Enter ids and vars here, e.g. <s> <o> S1 I2 ...", roots);
-        roots.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                addRoots();
-            }
-        });
+        roots.addActionListener(e -> addRoots());
         SwingTools.addSelectAllOnFocus(roots);
         
         final JPanel treePanel = new JPanel(new BorderLayout());
@@ -69,35 +60,30 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
     private void addRoots()
     {
         final String[] parts = roots.getText().trim().split("\\s+");
-        final Callable<Void> call = new Callable<Void>() {
-            @Override
-            public Void call() throws Exception
+        final Runnable run = () -> {
+            final List<Object> newKeys = new ArrayList<Object>();
+            for(String p : parts)
             {
-                final List<Object> newKeys = new ArrayList<Object>();
-                for(String p : parts)
+                if(p.startsWith("<") && p.endsWith(">"))
                 {
-                    if(p.startsWith("<") && p.endsWith(">"))
+                    newKeys.add(p);
+                }
+                else if(!p.isEmpty())
+                {
+                    final Identifier id = Symbols.parseIdentifier(debugger.getAgent().getSymbols(), p);
+                    if(id != null)
                     {
-                        newKeys.add(p);
-                    }
-                    else if(!p.isEmpty())
-                    {
-                        final Identifier id = Symbols.parseIdentifier(debugger.getAgent().getSymbols(), p);
-                        if(id != null)
-                        {
-                            newKeys.add(id);
-                        }
+                        newKeys.add(id);
                     }
                 }
-                
-                for(Object key : newKeys)
-                {
-                    tree.addRoot(key);
-                }
-                return null;
+            }
+            
+            for(Object key : newKeys)
+            {
+                tree.addRoot(key);
             }
         };
-        debugger.getAgent().execute(call, null);
+        debugger.getAgent().execute(run);
     }
     
     /* (non-Javadoc)

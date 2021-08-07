@@ -21,7 +21,6 @@ import org.jsoar.legilimens.trace.AgentTraceBuffer;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.runtime.ThreadedAgentAttachedEvent;
 import org.jsoar.runtime.ThreadedAgentDetachedEvent;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.restlet.Application;
 import org.restlet.Restlet;
@@ -41,22 +40,8 @@ public class LegilimensApplication extends Application
     private static final Logger logger = LoggerFactory.getLogger(LegilimensApplication.class);
 
     private final Configuration fmc = new Configuration(Configuration.VERSION_2_3_28);
-    private final SoarEventListener attachListener = new SoarEventListener()
-    {
-        @Override
-        public void onEvent(SoarEvent event)
-        {
-            agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
-        }
-    };
-    private final SoarEventListener detachListener = new SoarEventListener()
-    {
-        @Override
-        public void onEvent(SoarEvent event)
-        {
-            agentDetached(((ThreadedAgentDetachedEvent) event).getAgent());
-        }
-    };
+    private final SoarEventListener attachListener = event -> agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
+    private final SoarEventListener detachListener = event -> agentDetached(((ThreadedAgentDetachedEvent) event).getAgent());
     
     public LegilimensApplication()
     {

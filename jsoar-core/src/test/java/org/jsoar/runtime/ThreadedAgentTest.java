@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.UncaughtExceptionEvent;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
 import org.junit.Before;
@@ -109,14 +107,7 @@ public class ThreadedAgentTest
     public void testAttachedEventIsFired() throws Exception
     {
         final AtomicReference<ThreadedAgent>  gotIt = new AtomicReference<ThreadedAgent>();
-        final SoarEventListener listener = new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                gotIt.set(((ThreadedAgentAttachedEvent) event).getAgent());
-            }
-        };
+        final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentAttachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentAttachedEvent.class, listener);
         final ThreadedAgent agent = ThreadedAgent.create();
@@ -127,14 +118,7 @@ public class ThreadedAgentTest
     public void testDetachedEventIsFired() throws Exception
     {
         final AtomicReference<ThreadedAgent>  gotIt = new AtomicReference<ThreadedAgent>();
-        final SoarEventListener listener = new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
-            }
-        };
+        final SoarEventListener listener =  event -> gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentDetachedEvent.class, listener);
         final ThreadedAgent agent = ThreadedAgent.create();
@@ -148,23 +132,12 @@ public class ThreadedAgentTest
     {
         final ThreadedAgent agent = ThreadedAgent.create();
         
-        agent.execute(new Callable<Void>()
-        {
-            @Override
-            public Void call() throws Exception
-            {
-                throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
-            }
+        agent.execute(() -> {
+            throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
         }, null);
         
         // If the thread survived, then we should be able to successfully make this call...
-        final String result = agent.executeAndWait(new Callable<String>() {
-
-            @Override
-            public String call() throws Exception
-            {
-                return "success";
-            }}, 10000, TimeUnit.MILLISECONDS);
+        final String result = agent.executeAndWait(() -> "success", 10000, TimeUnit.MILLISECONDS);
         
         assertEquals("success", result);
     }
@@ -176,26 +149,18 @@ public class ThreadedAgentTest
         
         final AtomicBoolean called = new AtomicBoolean();
         final Object signal = new Object();
-        agent.getEvents().addListener(UncaughtExceptionEvent.class, new SoarEventListener()
+        agent.getEvents().addListener(UncaughtExceptionEvent.class, event ->
         {
-            @Override
-            public void onEvent(SoarEvent event)
+            synchronized(signal)
             {
-                synchronized(signal)
-                {
-                    called.set(true);
-                    signal.notifyAll();
-                }
+                called.set(true);
+                signal.notifyAll();
             }
         });
         
-        agent.execute(new Callable<Void>()
+        agent.execute(() ->
         {
-            @Override
-            public Void call() throws Exception
-            {
-                throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
-            }
+            throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
         }, null);
         
         synchronized(signal)

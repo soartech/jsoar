@@ -234,12 +234,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 // HACK: For some reason the WM tree briefly gets focus which messes this
                 // up when using a hotkey to switch to the trace view. So invoke later
                 // after everything settles down.
-                SwingUtilities.invokeLater(new Runnable(){
-                    public void run() {
-                        if(newDockable instanceof AbstractAdaptableView)
-                        {
-                            ((AbstractAdaptableView) newDockable).activate();
-                        }
+                SwingUtilities.invokeLater(() ->
+                {
+                    if(newDockable instanceof AbstractAdaptableView)
+                    {
+                        ((AbstractAdaptableView) newDockable).activate();
                     }
                 });
             }
@@ -279,24 +278,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }}));
 
         // Update after init-soar
-        proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                proxy.getPrinter().flush();
-                newUpdateCompleter(true).finish(null);
-            }}));
+        proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(event ->
+        {
+            proxy.getPrinter().flush();
+            newUpdateCompleter(true).finish(null);
+        }));
 
         // Update when the agent stops running
-        proxy.getEvents().addListener(StopEvent.class, saveListener(new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                proxy.getPrinter().flush();
-                newUpdateCompleter(false).finish(null);
-            }}));
+        proxy.getEvents().addListener(StopEvent.class, saveListener(event ->
+        {
+            proxy.getPrinter().flush();
+            newUpdateCompleter(false).finish(null);
+        }));
 
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -464,9 +457,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         else
         {
-            SwingUtilities.invokeLater(new Runnable() { public void run() {
-                updateActionsAndStatus();
-            } });
+            SwingUtilities.invokeLater(this::updateActionsAndStatus);
         }
     }
 
@@ -624,9 +615,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
             public void actionPerformed(ActionEvent e)
             {
                 Callable<Void> callable = () -> {
-                    SoarCommand cmd = getAgent().getAgent().getInterpreter().getCommand("help", null);
+                    SoarCommand cmd = getAgent().getInterpreter().getCommand("help", null);
                     cmd.execute(null, new String[] {"help"});
-                    getAgent().getAgent().getPrinter().flush();
+                    getAgent().getPrinter().flush();
                     return null;
                 };
                 getAgent().execute(callable , null);
@@ -682,10 +673,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         float scale = Float.parseFloat(System.getProperty("fontScale","1.0"));
         SwingTools.setFontScale(scale);
         fontScale = scale;
-        SwingUtilities.invokeLater(new Runnable() {
-
-            public void run() { initialize(args); }
-        });
+        SwingUtilities.invokeLater(() -> initialize(args));
     }
 
     /**

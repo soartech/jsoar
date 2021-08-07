@@ -173,12 +173,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         final String[] textholder = { null };
         try
         {
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    textholder[0] = txtCommand.getText();
-                }
-            });
+            EventQueue.invokeAndWait(() -> textholder[0] = txtCommand.getText());
         }
         catch (InvocationTargetException e)
         {

@@ -27,7 +27,6 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
 import com.google.common.base.Joiner;
@@ -54,13 +53,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
         }};
     private final List<String> recentRemovals = new ArrayList<String>();
     private final JLabel recentSummary = new JLabel("Recent removals: None");
-    private final SoarEventListener removalListener = new SoarEventListener(){
-        @Override
-        public void onEvent(SoarEvent event)
-        {
-            updateRemovalSummary((GdsGoalRemovedEvent) event);
-        }
-    };
+    private final SoarEventListener removalListener = event -> updateRemovalSummary((GdsGoalRemovedEvent) event);
     
     public GdsView(JSoarDebugger debugger)
     {
@@ -111,37 +104,31 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     @Override
     public void refresh(boolean afterInitSoar)
     {
-        final Callable<Model> start = new Callable<Model>() {
-            @Override
-            public Model call() throws Exception
-            {
-                final List<Goal> stack = debugger.getAgent().getAgent().getGoalStack();
-                return new Model(!stack.isEmpty() ? stack.get(stack.size() - 1) : null);
-            }
-        };
-        final CompletionHandler<Model> finish = new CompletionHandler<Model>()
+        final Callable<Model> start = () ->
         {
-            @Override
-            public void finish(Model result)
+            final List<Goal> stack = debugger.getAgent().getAgent().getGoalStack();
+            return new Model(!stack.isEmpty() ? stack.get(stack.size() - 1) : null);
+        };
+        
+        final CompletionHandler<Model> finish = result ->
+        {
+            if(result.goal != null)
             {
-                if(result.goal != null)
+                if(result.wmes.isEmpty())
                 {
-                    if(result.wmes.isEmpty())
-                    {
-                        label.setText(String.format("<html><b>&nbsp;<code>%s</code> has no GDS</b></html>", result.goal.getIdentifier()));
-                    }
-                    else
-                    {
-                        label.setText(String.format("<html><b>&nbsp;GDS for <code>%s</code>.</b> (%d wmes)</html>", 
-                                     result.goal.getIdentifier(), result.wmes.size()));
-                    }
+                    label.setText(String.format("<html><b>&nbsp;<code>%s</code> has no GDS</b></html>", result.goal.getIdentifier()));
                 }
                 else
                 {
-                    label.setText("<html><b>&nbsp;No goals</b></html>");
+                    label.setText(String.format("<html><b>&nbsp;GDS for <code>%s</code>.</b> (%d wmes)</html>", 
+                                 result.goal.getIdentifier(), result.wmes.size()));
                 }
-                wmeModel.setWmes(result.wmes);
             }
+            else
+            {
+                label.setText("<html><b>&nbsp;No goals</b></html>");
+            }
+            wmeModel.setWmes(result.wmes);
         };
         
         debugger.getAgent().execute(start, SwingCompletionHandler.newInstance(finish));
@@ -156,19 +143,16 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
 
     private void updateRemovalSummary(final GdsGoalRemovedEvent event)
     {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
+        SwingUtilities.invokeLater(() ->
+        {
+            recentRemovals.add(0, String.format("%s %#s", event.getGoal(), event.getCause()));
+            if(recentRemovals.size() > MAX_REMOVAL_HISTORY)
             {
-                recentRemovals.add(0, String.format("%s %#s", event.getGoal(), event.getCause()));
-                if(recentRemovals.size() > MAX_REMOVAL_HISTORY)
-                {
-                    recentRemovals.remove(recentRemovals.size() - 1);
-                }
-                recentSummary.setText("Recent removals: " + Joiner.on(", ").join(recentRemovals));
-                
-                setTitleText(String.format("GDS (%s!)", event.getGoal()));
+                recentRemovals.remove(recentRemovals.size() - 1);
             }
+            recentSummary.setText("Recent removals: " + Joiner.on(", ").join(recentRemovals));
+            
+            setTitleText(String.format("GDS (%s!)", event.getGoal()));
         });
     }
     

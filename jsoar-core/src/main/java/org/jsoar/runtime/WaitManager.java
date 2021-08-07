@@ -15,7 +15,6 @@ import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.PhaseEvents.AfterInput;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.properties.PropertyProvider;
 
@@ -68,35 +67,17 @@ public class WaitManager
         
         // Listen for input ready events
         this.agent.getEvents().addListener(AsynchronousInputReadyEvent.class, 
-                inputReadyListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        setNewInputAvailable();
-                    }});
+                inputReadyListener = event -> setNewInputAvailable());
         
         // Listen for end of decision cycle event. This is where we actually do the wait
         // if one has been requested. Since the next phase will be the input phase,
         // we don't have to worry about additional waits blocking it and we'll conveniently
         // go straight to input when an asynch input ready event knocks us out of a wait.
         this.agent.getEvents().addListener(AfterDecisionCycleEvent.class, 
-                afterDecisionCycleListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        doWait();
-                    }});
+                afterDecisionCycleListener = event -> doWait());
         
         this.agent.getEvents().addListener(AfterInput.class, 
-                afterInputListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        inputReady = false;
-                    }});
+                afterInputListener = event -> inputReady = false);
         
         // Set up "waiting" property
         this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);

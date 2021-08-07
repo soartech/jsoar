@@ -6,7 +6,6 @@
 package org.jsoar.legilimens;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -116,15 +115,11 @@ public class LegilimensServer
         AgentTraceBuffer.attach(agent.getAgent());
         if(rules != null)
         {
-            agent.executeAndWait(new Callable<Void>()
+            agent.executeAndWait(() ->
             {
-                @Override
-                public Void call() throws Exception
-                {
-                    agent.getInterpreter().eval("source " + rules);
-                    agent.runFor(5, RunType.DECISIONS);
-                    return null;
-                }
+                agent.getInterpreter().eval("source " + rules);
+                agent.runFor(5, RunType.DECISIONS);
+                return null;
             }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         }
         return agent;

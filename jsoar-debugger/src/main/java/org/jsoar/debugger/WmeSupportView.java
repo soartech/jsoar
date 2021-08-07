@@ -148,25 +148,18 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         {
             return;
         }
-        final Callable<WmeSupportInfo> call = new Callable<WmeSupportInfo>() {
-
-            @Override
-            public WmeSupportInfo call() throws Exception
-            {
-                final Agent agent = debugger.getAgent().getAgent();
-                return WmeSupportInfo.get(agent, w);
-            }};
-        final CompletionHandler<WmeSupportInfo> finish = new CompletionHandler<WmeSupportInfo>() {
-
-            @Override
-            public void finish(WmeSupportInfo sourceInfo)
-            {
-                source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
-                entryList.setModel(SwingTools.addAll(new DefaultListModel<Support>(), sourceInfo.getSupports()));
-                wmeModel.setWmes(null);
-                wmeTable.packAll();
-                entryList.setSelectedIndex(0);
-            }
+        
+        final Callable<WmeSupportInfo> call = () -> {
+            final Agent agent = debugger.getAgent().getAgent();
+            return WmeSupportInfo.get(agent, w);
+        };
+        
+        final CompletionHandler<WmeSupportInfo> finish = result -> {
+            source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
+            entryList.setModel(SwingTools.addAll(new DefaultListModel<Support>(), sourceInfo.getSupports()));
+            wmeModel.setWmes(null);
+            wmeTable.packAll();
+            entryList.setSelectedIndex(0);
         };
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
     }

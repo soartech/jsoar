@@ -10,12 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
 import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
 import org.jsoar.soarunit.TestCase;
@@ -42,8 +41,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
-
 public class SoarUnitRunner extends Runner
 {
     private final TestClass testClass;
@@ -58,6 +55,7 @@ public class SoarUnitRunner extends Runner
     private final Collection<ListenableFuture<Void>> runNotifications = Collections.synchronizedCollection(Lists.<ListenableFuture<Void>>newArrayList());
     private final List<String> sourceIncludes = Lists.newArrayList();
 
+    @SuppressWarnings("serial")
     public SoarUnitRunner(Class<?> clazz) throws IOException, SoarException
     {
         PrintWriter pw = new PrintWriter(System.out);
@@ -102,68 +100,47 @@ public class SoarUnitRunner extends Runner
                     final Description testDescription = Description.createTestDescription(testCaseName, testName);
                     testCaseDescription.addChild(testDescription);
                     testDescriptions.put(test.getName(), testDescription);
-                    testRunners.add(new Function<TestContext, Void>()
+                    testRunners.add(testContext -> 
                     {
-                        @Override
-                        public Void apply(final TestContext testContext)
+                        final TestResult testResult;
+                        try
                         {
-                            final TestResult testResult;
-                            try
+                            testContext.agent.reinitialize(test);
+                            // XXX: JUnit isn't threadsafe with run notifications - so these all get sent in their own dedicated thread.
+                            runNotifications.add(runNotifierExec.submit(() ->
                             {
-                                testContext.agent.reinitialize(test);
-                                // XXX: JUnit isn't threadsafe with run notifications - so these all get sent in their own dedicated thread.
-                                runNotifications.add(runNotifierExec.submit(new Callable<Void>()
-                                {
-                                    @Override
-                                    public Void call() throws Exception
+                                testContext.runNotifier.fireTestStarted(testDescription);
+                                return null;
+                            }));
+                            testResult = testRunner.runTest(test, testContext.agent);
+                            if (!testResult.isPassed())
+                            {
+                                runNotifications.add(runNotifierExec.submit(() -> {
+                                    testContext.runNotifier.fireTestFailure(new Failure(testDescription, new Exception()
                                     {
-                                        testContext.runNotifier.fireTestStarted(testDescription);
-                                        return null;
-                                    }
-                                }));
-                                testResult = testRunner.runTest(test, testContext.agent);
-                                if (!testResult.isPassed())
-                                {
-                                    runNotifications.add(runNotifierExec.submit(new Callable<Void>()
-                                    {
-                                        @SuppressWarnings("serial")
                                         @Override
-                                        public Void call() throws Exception
+                                        public String toString()
                                         {
-                                            testContext.runNotifier.fireTestFailure(new Failure(testDescription, new Exception()
-                                            {
-                                                public String toString()
-                                                {
-                                                    return testResult.getMessage() + "\n\n" + testResult.getOutput();
-                                                }
-                                            }));
-                                            return null;
+                                            return testResult.getMessage() + "\n\n" + testResult.getOutput();
                                         }
                                     }));
-                                }
-                            } catch (final SoarException e) {
-                                runNotifications.add(runNotifierExec.submit(new Callable<Void>()
-                                {
-                                    @Override
-                                    public Void call() throws Exception
-                                    {
-                                        testContext.runNotifier.fireTestFailure(new Failure(testDescription, e));
-                                        return null;
-                                    }
+                                    return null;
                                 }));
                             }
-                            runNotifications.add(runNotifierExec.submit(new Callable<Void>()
+                        } catch (final SoarException e) {
+                            runNotifications.add(runNotifierExec.submit(() ->
                             {
-                                @Override
-                                public Void call() throws Exception
-                                {
-                                    testContext.runNotifier.fireTestFinished(testDescription);
-                                    return null;
-                                }
+                                testContext.runNotifier.fireTestFailure(new Failure(testDescription, e));
+                                return null;
                             }));
+                        }
+                        runNotifications.add(runNotifierExec.submit(() ->
+                        {
                             testContext.runNotifier.fireTestFinished(testDescription);
                             return null;
-                        }
+                        }));
+                        testContext.runNotifier.fireTestFinished(testDescription);
+                        return null;
                     });
                 }
             }
@@ -183,19 +160,15 @@ public class SoarUnitRunner extends Runner
         List<ListenableFuture<?>> wait = Lists.newArrayList();
         for(int i = 0; i < POOL_SIZE; i++)
         {
-            wait.add(exec.submit(new Callable<Void>()
+            wait.add(exec.submit(() -> 
             {
-                @Override
-                public Void call() throws Exception
+                TestAgent agent = agentFactory.createTestAgent();
+                Function<TestContext, Void> item = null;
+                while ((item = testRunners.poll()) != null)
                 {
-                    TestAgent agent = agentFactory.createTestAgent();
-                    Function<TestContext, Void> item = null;
-                    while ((item = testRunners.poll()) != null)
-                    {
-                        item.apply(new TestContext(runNotifier, agent));
-                    }
-                    return null;
+                    item.apply(new TestContext(runNotifier, agent));
                 }
+                return null;
             }));
         }
 

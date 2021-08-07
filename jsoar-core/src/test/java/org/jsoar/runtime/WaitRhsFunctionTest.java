@@ -7,7 +7,6 @@ package org.jsoar.runtime;
 
 import static org.junit.Assert.*;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,14 +36,11 @@ public class WaitRhsFunctionTest
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
         // Skip first input phase
-        agent.executeAndWait(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception
-            {
-                agent.runFor(2, RunType.PHASES);
-                return null;
-            }}, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        agent.executeAndWait(() ->
+        {
+            agent.runFor(2, RunType.PHASES);
+            return null;
+        }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         
         // Now load a production that waits and mark input ready
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
@@ -52,14 +48,11 @@ public class WaitRhsFunctionTest
         
         // Now run some more. The agent shouldn't wait because input ready came before input phase
         
-        agent.executeAndWait(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception
-            {
-                agent.runFor(2, RunType.DECISIONS);
-                return null;
-            }}, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        agent.executeAndWait(() -> 
+        {
+            agent.runFor(2, RunType.DECISIONS);
+            return null;
+        }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         
         // Test will timeout on failure
     }
@@ -128,24 +121,20 @@ public class WaitRhsFunctionTest
         
         final AtomicBoolean signalled = new AtomicBoolean(false);
         final Object signal = new String("testNoWaitIfAgentHalts");
-        agent.execute(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception
+        
+        agent.execute(() ->
+        {
+            agent.runForever();
+            return null;
+        },
+        result -> 
+        {
+            synchronized(signal)
             {
-                agent.runForever();
-                return null;
-            }}, new CompletionHandler<Void>(){
-
-                @Override
-                public void finish(Void result)
-                {
-                    synchronized(signal)
-                    {
-                        signal.notifyAll();
-                        signalled.set(true);
-                    }
-                }});
+                signal.notifyAll();
+                signalled.set(true);
+            }
+        });
         
         if(!signalled.get())
         {

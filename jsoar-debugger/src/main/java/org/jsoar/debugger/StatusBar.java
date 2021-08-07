@@ -7,8 +7,6 @@ package org.jsoar.debugger;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,14 +53,7 @@ public class StatusBar extends JXStatusBar implements Refreshable
         
         // periodically refresh. this is so we get some feedback when the agent 
         // is running.
-        final Timer timer = new Timer(1000, new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                refresh(false);
-            }
-        });
+        final Timer timer = new Timer(1000, e -> refresh(false));
         timer.start();
     }
     
@@ -74,36 +65,29 @@ public class StatusBar extends JXStatusBar implements Refreshable
         final AtomicReference<String> settingsString = new AtomicReference<String>();
         final Agent a = agent.getAgent();
         
-        final Callable<Object> call = new Callable<Object>() {
-            @Override
-            public Object call() throws Exception
-            {
-                settingsString.set(getSettings(a));
-                return null;
-            }};
-        final CompletionHandler<Object> finish = new CompletionHandler<Object>() {
+        final Callable<Object> call = () -> {
+            settingsString.set(getSettings(a));
+            return null;
+        };
+        
+        final CompletionHandler<Object> finish = result -> {
 
-            @Override
-            public void finish(Object result)
+            final boolean running = agent.isRunning();
+            String runStateString = running ? "Running" : "Idle";
+            if(a.getProperties().get(SoarProperties.WAIT_INFO).waiting)
             {
-                final boolean running = agent.isRunning();
-                String runStateString = running ? "Running" : "Idle";
-                if(a.getProperties().get(SoarProperties.WAIT_INFO).waiting)
-                {
-                    runStateString += " (wait)";
-                }
-                runState.setText(runStateString);
-                runState.setOpaque(running);
-                
-                phase.setText("Before " + a.getProperties().get(SoarProperties.CURRENT_PHASE).toString().toLowerCase() + " phase");
-                
-                final Long decisionCount = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT);
-                final String decisionsString = decisionCount + " decision" + (decisionCount != 1 ? "s" : "");
-                decisions.setText(decisionsString);
-                
-                settings.setText(settingsString.get());
+                runStateString += " (wait)";
             }
+            runState.setText(runStateString);
+            runState.setOpaque(running);
             
+            phase.setText("Before " + a.getProperties().get(SoarProperties.CURRENT_PHASE).toString().toLowerCase() + " phase");
+            
+            final Long decisionCount = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT);
+            final String decisionsString = decisionCount + " decision" + (decisionCount != 1 ? "s" : "");
+            decisions.setText(decisionsString);
+            
+            settings.setText(settingsString.get());
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }

@@ -14,7 +14,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -23,7 +22,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -439,15 +437,11 @@ public class WorkingMemoryTree extends JComponent
         {
             add(asRoot.deleteButton);
             validate();
-            asRoot.deleteButton.addActionListener(new ActionListener()
+            asRoot.deleteButton.addActionListener(e ->
             {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    remove(asRoot.deleteButton);
-                    validate();
-                    model.removeRoot(asRoot.key, repaint);
-                }
+                remove(asRoot.deleteButton);
+                validate();
+                model.removeRoot(asRoot.key, repaint);
             });
         }
         asRoot.deleteButton.setBounds((int) asRoot.bounds.getMaxX() - 30, (int) (asRoot.bounds.getCenterY() - 20 / 2), 20, 20);
@@ -816,53 +810,46 @@ public class WorkingMemoryTree extends JComponent
         
         final ThreadedAgent agent = ThreadedAgent.create();
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
-        agent.executeAndWait(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception
-            {
-                SoarCommands.source(agent.getInterpreter(), 
-                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
+        agent.executeAndWait(() ->
+        {
+            SoarCommands.source(agent.getInterpreter(), 
+            "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
 //                agent.getInterpreter().eval(
 //                "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
 //                "(<s> ^55 hi) (<s> ^(random-float) yum)}");
 //                SoarCommands.source(agent.getInterpreter(), 
 //                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
-                agent.getTrace().setEnabled(Category.WM_CHANGES, true);
-                agent.getAgent().runFor(1, RunType.DECISIONS);
-                agent.getAgent().runFor(2, RunType.PHASES);
-                return null;
-            }
+            agent.getTrace().setEnabled(Category.WM_CHANGES, true);
+            agent.getAgent().runFor(1, RunType.DECISIONS);
+            agent.getAgent().runFor(2, RunType.PHASES);
+            return null;
         }, 100000, TimeUnit.DAYS);
         
         final WorkingMemoryTree tree = new WorkingMemoryTree(agent);
         final JPanel panel = new JPanel(new BorderLayout());
         
         final JTextField idField = new JTextField("S1");
-        idField.addActionListener(new ActionListener()
+        idField.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
+            final String idString = idField.getText().trim();
+            final Object idOrVar;
+            if(!idString.startsWith("<"))
             {
-                final String idString = idField.getText().trim();
-                final Object idOrVar;
-                if(!idString.startsWith("<"))
+                idOrVar = Symbols.parseIdentifier(agent.getSymbols(), idString);
+            }
+            else
+            {
+                idOrVar = idString;
+            }
+            if(idOrVar != null)
+            {
+                if(!tree.model.hasRoot(idOrVar))
                 {
-                    idOrVar = Symbols.parseIdentifier(agent.getSymbols(), idString);
+                    tree.model.addRoot(idOrVar, tree.repaint);
                 }
                 else
                 {
-                    idOrVar = idString;
-                }
-                if(idOrVar != null)
-                {
-                    if(!tree.model.hasRoot(idOrVar))
-                    {
-                        tree.model.addRoot(idOrVar, tree.repaint);
-                    }
-                    else
-                    {
-                        tree.model.removeRoot(idOrVar, tree.repaint);
-                    }
+                    tree.model.removeRoot(idOrVar, tree.repaint);
                 }
             }
         });
@@ -888,24 +875,20 @@ public class WorkingMemoryTree extends JComponent
     
     public static void main(String[] args)
     {
-        SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(() ->
         {
-            @Override
-            public void run()
+            try
             {
-                try
-                {
-                    swingMain();
-                }
-                catch (InterruptedException e)
-                {
-                    Thread.currentThread().interrupt();
-                }
-                catch (ExecutionException | TimeoutException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                swingMain();
+            }
+            catch (InterruptedException e1)
+            {
+                Thread.currentThread().interrupt();
+            }
+            catch (ExecutionException | TimeoutException e2)
+            {
+                // TODO Auto-generated catch block
+                e2.printStackTrace();
             }
         });
     }

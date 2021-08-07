@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
 
@@ -142,48 +141,34 @@ public class SyntaxPatternComponent extends JPanel {
         this.add(jPanel, constraints);
 
         //handlers
-        btnUpdate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SyntaxPattern testSyntax = new SyntaxPattern();
-                testSyntax.setRegex(txtRegex.getText());
-                testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);
-                String text = testSyntax.getExpandedRegex();
-                try {
-                    Pattern p = Pattern.compile(text);
-                    int groupCount = p.groupCount();
-                    while (groupCount > pattern.getComponents().size()) {
-                        pattern.getComponents().add("");
-                    }
-                    while (groupCount < pattern.getComponents().size()) {
-                        pattern.getComponents().remove(pattern.getComponents().size() - 1);
-                    }
-                    pattern.setRegex(txtRegex.getText());
-                    tableModel.fireTableDataChanged();
-                    txtRegex.setBackground(goodBackground);
-                    txtRegex.setToolTipText("<html><b>Detected "+groupCount+" groups in pattern:</b><br>"+text+"</html>");
-
-                } catch (PatternSyntaxException ex) {
-                    txtRegex.setBackground(badBackground);
-                    txtRegex.setToolTipText("<html><b>"+ex.getDescription()+"</b><br>"+text+"</html>");
-                }
-            }
-        });
-
-        chkEnabled.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                pattern.setEnabled(chkEnabled.isSelected());
-            }
-        });
-        chkImportant.addActionListener(new ActionListener()
+        btnUpdate.addActionListener(e ->
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                pattern.setImportant(chkImportant.isSelected());
+            SyntaxPattern testSyntax = new SyntaxPattern();
+            testSyntax.setRegex(txtRegex.getText());
+            testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);
+            String text = testSyntax.getExpandedRegex();
+            try {
+                Pattern p = Pattern.compile(text);
+                int groupCount = p.groupCount();
+                while (groupCount > pattern.getComponents().size()) {
+                    pattern.getComponents().add("");
+                }
+                while (groupCount < pattern.getComponents().size()) {
+                    pattern.getComponents().remove(pattern.getComponents().size() - 1);
+                }
+                pattern.setRegex(txtRegex.getText());
+                tableModel.fireTableDataChanged();
+                txtRegex.setBackground(goodBackground);
+                txtRegex.setToolTipText("<html><b>Detected "+groupCount+" groups in pattern:</b><br>"+text+"</html>");
+
+            } catch (PatternSyntaxException ex) {
+                txtRegex.setBackground(badBackground);
+                txtRegex.setToolTipText("<html><b>"+ex.getDescription()+"</b><br>"+text+"</html>");
             }
         });
+
+        chkEnabled.addActionListener(e -> pattern.setEnabled(chkEnabled.isSelected()));
+        chkImportant.addActionListener(e -> pattern.setImportant(chkImportant.isSelected()));
 
         txtComment.getDocument().addDocumentListener(new DocumentListener() {
             @Override

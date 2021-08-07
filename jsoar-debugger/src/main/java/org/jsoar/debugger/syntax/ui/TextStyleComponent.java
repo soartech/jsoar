@@ -10,7 +10,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 @SuppressWarnings("serial")
@@ -120,16 +119,14 @@ public class TextStyleComponent extends JPanel {
         constraints.anchor=GridBagConstraints.LINE_START;
         this.add(btnDelete,constraints);
 
-        ActionListener listener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                style.setBold(chkBold.isSelected());
-                style.setItalic(chkItalic.isSelected());
-                style.setStrikethrough(chkStrike.isSelected());
-                style.setUnderline(chkUnderline.isSelected());
-                style.setEnabled(chkEnabled.isSelected());
-                style.setStyleType(txtName.getText());
-            }
+        ActionListener listener = e ->
+        {
+            style.setBold(chkBold.isSelected());
+            style.setItalic(chkItalic.isSelected());
+            style.setStrikethrough(chkStrike.isSelected());
+            style.setUnderline(chkUnderline.isSelected());
+            style.setEnabled(chkEnabled.isSelected());
+            style.setStyleType(txtName.getText());
         };
         chkBold.addActionListener(listener);
         chkItalic.addActionListener(listener);

@@ -4,7 +4,6 @@ import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +20,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -47,33 +44,15 @@ public class ClientAgent
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         
         // It's best to source files and initialize the agent in the agent thread!
-        agent.executeAndWait(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception
-            {
-                SoarCommands.source(agent.getInterpreter(), getClass().getResource("env.defaults.soar"));
-                SoarCommands.source(agent.getInterpreter(), source);
-                return null;
-            }
+        agent.executeAndWait(() -> 
+        {
+            SoarCommands.source(agent.getInterpreter(), getClass().getResource("env.defaults.soar"));
+            SoarCommands.source(agent.getInterpreter(), source);
+            return null;
         }, 20, TimeUnit.SECONDS);
         
-        agent.getEvents().addListener(InputEvent.class, new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                doInput();
-            }
-        });
-        
-        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event) 
-            {
-                doOutput((OutputEvent) event);
-            }
-        });
+        agent.getEvents().addListener(InputEvent.class, event -> doInput());
+        agent.getEvents().addListener(OutputEvent.class, event -> doOutput((OutputEvent) event));
     }
         
     public BiMap<Identifier, Identifier> getClientToEnv() 

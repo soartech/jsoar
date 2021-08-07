@@ -315,7 +315,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             return;
         }
         
-        this.debugger.getAgent().execute(() -> {
+        this.debugger.getAgent().execute(() ->
+        {
             String[] commands = null;
             
             CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(trimmedCommand);
@@ -326,6 +327,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
             
             final String[] finalCommands = commands;
+            
             if (finalCommands != null && finalCommands.length > 0)
             {
                 String help = getHelp(commandLine);
@@ -356,7 +358,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                     }
                 });
             }
-            });
+        });
     }
 
     private void showHelpTooltip(String help)

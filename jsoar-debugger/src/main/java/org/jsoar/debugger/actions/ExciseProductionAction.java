@@ -56,25 +56,19 @@ public class ExciseProductionAction extends AbstractDebuggerAction
         }
         
         final ThreadedAgent proxy = getApplication().getAgent();
-        final Callable<Void> call = new Callable<Void>() {
 
-            @Override
-            public Void call() throws Exception
+        final Callable<Void> call = () ->
+        {
+            for(Production p : prods)
             {
-                for(Production p : prods)
-                {
-                    proxy.getProductions().exciseProduction(p, true);
-                }
-                proxy.getTrace().flush();
-                return null;
-            }};
-        final CompletionHandler<Void> finish  = new CompletionHandler<Void>() {
-            @Override
-            public void finish(Void result)
-            {
-                getApplication().updateActionsAndStatus();
+                proxy.getProductions().exciseProduction(p, true);
             }
+            proxy.getTrace().flush();
+            return null;
         };
+        
+        final CompletionHandler<Void> finish  = result -> getApplication().updateActionsAndStatus();
+        
         proxy.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 

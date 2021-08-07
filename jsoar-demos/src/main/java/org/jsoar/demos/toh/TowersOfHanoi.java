@@ -16,8 +16,6 @@ import org.jsoar.debugger.JSoarDebuggerPlugin;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
 /**
@@ -71,33 +69,21 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         this.add(panel, BorderLayout.CENTER);
         
         // update the input from the game each input cycle.
-        em.addListener(InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                game.update(((InputEvent) event).getInputOutput());
-            }});
+        em.addListener(InputEvent.class, event -> game.update(((InputEvent) event).getInputOutput()));
         
         // handle output commands from the agent
-        em.addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                game.handleCommands((OutputEvent) event);
-                synchDisplay();
-            }});
+        em.addListener(OutputEvent.class, event ->
+        {
+            game.handleCommands((OutputEvent) event);
+            synchDisplay();
+        });
         
         // when the agent is reinitialized (init-soar), reset the game
-        em.addListener(BeforeInitSoarEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                game.reset();
-                synchDisplay();
-            }});
+        em.addListener(BeforeInitSoarEvent.class, event ->
+        {
+            game.reset();
+            synchDisplay();
+        });
     }
     
     private void synchDisplay()
@@ -108,7 +94,7 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         }
         else
         {
-            SwingUtilities.invokeLater(new Runnable() { public void run() { synchDisplay(); }});
+            SwingUtilities.invokeLater(this::synchDisplay);
         }
     }
 }

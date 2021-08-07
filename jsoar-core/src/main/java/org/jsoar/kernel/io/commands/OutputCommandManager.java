@@ -6,7 +6,6 @@ import java.util.Map;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
@@ -35,38 +34,34 @@ public class OutputCommandManager
     {
         commandHandlers = Maps.newConcurrentMap();
         this.eventManager = eventManager;
-        this.listener = new SoarEventListener()
+        this.listener = soarEvent ->
         {
-            @Override
-            public void onEvent(SoarEvent soarEvent)
+            OutputEvent event = (OutputEvent) soarEvent;
+
+            Collection<Wme> pendingCommands = Collections2.filter(event.getInputOutput().getPendingCommands(), new ValidityPredicate());
+            for (final Wme wme1 : pendingCommands)
             {
-                OutputEvent event = (OutputEvent) soarEvent;
-
-                Collection<Wme> pendingCommands = Collections2.filter(event.getInputOutput().getPendingCommands(), new ValidityPredicate());
-                for (final Wme wme : pendingCommands)
+                String name1 = wme1.getAttribute().asString().getValue();
+                Identifier identifier1 = wme1.getValue().asIdentifier();
+                OutputCommandHandler handler1 = commandHandlers.get(name1);
+                if (handler1 == null)
                 {
-                    String name = wme.getAttribute().asString().getValue();
-                    Identifier identifier = wme.getValue().asIdentifier();
-                    OutputCommandHandler handler = commandHandlers.get(name);
-                    if (handler == null)
-                    {
-                        continue;
-                    }
-                    handler.onCommandAdded(name, identifier);
+                    continue;
                 }
+                handler1.onCommandAdded(name1, identifier1);
+            }
 
-                Collection<Wme> removingCommands = Collections2.filter(event.getInputOutput().getRemovingCommands(), new ValidityPredicate());
-                for (final Wme wme : removingCommands)
+            Collection<Wme> removingCommands = Collections2.filter(event.getInputOutput().getRemovingCommands(), new ValidityPredicate());
+            for (final Wme wme2 : removingCommands)
+            {
+                String name2 = wme2.getAttribute().asString().getValue();
+                Identifier identifier2 = wme2.getValue().asIdentifier();
+                OutputCommandHandler handler2 = commandHandlers.get(name2);
+                if (handler2 == null)
                 {
-                    String name = wme.getAttribute().asString().getValue();
-                    Identifier identifier = wme.getValue().asIdentifier();
-                    OutputCommandHandler handler = commandHandlers.get(name);
-                    if (handler == null)
-                    {
-                        continue;
-                    }
-                    handler.onCommandRemoved(name, identifier);
+                    continue;
                 }
+                handler2.onCommandRemoved(name2, identifier2);
             }
         };
         this.eventManager.addListener(OutputEvent.class, listener);

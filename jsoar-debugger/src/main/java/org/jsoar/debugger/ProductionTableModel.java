@@ -8,7 +8,6 @@ package org.jsoar.debugger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -48,27 +47,23 @@ public class ProductionTableModel extends AbstractTableModel
         eventManager.addListener(ProductionExcisedEvent.class, listener);
         
         // TODO does this need to block for any reason?
-        this.agent.execute(new Callable<Void>() {
-
-            @Override
-            public Void call()
+        this.agent.execute(() ->
+        {
+            synchronized(productions)
             {
-                synchronized(productions)
+                for(ProductionType pt : ProductionType.values())
                 {
-                    for(ProductionType pt : ProductionType.values())
+                    // RPM: in general, justifications can come and go rapidly, so we're not going to try to show them in the debugger
+                    //      we will also ignore them below where new rules are added/removed
+                    //      in at least one project, this makes a significant performance/memory difference
+                    if(pt == ProductionType.JUSTIFICATION)
                     {
-                        // RPM: in general, justifications can come and go rapidly, so we're not going to try to show them in the debugger
-                        //      we will also ignore them below where new rules are added/removed
-                        //      in at least one project, this makes a significant performance/memory difference
-                        if(pt == ProductionType.JUSTIFICATION)
-                        {
-                            continue;
-                        }
-                        productions.addAll(agent.getProductions().getProductions(pt));
+                        continue;
                     }
+                    productions.addAll(agent.getProductions().getProductions(pt));
                 }
-                return null;
-            }}, null);
+            }
+        });
     }
     
     /**
@@ -208,19 +203,18 @@ public class ProductionTableModel extends AbstractTableModel
         @Override
         public void onEvent(final SoarEvent event)
         {
-            Runnable runnable = new Runnable() {
-                public void run()
+            Runnable runnable = () ->
+            {
+                if(event instanceof ProductionAddedEvent)
                 {
-                    if(event instanceof ProductionAddedEvent)
-                    {
-                        handleProductionAdded(((ProductionAddedEvent) event).getProduction());
-                    }
-                    else
-                    {
-                        handleProductionExcised(((ProductionExcisedEvent) event).getProduction());
-                    }
+                    handleProductionAdded(((ProductionAddedEvent) event).getProduction());
+                }
+                else
+                {
+                    handleProductionExcised(((ProductionExcisedEvent) event).getProduction());
                 }
             };
+            
             if(SwingUtilities.isEventDispatchThread())
             {
                 runnable.run();

@@ -201,31 +201,22 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     
     private void updateStats()
     {
-        final Callable<Map<ProductionType, Integer>> call = new Callable<Map<ProductionType, Integer>>() {
-
-            @Override
-            public Map<ProductionType, Integer> call() throws Exception
+        final Callable<Map<ProductionType, Integer>> call = () -> agent.getProductions().getProductionCounts();
+        
+        final CompletionHandler<Map<ProductionType, Integer>> finish = counts ->
+        {
+            final String spaces = "&nbsp;&nbsp;&nbsp;";
+            final StringBuilder b = new StringBuilder("<html>");
+            b.append("<b>Total:</b>&nbsp;" + model.getRowCount() + spaces);
+            for(Map.Entry<ProductionType, Integer> e : counts.entrySet())
             {
-                return agent.getProductions().getProductionCounts();
-            }};
-            
-        final CompletionHandler<Map<ProductionType, Integer>> finish = new CompletionHandler<Map<ProductionType,Integer>>() {
-
-            @Override
-            public void finish(Map<ProductionType, Integer> counts)
-            {
-                final String spaces = "&nbsp;&nbsp;&nbsp;";
-                final StringBuilder b = new StringBuilder("<html>");
-                b.append("<b>Total:</b>&nbsp;" + model.getRowCount() + spaces);
-                for(Map.Entry<ProductionType, Integer> e : counts.entrySet())
-                {
-                    b.append(" <b>" + e.getKey().getDisplayString() + ":</b>&nbsp;" + e.getValue() + spaces);
-                }
-                b.append("</html>");
-                    
-                stats.setText(b.toString());
+                b.append(" <b>" + e.getKey().getDisplayString() + ":</b>&nbsp;" + e.getValue() + spaces);
             }
+            b.append("</html>");
+                
+            stats.setText(b.toString());
         };
+        
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 

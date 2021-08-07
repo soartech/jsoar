@@ -5,9 +5,6 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
@@ -62,18 +59,14 @@ public class ViewSelectionMenu
                 item.setAccelerator(KeyStroke.getKeyStroke(ks));
             }
             
-            item.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e)
+            item.addActionListener(e ->
+            {
+                view.setVisible(true);
+                view.toFront();
+                view.activate();
+                if(view instanceof Refreshable)
                 {
-                    view.setVisible(true);
-                    view.toFront();
-                    view.activate();
-                    if(view instanceof Refreshable)
-                    {
-                        ((Refreshable) view).refresh(false);
-                    }
+                    ((Refreshable) view).refresh(false);
                 }
             });
             menu.insert(item, 0);

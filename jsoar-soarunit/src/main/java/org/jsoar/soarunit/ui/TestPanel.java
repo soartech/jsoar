@@ -90,16 +90,12 @@ public class TestPanel extends JPanel
         final List<TestCase> allTestCases = Collections.unmodifiableList(collector.collect());
         final int totalTests = TestCase.getTotalTests(allTestCases);
         
-        SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(() -> 
         {
-            @Override
-            public void run()
-            {
-                for(TestCase testCase : allTestCases) {
-                    list.addTestCase(testCase);
-                }
-                summary.setTotal(totalTests);
+            for(TestCase testCase : allTestCases) {
+                list.addTestCase(testCase);
             }
+            summary.setTotal(totalTests);
         });
         
         PrintWriter pw = new PrintWriter(new NullWriter());
@@ -114,21 +110,15 @@ public class TestPanel extends JPanel
     
     private void addResult(final TestCaseResult testCaseResult)
     {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            /* (non-Javadoc)
-             * @see java.lang.Runnable#run()
-             */
-            @Override
-            public void run()
+        SwingUtilities.invokeLater(() ->
+        {
+            for(TestResult testResult : testCaseResult.getTestResults())
             {
-                for(TestResult testResult : testCaseResult.getTestResults())
-                {
-                    summary.addTestResult(testResult);
-                }
-                
-                list.addTestResults(testCaseResult);
-            }});
+                summary.addTestResult(testResult);
+            }
+            
+            list.addTestResults(testCaseResult);
+        });
     }
     
     private void showError(final String message, final Throwable e)
@@ -149,14 +139,7 @@ public class TestPanel extends JPanel
         }
         else
         {
-            SwingUtilities.invokeLater(new Runnable() {
-                
-                @Override
-                public void run()
-                {
-                    showError(message, e);
-                }
-            });
+            SwingUtilities.invokeLater(() -> showError(message, e));
         }
     }
     

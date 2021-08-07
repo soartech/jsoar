@@ -157,18 +157,15 @@ public class SoarUnit implements Callable<Integer>
         }
         else if(this.ui)
         {
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run()
-                {
-                    MainFrame.initializeLookAndFeel();
-                    final MainFrame mf = new MainFrame(agentFactory, collector, getExecutor());
-                    mf.setSize(640, 480);
-                    mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
-                    mf.setVisible(true);
-                    mf.runTests();
-                }});
+            SwingUtilities.invokeLater(() ->
+            {
+                MainFrame.initializeLookAndFeel();
+                final MainFrame mf = new MainFrame(agentFactory, collector, getExecutor());
+                mf.setSize(640, 480);
+                mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
+                mf.setVisible(true);
+                mf.runTests();
+            });
             return DONT_EXIT;
         }
         else

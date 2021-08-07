@@ -18,8 +18,6 @@ import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.XmlTools;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEvents;
 import org.junit.After;
 import org.junit.Before;
@@ -75,14 +73,8 @@ public class XmlToWmeToolsTest
     public void testAddXmlInputToInputWmeWithExplicitAttribute() throws Exception
     {
         final ByRef<InputWme> loc = new ByRef<InputWme>();
-        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class, new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID);
-            }
-        });
+        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,
+                event -> loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID));
         
         agent.runFor(1, RunType.DECISIONS);
         
@@ -104,14 +96,8 @@ public class XmlToWmeToolsTest
     public void testAddXmlInputToInputWmeWithDefaultAttribute() throws Exception
     {
         final ByRef<InputWme> loc = new ByRef<InputWme>();
-        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class, new SoarEventListener()
-        {
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID);
-            }
-        });
+        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,
+                event -> loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID));
         
         // Creates:
         // ^io.input-link.xml-data.xml-input.name |hi|

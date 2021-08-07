@@ -7,7 +7,6 @@ package org.jsoar.legilimens.resources;
 
 import java.io.StringWriter;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
@@ -52,16 +51,7 @@ public class ProductionResource extends BaseAgentResource
         final Form form = new Form(entity);
         final String production = form.getFirstValue("production");
         
-        final Callable<String> callable = new Callable<String>()
-        {
-            @Override
-            public String call() throws Exception
-            {
-                //agent.getPrinter().startNewLine().print(agent.getName() + "> " + command + "\n");
-                return agent.getInterpreter().eval(production);
-            }
-        };
-        executeCallable(callable);
+        executeCallable(() -> agent.getInterpreter().eval(production));
         
         return getHtmlRepresentation();
     }
@@ -69,21 +59,15 @@ public class ProductionResource extends BaseAgentResource
     @Delete()
     public void deleteProduction()
     {
-        final Callable<Void> callable = new Callable<Void>()
+        executeCallable(() ->
         {
-
-            @Override
-            public Void call() throws Exception
+            final Production p = agent.getProductions().getProduction(name);
+            if(p != null)
             {
-                final Production p = agent.getProductions().getProduction(name);
-                if(p != null)
-                {
-                    agent.getProductions().exciseProduction(p, true);
-                }
-                return null;
+                agent.getProductions().exciseProduction(p, true);
             }
-        };
-        executeCallable(callable);
+            return null;
+        });
     }
     
     public static class Wrapper

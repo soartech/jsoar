@@ -81,14 +81,7 @@ public class SwingTools {
      */
     public static void setDividerLocation(final JSplitPane split, final double location) {
         split.setResizeWeight(location);
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                split.setDividerLocation(location);
-            }
-        });
-
+        SwingUtilities.invokeLater(() -> split.setDividerLocation(location));
     }
 
     /**
