@@ -1,6 +1,7 @@
 package org.jsoar.util.commands;
 
 import picocli.CommandLine;
+import picocli.CommandLine.Model.CommandSpec;
 
 import java.util.ArrayList;
 
@@ -36,7 +37,10 @@ public class SoarCommandCompletion
 
             ArrayList<CharSequence> longResults = new ArrayList<>();
             //System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
-            picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
+            
+            // we need to get a "fresh" command spec each time to avoid accidentally reusing one that may already be in use
+            CommandSpec commandSpec = CommandSpec.forAnnotatedObject(commandLine.getCommandSpec().userObject());
+            picocli.AutoComplete.complete(commandSpec, parts, argIndex, positionInArg, input.length(), longResults);
 
             for (int i = 0; i < longResults.size(); i++) {
                 longResults.set(i, input + longResults.get(i));
