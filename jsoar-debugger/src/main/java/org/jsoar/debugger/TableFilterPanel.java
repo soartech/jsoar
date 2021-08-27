@@ -8,6 +8,7 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.regex.PatternSyntaxException;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -108,15 +109,7 @@ public class TableFilterPanel extends JPanel
                 if (checkRegex.isSelected()) {
                     sorter.setRowFilter(RowFilter.regexFilter(patternText, column));
                 } else {
-                    sorter.setRowFilter(new RowFilters.GeneralFilter()
-                    {
-                        @Override
-                        protected boolean include(Entry<?, ?> value, int index)
-                        {
-                            return value.getStringValue(index).contains(patternText);
-
-                        }
-                    });
+                    sorter.setRowFilter(RowFilters.regexFilter(Pattern.CASE_INSENSITIVE, Pattern.quote(patternText), column));
                 }
             }
         }
