@@ -154,7 +154,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             return WmeSupportInfo.get(agent, w);
         };
         
-        final CompletionHandler<WmeSupportInfo> finish = result -> {
+        final CompletionHandler<WmeSupportInfo> finish = sourceInfo -> {
             source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
             entryList.setModel(SwingTools.addAll(new DefaultListModel<Support>(), sourceInfo.getSupports()));
             wmeModel.setWmes(null);
