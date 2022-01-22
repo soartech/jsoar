@@ -12,6 +12,7 @@
 
     <properties>
         <graalvm.version>21.2.0</graalvm.version>
+        <mainClass>org.jsoar.repl.Repl</mainClass>
     </properties>
     <build>
         <plugins>
@@ -41,7 +42,7 @@
                             </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.jsoar.repl.Repl</mainClass>
+                                    <mainClass>${mainClass}</mainClass>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
@@ -69,25 +70,34 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.graalvm.nativeimage</groupId>
-                <artifactId>native-image-maven-plugin</artifactId>
-                <version>${graalvm.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>native-image</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>false</skip>
-                    <mainClass>org.jsoar.repl.Repl</mainClass>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.nativeimage</groupId>
+                        <artifactId>native-image-maven-plugin</artifactId>
+                        <version>${graalvm.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>native-image</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>${mainClass}</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
