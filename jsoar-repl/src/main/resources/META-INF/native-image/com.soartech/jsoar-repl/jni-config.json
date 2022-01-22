@@ -1,5 +1,9 @@
 [
 {
+  "name":"java.lang.Boolean",
+  "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
+},
+{
   "name":"java.lang.ClassLoader",
   "methods":[
     {"name":"getPlatformClassLoader","parameterTypes":[] }, 
@@ -7,39 +11,32 @@
   ]
 },
 {
-  "name":"java.lang.NoSuchMethodError"
-},
-{
   "name":"jdk.internal.loader.ClassLoaders$PlatformClassLoader"
 },
 {
-  "name":"org.sqlite.Function",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"org.graalvm.jniutils.JNIExceptionWrapperEntryPoints",
+  "methods":[{"name":"getClassName","parameterTypes":["java.lang.Class"] }]
 },
 {
-  "name":"org.sqlite.Function$Aggregate",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"org.sqlite.Function"
 },
 {
-  "name":"org.sqlite.Function$Window",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"org.sqlite.Function$Aggregate"
 },
 {
-  "name":"org.sqlite.ProgressHandler",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"org.sqlite.Function$Window"
 },
 {
-  "name":"org.sqlite.core.DB$ProgressObserver",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "name":"org.sqlite.ProgressHandler"
+},
+{
+  "name":"org.sqlite.core.DB$ProgressObserver"
 },
 {
   "name":"org.sqlite.core.NativeDB",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true
+  "fields":[
+    {"name":"pointer"}, 
+    {"name":"udfdatalist"}
+  ]
 }
 ]
