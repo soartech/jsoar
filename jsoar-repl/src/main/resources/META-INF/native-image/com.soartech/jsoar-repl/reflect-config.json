@@ -862,14 +862,6 @@
   "name":"org.sqlite.JDBC"
 },
 {
-  "name":"picocli.CommandLine$HelpCommand",
-  "allDeclaredFields":true,
-  "allDeclaredMethods":true,
-  "allPublicMethods":true,
-  "allDeclaredConstructors":true,
-  "allPublicConstructors":true
-},
-{
   "name":"sun.security.provider.DRBG",
   "methods":[{"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
 },
