@@ -305,7 +305,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         stateInfos.put(id, new SemanticMemoryStateInfo(this, wm, id));
     }
 
-    SemanticMemoryDatabase getDatabase()
+    public SemanticMemoryDatabase getDatabase()
     {
         return db;
     }
@@ -4898,7 +4898,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         return next;
     }
 
-    void smem_print_store(StringBuilder return_val) throws SoarException
+    public void smem_print_store(StringBuilder return_val) throws SoarException
     {
         // vizualizing the store requires an open semantic database
         smem_attach();
@@ -4992,7 +4992,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
 
-    void smem_print_lti(long /* smem_lti_id */lti_id, int depth, StringBuilder return_val) throws SoarException
+    public void smem_print_lti(long /* smem_lti_id */lti_id, int depth, StringBuilder return_val) throws SoarException
     {
         Set<Long /* smem_lti_id */> visited = new LinkedHashSet<Long>();
 

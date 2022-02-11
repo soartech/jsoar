@@ -1,5 +1,7 @@
 package org.jsoar.kernel.commands;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -15,12 +17,14 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.PicocliSoarCommand;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -222,10 +226,77 @@ public class PrintCommand extends PicocliSoarCommand
                 return;
             }
 
-            if (params != null)
-            {
-                String argString = String.join(" ", params);
+			if (params != null) {
+				String argString = String.join(" ", params);
 
+				if (argString.charAt(0) == '@') {
+					try {
+						final StringWriter sw = new StringWriter();
+						final PrintWriter pw = new PrintWriter(sw);
+
+						long /* smem_lti_id */ lti_id = 0 /* NIL */;
+
+						final DefaultSemanticMemory smem;
+						try {
+							smem = Adaptables.adapt(agent, DefaultSemanticMemory.class);
+							smem.smem_attach();
+						} catch (SoarException e) {
+							agent.getPrinter().startNewLine().print(e.getMessage());
+							return;
+						}
+
+						StringBuilder viz = new StringBuilder("");
+
+						String param = argString.substring(1);
+
+						if (param.length() > 0) {
+							final char name_letter = Character.toUpperCase(param.charAt(0));
+							boolean paramOkay = Character.isLetter(name_letter);
+							long name_number = 1;
+							if (paramOkay) {
+								try {
+									name_number = Long.parseLong(param.substring(1));
+								} catch (NumberFormatException e) {
+									paramOkay = false;
+								}
+
+							}
+							if (!paramOkay) {
+								throw new ParameterException(spec.commandLine(), "Expected LTI, got '@" + param + "'");
+							}
+							if (smem.getDatabase() != null) {
+								lti_id = smem.smem_lti_get_id(name_letter, name_number);
+
+								if (lti_id == 0) {
+									agent.getPrinter().startNewLine()
+											.print("LTI '@" + param + "' not found in semantic memory.");
+									return;
+								}
+
+							}
+
+							smem.smem_print_lti(lti_id, depth, viz);
+						} else {
+							smem.smem_print_store(viz);
+						}
+
+						if (viz.length() == 0) {
+							agent.getPrinter().startNewLine().print("SMem| Semantic memory is empty.");
+							return;
+						}
+
+						// pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
+
+						pw.printf(viz.toString());
+
+						pw.flush();
+						agent.getPrinter().startNewLine().print(sw.toString());
+						return;
+					} catch (SoarException e) {
+						throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
+					}
+				}
+                
                 // Test if the parameter(s) passed is a symbol or pattern
                 Symbol arg = agent.readIdentifierOrContextVariable(argString);
                 if (arg != null || argString.charAt(0) == '(')
