@@ -11,8 +11,9 @@
     <name>jsoar-repl</name>
 
     <properties>
-        <graalvm.version>21.2.0</graalvm.version>
         <mainClass>org.jsoar.repl.Repl</mainClass>
+        <graalvm.version>22.0.0.2</graalvm.version>
+        <graalvm.native-image-plugin.version>21.2.0</graalvm.native-image-plugin.version>
     </properties>
     <build>
         <plugins>
@@ -53,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.10.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -61,7 +62,7 @@
                         <path>
                             <groupId>info.picocli</groupId>
                             <artifactId>picocli-codegen</artifactId>
-                            <version>4.6.1</version>
+                            <version>4.6.3</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
@@ -81,7 +82,7 @@
                     <plugin>
                         <groupId>org.graalvm.nativeimage</groupId>
                         <artifactId>native-image-maven-plugin</artifactId>
-                        <version>${graalvm.version}</version>
+                        <version>${graalvm.native-image-plugin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
