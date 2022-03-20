@@ -21,9 +21,7 @@ soar = (_soar.getAgent() instanceof Java.type('org.jsoar.kernel.Agent')) ? new (
   var disposers = [];
   
   function dispose() {
-    for each(var d in disposers) {
-      d();
-    }
+    disposers.forEach( d => d() );
   }
   
   // General event registration handler (see below)
@@ -82,14 +80,14 @@ soar = (_soar.getAgent() instanceof Java.type('org.jsoar.kernel.Agent')) ? new (
       }
       else if(isArray(value)) {
         // Arrays become multi-attributes ...
-        for each(var arrayValue in value) {
+        value.forEach( arrayValue => {
           if(isJava(arrayValue) || typeof(arrayValue) != 'object'){
             soar.wmes.add(id, key, arrayValue);
           }
           else {
             soar.wmes.add(id, key, fromJavaScript(arrayValue, key[0]));
           }
-        }
+        });
       }
       else {
         // JavaScript objects recurse...

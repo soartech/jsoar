@@ -11,6 +11,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.adaptables.Adaptable;
@@ -29,6 +31,8 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
+
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 /**
  * This is the implementation of the "script" command.
@@ -162,7 +166,16 @@ public class ScriptCommand extends PicocliSoarCommand
 
             if (state == null)
             {
-                final ScriptEngine engine = getEngineManager().getEngineByName(name);
+                ScriptEngine engine = null;
+                if("javascript".equals(name)) {
+                    engine = GraalJSScriptEngine.create(null,
+                            Context.newBuilder("js")
+                                .allowHostAccess(HostAccess.ALL)
+                                .allowHostClassLookup(className -> true));
+                } else {
+                    engine = getEngineManager().getEngineByName(name);
+                }
+                
                 if (engine == null)
                 {
                     throw new SoarException("Unsupported script engine '" + name + "'");

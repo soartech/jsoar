@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.script.Bindings;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -121,9 +120,6 @@ public class ScriptEngineState
         final InputStream is = getClass().getResourceAsStream(engineName.toLowerCase());
         if(is != null)
         {
-            Bindings bindings = engine.getBindings(javax.script.ScriptContext.ENGINE_SCOPE);
-            bindings.put("polyglot.js.allowAllAccess", true);
-            
             engine.put("_soar", new ScriptContext(context));
             
             engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);
