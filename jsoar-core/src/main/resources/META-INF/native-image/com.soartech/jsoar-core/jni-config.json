@@ -1,2 +1,42 @@
 [
+{
+  "name":"java.lang.Boolean",
+  "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.ClassLoader",
+  "methods":[
+    {"name":"getPlatformClassLoader","parameterTypes":[] }, 
+    {"name":"loadClass","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"jdk.internal.loader.ClassLoaders$PlatformClassLoader"
+},
+{
+  "name":"org.graalvm.jniutils.JNIExceptionWrapperEntryPoints",
+  "methods":[{"name":"getClassName","parameterTypes":["java.lang.Class"] }]
+},
+{
+  "name":"org.sqlite.Function"
+},
+{
+  "name":"org.sqlite.Function$Aggregate"
+},
+{
+  "name":"org.sqlite.Function$Window"
+},
+{
+  "name":"org.sqlite.ProgressHandler"
+},
+{
+  "name":"org.sqlite.core.DB$ProgressObserver"
+},
+{
+  "name":"org.sqlite.core.NativeDB",
+  "fields":[
+    {"name":"pointer"}, 
+    {"name":"udfdatalist"}
+  ]
+}
 ]

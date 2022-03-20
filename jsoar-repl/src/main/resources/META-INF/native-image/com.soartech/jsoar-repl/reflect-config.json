@@ -1,18 +1,880 @@
 [
 {
-  "name":"tcl.lang.cmd.ArrayCmd",
+  "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Lorg.springframework.util.ConcurrentReferenceHashMap$Segment;"
+},
+{
+  "name":"java.io.FilePermission"
+},
+{
+  "name":"java.lang.Double",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"java.lang.Integer",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"java.lang.Long",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"java.lang.RuntimePermission"
+},
+{
+  "name":"java.lang.System",
+  "methods":[{"name":"console","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Throwable",
+  "methods":[{"name":"getSuppressed","parameterTypes":[] }]
+},
+{
+  "name":"java.net.NetPermission"
+},
+{
+  "name":"java.net.SocketPermission"
+},
+{
+  "name":"java.net.URLPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"java.nio.file.Path"
+},
+{
+  "name":"java.nio.file.Paths",
+  "queriedMethods":[{"name":"get","parameterTypes":["java.lang.String","java.lang.String[]"] }]
+},
+{
+  "name":"java.security.AllPermission"
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.SecurityPermission"
+},
+{
+  "name":"java.sql.Connection"
+},
+{
+  "name":"java.sql.Driver"
+},
+{
+  "name":"java.sql.DriverManager",
+  "queriedMethods":[
+    {"name":"getConnection","parameterTypes":["java.lang.String"] }, 
+    {"name":"getDriver","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"java.sql.Time",
+  "queriedMethods":[{"name":"<init>","parameterTypes":["long"] }]
+},
+{
+  "name":"java.sql.Timestamp",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.Duration",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Instant",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalDate",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.LocalTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.MonthDay",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.OffsetDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.OffsetTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Period",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.Year",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.YearMonth",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.time.ZoneId",
+  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.ZoneOffset",
+  "queriedMethods":[{"name":"of","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.time.ZonedDateTime",
+  "queriedMethods":[{"name":"parse","parameterTypes":["java.lang.CharSequence"] }]
+},
+{
+  "name":"java.util.Collections$UnmodifiableRandomAccessList",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"java.util.PropertyPermission"
+},
+{
+  "name":"org.graalvm.polyglot.Engine",
+  "methods":[{"name":"getImpl","parameterTypes":[] }]
+},
+{
+  "name":"org.graalvm.polyglot.management.Management"
+},
+{
+  "name":"org.jsoar.kernel.commands.ChunkCommand$Chunk",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DebugCommand$Debug",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DebugCommand$InternalSymbols",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DebugCommand$Time",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DebuggerCommand$Debugger",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$Decide",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$IndifferentSelection",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$NumericIndifferentMode",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$Predict",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$Select",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.DecideCommand$SetRandomSeed",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.EchoCommand$Echo",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ExplainBacktracesCommand$ExplainBacktraces",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.HandlerCommand$Handler",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.HelpMainCommand$Help",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.LoadCommand$FileC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.LoadCommand$Load",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.LoadCommand$ReteNet",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.LogCommand$Log",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.OutputCommand$Log",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.OutputCommand$Output",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.OutputCommand$PrintDepth",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.OutputCommand$Warnings",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PopdCommand$Popd",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PreferencesCommand$Preferences",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PrintCommand$Print",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$Break",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$Excise",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$Find",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$FiringCounts",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$Matches",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$MemoryUsage",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$OptimizeAttribute",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$ProductionC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.ProductionCommand$Watch",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PropertiesCommand$Properties",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PushdCommand$Pushd",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.PwdCommand$Pwd",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.QMemoryCommand$QMemoryC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.RhsFunctionsCommand$RhsFunctionsC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.RunCommand$Run",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SaveBacktracesCommand$SaveBacktraces",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SaveCommand$ReteNet",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SaveCommand$Save",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SetParserCommand$SetParser",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$Init",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$MaxElaborations",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$Soar",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$Stop",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$StopPhase",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$StopPhase$CommandPhase",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$Timers",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$Version",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SoarSettingsCommand$WaitSNC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.SpCommand$Sp",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.StatsCommand$Stats",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.commands.TraceCommand$TraceC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.epmem.EpisodicMemoryDatabase",
+  "fields":[
+    {"name":"add_epmem_wmes_constant"}, 
+    {"name":"add_epmem_wmes_constant_now"}, 
+    {"name":"add_epmem_wmes_constant_point"}, 
+    {"name":"add_epmem_wmes_constant_range"}, 
+    {"name":"add_epmem_wmes_identifier"}, 
+    {"name":"add_epmem_wmes_identifier_now"}, 
+    {"name":"add_epmem_wmes_identifier_point"}, 
+    {"name":"add_epmem_wmes_identifier_range"}, 
+    {"name":"add_node"}, 
+    {"name":"add_time"}, 
+    {"name":"backup"}, 
+    {"name":"begin"}, 
+    {"name":"commit"}, 
+    {"name":"database_version"}, 
+    {"name":"delete_epmem_wmes_constant_now"}, 
+    {"name":"delete_epmem_wmes_identifier_now"}, 
+    {"name":"drop_epmem_episodes"}, 
+    {"name":"drop_epmem_lti"}, 
+    {"name":"drop_epmem_nodes"}, 
+    {"name":"drop_epmem_persistent_variables"}, 
+    {"name":"drop_epmem_rit_left_nodes"}, 
+    {"name":"drop_epmem_rit_right_nodes"}, 
+    {"name":"drop_epmem_symbols_float"}, 
+    {"name":"drop_epmem_symbols_integer"}, 
+    {"name":"drop_epmem_symbols_string"}, 
+    {"name":"drop_epmem_symbols_type"}, 
+    {"name":"drop_epmem_wmes_constant"}, 
+    {"name":"drop_epmem_wmes_constant_now"}, 
+    {"name":"drop_epmem_wmes_constant_point"}, 
+    {"name":"drop_epmem_wmes_constant_range"}, 
+    {"name":"drop_epmem_wmes_identifier"}, 
+    {"name":"drop_epmem_wmes_identifier_now"}, 
+    {"name":"drop_epmem_wmes_identifier_point"}, 
+    {"name":"drop_epmem_wmes_identifier_range"}, 
+    {"name":"edge_unique_select"}, 
+    {"name":"find_epmem_wmes_constant"}, 
+    {"name":"find_epmem_wmes_identifier"}, 
+    {"name":"find_epmem_wmes_identifier_shared"}, 
+    {"name":"find_lti"}, 
+    {"name":"find_lti_promotion_time"}, 
+    {"name":"get_max_time"}, 
+    {"name":"get_schema_version"}, 
+    {"name":"get_wmes_with_constant_values"}, 
+    {"name":"get_wmes_with_identifier_values"}, 
+    {"name":"hash_add_float"}, 
+    {"name":"hash_add_int"}, 
+    {"name":"hash_add_str"}, 
+    {"name":"hash_add_type"}, 
+    {"name":"hash_get_float"}, 
+    {"name":"hash_get_int"}, 
+    {"name":"hash_get_str"}, 
+    {"name":"hash_get_type"}, 
+    {"name":"hash_rev_float"}, 
+    {"name":"hash_rev_int"}, 
+    {"name":"hash_rev_str"}, 
+    {"name":"minmax_select_edge"}, 
+    {"name":"minmax_select_node"}, 
+    {"name":"next_episode"}, 
+    {"name":"now_delete_edge"}, 
+    {"name":"now_delete_node"}, 
+    {"name":"now_select_edge"}, 
+    {"name":"now_select_node"}, 
+    {"name":"pool_dummy"}, 
+    {"name":"pool_find_edge_queries_0_0"}, 
+    {"name":"pool_find_edge_queries_0_1"}, 
+    {"name":"pool_find_edge_queries_1_0"}, 
+    {"name":"pool_find_edge_queries_1_1"}, 
+    {"name":"pool_find_interval_queries_0_0_0"}, 
+    {"name":"pool_find_interval_queries_0_0_1"}, 
+    {"name":"pool_find_interval_queries_0_0_2"}, 
+    {"name":"pool_find_interval_queries_0_1_0"}, 
+    {"name":"pool_find_interval_queries_0_1_1"}, 
+    {"name":"pool_find_interval_queries_0_1_2"}, 
+    {"name":"pool_find_interval_queries_1_0_0"}, 
+    {"name":"pool_find_interval_queries_1_0_1"}, 
+    {"name":"pool_find_interval_queries_1_0_2"}, 
+    {"name":"pool_find_interval_queries_1_1_0"}, 
+    {"name":"pool_find_interval_queries_1_1_1"}, 
+    {"name":"pool_find_interval_queries_1_1_2"}, 
+    {"name":"pool_find_lti_queries_0_0"}, 
+    {"name":"pool_find_lti_queries_0_1"}, 
+    {"name":"pool_find_lti_queries_0_2"}, 
+    {"name":"pool_find_lti_queries_1_0"}, 
+    {"name":"pool_find_lti_queries_1_1"}, 
+    {"name":"pool_find_lti_queries_1_2"}, 
+    {"name":"prev_episode"}, 
+    {"name":"promote_id"}, 
+    {"name":"restore"}, 
+    {"name":"rit_add_left"}, 
+    {"name":"rit_add_right"}, 
+    {"name":"rit_truncate_left"}, 
+    {"name":"rit_truncate_right"}, 
+    {"name":"rollback"}, 
+    {"name":"set_schema_version"}, 
+    {"name":"update_epmem_wmes_identifier_last_episode_id"}, 
+    {"name":"valid_episode"}, 
+    {"name":"var_get"}, 
+    {"name":"var_set"}
+  ]
+},
+{
+  "name":"org.jsoar.kernel.epmem.EpmemCommand$EpmemC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.learning.rl.RLCommand$RL",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.smem.SemanticMemoryDatabase",
+  "fields":[
+    {"name":"act_lti_child_ct_get"}, 
+    {"name":"act_lti_child_ct_set"}, 
+    {"name":"act_lti_get"}, 
+    {"name":"act_lti_set"}, 
+    {"name":"act_set"}, 
+    {"name":"attribute_frequency_add"}, 
+    {"name":"attribute_frequency_check"}, 
+    {"name":"attribute_frequency_get"}, 
+    {"name":"attribute_frequency_update"}, 
+    {"name":"backup"}, 
+    {"name":"begin"}, 
+    {"name":"commit"}, 
+    {"name":"drop_smem_activation_history"}, 
+    {"name":"drop_smem_ascii"}, 
+    {"name":"drop_smem_attribute_frequency"}, 
+    {"name":"drop_smem_augmentations"}, 
+    {"name":"drop_smem_lti"}, 
+    {"name":"drop_smem_persistent_variables"}, 
+    {"name":"drop_smem_symbols_float"}, 
+    {"name":"drop_smem_symbols_integer"}, 
+    {"name":"drop_smem_symbols_string"}, 
+    {"name":"drop_smem_symbols_type"}, 
+    {"name":"drop_smem_wmes_constant_frequency"}, 
+    {"name":"drop_smem_wmes_lti_frequency"}, 
+    {"name":"get_schema_version"}, 
+    {"name":"hash_add_float"}, 
+    {"name":"hash_add_int"}, 
+    {"name":"hash_add_str"}, 
+    {"name":"hash_add_type"}, 
+    {"name":"hash_get_float"}, 
+    {"name":"hash_get_int"}, 
+    {"name":"hash_get_str"}, 
+    {"name":"hash_rev_float"}, 
+    {"name":"hash_rev_int"}, 
+    {"name":"hash_rev_str"}, 
+    {"name":"hash_rev_type"}, 
+    {"name":"history_add"}, 
+    {"name":"history_get"}, 
+    {"name":"history_push"}, 
+    {"name":"lti_access_get"}, 
+    {"name":"lti_access_set"}, 
+    {"name":"lti_add"}, 
+    {"name":"lti_get"}, 
+    {"name":"lti_get_t"}, 
+    {"name":"lti_letter_num"}, 
+    {"name":"lti_max"}, 
+    {"name":"restore"}, 
+    {"name":"rollback"}, 
+    {"name":"set_schema_version"}, 
+    {"name":"var_create"}, 
+    {"name":"var_get"}, 
+    {"name":"var_set"}, 
+    {"name":"vis_lti"}, 
+    {"name":"vis_lti_act"}, 
+    {"name":"vis_value_const"}, 
+    {"name":"vis_value_lti"}, 
+    {"name":"web_add"}, 
+    {"name":"web_all"}, 
+    {"name":"web_attr_all"}, 
+    {"name":"web_attr_child"}, 
+    {"name":"web_const_all"}, 
+    {"name":"web_const_child"}, 
+    {"name":"web_expand"}, 
+    {"name":"web_lti_all"}, 
+    {"name":"web_lti_child"}, 
+    {"name":"web_truncate"}, 
+    {"name":"wmes_constant_frequency_add"}, 
+    {"name":"wmes_constant_frequency_check"}, 
+    {"name":"wmes_constant_frequency_get"}, 
+    {"name":"wmes_constant_frequency_update"}, 
+    {"name":"wmes_lti_frequency_add"}, 
+    {"name":"wmes_lti_frequency_check"}, 
+    {"name":"wmes_lti_frequency_get"}, 
+    {"name":"wmes_lti_frequency_update"}
+  ]
+},
+{
+  "name":"org.jsoar.kernel.smem.SmemCommand$SmemC",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.wma.WMActivationCommand$Activation",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.kernel.wma.WMActivationCommand$WMA",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.script.ScriptCommand$Script",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.jsoar.util.commands.DefaultInterpreter$AliasCommand$Alias",
+  "allDeclaredFields":true,
+  "allDeclaredMethods":true,
+  "allPublicMethods":true,
+  "allDeclaredConstructors":true,
+  "allPublicConstructors":true
+},
+{
+  "name":"org.sqlite.JDBC"
+},
+{
+  "name":"sun.security.provider.DRBG",
+  "methods":[{"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA2$SHA256",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"tcl.lang.cmd.CatchCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.CloseCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.ContinueCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -24,15 +886,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.ExprCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.FileCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.ForCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -40,19 +894,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.GetsCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.GlobalCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.IfCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.IncrCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -72,10 +914,6 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.LindexCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.ListCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -92,23 +930,11 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.OpenCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.PackageCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"tcl.lang.cmd.ProcCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.ReadCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.RenameCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -124,19 +950,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.SplitCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.StringCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.SubstCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.SwitchCmd",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -144,19 +958,7 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"tcl.lang.cmd.UplevelCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.lang.cmd.UpvarCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"tcl.lang.cmd.VariableCmd",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"tcl.pkg.itcl.ItclExtension",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 }
 ]
