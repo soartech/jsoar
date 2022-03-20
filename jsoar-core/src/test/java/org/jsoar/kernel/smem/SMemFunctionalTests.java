@@ -26,6 +26,7 @@ import org.jsoar.kernel.smem.DefaultSemanticMemory.BasicWeightedCue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.ThreadedAgent;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * @author ray
@@ -251,9 +252,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency functional test did not halt", halted);
         
-        String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
+        String expected = "\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+6.0])\n" +
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
@@ -261,7 +260,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -292,9 +291,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery functional test did not halt", halted);
         
-        String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
+        String expected = "\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+5.0])\n" +
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
@@ -302,7 +299,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -333,9 +330,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue("testSimpleNonCueBasedRetrieval_ActivationFrequency functional test did not halt", halted);
         
-        String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
+        String expected = "\n" +
                           "(@L1 ^x 1 ^y 2 ^z 3 [+1.0])\n" +
                           "(@L2 ^x 2 ^y 3 ^z 1 [+2.0])\n" +
                           "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
@@ -343,7 +338,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -457,7 +452,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         lowEndExpectations.add(0.455);
         highEndExpectations.add(0.456);
         
-        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
@@ -469,7 +464,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -515,7 +510,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         lowEndExpectations.add(0.455);
         highEndExpectations.add(0.456);
         
-        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
@@ -527,7 +522,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -573,7 +568,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         lowEndExpectations.add(0.143);
         highEndExpectations.add(0.144);
         
-        // This is the expected output from smem --print modified from CSoar to look like JSoar outputs it (reverse string attributes)
+        // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
                           "            Semantic Memory             \n" +         
@@ -585,7 +580,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         
@@ -618,7 +613,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("smem --init");
         outputWriter.getBuffer().setLength(0);
        
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("p @");
         
         assertTrue("smem --init didn't init smem!", outputWriter.toString().equals("SMem| Semantic memory is empty."));
         
@@ -667,9 +662,10 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         agent.getInterpreter().eval("p -d 2 @F197");
         
-        String expectedResultOfPD2F197 = "(@F197 ^complete true ^factor @F48 ^factor @F198 ^number 100)\n" +
-                                         "  (@F48 ^multiplicity 2 ^value 5)\n" +
-                                         "  (@F198 ^multiplicity 2 ^value 2)\n";
+        String expectedResultOfPD2F197 = "\n" +
+                                         "(@F197 ^complete |true| ^number 100 ^factor @F48 @F198 [+368.0])\n" +
+                                         " (@F48 ^value 5 ^multiplicity 2 [+370.0])\n" +
+                                         " (@F198 ^value 2 ^multiplicity 2 [+369.0])\n";
         
         String resultOfPD2F197 = outputWriter.toString();
         
@@ -684,6 +680,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
+    @Disabled
     public void readCSoarDB() throws Exception
     {
         agent.initialize();
@@ -696,14 +693,11 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String actualResult = sw.toString();
         
-        String expectedResult = "========================================\n" +
-                                "            Semantic Memory             \n" +
-                                "========================================\n" +
-                                "(@F1 ^number 2 ^complete |true| ^factor @F2 [+5.0])\n" +
+        String expectedResult = "(@F1 ^number 2 ^complete |true| ^factor @F2 [+5.0])\n" +
                                 "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
                                 "(@F3 ^number 3 ^complete |true| ^factor @F4 [+3.0])\n" +
                                 "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
@@ -723,7 +717,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String result = sw.toString();
         

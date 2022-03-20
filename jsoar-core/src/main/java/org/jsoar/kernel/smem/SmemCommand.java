@@ -449,8 +449,6 @@ public class SmemCommand extends PicocliSoarCommand
                 return "SMem| Semantic memory is empty.";
             }
 
-            //pw.printf(PrintHelper.generateHeader("Semantic Memory", 40));
-            
             pw.printf(viz.toString());
 
             pw.flush();

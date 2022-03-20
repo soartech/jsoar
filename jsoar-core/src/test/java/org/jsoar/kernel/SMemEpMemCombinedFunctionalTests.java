@@ -22,14 +22,11 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
-        agent.getInterpreter().eval("smem --print");
+        agent.getInterpreter().eval("print @");
         agent.getPrinter().popWriter();
         String actualResultSMem = sw.toString();
         
-        String expectedResultSMem = "========================================\n" +
-                                    "            Semantic Memory             \n" +
-                                    "========================================\n" +
-                                    "(@F4 ^complete |true| ^number 3 ^factor @F5 [+5.0])\n" +
+        String expectedResultSMem = "(@F4 ^complete |true| ^number 3 ^factor @F5 [+5.0])\n" +
                                     "(@F5 ^value 3 ^multiplicity 1 [+6.0])\n" +
                                     "(@F12 ^complete |true| ^number 5 ^factor @F13 [+3.0])\n" +
                                     "(@F13 ^value 5 ^multiplicity 1 [+4.0])\n" +
