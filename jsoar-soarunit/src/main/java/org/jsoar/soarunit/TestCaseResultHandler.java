@@ -9,6 +9,6 @@ package org.jsoar.soarunit;
  *
  */
 public interface TestCaseResultHandler {
-	
-	void handleTestCaseResult(TestCaseResult result);
+
+    void handleTestCaseResult(TestCaseResult result);
 }

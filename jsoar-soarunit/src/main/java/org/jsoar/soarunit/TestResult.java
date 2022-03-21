@@ -77,7 +77,7 @@ public class TestResult
     
     public double getRunTimeInSeconds()
     {
-    	return ((double) runNanos) / 1000000000.0;
+        return ((double) runNanos) / 1000000000.0;
     }
 
     /* (non-Javadoc)

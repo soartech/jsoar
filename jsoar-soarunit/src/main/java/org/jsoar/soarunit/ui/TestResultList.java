@@ -84,12 +84,13 @@ public class TestResultList extends JPanel
         });
         
         this.list.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				handleSelectionChanged(e);
-			}
-		});
+
+            @Override
+            public void valueChanged(ListSelectionEvent e)
+            {
+                handleSelectionChanged(e);
+            }
+        });
         
         final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         split.setLeftComponent(new JScrollPane(list));
@@ -100,38 +101,48 @@ public class TestResultList extends JPanel
         add(split, BorderLayout.CENTER);        
     }
     
-    protected void handleSelectionChanged(ListSelectionEvent e) {
-    	final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
-    	if(result != null) {
-    		final String outputString = result.getResult().getOutput(); 
-    		output.setText(!outputString.isEmpty() ? outputString : "No output produced by agent.");
-    	}
-    	else {
-    		output.setText("");
-    	}
-	}
+    protected void handleSelectionChanged(ListSelectionEvent e)
+    {
+        final TestResultProxy result = (TestResultProxy) list
+                .getSelectedValue();
+        if (result != null)
+        {
+            final String outputString = result.getResult().getOutput();
+            output.setText(!outputString.isEmpty() ? outputString
+                    : "No output produced by agent.");
+        }
+        else
+        {
+            output.setText("");
+        }
+    }
 
-	public void reset()
+    public void reset()
     {
         model.clear();
     }
     
-	public void addTestCase(TestCase testCase) {
-	    for(Test test : testCase.getTests()) {
-	        model.addElement(new TestResultProxy(test));
-	    }
-	}
-	
-	private int getProxyIndex(TestResult testResult) {
-	    for(int i = 0; i < model.getSize(); i++) {
-	        final TestResultProxy proxy = (TestResultProxy) model.get(i);
-	        if(proxy.getTest() == testResult.getTest()) {
-	            return i;
-	        }
-	    }
-	    return -1;
-	}
-	
+    public void addTestCase(TestCase testCase)
+    {
+        for (Test test : testCase.getTests())
+        {
+            model.addElement(new TestResultProxy(test));
+        }
+    }
+
+    private int getProxyIndex(TestResult testResult)
+    {
+        for (int i = 0; i < model.getSize(); i++)
+        {
+            final TestResultProxy proxy = (TestResultProxy) model.get(i);
+            if (proxy.getTest() == testResult.getTest())
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void addTestResults(TestCaseResult testCaseResult)
     {
         for(TestResult testResult : testCaseResult.getTestResults())

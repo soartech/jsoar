@@ -37,9 +37,10 @@ public class RunTestsAction extends AbstractAction implements PropertyChangeList
         tp.runTests();
     }
     
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		setEnabled(!((Boolean) evt.getNewValue()).booleanValue());
-	}
+    @Override
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        setEnabled(!((Boolean) evt.getNewValue()).booleanValue());
+    }
 
 }
