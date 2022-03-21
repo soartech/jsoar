@@ -12,6 +12,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -31,8 +33,6 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-
-import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 
 /**
  * This is the implementation of the "script" command.
@@ -168,7 +168,10 @@ public class ScriptCommand extends PicocliSoarCommand
             {
                 ScriptEngine engine = null;
                 if("javascript".equals(name)) {
-                    engine = GraalJSScriptEngine.create(null,
+                    Engine internalGraalEngine = Engine.newBuilder()
+                            .option("engine.WarnInterpreterOnly", "false")
+                            .build();
+                    engine = GraalJSScriptEngine.create(internalGraalEngine,
                             Context.newBuilder("js")
                                 .allowHostAccess(HostAccess.ALL)
                                 .allowHostClassLookup(className -> true));
