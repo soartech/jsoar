@@ -23,7 +23,7 @@ public class TestRunner
 {
     private final PrintWriterProxy out;
     private int total;
-    private boolean haltOnFailure = true;
+    private boolean haltOnFailure = false; // determines whether a test group stops when a test fails (so not all tests in the group execute)
     private FiringCounts firingCounts = new FiringCounts();
     private final TestAgentFactory factory;
     private final ExecutorService executor;
