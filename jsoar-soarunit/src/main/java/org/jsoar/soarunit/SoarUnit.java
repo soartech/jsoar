@@ -172,6 +172,7 @@ public class SoarUnit implements Callable<Integer>
         {
             final TestRunner runner = new TestRunner(agentFactory, out, getExecutor());
             final List<TestCaseResult> results = runner.runAllTestCases(collector.collect(), null);
+            printFailedTestOutput(results);
             return printAllTestCaseResults(results, runner.getFiringCounts());
         }
         
@@ -203,6 +204,21 @@ public class SoarUnit implements Callable<Integer>
         runner.debugTest(test, fromCommandLine);
     }
 
+    private void printFailedTestOutput(final List<TestCaseResult> results)
+    {
+        for(TestCaseResult result : results)
+        {
+            for(TestResult testResult : result.getTestResults())
+            {
+                final Test test = testResult.getTest();
+                if(!testResult.isPassed())
+                {
+                    out.printf("FAILED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getRunTimeInSeconds());
+                }
+            }
+        }
+    }
+        
     private int printAllTestCaseResults(final List<TestCaseResult> results, FiringCounts coverage)
     {
         int totalPassed = 0;
@@ -226,7 +242,6 @@ public class SoarUnit implements Callable<Integer>
                 else
                 {
                     out.printf("FAILED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getRunTimeInSeconds());
-                    out.println(testResult.getOutput());
                     totalFailed++;
                 }
             }
