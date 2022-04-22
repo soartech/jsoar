@@ -57,6 +57,11 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
+    
+    private Popup tooltipPopup;
+    private final JScrollPane completionsScrollPane = new JScrollPane();
+    private long lastInputTimestamp = System.currentTimeMillis();
+    
     @SuppressWarnings("serial")
     private final AbstractAction selectUpAction = new AbstractAction()
     {
@@ -111,9 +116,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
-    private Popup tooltipPopup;
-    private final JScrollPane completionsScrollPane = new JScrollPane();
-    private long lastInputTimestamp = System.currentTimeMillis();
 
     /**
      * Construct the panel with the given debugger
