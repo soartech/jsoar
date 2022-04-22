@@ -274,10 +274,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             String help = getHelp(commandLine);
             SwingUtilities.invokeLater(() -> {
                 if (commandLine == null){
-                    if (tooltipPopup != null){
-                        tooltipPopup.hide();
-                        tooltipPopup = null;
-                    }
+                    hideHelpTooltip();
                 } else {
                     showHelpTooltip(help);
                 }
@@ -352,10 +349,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             } else {
                 SwingUtilities.invokeLater( () -> {
                     completions.setVisible(false);
-                    if (tooltipPopup != null) {
-                        tooltipPopup.hide();
-                        tooltipPopup = null;
-                    }
+                    hideHelpTooltip();
                 });
             }
         });
@@ -366,10 +360,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         int yLoc = completions.getY();
         int xLoc = completions.getX() + completions.getWidth();
 
-        if (tooltipPopup != null) {
-            tooltipPopup.hide();
-            tooltipPopup = null;
-        }
+        hideHelpTooltip();
 
         if (help != null && !help.isEmpty()) {
             JToolTip toolTip = new JToolTip();
@@ -386,10 +377,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             completions.setVisible(false);
             completionsShowing = false;
         }
-        if (tooltipPopup != null) {
-            tooltipPopup.hide();
-            tooltipPopup = null;
-        }
+        hideHelpTooltip();
     }
 
     public void giveFocus()
@@ -488,5 +476,22 @@ public class CommandEntryPanel extends JPanel implements Disposable
             return helpBuilder.toString();
         }
         return "";
+    }
+    
+    private void hideHelpTooltip() {
+        if(SwingUtilities.isEventDispatchThread()) {
+            hideHelpTooltipUnsafe();
+        } else {
+            SwingUtilities.invokeLater( () -> {
+                hideHelpTooltipUnsafe();
+            });
+        }
+    }
+    
+    private void hideHelpTooltipUnsafe() {
+        if (tooltipPopup != null) {
+            tooltipPopup.hide();
+            tooltipPopup = null;
+        }
     }
 }
