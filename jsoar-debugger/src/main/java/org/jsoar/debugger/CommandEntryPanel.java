@@ -309,6 +309,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
         String trimmedCommand = command.trim();
         if (trimmedCommand.isEmpty())
         {
+            hideHelpTooltip();
+            hideCompletions();
             return;
         }
         
@@ -340,7 +342,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                             completions.toFront();
                             completionsList.setToolTipText("");
                             completionsShowing = true;
-    
+                            
                             showHelpTooltip(help);
                         } catch (RuntimeException e) {
                             // ignore
