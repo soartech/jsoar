@@ -48,7 +48,6 @@ import picocli.CommandLine;
 public class CommandEntryPanel extends JPanel implements Disposable
 {
     private static final long serialVersionUID = 667991263123343775L;
-    private static final long COMPLETION_DELAY = 500;
 
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
@@ -60,7 +59,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
     
     private Popup tooltipPopup;
     private final JScrollPane completionsScrollPane = new JScrollPane();
-    private long lastInputTimestamp = System.currentTimeMillis();
+    
+    private boolean executingCommand = false;
     
     @SuppressWarnings("serial")
     private final AbstractAction selectUpAction = new AbstractAction()
@@ -160,19 +160,24 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-
-                int position = editorComponent.getCaretPosition();
-                updateCompletionsDelay(field.getEditor().getItem().toString(), position);
-
+                // updates occur when the user presses enter to execute a command, and we don't want to show completions or help then
+                if(!executingCommand)
+                {
+                    int position = editorComponent.getCaretPosition();
+                    updateCompletions(field.getEditor().getItem().toString(), position);
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e)
             {
-                try {
-                    String text = e.getDocument().getText(0, e.getDocument().getLength());
-                    updateCompletions(text,text.length());
-                } catch (BadLocationException ignored) {
+                // updates occur when the user presses enter to execute a command, and we don't want to show completions or help then
+                if(!executingCommand)
+                {
+                    try {
+                        String text = e.getDocument().getText(0, e.getDocument().getLength());
+                        updateCompletions(text,text.length());
+                    } catch (BadLocationException ignored) { }
                 }
             }
 
@@ -180,7 +185,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             public void changedUpdate(DocumentEvent e)
             {
                 int position = editorComponent.getCaretPosition();
-                updateCompletionsDelay(field.getEditor().getItem().toString(),position);
+                updateCompletions(field.getEditor().getItem().toString(),position);
             }
         });
 
@@ -285,27 +290,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         
     }
 
-    private void updateCompletionsDelay(String command, int cursorPosition){
-        if (!completionsShowing) {
-            new Thread(() ->
-            {
-                lastInputTimestamp = System.currentTimeMillis();
-                try {
-                    Thread.sleep(COMPLETION_DELAY);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                long time = System.currentTimeMillis();
-                if (lastInputTimestamp + COMPLETION_DELAY <= time) {
-                    SwingUtilities.invokeLater(() ->
-                            updateCompletions(command, cursorPosition));
-                }
-            }).start();
-        } else {
-            updateCompletions(command, cursorPosition);
-        }
-    }
-
     private void updateCompletions(String command, int cursorPosition)
     {
         String trimmedCommand = command.trim();
@@ -332,7 +316,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             if (finalCommands != null && finalCommands.length > 0)
             {
                 String help = getHelp(commandLine);
-            
+                
                 SwingUtilities.invokeLater( () -> {
                     try {
                             completions.setVisible(true);
@@ -422,6 +406,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private void execute()
     {
+        this.executingCommand = true;
+        
         final String command = field.getEditor().getItem().toString().trim();
         if (command.length() > 0) {
             debugger.getAgent().execute(() -> {
@@ -431,6 +417,10 @@ public class CommandEntryPanel extends JPanel implements Disposable
             
             addCommand(command);
         }
+        
+        hideCompletions();
+        
+        this.executingCommand = false;
     }
 
     @SuppressWarnings("unchecked") // unfortunately, can't parameterize JXComboBox, even though it extends a generic type
