@@ -228,12 +228,13 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 }
             }
         });
-        editorComponent.getActionMap().put("hide_completions", new AbstractAction()
+        editorComponent.getActionMap().put("hide_completions_and_history", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 hideCompletions();
+                field.setPopupVisible(false);
             }
         });
 
@@ -241,7 +242,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"down_complete");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke('\t'),"complete_selected");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"show_completions");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"hide_completions");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"hide_completions_and_history");
         completionsList.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), "complete_selected");
 
         completionsList.addMouseListener(new MouseAdapter()
