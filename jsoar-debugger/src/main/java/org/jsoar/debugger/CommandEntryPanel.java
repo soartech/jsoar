@@ -70,7 +70,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         {
             if (completionsShowing) {
                 int selectedIndex = completionsList.getSelectedIndex();
-                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize() - 1) {
+                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize()) {
                     selectedIndex = 0;
                 } else {
                     selectedIndex = selectedIndex - 1;
