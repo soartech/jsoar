@@ -164,7 +164,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 if(!executingCommand)
                 {
                     int position = editorComponent.getCaretPosition();
-                    updateCompletions(field.getEditor().getItem().toString(), position);
+                    updateCompletions(field.getEditor().getItem().toString(), position, debugger.isAutoCompletionsEnabled());
                 }
             }
 
@@ -176,7 +176,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 {
                     try {
                         String text = e.getDocument().getText(0, e.getDocument().getLength());
-                        updateCompletions(text,text.length());
+                        updateCompletions(text,text.length(), debugger.isAutoCompletionsEnabled());
                     } catch (BadLocationException ignored) { }
                 }
             }
@@ -185,7 +185,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             public void changedUpdate(DocumentEvent e)
             {
                 int position = editorComponent.getCaretPosition();
-                updateCompletions(field.getEditor().getItem().toString(),position);
+                updateCompletions(field.getEditor().getItem().toString(),position, debugger.isAutoCompletionsEnabled());
             }
         });
 
@@ -224,7 +224,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 if (!completionsShowing) {
                     int position = editorComponent.getCaretPosition();
-                    updateCompletions(field.getEditor().getItem().toString(), position);
+                    updateCompletions(field.getEditor().getItem().toString(), position, true); // always show completions when manually invoked
                 }
             }
         });
@@ -233,9 +233,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (completionsShowing) {
-                    hideCompletions();
-                }
+                hideCompletions();
             }
         });
 
@@ -290,7 +288,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         
     }
 
-    private void updateCompletions(String command, int cursorPosition)
+    private void updateCompletions(String command, int cursorPosition, boolean showCompletions)
     {
         String trimmedCommand = command.trim();
         if (trimmedCommand.isEmpty())
@@ -318,44 +316,62 @@ public class CommandEntryPanel extends JPanel implements Disposable
                 String help = getHelp(commandLine);
                 
                 SwingUtilities.invokeLater( () -> {
-                    try {
-                            completions.setVisible(true);
-                            completionsList.setListData(finalCommands);
-                            completionsScrollPane.doLayout();
-                            Point location = field.getLocationOnScreen();
-                            int yLoc = location.y + field.getHeight();
-                            completions.setBounds(location.x, yLoc, 200, 100);
-                            completions.toFront();
-                            completionsList.setToolTipText("");
-                            completionsShowing = true;
-                            
-                            showHelpTooltip(help);
-                        } catch (RuntimeException e) {
-                            // ignore
+                    try
+                    {
+                        if(showCompletions)
+                        {
+                            showCompletions(finalCommands);
                         }
+                        else
+                        {
+                            hideCompletions();
+                        }
+                        
+                        showHelpTooltip(help);
+                    }
+                    catch (RuntimeException ignore) { }
                 });
             } else {
                 SwingUtilities.invokeLater( () -> {
-                    completions.setVisible(false);
+                    hideCompletions();
                     hideHelpTooltip();
                 });
             }
         });
     }
+    
+    private void showCompletions(String [] commands)
+    {
+        completions.setVisible(true);
+        completionsList.setListData(commands);
+        completionsScrollPane.doLayout();
+        Point location = field.getLocationOnScreen();
+        int yLoc = location.y + field.getHeight();
+        completions.setBounds(location.x, yLoc, 200, 100);
+        completions.toFront();
+        completionsList.setToolTipText("");
+        completionsShowing = true;
+    }
 
     private void showHelpTooltip(String help)
     {
-        int yLoc = completions.getY();
-        int xLoc = completions.getX() + completions.getWidth();
+        Point fieldLocation = field.getLocationOnScreen();
+        int yFieldLoc = fieldLocation.y + field.getHeight();
+        
+        int yLoc = completionsShowing ? completions.getY() : yFieldLoc;
+        int xLoc = completionsShowing ? completions.getX() + completions.getWidth() : fieldLocation.x;
 
         hideHelpTooltip();
-
-        if (help != null && !help.isEmpty()) {
-            JToolTip toolTip = new JToolTip();
-            toolTip.setTipText(help);
-            PopupFactory popupFactory = PopupFactory.getSharedInstance();
-            tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
-            tooltipPopup.show();
+        
+        if(this.debugger.isAutoHelpEnabled()) 
+        {
+            if (help != null && !help.isEmpty()) {
+                JToolTip toolTip = new JToolTip();
+                toolTip.setTipText(help);
+                PopupFactory popupFactory = PopupFactory.getSharedInstance();
+                tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
+                tooltipPopup.show();
+            }
         }
     }
 
