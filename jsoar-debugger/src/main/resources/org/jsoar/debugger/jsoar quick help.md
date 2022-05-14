@@ -60,12 +60,18 @@ Many of the commands follow a parent command / sub command structure, with optio
 * The scale can be dynamically changed at runtime via `Ctrl+scrollwheel`. Note that this is imperfect, but may be good enough in many cases.
 
 ### Change the Panels ###
+
 * There are many panels available for displaying various information, and not all are shown by default.
 * Additional panels can be found under the `View` menu.
 * The Working Memory panel gives a graphical tree view of working memory. Scroll by dragging the empty space in the panel.
 * The WME Search panel allows you to specify a pattern to look for, and lists matching WMEs. Note that this can also be achieved via the `print --exact` command (see the example under the `print` command above).
 * The Stop Command panel allows you to specify a command to execute when Soar stops (e.g., to print some location in working memory). You can create multiple of these.
 * Note that the panels can be re-arranged, and layouts may be saved/loaded (see the `View` -> `Layout` menu).
+
+### Command Autocompletion ###
+
+* When entering commands in the command box, you can use autocompletion. Autocompletions will show automatically if the option in the View menu is selected, or can be shown manually with CTRL+SPACE.
+* To select an item from the completions box, use CTRL+UP/DOWN, and then press TAB or ENTER.
 
 ## Other Resources ##
 

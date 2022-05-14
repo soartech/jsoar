@@ -48,7 +48,6 @@ import picocli.CommandLine;
 public class CommandEntryPanel extends JPanel implements Disposable
 {
     private static final long serialVersionUID = 667991263123343775L;
-    private static final long COMPLETION_DELAY = 500;
 
     private final JSoarDebugger debugger;
     private final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
@@ -57,6 +56,12 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private final JList<String> completionsList = new JList<>();
     private boolean completionsShowing = false;
+    
+    private Popup tooltipPopup;
+    private final JScrollPane completionsScrollPane = new JScrollPane();
+    
+    private boolean executingCommand = false;
+    
     @SuppressWarnings("serial")
     private final AbstractAction selectUpAction = new AbstractAction()
     {
@@ -65,7 +70,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
         {
             if (completionsShowing) {
                 int selectedIndex = completionsList.getSelectedIndex();
-                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize() - 1) {
+                if (selectedIndex < 0 || selectedIndex >= completionsList.getModel().getSize()) {
                     selectedIndex = 0;
                 } else {
                     selectedIndex = selectedIndex - 1;
@@ -111,9 +116,23 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         }
     };
-    private Popup tooltipPopup;
-    private final JScrollPane completionsScrollPane = new JScrollPane();
-    private long lastInputTimestamp = System.currentTimeMillis();
+    
+    @SuppressWarnings("serial")
+    private final AbstractAction completeOrExecuteCommand = new AbstractAction()
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            if(isCompletionSelected())
+            {
+                useCompletion(completionsList.getSelectedIndex());
+            }
+            else
+            {
+                execute();
+            }
+        }
+    };
 
     /**
      * Construct the panel with the given debugger
@@ -130,7 +149,6 @@ public class CommandEntryPanel extends JPanel implements Disposable
         this.add(field, BorderLayout.CENTER);
 
         field.setEditable(true);
-        field.getEditor().addActionListener(e -> execute());
         field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke>emptySet());
 
         completions = new JWindow(debugger.frame);
@@ -158,19 +176,24 @@ public class CommandEntryPanel extends JPanel implements Disposable
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-
-                int position = editorComponent.getCaretPosition();
-                updateCompletionsDelay(field.getEditor().getItem().toString(), position);
-
+                // updates occur when the user presses enter to execute a command, and we don't want to show completions or help then
+                if(!executingCommand)
+                {
+                    int position = editorComponent.getCaretPosition();
+                    updateCompletions(field.getEditor().getItem().toString(), position, debugger.isAutoCompletionsEnabled());
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e)
             {
-                try {
-                    String text = e.getDocument().getText(0, e.getDocument().getLength());
-                    updateCompletions(text,text.length());
-                } catch (BadLocationException ignored) {
+                // updates occur when the user presses enter to execute a command, and we don't want to show completions or help then
+                if(!executingCommand)
+                {
+                    try {
+                        String text = e.getDocument().getText(0, e.getDocument().getLength());
+                        updateCompletions(text,text.length(), debugger.isAutoCompletionsEnabled());
+                    } catch (BadLocationException ignored) { }
                 }
             }
 
@@ -178,7 +201,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             public void changedUpdate(DocumentEvent e)
             {
                 int position = editorComponent.getCaretPosition();
-                updateCompletionsDelay(field.getEditor().getItem().toString(),position);
+                updateCompletions(field.getEditor().getItem().toString(),position, debugger.isAutoCompletionsEnabled());
             }
         });
 
@@ -206,8 +229,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
         });
 
+        editorComponent.getActionMap().put("complete_or_execute_command", completeOrExecuteCommand);
         editorComponent.getActionMap().put("complete_selected", completeSelectedAction);
-        completionsList.getActionMap().put("complete_selected",completeSelectedAction);
         editorComponent.getActionMap().put("down_complete", selectDownAction);
         editorComponent.getActionMap().put("up_complete", selectUpAction);
         editorComponent.getActionMap().put("show_completions", new AbstractAction()
@@ -217,27 +240,26 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 if (!completionsShowing) {
                     int position = editorComponent.getCaretPosition();
-                    updateCompletions(field.getEditor().getItem().toString(), position);
+                    updateCompletions(field.getEditor().getItem().toString(), position, true); // always show completions when manually invoked
                 }
             }
         });
-        editorComponent.getActionMap().put("hide_completions", new AbstractAction()
+        editorComponent.getActionMap().put("hide_completions_and_history", new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if (completionsShowing) {
-                    hideCompletions();
-                }
+                hideCompletions();
+                field.setPopupVisible(false);
             }
         });
 
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "complete_or_execute_command");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"up_complete");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"down_complete");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke('\t'),"complete_selected");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0),"complete_selected");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"show_completions");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"hide_completions");
-        completionsList.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0), "complete_selected");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"hide_completions_and_history");
 
         completionsList.addMouseListener(new MouseAdapter()
         {
@@ -274,10 +296,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             String help = getHelp(commandLine);
             SwingUtilities.invokeLater(() -> {
                 if (commandLine == null){
-                    if (tooltipPopup != null){
-                        tooltipPopup.hide();
-                        tooltipPopup = null;
-                    }
+                    hideHelpTooltip();
                 } else {
                     showHelpTooltip(help);
                 }
@@ -285,33 +304,23 @@ public class CommandEntryPanel extends JPanel implements Disposable
         });
         
     }
-
-    private void updateCompletionsDelay(String command, int cursorPosition){
-        if (!completionsShowing) {
-            new Thread(() ->
-            {
-                lastInputTimestamp = System.currentTimeMillis();
-                try {
-                    Thread.sleep(COMPLETION_DELAY);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                long time = System.currentTimeMillis();
-                if (lastInputTimestamp + COMPLETION_DELAY <= time) {
-                    SwingUtilities.invokeLater(() ->
-                            updateCompletions(command, cursorPosition));
-                }
-            }).start();
-        } else {
-            updateCompletions(command, cursorPosition);
+    
+    public boolean isCompletionSelected()
+    {
+        if(completionsShowing) {
+            int selectedIndex = completionsList.getSelectedIndex();
+            return selectedIndex >= 0 && selectedIndex < completionsList.getModel().getSize();
         }
+        return false;
     }
 
-    private void updateCompletions(String command, int cursorPosition)
+    private void updateCompletions(String command, int cursorPosition, boolean showCompletions)
     {
         String trimmedCommand = command.trim();
         if (trimmedCommand.isEmpty())
         {
+            hideHelpTooltip();
+            hideCompletions();
             return;
         }
         
@@ -331,52 +340,64 @@ public class CommandEntryPanel extends JPanel implements Disposable
             if (finalCommands != null && finalCommands.length > 0)
             {
                 String help = getHelp(commandLine);
-            
+                
                 SwingUtilities.invokeLater( () -> {
-                    try {
-                            completions.setVisible(true);
-                            completionsList.setListData(finalCommands);
-                            completionsScrollPane.doLayout();
-                            Point location = field.getLocationOnScreen();
-                            int yLoc = location.y + field.getHeight();
-                            completions.setBounds(location.x, yLoc, 200, 100);
-                            completions.toFront();
-                            completionsList.setToolTipText("");
-                            completionsShowing = true;
-    
-                            showHelpTooltip(help);
-                        } catch (RuntimeException e) {
-                            // ignore
+                    try
+                    {
+                        if(showCompletions)
+                        {
+                            showCompletions(finalCommands);
                         }
+                        else
+                        {
+                            hideCompletions();
+                        }
+                        
+                        showHelpTooltip(help);
+                    }
+                    catch (RuntimeException ignore) { }
                 });
             } else {
                 SwingUtilities.invokeLater( () -> {
-                    completions.setVisible(false);
-                    if (tooltipPopup != null) {
-                        tooltipPopup.hide();
-                        tooltipPopup = null;
-                    }
+                    hideCompletions();
+                    hideHelpTooltip();
                 });
             }
         });
     }
+    
+    private void showCompletions(String [] commands)
+    {
+        completions.setVisible(true);
+        completionsList.setListData(commands);
+        completionsScrollPane.doLayout();
+        Point location = field.getLocationOnScreen();
+        int yLoc = location.y + field.getHeight();
+        completions.setBounds(location.x, yLoc, 200, 100);
+        completions.toFront();
+        completionsList.setToolTipText("");
+        completionsShowing = true;
+    }
 
     private void showHelpTooltip(String help)
     {
-        int yLoc = completions.getY();
-        int xLoc = completions.getX() + completions.getWidth();
+        Point fieldLocation = field.getLocationOnScreen();
+        int yFieldLoc = fieldLocation.y + field.getHeight();
+        
+        int yLoc = completionsShowing ? completions.getY() : yFieldLoc;
+        int xLoc = completionsShowing ? completions.getX() + completions.getWidth() : fieldLocation.x;
 
-        if (tooltipPopup != null) {
-            tooltipPopup.hide();
-            tooltipPopup = null;
-        }
-
-        if (help != null && !help.isEmpty()) {
-            JToolTip toolTip = new JToolTip();
-            toolTip.setTipText(help);
-            PopupFactory popupFactory = PopupFactory.getSharedInstance();
-            tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
-            tooltipPopup.show();
+        hideHelpTooltip();
+        
+        if(this.debugger.isAutoHelpEnabled()) 
+        {
+            if (help != null && !help.isEmpty()) {
+                JToolTip toolTip = new JToolTip();
+                toolTip.setTipText(help);
+                PopupFactory popupFactory = PopupFactory.getSharedInstance();
+                tooltipPopup = popupFactory.getPopup(field, toolTip, xLoc, yLoc);
+                tooltipPopup.show();
+            }
         }
     }
 
@@ -386,10 +407,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             completions.setVisible(false);
             completionsShowing = false;
         }
-        if (tooltipPopup != null) {
-            tooltipPopup.hide();
-            tooltipPopup = null;
-        }
+        hideHelpTooltip();
     }
 
     public void giveFocus()
@@ -430,6 +448,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
 
     private void execute()
     {
+        this.executingCommand = true;
+        
         final String command = field.getEditor().getItem().toString().trim();
         if (command.length() > 0) {
             debugger.getAgent().execute(() -> {
@@ -439,6 +459,10 @@ public class CommandEntryPanel extends JPanel implements Disposable
             
             addCommand(command);
         }
+        
+        hideCompletions();
+        
+        this.executingCommand = false;
     }
 
     @SuppressWarnings("unchecked") // unfortunately, can't parameterize JXComboBox, even though it extends a generic type
@@ -488,5 +512,22 @@ public class CommandEntryPanel extends JPanel implements Disposable
             return helpBuilder.toString();
         }
         return "";
+    }
+    
+    private void hideHelpTooltip() {
+        if(SwingUtilities.isEventDispatchThread()) {
+            hideHelpTooltipUnsafe();
+        } else {
+            SwingUtilities.invokeLater( () -> {
+                hideHelpTooltipUnsafe();
+            });
+        }
+    }
+    
+    private void hideHelpTooltipUnsafe() {
+        if (tooltipPopup != null) {
+            tooltipPopup.hide();
+            tooltipPopup = null;
+        }
     }
 }

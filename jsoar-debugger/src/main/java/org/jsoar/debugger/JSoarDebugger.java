@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -29,6 +30,8 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -136,7 +139,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
     private static float fontScale = 1.0f;
     private StopCommandViewFactory factory;
-
+    
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
      */
@@ -585,6 +588,30 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
             }
         });
+        
+        viewMenu.getMenu().addSeparator();
+        
+        JCheckBoxMenuItem autoCompletionsMenuItem = new JCheckBoxMenuItem("Automatically Show Command Completions", isAutoCompletionsEnabled());
+        viewMenu.getMenu().add(autoCompletionsMenuItem);
+        autoCompletionsMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                AbstractButton aButton = (AbstractButton) event.getSource();
+                boolean selected = aButton.getModel().isSelected();
+                getPreferences().put("autoShowCommandCompletions", String.valueOf(selected));
+            }  
+        });
+        
+        
+        JCheckBoxMenuItem autoHelpMenuItem = new JCheckBoxMenuItem("Automatically Show Command Help", isAutoHelpEnabled());
+        viewMenu.getMenu().add(autoHelpMenuItem);
+        autoHelpMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                AbstractButton aButton = (AbstractButton) event.getSource();
+                boolean selected = aButton.getModel().isSelected();
+                getPreferences().put("autoShowHelp", String.valueOf(selected));
+            }  
+        });
+        
         new ViewSelectionMenu( docking, viewMenu.getMenu());
 
 
@@ -918,5 +945,13 @@ public class JSoarDebugger extends JPanel implements Adaptable
         factory.setDefaultLocation(views.get(0).getBaseLocation());
         addView(new StopCommandView(factory, this));
 
+    }
+    
+    public boolean isAutoCompletionsEnabled() {
+        return getPreferences().getBoolean("autoShowCommandCompletions", true);
+    }
+    
+    public boolean isAutoHelpEnabled() {
+        return getPreferences().getBoolean("autoShowHelp", true);
     }
 }
