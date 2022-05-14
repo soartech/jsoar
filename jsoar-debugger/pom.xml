@@ -2,7 +2,7 @@
     <parent>
         <groupId>com.soartech</groupId>
         <artifactId>jsoar</artifactId>
-        <version>4.1.1-SNAPSHOT</version>
+        <version>4.1.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs.swingx</groupId>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-tcl</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
             <scope>compile</scope>
         </dependency>
         
