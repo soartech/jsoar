@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.soartech</groupId>
         <artifactId>jsoar</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2-SNAPSHOT</version>
     </parent>
     <artifactId>jsoar-repl</artifactId>
     <name>jsoar-repl</name>
@@ -102,12 +102,12 @@
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-core</artifactId>
-            <version>4.1.1</version>
+            <version>4.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
             <artifactId>jsoar-tcl</artifactId>
-            <version>4.1.1</version>
+            <version>4.1.2-SNAPSHOT</version>
         </dependency>
         
         <!-- This is needed to specify the "provided" part, so the graal native image compiler stuff doesn't end up in the executable -->
