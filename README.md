@@ -1,5 +1,5 @@
 [![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
-![version](https://img.shields.io/badge/jsoar-v4.1.0-blue)
+![version](https://img.shields.io/badge/jsoar-4.1.1-blue)
 
 [![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
