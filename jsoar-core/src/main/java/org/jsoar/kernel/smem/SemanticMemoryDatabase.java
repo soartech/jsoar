@@ -5,9 +5,11 @@
  */
 package org.jsoar.kernel.smem;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
 import org.jsoar.util.db.SoarPreparedStatement;
@@ -152,8 +154,11 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
         }
         
         // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-        this.getConnection().createStatement().executeUpdate(query);
+        File file = new File(fileName);
+        String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
+        try(Statement s = this.getConnection().createStatement()) {
+            s.executeUpdate(query);
+        }
         
         returnValue = true;
         

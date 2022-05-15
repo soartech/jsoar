@@ -5,10 +5,12 @@
  */
 package org.jsoar.kernel.epmem;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.db.AbstractSoarDatabase;
@@ -276,8 +278,11 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         }
         
         // See sqlite-jdbc notes
-        String query = backup.getQuery() + " \"" + fileName + "\"";
-        this.getConnection().createStatement().executeUpdate(query);
+        File file = new File(fileName);
+        String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
+        try(Statement s = this.getConnection().createStatement()) {
+            s.executeUpdate(query);
+        }
         
         returnValue = true;
         
