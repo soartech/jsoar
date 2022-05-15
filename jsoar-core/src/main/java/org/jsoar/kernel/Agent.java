@@ -5,11 +5,8 @@
  */
 package org.jsoar.kernel;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -1055,33 +1052,4 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         return getName();
     }
     
-    private static Agent agent() throws SoarException
-    {
-        //.setProperty("jsoar.agent.interpreter", "tcl");
-        final Agent a = new Agent();
-        a.getPrinter().pushWriter(new OutputStreamWriter(System.out));
-        a.initialize();
-        a.getInterpreter().source(new File("../performance/count-test-single.soar"));
-        //a.getInterpreter().source(new File("../performance/FunctionalTests_testArithmetic.soar"));
-        //a.getInterpreter().source(new File("c:/veteran.soar"));
-        System.out.println("\nLoaded " + a.getProductions().getProductionCount() + " rules");
-        a.getPrinter().flush();
-        a.runFor(20000, RunType.DECISIONS);
-        //a.runFor(40000, RunType.FOREVER);
-        
-        return a;
-    }
-    public static void main(String[] args) throws SoarException, InterruptedException
-    {
-        final List<Agent> agents = new ArrayList<Agent>();
-        for(int i = 0; i < 1; ++i)
-        {
-            System.out.print("\n#" + (i + 1));
-            agents.add(agent());
-        }
-        while(true)
-        {
-            Thread.sleep(1000);
-        }
-    }
 }
