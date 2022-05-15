@@ -42,9 +42,8 @@ public class DebugTestAction extends AbstractAction
     @Override
     public void actionPerformed(ActionEvent event)
     {
-        try
+        try(PrintWriter pw = new PrintWriter(new NullWriter()))
         {
-            PrintWriter pw = new PrintWriter(new NullWriter());
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
             pw.close();

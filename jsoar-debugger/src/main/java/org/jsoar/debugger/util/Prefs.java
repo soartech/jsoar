@@ -82,41 +82,43 @@ public class Prefs extends AbstractPreferences {
     }
 
     @Override
-    protected void syncSpi() throws BackingStoreException {
+    protected void syncSpi() throws BackingStoreException
+    {
         if (isRemoved()) return;
 
         final File file = getPreferencesFile();
 
         if (file == null || !file.exists()) return;
 
-        synchronized (file) {
+        synchronized (file)
+        {
             Properties p = new Properties();
-            try {
-                p.load(new FileInputStream(file));
+            try(FileInputStream fs = new FileInputStream(file))
+            {
+                p.load(fs);
+            }
+            catch (IOException e)
+            {
+                throw new BackingStoreException(e);
+            }
 
-                StringBuilder sb = new StringBuilder();
-                getPath(sb);
-                String path = sb.toString();
+            StringBuilder sb = new StringBuilder();
+            getPath(sb);
+            String path = sb.toString();
 
-                final Enumeration<?> pnen = p.propertyNames();
-                while (pnen.hasMoreElements()) {
-                    String propKey = (String) pnen.nextElement();
-                    if (propKey.startsWith(path)) {
-                        String subKey = propKey.substring(path.length());
-                        // Only load immediate descendants
-                        if (subKey.indexOf('.') == -1) {
-                            root.put(subKey, p.getProperty(propKey));
-                        }
+            final Enumeration<?> pnen = p.propertyNames();
+            while (pnen.hasMoreElements()) {
+                String propKey = (String) pnen.nextElement();
+                if (propKey.startsWith(path)) {
+                    String subKey = propKey.substring(path.length());
+                    // Only load immediate descendants
+                    if (subKey.indexOf('.') == -1) {
+                        root.put(subKey, p.getProperty(propKey));
                     }
                 }
             }
-            catch (IOException e) {
-                throw new BackingStoreException(e);
-            }
         }
     }
-
-
 
     private void getPath(StringBuilder sb)
     {
@@ -128,51 +130,64 @@ public class Prefs extends AbstractPreferences {
     }
 
     @Override
-    protected void flushSpi() throws BackingStoreException {
+    protected void flushSpi() throws BackingStoreException
+    {
         final File file = getPreferencesFile();
-
-        synchronized (file) {
+        if(file == null) {
+            return;
+        }
+        
+        synchronized (file)
+        {
             Properties p = new Properties();
-            try {
-
-                StringBuilder sb = new StringBuilder();
-                getPath(sb);
-                String path = sb.toString();
-
+            
+            StringBuilder sb = new StringBuilder();
+            getPath(sb);
+            String path = sb.toString();
+            
+            try(FileInputStream fis = new FileInputStream(file))
+            {
                 if (file.exists()) {
-                    p.load(new FileInputStream(file));
-
-                    List<String> toRemove = new ArrayList<>();
-
-                    // Make a list of all direct children of this node to be removed
-                    final Enumeration<?> pnen = p.propertyNames();
-                    while (pnen.hasMoreElements()) {
-                        String propKey = (String) pnen.nextElement();
-                        if (propKey.startsWith(path)) {
-                            String subKey = propKey.substring(path.length());
-                            // Only do immediate descendants
-                            if (subKey.indexOf('.') == -1) {
-                                toRemove.add(propKey);
-                            }
-                        }
-                    }
-
-                    // Remove them now that the enumeration is done with
-                    for (String propKey : toRemove) {
-                        p.remove(propKey);
-                    }
+                    p.load(fis);
                 }
-
-                // If this node hasn't been removed, add back in any values
-                if (!isRemoved) {
-                    for (String s : root.keySet()) {
-                        p.setProperty(path + s, root.get(s));
-                    }
-                }
-
-                p.store(new FileOutputStream(file), "JSoar Debugger Preferences");
             }
-            catch (IOException e) {
+            catch (IOException e)
+            {
+                throw new BackingStoreException(e);
+            }
+
+            List<String> toRemove = new ArrayList<>();
+
+            // Make a list of all direct children of this node to be removed
+            final Enumeration<?> pnen = p.propertyNames();
+            while (pnen.hasMoreElements()) {
+                String propKey = (String) pnen.nextElement();
+                if (propKey.startsWith(path)) {
+                    String subKey = propKey.substring(path.length());
+                    // Only do immediate descendants
+                    if (subKey.indexOf('.') == -1) {
+                        toRemove.add(propKey);
+                    }
+                }
+            }
+
+            // Remove them now that the enumeration is done with
+            for (String propKey : toRemove) {
+                p.remove(propKey);
+            }
+
+            // If this node hasn't been removed, add back in any values
+            if (!isRemoved) {
+                for (String s : root.keySet()) {
+                    p.setProperty(path + s, root.get(s));
+                }
+            }
+
+            try(FileOutputStream fos = new FileOutputStream(file)) {
+                p.store(fos, "JSoar Debugger Preferences");
+            }
+            catch (IOException e)
+            {
                 throw new BackingStoreException(e);
             }
         }

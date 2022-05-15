@@ -4905,11 +4905,9 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // id, soar_letter, number
         PreparedStatement q = db.vis_lti;
-        ResultSet rs = null;
-        try
+        
+        try(ResultSet rs = q.executeQuery())
         {
-            rs = q.executeQuery();
-
             while (rs.next())
             {
                 _smem_print_lti(rs.getLong(0 + 1), (char) rs.getInt(1 + 1), rs.getLong(2 + 1), rs.getDouble(3 + 1), return_val);
@@ -4918,17 +4916,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         catch (SQLException e)
         {
             throw new SoarException(e);
-        }
-        finally
-        {
-            try
-            {
-                rs.close();
-            }
-            catch (SQLException e)
-            {
-                throw new SoarException(e);
-            }
         }
     }
 

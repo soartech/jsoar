@@ -98,14 +98,12 @@ public class TestPanel extends JPanel
             summary.setTotal(totalTests);
         });
         
-        PrintWriter pw = new PrintWriter(new NullWriter());
-        final TestRunner runner = new TestRunner(agentFactory, () -> pw, executor);
-        runner.setHaltOnFailure(false);
-        runner.runAllTestCases(allTestCases, result -> addResult(result));
-        
-        pw.close();
-        
-        SwingUtilities.invokeLater(() ->handleTestRunFinished(runner));
+        try(PrintWriter pw = new PrintWriter(new NullWriter())) {
+            final TestRunner runner = new TestRunner(agentFactory, () -> pw, executor);
+            runner.setHaltOnFailure(false);
+            runner.runAllTestCases(allTestCases, result -> addResult(result));
+            SwingUtilities.invokeLater(() ->handleTestRunFinished(runner));
+        }
     }
     
     private void addResult(final TestCaseResult testCaseResult)
