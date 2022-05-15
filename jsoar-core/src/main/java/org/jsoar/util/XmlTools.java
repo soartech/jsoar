@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,6 +55,8 @@ public class XmlTools
     public static DocumentBuilder createDocumentBuilder()
     {
         final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        docFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        docFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         try
         {
            return docFactory.newDocumentBuilder();
@@ -99,6 +102,8 @@ public class XmlTools
         try
         {
             TransformerFactory xformFactory = TransformerFactory.newInstance();
+            xformFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            xformFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             Transformer idTransform = xformFactory.newTransformer();
             idTransform.setOutputProperty(OutputKeys.VERSION, "1.0");
             idTransform.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
