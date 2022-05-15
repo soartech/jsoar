@@ -7069,13 +7069,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         catch (SoarException e)
         {
-            logger.error("Soar Exception: ");
-            e.printStackTrace();
+            logger.error("Soar Exception: ", e);
         }
         catch (SQLException e)
         {
-            logger.error("Database Error: ");
-            e.printStackTrace();
+            logger.error("Database Error: ", e);
         }
         return "";
     }

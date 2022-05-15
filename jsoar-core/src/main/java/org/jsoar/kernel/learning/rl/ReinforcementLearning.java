@@ -65,6 +65,8 @@ import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyChangeEvent;
 import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -73,6 +75,8 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class ReinforcementLearning
 {
+    private static final Logger logger = LoggerFactory.getLogger(ReinforcementLearning.class);
+    
 	private final PropertyManager properties;
     private final ReinforcementLearningParams params;
     
@@ -588,8 +592,7 @@ public class ReinforcementLearning
 	            }
 	            catch (ReordererException e)
 	            {
-	                // TODO Auto-generated catch block
-	                e.printStackTrace();
+	                logger.error("Failed to add template instance production to rete", e);
 	            }
 	            
 	            return_val = new_name_symbol;
