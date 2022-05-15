@@ -5,14 +5,11 @@
  */
 package org.jsoar.kernel.smem;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
-import org.jsoar.util.db.SoarPreparedStatement;
 
 /**
  * Database helper class for semantic memory.
@@ -28,15 +25,8 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
     
     static final String IN_MEMORY_PATH = ":memory:";
 
-    // These are all the prepared statements for SMEM. They're filled in via reflection
-    // from statements.properties.
-    PreparedStatement begin;
-    PreparedStatement commit;
-    PreparedStatement rollback;
-
-    SoarPreparedStatement backup;
-    SoarPreparedStatement restore;
-    
+    // These are all the prepared statements for SMEM (in addition to those in the superclass).
+    // They're filled in via reflection from statements.properties.
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
@@ -141,33 +131,5 @@ final class SemanticMemoryDatabase extends AbstractSoarDatabase
         drop_smem_wmes_constant_frequency.execute();
         drop_smem_wmes_lti_frequency.execute();
         drop_smem_ascii.execute();
-    }
-    
-    public boolean backupDb(String fileName) throws SQLException
-    {
-        boolean returnValue = false;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        // See sqlite-jdbc notes
-        File file = new File(fileName);
-        String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
-        try(Statement s = this.getConnection().createStatement()) {
-            s.executeUpdate(query);
-        }
-        
-        returnValue = true;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        return returnValue;
     }
 }

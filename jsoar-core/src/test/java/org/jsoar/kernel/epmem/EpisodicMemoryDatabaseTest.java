@@ -179,10 +179,6 @@ public class EpisodicMemoryDatabaseTest
         emdb.structure();
         emdb.prepare();
         
-        assertNotNull(emdb.begin);
-        assertNotNull(emdb.commit);
-        assertNotNull(emdb.rollback);
-        
         assertNotNull(emdb.var_get);
         assertNotNull(emdb.var_set);
         

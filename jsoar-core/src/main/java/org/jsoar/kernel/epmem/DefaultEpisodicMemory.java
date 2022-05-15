@@ -1006,7 +1006,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // in a single transaction
         if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
-            db.begin.executeUpdate( /* soar_module::op_reinit */);
+            db.beginExecuteUpdate( /* soar_module::op_reinit */);
         }
 
         // //////////////////////////////////////////////////////////////////////////
@@ -1227,7 +1227,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 
                 if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
-                    db.commit.execute();
+                    db.commitExecuteUpdate();
                 }
                 
                 // close the database

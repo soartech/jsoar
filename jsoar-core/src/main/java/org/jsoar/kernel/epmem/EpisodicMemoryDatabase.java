@@ -5,12 +5,10 @@
  */
 package org.jsoar.kernel.epmem;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.db.AbstractSoarDatabase;
@@ -32,17 +30,10 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     static final String IN_MEMORY_PATH = ":memory:";
     
-    // These are all the prepared statements for EPMEM. They're filled in via reflection
-    // from statements.properties.
+    // These are all the prepared statements for EPMEM (in addition to those in the superclass).
+    // They're filled in via reflection from statements.properties.
     
-    // epmem_common_statement_container
-    PreparedStatement begin;
-    PreparedStatement commit;
-    PreparedStatement rollback;
-    
-    SoarPreparedStatement backup;
-    SoarPreparedStatement restore;
-    
+    // epmem_common_statement_container    
     PreparedStatement var_get;
     PreparedStatement var_set;
     
@@ -265,33 +256,5 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         drop_epmem_symbols_integer.execute();
         drop_epmem_symbols_float.execute();
         drop_epmem_symbols_string.execute();
-    }
-    
-    public boolean backupDb(String fileName) throws SQLException
-    {
-        boolean returnValue = false;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        // See sqlite-jdbc notes
-        File file = new File(fileName);
-        String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
-        try(Statement s = this.getConnection().createStatement()) {
-            s.executeUpdate(query);
-        }
-        
-        returnValue = true;
-        
-        if (this.getConnection().getAutoCommit())
-        {
-            commit.execute();
-            begin.execute();
-        }
-        
-        return returnValue;
     }
 }

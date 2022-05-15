@@ -144,10 +144,6 @@ final Set<String> indexes = new HashSet<String>();
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         smdb.prepare();
-        
-        assertNotNull(smdb.begin);
-        assertNotNull(smdb.commit);
-        assertNotNull(smdb.rollback);
 
         assertNotNull(smdb.var_get);
         assertNotNull(smdb.var_set);

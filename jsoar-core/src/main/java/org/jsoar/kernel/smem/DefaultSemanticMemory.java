@@ -3077,7 +3077,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         if (tabula_rasa)
         {
-            db.begin.executeUpdate( /* soar_module::op_reinit */);
+            db.beginExecuteUpdate( /* soar_module::op_reinit */);
             {
                 smem_max_cycle = 1;
                 smem_variable_create(smem_variable_key.var_max_cycle, smem_max_cycle);
@@ -3092,7 +3092,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 smem_variable_create(smem_variable_key.var_act_mode, params.activation_mode.get().ordinal());
             }
-            db.commit.executeUpdate();
+            db.commitExecuteUpdate();
         }
         else
         {
@@ -3126,7 +3126,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // in a single transaction
         if (params.lazy_commit.get() == LazyCommitChoices.on)
         {
-            db.begin.executeUpdate( /* soar_module::op_reinit */);
+            db.beginExecuteUpdate( /* soar_module::op_reinit */);
         }
 
         // //////////////////////////////////////////////////////////////////////////
@@ -3291,7 +3291,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // if lazy, commit
                 if (params.lazy_commit.get() == LazyCommitChoices.on)
                 {
-                    db.commit.executeUpdate( /* soar_module::op_reinit */);
+                    db.commitExecuteUpdate( /* soar_module::op_reinit */);
                 }
 
                 // close the database
@@ -4074,7 +4074,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         // start transaction (if not lazy)
                         if (params.lazy_commit.get() == LazyCommitChoices.off)
                         {
-                            db.begin.executeUpdate( /* soar_module::op_reinit */);
+                            db.beginExecuteUpdate( /* soar_module::op_reinit */);
                         }
 
                         for (IdentifierImpl sym_p : store)
@@ -4091,7 +4091,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         // commit transaction (if not lazy)
                         if (params.lazy_commit.get() == LazyCommitChoices.off)
                         {
-                            db.commit.executeUpdate( /* soar_module::op_reinit */);
+                            db.commitExecuteUpdate( /* soar_module::op_reinit */);
                         }
 
                         // //////////////////////////////////////////////////////////////////////////
@@ -4142,7 +4142,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // start transaction (if not lazy)
             if (params.lazy_commit.get() == LazyCommitChoices.off)
             {
-                db.begin.execute();
+                db.beginExecuteUpdate();
             }
 
             for (SymbolImpl it : smem_changed_ids)
@@ -4160,7 +4160,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // commit transaction (if not lazy)
             if (params.lazy_commit.get() == LazyCommitChoices.off)
             {
-                db.commit.execute();
+                db.commitExecuteUpdate();
             }
 
             smem_changed_ids.clear();
@@ -5065,8 +5065,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             // Commit and then start next lazy-commit transaction
             try
             {
-                db.commit.executeUpdate( /* soar_module::op_reinit */);
-                db.begin.executeUpdate( /* soar_module::op_reinit */);
+                db.commitExecuteUpdate( /* soar_module::op_reinit */);
+                db.beginExecuteUpdate( /* soar_module::op_reinit */);
             }
             catch (SQLException e)
             {

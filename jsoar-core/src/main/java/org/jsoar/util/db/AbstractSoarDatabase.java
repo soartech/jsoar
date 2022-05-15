@@ -7,6 +7,7 @@ package org.jsoar.util.db;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,16 @@ public abstract class AbstractSoarDatabase
     private final Map<String, String> filterMap = new HashMap<String, String>();
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractSoarDatabase.class);
+    
+    // These are all the prepared statements shared by Soar databases. They're filled in via reflection
+    // from the statements.properties for the specific database 
+    
+    protected PreparedStatement begin;
+    protected PreparedStatement commit;
+    protected PreparedStatement rollback;
+
+    protected SoarPreparedStatement backup;
+    protected SoarPreparedStatement restore;
     
     /**
      * Construct a new database instance.
@@ -159,36 +170,41 @@ public abstract class AbstractSoarDatabase
     {
         try
         {
+            assignStatementInternal(name);
+        }
+        catch (SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException e)
+        {
+            throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
+        }
+    }
+    
+    private void assignStatementInternal(String name) throws IllegalArgumentException, IllegalAccessException, SoarException, NoSuchFieldException, SecurityException {
+        try
+        {
             // Reflectively find the field and assign the prepared statement
             // to it.
             final Field field = getClass().getDeclaredField(name);
-            // This is necessary since we're trying to set a possibly non-public
-            // field in a sub-class. Another option is to add a protected 
-            // abstract method, implemented by the sub-class that sets the field.
-            // This works for now.
-            field.setAccessible(true);
-            PreparedStatement ps = prepareNamedStatement(name);
-            if(ps == null){
-                throw new SoarException("Failed to prepare statement '" + name +"'");
-            }
-            field.set(this, ps);
+            setField(field);
         }
-        catch (SecurityException e)
-        {
-            throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
+        catch (NoSuchFieldException e) {
+            // check the superclass (i.e., this class)
+            final Field field = getClass().getSuperclass().getDeclaredField(name);
+            setField(field);
         }
-        catch (NoSuchFieldException e)
-        {
-            throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
+    }
+    
+    private void setField(Field field) throws SoarException, IllegalArgumentException, IllegalAccessException
+    {
+        // This is necessary since we're trying to set a possibly non-public
+        // field in a sub-class. Another option is to add a protected 
+        // abstract method, implemented by the sub-class that sets the field.
+        // This works for now.
+        field.setAccessible(true);
+        PreparedStatement ps = prepareNamedStatement(field.getName());
+        if(ps == null){
+            throw new SoarException("Failed to prepare statement '" + field.getName() +"'");
         }
-        catch (IllegalArgumentException e)
-        {
-            throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
-        }
+        field.set(this, ps);
     }
     
     private PreparedStatement prepareNamedStatement(String name) throws SoarException
@@ -245,6 +261,54 @@ public abstract class AbstractSoarDatabase
         }
         
         return new ByteArrayInputStream(tempString.getBytes("UTF-8"));
+    }
+    
+    public boolean backupDb(String fileName) throws SQLException
+    {
+        boolean returnValue = false;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        // See sqlite-jdbc notes
+        File file = new File(fileName);
+        String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
+        try(Statement s = this.getConnection().createStatement()) {
+            s.executeUpdate(query);
+        }
+        
+        returnValue = true;
+        
+        if (this.getConnection().getAutoCommit())
+        {
+            commit.execute();
+            begin.execute();
+        }
+        
+        return returnValue;
+    }
+    
+    public int beginExecuteUpdate() throws SQLException {
+        return this.begin.executeUpdate();
+    }
+
+    public int commitExecuteUpdate() throws SQLException {
+        return this.commit.executeUpdate();
+    }
+    
+    public int rollbackExecuteUpdate() throws SQLException {
+        return this.rollback.executeUpdate();
+    }
+    
+    public int backupExecuteUpdate() throws SQLException {
+        return this.backup.executeUpdate();
+    }
+    
+    public int restoreExecuteUpdate() throws SQLException {
+        return this.restore.executeUpdate();
     }
 
 }
