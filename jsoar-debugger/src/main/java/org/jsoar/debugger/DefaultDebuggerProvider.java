@@ -131,17 +131,12 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(getCloseDebuggerRunnable(agent)); 
+            SwingUtilities.invokeLater(() -> doCloseDebugger(agent)); 
         }
         else
         {        
             doCloseDebugger(agent);
         }
-    }
-    
-    private Runnable getCloseDebuggerRunnable(Agent agent)
-    {
-        return () -> doCloseDebugger(agent);
     }
 
     private void doCloseDebugger(Agent agent)
