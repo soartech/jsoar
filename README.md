@@ -1,5 +1,5 @@
 [![license](https://img.shields.io/badge/license-BSD--3-green)](https://github.com/soartech/jsoar/blob/maven/LICENSE.txt)
-![version](https://img.shields.io/badge/jsoar-4.1.1-blue)
+![version](https://img.shields.io/badge/jsoar-4.1.2-blue)
 
 [![javadoc-jsoar-core](https://img.shields.io/badge/javadoc-jsoar--core-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-core) 
 [![javadoc-jsoar-tcl](https://img.shields.io/badge/javadoc-jsoar--tcl-brightgreen)](https://javadoc.io/doc/com.soartech/jsoar-tcl) 
@@ -175,7 +175,7 @@ To create a release using the Maven Release plugin:
 		* You will answer all the questions again	
 		* This will change the current poms to the release version, commit and tag that, and then change the poms to the next snapshot version and commit that. Then it will push the commits to github.
 	* `mvn -Dusername=<yourGithubUsername> release:perform`
-		* This will build everything and upload the release jars to Maven Central's staging repo. They should be accessible in Maven Central proper some time after that (if automated, which it currently is not, nominally 20 mins, but it could take hours. Otherwise the release must be done manually). There's no need to wait for things to show up on Maven Central before continuing.
+		* This will build everything and upload the release jars to Maven Central's staging repo (make sure you have credentials for `soartech-releases` setup in your maven settings.xml). They should be accessible in Maven Central proper some time after that (if automated, which it currently is not, nominally 20 mins, but it could take hours. Otherwise the release must be done manually). There's no need to wait for things to show up on Maven Central before continuing.
 			* Manual promotion from the staging repo: log into `https://oss.sonatype.org/#stagingRepositories`, check the Content tab and make sure it looks good, then click the Close button at the top. Once closing has completed all of its checks it will be closed (you may have to refresh to see this). Then click the Release button at the top put it onto Maven Central. It may take a little while for it to actually appear in search results, and longer for the online javadocs to update.
 	* `mvn deploy`
 		* This will put the new snapshot on SoarTech's nexus (assuming you have the proper setup to access that, which all SoarTech employees should have).
