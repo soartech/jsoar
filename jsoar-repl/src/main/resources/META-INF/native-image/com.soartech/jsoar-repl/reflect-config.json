@@ -633,9 +633,6 @@
     {"name":"add_epmem_wmes_identifier_range"}, 
     {"name":"add_node"}, 
     {"name":"add_time"}, 
-    {"name":"backup"}, 
-    {"name":"begin"}, 
-    {"name":"commit"}, 
     {"name":"database_version"}, 
     {"name":"delete_epmem_wmes_constant_now"}, 
     {"name":"delete_epmem_wmes_identifier_now"}, 
@@ -710,12 +707,10 @@
     {"name":"pool_find_lti_queries_1_2"}, 
     {"name":"prev_episode"}, 
     {"name":"promote_id"}, 
-    {"name":"restore"}, 
     {"name":"rit_add_left"}, 
     {"name":"rit_add_right"}, 
     {"name":"rit_truncate_left"}, 
     {"name":"rit_truncate_right"}, 
-    {"name":"rollback"}, 
     {"name":"set_schema_version"}, 
     {"name":"update_epmem_wmes_identifier_last_episode_id"}, 
     {"name":"valid_episode"}, 
@@ -751,9 +746,6 @@
     {"name":"attribute_frequency_check"}, 
     {"name":"attribute_frequency_get"}, 
     {"name":"attribute_frequency_update"}, 
-    {"name":"backup"}, 
-    {"name":"begin"}, 
-    {"name":"commit"}, 
     {"name":"drop_smem_activation_history"}, 
     {"name":"drop_smem_ascii"}, 
     {"name":"drop_smem_attribute_frequency"}, 
@@ -788,8 +780,6 @@
     {"name":"lti_get_t"}, 
     {"name":"lti_letter_num"}, 
     {"name":"lti_max"}, 
-    {"name":"restore"}, 
-    {"name":"rollback"}, 
     {"name":"set_schema_version"}, 
     {"name":"var_create"}, 
     {"name":"var_get"}, 
@@ -859,7 +849,22 @@
   "allPublicConstructors":true
 },
 {
+  "name":"org.jsoar.util.db.AbstractSoarDatabase",
+  "fields":[
+    {"name":"backup"}, 
+    {"name":"begin"}, 
+    {"name":"commit"}, 
+    {"name":"restore"}, 
+    {"name":"rollback"}
+  ]
+},
+{
   "name":"org.sqlite.JDBC"
+},
+{
+  "name":"picocli.CommandLine$HelpCommand",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"sun.security.provider.DRBG",

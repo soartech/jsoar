@@ -18,6 +18,9 @@
   "methods":[{"name":"getClassName","parameterTypes":["java.lang.Class"] }]
 },
 {
+  "name":"org.sqlite.Collation"
+},
+{
   "name":"org.sqlite.Function"
 },
 {
@@ -35,6 +38,7 @@
 {
   "name":"org.sqlite.core.NativeDB",
   "fields":[
+    {"name":"colldatalist"}, 
     {"name":"pointer"}, 
     {"name":"udfdatalist"}
   ]
