@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.36.0.3</version>
+            <version>3.39.3.0</version>
         </dependency>
         <!-- 
              while jsoar doesn't use jcl (commons-logging) other dependencies do,
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.36</version>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.20</version>
+            <version>5.3.23</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
