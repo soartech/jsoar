@@ -132,7 +132,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.1</version>
+            <version>2.0.3</version>
         </dependency>
         <!--JUnit Jupiter Engine to depend on the JUnit5 engine and JUnit 5 API -->
         <dependency>
