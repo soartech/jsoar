@@ -9,7 +9,6 @@ import org.jsoar.util.commands.PicocliSoarCommand;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 /**
  * This is the implementation of the "qmemory" command.
@@ -35,16 +34,13 @@ public class QMemoryCommand extends PicocliSoarCommand
             this.adapter = adapter;
         }
 
-        @Option(names={"-g", "--get"}, description="Item to retreive from qmemory")
+        @Option(names={"-g", "--get"}, description="Retreives item from qmemory at specified path")
         String getPath;
 
-        @Option(names={"-s", "--set"}, description="Item to set in qmemory")
-        String setPath;
+        @Option(names={"-s", "--set"}, arity="2", description="Path and item to set in qmemory (2 parameters required)")
+        String[] setPathAndValue;
 
-        @Parameters(arity="0..1", description="New value of item")
-        String value;
-
-        @Option(names={"-r", "--remove"}, description="Item to remove from qmemory")
+        @Option(names={"-r", "--remove"}, description="Removes item from qmemory at specified path")
         String removePath;
 
         @Option(names={"-c", "--clear"}, defaultValue="false", description="Clears everything from qmemory")
@@ -58,45 +54,43 @@ public class QMemoryCommand extends PicocliSoarCommand
                 String returnVal = adapter.getSource().getString(fixPath(getPath));
                 agent.getPrinter().startNewLine().print(returnVal);
             }
-            else if (setPath != null)
+            else if (setPathAndValue != null)
             {
-                if (value != null)
-                {
-                    final QMemory qmemory = adapter.getSource();
-                    final String path = fixPath(setPath);
+                
+                String setPath = setPathAndValue[0];
+                String value = setPathAndValue[1];
+                
+                
+                final QMemory qmemory = adapter.getSource();
+                final String path = fixPath(setPath);
 
-                    // Parse the value's type and set it in qmemory
+                // Parse the value's type and set it in qmemory
+                try
+                {
+                    qmemory.setInteger(path, Integer.parseInt(value));
+                }
+                catch (NumberFormatException e)
+                {
                     try
                     {
-                        qmemory.setInteger(path, Integer.parseInt(value));
+                        qmemory.setDouble(path, Double.parseDouble(value));
                     }
-                    catch (NumberFormatException e)
+                    catch (NumberFormatException e1)
                     {
-                        try
+                        // |'s can be used to ensure the value's type is a string
+                        if (value.length() >= 2 && value.charAt(0) == '|' &&
+                                value.charAt(value.length() - 1) == '|')
                         {
-                            qmemory.setDouble(path, Double.parseDouble(value));
+                            qmemory.setString(path, value.substring(1, value.length() - 1));
                         }
-                        catch (NumberFormatException e1)
+                        else
                         {
-                            // |'s can be used to ensure the value's type is a string
-                            if (value.length() >= 2 && value.charAt(0) == '|' &&
-                                    value.charAt(value.length() - 1) == '|')
-                            {
-                                qmemory.setString(path, value.substring(1, value.length() - 1));
-                            }
-                            else
-                            {
-                                qmemory.setString(path, value);
-                            }
+                            qmemory.setString(path, value);
                         }
                     }
+                }
 
-                    agent.getPrinter().startNewLine().print(value);
-                }
-                else
-                {
-                    agent.getPrinter().startNewLine().print("Error: new value not provided");
-                }
+                agent.getPrinter().startNewLine().print(value);
             }
             else if (removePath != null)
             {
@@ -105,17 +99,6 @@ public class QMemoryCommand extends PicocliSoarCommand
             else if (clear)
             {
                 this.adapter.setSource(DefaultQMemory.create());
-            }
-            // In case the user forgets to provide the --get option...
-            else if (value != null)
-            {
-                String returnVal = adapter.getSource().getString(fixPath(value));
-                agent.getPrinter().startNewLine().print(returnVal);
-            }
-            else
-            {
-                agent.getPrinter().startNewLine().print("Error: expected one of "
-                        + "--get, --set, --remove, or --clear");
             }
         }
 
