@@ -35,26 +35,26 @@ public class QMemoryCommand extends PicocliSoarCommand
         }
 
         @Option(names={"-g", "--get"}, description="Retreives item from qmemory at specified path")
-        String getPath;
+        String getPath = "";
 
         @Option(names={"-s", "--set"}, arity="2", description="Path and item to set in qmemory (2 parameters required)")
-        String[] setPathAndValue;
+        String[] setPathAndValue = new String[] {};
 
         @Option(names={"-r", "--remove"}, description="Removes item from qmemory at specified path")
-        String removePath;
+        String removePath = "";
 
         @Option(names={"-c", "--clear"}, defaultValue="false", description="Clears everything from qmemory")
-        boolean clear;
+        boolean clear = false;
 
         @Override
         public void run()
         {
-            if (getPath != null)
+            if (getPath != null && !getPath.isEmpty())
             {
                 String returnVal = adapter.getSource().getString(fixPath(getPath));
                 agent.getPrinter().startNewLine().print(returnVal);
             }
-            else if (setPathAndValue != null)
+            else if (setPathAndValue != null && setPathAndValue.length != 0)
             {
                 
                 String setPath = setPathAndValue[0];
