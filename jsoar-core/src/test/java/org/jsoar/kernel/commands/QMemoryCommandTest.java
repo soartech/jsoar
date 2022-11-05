@@ -49,6 +49,7 @@ public class QMemoryCommandTest
     {
 
         // this command should echo it's last argument to output
+        this.autoComplete("qmemory --set a foo");
         this.agent.getInterpreter().eval("qmemory --set a foo");
         
         // check output is what's expected
@@ -56,7 +57,6 @@ public class QMemoryCommandTest
         clearBuffer();
         
         // this command should not echo anything to output
-        this.autoComplete("qmemory --clear");
         this.agent.getInterpreter().eval("qmemory --clear");
         
         // confirm there is no output
