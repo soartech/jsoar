@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
 
 public class QMemoryCommandTest
 {
@@ -71,13 +70,10 @@ public class QMemoryCommandTest
     protected void autoComplete(String command) {
         CommandLine commandLine = this.agent.getInterpreter().findCommand(command);
         
-        // we need to get a "fresh" command spec each time to avoid accidentally reusing one that may already be in use
-        CommandSpec commandSpec = CommandSpec.forAnnotatedObject(commandLine.getCommandSpec().userObject());
-        
         ArrayList<CharSequence> longResults = new ArrayList<>();
         String[] parts = command.split(" ");
         
         // if this line is commented out, the problem goes away (of course, then autocompletion doesn't work in the jsoar-debugger)
-        picocli.AutoComplete.complete(commandSpec, parts, 1, parts[1].length(), command.length(), longResults);
+        picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, 1, parts[1].length(), command.length(), longResults);
     }
 }
