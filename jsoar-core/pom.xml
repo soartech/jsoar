@@ -67,7 +67,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.6.3</version>
+            <version>4.7.0</version>
         </dependency>
         
         <!-- javascript support since Nashorn is deprecated/removed -->
@@ -114,7 +114,7 @@
                         <path>
                             <groupId>info.picocli</groupId>
                             <artifactId>picocli-codegen</artifactId>
-                            <version>4.6.3</version>
+                            <version>4.7.0</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
