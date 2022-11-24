@@ -1,4 +1,4 @@
-package org.jsoar.kernel.commands;
+package org.jsoar.util.commands;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import picocli.CommandLine;
 
-public class QMemoryCommandTest
+public class PicocliSoarCommandTest
 {
     
     private Agent agent;
@@ -43,8 +43,15 @@ public class QMemoryCommandTest
         outputWriter.getBuffer().setLength(0);
     }
 
+    /**
+     * There was an issue where sometimes the fields from a previous command execution were not cleared when the command was run again,
+     * which would result in the new command being run with some old values. It appeared to be tied to autocompletion.
+     * This test confirms that it is working now -- previously, the "qmemory --clear" command would output the same results
+     * as the previous "qmemory --set a foo" command instead of outputting nothing (because it was rerunning the command with the previous
+     * args). Note that this issue is not specific to the qmemory command; it's just easy to reproduce there.
+     */
     @Test
-    public void testClear() throws InterruptedException, ExecutionException, TimeoutException, SoarException
+    public void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
     {
 
         // this command should echo it's last argument to output
