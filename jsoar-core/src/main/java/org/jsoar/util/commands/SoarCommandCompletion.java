@@ -1,15 +1,15 @@
 package org.jsoar.util.commands;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
-
 import java.util.ArrayList;
+
+import picocli.CommandLine;
 
 public class SoarCommandCompletion
 {
     /**
      * Generate a completion list for a CommandLine object, based on cursor position and input
-     * @param commandLine The CommandLine to perform conpletion on
+     * NOTE: This must happen on the Soar thread to avoid issues with command execution, which definitely happens on the Soar thread, trying to use the CommandSpec object in parallel.
+     * @param commandLine The CommandLine to perform completion on
      * @param input The typed input to generate a completion list for
      * @param cursorPosition The user's cursor position in the string
      */
@@ -36,11 +36,8 @@ public class SoarCommandCompletion
             }
 
             ArrayList<CharSequence> longResults = new ArrayList<>();
-            //System.out.println("argIndex: "+argIndex+", position: "+positionInArg+", command: "+input);
             
-            // we need to get a "fresh" command spec each time to avoid accidentally reusing one that may already be in use
-            CommandSpec commandSpec = CommandSpec.forAnnotatedObject(commandLine.getCommandSpec().userObject());
-            picocli.AutoComplete.complete(commandSpec, parts, argIndex, positionInArg, input.length(), longResults);
+            picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
 
             for (int i = 0; i < longResults.size(); i++) {
                 longResults.set(i, input + longResults.get(i));

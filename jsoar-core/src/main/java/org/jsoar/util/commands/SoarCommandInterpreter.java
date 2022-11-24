@@ -183,7 +183,8 @@ public interface SoarCommandInterpreter
                 return null;
             }
             if (cmd != null && cmd.getCommand() != null) {
-                CommandLine commandLine = new CommandLine(cmd.getCommand());
+                CommandLine commandLine = ((PicocliSoarCommand)cmd).commandLine;
+                
                 int part = 0;
                 List<String> args = parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size());
                 
