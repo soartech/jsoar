@@ -33,7 +33,37 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <junit-jupiter.version>5.9.0</junit-jupiter.version>
+        
+        <!-- plugin versions -->
+        <graalvm.native-image.version>21.2.0</graalvm.native-image.version>
+        <maven.compiler.version>3.10.1</maven.compiler.version>
+        <maven.gpg.version>3.0.1</maven.gpg.version>
+        <maven.jar.version>3.2.2</maven.jar.version>
+        <maven.javadoc.version>3.4.1</maven.javadoc.version>
+        <maven.release.version>3.0.0-M6</maven.release.version>
+        <maven.shade.version>3.2.4</maven.shade.version>
+        <maven.source.version>3.2.1</maven.source.version>
+        <maven.surefire.version>3.0.0-M7</maven.surefire.version>
+        
+        <!-- dependency versions -->
+        <classgraph.version>4.8.149</classgraph.version>
+        <commons.beanutils.version>1.9.4</commons.beanutils.version>
+        <commons.io.version>2.11.0</commons.io.version>
+        <commons.math3.version>3.6.1</commons.math3.version>
+        <graalvm.version>22.0.0.2</graalvm.version>
+        <guava.version>31.1-jre</guava.version>
+        <jackson.version>2.13.4</jackson.version>
+        <json.simple.version>4.0.1</json.simple.version>
+        <junit-jupiter.version>5.9.1</junit-jupiter.version>
+        <logback.version>1.3.1</logback.version>
+        <mockito.version>4.8.0</mockito.version>
+        <opencsv.version>5.7.0</opencsv.version>
+        <picocli.version>4.7.0</picocli.version>
+        <re2j.version>1.7</re2j.version>
+        <slf4j.version>2.0.3</slf4j.version>
+        <spring.core.version>5.3.23</spring.core.version>
+        <sqlite.jdbc.version>3.39.3.0</sqlite.jdbc.version>
+        
     </properties>
 
     <build>
@@ -41,7 +71,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>${maven.javadoc.version}</version>
                 <configuration>
                     <show>private</show>
                     <doclint>none</doclint>
@@ -68,7 +98,7 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-source-plugin</artifactId>
-              <version>3.2.1</version>
+              <version>${maven.source.version}</version>
               <executions>
                 <execution>
                   <id>attach-sources</id>
@@ -81,12 +111,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M6</version><!--$NO-MVN-MAN-VER$-->
+                <version>${maven.release.version}</version><!--$NO-MVN-MAN-VER$-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -95,7 +125,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>${maven.surefire.version}</version>
                 <configuration>
                     <skipTests>false</skipTests>
                 </configuration>
@@ -103,7 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>${maven.gpg.version}</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -127,12 +157,12 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.3</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <!--JUnit Jupiter Engine to depend on the JUnit5 engine and JUnit 5 API -->
         <dependency>
@@ -151,7 +181,13 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.3.1</version>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
