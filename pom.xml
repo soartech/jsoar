@@ -60,7 +60,7 @@
         <opencsv.version>5.7.1</opencsv.version>
         <picocli.version>4.7.0</picocli.version>
         <re2j.version>1.7</re2j.version>
-        <slf4j.version>2.0.4</slf4j.version>
+        <slf4j.version>2.0.5</slf4j.version>
         <spring.core.version>5.3.24</spring.core.version>
         <sqlite.jdbc.version>3.40.0.0</sqlite.jdbc.version>
         
