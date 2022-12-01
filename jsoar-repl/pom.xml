@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.soartech</groupId>
         <artifactId>jsoar</artifactId>
-        <version>4.1.3</version>
+        <version>4.1.4-SNAPSHOT</version>
     </parent>
     <artifactId>jsoar-repl</artifactId>
     <name>jsoar-repl</name>
