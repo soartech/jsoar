@@ -224,14 +224,12 @@
     </distributionManagement>
 
     <modules>
-        <!-- <module>jsoar-build</module> only needed for uber jar, which shouldn't be used anyway -->
         <module>jsoar-core</module>
         <module>jsoar-tcl</module>
         <module>jsoar-repl</module>
         <module>jsoar-debugger</module>
         <module>jsoar-demos</module>
         <module>jsoar-legilimens</module>
-        <!-- module>jsoar-ruby</module -->
         <module>jsoar-soar2soar</module>
         <module>jsoar-soarunit</module>
         <module>jsoar-performance-testing</module>
