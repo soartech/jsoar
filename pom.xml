@@ -49,19 +49,19 @@
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
-        <graalvm.version>22.0.0.2</graalvm.version>
+        <graalvm.version>22.3.1</graalvm.version>
         <guava.version>31.1-jre</guava.version>
-        <jackson.version>2.14.1</jackson.version>
+        <jackson.version>2.14.2</jackson.version>
         <json.simple.version>4.0.1</json.simple.version>
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
-        <logback.version>1.3.5</logback.version>
-        <mockito.version>4.11.0</mockito.version>
+        <logback.version>1.4.5</logback.version>
+        <mockito.version>5.1.1</mockito.version>
         <opencsv.version>5.7.1</opencsv.version>
-        <picocli.version>4.7.0</picocli.version>
+        <picocli.version>4.7.1</picocli.version>
         <re2j.version>1.7</re2j.version>
         <slf4j.version>2.0.6</slf4j.version>
         <spring.core.version>5.3.25</spring.core.version>
-        <sqlite.jdbc.version>3.40.0.0</sqlite.jdbc.version>
+        <sqlite.jdbc.version>3.40.1.0</sqlite.jdbc.version>
         
     </properties>
 
