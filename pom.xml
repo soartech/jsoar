@@ -43,10 +43,10 @@
         <maven.release.version>3.0.0-M7</maven.release.version>
         <maven.shade.version>3.4.1</maven.shade.version>
         <maven.source.version>3.2.1</maven.source.version>
-        <maven.surefire.version>3.0.0-M7</maven.surefire.version>
+        <maven.surefire.version>3.0.0-M8</maven.surefire.version>
         
         <!-- dependency versions -->
-        <classgraph.version>4.8.151</classgraph.version>
+        <classgraph.version>4.8.154</classgraph.version>
         <commons.beanutils.version>1.9.4</commons.beanutils.version>
         <commons.io.version>2.11.0</commons.io.version>
         <commons.math3.version>3.6.1</commons.math3.version>
@@ -54,14 +54,14 @@
         <guava.version>31.1-jre</guava.version>
         <jackson.version>2.14.1</jackson.version>
         <json.simple.version>4.0.1</json.simple.version>
-        <junit-jupiter.version>5.9.1</junit-jupiter.version>
+        <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <logback.version>1.3.5</logback.version>
-        <mockito.version>4.9.0</mockito.version>
+        <mockito.version>4.11.0</mockito.version>
         <opencsv.version>5.7.1</opencsv.version>
         <picocli.version>4.7.0</picocli.version>
         <re2j.version>1.7</re2j.version>
-        <slf4j.version>2.0.5</slf4j.version>
-        <spring.core.version>5.3.24</spring.core.version>
+        <slf4j.version>2.0.6</slf4j.version>
+        <spring.core.version>5.3.25</spring.core.version>
         <sqlite.jdbc.version>3.40.0.0</sqlite.jdbc.version>
         
     </properties>
