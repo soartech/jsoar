@@ -12,7 +12,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.version}</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>default-jar</id>
