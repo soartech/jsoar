@@ -255,10 +255,10 @@ public class CommandEntryPanel extends JPanel implements Disposable
         });
 
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "complete_or_execute_command");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"up_complete");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"down_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),"up_complete");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),"down_complete");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0),"complete_selected");
-        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),"show_completions");
+        editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),"show_completions");
         editorComponent.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"hide_completions_and_history");
 
         completionsList.addMouseListener(new MouseAdapter()

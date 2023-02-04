@@ -4808,10 +4808,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                     temp_str = smem_reverse_hash_str(rs.getLong(1 + 1));
                     break;
                 case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                    temp_str = (new Integer(smem_reverse_hash_int(rs.getLong(1 + 1)))).toString();
+                    temp_str = String.valueOf(smem_reverse_hash_int(rs.getLong(1 + 1)));
                     break;
                 case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                    temp_str = (new Double(smem_reverse_hash_float(rs.getLong(1 + 1)))).toString();
+                    temp_str = String.valueOf(smem_reverse_hash_float(rs.getLong(1 + 1)));
 
                 default:
                     temp_str = null;
@@ -4842,10 +4842,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                         temp_str2.append("|");
                         break;
                     case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                        temp_str2 = new StringBuilder((new Integer(smem_reverse_hash_int(rs.getLong(3 + 1)))).toString());
+                        temp_str2 = new StringBuilder(String.valueOf(smem_reverse_hash_int(rs.getLong(3 + 1))));
                         break;
                     case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                        temp_str2 = new StringBuilder((new Double(smem_reverse_hash_float(rs.getLong(3 + 1)))).toString());
+                        temp_str2 = new StringBuilder(String.valueOf(smem_reverse_hash_float(rs.getLong(3 + 1))));
                         break;
 
                     default:

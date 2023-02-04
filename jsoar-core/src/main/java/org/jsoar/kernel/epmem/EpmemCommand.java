@@ -506,7 +506,7 @@ public class EpmemCommand extends PicocliSoarCommand
                 stats.mem_usage.set(pageCount * pageSize);
                             
                 pw.printf(PrintHelper.generateItem("Memory Usage:",
-                        new Double(stats.mem_usage.get()) / 1024.0 + " KB", 40));
+                        stats.mem_usage.get() / 1024.0 + " KB", 40));
                 pw.printf(PrintHelper.generateItem("Memory Highwater:", stats.mem_high.get(), 40));
                 pw.printf(PrintHelper.generateItem("Retrievals:", stats.ncbr.get(), 40));
                 pw.printf(PrintHelper.generateItem("Queries:", stats.cbr.get(), 40));

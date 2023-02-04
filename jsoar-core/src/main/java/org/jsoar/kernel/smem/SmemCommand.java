@@ -683,7 +683,7 @@ public class SmemCommand extends PicocliSoarCommand
                 
                 p.mem_usage.set(pageCount * pageSize);
                             
-                pw.printf(PrintHelper.generateItem("Memory Usage:", new Double(p.mem_usage.get()) / 1024.0 + " KB", 40));
+                pw.printf(PrintHelper.generateItem("Memory Usage:", p.mem_usage.get() / 1024.0 + " KB", 40));
                 pw.printf(PrintHelper.generateItem("Memory Highwater:", p.mem_high.get(), 40));
                 pw.printf(PrintHelper.generateItem("Retrieves:", p.retrieves.get(), 40));
                 pw.printf(PrintHelper.generateItem("Queries:", p.queries.get(), 40));

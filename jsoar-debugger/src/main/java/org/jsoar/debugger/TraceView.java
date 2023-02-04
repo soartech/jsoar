@@ -365,7 +365,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private SelectedObject getObjectAtPoint(Point p)
     {
-        int offset = outputWindow.viewToModel(p);
+        int offset = outputWindow.viewToModel2D(p);
         if(offset < 0)
         {
             return null;
@@ -534,7 +534,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
 
 
-        final int offset = outputWindow.viewToModel(e.getPoint());
+        final int offset = outputWindow.viewToModel2D(e.getPoint());
         if(offset >= 0)
         {
             final ParseSelectedText pst = new ParseSelectedText(outputWindow.getText(), offset);
