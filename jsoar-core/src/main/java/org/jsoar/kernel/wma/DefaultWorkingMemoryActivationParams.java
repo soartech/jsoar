@@ -20,11 +20,11 @@ import org.jsoar.util.properties.PropertyManager;
 public class DefaultWorkingMemoryActivationParams
 {
     public static enum ActivationChoices { on, off };
-    static enum PetrovApproxChoices { on, off };
-    static enum ForgettingChoices { off, naive, bsearch, approx };
-    static enum ForgetWmeChoices { all, lti };
-    static enum FakeForgettingChoices { on, off };
-    static enum TimerLevels { off, one };
+    public static enum PetrovApproxChoices { on, off };
+    public static enum ForgettingChoices { off, naive, bsearch, approx };
+    public static enum ForgetWmeChoices { all, lti };
+    public static enum FakeForgettingChoices { on, off };
+    public static enum TimerLevels { off, one };
     
     private static final String PREFIX = "wma.params.";
     
@@ -45,32 +45,32 @@ public class DefaultWorkingMemoryActivationParams
     {
         return PropertyKey.builder(PREFIX + name, type);
     }
-    static final PropertyKey<ActivationChoices> ACTIVATION = key("activation", ActivationChoices.class).defaultValue(ActivationChoices.off).build();
+    public static final PropertyKey<ActivationChoices> ACTIVATION = key("activation", ActivationChoices.class).defaultValue(ActivationChoices.off).build();
     public final EnumPropertyProvider<ActivationChoices> activation = new EnumPropertyProvider<ActivationChoices>(ACTIVATION);
     
-    static final PropertyKey<Double> DECAY_RATE = key("decay-rate", Double.class).defaultValue(-0.5).build();
+    public static final PropertyKey<Double> DECAY_RATE = key("decay-rate", Double.class).defaultValue(-0.5).build();
     public final DefaultPropertyProvider<Double> decay_rate = new DefaultPropertyProvider<Double>(DECAY_RATE);
     
-    static final PropertyKey<Double> DECAY_THRESH = key("decay-thresh", Double.class).defaultValue(-2.0).build();
+    public static final PropertyKey<Double> DECAY_THRESH = key("decay-thresh", Double.class).defaultValue(-2.0).build();
     public final DefaultPropertyProvider<Double> decay_thresh = new DefaultPropertyProvider<Double>(DECAY_THRESH);
     
-    static final PropertyKey<PetrovApproxChoices> PETROV_APPROX = key("petrov-approx", PetrovApproxChoices.class).defaultValue(PetrovApproxChoices.off).build();
+    public static final PropertyKey<PetrovApproxChoices> PETROV_APPROX = key("petrov-approx", PetrovApproxChoices.class).defaultValue(PetrovApproxChoices.off).build();
     public final EnumPropertyProvider<PetrovApproxChoices> petrov_approx = new EnumPropertyProvider<PetrovApproxChoices>(PETROV_APPROX);
     
-    static final PropertyKey<ForgettingChoices> FORGETTING_CHOICES = key("forgetting", ForgettingChoices.class).defaultValue(ForgettingChoices.off).build();
+    public static final PropertyKey<ForgettingChoices> FORGETTING_CHOICES = key("forgetting", ForgettingChoices.class).defaultValue(ForgettingChoices.off).build();
     public final EnumPropertyProvider<ForgettingChoices> forgetting = new EnumPropertyProvider<ForgettingChoices>(FORGETTING_CHOICES);
     
-    static final PropertyKey<ForgetWmeChoices> FORGET_WME_CHOICES = key("forget-wme", ForgetWmeChoices.class).defaultValue(ForgetWmeChoices.all).build();
+    public static final PropertyKey<ForgetWmeChoices> FORGET_WME_CHOICES = key("forget-wme", ForgetWmeChoices.class).defaultValue(ForgetWmeChoices.all).build();
     public final EnumPropertyProvider<ForgetWmeChoices> forget_wme = new EnumPropertyProvider<ForgetWmeChoices>(FORGET_WME_CHOICES);
     
-    static final PropertyKey<FakeForgettingChoices> FAKE_FORGETTING = key("fake-forgetting", FakeForgettingChoices.class).defaultValue(FakeForgettingChoices.off).build();
+    public static final PropertyKey<FakeForgettingChoices> FAKE_FORGETTING = key("fake-forgetting", FakeForgettingChoices.class).defaultValue(FakeForgettingChoices.off).build();
     public final EnumPropertyProvider<FakeForgettingChoices> fake_forgetting = new EnumPropertyProvider<FakeForgettingChoices>(FAKE_FORGETTING);
     
     
     /**
      *  performance
      */
-    static final PropertyKey<TimerLevels> TIMERS = key("timers", TimerLevels.class).defaultValue(TimerLevels.off).build();
+    public static final PropertyKey<TimerLevels> TIMERS = key("timers", TimerLevels.class).defaultValue(TimerLevels.off).build();
     public final EnumPropertyProvider<TimerLevels> timers = new EnumPropertyProvider<TimerLevels>(TIMERS);
     
         

@@ -1,9 +1,9 @@
 module org.jsoar.demos
 {
     requires java.datatransfer;
-    requires java.desktop;
-    requires org.jsoar.core;
-    requires org.jsoar.debugger;
+    requires transitive java.desktop;
+    requires transitive org.jsoar.core;
+    requires transitive org.jsoar.debugger;
     requires org.slf4j;
     
     exports org.jsoar.demos.robot;

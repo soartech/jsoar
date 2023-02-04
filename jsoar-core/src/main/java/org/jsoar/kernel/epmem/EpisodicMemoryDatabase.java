@@ -19,7 +19,7 @@ import org.jsoar.util.db.SoarPreparedStatement;
  * 
  * @author ray
  */
-final class EpisodicMemoryDatabase extends AbstractSoarDatabase
+public final class EpisodicMemoryDatabase extends AbstractSoarDatabase
 {
     enum value_type { null_t, int_t, double_t, text_t };
     

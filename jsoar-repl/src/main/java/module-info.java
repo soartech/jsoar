@@ -1,6 +1,6 @@
 module org.jsoar.repl
 {
-    requires org.jsoar.core;
+    requires transitive org.jsoar.core;
     
     exports org.jsoar.repl;
 }

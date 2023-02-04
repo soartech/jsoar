@@ -1,7 +1,7 @@
 module org.jsoar.soar2soar
 {
     requires com.google.common;
-    requires org.jsoar.core;
+    requires transitive org.jsoar.core;
     
     exports org.jsoar.soar2soar;
 }

@@ -3,15 +3,15 @@ module org.jsoar.core
     requires com.google.common;
     requires commons.beanutils;
     requires commons.math3;
-    requires info.picocli;
+    requires transitive info.picocli;
     requires java.desktop;
-    requires java.scripting;
-    requires java.sql;
+    requires transitive java.scripting;
+    requires transitive java.sql;
     requires java.xml;
-    requires json.simple;
+    requires transitive json.simple;
     requires org.graalvm.js.scriptengine;
     requires org.graalvm.sdk;
-    requires org.slf4j;
+    requires transitive org.slf4j;
     requires org.xerial.sqlitejdbc;
     requires spring.core;
     

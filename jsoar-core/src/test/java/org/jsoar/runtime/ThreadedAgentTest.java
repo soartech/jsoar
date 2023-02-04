@@ -44,6 +44,7 @@ public class ThreadedAgentTest
     
     private final List<SoarEventListener> listeners = new ArrayList<SoarEventListener>();
     
+    @SuppressWarnings("exports")
     @Rule
     public TestRule watcher = new TestWatcher() {
        protected void starting(Description description) {

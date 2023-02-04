@@ -3,11 +3,11 @@ module org.jsoar.soarunit
     requires com.google.common;
     requires info.picocli;
     requires java.datatransfer;
-    requires java.desktop;
+    requires transitive java.desktop;
     requires junit;
     requires org.apache.commons.io;
-    requires org.jsoar.core;
-    requires sml;
+    requires transitive org.jsoar.core;
+    requires transitive sml;
     requires spring.core;
     
     provides org.jsoar.util.commands.SoarCommandProvider with org.jsoar.soarunit.SoarUnitCommand.Provider;

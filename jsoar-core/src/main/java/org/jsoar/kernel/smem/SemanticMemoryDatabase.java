@@ -16,7 +16,7 @@ import org.jsoar.util.db.AbstractSoarDatabase;
  * 
  * @author ray
  */
-final class SemanticMemoryDatabase extends AbstractSoarDatabase
+public final class SemanticMemoryDatabase extends AbstractSoarDatabase
 {
     // empty table used to verify proper structure
     static final String SMEM_SCHEMA = "smem_";

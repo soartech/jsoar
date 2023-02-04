@@ -21,7 +21,7 @@ import org.jsoar.util.properties.PropertyManager;
  * 
  * @author ray
  */
-class DefaultSemanticMemoryParams
+public class DefaultSemanticMemoryParams
 {
     static enum PageChoices
     {
