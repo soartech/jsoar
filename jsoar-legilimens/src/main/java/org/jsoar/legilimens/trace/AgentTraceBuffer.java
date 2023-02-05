@@ -155,7 +155,7 @@ public class AgentTraceBuffer
             
             if(lengthToEndOfTrace <= ringBuffer.size())
             {
-                logger.info("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
+                logger.trace("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
                 ringBufferAccesses.incrementAndGet();
                 final char[] data = ringBuffer.getTail(lengthToEndOfTrace, max);
                 return new TraceRange(start, data);
