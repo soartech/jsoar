@@ -11,4 +11,6 @@ module org.jsoar.legilimens
     exports org.jsoar.legilimens.resources;
     exports org.jsoar.legilimens.templates;
     exports org.jsoar.legilimens.trace;
+    
+    opens org.jsoar.legilimens.templates;
 }
