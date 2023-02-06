@@ -5,18 +5,23 @@
  */
 package org.jsoar.debugger.util;
 
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
-
-import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.*;
+import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.LayeredHighlighter;
+
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 public class IncrementalSearch implements DocumentListener, ActionListener
 {

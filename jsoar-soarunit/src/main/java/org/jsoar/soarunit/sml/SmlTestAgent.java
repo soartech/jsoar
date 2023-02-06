@@ -19,9 +19,9 @@ import org.jsoar.soarunit.FiringCounts;
 import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
 import org.jsoar.util.FileTools;
-
 import org.jsoar.util.UrlTools;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+
 import sml.Agent;
 import sml.Agent.PrintEventInterface;
 import sml.Identifier;

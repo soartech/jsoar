@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;

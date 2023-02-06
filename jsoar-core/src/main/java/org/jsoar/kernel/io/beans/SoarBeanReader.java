@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.DoubleSymbol;
 import org.jsoar.kernel.symbols.Identifier;
@@ -26,6 +24,8 @@ import org.jsoar.kernel.symbols.JavaSymbol;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterators;
 

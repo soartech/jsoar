@@ -5,14 +5,24 @@
  */
 package org.jsoar.debugger.util;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JWindow;
+import javax.swing.text.JTextComponent;
+
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.syntax.Highlighter;
-
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.*;
-import javax.swing.text.JTextComponent;
 
 /**
  * @author ray

@@ -7,8 +7,8 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 
 /**
  * <p>rete.cpp::token_in_hash_table_data_struct

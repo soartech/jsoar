@@ -9,12 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This object manages a buffer of the trace of the agent in order to efficiently

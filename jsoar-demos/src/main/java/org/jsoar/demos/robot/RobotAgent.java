@@ -10,17 +10,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.DebuggerProvider;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.DebuggerProvider.CloseAction;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray

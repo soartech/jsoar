@@ -1,9 +1,9 @@
 package org.jsoar.util.commands;
 
-import org.jsoar.kernel.exceptions.SoftInterpreterException;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jsoar.kernel.exceptions.SoftInterpreterException;
 
 public class SoarExceptionsManager {
 

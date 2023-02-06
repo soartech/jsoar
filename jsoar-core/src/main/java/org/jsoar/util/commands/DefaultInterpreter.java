@@ -26,16 +26,16 @@ import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.exceptions.SoarInterpreterException;
 import org.jsoar.kernel.commands.LoadCommand;
-import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SaveCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
+import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.kernel.exceptions.SoarInterpreterException;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;

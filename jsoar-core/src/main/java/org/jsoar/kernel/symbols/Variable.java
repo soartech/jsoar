@@ -8,8 +8,8 @@ package org.jsoar.kernel.symbols;
 import java.util.Formatter;
 import java.util.LinkedList;
 
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.markers.Marker;
 
 /**

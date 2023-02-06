@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>

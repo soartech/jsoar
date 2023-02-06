@@ -1,11 +1,12 @@
 package org.jsoar.debugger.syntax;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.awt.Color;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import java.awt.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class TextStyle {
 

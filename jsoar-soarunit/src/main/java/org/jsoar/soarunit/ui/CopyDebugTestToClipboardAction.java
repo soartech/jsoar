@@ -14,7 +14,8 @@ import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 
 import org.jsoar.soarunit.SoarUnitCommand;
 import org.jsoar.soarunit.Test;

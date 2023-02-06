@@ -1,14 +1,19 @@
 package org.jsoar.debugger.syntax;
 
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import javax.swing.text.SimpleAttributeSet;
+
+import org.jsoar.debugger.JSoarDebugger;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import org.jsoar.debugger.JSoarDebugger;
-
-import javax.swing.text.SimpleAttributeSet;
-import java.awt.*;
-import java.util.*;
-import java.util.List;
 
 public class SyntaxSettings {
     public HashMap<String, TextStyle> componentStyles = new HashMap<>();

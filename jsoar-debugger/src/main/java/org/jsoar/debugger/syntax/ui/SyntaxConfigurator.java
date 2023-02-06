@@ -1,5 +1,25 @@
 package org.jsoar.debugger.syntax.ui;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeListener;
+
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jdesktop.swingx.VerticalLayout;
@@ -8,14 +28,6 @@ import org.jsoar.debugger.TraceView;
 import org.jsoar.debugger.syntax.SyntaxPattern;
 import org.jsoar.debugger.syntax.SyntaxSettings;
 import org.jsoar.debugger.syntax.TextStyle;
-
-import javax.swing.*;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 
 public class SyntaxConfigurator {
 

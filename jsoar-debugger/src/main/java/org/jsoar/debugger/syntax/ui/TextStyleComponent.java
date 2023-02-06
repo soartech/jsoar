@@ -1,16 +1,22 @@
 package org.jsoar.debugger.syntax.ui;
 
-import org.jdesktop.swingx.JXColorSelectionButton;
-import org.jsoar.debugger.syntax.TextStyle;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
-import java.awt.event.ActionListener;
+
+import org.jdesktop.swingx.JXColorSelectionButton;
+import org.jsoar.debugger.syntax.TextStyle;
 
 @SuppressWarnings("serial")
 public class TextStyleComponent extends JPanel {

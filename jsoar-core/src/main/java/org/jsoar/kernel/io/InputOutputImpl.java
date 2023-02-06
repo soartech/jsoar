@@ -12,16 +12,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
-import org.jsoar.kernel.events.TopStateRemovedEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
+import org.jsoar.kernel.events.TopStateRemovedEvent;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeFactory;
@@ -40,6 +38,8 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>

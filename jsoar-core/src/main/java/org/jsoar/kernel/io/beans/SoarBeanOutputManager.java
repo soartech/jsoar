@@ -8,8 +8,6 @@ package org.jsoar.kernel.io.beans;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWmes;
@@ -17,6 +15,8 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An output command manager that uses {@link SoarBeanReader} to automatically

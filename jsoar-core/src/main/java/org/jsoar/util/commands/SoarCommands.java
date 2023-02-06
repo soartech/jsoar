@@ -10,11 +10,11 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.adaptables.Adaptable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for Soar commands and the Soar interpreter

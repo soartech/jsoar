@@ -23,8 +23,8 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**

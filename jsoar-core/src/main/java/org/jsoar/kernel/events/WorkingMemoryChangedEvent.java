@@ -10,8 +10,8 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.events.SoarEvent;
 
 /**

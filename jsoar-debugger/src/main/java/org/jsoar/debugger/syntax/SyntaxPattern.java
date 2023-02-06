@@ -1,9 +1,15 @@
 package org.jsoar.debugger.syntax;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.SoarException;
@@ -14,8 +20,9 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 
 public class SyntaxPattern {

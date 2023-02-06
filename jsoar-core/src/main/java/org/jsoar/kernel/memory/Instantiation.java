@@ -16,8 +16,8 @@ import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.Traceable;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>

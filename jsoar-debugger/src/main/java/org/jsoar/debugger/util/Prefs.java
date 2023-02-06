@@ -1,14 +1,23 @@
 package org.jsoar.debugger.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
+import java.util.TreeMap;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
+
+import org.jsoar.debugger.syntax.SyntaxSettings;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.jsoar.debugger.syntax.SyntaxSettings;
-
-import java.io.*;
-import java.util.*;
-import java.util.prefs.AbstractPreferences;
-import java.util.prefs.BackingStoreException;
 
 public class Prefs extends AbstractPreferences {
 
