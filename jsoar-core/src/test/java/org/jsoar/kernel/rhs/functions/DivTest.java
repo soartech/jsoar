@@ -6,12 +6,13 @@
 package org.jsoar.kernel.rhs.functions;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -34,16 +35,16 @@ public class DivTest extends JSoarTest
         }
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testDivThrowsExceptionOnDivideByZero() throws Exception
+    @Test()
+    public void testDivThrowsExceptionOnDivideByZero()
     {
-        validateDiv(1, 0);
+        assertThrows(RhsFunctionException.class, () -> validateDiv(1, 0));
     }
     
     private void validateDiv(int a, int b) throws Exception
     {
         final Div div = new Div();
         final Symbol r = div.execute(rhsFuncContext, Symbols.asList(syms, a, b));
-        assertEquals(String.format("(div %d %d)", a, b), a / b, r.asInteger().getValue());
+        assertEquals(a / b, r.asInteger().getValue(), String.format("(div %d %d)", a, b));
     }
 }

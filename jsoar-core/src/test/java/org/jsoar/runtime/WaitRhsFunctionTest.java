@@ -5,34 +5,38 @@
  */
 package org.jsoar.runtime;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class WaitRhsFunctionTest
 {
     private ThreadedAgent agent;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.agent = ThreadedAgent.create();
     }
     
-    @After
+    @AfterEach
     public void tearDown()
     {
         this.agent.detach();
     }
 
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
         // Skip first input phase
@@ -57,7 +61,8 @@ public class WaitRhsFunctionTest
         // Test will timeout on failure
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaitingPropertyIsSetAndWaitExitsWhenAsynchInputIsReady() throws Exception
     {
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
@@ -86,7 +91,8 @@ public class WaitRhsFunctionTest
         }
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaitIsInterruptedIfAgentIsStopped() throws Exception
     {
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
@@ -111,7 +117,8 @@ public class WaitRhsFunctionTest
         }
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testNoWaitIfAgentHalts() throws Exception
     {
         // The (halt) should trump the (wait)

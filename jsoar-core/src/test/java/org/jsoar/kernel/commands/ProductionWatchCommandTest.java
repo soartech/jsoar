@@ -6,27 +6,29 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ProductionWatchCommandTest
 {
     private Agent agent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();

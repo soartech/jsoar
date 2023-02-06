@@ -1,8 +1,8 @@
 package org.jsoar.kernel.epmem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
 {
@@ -350,8 +350,8 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
         populateDataBase(getConnection());
         agent.runFor(2, RunType.DECISIONS);
         
-        assertTrue("Retrieval test did not halt", halted);
-        assertFalse("Retrieval test failed", failed);
+        assertTrue(halted, "Retrieval test did not halt");
+        assertFalse(failed, "Retrieval test failed");
         assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
     }
 }

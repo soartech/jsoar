@@ -5,7 +5,11 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -14,9 +18,9 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.WmeSupportInfo.Support;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -25,13 +29,13 @@ public class WmeSupportInfoTest
 {
     private Agent agent;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         agent = new Agent();
     }
     
-    @After
+    @AfterEach
     public void tearDown()
     {
     }

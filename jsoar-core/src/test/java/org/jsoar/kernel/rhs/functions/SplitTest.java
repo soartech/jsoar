@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

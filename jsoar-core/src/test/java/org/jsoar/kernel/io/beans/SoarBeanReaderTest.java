@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.io.beans;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
@@ -15,9 +17,9 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -26,14 +28,14 @@ public class SoarBeanReaderTest
 {
     private Agent agent;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent = null;

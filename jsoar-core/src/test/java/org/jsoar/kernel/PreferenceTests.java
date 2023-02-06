@@ -6,14 +6,18 @@
 package org.jsoar.kernel;
 
 
-import org.junit.Test;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
  */
 public class PreferenceTests extends FunctionalTestHarness
 {
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testPreferenceSemantics() throws Exception
     {
         runTest("testPreferenceSemantics", -1);

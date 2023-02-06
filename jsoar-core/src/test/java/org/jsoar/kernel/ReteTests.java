@@ -6,10 +6,10 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

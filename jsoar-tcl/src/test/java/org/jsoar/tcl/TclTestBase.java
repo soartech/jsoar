@@ -9,8 +9,8 @@ import java.net.URL;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Base class for TCL tests that use a common set up / tear down harness
@@ -36,7 +36,7 @@ public abstract class TclTestBase
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
@@ -46,7 +46,7 @@ public abstract class TclTestBase
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         SoarTclInterface.dispose(ifc);

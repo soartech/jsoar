@@ -5,12 +5,14 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -32,16 +34,16 @@ public class FormatRhsFunctionTest extends JSoarTest
                 Symbols.asList(syms, "%s: %s %d %f %s", syms.createIdentifier('S'), "hi", 987, 3.14, null)));
     }
 
-    @Test(expected=RhsFunctionException.class)
-    public void testFormatThrowsExceptionWhenGivenAnInvalidFormatSpecifier() throws Exception
+    @Test
+    public void testFormatThrowsExceptionWhenGivenAnInvalidFormatSpecifier()
     {
-        func.execute(rhsFuncContext, Symbols.asList(syms, "%d", "hello"));
+        assertThrows(RhsFunctionException.class, () -> func.execute(rhsFuncContext, Symbols.asList(syms, "%d", "hello")));
     }
     
     private void checkResult(String expected, Symbol result)
     {
         assertNotNull(result);
-        assertTrue("Result should be a string symbol", result.asString() != null);
+        assertNotNull(result.asString(), "Result should be a string symbol");
         assertEquals(expected, result.asString().getValue());
         
     }

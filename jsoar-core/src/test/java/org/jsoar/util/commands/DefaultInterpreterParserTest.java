@@ -5,8 +5,9 @@
  */
 package org.jsoar.util.commands;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PushbackReader;
@@ -14,8 +15,8 @@ import java.io.StringReader;
 import java.util.Arrays;
 
 import org.jsoar.kernel.SoarException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -25,7 +26,7 @@ public class DefaultInterpreterParserTest
 {
     private DefaultInterpreterParser parser;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         parser = new DefaultInterpreterParser();
@@ -126,28 +127,26 @@ public class DefaultInterpreterParserTest
         checkRemainder("   end", reader);        
     }
     
-    @Test(expected=SoarException.class)
-    public void testErrorOnUnclosedBrace() throws Exception
+    @Test()
+    public void testErrorOnUnclosedBrace()
     {
         final ParserBuffer reader = reader("    { words { ");
-        parser.parseWord(reader);
         
+        assertThrows(SoarException.class, () -> parser.parseWord(reader));
     }
     
-    @Test(expected=SoarException.class)
-    public void testErrorOnUnclosedBraceWithSemicolonComment() throws Exception
+    @Test()
+    public void testErrorOnUnclosedBraceWithSemicolonComment()
     {
         final ParserBuffer reader = reader("    { words ;#{ ");
-        parser.parseWord(reader);
-        
+        assertThrows(SoarException.class, () -> parser.parseWord(reader));
     }
     
-    @Test(expected=SoarException.class)
-    public void testErrorOnUnclosedQuote() throws Exception
+    @Test()
+    public void testErrorOnUnclosedQuote()
     {
         final ParserBuffer reader = reader("    \" words { ");
-        parser.parseWord(reader);
-        
+        assertThrows(SoarException.class, () -> parser.parseWord(reader));
     }
     
     @Test

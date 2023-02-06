@@ -1,16 +1,18 @@
 package org.jsoar.kernel.commands;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.FunctionalTests;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarProperties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Tests for the <pre>load rete-net --load</pre> command.
@@ -24,7 +26,7 @@ public class ReteNetCommandTest
     private Agent originalAgent;
     private FunctionalTests funTests;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         funTests = new FunctionalTests();
@@ -35,7 +37,7 @@ public class ReteNetCommandTest
         revivedAgent.getTrace().disableAll();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         funTests.tearDown();
@@ -47,19 +49,22 @@ public class ReteNetCommandTest
         }
     }
     
-    @Test(timeout=2*5000)
+    @Test
+    @Timeout(value = 2 * 5, unit = TimeUnit.SECONDS)
     public void testWaterJug() throws Exception
     {
         runTest("testWaterJug", 416, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testWaterJugLookAhead() throws Exception
     {
         runTest("testWaterJugLookAhead", 27, 2000);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testWaterJugHierarchy() throws Exception
     {
         runTest("testWaterJugHierarchy", 1093, 0);
@@ -77,25 +82,29 @@ public class ReteNetCommandTest
         runTest("testTowersOfHanoiFast", 2047, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testEightPuzzle() throws Exception
     {
         runTest("testEightPuzzle", 40, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorld() throws Exception
     {
         runTest("testBlocksWorld", 12, 0);
     }
  
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldOperatorSubgoaling() throws Exception
     {
         runTest("testBlocksWorldOperatorSubgoaling", 5, 0);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAhead() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 27, 1);
@@ -107,19 +116,22 @@ public class ReteNetCommandTest
         runTest("testBlocksWorldLookAhead", 29, 100000000002L);
     }
     
-    @Test(timeout=2*10000)
+    @Test
+    @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 32, 0);
     }
     
-    @Test(timeout=2*80000)
+    @Test
+    @Timeout(value = 2 * 80, unit = TimeUnit.SECONDS)
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", 41982, 0);
     } 
     
-    @Test(timeout=2*80000)
+    @Test
+    @Timeout(value = 2 * 80, unit = TimeUnit.SECONDS)
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", 45047, 0);

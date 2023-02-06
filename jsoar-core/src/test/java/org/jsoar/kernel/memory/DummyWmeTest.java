@@ -6,14 +6,16 @@
 package org.jsoar.kernel.memory;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -22,7 +24,7 @@ public class DummyWmeTest
 {
     private SymbolFactory syms;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         syms = new SymbolFactoryImpl();

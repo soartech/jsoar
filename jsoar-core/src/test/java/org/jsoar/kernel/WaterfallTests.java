@@ -6,12 +6,13 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -19,9 +20,10 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
@@ -77,8 +79,8 @@ public class WaterfallTests
             }});
         
         agent.runForever();
-        assertTrue(testName + " functional test did not halt", halted[0]);
-        assertFalse(testName + " functional test failed", failed[0]);
+        assertTrue(halted[0], testName + " functional test did not halt");
+        assertFalse(failed[0], testName + " functional test failed");
         if(expectedDecisions >= 0)
         {
             assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
@@ -89,7 +91,7 @@ public class WaterfallTests
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
@@ -100,35 +102,42 @@ public class WaterfallTests
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
         agent.dispose();
     }
 
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterfall() throws Exception
     {
         runTest("testWaterfall", 2);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(5, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
-    @Test(timeout=10000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterfallUnbound() throws Exception
     {
         runTest("testWaterfallUnbound", 2);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(5, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
-    @Test(timeout=10000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterfallFiveStates() throws Exception
     {
         runTest("testWaterfallFiveStates", 8);
         assertEquals(10, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(16, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
-    @Test(timeout=20000)
+    
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterfallBlocksWorldHRL() throws Exception
     {
         runTest("testBlocksWorldHRL", -1);

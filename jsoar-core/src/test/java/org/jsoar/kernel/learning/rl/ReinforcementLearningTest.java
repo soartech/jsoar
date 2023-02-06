@@ -19,7 +19,8 @@
 package org.jsoar.kernel.learning.rl;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -32,16 +33,16 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.RunType;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommands;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReinforcementLearningTest
 {
     private Agent agent;
     private ReinforcementLearning rl;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.agent = new Agent();
@@ -49,7 +50,7 @@ public class ReinforcementLearningTest
         assertNotNull(rl);
     }
     
-    @After
+    @AfterEach
     public void tearDown()
     {
         this.agent.dispose();

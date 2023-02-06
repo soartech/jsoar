@@ -1,10 +1,11 @@
 package org.jsoar.kernel;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                     "(@F17 ^complete |true| ^number 7 ^factor @F18 [+7.0])\n" +
                                     "(@F18 ^value 7 ^multiplicity 1 [+8.0])\n";
                 
-        assertTrue("Unexpected output from SMem!\n" + actualResultSMem, actualResultSMem.equals(expectedResultSMem));
+        assertEquals(expectedResultSMem, actualResultSMem, "Unexpected output from SMem!\n" + actualResultSMem);
         
         StringWriter sw2 = new StringWriter();
         agent.getPrinter().pushWriter(sw2);
@@ -49,6 +50,6 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                                      "(@F18 ^multiplicity 1 ^value 7)\n";
         
         logger.info("Epmem test actual result: " + actualResultEpMem);
-        assertTrue("Unexpected output from EpMem!\n" + actualResultEpMem, actualResultEpMem.equals(expectedResultEpMem));
+        assertEquals(expectedResultEpMem, actualResultEpMem, "Unexpected output from EpMem!\n" + actualResultEpMem);
     }
 }

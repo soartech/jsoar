@@ -8,7 +8,7 @@ package org.jsoar.kernel.wma;
 import java.io.StringWriter;
 
 import org.jsoar.kernel.FunctionalTestHarness;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

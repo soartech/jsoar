@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -25,13 +25,13 @@ public class ListRhsFunctionTest
 {
     private Agent agent;
     
-    @Before public void setUp() throws Exception
+    @BeforeEach public void setUp() throws Exception
     {
         agent = new Agent();
         agent.getTrace().disableAll();
     }
     
-    @After public void tearDown() throws Exception
+    @AfterEach public void tearDown() throws Exception
     {
         agent.dispose();
     }

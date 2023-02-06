@@ -6,14 +6,17 @@
 package org.jsoar.kernel.rhs.functions;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
@@ -25,7 +28,7 @@ public class InterruptTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
@@ -34,12 +37,13 @@ public class InterruptTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
     }
 
-    @Test(timeout=3000)
+    @Test
+    @Timeout(value = 3, unit = TimeUnit.SECONDS)
     public void testInterrupt() throws Exception
     {
         new CycleCountInput(agent.getInputOutput());

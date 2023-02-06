@@ -1,8 +1,8 @@
 package org.jsoar.kernel.commands;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.util.HashSet;
@@ -16,9 +16,9 @@ import org.jsoar.kernel.LogManager.LogLevel;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LogCommandTest
 {
@@ -27,7 +27,7 @@ public class LogCommandTest
     private LogManager logManager;
     private LogCommand logCommand;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
@@ -36,7 +36,7 @@ public class LogCommandTest
         logCommand = new LogCommand(agent, new DefaultInterpreter(agent));
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (agent != null)

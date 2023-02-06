@@ -6,7 +6,7 @@
 package org.jsoar.kernel.io.xml;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
@@ -19,9 +19,9 @@ import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.XmlTools;
 import org.jsoar.util.events.SoarEvents;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -30,14 +30,14 @@ public class XmlToWmeToolsTest
 {
     private Agent agent;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();

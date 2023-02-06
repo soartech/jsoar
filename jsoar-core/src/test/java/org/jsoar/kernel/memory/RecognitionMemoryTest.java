@@ -6,11 +6,10 @@
 package org.jsoar.kernel.memory;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 
@@ -30,8 +29,8 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -43,7 +42,7 @@ public class RecognitionMemoryTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
@@ -142,7 +141,7 @@ public class RecognitionMemoryTest
         assertEquals(2, chunks.size());
         for(Production p : chunks)
         {
-            assertTrue(p.getName() + " should be an rl rule", p.rlRuleInfo != null);
+            assertNotNull(p.rlRuleInfo, p.getName() + " should be an rl rule");
         }
     }
     
@@ -158,6 +157,6 @@ public class RecognitionMemoryTest
 
         agent.runFor(75006, RunType.DECISIONS);
         
-        assertTrue("did not halt when expected", agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) == 75005);
+        assertEquals(75005, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT), "did not halt when expected");
     }
 }

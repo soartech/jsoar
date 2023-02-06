@@ -5,8 +5,8 @@
  */
 package org.jsoar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.StringWriter;
 
@@ -19,9 +19,9 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author ray
@@ -57,18 +57,18 @@ public class JSoarTest
         
     };
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.syms = new SymbolFactoryImpl();
     }
     
-    @BeforeClass
+    @BeforeAll
     public static void configureLogging()
     {
     }
     
-    @AfterClass
+    @AfterAll
     public static void unconfigureLogging()
     {
     }

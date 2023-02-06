@@ -6,8 +6,8 @@
 package org.jsoar.kernel.io.quick;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,9 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterators;
 
@@ -61,7 +61,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();
@@ -75,7 +75,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();

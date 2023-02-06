@@ -6,28 +6,29 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SaveBacktracesCommandTest
 {
     private Agent agent;
     private SaveBacktracesCommand command;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.command = new SaveBacktracesCommand(agent);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();

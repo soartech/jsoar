@@ -1,7 +1,7 @@
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.util.regex.Pattern;
@@ -10,16 +10,16 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.LogManager;
 import org.jsoar.kernel.LogManager.EchoMode;
 import org.jsoar.kernel.RunType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LogTest
 {
 	private Agent agent;
 	private StringWriter outputWriter = new StringWriter();
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		agent = new Agent();
@@ -27,7 +27,7 @@ public class LogTest
 		agent.getPrinter().addPersistentWriter(outputWriter);
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() throws Exception
 	{
 		if (agent != null)

@@ -5,10 +5,10 @@
  */
 package org.jsoar.kernel.symbols;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -17,7 +17,7 @@ public class StringSymbolImplTest
 {
     private SymbolFactoryImpl syms;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         syms = new SymbolFactoryImpl();

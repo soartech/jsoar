@@ -5,13 +5,18 @@
  */
 package org.jsoar.kernel.modules;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.jsoar.kernel.modules.Predicates.betweenDouble;
+import static org.jsoar.kernel.modules.Predicates.betweenInteger;
+import static org.jsoar.kernel.modules.Predicates.greaterThanDouble;
+import static org.jsoar.kernel.modules.Predicates.greaterThanInteger;
+import static org.jsoar.kernel.modules.Predicates.lessThanDouble;
+import static org.jsoar.kernel.modules.Predicates.lessThanInteger;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Predicate;
-import static org.jsoar.kernel.modules.Predicates.*;
 
 
 /**

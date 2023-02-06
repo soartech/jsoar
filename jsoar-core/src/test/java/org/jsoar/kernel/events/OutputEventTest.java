@@ -5,10 +5,13 @@
  */
 package org.jsoar.kernel.events;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
@@ -17,9 +20,10 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.google.common.collect.Lists;
 
@@ -30,13 +34,13 @@ public class OutputEventTest
 {
     private Agent agent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent(getClass().getName());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if(agent != null)
@@ -48,7 +52,8 @@ public class OutputEventTest
     /**
      * Test method for {@link org.jsoar.kernel.events.OutputEvent#getChanges()}.
      */
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGetChanges() throws Exception
     {
         //agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));

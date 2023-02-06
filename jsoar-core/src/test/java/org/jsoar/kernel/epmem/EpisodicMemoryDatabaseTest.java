@@ -6,7 +6,9 @@
 package org.jsoar.kernel.epmem;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,9 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.util.JdbcTools;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Sets;
 
@@ -28,13 +30,13 @@ public class EpisodicMemoryDatabaseTest
 {
     private Connection db;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         db.close();
@@ -97,10 +99,9 @@ public class EpisodicMemoryDatabaseTest
         
         for(String expected : expectedTables)
         {
-            assertTrue("Missing expected table '" + expected + "'", 
-                       tables.contains(expected));
+            assertTrue(tables.contains(expected), "Missing expected table '" + expected + "'");
         }
-        assertEquals(Sets.symmetricDifference(expectedTables, tables).toString(), expectedTables.size(), tables.size());
+        assertEquals(expectedTables.size(), tables.size(), Sets.symmetricDifference(expectedTables, tables).toString());
     }
     
     @Test
@@ -162,14 +163,14 @@ public class EpisodicMemoryDatabaseTest
         {
             String expected = it.next();
             
-            assertTrue("Missing expected index '" + expected + "'", indexes.contains(expected));
+            assertTrue(indexes.contains(expected), "Missing expected index '" + expected + "'");
             
             indexes.remove(expected);
             it.remove();
         }
         
-        assertTrue("Unexpected indices: '" + ((indexes.isEmpty())?"":indexes.iterator().next()) + "'", indexes.isEmpty());
-        assertTrue("Not Found indices: '" + ((expectedTables.isEmpty())?"":expectedTables.get(0)) + "'", expectedTables.isEmpty());
+        assertTrue(indexes.isEmpty(), "Unexpected indices: '" + ((indexes.isEmpty())?"":indexes.iterator().next()) + "'");
+        assertTrue(expectedTables.isEmpty(), "Not Found indices: '" + ((expectedTables.isEmpty())?"":expectedTables.get(0)) + "'");
     }
 
     @Test

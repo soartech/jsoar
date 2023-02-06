@@ -6,7 +6,7 @@
 package org.jsoar.kernel.io.xml;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
@@ -19,9 +19,9 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -48,7 +48,7 @@ public class XmlMessageQueueTest
     private Agent agent;
     private MatchFunction match;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent(false);
@@ -62,7 +62,7 @@ public class XmlMessageQueueTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();

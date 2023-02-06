@@ -1,6 +1,6 @@
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -10,8 +10,8 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SetCountTest
 {
@@ -19,7 +19,7 @@ public class SetCountTest
     private Agent agent;
     ByRef<Boolean> matched;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();

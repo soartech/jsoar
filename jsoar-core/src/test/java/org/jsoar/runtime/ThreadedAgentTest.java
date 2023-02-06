@@ -6,10 +6,10 @@
 package org.jsoar.runtime;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,13 +25,11 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.UncaughtExceptionEvent;
 import org.jsoar.util.events.SoarEventListener;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,31 +42,20 @@ public class ThreadedAgentTest
     
     private final List<SoarEventListener> listeners = new ArrayList<SoarEventListener>();
     
-    @SuppressWarnings("exports")
-    @Rule
-    public TestRule watcher = new TestWatcher() {
-       protected void starting(Description description) {
-          logger.debug("Starting test: {}", description.getMethodName());
-       }
-       
-       protected void finished(Description description) {
-           logger.debug("Finished test: {}", description.getMethodName());
-        }
-    };
-    
     /**
      * @throws java.lang.Exception
      */
-    @Before
-    public void setUp() throws Exception
+    @BeforeEach
+    void setUp(TestInfo testInfo) throws Exception
     {
+        logger.debug("Starting test: {}", testInfo.getDisplayName());
     }
 
     /**
      * @throws java.lang.Exception
      */
-    @After
-    public void tearDown() throws Exception
+    @AfterEach
+    void tearDown(TestInfo testInfo) throws Exception
     {
         for(SoarEventListener listener : listeners)
         {
@@ -79,6 +66,8 @@ public class ThreadedAgentTest
         {
             agent.dispose();
         }
+        
+        logger.debug("Finished test: {}", testInfo.getDisplayName());
     }
     
     @Test
@@ -92,7 +81,8 @@ public class ThreadedAgentTest
         assertSame(proxy1, ThreadedAgent.find(agent));
     }
 
-    @Test(timeout=5000)
+    @Test
+    @Timeout(value = 5, unit = TimeUnit.SECONDS)
     public void testShutdownDoesntHangIfAgentIsRunningForever() throws Exception
     {
         ThreadedAgent proxy = ThreadedAgent.attach(new Agent());
@@ -143,7 +133,8 @@ public class ThreadedAgentTest
         assertEquals("success", result);
     }
     
-    @Test(timeout=5000)
+    @Test
+    @Timeout(value = 5, unit = TimeUnit.SECONDS)
     public void testAgentFiresUncaughtExceptionEventWhenAnExceptionIsUncaught() throws Exception
     {
         final ThreadedAgent agent = ThreadedAgent.create();
@@ -179,7 +170,8 @@ public class ThreadedAgentTest
      * threaded agents at a time. It is also fishing for exception causing
      * concurrency problems.
      */
-    @Test(timeout = 1000000)
+    @Test
+    @Timeout(value = 1000, unit = TimeUnit.SECONDS)
     public void testMultipleAgents() throws Exception
     {
         final int numAgents = 100;
@@ -189,7 +181,7 @@ public class ThreadedAgentTest
         // Load the rules
         String sourceName = getClass().getSimpleName() + "_testMultipleAgents.soar";
         URL sourceUrl = getClass().getResource(sourceName);
-        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+        assertNotNull(sourceUrl, "Could not find test file " + sourceName);
 
         // Create the agents and source their rules
         for (int i = 0; i < numAgents; i++)

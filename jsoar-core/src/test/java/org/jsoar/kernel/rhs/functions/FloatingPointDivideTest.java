@@ -5,11 +5,12 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -18,12 +19,12 @@ import org.junit.Test;
 public class FloatingPointDivideTest extends JSoarTest
 {
     
-    @Test(expected=RhsFunctionException.class)
-    public void testZeroArgs() throws Exception
+    @Test
+    public void testZeroArgs()
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
-        divide.execute(rhsFuncContext, Symbols.asList(syms));
+        assertThrows(RhsFunctionException.class, () -> divide.execute(rhsFuncContext, Symbols.asList(syms)));
     }
     
     @Test

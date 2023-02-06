@@ -6,13 +6,16 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author ray
@@ -45,13 +48,15 @@ public class ChunkingTests extends FunctionalTestHarness
                 "}\n", false);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testChunks2() throws Exception
     {
         runTest("testChunks2", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testChunks2WithLearning() throws Exception
     {
         agent.getInterpreter().eval("chunk --on");

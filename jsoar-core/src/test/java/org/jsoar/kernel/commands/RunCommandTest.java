@@ -5,15 +5,16 @@
  */
 package org.jsoar.kernel.commands;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class RunCommandTest
@@ -49,41 +50,41 @@ public class RunCommandTest
         }
     }
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.mock = new MockRunControl();
         this.command = new RunCommand(mock);
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionOnNonNumericCount() throws Exception
+    @Test
+    public void testThrowsExceptionOnNonNumericCount()
     {
-        execute("run", "-d", "xyz");
+        assertThrows(SoarException.class, () -> execute("run", "-d", "xyz"));
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionOnZeroCount() throws Exception
+    @Test
+    public void testThrowsExceptionOnZeroCount()
     {
-        execute("run", "-e", "0");
+        assertThrows(SoarException.class, () -> execute("run", "-e", "0"));
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionNegativeCount() throws Exception
+    @Test
+    public void testThrowsExceptionNegativeCount()
     {
-        execute("run", "-e", "-10");
+        assertThrows(SoarException.class, () -> execute("run", "-e", "-10"));
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionWhenMultipleCountsGiven() throws Exception
+    @Test
+    public void testThrowsExceptionWhenMultipleCountsGiven()
     {
-        execute("run", "5", "-e", "10");
+        assertThrows(SoarException.class, () -> execute("run", "5", "-e", "10"));
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionWhenMultipleRunTypesGiven() throws Exception
+    @Test
+    public void testThrowsExceptionWhenMultipleRunTypesGiven()
     {
-        execute("run", "-d", "-e");
+        assertThrows(SoarException.class, () -> execute("run", "-d", "-e"));
     }
     
     @Test

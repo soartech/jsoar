@@ -1,16 +1,17 @@
 package org.jsoar.kernel.commands;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PrintCommandTest
 {
@@ -22,7 +23,7 @@ public class PrintCommandTest
 
     private String prodTest = "test (state <s> ^superstate nil) -->";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent(false);
@@ -42,7 +43,7 @@ public class PrintCommandTest
         command = new PrintCommand(agent);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (this.agent != null)
@@ -60,16 +61,16 @@ public class PrintCommandTest
         assertEquals(command.getCommand().getDefaultDepth(), 5);
     }
 
-    @Test(expected = SoarException.class)
+    @Test
     public void testZeroDefaultDepth() throws SoarException
     {
-        command.getCommand().setDefaultDepth(0);
+        assertThrows(SoarException.class, () -> command.getCommand().setDefaultDepth(0));
     }
 
-    @Test(expected = SoarException.class)
-    public void testNegativeDefaultDepth() throws SoarException
+    @Test
+    public void testNegativeDefaultDepth()
     {
-        command.getCommand().setDefaultDepth(-1);
+        assertThrows(SoarException.class, () -> command.getCommand().setDefaultDepth(-1));
     }
 
     @Test
@@ -109,10 +110,10 @@ public class PrintCommandTest
         outputWriter.getBuffer().setLength(0);
     }
 
-    @Test(expected = SoarException.class)
-    public void testVarprintNotImplemented() throws SoarException
+    @Test
+    public void testVarprintNotImplemented()
     {
-        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" });
+        assertThrows(SoarException.class, () -> command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" }));
     }
 
     @Test

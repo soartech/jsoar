@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
@@ -14,7 +16,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterators;
 

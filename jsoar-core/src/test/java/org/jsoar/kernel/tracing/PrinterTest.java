@@ -5,14 +5,16 @@
  */
 package org.jsoar.kernel.tracing;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -46,11 +48,11 @@ public class PrinterTest
         assertEquals("second", second.toString());
     }
 
-    @Test(expected=NoSuchElementException.class)
+    @Test
     public void testPopWriterThrowsNoSuchElementException()
     {
         Printer printer = new Printer(new StringWriter());
-        printer.popWriter();
+        assertThrows(NoSuchElementException.class, () -> printer.popWriter());
     }
     
     /**

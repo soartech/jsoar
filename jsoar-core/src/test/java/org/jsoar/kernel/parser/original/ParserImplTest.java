@@ -5,10 +5,11 @@
  */
 package org.jsoar.kernel.parser.original;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,6 +30,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.DoubleSymbolImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.IntegerSymbolImpl;
@@ -37,7 +39,7 @@ import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -421,14 +423,14 @@ public class ParserImplTest extends JSoarTest
         Production p = parser.parseProduction();
         assertNotNull(p);
     }    
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testThrowsIllegalStateExceptionWithLtiAndNoLtiSource() throws Exception
     {
         OriginalParserImpl parser = createParser("testParseLongTermIdentifier\n" +
                 "(state <s> ^value @L1)" +
                 "-->" +
                 "(write hello)");
-        parser.parseProduction();
+        assertThrows(IllegalStateException.class, () -> parser.parseProduction());
     }
 
     @Test

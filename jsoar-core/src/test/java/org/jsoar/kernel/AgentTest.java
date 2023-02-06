@@ -5,15 +5,16 @@
  */
 package org.jsoar.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.SymbolFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -22,13 +23,13 @@ public class AgentTest
 {
     private Agent agent;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();

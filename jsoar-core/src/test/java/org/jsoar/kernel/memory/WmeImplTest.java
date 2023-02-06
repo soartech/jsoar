@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.GoalDependencySet;
@@ -13,7 +14,7 @@ import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.symbols.GoalIdentifierInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WmeImplTest extends JSoarTest
 {

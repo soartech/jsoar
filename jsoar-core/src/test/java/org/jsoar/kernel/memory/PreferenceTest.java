@@ -6,7 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.JSoarTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

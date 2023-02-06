@@ -6,10 +6,10 @@
 package org.jsoar.util.commands;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -32,7 +32,7 @@ public class DefaultInterpreterTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
@@ -42,7 +42,7 @@ public class DefaultInterpreterTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();
@@ -68,7 +68,7 @@ public class DefaultInterpreterTest
         });
         
         final URL result = getClass().getResource("DefaultInterpreterTest_testPassesCommandContextToCommand.soar");
-        assertNotNull("Couldn't find test resource", result);
+        assertNotNull(result, "Couldn't find test resource");
         
         interp.source(result);
         
@@ -96,11 +96,11 @@ public class DefaultInterpreterTest
             }
         });
         interp.eval("testCa");
-        assertTrue("Expected testCanChoose command to be called", called.get());
+        assertTrue(called.get(), "Expected testCanChoose command to be called");
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsAnExceptionWhenACommandPrefixIsAmbiguous() throws Exception
+    @Test()
+    public void testThrowsAnExceptionWhenACommandPrefixIsAmbiguous()
     {
         final AtomicBoolean called = new AtomicBoolean(false);
         final SoarCommand command = new SoarCommand()
@@ -119,8 +119,7 @@ public class DefaultInterpreterTest
         };
         interp.addCommand("testCanChoose", command);
         interp.addCommand("testCanAlsoChoose", command);
-        interp.eval("testCan");
-        assertFalse("Expected an ambiguous command exception", called.get());
+        assertThrows(SoarException.class, () -> interp.eval("testCan"));
     }
     
     @Test
@@ -151,6 +150,6 @@ public class DefaultInterpreterTest
         URL url = new URL(inputFile);
         SoarCommands.source(agent.getInterpreter(), url );
         
-        assertTrue("Expected a rule to be loaded", agent.getProductions().getProductionCount() == 1);
+        assertEquals(1, agent.getProductions().getProductionCount(), "Expected a rule to be loaded");
     }
 }

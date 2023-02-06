@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,19 +17,19 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SoarTechWmeToXmlTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
     }

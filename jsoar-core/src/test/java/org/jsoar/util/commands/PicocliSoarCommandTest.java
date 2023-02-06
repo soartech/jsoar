@@ -1,6 +1,6 @@
 package org.jsoar.util.commands;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -9,9 +9,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import picocli.CommandLine;
 
@@ -21,14 +21,14 @@ public class PicocliSoarCommandTest
     private Agent agent;
     private StringWriter outputWriter = new StringWriter();
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getPrinter().addPersistentWriter(this.outputWriter);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if(this.agent != null)

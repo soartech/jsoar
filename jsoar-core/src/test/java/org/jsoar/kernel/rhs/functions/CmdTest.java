@@ -4,24 +4,24 @@
  * Created on January 07, 2013
  */package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CmdTest
 {
     private Agent agent;
     private StringWriter outputWriter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent(false);
@@ -34,7 +34,7 @@ public class CmdTest
         this.agent.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (this.agent != null)

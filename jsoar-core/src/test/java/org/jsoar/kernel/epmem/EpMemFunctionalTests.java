@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.epmem;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.net.URL;
@@ -17,7 +17,7 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.runtime.ThreadedAgent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +212,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         agent.initialize();
         
         URL db = getClass().getResource("epmem-csoar-db.sqlite");
-        assertNotNull("No CSoar db!", db);
+        assertNotNull(db, "No CSoar db!");
         agent.getInterpreter().eval("epmem --set path " + db.getPath());
         agent.getInterpreter().eval("epmem --set append-database on");
         agent.getInterpreter().eval("epmem --reinit");
@@ -228,7 +228,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
                 
         logger.info("Epmem test actual result: " + actualResult);
-        assertTrue("Unexpected output from CSoar database! ", actualResult.equals(expectedResult));
+        assertTrue(actualResult.equals(expectedResult), "Unexpected output from CSoar database! ");
     }
     
     @Test
@@ -242,7 +242,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
             t.getAgent().getTrace().setEnabled(true);
             String sourceName = getClass().getSimpleName() + "_testMultiAgent.soar";
             URL sourceUrl = getClass().getResource(sourceName);
-            assertNotNull("Could not find test file " + sourceName, sourceUrl);
+            assertNotNull(sourceUrl, "Could not find test file " + sourceName);
             t.getAgent().getInterpreter().source(sourceUrl);
             
             agents.add(t);

@@ -5,38 +5,40 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RhsFunctionsTest
 {
     private SymbolFactory syms;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         syms = new SymbolFactoryImpl();
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testCheckArgumentCountThrowsExceptionWhenMinConstraintIsViolated() throws Exception
+    @Test
+    public void testCheckArgumentCountThrowsExceptionWhenMinConstraintIsViolated()
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 4, Integer.MAX_VALUE);
+        assertThrows(RhsFunctionException.class, () -> RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 4, Integer.MAX_VALUE));
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testCheckArgumentCountThrowsExceptionWhenMaxConstraintIsViolated() throws Exception
+    @Test
+    public void testCheckArgumentCountThrowsExceptionWhenMaxConstraintIsViolated()
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 0, 2);
+        assertThrows(RhsFunctionException.class, () -> RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 0, 2));
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testCheckArgumentCountThrowsExceptionWhenExactConstraintIsViolated() throws Exception
+    @Test
+    public void testCheckArgumentCountThrowsExceptionWhenExactConstraintIsViolated()
     {
-        RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 2, 2);
+        assertThrows(RhsFunctionException.class, () -> RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 2, 2));
     }
     
     @Test
@@ -46,9 +48,9 @@ public class RhsFunctionsTest
         RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 1, 5);
     }
 
-    @Test(expected=RhsFunctionException.class)
-    public void testCheckAllArgumentsAreNumericThrowsExceptionWhenConstraintViolated() throws Exception
+    @Test
+    public void testCheckAllArgumentsAreNumericThrowsExceptionWhenConstraintViolated()
     {
-        RhsFunctions.checkAllArgumentsAreNumeric("test", Symbols.asList(syms, 1, 2, 3.14, 6, "nan", 99));
+        assertThrows(RhsFunctionException.class, () -> RhsFunctions.checkAllArgumentsAreNumeric("test", Symbols.asList(syms, 1, 2, 3.14, 6, "nan", 99)));
     }
 }

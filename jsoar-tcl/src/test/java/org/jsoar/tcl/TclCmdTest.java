@@ -4,10 +4,10 @@
  * Created on January 07, 2013
  */package org.jsoar.tcl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.net.URL;
@@ -18,9 +18,9 @@ import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the "cmd" RHS function.
@@ -33,7 +33,7 @@ public class TclCmdTest
     private StringWriter outputWriter;
     private SoarTclInterface ifc;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         System.setProperty("jsoar.agent.interpreter", "tcl");
@@ -48,7 +48,7 @@ public class TclCmdTest
         this.agent.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (this.agent != null)

@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -15,7 +15,7 @@ import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

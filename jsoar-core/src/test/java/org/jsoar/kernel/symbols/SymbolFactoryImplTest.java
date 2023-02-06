@@ -6,15 +6,22 @@
 package org.jsoar.kernel.symbols;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.List;
 
 import org.jsoar.util.ByRef;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -26,7 +33,7 @@ public class SymbolFactoryImplTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         syms = new SymbolFactoryImpl();
@@ -35,7 +42,7 @@ public class SymbolFactoryImplTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         syms = null;
@@ -242,18 +249,18 @@ public class SymbolFactoryImplTest
         assertSame(s, syms.importSymbol(s));
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testImportThrowsAnExceptionForIdentifiers()
     {
         final Identifier id = syms.createIdentifier('T');
-        syms.importSymbol(id);
+        assertThrows(IllegalArgumentException.class, () -> syms.importSymbol(id));
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testImportThrowsAnExceptionForVariables()
     {
         final Variable id = syms.make_variable("foo");
-        syms.importSymbol(id);
+        assertThrows(IllegalArgumentException.class, () -> syms.importSymbol(id));
     }
     
     @Test

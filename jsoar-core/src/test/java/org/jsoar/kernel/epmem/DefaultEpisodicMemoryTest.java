@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.epmem;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Connection;
 
@@ -15,9 +15,9 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.properties.PropertyManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultEpisodicMemoryTest
 {
@@ -25,7 +25,7 @@ public class DefaultEpisodicMemoryTest
     private Connection conn;
     private DefaultEpisodicMemory epmem;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         Agent temp = new Agent();
@@ -38,7 +38,7 @@ public class DefaultEpisodicMemoryTest
         epmem.initialize();
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         conn.close();

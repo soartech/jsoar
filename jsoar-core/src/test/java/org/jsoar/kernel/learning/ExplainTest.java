@@ -6,17 +6,22 @@
 package org.jsoar.kernel.learning;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ExplainTest extends FunctionalTestHarness
 {
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testExplainBacktrace() throws Exception
     {
         // See ExplainTest_testExplainBacktrace.soar for details.
@@ -29,7 +34,7 @@ public class ExplainTest extends FunctionalTestHarness
         assertEquals(1, chunks.size());
         final ExplainChunk c = chunks.get(0);
         assertEquals("chunk-1*d4*opnochange*1", c.name);
-        assertTrue("Explanation should only have 2 conditions", c.conds.next.next == null);
-        assertTrue("Explanation should only have 1 action", c.actions.next == null);
+        assertTrue(c.conds.next.next == null, "Explanation should only have 2 conditions");
+        assertTrue(c.actions.next == null, "Explanation should only have 1 action");
     }
 }

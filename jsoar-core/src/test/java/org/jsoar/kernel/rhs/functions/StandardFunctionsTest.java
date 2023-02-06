@@ -6,21 +6,21 @@
 package org.jsoar.kernel.rhs.functions;
 
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StandardFunctionsTest
 {
     private Agent agent;
     private StringWriter outputWriter;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent(getClass().getSimpleName());
@@ -28,7 +28,7 @@ public class StandardFunctionsTest
         this.agent.getTrace().disableAll();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();
@@ -47,8 +47,7 @@ public class StandardFunctionsTest
         final String output = outputWriter.toString();
         
         // Note that this tests the exact print output of the function
-        assertTrue("Unexpected output: " + output, 
-                   output.matches("Succeeded: testSucceededRhsFunction: something, nothing\n.*"));
+        assertTrue(output.matches("Succeeded: testSucceededRhsFunction: something, nothing\n.*"), "Unexpected output: " + output);
     }
     
     @Test
@@ -64,8 +63,7 @@ public class StandardFunctionsTest
         final String output = outputWriter.toString();
         
         // Note that this tests the exact print output of the function
-        assertTrue("Unexpected output: " + output, 
-                   output.matches("Succeeded: testFailedRhsFunction: nothing, something\n.*"));
+        assertTrue(output.matches("Succeeded: testFailedRhsFunction: nothing, something\n.*"), "Unexpected output: " + output);
         
     }
 

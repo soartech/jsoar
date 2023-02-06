@@ -5,14 +5,15 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -20,20 +21,20 @@ import org.junit.Test;
  */
 public class ExecRhsFunctionTest extends JSoarTest
 {
-    @Test(expected=RhsFunctionException.class)
-    public void testExecRequiresAtLeastOneArgument() throws Exception
+    @Test
+    public void testExecRequiresAtLeastOneArgument()
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
-        exec.execute(rhsFuncContext, new ArrayList<Symbol>());
+        assertThrows(RhsFunctionException.class, () -> exec.execute(rhsFuncContext, new ArrayList<Symbol>()));
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testExecCantCallItself() throws Exception
+    @Test
+    public void testExecCantCallItself()
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
-        exec.execute(rhsFuncContext, Symbols.asList(syms, exec.getName()));
+        assertThrows(RhsFunctionException.class, () -> exec.execute(rhsFuncContext, Symbols.asList(syms, exec.getName())));
     }
     
     @Test

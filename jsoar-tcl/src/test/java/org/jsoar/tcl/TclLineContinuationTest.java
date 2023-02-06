@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.ByteStreams;
 

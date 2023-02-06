@@ -6,9 +6,10 @@
 package org.jsoar.kernel.rhs;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

@@ -5,9 +5,9 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -21,22 +21,22 @@ import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.Identifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AutoTypeXmlToWmeTest
 {
     private Agent agent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();

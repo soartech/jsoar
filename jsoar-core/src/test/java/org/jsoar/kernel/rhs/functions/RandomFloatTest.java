@@ -6,14 +6,16 @@
 package org.jsoar.kernel.rhs.functions;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray

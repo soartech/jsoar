@@ -6,10 +6,10 @@
 package org.jsoar.tcl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Reader;
 import java.net.URL;
@@ -24,9 +24,9 @@ import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.commands.SoarCommands;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -38,7 +38,7 @@ public class SoarTclInterfaceTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         final Agent agent = new Agent();
@@ -48,7 +48,7 @@ public class SoarTclInterfaceTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         SoarTclInterface.dispose(ifc);
@@ -143,6 +143,6 @@ public class SoarTclInterfaceTest
         URL url = new URL(inputFile);
         SoarCommands.source(ifc, url );
         
-        assertTrue("Expected a rule to be loaded", ifc.getAgent().getProductions().getProductionCount() == 1);
+        assertEquals(1, ifc.getAgent().getProductions().getProductionCount(), "Expected a rule to be loaded");
     }
 }

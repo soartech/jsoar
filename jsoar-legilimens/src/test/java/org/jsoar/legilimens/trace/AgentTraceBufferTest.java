@@ -6,12 +6,12 @@
 package org.jsoar.legilimens.trace;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.Agent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -21,14 +21,14 @@ public class AgentTraceBufferTest
     private Agent agent;
     private AgentTraceBuffer traceBuffer;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
         traceBuffer = AgentTraceBuffer.attach(agent, 16);
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         traceBuffer.detach();

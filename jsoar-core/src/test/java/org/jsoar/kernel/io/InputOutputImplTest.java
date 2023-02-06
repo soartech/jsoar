@@ -6,9 +6,10 @@
 package org.jsoar.kernel.io;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +36,9 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.commands.SoarCommandInterpreter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
@@ -79,7 +80,7 @@ public class InputOutputImplTest extends JSoarTest
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();
@@ -98,7 +99,7 @@ public class InputOutputImplTest extends JSoarTest
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();
@@ -283,27 +284,27 @@ public class InputOutputImplTest extends JSoarTest
     }
     */
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(other.createIdentifier('T'), syms.createString("hi"), syms.createInteger(99));
+        assertThrows(IllegalArgumentException.class, () -> agent.getInputOutput().addInputWme(other.createIdentifier('T'), syms.createString("hi"), syms.createInteger(99)));
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testAddInputWmeThrowsAnExceptionIfAttributeComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), other.createString("hi"), syms.createInteger(99));
+        assertThrows(IllegalArgumentException.class, () -> agent.getInputOutput().addInputWme(syms.createIdentifier('T'), other.createString("hi"), syms.createInteger(99)));
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testAddInputWmeThrowsAnExceptionIfValueComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
-        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99));
+        assertThrows(IllegalArgumentException.class, () -> agent.getInputOutput().addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99)));
     }
 }

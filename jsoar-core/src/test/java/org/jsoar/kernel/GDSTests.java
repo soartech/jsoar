@@ -6,16 +6,20 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.SimpleMatcher;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.google.common.collect.Lists;
 
@@ -24,13 +28,15 @@ import com.google.common.collect.Lists;
  */
 public class GDSTests extends FunctionalTestHarness
 {
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGDSBug1144() throws Exception
     {
         runTest("testGDSBug1144", 7); // should halt not crash
     }
     
-    @Test(timeout=10000)
+    @Test
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testGDSBug1011() throws Exception
     {
         runTest("testGDSBug1011", 8);
@@ -51,10 +57,10 @@ public class GDSTests extends FunctionalTestHarness
         
         List<Goal> goals = agent.getGoalStack();
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertNull("Expected GDS for top state to be empty", gds);
+        assertNull(gds, "Expected GDS for top state to be empty");
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertNotNull("Expected GDS for substate to be non-empty", gds);
+        assertNotNull(gds, "Expected GDS for substate to be non-empty");
     }
     
     @Test
@@ -79,11 +85,11 @@ public class GDSTests extends FunctionalTestHarness
     private void testMultiLevel() throws Exception
     {
         final List<Goal> goals = agent.getGoalStack();
-        assertEquals("Unexpected number of states", goals.size(), 3);
+        assertEquals(3, goals.size(), "Unexpected number of states");
         
         // top state
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertNull("Expected first goal to have empty GDS", gds);
+        assertNull(gds, "Expected first goal to have empty GDS");
 
         
         // first substate        
@@ -98,7 +104,7 @@ public class GDSTests extends FunctionalTestHarness
 
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertNotNull("Expected second goal have non-empty GDS", gds);
+        assertNotNull(gds, "Expected second goal have non-empty GDS");
 
         Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
                 
@@ -118,7 +124,7 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         String s = matcher.getMatches("expectedGDS").toString();
         
-        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
+        assertEquals(1, matcher.getNumberMatches("expectedGDS"), "expectedGDS didn't match: " + s);
         
         // reset matcher
         matcher.removeAllProductions();
@@ -135,7 +141,7 @@ public class GDSTests extends FunctionalTestHarness
         //        (44: S5 ^superstate S3)
         
         gds = Adaptables.adapt(goals.get(2), GoalDependencySet.class);
-        assertNotNull("Expected third goal have non-empty GDS", gds);
+        assertNotNull(gds, "Expected third goal have non-empty GDS");
         actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
         matcher.addProduction("expectedGDS \n" +
@@ -154,6 +160,6 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         s = matcher.getMatches("expectedGDS").toString();
         
-        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
+        assertEquals(1, matcher.getNumberMatches("expectedGDS"), "expectedGDS didn't match: " + s);
     }
 }

@@ -1,6 +1,6 @@
 package org.jsoar.kernel.epmem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EpMemHamiltonStoreTests extends FunctionalTestHarness
 {   
@@ -49,8 +49,8 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             final long id = results.getLong("wi_id");
             final long start = results.getLong("start_episode_id");
             assertTrue(
-                    "edge_now contained unexpected " + id + ", " + start, 
-                    expectedRowIds.contains(id) && start == 1
+                    expectedRowIds.contains(id) && start == 1,
+                    "edge_now contained unexpected " + id + ", " + start
                 );
             expectedRowIds.remove(id);
         }
@@ -80,16 +80,16 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             final long id = results.getLong("wc_id");
             final long start = results.getLong("start_episode_id");
             assertTrue(
-                    "node_now contained unexpected " + id + ", " + start, 
-                    expectedRowIds.contains(id) && start == 1
+                    expectedRowIds.contains(id) && start == 1,
+                    "node_now contained unexpected " + id + ", " + start
                 );
             expectedRowIds.remove(id);
         }
         assertTrue(
+                expectedRowIds.isEmpty(),
                 "node_now did not contain expected id " + 
                 (expectedRowIds.isEmpty()?"":expectedRowIds.get(0)) + 
-                ", " + 1,
-                expectedRowIds.isEmpty()
+                ", " + 1
             );
     }
     
@@ -196,14 +196,14 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getLong("value_s_id")
                     );
             assertTrue(
-                    "node_unique contained unexpected " + row, 
-                    expectedRows.contains(row)
+                    expectedRows.contains(row),
+                    "node_unique contained unexpected " + row
                 );
             expectedRows.remove(row);
         }
         assertTrue(
-                expectedRows.size() > 0 ? "node_unique did not contain expected row " + expectedRows.toArray()[0] : "",
-                expectedRows.isEmpty()
+                expectedRows.isEmpty(),
+                expectedRows.size() > 0 ? "node_unique did not contain expected row " + expectedRows.toArray()[0] : ""
             );
     }
     
@@ -306,15 +306,15 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getString("symbol_value")
                     );
             assertTrue(
-                    "epmem_symbols_string contained unexpected " + row, 
-                    expectedRows.contains(row)
+                    expectedRows.contains(row),
+                    "epmem_symbols_string contained unexpected " + row 
                 );
             expectedRows.remove(row);
         }
         assertTrue(
+                expectedRows.isEmpty(),
                 "epmem_symbols_string did not contain expected row " + 
-                (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
-                expectedRows.isEmpty()
+                (expectedRows.isEmpty()?"":expectedRows.toArray()[0])
             );
     }
     
@@ -443,15 +443,15 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                         results.getLong("last_episode_id")
                     );
             assertTrue(
-                    "epmem_wmes_identifer contained unexpected " + row, 
-                    expectedRows.contains(row)
+                    expectedRows.contains(row),
+                    "epmem_wmes_identifer contained unexpected " + row 
                 );
             expectedRows.remove(row);
         }
         assertTrue(
+                expectedRows.isEmpty(),
                 "epmem_wmes_identifier did not contain expected row " + 
-                (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
-                expectedRows.isEmpty()
+                (expectedRows.isEmpty()?"":expectedRows.toArray()[0])
             );
     }
     
@@ -475,15 +475,15 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         
         while(results.next()){
             assertTrue(
-                    "epmem_episodes contained unexpected " + results.getLong("episode_id"),
-                    expectedRows.contains(results.getLong("episode_id"))
+                    expectedRows.contains(results.getLong("episode_id")),
+                    "epmem_episodes contained unexpected " + results.getLong("episode_id")
                 );
             expectedRows.remove(results.getLong("episode_id"));
         }
         assertTrue(
+                expectedRows.isEmpty(),
                 "epmem_episodes did not contain expected row " + 
-                (expectedRows.isEmpty()?"":expectedRows.get(0)),
-                expectedRows.isEmpty()
+                (expectedRows.isEmpty()?"":expectedRows.get(0))
             );
     }
     
@@ -515,18 +515,18 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         
         while(results.next()){
             assertTrue(
-                    "epmem_persistent_variables contained unexpected " + results.getLong("variable_id") + ", " + results.getLong("variable_value"),
-                    expectedRows.get(results.getLong("variable_id")) == results.getLong("variable_value")
+                    expectedRows.get(results.getLong("variable_id")) == results.getLong("variable_value"),
+                    "epmem_persistent_variables contained unexpected " + results.getLong("variable_id") + ", " + results.getLong("variable_value")
                 );
             expectedRows.remove(results.getLong("variable_id"));
         }
         assertTrue(
+                expectedRows.isEmpty(),
                 "epmem_persistent_variables did not contain expected row " + 
                         (expectedRows.isEmpty()?"":
                             expectedRows.keySet().toArray()[0]
                             + ", " + 
-                            expectedRows.get(expectedRows.keySet().toArray()[0])),
-                        expectedRows.isEmpty()
+                            expectedRows.get(expectedRows.keySet().toArray()[0]))
                 );
     }
 }

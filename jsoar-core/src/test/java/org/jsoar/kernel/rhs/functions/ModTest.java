@@ -6,12 +6,13 @@
 package org.jsoar.kernel.rhs.functions;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -34,16 +35,16 @@ public class ModTest extends JSoarTest
         }
     }
     
-    @Test(expected=RhsFunctionException.class)
-    public void testModThrowsExceptionOnDivideByZero() throws Exception
+    @Test
+    public void testModThrowsExceptionOnDivideByZero()
     {
-        validateMod(1, 0);
+        assertThrows(RhsFunctionException.class, () -> validateMod(1, 0));
     }
     
     private void validateMod(int a, int b) throws Exception
     {
         final Mod mod = new Mod();
         final Symbol r = mod.execute(rhsFuncContext, Symbols.asList(syms, a, b));
-        assertEquals(String.format("(mod %d %d)", a, b), a % b, r.asInteger().getValue());
+        assertEquals(a % b, r.asInteger().getValue(), String.format("(mod %d %d)", a, b));
     }
 }

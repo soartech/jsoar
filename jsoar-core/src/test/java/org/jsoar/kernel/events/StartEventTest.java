@@ -5,17 +5,19 @@
  */
 package org.jsoar.kernel.events;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.runtime.ThreadedAgent;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * @author jon.voigt
@@ -24,13 +26,13 @@ public class StartEventTest
 {
     private ThreadedAgent agent;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         agent = ThreadedAgent.create(getClass().getName());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         if (agent != null)
@@ -39,7 +41,8 @@ public class StartEventTest
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
     public void testEventFires() throws Exception
     {
         // The event to start fires at some point after the call to runFor

@@ -6,8 +6,8 @@
 package org.jsoar.kernel.rhs.functions;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.StringWriter;
 import java.net.URL;
@@ -16,7 +16,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;

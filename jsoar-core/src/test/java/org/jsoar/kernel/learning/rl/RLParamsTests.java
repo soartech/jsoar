@@ -12,7 +12,7 @@
 package org.jsoar.kernel.learning.rl;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.ApoptosisChoices;
@@ -24,9 +24,9 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.LearningPolicy;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Meta;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.TemporalExtension;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningParams.Trace;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RLParamsTests
 {
@@ -34,13 +34,13 @@ public class RLParamsTests
     
     private final double DELTA = 0.0000000001;
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         this.agent = new Agent();
     }
     
-    @After
+    @AfterEach
     public void tearDown()
     {
         this.agent.dispose();

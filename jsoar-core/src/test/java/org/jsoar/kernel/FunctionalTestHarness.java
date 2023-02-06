@@ -5,10 +5,10 @@
  */
 package org.jsoar.kernel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.List;
@@ -18,8 +18,8 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class FunctionalTestHarness
 {
@@ -37,7 +37,7 @@ public class FunctionalTestHarness
     {
         String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
         URL sourceUrl = getClass().getResource(sourceName);
-        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+        assertNotNull(sourceUrl, "Could not find test file " + sourceName);
         agent.getInterpreter().source(sourceUrl);
     }
     
@@ -53,8 +53,8 @@ public class FunctionalTestHarness
             agent.runForever();
         }
         
-        assertTrue(testName + " functional test did not halt", halted);
-        assertFalse(testName + " functional test failed", failed);
+        assertTrue(halted, testName + " functional test did not halt");
+        assertFalse(failed, testName + " functional test failed");
         if(expectedDecisions >= 0)
         {
             assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
@@ -72,7 +72,7 @@ public class FunctionalTestHarness
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         halted = false;
@@ -85,7 +85,7 @@ public class FunctionalTestHarness
     /**
      * @throws java.lang.Exception
      */
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();

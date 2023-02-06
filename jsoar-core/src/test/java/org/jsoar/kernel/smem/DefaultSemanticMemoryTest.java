@@ -5,7 +5,11 @@
  */
 package org.jsoar.kernel.smem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -19,9 +23,9 @@ import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.PropertyManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultSemanticMemoryTest
 {
@@ -29,7 +33,7 @@ public class DefaultSemanticMemoryTest
     private Connection conn;
     private DefaultSemanticMemory smem;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), new Agent());
@@ -41,7 +45,7 @@ public class DefaultSemanticMemoryTest
         smem.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         conn.close();

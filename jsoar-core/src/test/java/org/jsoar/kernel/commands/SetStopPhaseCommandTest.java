@@ -6,7 +6,8 @@
 package org.jsoar.kernel.commands;
 
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,15 +19,15 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SetStopPhaseCommandTest
 {
     private PropertyManager props;
     private SoarSettingsCommand command;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         Agent agent = new Agent();
@@ -34,10 +35,10 @@ public class SetStopPhaseCommandTest
         command = new SoarSettingsCommand(agent);
     }
     
-    @Test(expected=SoarException.class)
-    public void testThrowsExceptionOnUnknownOption() throws Exception
+    @Test
+    public void testThrowsExceptionOnUnknownOption()
     {
-        verify(null, "unknown");
+        assertThrows(SoarException.class, () -> verify(null, "unknown"));
     }
     
     // input -> propose -> decision -> apply -> output

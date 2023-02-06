@@ -6,11 +6,11 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
