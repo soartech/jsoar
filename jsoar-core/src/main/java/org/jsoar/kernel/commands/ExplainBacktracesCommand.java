@@ -51,16 +51,7 @@ public class ExplainBacktracesCommand extends PicocliSoarCommand
             // Obtain value of chunk/justification number if possible
             if (chunkNum != null)
             {
-                try
-                {
-                    condition = Integer.valueOf(chunkNum);
-                }
-                catch (NumberFormatException e)
-                {
-                    agent.getPrinter().startNewLine().print("Expected numeric argument "
-                            + "for --condition option, got " + chunkNum);
-                    return;
-                }
+                condition = chunkNum;
             }
 
             // Obtain agent's Explain object if possible
