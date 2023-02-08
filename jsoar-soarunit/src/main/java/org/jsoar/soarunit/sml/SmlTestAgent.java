@@ -41,6 +41,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private static int port;
     private static TestRhsFunction passFunction;
     private static TestRhsFunction failFunction;
+    private static Random r = new Random();
     
     static {
         port = getAvailablePort();
@@ -228,7 +229,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         for (int tries = 0; tries < TRIES; ++tries)
         {
             // Grab an IANA ephemeral port 49152 to 65535
-            Random r = new Random();
             int port = r.nextInt(65535 - 49152) + 49152;
 
             if (available(port))
