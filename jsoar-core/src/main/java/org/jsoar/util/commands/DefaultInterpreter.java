@@ -130,7 +130,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public String eval(String code) throws SoarException
     {
-        return evalAndClose(new StringReader(code), code.length() > 100 ? code.substring(0, 100) : code);
+        return eval(code, code.length() > 100 ? code.substring(0, 100) : code);
     }
     
     /* (non-Javadoc)
@@ -218,26 +218,16 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return aliases.keySet();
     }
 
-    private String evalAndClose(Reader reader, String context) throws SoarException
+    private String eval(String code, String context) throws SoarException
     {
-        try
+        
+        try(Reader reader = new StringReader(code))
         {
             return eval(reader);
         }
         catch (IOException e)
         {
             throw new SoarException("Error while evaluating '" + context + "': " + e.getMessage(), e);
-        }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch (IOException e)
-            {
-                throw new SoarException("Error while closing '" + context + "': " + e.getMessage(), e);
-            }
         }
     }
     
@@ -421,7 +411,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             {
                 String code = getReaderContents(new BufferedReader(new FileReader(file)));
                 code = fixLineEndings(code);
-                evalAndClose(new StringReader(code), file.getAbsolutePath());
+                DefaultInterpreter.this.eval(code, file.getAbsolutePath());
 //                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
             }
             catch (IOException e)
@@ -438,7 +428,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
                 url = UrlTools.normalize(url);
                 String code = getReaderContents(new BufferedReader(new InputStreamReader(url.openStream())));
                 code = fixLineEndings(code);
-                evalAndClose(new StringReader(code), url.toExternalForm());
+                DefaultInterpreter.this.eval(code, url.toExternalForm());
 //                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
             }
             catch (IOException | URISyntaxException e)
