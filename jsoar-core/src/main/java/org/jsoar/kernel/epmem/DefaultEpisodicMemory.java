@@ -5054,7 +5054,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Integer num_incoming = symbol_num_incoming.get(literal.id_sym);
             Integer match = symbol_node_count.get(new EpmemSymbolNodePair(literal.id_sym, parent));
             // since, by definition, if a node satisfies all incoming literals, all incoming literals are satisfied
-            parents_satisfied = (match != null) && (match == num_incoming);
+            parents_satisfied = (match != null) && (match.equals(num_incoming));
         }
         // if yes
         if ( parents_satisfied ) {
@@ -7636,7 +7636,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         else if (a instanceof IntegerSymbol)
             return a.asInteger().getValue() == b.asInteger().getValue();
         else if (a instanceof StringSymbol)
-            return a.asString().getValue() == b.asString().getValue();
+            return a.asString().getValue().equals(b.asString().getValue());
         else if (a instanceof JavaSymbol)
             return a.asJava().getValue().equals(b.asJava().getValue());
         
