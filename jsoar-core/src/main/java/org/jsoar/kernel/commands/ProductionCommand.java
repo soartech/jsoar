@@ -786,7 +786,7 @@ public class ProductionCommand extends PicocliSoarCommand
         public void run()
         {
             final StringSymbol attr = parent.agent.getSymbols().createString(attribute);
-            final int cost = Integer.valueOf(degree);
+            final int cost = degree;
             parent.agent.getMultiAttributes().setCost(attr, cost);
         }
     }

@@ -162,7 +162,7 @@ public final class OutputCommand extends PicocliSoarCommand
             }
             else
             {
-                int depth = Integer.valueOf(printDepth);
+                int depth = printDepth;
                 try {
                     parent.printCommand.setDefaultDepth(depth);
                 } catch(SoarException e) {
