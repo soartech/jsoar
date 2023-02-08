@@ -637,48 +637,24 @@ public class SmemCommand extends PicocliSoarCommand
                     return "";
                 }
                 
-                Statement s = null;
                 long pageCount = 0;
                 long pageSize = 0;
-                try
+                try(Statement s = smem.getDatabase().getConnection().createStatement())
                 {
-                    s = smem.getDatabase().getConnection().createStatement();
                     
-                    ResultSet rs = null;
-                    try
+                    try(ResultSet rs = s.executeQuery("PRAGMA page_count"))
                     {
-                        rs = s.executeQuery("PRAGMA page_count");
                         pageCount = rs.getLong(0 + 1);
                     }
-                    finally
-                    {
-                        rs.close();
-                    }
                     
-                    try
+                    try(ResultSet rs = s.executeQuery("PRAGMA page_size"))
                     {
-                        rs = s.executeQuery("PRAGMA page_size");
                         pageSize = rs.getLong(0 + 1);
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                 }
                 catch (SQLException e)
                 {
                     throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
-                }
-                finally
-                {
-                    try
-                    {
-                        s.close();
-                    }
-                    catch (SQLException e)
-                    {
-                        throw new ExecutionException(spec.commandLine(), e.getMessage(), e);
-                    }
                 }
                 
                 p.mem_usage.set(pageCount * pageSize);

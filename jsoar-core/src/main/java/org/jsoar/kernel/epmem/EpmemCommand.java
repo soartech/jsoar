@@ -457,50 +457,25 @@ public class EpmemCommand extends PicocliSoarCommand
                     return "";
                 }
                 
-                Statement s = null;
                 long pageCount = 0;
                 long pageSize = 0;
-                try
+                try(Statement s = epmem.getDatabase().getConnection().createStatement())
                 {
-                    s = epmem.getDatabase().getConnection().createStatement();
                     
-                    ResultSet rs = null;
-                    try
+                    try(ResultSet rs = s.executeQuery("PRAGMA page_count"))
                     {
-                        rs = s.executeQuery("PRAGMA page_count");
                         pageCount = rs.getLong(0 + 1);
                     }
-                    finally
-                    {
-                        rs.close();
-                    }
                     
-                    try
+                    try(ResultSet rs = s.executeQuery("PRAGMA page_size"))
                     {
-                        rs = s.executeQuery("PRAGMA page_size");
                         pageSize = rs.getLong(0 + 1);
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                 }
                 catch (SQLException e)
                 {
                     agent.getPrinter().startNewLine().print(e.getMessage());
                     return "";
-                }
-                finally
-                {
-                    try
-                    {
-                        s.close();
-                    }
-                    catch (SQLException e)
-                    {
-                        agent.getPrinter().startNewLine().print(e.getMessage());
-                        return "";
-                    }
                 }
                 
                 stats.mem_usage.set(pageCount * pageSize);

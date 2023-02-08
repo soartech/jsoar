@@ -123,30 +123,22 @@ public class ScriptEngineState
             engine.put("_soar", new ScriptContext(context));
             
             engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            try
+            
+            try(final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8)))
             {
-                try
-                {
-                    engine.eval(reader);
-                }
-                catch (ScriptException e)
-                {
-                    throw new SoarException(e.getMessage(), e);
-                }
+                engine.eval(reader);
+            }
+            catch (ScriptException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+            catch (IOException e)
+            {
+                throw new SoarException("While initializing '" + engineName + "' engine: " + e.getMessage(), e);
             }
             finally
             {
                 engine.put(ScriptEngine.FILENAME, null);
-
-                try
-                {
-                    reader.close();
-                }
-                catch (IOException e)
-                {
-                    throw new SoarException("While initializing '" + engineName + "' engine: " + e.getMessage(), e);
-                }
             }
         }
         else

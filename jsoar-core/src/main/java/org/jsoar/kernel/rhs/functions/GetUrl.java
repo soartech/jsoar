@@ -53,20 +53,8 @@ public class GetUrl extends AbstractRhsFunctionHandler
         }
         
         // Open an input stream
-        final InputStream is;
-        try
+        try(final InputStream is = new BufferedInputStream(url.openStream()); final ByteArrayOutputStream out = new ByteArrayOutputStream())
         {
-            is = new BufferedInputStream(url.openStream());
-        }
-        catch (IOException e)
-        {
-            throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
-        }
-        
-        try
-        {
-            // Read the input stream into a buffer
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
             ByteStreams.copy(is, out);
             return context.getSymbols().createString(out.toString("UTF-8"));
         }
@@ -74,16 +62,6 @@ public class GetUrl extends AbstractRhsFunctionHandler
         {
             throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
         }
-        finally
-        {
-            try
-            {
-                is.close();
-            }
-            catch (IOException e)
-            {
-                throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
-            }
-        }
+
     }
 }
