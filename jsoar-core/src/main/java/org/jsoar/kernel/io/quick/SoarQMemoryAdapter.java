@@ -87,7 +87,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         }
     };
     
-    private final String lock = new String(getClass().getName() + " lock");
+    private final Object lock = new Object();
     private QMemory source;
     private boolean sourceChanged = false;
     private InputOutput io;
