@@ -201,9 +201,6 @@ public abstract class AbstractSoarDatabase
         // This works for now.
         field.setAccessible(true);
         PreparedStatement ps = prepareNamedStatement(field.getName());
-        if(ps == null){
-            throw new SoarException("Failed to prepare statement '" + field.getName() +"'");
-        }
         field.set(this, ps);
     }
     

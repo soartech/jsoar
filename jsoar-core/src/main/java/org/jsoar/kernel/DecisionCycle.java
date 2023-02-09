@@ -762,12 +762,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
 
-        // we check e_cycle_count because Soar 7 runs multiple input cycles per decision
-        // always true for Soar 8
-        if (e_cycles_this_d_cycle == 0)
-        {
-            context.getEvents().fireEvent(beforeDecisionCycleEvent);
-        }
+        context.getEvents().fireEvent(beforeDecisionCycleEvent);
 
         beforePhase(Phase.INPUT);
 

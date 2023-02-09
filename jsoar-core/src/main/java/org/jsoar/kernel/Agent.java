@@ -265,28 +265,22 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         setInterpreter(null);
         
-        if(smem != null)
+        try
         {
-            try
-            {
-                smem.smem_close();
-            }
-            catch (SoarException e)
-            {
-                logger.error("While closing smem database: " + e.getMessage(), e);
-            }
+            smem.smem_close();
         }
-        
-        if (epmem != null)
+        catch (SoarException e)
         {
-            try
-            {
-                epmem.epmem_close();
-            }
-            catch (SoarException e)
-            {
-                logger.error("While closing epmem database: " + e.getMessage(), e);
-            }
+            logger.error("While closing smem database: " + e.getMessage(), e);
+        }
+
+        try
+        {
+            epmem.epmem_close();
+        }
+        catch (SoarException e)
+        {
+            logger.error("While closing epmem database: " + e.getMessage(), e);
         }
         
         logger.info("Agent '" + this + "' disposed.");
