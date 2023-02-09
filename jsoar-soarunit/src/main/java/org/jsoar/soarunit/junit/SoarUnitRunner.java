@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -29,6 +30,8 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -43,6 +46,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 public class SoarUnitRunner extends Runner
 {
+    private static final Logger LOG = LoggerFactory.getLogger(SoarUnitRunner.class);
+    
     private final TestClass testClass;
     private final JSoarTestAgentFactory agentFactory = new AgentFactory();
     private final PrintWriterProxy out;
@@ -178,9 +183,18 @@ public class SoarUnitRunner extends Runner
             Futures.successfulAsList(wait).get();
             Futures.successfulAsList(runNotifications).get();
         }
-        catch (Exception e) { } // note this catches an InterruptedException, but it might be safe in this case since the next step is to shutdown
-        exec.shutdown();
-        runNotifierExec.shutdown();
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        catch (ExecutionException e)
+        {
+            LOG.error("Error while running tests", e);
+        }
+        finally
+        {
+            exec.shutdown();
+            runNotifierExec.shutdown();
+        }
     }
 
     private List<URL> getResources(String path) throws IOException

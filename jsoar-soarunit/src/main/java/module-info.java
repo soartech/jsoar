@@ -4,11 +4,12 @@ module org.jsoar.soarunit
     requires info.picocli;
     requires java.datatransfer;
     requires transitive java.desktop;
-    requires junit;
+    requires transitive junit;
     requires org.apache.commons.io;
     requires transitive org.jsoar.core;
     requires transitive sml;
     requires spring.core;
+    requires org.slf4j;
     
     provides org.jsoar.util.commands.SoarCommandProvider with org.jsoar.soarunit.SoarUnitCommand.Provider;
     

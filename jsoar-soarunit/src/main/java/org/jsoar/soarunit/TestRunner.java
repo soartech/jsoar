@@ -93,6 +93,7 @@ public class TestRunner
         }
         catch (InterruptedException e)
         {
+            Thread.currentThread().interrupt();
             throw new SoarException(e.getMessage(), e);
         }
         catch (ExecutionException e)

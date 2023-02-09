@@ -633,12 +633,12 @@ public class PerformanceTesting implements Runnable
                 }
                 catch (InterruptedException e)
                 {
-                } // Do nothing. We still need to flush the output.
-
-                // Flush the output to make sure we have everything, probably
-                // not needed
-                // but there are cases when it is.
-                out.flush();
+                    Thread.currentThread().interrupt();
+                } finally {
+                    // Flush the output to make sure we have everything
+                    // probably not needed but there are cases when it is
+                    out.flush();
+                }
             }
         }
 

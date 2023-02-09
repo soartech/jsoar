@@ -48,6 +48,7 @@ public class BatchStyledDocument extends DefaultStyledDocument {
                     newText = newTexts.take();
                 } catch (InterruptedException e) {
                     logger.error("Syntax highlighting thread interrupted!", e);
+                    Thread.currentThread().interrupt();
                     break;
                 }
 
