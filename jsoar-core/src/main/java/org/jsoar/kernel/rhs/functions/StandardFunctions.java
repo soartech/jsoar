@@ -130,8 +130,6 @@ public class StandardFunctions
         allInternal.add(new ExecRhsFunction(context.getRhsFunctions()));
         allInternal.add(new CmdRhsFunction(context.getInterpreter(), context));
         
-        allInternal.add(new RandomInt(context.getRandom()));
-        allInternal.add(new RandomFloat(context.getRandom()));
         allInternal.add(new RandInt(context.getRandom()));
         allInternal.add(new RandFloat(context.getRandom()));
         

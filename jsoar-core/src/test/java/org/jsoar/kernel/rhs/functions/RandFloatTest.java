@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RandomFloatTest extends JSoarTest
+public class RandFloatTest extends JSoarTest
 {
     @Test public void testExpectedName()
     {
-        final RandomFloat rf = new RandomFloat(new Random());
-        assertEquals("random-float", rf.getName());
+        final RandFloat rf = new RandFloat(new Random());
+        assertEquals("rand-float", rf.getName());
     }
     
     @Test public void testRandomFloat() throws Exception
     {
-        final RandomFloat rf = new RandomFloat(new Random());
+        final RandFloat rf = new RandFloat(new Random());
         for(int i = 0; i < 5000; ++i)
         {
             final Symbol result = rf.execute(rhsFuncContext, new ArrayList<Symbol>());

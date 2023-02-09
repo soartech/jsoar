@@ -513,9 +513,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         return eventManager;
     }
     
-    @Deprecated
-    public SoarEventManager getEventManager() { return getEvents(); }
-    
     /**
      * Returns the agent's production manager. Use this interface to access
      * loaded productions, load new productions, or excise existing productions.

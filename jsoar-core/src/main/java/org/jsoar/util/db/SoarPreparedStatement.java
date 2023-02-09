@@ -1,6 +1,7 @@
 package org.jsoar.util.db;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -751,13 +752,12 @@ public class SoarPreparedStatement implements PreparedStatement
         ps.setURL(parameterIndex, x);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length)
             throws SQLException
     {
         bindVariables.put(parameterIndex, x);
-        ps.setUnicodeStream(parameterIndex, x, length);
+        ps.setCharacterStream(parameterIndex, new InputStreamReader(x), length);
     }
     
 	public void closeOnCompletion() throws SQLException {

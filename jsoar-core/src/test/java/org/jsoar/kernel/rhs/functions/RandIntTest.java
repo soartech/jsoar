@@ -20,18 +20,18 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RandomIntTest extends JSoarTest
+public class RandIntTest extends JSoarTest
 {
     @Test public void testExpectedName()
     {
-        final RandomInt rf = new RandomInt(new Random());
-        assertEquals("random-int", rf.getName());
+        final RandInt rf = new RandInt(new Random());
+        assertEquals("rand-int", rf.getName());
     }
 
     @Test public void testPositiveUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
-        final RandomInt ri = new RandomInt(random);
+        final RandInt ri = new RandInt(random);
         
         for(int i = 0; i < 5000; ++i)
         {
@@ -39,14 +39,14 @@ public class RandomIntTest extends JSoarTest
             assertNotNull(result);
             assertNotNull(result.asInteger());
             final long value = result.asInteger().getValue();
-            assertTrue(value >= 0 && value < 10);
+            assertTrue(value >= 0 && value <= 10);
         }
     }
     
     @Test public void testNegativeUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
-        final RandomInt ri = new RandomInt(random);
+        final RandInt ri = new RandInt(random);
         
         for(int i = 0; i < 5000; ++i)
         {
@@ -54,7 +54,7 @@ public class RandomIntTest extends JSoarTest
             assertNotNull(result);
             assertNotNull(result.asInteger());
             final long value = result.asInteger().getValue();
-            assertTrue(value <= 0 && value > -10);
+            assertTrue(value <= 0 && value >= -10);
         }
     }
     
