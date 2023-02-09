@@ -10,7 +10,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
@@ -37,7 +35,6 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.properties.PropertyKey;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -68,15 +65,6 @@ public class ReteNetWriter
         this.rete = Adaptables.require(getClass(), context, Rete.class);
     }
 
-    // Properties to write out.
-    @SuppressWarnings("serial")
-    protected final HashSet<PropertyKey<?>> propertiesToInclude = new HashSet<PropertyKey<?>>() {{
-        add(SoarProperties.WAITSNC);
-        add(SoarProperties.LEARNING_ON);
-        add(SoarProperties.EXPLAIN);
-        add(SoarProperties.MAX_ELABORATIONS);
-    }}; 
-
     /**
      * Write a rete net to the given output stream. All rules and
      * symbols are written.
@@ -104,12 +92,10 @@ public class ReteNetWriter
             dos.writeUTF(ReteNetReader.MAGIC_STRING);
             dos.writeInt(ReteNetReader.FORMAT_VERSION);
 
-            // Write out symbols, alpha memories, beta network, and some important properties.
+            // Write out symbols, alpha memories, and beta network.
             writeAllSymbols(dos);
             writeAlphaMemories(dos, rete.getAllAlphaMemories());
             writeChildrenOfNode(dos, rete.dummy_top_node);
-            // RETECOMPAT: CSoar's rete-net doesn't write out properties.
-            writeProperties(dos, propertiesToInclude);
         }
         finally
         {
@@ -127,33 +113,6 @@ public class ReteNetWriter
         if (!context.getProductions().getProductions(ProductionType.JUSTIFICATION).isEmpty())
         {
             throw new SoarException("Internal error: cannot save rete net with justifications present.");
-        }
-    }
-
-    /**
-     * Writes a set of {@link PropertyKey}s and their current values to the output stream.
-     * @see ReteNetReader#readProperties
-     * @see org.jsoar.util.properties.PropertyKey
-     * @see org.jsoar.kernel.Agent#getProperties()
-     */
-    private void writeProperties(DataOutputStream dos, HashSet<PropertyKey<?>> properties) throws IOException, SoarException
-    {
-        dos.writeInt(properties.size());
-        for(PropertyKey<?> prop : properties) 
-        {
-            dos.writeUTF(prop.getName());
-            if (prop.getType().equals(Boolean.class))
-            {
-                dos.writeBoolean((Boolean) context.getProperties().get(prop));
-            }
-            else if (prop.getType().equals(Integer.class))
-            {
-                dos.writeInt((Integer) context.getProperties().get(prop));
-            }
-            else
-            {
-                throw new SoarException("Unhandled property type: " + prop.getType());
-            }
         }
     }
 

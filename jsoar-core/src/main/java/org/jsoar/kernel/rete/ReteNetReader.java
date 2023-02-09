@@ -41,8 +41,6 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.properties.PropertyKey;
-import org.jsoar.util.properties.PropertyManager;
 
 /**
  * Loads a rete network into memory.
@@ -106,42 +104,6 @@ public class ReteNetReader
         readAllSymbols(dis);
         readAlphaMemories(dis);
         readChildrenOfNode(dis);
-        readProperties(dis);
-    }
-
-    /**
-     * @see ReteNetWriter#writeProperties
-     */
-    @SuppressWarnings("unchecked")
-    private void readProperties(DataInputStream dis) throws IOException, SoarException
-    {
-        int numProperties = dis.readInt();
-        PropertyManager properties = context.getProperties();
-        for(int i = 0; i < numProperties; i++)
-        {
-            String name = dis.readUTF();
-            PropertyKey<?> propertyKey = properties.getKey(name);
-            if (propertyKey == null)
-            {
-                throw new SoarException("Unknown property " + name);
-            }
-
-            if (propertyKey.getType().equals(Boolean.class))
-            {
-                boolean value = dis.readBoolean();
-                properties.set((PropertyKey<Boolean>)propertyKey, value);
-            }
-            else if (propertyKey.getType().equals(Integer.class))
-            {
-                int value = dis.readInt();
-                properties.set((PropertyKey<Integer>)propertyKey, value);
-            }
-            else
-            {
-                throw new SoarException(String.format("Unhandled property type \"%s\" for property %s.",
-                        propertyKey.getType(), name));
-            }
-        }
     }
 
     /** 

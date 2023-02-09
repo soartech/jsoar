@@ -164,9 +164,21 @@ public class ReteNetCommandTest
         funTests.runTestSetup(testName);
         funTests.agent.getRandom().setSeed(randSeed);
         funTests.agent.getInterpreter().eval("save rete-net -s test.jrete");
+        
+        // save properties for test. These set in the soar files.
+        boolean learning = funTests.agent.getProperties().get(SoarProperties.LEARNING_ON);
+        int maxElaborations = funTests.agent.getProperties().get(SoarProperties.MAX_ELABORATIONS);
+        
         funTests.installRHS(funTests.agent);
         funTests.runTestExecute(testName, expectedDecisions);
         revivedAgent.getInterpreter().eval("load rete-net -l test.jrete");
+        
+        // restore required properties for test
+        if(learning) {
+            revivedAgent.getInterpreter().eval("chunk --on");
+        }
+        revivedAgent.getInterpreter().eval("soar max-elaborations " + maxElaborations);
+        
         funTests.installRHS(revivedAgent);
         revivedAgent.getRandom().setSeed(randSeed);
         funTests.agent = revivedAgent;
