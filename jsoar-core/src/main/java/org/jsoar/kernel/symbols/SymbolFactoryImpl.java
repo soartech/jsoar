@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.util.ByRef;
@@ -527,35 +528,25 @@ public class SymbolFactoryImpl implements SymbolFactory
             this.letter = letter;
             this.number = number;
         }
-        
-        /* (non-Javadoc)
-         * @see java.lang.Object#hashCode()
-         */
+
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + letter;
-            // See Long.hashCode() for where this comes from...
-            result = prime * result + (int)(number ^ (number >>> 32));
-            return result;
+            return Objects.hash(letter, number);
         }
-        
-        /* (non-Javadoc)
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
+
         @Override
         public boolean equals(Object obj)
         {
             if (this == obj)
                 return true;
-            final IdKey other = (IdKey) obj;
-            if (letter != other.letter)
+            if (obj == null)
                 return false;
-            if (number != other.number)
+            if (getClass() != obj.getClass())
                 return false;
-            return true;
+            IdKey other = (IdKey) obj;
+            return letter == other.letter && number == other.number;
         }
+        
     }
 }
