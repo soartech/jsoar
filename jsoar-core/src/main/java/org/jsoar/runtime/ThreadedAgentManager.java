@@ -46,7 +46,7 @@ enum ThreadedAgentManager
                 {
                     synchronized(agents)
                     {
-                        agents.notify();
+                        agents.notifyAll();
                     }
                 }});
             try
