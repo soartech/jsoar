@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoar.script.ScriptCommandTest.TestEvent;
 import org.junit.jupiter.api.Test;
 
 /**

@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.MatchSetEntry;
-import org.jsoar.kernel.MatchSetEntry.EntryType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 
