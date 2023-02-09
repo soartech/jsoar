@@ -322,17 +322,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
         synchronized(interfaces)
         {
             interfaces.remove(agent);
-
-// NOTE: disabling this code on a trial basis because it can make agent deletion extremely expensive if there are a lot of Tcl objects (e.g., if using incr tcl)
-//       as far as I can tell, since this class is going away immediately and there's no way for anything outside this class to reference the interp, this should be safe
-//            try
-//            {
-//                interp.dispose();
-//            }
-//            catch (TclRuntimeError e)
-//            {
-//                logger.warn("In dispose(): " + e.getMessage());
-//            }
             agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
             agent = null;
         }
