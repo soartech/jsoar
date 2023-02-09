@@ -8,23 +8,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jsoar-soar2soar</artifactId>
 
-    <build>
-        <testResources>
-            <testResource>
-                <directory>src/test/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </testResource>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </testResource>
-        </testResources>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>com.soartech</groupId>
