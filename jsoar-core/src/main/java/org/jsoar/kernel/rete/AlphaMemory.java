@@ -37,7 +37,7 @@ public class AlphaMemory extends HashTableItem
         @Override
         public int calculate(AlphaMemory item, int num_bits)
         {
-            AlphaMemory am = (AlphaMemory) item;
+            AlphaMemory am = item;
             return alpha_hash_value(am.id, am.attr, am.value, num_bits);
         }
         

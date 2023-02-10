@@ -1283,8 +1283,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         try
         {
             // soar_letter=? AND number=?
-            db.lti_get.setLong(1, (long) (name_letter));
-            db.lti_get.setLong(2, (long) (name_number));
+            db.lti_get.setLong(1, name_letter);
+            db.lti_get.setLong(2, name_number);
             
             final ResultSet rs = db.lti_get.executeQuery();
             try
@@ -1323,8 +1323,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         // create lti: soar_letter, number, total_augmentations,
         // activation_value, activations_total, activations_last,
         // activations_first
-        db.lti_add.setLong(1, (long) (name_letter));
-        db.lti_add.setLong(2, (long) (name_number));
+        db.lti_add.setLong(1, name_letter);
+        db.lti_add.setLong(2, name_number);
         db.lti_add.setLong(3, 0);
         db.lti_add.setDouble(4, 0);
         db.lti_add.setLong(5, 0);

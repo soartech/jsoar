@@ -876,7 +876,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private boolean shouldDisposeAgent()
     {
         return this == agent.getProperties().get(CREATED_BY) ||
-                EnumSet.of(CloseAction.EXIT, CloseAction.DISPOSE).contains((CloseAction) providerProperties.get(DebuggerProvider.CLOSE_ACTION));
+                EnumSet.of(CloseAction.EXIT, CloseAction.DISPOSE).contains(providerProperties.get(DebuggerProvider.CLOSE_ACTION));
     }
     
     /**

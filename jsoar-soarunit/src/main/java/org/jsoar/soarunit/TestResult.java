@@ -71,12 +71,12 @@ public class TestResult
     
     public double getInitTimeInSeconds()
     {
-        return ((double) initNanos) / 1000000000.0;
+        return initNanos / 1000000000.0;
     }
     
     public double getRunTimeInSeconds()
     {
-        return ((double) runNanos) / 1000000000.0;
+        return runNanos / 1000000000.0;
     }
     
     /*

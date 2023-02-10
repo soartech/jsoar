@@ -65,7 +65,7 @@ class SoarMemoryNode
             return;
         }
         
-        final Identifier parentWME = (Identifier) parentNode.getIdValue();
+        final Identifier parentWME = parentNode.getIdValue();
         final Symbol attr = Symbols.create(io.getSymbols(), name);
         final Symbol value = node.getValue() != null ? Symbols.create(io.getSymbols(), node.getValue()) : io.getSymbols().createIdentifier(name.charAt(0));
         setWME(io.addInputWme(parentWME, attr, value));

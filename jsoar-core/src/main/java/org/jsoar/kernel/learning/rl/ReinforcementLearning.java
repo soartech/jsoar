@@ -723,7 +723,7 @@ public class ReinforcementLearning
                     effective_age += data.gap_age;
                 }
                 
-                data.reward += (reward * Math.pow(discount_rate, (double) effective_age));
+                data.reward += (reward * Math.pow(discount_rate, effective_age));
             }
             
             // update stats
@@ -859,7 +859,7 @@ public class ReinforcementLearning
                     effective_age += data.gap_age;
                 }
                 
-                double discount = Math.pow(gamma, (double) effective_age);
+                double discount = Math.pow(gamma, effective_age);
                 
                 // notify of gap closure
                 if(data.gap_age != 0 && using_gaps && trace.isEnabled(Category.RL))
@@ -893,7 +893,7 @@ public class ReinforcementLearning
                 double sum_old_efr = 0.0;
                 if(!data.prev_op_rl_rules.isEmpty())
                 {
-                    final double trace_increment = (1.0 / (double) (data.prev_op_rl_rules.size()));
+                    final double trace_increment = (1.0 / (data.prev_op_rl_rules.size()));
                     
                     for(Production p : data.prev_op_rl_rules)
                     {

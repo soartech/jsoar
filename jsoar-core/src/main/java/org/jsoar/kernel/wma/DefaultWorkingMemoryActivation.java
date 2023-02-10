@@ -278,7 +278,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             wma_power_array[0] = 0.0;
             for(int i = 1; i < wma_power_size; i++)
             {
-                wma_power_array[i] = Math.pow((double) (i), decay_rate);
+                wma_power_array[i] = Math.pow((i), decay_rate);
             }
         }
         
@@ -294,7 +294,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             wma_approx_array[0] = 0;
             for(int i = 1; i < WMA_REFERENCES_PER_DECISION; i++)
             {
-                wma_approx_array[i] = (long) (Math.ceil(Math.exp((decay_thresh - Math.log((double) (i))) / decay_rate)));
+                wma_approx_array[i] = (long) (Math.ceil(Math.exp((decay_thresh - Math.log((i))) / decay_rate)));
             }
         }
         
@@ -427,7 +427,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 double d_inv = (1 + params.decay_rate.get());
                 
                 return_val += (((history.total_references - history.history_references)
-                        * (Math.pow((double) (current_cycle - history.first_reference), d_inv) - Math.pow((double) (cycle_diff), d_inv))) /
+                        * (Math.pow((double) (current_cycle - history.first_reference), d_inv) - Math.pow((cycle_diff), d_inv))) /
                         (d_inv * ((current_cycle - history.first_reference) - cycle_diff)));
             }
         }

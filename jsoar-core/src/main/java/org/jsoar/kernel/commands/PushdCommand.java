@@ -24,7 +24,7 @@ public class PushdCommand extends PicocliSoarCommand
     @Override
     public Object getCommand()
     {
-        return (Pushd) super.getCommand();
+        return super.getCommand();
     }
     
     @Command(name = "pushd", description = "Saves the current working directory on a stack", subcommands = { HelpCommand.class })

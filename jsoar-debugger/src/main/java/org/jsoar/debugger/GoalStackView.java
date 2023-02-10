@@ -77,7 +77,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     
     private void printOnDoubleClick()
     {
-        final Entry e = (Entry) list.getSelectedValue();
+        final Entry e = list.getSelectedValue();
         if(e == null)
         {
             return;

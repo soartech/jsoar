@@ -111,7 +111,7 @@ public class TestResultList extends JPanel
     
     protected void handleSelectionChanged(ListSelectionEvent e)
     {
-        final TestResultProxy result = (TestResultProxy) list
+        final TestResultProxy result = list
                 .getSelectedValue();
         if(result != null)
         {
@@ -142,7 +142,7 @@ public class TestResultList extends JPanel
     {
         for(int i = 0; i < model.getSize(); i++)
         {
-            final TestResultProxy proxy = (TestResultProxy) model.get(i);
+            final TestResultProxy proxy = model.get(i);
             if(proxy.getTest() == testResult.getTest())
             {
                 return i;
@@ -158,7 +158,7 @@ public class TestResultList extends JPanel
             final int index = getProxyIndex(testResult);
             if(index >= 0)
             {
-                ((TestResultProxy) model.get(index)).setResult(testResult);
+                model.get(index).setResult(testResult);
             }
         }
         
@@ -176,7 +176,7 @@ public class TestResultList extends JPanel
     
     private void handleDoubleClick(MouseEvent e)
     {
-        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
+        final TestResultProxy result = list.getSelectedValue();
         if(result != null)
         {
             EditTestAction.editTest(result.getTest());
@@ -198,7 +198,7 @@ public class TestResultList extends JPanel
         
         list.setSelectedIndex(index);
         final JPopupMenu menu = new JPopupMenu();
-        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
+        final TestResultProxy result = list.getSelectedValue();
         if(result != null)
         {
             menu.add(new EditTestAction(result.getTest()));

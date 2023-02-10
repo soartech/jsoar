@@ -119,7 +119,7 @@ public class HashTable<T extends HashTableItem>
         this.count--;
         if((this.count < this.size / 2) && (this.log2size > this.minimum_log2size))
         {
-            resize_hash_table((int) (this.log2size - 1));
+            resize_hash_table(this.log2size - 1);
         }
         
     }
@@ -135,7 +135,7 @@ public class HashTable<T extends HashTableItem>
         this.count++;
         if(this.count >= this.size * 2)
         {
-            resize_hash_table((int) (this.log2size + 1));
+            resize_hash_table(this.log2size + 1);
         }
         int hash_value = h.calculate(item, this.log2size);
         this_one.next_in_hash_table = buckets[hash_value];

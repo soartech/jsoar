@@ -4587,7 +4587,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 // Java array do not get along well with paramatized types. Maybe
                                 // we should make this a list. -ACN
                                 @SuppressWarnings("unchecked")
-                                Map<Long/* epmem_node_id */, SymbolImpl>[]/* epmem_node_symbol_map */ bound_nodes = (Map<Long, SymbolImpl>[]) new Map[2];
+                                Map<Long/* epmem_node_id */, SymbolImpl>[]/* epmem_node_symbol_map */ bound_nodes = new Map[2];
                                 for(int i = 0; i < bound_nodes.length; i++)
                                 {
                                     bound_nodes[i] = new LinkedHashMap<Long, SymbolImpl>();
