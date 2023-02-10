@@ -178,15 +178,23 @@ public class TraceFormats
                 return null;
             }
             if(prev != null)
+            {
                 prev.next = New;
+            }
             else
+            {
                 first = New;
+            }
             prev = New;
         }
         if(prev != null)
+        {
             prev.next = null;
+        }
         else
+        {
             first = null;
+        }
         
         return first;
     }
@@ -236,7 +244,9 @@ public class TraceFormats
                 }
                 path.add(context.getSymbols().createString(name));
                 if(format.charAt(offset) == ']')
+                {
                     break;
+                }
                 offset++; /* skip past '.' */
             }
         }
@@ -281,15 +291,23 @@ public class TraceFormats
                 return null;
             }
             if(prev != null)
+            {
                 prev.next = New;
+            }
             else
+            {
                 first = New;
+            }
             prev = New;
         }
         if(prev != null)
+        {
             prev.next = null;
+        }
         else
+        {
             first = null;
+        }
         
         /* --- look for closing bracket --- */
         if(format.charAt(offset) != ']')
@@ -308,9 +326,13 @@ public class TraceFormats
     private TraceFormat parse_item_from_format_string()
     {
         if(offset >= format.length())
+        {
             return null;
+        }
         if(format.charAt(offset) == ']')
+        {
             return null;
+        }
         if(format.charAt(offset) == '[')
         {
             format_string_error_message = "unexpected '[' character";
@@ -340,7 +362,9 @@ public class TraceFormats
             offset += 2;
             List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.VALUES_TFT;
             tf.data_attribute_path = attribute_path;
@@ -352,7 +376,9 @@ public class TraceFormats
             offset += 2;
             List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.VALUES_RECURSIVELY_TFT;
             tf.data_attribute_path = attribute_path;
@@ -364,7 +390,9 @@ public class TraceFormats
             offset += 3;
             List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.ATTS_AND_VALUES_TFT;
             tf.data_attribute_path = attribute_path;
@@ -376,7 +404,9 @@ public class TraceFormats
             offset += 3;
             List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.ATTS_AND_VALUES_RECURSIVELY_TFT;
             tf.data_attribute_path = attribute_path;
@@ -460,7 +490,9 @@ public class TraceFormats
             offset += 6;
             TraceFormat pattern = parse_pattern_in_brackets(true);
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.IF_ALL_DEFINED_TFT;
             tf.data_subformat = pattern;
@@ -483,7 +515,9 @@ public class TraceFormats
             }
             int n = 0;
             while(Character.isDigit(format.charAt(offset)))
+            {
                 n = 10 * n + (format.charAt(offset++) - '0');
+            }
             if(format.charAt(offset) != ',')
             {
                 format_string_error_message = "Expected ',' after number in %left";
@@ -492,7 +526,9 @@ public class TraceFormats
             offset++;
             TraceFormat pattern = parse_pattern_in_brackets(false);
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.LEFT_JUSTIFY_TFT;
             tf.num = n;
@@ -516,7 +552,9 @@ public class TraceFormats
             }
             int n = 0;
             while(Character.isDigit(format.charAt(offset)))
+            {
                 n = 10 * n + (format.charAt(offset++) - '0');
+            }
             if(format.charAt(offset) != ',')
             {
                 format_string_error_message = "Expected ',' after number in %right";
@@ -525,7 +563,9 @@ public class TraceFormats
             offset++;
             TraceFormat pattern = parse_pattern_in_brackets(false);
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.RIGHT_JUSTIFY_TFT;
             tf.num = n;
@@ -538,7 +578,9 @@ public class TraceFormats
             offset += 4;
             TraceFormat pattern = parse_pattern_in_brackets(true);
             if(format_string_error_message != null)
+            {
                 return null;
+            }
             TraceFormat tf = new TraceFormat();
             tf.type = TraceFormatType.REPEAT_SUBGOAL_DEPTH_TFT;
             tf.data_subformat = pattern;
@@ -575,15 +617,23 @@ public class TraceFormats
         if(name_restriction != null)
         {
             if(stack_trace)
+            {
                 return stack_tr_ht.get(type_restriction).get(name_restriction);
+            }
             else
+            {
                 return object_tr_ht.get(type_restriction).get(name_restriction);
+            }
         }
         /* --- no name restriction --- */
         if(stack_trace)
+        {
             return stack_tf_for_anything.get(type_restriction);
+        }
         else
+        {
             return object_tf_for_anything.get(type_restriction);
+        }
     }
     
     /**
@@ -603,15 +653,23 @@ public class TraceFormats
         if(name_restriction != null)
         {
             if(stack_trace)
+            {
                 return null != stack_tr_ht.get(type_restriction).remove(name_restriction);
+            }
             else
+            {
                 return null != object_tr_ht.get(type_restriction).remove(name_restriction);
+            }
         }
         /* --- no name restriction --- */
         if(stack_trace)
+        {
             return null != stack_tf_for_anything.remove(type_restriction);
+        }
         else
+        {
             return null != object_tf_for_anything.remove(type_restriction);
+        }
     }
     
     /**
@@ -630,7 +688,9 @@ public class TraceFormats
         // parse the format string into a trace_format
         TraceFormat new_tf = parse_format_string(format_string);
         if(new_tf == null)
+        {
             return false;
+        }
         
         // first remove any existing trace format with same conditions
         remove_trace_format(stack_trace, type_restriction, name_restriction);
@@ -639,16 +699,24 @@ public class TraceFormats
         if(name_restriction != null)
         {
             if(stack_trace)
+            {
                 stack_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+            }
             else
+            {
                 object_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+            }
             return true;
         }
         /* --- no name restriction --- */
         if(stack_trace)
+        {
             stack_tf_for_anything.put(type_restriction, new_tf);
+        }
         else
+        {
             object_tf_for_anything.put(type_restriction, new_tf);
+        }
         
         return true;
     }
@@ -693,21 +761,33 @@ public class TraceFormats
         /* --- can't follow any more path segments off of a non-identifier --- */
         IdentifierImpl id = object.asIdentifier();
         if(id == null)
+        {
             return count;
-            
+        }
+        
         // call this routine recursively on any wme matching the first segment
         // of the attribute path
         for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
+        {
             if(w.attr == path.get(pathIndex))
+            {
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+            }
+        }
         for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+        {
             if(w.attr == path.get(pathIndex))
+            {
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+            }
+        }
         Slot s = Slot.find_slot(id, path.get(pathIndex));
         if(s != null)
         {
             for(WmeImpl w = s.getWmes(); w != null; w = w.next)
+            {
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+            }
         }
         return count;
     }
@@ -769,16 +849,28 @@ public class TraceFormats
         {
             IdentifierImpl id = object.asIdentifier();
             if(id == null)
+            {
                 return;
+            }
             for(Slot s = id.slots; s != null; s = s.next)
+            {
                 for(WmeImpl w = s.getWmes(); w != null; w = w.next)
+                {
                     add_trace_for_wme(values, w, print_attributes, recursive);
+                }
+            }
             for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
+            {
                 add_trace_for_wme(values, w, print_attributes, recursive);
+            }
             for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+            {
                 add_trace_for_wme(values, w, print_attributes, recursive);
+            }
             if(values.length() > 0)
+            {
                 result.append(values.substring(1));
+            }
             return;
         }
         
@@ -798,12 +890,16 @@ public class TraceFormats
                 final Symbol c = it.next();
                 result.append(String.format("%s", c));
                 if(it.hasNext())
+                {
                     result.append(".");
+                }
             }
             result.append(" ");
         }
         if(values.length() > 0)
+        {
             result.append(values.substring(1));
+        }
     }
     
     /**
@@ -905,7 +1001,9 @@ public class TraceFormats
                 found_undefined = false;
                 String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
                 if(!found_undefined)
+                {
                     result.append(temp_gs);
+                }
                 found_undefined = saved_found_undefined;
             }
                 break;
@@ -915,7 +1013,9 @@ public class TraceFormats
                 String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
                 result.append(temp_gs);
                 for(int i = tf.num - temp_gs.length(); i > 0; i--)
+                {
                     result.append(" ");
+                }
             }
                 break;
             
@@ -923,7 +1023,9 @@ public class TraceFormats
             {
                 String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
                 for(int i = tf.num - temp_gs.length(); i > 0; i--)
+                {
                     result.append(" ");
+                }
                 result.append(temp_gs);
             }
                 break;
@@ -944,7 +1046,9 @@ public class TraceFormats
                 {
                     String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
                     for(int i = tparams.current_s.level - 1; i > 0; i--)
+                    {
                         result.append(temp_gs);
+                    }
                 }
                 else
                 {
@@ -975,14 +1079,18 @@ public class TraceFormats
         // first try to find the exact one
         TraceFormat tf = lookup_trace_format(stack_trace, type, name);
         if(tf != null)
+        {
             return tf;
+        }
         
         // failing that, try ignoring the type but retaining the name
         if(type != TraceFormatRestriction.FOR_ANYTHING_TF)
         {
             tf = lookup_trace_format(stack_trace, TraceFormatRestriction.FOR_ANYTHING_TF, name);
             if(tf != null)
+            {
                 return tf;
+            }
         }
         
         // failing that, try ignoring the name but retaining the type
@@ -990,7 +1098,9 @@ public class TraceFormats
         {
             tf = lookup_trace_format(stack_trace, type, null);
             if(tf != null)
+            {
                 return tf;
+            }
         }
         
         // last resort: find a format that applies to anything at all
@@ -1020,11 +1130,17 @@ public class TraceFormats
         // determine the type and name of the object
         TraceFormatRestriction type_of_object;
         if(id.isGoal())
+        {
             type_of_object = TraceFormatRestriction.FOR_STATES_TF;
+        }
         else if(id.isa_operator != 0)
+        {
             type_of_object = TraceFormatRestriction.FOR_OPERATORS_TF;
+        }
         else
+        {
             type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
+        }
         
         SymbolImpl name = find_name_of_object(object, predefinedSyms.name_symbol);
         
@@ -1071,7 +1187,9 @@ public class TraceFormats
         
         /* --- if there's no applicable trace format, print nothing --- */
         if(tf == null)
+        {
             return "";
+        }
         
         /* --- save/restore tparams, and call trace_format_list_to_string() --- */
         TracingParameters saved_tparams = new TracingParameters(tparams);

@@ -1207,7 +1207,9 @@ public class Rete
         for(RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
             if(rm.am != am)
+            {
                 continue;
+            }
             /* --- does rm->w match New? --- */
             if(hash_referent != rm.w.id)
             {
@@ -1344,11 +1346,13 @@ public class Rete
             }
             boolean failed_a_test = false;
             for(ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
+            {
                 if(!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
                 }
+            }
             if(failed_a_test)
             {
                 continue;
@@ -1459,7 +1463,9 @@ public class Rete
                 }
             }
             if(failed_a_test)
+            {
                 continue;
+            }
             /* --- match found, so call each child node --- */
             for(ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
@@ -1815,11 +1821,13 @@ public class Rete
             /* --- does tok match w? --- */
             boolean failed_a_test = false;
             for(ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
+            {
                 if(!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
                 }
+            }
             if(failed_a_test)
             {
                 continue;
@@ -2071,7 +2079,9 @@ public class Rete
             }
             
             if(tok == root)
+            {
                 break; /* if leftmost leaf was the root, we're done */
+            }
             tok = next_value_for_tok; /* else go get the leftmost leaf again */
         }
         
@@ -2100,7 +2110,9 @@ public class Rete
         Production prod = p_node.b_p().prod;
         
         if(tok == null)
+        {
             w = null; /* just for safety */
+        }
         syms.getVariableGenerator().reset(null, null); // we'll be gensymming new vars
         
         ReteNodeToConditionsResult rntc = rete_node_to_conditions(p_node.parent,
@@ -2111,7 +2123,9 @@ public class Rete
         result.bottom = rntc.dest_bottom_cond;
         
         if(tok != null)
+        {
             result.nots = rntc.nots_found_in_production;
+        }
         rntc.nots_found_in_production = null; /* just for safety */
         if(doRhs)
         {
@@ -2129,7 +2143,9 @@ public class Rete
                     result.bottom);
             int index = 0;
             while(index <= highest_rhs_unboundvar_index)
+            {
                 rhs_variable_bindings[index++] = null;
+            }
         }
         
         return result;
@@ -2149,7 +2165,9 @@ public class Rete
     Test add_varnames_to_test(/* VarNames */ Object vn, Test t)
     {
         if(vn == null)
+        {
             return t;
+        }
         
         if(VarNames.varnames_is_one_var(vn))
         {
@@ -2298,18 +2316,24 @@ public class Rete
         {
             
             if(!rt.test_is_not_equal_test())
+            {
                 continue;
+            }
             
             SymbolImpl right_sym = right_wme.getField(rt.right_field_num);
             
             if(right_sym.asIdentifier() == null)
+            {
                 continue;
+            }
             
             if(rt.type == ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_NOT_EQUAL)
             {
                 SymbolImpl referent = rt.constant_referent;
                 if(referent.asIdentifier() == null)
+                {
                     continue;
+                }
                 
                 NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
                 new_not.next = nots_found_in_production;
@@ -2322,7 +2346,9 @@ public class Rete
                 SymbolImpl referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
                         rt.variable_referent.levels_up);
                 if(referent.asIdentifier() == null)
+                {
                     continue;
+                }
                 
                 NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
                 new_not.next = nots_found_in_production;
@@ -2534,11 +2560,17 @@ public class Rete
         if(w != null)
         {
             if(wtt == WmeTraceType.TIMETAG)
+            {
                 printer.print("%d", w.timetag);
+            }
             else if(wtt == WmeTraceType.FULL)
+            {
                 printer.print("%s", w);
+            }
             if(wtt != WmeTraceType.NONE)
+            {
                 printer.print(" ");
+            }
         }
     }
     
@@ -2556,7 +2588,9 @@ public class Rete
     void print_whole_token(Printer printer, Token t, WmeTraceType wtt)
     {
         if(t == dummy_top_token)
+        {
             return;
+        }
         print_whole_token(printer, t.parent, wtt);
         print_whole_token_wme(printer, t.w, wtt);
     }
@@ -2626,7 +2660,9 @@ public class Rete
         
         // if we're at the cutoff node, we're done
         if(node == cutoff)
+        {
             return matches_at_this_level;
+        }
         
         // do stuff higher up
         ReteNode parent = node.real_parent_node();
@@ -2684,9 +2720,13 @@ public class Rete
                     for(RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
                     {
                         if(wtt == WmeTraceType.TIMETAG)
+                        {
                             printer.print("%d", rm.w.timetag);
+                        }
                         else if(wtt == WmeTraceType.FULL)
+                        {
                             printer.print("%s", rm.w);
+                        }
                         printer.print(" ");
                     }
                     printer.print("\n");
@@ -2774,7 +2814,9 @@ public class Rete
         final Token tokens = get_all_left_tokens_emerging_from_node(node);
         int matches_at_this_level = 0;
         for(Token t = tokens; t != null; t = t.next_of_node)
+        {
             matches_at_this_level++;
+        }
         return matches_at_this_level;
     }
     
@@ -2796,7 +2838,9 @@ public class Rete
     public int count_rete_tokens_for_production(ReteNode p_node)
     {
         if(p_node == null)
+        {
             return 0;
+        }
         ReteNode node = p_node.parent;
         int count = 0;
         while(node != dummy_top_node)
@@ -2805,12 +2849,18 @@ public class Rete
                     && (node.node_type != ReteNodeType.UNHASHED_POSITIVE_BNODE))
             {
                 for(Token tok = node.a_np().tokens; tok != null; tok = tok.next_of_node)
+                {
                     count++;
+                }
             }
             if(node.node_type == ReteNodeType.CN_BNODE)
+            {
                 node = node.b_cn().partner.parent;
+            }
             else
+            {
                 node = node.parent;
+            }
         }
         return count;
     }

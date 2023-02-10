@@ -222,7 +222,8 @@ public class JSoarTestAgent implements TestAgent
         
         agent.getEvents().addListener(BeforeInitSoarEvent.class, event -> cycleCountWme = null);
         
-        agent.getEvents().addListener(InputEvent.class, event -> {
+        agent.getEvents().addListener(InputEvent.class, event ->
+        {
             final InputEvent ie = (InputEvent) event;
             update(ie.getInputOutput());
         });

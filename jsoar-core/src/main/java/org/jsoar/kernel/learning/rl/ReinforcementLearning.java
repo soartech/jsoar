@@ -243,7 +243,9 @@ public class ReinforcementLearning
                 {
                     final RhsSymbolValue asSym = ma.referent.asSymbolValue();
                     if(asSym != null && asSym.getSym().asVariable() != null)
+                    {
                         var_pref = true;
+                    }
                 }
             }
         }
@@ -268,7 +270,9 @@ public class ReinforcementLearning
             if(ma != null)
             {
                 if(a.preference_type == PreferenceType.NUMERIC_INDIFFERENT)
+                {
                     numeric_pref = true;
+                }
             }
         }
         
@@ -305,25 +309,35 @@ public class ReinforcementLearning
         
         // has to be at least "rl*a*#" (where a is a single letter/number/etc)
         if(temp.length() < 6)
+        {
             return -1;
+        }
         
         // check first three letters are "rl*"
         if(!temp.startsWith("rl*"))
+        {
             return -1;
+        }
         
         // find last * to isolate id
         int last_star = temp.lastIndexOf('*');
         if(last_star == -1)
+        {
             return -1;
+        }
         
         // make sure there's something left after last_star
         if(last_star == (temp.length() - 1))
+        {
             return -1;
+        }
         
         // make sure id is a valid natural number
         String id_str = temp.substring(last_star + 1);
         if(!is_natural_number(id_str))
+        {
             return -1;
+        }
         
         // convert id
         return Integer.parseInt(id_str);
@@ -351,7 +365,9 @@ public class ReinforcementLearning
         final int new_id = rl_get_template_id(rule_name);
         
         if((new_id != -1) && (new_id > rl_template_count))
+        {
             rl_template_count = (new_id + 1);
+        }
     }
     
     /**
@@ -641,7 +657,9 @@ public class ReinforcementLearning
         {
             PositiveCondition pc = cond.asPositiveCondition();
             if(pc == null)
+            {
                 continue;
+            }
             
             IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
             
@@ -933,7 +951,9 @@ public class ReinforcementLearning
                             adjusted_alpha = Math.exp(prod.rlRuleInfo.rl_delta_bar_delta_beta);
                             double decay_term = 1.0 - adjusted_alpha * 1.0 * 1.0;
                             if(decay_term < 0.0)
+                            {
                                 decay_term = 0.0;
+                            }
                             prod.rlRuleInfo.rl_delta_bar_delta_h = prod.rlRuleInfo.rl_delta_bar_delta_h * decay_term + adjusted_alpha * delta_t * 1.0;
                             break;
                         }
@@ -1174,7 +1194,9 @@ public class ReinforcementLearning
         // Remove RL-related pointers to this production (unnecessary if rule never fired).
         // The test for firing count = 0 removed by 13023
         if(prod.rlRuleInfo != null)
+        {
             rl_remove_refs_for_prod(prod);
+        }
     }
     
 }

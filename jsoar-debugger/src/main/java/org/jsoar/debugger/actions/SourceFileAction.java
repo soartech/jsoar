@@ -80,7 +80,8 @@ public class SourceFileAction extends AbstractDebuggerAction
         
         final SoarCommandInterpreter interp = getApplication().getAgent().getInterpreter();
         
-        getApplication().getAgent().execute(() -> {
+        getApplication().getAgent().execute(() ->
+        {
             try
             {
                 interp.source(f);

@@ -195,7 +195,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
         this.agent.getProperties().setProvider(SoarProperties.IS_RUNNING, agentRunningProvider);
         
-        getEvents().addListener(RunLoopEvent.class, event -> {
+        getEvents().addListener(RunLoopEvent.class, event ->
+        {
             // If the thread has been interrupted (due to shutdown), throw
             // an exception to break us out of the agent run loop.
             // TODO: It may be nice to have a more official way of doing this
@@ -251,7 +252,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             this.agentThread.start();
         }
         
-        execute(() -> {
+        execute(() ->
+        {
             agent.initialize();
             return null;
         }, done);
@@ -375,7 +377,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
         agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, true, false);
         
-        execute(() -> {
+        execute(() ->
+        {
             getEvents().fireEvent(new StartEvent(agent));
             try
             {
@@ -506,7 +509,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void loadProductions(Object source, final CompletionHandler<Void> finish)
     {
-        this.execute(() -> {
+        this.execute(() ->
+        {
             SoarCommands.source(this.getInterpreter(), source);
             return null;
         }, finish);
@@ -522,7 +526,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void loadProductions(Object source)
     {
-        this.execute(() -> {
+        this.execute(() ->
+        {
             SoarCommands.source(this.getInterpreter(), source);
             return null;
         }, null);
@@ -538,7 +543,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void loadRete(Object rete)
     {
-        this.execute(() -> {
+        this.execute(() ->
+        {
             SoarCommands.loadRete(this.getInterpreter(), rete);
             return null;
         }, null);
@@ -557,7 +563,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void loadRete(Object rete, final CompletionHandler<Void> finish)
     {
-        this.execute(() -> {
+        this.execute(() ->
+        {
             SoarCommands.loadRete(this.getInterpreter(), rete);
             return null;
         }, finish);
@@ -595,7 +602,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public void execute(Runnable runnable)
     {
-        execute(() -> {
+        execute(() ->
+        {
             runnable.run();
             return null;
         }, null);
@@ -616,7 +624,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public <V> void execute(final Callable<V> callable, final CompletionHandler<V> finish)
     {
-        executeInternal(() -> {
+        executeInternal(() ->
+        {
             try
             {
                 final V result = callable.call();

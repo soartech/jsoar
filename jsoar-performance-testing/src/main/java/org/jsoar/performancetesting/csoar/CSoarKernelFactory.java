@@ -34,7 +34,9 @@ public class CSoarKernelFactory
     CSoarKernelFactory(Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         if(initialized)
+        {
             return;
+        }
         
         CSoarKernelFactory.csoarDirectory = csoarDirectory;
         
@@ -77,9 +79,13 @@ public class CSoarKernelFactory
         String libraries = System.getProperty("java.library.path");
         
         if(libraries != null && libraries.length() != 0)
+        {
             libraries += File.pathSeparator + csoarDirectory;
+        }
         else
+        {
             libraries = csoarDirectory.toString();
+        }
         
         System.setProperty("java.library.path", libraries);
         
@@ -114,7 +120,9 @@ public class CSoarKernelFactory
             }
         }
         else
+        {
             return new DefaultCSoarKernelWrapper();
+        }
     }
     
     /**
@@ -141,7 +149,9 @@ public class CSoarKernelFactory
             }
         }
         else
+        {
             return new DefaultCSoarKernelWrapper();
+        }
     }
     
     /**
@@ -186,7 +196,9 @@ public class CSoarKernelFactory
             return new DefaultCSoarKernelWrapper();
         }
         else
+        {
             return new DefaultCSoarKernelWrapper();
+        }
     }
     
     /**

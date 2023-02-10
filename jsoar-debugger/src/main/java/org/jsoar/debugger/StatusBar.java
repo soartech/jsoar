@@ -67,12 +67,14 @@ public class StatusBar extends JXStatusBar implements Refreshable
         final AtomicReference<String> settingsString = new AtomicReference<String>();
         final Agent a = agent.getAgent();
         
-        final Callable<Object> call = () -> {
+        final Callable<Object> call = () ->
+        {
             settingsString.set(getSettings(a));
             return null;
         };
         
-        final CompletionHandler<Object> finish = result -> {
+        final CompletionHandler<Object> finish = result ->
+        {
             
             final boolean running = agent.isRunning();
             String runStateString = running ? "Running" : "Idle";

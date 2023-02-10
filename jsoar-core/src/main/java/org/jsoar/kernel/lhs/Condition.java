@@ -158,7 +158,9 @@ public abstract class Condition implements Formattable
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(pc.value_test);
             if(pc.test_for_acceptable_preference)
+            {
                 result++;
+            }
             
             return result;
         }
@@ -173,7 +175,9 @@ public abstract class Condition implements Formattable
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(nc.value_test);
             if(nc.test_for_acceptable_preference)
+            {
                 result++;
+            }
             
             return result;
         }
@@ -205,7 +209,9 @@ public abstract class Condition implements Formattable
     public static boolean conditions_are_equal(Condition c1, Condition c2)
     {
         if(!c1.getClass().equals(c2.getClass()))
+        {
             return false;
+        }
         
         // Positive or negative
         ThreeFieldCondition tfc1 = c1.asThreeFieldCondition();
@@ -215,13 +221,21 @@ public abstract class Condition implements Formattable
             boolean neg = c1.asNegativeCondition() != null;
             ThreeFieldCondition tfc2 = c2.asThreeFieldCondition();
             if(!Tests.tests_are_equal(tfc1.id_test, tfc2.id_test, neg))
+            {
                 return false;
+            }
             if(!Tests.tests_are_equal(tfc1.attr_test, tfc2.attr_test, neg))
+            {
                 return false;
+            }
             if(!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test, neg))
+            {
                 return false;
+            }
             if(tfc1.test_for_acceptable_preference != tfc2.test_for_acceptable_preference)
+            {
                 return false;
+            }
             return true;
         }
         ConjunctiveNegationCondition ncc1 = c1.asConjunctiveNegationCondition();
@@ -229,10 +243,16 @@ public abstract class Condition implements Formattable
         {
             ConjunctiveNegationCondition ncc2 = c2.asConjunctiveNegationCondition();
             for(c1 = ncc1.top, c2 = ncc2.top; ((c1 != null) && (c2 != null)); c1 = c1.next, c2 = c2.next)
+            {
                 if(!conditions_are_equal(c1, c2))
+                {
                     return false;
+                }
+            }
             if(c1 == c2)
+            {
                 return true; /* make sure they both hit end-of-list */
+            }
             return false;
         }
         
@@ -251,7 +271,9 @@ public abstract class Condition implements Formattable
     public static Condition copy_condition(Condition cond)
     {
         if(cond == null)
+        {
             return null;
+        }
         
         final PositiveCondition pc = cond.asPositiveCondition();
         if(pc != null)
@@ -301,18 +323,26 @@ public abstract class Condition implements Formattable
             Condition New = copy_condition(top_cond);
             
             if(prev != null)
+            {
                 prev.next = New;
+            }
             else
+            {
                 dest_top.value = New;
+            }
             
             New.prev = prev;
             prev = New;
             top_cond = top_cond.next;
         }
         if(prev != null)
+        {
             prev.next = null;
+        }
         else
+        {
             dest_top.value = null;
+        }
         
         dest_bottom.value = prev;
     }
@@ -352,9 +382,13 @@ public abstract class Condition implements Formattable
             cond.next = null;
             
             if(prev == null)
+            {
                 top = cond;
+            }
             else
+            {
                 prev.next = cond;
+            }
             
             prev = cond;
         }
@@ -377,7 +411,9 @@ public abstract class Condition implements Formattable
         for(Condition cond = cond_list; cond != null; cond = cond.next)
         {
             if(conditions_are_equal(target, cond))
+            {
                 return cond;
+            }
         }
         return null;
     }

@@ -110,12 +110,14 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     @Override
     public void refresh(boolean afterInitSoar)
     {
-        final Callable<Model> start = () -> {
+        final Callable<Model> start = () ->
+        {
             final List<Goal> stack = debugger.getAgent().getAgent().getGoalStack();
             return new Model(!stack.isEmpty() ? stack.get(stack.size() - 1) : null);
         };
         
-        final CompletionHandler<Model> finish = result -> {
+        final CompletionHandler<Model> finish = result ->
+        {
             if(result.goal != null)
             {
                 if(result.wmes.isEmpty())
@@ -147,7 +149,8 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     
     private void updateRemovalSummary(final GdsGoalRemovedEvent event)
     {
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             recentRemovals.add(0, String.format("%s %#s", event.getGoal(), event.getCause()));
             if(recentRemovals.size() > MAX_REMOVAL_HISTORY)
             {

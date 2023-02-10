@@ -53,7 +53,9 @@ public class TestSettings
     public TestSettings(TestSettings other)
     {
         if(other == null)
+        {
             return;
+        }
         
         jsoarEnabled = other.isJsoarEnabled();
         csoarEnabled = other.isCsoarEnabled();

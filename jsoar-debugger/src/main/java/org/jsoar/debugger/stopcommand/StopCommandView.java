@@ -89,7 +89,8 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     private void updateCommand(DocumentEvent e)
     {
         setTitleText("On Stop: " + txtCommand.getText());
-        debugger.getAgent().execute(() -> {
+        debugger.getAgent().execute(() ->
+        {
             runStopCommand();
             return null;
         }, null);
@@ -108,7 +109,8 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
     public void refresh(boolean afterInitSoar)
     {
         // runStopCommand() expects to run on the Soar agent thread
-        debugger.getAgent().execute(() -> {
+        debugger.getAgent().execute(() ->
+        {
             runStopCommand();
             return null;
         }, null);
@@ -204,7 +206,8 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         txtCommand.setText(command);
         setTitleText("On Stop: " + txtCommand.getText());
         // runStopCommand() expects to run on the Soar agent thread
-        debugger.getAgent().execute(() -> {
+        debugger.getAgent().execute(() ->
+        {
             runStopCommand();
             return null;
         }, null);

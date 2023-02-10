@@ -49,7 +49,8 @@ public class StopEventTest
         // and therefore requires synchronization for the assert.
         final BlockingQueue<Boolean> q = new SynchronousQueue<Boolean>();
         
-        agent.getEvents().addListener(StopEvent.class, event -> {
+        agent.getEvents().addListener(StopEvent.class, event ->
+        {
             assertEquals(event.getClass(), StopEvent.class);
             try
             {

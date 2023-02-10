@@ -122,7 +122,8 @@ public class ThreadedAgentTest
     {
         final ThreadedAgent agent = ThreadedAgent.create();
         
-        agent.execute(() -> {
+        agent.execute(() ->
+        {
             throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
         }, null);
         
@@ -140,7 +141,8 @@ public class ThreadedAgentTest
         
         final AtomicBoolean called = new AtomicBoolean();
         final Object signal = new Object();
-        agent.getEvents().addListener(UncaughtExceptionEvent.class, event -> {
+        agent.getEvents().addListener(UncaughtExceptionEvent.class, event ->
+        {
             synchronized (signal)
             {
                 called.set(true);
@@ -148,7 +150,8 @@ public class ThreadedAgentTest
             }
         });
         
-        agent.execute(() -> {
+        agent.execute(() ->
+        {
             throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
         }, null);
         

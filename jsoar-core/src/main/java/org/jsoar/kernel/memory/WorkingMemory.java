@@ -114,7 +114,9 @@ public class WorkingMemory
     public void updateStats(int num_wmes_in_rete)
     {
         if(num_wmes_in_rete > max_wm_size.longValue())
+        {
             max_wm_size.value.set(num_wmes_in_rete);
+        }
         cumulative_wm_size.value.addAndGet(num_wmes_in_rete);
         num_wm_sizes_accumulated.increment();
     }
@@ -257,8 +259,10 @@ public class WorkingMemory
             // jsoar change: moved this here from deallocate_wme, which doesn't exist in jsoar
             // added check for wma_enabled to minimize impact on non-wma agents
             if(wma.wma_enabled())
+            {
                 this.wma.wma_remove_decay_element(w.item);
-                
+            }
+            
             // This is to fix a bug in SMem related to CSoar expecting to recreate WMEs whereas
             // in JSoar it wouldn't because the garbage collector might not have collected them
             // yet and so JSoar would get wrong levels which would cause a memory leak and the

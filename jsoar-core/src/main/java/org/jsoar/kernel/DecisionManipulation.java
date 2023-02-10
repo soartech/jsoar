@@ -67,7 +67,9 @@ public class DecisionManipulation
     public String select_get_operator()
     {
         if(!this.select_enabled)
+        {
             return null;
+        }
         
         return this.select_operator;
     }
@@ -93,14 +95,18 @@ public class DecisionManipulation
                     String temp = String.format("%s", valueAsId);
                     
                     if(this.select_operator.equals(temp))
+                    {
                         return_val = cand;
+                    }
                 }
                 
                 cand = cand.next;
             }
             
             if(reinit)
+            {
                 select_init();
+            }
         }
         
         return return_val;
@@ -124,8 +130,10 @@ public class DecisionManipulation
         
         // TODO Is the range of nextInt() appropriate??
         while(storage_val == 0)
+        {
             storage_val = random.nextInt(); // SoarRandInt();
-            
+        }
+        
         predict_seed = storage_val;
     }
     
@@ -136,10 +144,14 @@ public class DecisionManipulation
     void predict_srand_restore_snapshot(boolean clear_snapshot)
     {
         if(predict_seed != 0)
+        {
             random.setSeed(predict_seed); // SoarSeedRNG( my_agent->predict_seed );
-            
+        }
+        
         if(clear_snapshot)
+        {
             predict_init();
+        }
     }
     
     /**

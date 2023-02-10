@@ -177,7 +177,9 @@ public class Exploration
         Policy policy = Policy.findPolicy(policy_name);
         
         if(policy != null)
+        {
             return exploration_set_policy(policy);
+        }
         
         return false;
     }
@@ -215,7 +217,9 @@ public class Exploration
         NumericIndifferentMode mode = NumericIndifferentMode.findNumericIndifferentMode(mode_name);
         
         if(mode != null)
+        {
             return exploration_set_numeric_indifferent_mode(mode);
+        }
         
         return false;
     }
@@ -283,7 +287,9 @@ public class Exploration
     {
         ExplorationParameter param = parameters.get(name);
         if(param == null)
+        {
             return false;
+        }
         
         return true;
     }
@@ -299,7 +305,9 @@ public class Exploration
     {
         ExplorationParameter param = parameters.get(name);
         if(param == null)
+        {
             return false;
+        }
         
         return param.val_func.call(value);
     }
@@ -332,7 +340,9 @@ public class Exploration
     {
         ExplorationParameter param = parameters.get(name);
         if(param == null)
+        {
             return false;
+        }
         
         param.value = value;
         
@@ -521,7 +531,9 @@ public class Exploration
         
         // get preference values for each candidate
         for(Preference cand = candidates; cand != null; cand = cand.next_candidate)
+        {
             exploration_compute_value_of_candidate(cand, s, 0.0);
+        }
         
         final boolean my_rl_enabled = rl.rl_enabled();
         final LearningPolicy my_learning_policy = my_rl_enabled ? context.getProperties().get(ReinforcementLearningParams.LEARNING_POLICY)
@@ -552,7 +564,9 @@ public class Exploration
         
         case USER_SELECT_LAST:
             for(return_val = candidates; return_val.next_candidate != null; return_val = return_val.next_candidate)
+            {
                 ;
+            }
             break;
         
         case USER_SELECT_RANDOM:
@@ -587,7 +601,9 @@ public class Exploration
                 rl.rl_perform_update(top_value, top_rl, s.id);
                 
                 if(return_val.numeric_value != top_value)
+                {
                     ReinforcementLearning.rl_watkins_clear(s.id);
+                }
             }
         }
         
@@ -616,12 +632,18 @@ public class Exploration
         
         // count up positive numbers
         for(Preference cand = candidates; cand != null; cand = cand.next_candidate)
+        {
             if(cand.numeric_value > 0)
+            {
                 total_probability += cand.numeric_value;
-            
+            }
+        }
+        
         // if nothing positive, resort to random
         if(total_probability == 0)
+        {
             return exploration_randomly_select(candidates);
+        }
         
         // choose a random preference within the distribution
         double rn = context.getRandom().nextDouble(); // SoarRand();
@@ -635,7 +657,9 @@ public class Exploration
             {
                 current_sum += cand.numeric_value;
                 if(selected_probability <= current_sum)
+                {
                     return cand;
+                }
             }
         }
         
@@ -675,7 +699,9 @@ public class Exploration
         for(c = candidates.next_candidate; c != null; c = c.next_candidate)
         {
             if(maxq < c.numeric_value)
+            {
                 maxq = c.numeric_value;
+            }
         }
         
         double exptotal = 0.0;
@@ -716,7 +742,9 @@ public class Exploration
         {
             sum += i.next();
             if(sum >= r)
+            {
                 return c;
+            }
         }
         
         return null;
@@ -740,9 +768,13 @@ public class Exploration
         }
         
         if(context.getRandom().nextDouble() /* SoarRand() */ < epsilon)
+        {
             return exploration_randomly_select(candidates);
+        }
         else
+        {
             return exploration_get_highest_q_value_pref(candidates);
+        }
     }
     
     /**
@@ -763,11 +795,15 @@ public class Exploration
                 num_max_cand = 1;
             }
             else if(cand.numeric_value == top_value)
+            {
                 num_max_cand++;
+            }
         }
         
         if(num_max_cand == 1)
+        {
             return top_cand;
+        }
         else
         {
             // if operators tied for highest Q-value, select among tied set at random
@@ -775,7 +811,9 @@ public class Exploration
             
             Preference cand = candidates;
             while(cand.numeric_value != top_value)
+            {
                 cand = cand.next_candidate;
+            }
             
             while(chosen_num != 0)
             {
@@ -783,7 +821,9 @@ public class Exploration
                 chosen_num--;
                 
                 while(cand.numeric_value != top_value)
+                {
                     cand = cand.next_candidate;
+                }
             }
             
             return cand;
@@ -800,7 +840,9 @@ public class Exploration
     public void exploration_compute_value_of_candidate(Preference cand, Slot s, double default_value)
     {
         if(cand == null)
+        {
             return;
+        }
         
         // initialize candidate values
         cand.total_preferences_for_candidate = 0;
@@ -841,7 +883,9 @@ public class Exploration
         
         // accomodate average mode
         if(numeric_indifferent_mode == NumericIndifferentMode.NUMERIC_INDIFFERENT_MODE_AVG)
+        {
             cand.numeric_value = cand.numeric_value / cand.total_preferences_for_candidate;
+        }
     }
     
     /**

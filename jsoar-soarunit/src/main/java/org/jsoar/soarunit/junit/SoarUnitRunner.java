@@ -105,20 +105,23 @@ public class SoarUnitRunner extends Runner
                     final Description testDescription = Description.createTestDescription(testCaseName, testName);
                     testCaseDescription.addChild(testDescription);
                     testDescriptions.put(test.getName(), testDescription);
-                    testRunners.add(testContext -> {
+                    testRunners.add(testContext ->
+                    {
                         final TestResult testResult;
                         try
                         {
                             testContext.agent.reinitialize(test);
                             // XXX: JUnit isn't threadsafe with run notifications - so these all get sent in their own dedicated thread.
-                            runNotifications.add(runNotifierExec.submit(() -> {
+                            runNotifications.add(runNotifierExec.submit(() ->
+                            {
                                 testContext.runNotifier.fireTestStarted(testDescription);
                                 return null;
                             }));
                             testResult = testRunner.runTest(test, testContext.agent);
                             if(!testResult.isPassed())
                             {
-                                runNotifications.add(runNotifierExec.submit(() -> {
+                                runNotifications.add(runNotifierExec.submit(() ->
+                                {
                                     testContext.runNotifier.fireTestFailure(new Failure(testDescription, new Exception()
                                     {
                                         @Override
@@ -133,12 +136,14 @@ public class SoarUnitRunner extends Runner
                         }
                         catch(final SoarException e)
                         {
-                            runNotifications.add(runNotifierExec.submit(() -> {
+                            runNotifications.add(runNotifierExec.submit(() ->
+                            {
                                 testContext.runNotifier.fireTestFailure(new Failure(testDescription, e));
                                 return null;
                             }));
                         }
-                        runNotifications.add(runNotifierExec.submit(() -> {
+                        runNotifications.add(runNotifierExec.submit(() ->
+                        {
                             testContext.runNotifier.fireTestFinished(testDescription);
                             return null;
                         }));
@@ -163,7 +168,8 @@ public class SoarUnitRunner extends Runner
         List<ListenableFuture<?>> wait = Lists.newArrayList();
         for(int i = 0; i < POOL_SIZE; i++)
         {
-            wait.add(exec.submit(() -> {
+            wait.add(exec.submit(() ->
+            {
                 TestAgent agent = agentFactory.createTestAgent();
                 Function<TestContext, Void> item = null;
                 while((item = testRunners.poll()) != null)

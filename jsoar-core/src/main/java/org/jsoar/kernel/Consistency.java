@@ -81,7 +81,9 @@ public class Consistency
             /* printf("    Address of s: %x\n", s); */
             context.getPrinter().print("    s->impasse_type: %s\n", s.impasse_type);
             if(s.impasse_id != null)
+            {
                 context.getPrinter().print("    Impasse ID is set (non-NIL)\n");
+            }
         }
         
         /* Determine the current operator/impasse in the slot */
@@ -254,22 +256,30 @@ public class Consistency
         
         case CONSTRAINT_FAILURE:
             if(DEBUG_CONSISTENCY_CHECK)
+            {
                 context.getPrinter().print("    Constraint Failure Impasse: Returning TRUE\n");
+            }
             return true;
         
         case CONFLICT:
             if(DEBUG_CONSISTENCY_CHECK)
+            {
                 context.getPrinter().print("    Conflict Impasse: Returning TRUE\n");
+            }
             return true;
         
         case TIE:
             if(DEBUG_CONSISTENCY_CHECK)
+            {
                 context.getPrinter().print("    Tie Impasse: Returning TRUE\n");
+            }
             return true;
         
         case NO_CHANGE:
             if(DEBUG_CONSISTENCY_CHECK)
+            {
                 context.getPrinter().print("    No change Impasse: Returning TRUE\n");
+            }
             return true;
         
         default:
@@ -292,19 +302,25 @@ public class Consistency
     {
         final Trace trace = context.getTrace();
         if(s.getWmes() == null)
+        {
             trace.print(Category.OPERAND2_REMOVALS,
                     "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n", s.id, s.attr);
+        }
         
         if(s.id != null)
+        {
             trace.print(Category.OPERAND2_REMOVALS,
                     "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n", s.id);
+        }
         
         /* If there is an operator in the slot, remove it */
         decider.remove_wmes_for_context_slot(s);
         
         /* If there are any subgoals, remove those */
         if(s.id.goalInfo.lower_goal != null)
+        {
             decider.remove_existing_context_and_descendents(s.id.goalInfo.lower_goal);
+        }
         
         decider.do_buffered_wm_and_ownership_changes();
     }
@@ -322,8 +338,10 @@ public class Consistency
         if(DEBUG_CONSISTENCY_CHECK)
         {
             if(tempMemory.highest_goal_whose_context_changed != null)
+            {
                 context.getPrinter().print("    Highest goal with changed context: [%s]\n",
                         tempMemory.highest_goal_whose_context_changed);
+            }
         }
         
         /*
@@ -392,10 +410,14 @@ public class Consistency
         /* print_with_symbols("\nLooking for I-activity at goal: %y\n", goal); */
         
         if(!goal.goalInfo.ms_i_assertions.isEmpty())
+        {
             return true;
+        }
         
         if(!goal.goalInfo.ms_retractions.isEmpty())
+        {
             return true;
+        }
         
         /* printf("\nNo instantiation found.  Returning FALSE\n"); */
         return false;
@@ -412,10 +434,14 @@ public class Consistency
     private boolean minor_quiescence_at_goal(IdentifierImpl goal)
     {
         if((recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
+        {
             /* firing IEs but no more to fire == minor quiescence */
             return true;
+        }
         else
+        {
             return false;
+        }
     }
     
     /**
@@ -446,7 +472,9 @@ public class Consistency
              */
             /* If there are any active productions at this goal, return the goal */
             if((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_retractions.isEmpty()))
+            {
                 return goal;
+            }
         }
         
         /*
@@ -463,7 +491,9 @@ public class Consistency
          * #endif
          */
         if(!this.soarReteListener.nil_goal_retractions.isEmpty())
+        {
             return null;
+        }
         
         if(!noneOk)
         {
@@ -499,7 +529,9 @@ public class Consistency
             /* If there are any active productions at this goal, return the goal */
             if((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_o_assertions.isEmpty())
                     || (!goal.goalInfo.ms_retractions.isEmpty()))
+            {
                 return goal;
+            }
         }
         
         /*
@@ -517,7 +549,9 @@ public class Consistency
          * #endif
          */
         if(!this.soarReteListener.nil_goal_retractions.isEmpty())
+        {
             return null;
+        }
         
         if(!noneOk)
         {
@@ -539,9 +573,13 @@ public class Consistency
     private SavedFiringType active_production_type_at_goal(IdentifierImpl goal)
     {
         if(i_activity_at_goal(goal))
+        {
             return SavedFiringType.IE_PRODS;
+        }
         else
+        {
             return SavedFiringType.PE_PRODS;
+        }
     }
     
     /**
@@ -607,7 +645,9 @@ public class Consistency
         
         /* Clear any interruption flags on the goals.... */
         for(IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.goalInfo.lower_goal)
+        {
             goal.goalInfo.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+        }
     }
     
     /**
@@ -676,10 +716,14 @@ public class Consistency
         /* Determine the new highest level of activity */
         decider.active_goal = highest_active_goal_apply(decider.top_goal, false);
         if(decider.active_goal != null)
+        {
             decider.active_level = decider.active_goal.level;
+        }
         else
+        {
             decider.active_level = 0; /* Necessary for get_next_retraction */
-            
+        }
+        
         /*
          * #ifdef DEBUG_DETERMINE_LEVEL_PHASE
          * printf("\nHighest level of activity is....%d", thisAgent->active_level);
@@ -689,19 +733,29 @@ public class Consistency
         
         LevelChangeType level_change_type;
         if(decider.active_goal == null)
+        {
             /* Only NIL goal retractions */
             level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
+        }
         else if(decider.previous_active_level == 0)
+        {
             level_change_type = LevelChangeType.NEW_DECISION;
+        }
         else
         {
             int diff = decider.active_level - decider.previous_active_level;
             if(diff == 0)
+            {
                 level_change_type = LevelChangeType.SAME_LEVEL;
+            }
             else if(diff > 0)
+            {
                 level_change_type = LevelChangeType.LOWER_LEVEL;
+            }
             else
+            {
                 level_change_type = LevelChangeType.HIGHER_LEVEL;
+            }
         }
         
         switch(level_change_type)
@@ -931,31 +985,45 @@ public class Consistency
         /* Determine the new highest level of activity */
         decider.active_goal = highest_active_goal_propose(decider.top_goal, false);
         if(decider.active_goal != null)
+        {
             decider.active_level = decider.active_goal.level;
+        }
         else
+        {
             decider.active_level = 0; /* Necessary for get_next_retraction */
-        /*
-         * #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-         * printf("\nHighest level of activity is....%d", thisAgent->active_level);
-         * printf("\n   Previous level of activity is....%d", thisAgent->previous_active_level);
-         * #endif
-         */
+            /*
+             * #ifdef DEBUG_DETERMINE_LEVEL_PHASE
+             * printf("\nHighest level of activity is....%d", thisAgent->active_level);
+             * printf("\n   Previous level of activity is....%d", thisAgent->previous_active_level);
+             * #endif
+             */
+        }
         
         LevelChangeType level_change_type;
         if(decider.active_goal == null)
+        {
             /* Only NIL goal retractions */
             level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
+        }
         else if(decider.previous_active_level == 0)
+        {
             level_change_type = LevelChangeType.NEW_DECISION;
+        }
         else
         {
             int diff = decider.active_level - decider.previous_active_level;
             if(diff == 0)
+            {
                 level_change_type = LevelChangeType.SAME_LEVEL;
+            }
             else if(diff > 0)
+            {
                 level_change_type = LevelChangeType.LOWER_LEVEL;
+            }
             else
+            {
                 level_change_type = LevelChangeType.HIGHER_LEVEL;
+            }
         }
         
         switch(level_change_type)

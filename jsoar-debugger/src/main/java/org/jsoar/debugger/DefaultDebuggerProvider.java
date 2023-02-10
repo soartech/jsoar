@@ -111,7 +111,8 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     
     private Runnable getOpenDebuggerRunnable(final Agent agent)
     {
-        return () -> {
+        return () ->
+        {
             try
             {
                 doOpenDebugger(agent);

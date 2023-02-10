@@ -27,7 +27,9 @@ public class JSoarAgentFactory
     JSoarAgentFactory(Path jsoarCorePath) throws MalformedURLException, ClassNotFoundException
     {
         if(initialized)
+        {
             return;
+        }
         
         JSoarAgentFactory.jsoarCorePath = jsoarCorePath;
         
@@ -81,6 +83,8 @@ public class JSoarAgentFactory
             }
         }
         else
+        {
             return new Agent(agentLabel);
+        }
     }
 }

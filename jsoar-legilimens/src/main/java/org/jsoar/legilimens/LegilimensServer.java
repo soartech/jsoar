@@ -115,7 +115,8 @@ public class LegilimensServer
         AgentTraceBuffer.attach(agent.getAgent());
         if(rules != null)
         {
-            agent.executeAndWait(() -> {
+            agent.executeAndWait(() ->
+            {
                 agent.getInterpreter().eval("source " + rules);
                 agent.runFor(5, RunType.DECISIONS);
                 return null;

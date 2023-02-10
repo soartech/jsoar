@@ -100,7 +100,9 @@ public class RhsFunctionManager
         Arguments.checkNotNull(name, "name");
         
         if(handlers.containsKey(name))
+        {
             disabledHandlers.put(name, handlers.remove(name));
+        }
     }
     
     /**
@@ -113,7 +115,9 @@ public class RhsFunctionManager
         Arguments.checkNotNull(name, "name");
         
         if(disabledHandlers.containsKey(name) && !handlers.containsKey(name))
+        {
             handlers.put(name, disabledHandlers.remove(name));
+        }
     }
     
     /**
@@ -152,7 +156,9 @@ public class RhsFunctionManager
             return handler.execute(rhsContext, arguments);
         }
         else if(disabledHandlers.containsKey(name))
+        {
             return null;
+        }
         
         throw new RhsFunctionException("No function '" + name + "' registered");
     }

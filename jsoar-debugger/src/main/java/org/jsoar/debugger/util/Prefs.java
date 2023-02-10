@@ -109,12 +109,16 @@ public class Prefs extends AbstractPreferences
     protected void syncSpi() throws BackingStoreException
     {
         if(isRemoved())
+        {
             return;
+        }
         
         final File file = getPreferencesFile();
         
         if(file == null || !file.exists())
+        {
             return;
+        }
         
         synchronized (file)
         {
@@ -153,7 +157,9 @@ public class Prefs extends AbstractPreferences
     {
         final Prefs parent = (Prefs) parent();
         if(parent == null)
+        {
             return;
+        }
         
         parent.getPath(sb);
         sb.append(name()).append('.');
@@ -248,7 +254,9 @@ public class Prefs extends AbstractPreferences
                 success &= file.createNewFile();
             }
             if(success)
+            {
                 return file;
+            }
             return null;
             
         }
@@ -293,11 +301,15 @@ public class Prefs extends AbstractPreferences
         {
             File file = new File(PREFS_PATH);
             if(!file.exists())
+            {
                 return null;
+            }
             
             file = new File(file, SYNTAX_FILENAME);
             if(!file.exists())
+            {
                 return null;
+            }
             
             ObjectMapper mapper = new ObjectMapper();
             TypeReference<SyntaxSettings> highlightsType = new TypeReference<SyntaxSettings>()

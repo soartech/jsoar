@@ -125,7 +125,8 @@ public class TextStyleComponent extends JPanel
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(btnDelete, constraints);
         
-        ActionListener listener = e -> {
+        ActionListener listener = e ->
+        {
             style.setBold(chkBold.isSelected());
             style.setItalic(chkItalic.isSelected());
             style.setStrikethrough(chkStrike.isSelected());

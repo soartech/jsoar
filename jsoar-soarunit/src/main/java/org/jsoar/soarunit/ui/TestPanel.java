@@ -90,7 +90,8 @@ public class TestPanel extends JPanel
         final List<TestCase> allTestCases = Collections.unmodifiableList(collector.collect());
         final int totalTests = TestCase.getTotalTests(allTestCases);
         
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             for(TestCase testCase : allTestCases)
             {
                 list.addTestCase(testCase);
@@ -109,7 +110,8 @@ public class TestPanel extends JPanel
     
     private void addResult(final TestCaseResult testCaseResult)
     {
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             for(TestResult testResult : testCaseResult.getTestResults())
             {
                 summary.addTestResult(testResult);

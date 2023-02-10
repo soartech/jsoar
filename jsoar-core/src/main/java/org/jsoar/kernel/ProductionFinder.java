@@ -131,16 +131,24 @@ public class ProductionFinder
     {
         /* SBH/MVP 7-5-94 */
         if(s1 == s2 && s1.asVariable() == null)
+        {
             return true;
+        }
         
         /* "*" matches everything. */
         if(s1.asString() != null && s1.asString().getValue().equals("*"))
+        {
             return true;
+        }
         if(s2.asString() != null && s2.asString().getValue().equals("*"))
+        {
             return true;
+        }
         
         if(s1.asVariable() == null || s2.asVariable() == null)
+        {
             return false;
+        }
         
         /* Both are variables */
         Symbol bvar = get_binding(s1, bindings);
@@ -154,25 +162,33 @@ public class ProductionFinder
             return true;
         }
         else
+        {
             return false;
+        }
     }
     
     private boolean actions_are_equal_with_bindings(Action a1, Action a2, ListHead<Binding> bindings)
     {
         if(a2.asFunctionAction() != null)
+        {
             return false;
+        }
         
         // Both are make_actions.
         final MakeAction m1 = a1.asMakeAction();
         final MakeAction m2 = a2.asMakeAction();
         
         if(m1.preference_type != m2.preference_type)
+        {
             return false;
+        }
         
         if(!symbols_are_equal_with_bindings(m1.id.asSymbolValue().getSym(),
                 m2.id.asSymbolValue().getSym(),
                 bindings))
+        {
             return false;
+        }
         
         if(m1.attr.asSymbolValue() != null && m2.attr.asSymbolValue() != null)
         {
@@ -217,8 +233,10 @@ public class ProductionFinder
         
         // t1 is from the pattern given to "pf"; t2 is from a production's condition list.
         if(Tests.isBlank(t1))
+        {
             return !Tests.isBlank(test2);
-            
+        }
+        
         // If the pattern doesn't include "(state", but the test from the production
         // does, strip it out of the production's.
         final Test t2;
@@ -254,9 +272,13 @@ public class ProductionFinder
         }
         
         if(t1.asGoalIdTest() != null && t2.asGoalIdTest() != null)
+        {
             return true;
+        }
         if(t1.asImpasseIdTest() != null && t2.asImpasseIdTest() != null)
+        {
             return true;
+        }
         if(t1.asDisjunctionTest() != null && t2.asDisjunctionTest() != null)
         {
             return t1.asDisjunctionTest().disjunction_list.equals(t2.asDisjunctionTest().disjunction_list);
@@ -266,7 +288,9 @@ public class ProductionFinder
             final ConjunctiveTest ct1 = t1.asConjunctiveTest();
             final ConjunctiveTest ct2 = t2.asConjunctiveTest();
             if(ct1.conjunct_list.size() != ct2.conjunct_list.size())
+            {
                 return false;
+            }
             final Iterator<Test> it1 = ct1.conjunct_list.iterator();
             final Iterator<Test> it2 = ct2.conjunct_list.iterator();
             while(it1.hasNext())
@@ -291,16 +315,23 @@ public class ProductionFinder
         {
             if(!tests_are_equal_with_bindings(tfc1.id_test,
                     tfc2.id_test, bindings))
+            {
                 return false;
+            }
             if(!tests_are_equal_with_bindings(tfc1.attr_test,
                     tfc2.attr_test, bindings))
-                
+            {
                 return false;
+            }
             if(!tests_are_equal_with_bindings(tfc1.value_test,
                     tfc2.value_test, bindings))
+            {
                 return false;
+            }
             if(tfc1.test_for_acceptable_preference != tfc2.test_for_acceptable_preference)
+            {
                 return false;
+            }
             return true;
         }
         
@@ -309,10 +340,16 @@ public class ProductionFinder
         if(ncc1 != null && ncc2 != null)
         {
             for(c1 = ncc1.top, c2 = ncc2.top; ((c1 != null) && (c2 != null)); c1 = c1.next, c2 = c2.next)
+            {
                 if(!conditions_are_equal_with_bindings(c1, c2, bindings))
+                {
                     return false;
+                }
+            }
             if(c1 == c2)
+            {
                 return true; /* make sure they both hit end-of-list */
+            }
             return false;
         }
         return false; /* unreachable, but without it, gcc -Wall warns here */

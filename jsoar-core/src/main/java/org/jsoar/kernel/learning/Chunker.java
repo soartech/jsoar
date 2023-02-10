@@ -261,8 +261,12 @@ public class Chunker
     {
         IdentifierImpl id = sym.asIdentifier();
         if(id != null)
+        {
             if((id.level >= results_match_goal_level) && (id.tc_number != results_tc_number))
+            {
                 add_results_for_id(id);
+            }
+        }
     }
     
     /**
@@ -276,17 +280,29 @@ public class Chunker
         for(Preference p = this.results; p != null; p = p.next_result)
         {
             if(p.id != pref.id)
+            {
                 continue;
+            }
             if(p.attr != pref.attr)
+            {
                 continue;
+            }
             if(p.value != pref.value)
+            {
                 continue;
+            }
             if(p.type != pref.type)
+            {
                 continue;
+            }
             if(pref.type.isUnary())
+            {
                 return;
+            }
             if(p.referent != pref.referent)
+            {
                 continue;
+            }
             return;
         }
         
@@ -295,14 +311,26 @@ public class Chunker
         {
             Preference p = null;
             for(p = pref.next_clone; p != null; p = p.next_clone)
+            {
                 if(p.inst.match_goal_level == this.results_match_goal_level)
+                {
                     break;
+                }
+            }
             if(p == null)
+            {
                 for(p = pref.prev_clone; p != null; p = p.prev_clone)
+                {
                     if(p.inst.match_goal_level == this.results_match_goal_level)
+                    {
                         break;
+                    }
+                }
+            }
             if(p == null)
+            {
                 return; /* if can't find one, it isn't a result */
+            }
             pref = p;
         }
         
@@ -313,7 +341,9 @@ public class Chunker
         // follow transitive closuse through value, referent links
         add_results_if_needed(pref.value);
         if(pref.type.isBinary())
+        {
             add_results_if_needed(pref.referent);
+        }
     }
     
     /**
@@ -327,22 +357,30 @@ public class Chunker
         
         // scan through all preferences and wmes for all slots for this id
         for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+        {
             add_results_if_needed(w.value);
+        }
         
         for(Slot s = id.slots; s != null; s = s.next)
         {
             for(Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+            {
                 add_pref_to_results(pref);
+            }
             
             for(WmeImpl w = s.getWmes(); w != null; w = w.next)
+            {
                 add_results_if_needed(w.value);
+            }
         }
         
         // now scan through extra prefs and look for any with this id
         for(Preference pref = this.extra_result_prefs_from_instantiation; pref != null; pref = pref.inst_next)
         {
             if(pref.id == id)
+            {
                 add_pref_to_results(pref);
+            }
         }
     }
     
@@ -381,7 +419,9 @@ public class Chunker
         // only variablize identifiers
         final IdentifierImpl id = sym.asIdentifier();
         if(id == null)
+        {
             return sym;
+        }
         
         // don't variablize lti (long term identifiers)
         if(id.smem_lti != 0)
@@ -412,7 +452,9 @@ public class Chunker
     private Test variablize_test(Test t)
     {
         if(Tests.isBlank(t))
+        {
             return t;
+        }
         
         final EqualityTest eq = t.asEqualityTest();
         if(eq != null)
@@ -475,7 +517,9 @@ public class Chunker
     private MakeAction copy_and_variablize_result_list(Preference pref, boolean variablize)
     {
         if(pref == null)
+        {
             return null;
+        }
         
         MakeAction a = new MakeAction();
         
@@ -661,21 +705,31 @@ public class Chunker
             {
                 // Are both id's marked? If no, goto next loop iteration
                 if(n1.s1.tc_number != tc_of_grounds)
+                {
                     continue;
+                }
                 if(n1.s2.tc_number != tc_of_grounds)
+                {
                     continue;
+                }
                 
                 // If the pair already in collected_nots, goto next iteration
                 NotStruct n2;
                 for(n2 = collected_nots; n2 != null; n2 = n2.next)
                 {
                     if((n2.s1 == n1.s1) && (n2.s2 == n1.s2))
+                    {
                         break;
+                    }
                     if((n2.s1 == n1.s2) && (n2.s2 == n1.s1))
+                    {
                         break;
+                    }
                 }
                 if(n2 != null)
+                {
                     continue;
+                }
                 
                 // Add the pair to collected_nots
                 NotStruct new_not = new NotStruct(n1.s1, n1.s2);
@@ -713,7 +767,9 @@ public class Chunker
             {
                 PositiveCondition pc = c.asPositiveCondition();
                 if(pc == null)
+                {
                     continue;
+                }
                 
                 if(Tests.test_includes_equality_test_for_symbol(pc.id_test, var1))
                 {
@@ -764,7 +820,9 @@ public class Chunker
             ChunkCondition cc = ccIter.item;
             PositiveCondition pc = cc.instantiated_cond.asPositiveCondition();
             if(pc == null)
+            {
                 continue;
+            }
             
             // TODO Assumes id_test is equality test of identifier
             IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
@@ -886,7 +944,9 @@ public class Chunker
             p.prev_clone = result_p.prev_clone;
             result_p.prev_clone = p;
             if(p.prev_clone != null)
+            {
                 p.prev_clone.next_clone = p;
+            }
         }
     }
     
@@ -896,8 +956,12 @@ public class Chunker
     private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr)
     {
         for(WmeImpl w = id.goalInfo.getImpasseWmes(); w != null; w = w.next)
+        {
             if(w.attr == attr)
+            {
                 return w.value;
+            }
+        }
         return null;
     }
     
@@ -909,13 +973,19 @@ public class Chunker
     private String generate_chunk_name_sym_constant(Instantiation inst)
     {
         if(!this.useLongChunkNames)
+        {
             return Productions.generateUniqueName(context.getProductions(), chunk_name_prefix, chunk_count);
+        }
         
         int lowest_result_level = decider.top_goal.level;
         for(Preference p = inst.preferences_generated; p != null; p = p.inst_next)
+        {
             if(p.id.level > lowest_result_level)
+            {
                 lowest_result_level = p.id.level;
-            
+            }
+        }
+        
         IdentifierImpl goal = decider.find_goal_at_goal_stack_level(lowest_result_level);
         
         String impass_name = null;
@@ -1118,7 +1188,9 @@ public class Chunker
         
         // if it only matched an attribute impasse, don't chunk
         if(inst.match_goal == null)
+        {
             return;
+        }
         
         // if no preference is above the match goal level, exit
         Preference pref = null;
@@ -1131,8 +1203,10 @@ public class Chunker
             }
         }
         if(pref == null)
+        {
             return;
-            
+        }
+        
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // start_timer (thisAgent, &saved_start_tv);
@@ -1150,23 +1224,33 @@ public class Chunker
         
         // set allow_bottom_up_chunks to false for all higher goals to prevent chunking
         for(IdentifierImpl g = inst.match_goal.goalInfo.higher_goal; g != null && g.goalInfo.allow_bottom_up_chunks; g = g.goalInfo.higher_goal)
+        {
             g.goalInfo.allow_bottom_up_chunks = false;
+        }
         
         int grounds_level = inst.match_goal_level - 1;
         
         // TODO All these ops should be in Backtracer
         backtrace.backtrace_number++;
         if(backtrace.backtrace_number == 0)
+        {
             backtrace.backtrace_number = 1;
+        }
         backtrace.grounds_tc++;
         if(backtrace.grounds_tc == 0)
+        {
             backtrace.grounds_tc = 1;
+        }
         backtrace.potentials_tc++;
         if(backtrace.potentials_tc == 0)
+        {
             backtrace.potentials_tc = 1;
+        }
         backtrace.locals_tc++;
         if(backtrace.locals_tc == 0)
+        {
             backtrace.locals_tc = 1;
+        }
         backtrace.grounds.clear();
         backtrace.positive_potentials.clear();
         backtrace.locals.clear();
@@ -1195,7 +1279,9 @@ public class Chunker
             backtrace.trace_locals(grounds_level, reliable);
             backtrace.trace_grounded_potentials();
             if(!backtrace.trace_ungrounded_potentials(grounds_level, reliable))
+            {
                 break;
+            }
         }
         
         backtrace.positive_potentials.clear();
@@ -1343,8 +1429,10 @@ public class Chunker
             // Record the list of grounds in the order they will appear in the
             // chunk.
             if(this.explain.isEnabled())
+            {
                 temp_explain_chunk.all_grounds = inst_lhs_top.value; /* Not a copy yet */
-                
+            }
+            
             chunk_inst = new Instantiation(prod, null, null);
             chunk_inst.top_of_instantiated_conditions = inst_lhs_top.value;
             chunk_inst.bottom_of_instantiated_conditions = inst_lhs_bottom.value;
@@ -1430,8 +1518,10 @@ public class Chunker
         custom_inst_list.value = chunk_inst.insertAtHeadOfProdList(custom_inst_list.value);
         
         if(!maxChunksReached)
+        {
             chunk_instantiation(chunk_inst, dont_variablize, custom_inst_list);
-            
+        }
+        
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // stop_timer (thisAgent, &saved_start_tv, &thisAgent->chunking_cpu_time[thisAgent->current_phase]);

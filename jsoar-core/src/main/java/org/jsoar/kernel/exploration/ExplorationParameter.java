@@ -123,7 +123,9 @@ public class ExplorationParameter
             double current_value = this.value;
             
             if((current_value > 0) && (reduction_rate != 0))
+            {
                 this.value = (((current_value - reduction_rate) > 0) ? (current_value - reduction_rate) : (0));
+            }
         }
     }
     

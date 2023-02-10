@@ -166,7 +166,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         LOG.info("Initializing debugger for agent '" + proxy + "'");
         final float scaleUpFactor = 4.0f / 3.0f;
         final float scaleDownFactor = .75f;
-        parentFrame.addMouseWheelListener(e -> {
+        parentFrame.addMouseWheelListener(e ->
+        {
             if(e.isControlDown())
             {
                 float scaleFactor = 1.0f;
@@ -249,7 +250,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 // HACK: For some reason the WM tree briefly gets focus which messes this
                 // up when using a hotkey to switch to the trace view. So invoke later
                 // after everything settles down.
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(() ->
+                {
                     if(newDockable instanceof AbstractAdaptableView)
                     {
                         ((AbstractAdaptableView) newDockable).activate();
@@ -294,13 +296,15 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }));
         
         // Update after init-soar
-        proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(event -> {
+        proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(event ->
+        {
             proxy.getPrinter().flush();
             newUpdateCompleter(true).finish(null);
         }));
         
         // Update when the agent stops running
-        proxy.getEvents().addListener(StopEvent.class, saveListener(event -> {
+        proxy.getEvents().addListener(StopEvent.class, saveListener(event ->
+        {
             proxy.getPrinter().flush();
             newUpdateCompleter(false).finish(null);
         }));
@@ -669,7 +673,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Callable<Void> callable = () -> {
+                Callable<Void> callable = () ->
+                {
                     SoarCommand cmd = getAgent().getInterpreter().getCommand("help", null);
                     cmd.execute(null, new String[] { "help" });
                     getAgent().getPrinter().flush();
@@ -900,7 +905,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         });
         
-        debugger.agent.execute(() -> {
+        debugger.agent.execute(() ->
+        {
             for(String arg : args)
             {
                 try

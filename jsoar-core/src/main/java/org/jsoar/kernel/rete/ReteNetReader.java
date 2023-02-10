@@ -195,7 +195,9 @@ public class ReteNetReader
                 int count = dis.readInt();
                 ReteNode ncc_top = currentParent;
                 while(count-- > 0)
+                {
                     ncc_top = ncc_top.real_parent_node();
+                }
                 New = ReteNode.make_new_cn_node(rete, ncc_top, currentParent);
                 break;
             

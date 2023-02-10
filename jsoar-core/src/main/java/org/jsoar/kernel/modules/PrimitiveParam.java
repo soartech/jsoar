@@ -46,7 +46,9 @@ public class PrimitiveParam implements Param
     public boolean set_string(String newString)
     {
         if(!val_pred.apply(newString) || prot_pred.apply(newString))
+        {
             return false;
+        }
         
         set_value(newString);
         return true;

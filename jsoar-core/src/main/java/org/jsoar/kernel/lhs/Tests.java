@@ -113,7 +113,9 @@ public class Tests
         if(eq != null)
         {
             if(sym != null)
+            {
                 return eq.getReferent() == sym;
+            }
             return true;
         }
         
@@ -471,7 +473,9 @@ public class Tests
     static void add_test_to_tc(Test t, Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         if(Tests.isBlank(t))
+        {
             return;
+        }
         EqualityTest eq = t.asEqualityTest();
         if(eq != null)
         {
@@ -483,7 +487,9 @@ public class Tests
         if(ct != null)
         {
             for(Test c : ct.conjunct_list)
+            {
                 add_test_to_tc(c, tc, id_list, var_list);
+            }
         }
     }
     
@@ -497,7 +503,9 @@ public class Tests
     static boolean test_is_in_tc(Test t, Marker tc)
     {
         if(Tests.isBlank(t))
+        {
             return false;
+        }
         EqualityTest eq = t.asEqualityTest();
         if(eq != null)
         {
@@ -508,8 +516,12 @@ public class Tests
         if(ct != null)
         {
             for(Test c : ct.conjunct_list)
+            {
                 if(test_is_in_tc(c, tc))
+                {
                     return true;
+                }
+            }
             return false;
         }
         return false;
@@ -527,11 +539,15 @@ public class Tests
     public static int hash_test(Test t)
     {
         if(Tests.isBlank(t))
+        {
             return 0;
+        }
         
         EqualityTest eq = t.asEqualityTest();
         if(eq != null)
+        {
             return eq.getReferent().hash_id;
+        }
         
         if(t.asGoalIdTest() != null)
         {
@@ -546,7 +562,9 @@ public class Tests
         {
             int result = 7245;
             for(SymbolImpl c : dt.disjunction_list)
+            {
                 result = result + c.hash_id;
+            }
             return result;
         }
         ConjunctiveTest ct = t.asConjunctiveTest();

@@ -60,7 +60,8 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
     private void addRoots()
     {
         final String[] parts = roots.getText().trim().split("\\s+");
-        final Runnable run = () -> {
+        final Runnable run = () ->
+        {
             final List<Object> newKeys = new ArrayList<Object>();
             for(String p : parts)
             {

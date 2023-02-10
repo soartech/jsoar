@@ -72,7 +72,8 @@ public class BaseAgentResource extends BaseResource
     {
         // Override html to do rendering in agent thread
         final LegilimensApplication app = getLegilimens();
-        final Callable<Representation> callable = () -> {
+        final Callable<Representation> callable = () ->
+        {
             Application.setCurrent(app);
             return template(getTemplateName(templateName) + ".html.fmt", MediaType.TEXT_HTML);
         };

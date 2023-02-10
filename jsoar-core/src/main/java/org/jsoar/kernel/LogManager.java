@@ -67,7 +67,9 @@ public class LogManager
         {
             SourceLocationMethod val = sourceLocationMethodStrings.get(sourceLocationMethod.toUpperCase());
             if(val == null)
+            {
                 throw new IllegalArgumentException();
+            }
             return val;
         }
         
@@ -110,7 +112,9 @@ public class LogManager
         {
             LogLevel val = logLevelStrings.get(logLevel.toUpperCase());
             if(val == null)
+            {
                 throw new IllegalArgumentException();
+            }
             return val;
         }
         
@@ -152,7 +156,9 @@ public class LogManager
         {
             EchoMode val = echoModeStrings.get(echoMode.toUpperCase());
             if(val == null)
+            {
                 throw new IllegalArgumentException();
+            }
             return val;
         }
         
@@ -182,7 +188,9 @@ public class LogManager
         if(logger == null)
         {
             if(strict)
+            {
                 throw new LoggerException("Logger [" + loggerName + "] does not exist (strict mode enabled).");
+            }
             logger = LoggerFactory.getLogger(loggerName);
             loggers.put(loggerName, logger);
         }
@@ -205,7 +213,9 @@ public class LogManager
         if(logger != null)
         {
             if(strict)
+            {
                 throw new LoggerException("Logger [" + loggerName + "] already exists (strict mode enabled).");
+            }
         }
         else
         {
@@ -246,31 +256,47 @@ public class LogManager
     public void log(String loggerName, LogLevel logLevel, List<String> args, boolean collapse) throws LoggerException
     {
         if(!isActive())
+        {
             return;
+        }
         
         Logger logger = getLogger(loggerName);
         
         String result = formatArguments(args, collapse);
         
         if(logLevel == LogLevel.debug)
+        {
             logger.debug(result);
+        }
         else if(logLevel == LogLevel.info)
+        {
             logger.info(result);
+        }
         else if(logLevel == LogLevel.warn)
+        {
             logger.warn(result);
+        }
         else if(logLevel == LogLevel.trace)
+        {
             logger.trace(result);
+        }
         else
+        {
             logger.error(result);
+        }
         
         if(echoMode != EchoMode.off && currentLogLevel.wouldAcceptLogLevel(logLevel) && !disabledLoggers.contains(loggerName))
         {
             agent.getPrinter().startNewLine();
             
             if(echoMode == EchoMode.simple)
+            {
                 agent.getPrinter().print(result);
+            }
             else
+            {
                 agent.getPrinter().print("[" + logLevel.toString() + " " + getTimestamp() + "] " + loggerName + ": " + result);
+            }
             
             agent.getPrinter().flush();
         }
@@ -285,7 +311,9 @@ public class LogManager
             {
                 int numFields = (formatString.length() - formatString.replace("{}", "").length()) / 2;
                 if(numFields == args.size() - 1)
+                {
                     return String.format(formatString.replace("{}", "%s"), args.subList(1, args.size()).toArray(new Object[args.size() - 1]));
+                }
             }
         }
         
@@ -351,7 +379,9 @@ public class LogManager
     {
         getLogger(name);
         if(isStrict() && !disabledLoggers.contains(name))
+        {
             throw new LoggerException("Logger is not currently disabled (strict mode enabled).");
+        }
         disabledLoggers.remove(name);
     }
     
@@ -359,7 +389,9 @@ public class LogManager
     {
         getLogger(name);
         if(isStrict() && disabledLoggers.contains(name))
+        {
             throw new LoggerException("Logger is already disabled (strict mode enabled).");
+        }
         disabledLoggers.add(name);
     }
     

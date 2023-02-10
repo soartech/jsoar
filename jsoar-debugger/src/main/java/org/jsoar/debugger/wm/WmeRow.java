@@ -127,17 +127,27 @@ class WmeRow extends Row
                     final int letter = mineId.getNameLetter() - theirId.getNameLetter();
                     final long number = mineId.getNameNumber() - theirId.getNameNumber();
                     if(letter < 0)
+                    {
                         return -1;
+                    }
                     else if(letter == 0)
+                    {
                         return number < 0 ? -1 : 1;
+                    }
                     else
+                    {
                         return 1;
+                    }
                 }
                 else
+                {
                     return 1;
+                }
             }
             else if(theirId != null)
+            {
                 return -1;
+            }
             
             // String is next
             final StringSymbol myString = mine.asString();
@@ -149,10 +159,14 @@ class WmeRow extends Row
                     return myString.getValue().compareTo(theirString.getValue());
                 }
                 else
+                {
                     return 1;
+                }
             }
             else if(theirString != null)
+            {
                 return -1;
+            }
             
             // int is next
             final IntegerSymbol myInt = mine.asInteger();
@@ -165,10 +179,14 @@ class WmeRow extends Row
                     return d < 0 ? -1 : 1;
                 }
                 else
+                {
                     return 1;
+                }
             }
             else if(theirInt != null)
+            {
                 return -1;
+            }
             
             // double is next
             final DoubleSymbol myDouble = mine.asDouble();
@@ -181,10 +199,14 @@ class WmeRow extends Row
                     return d < 0 ? -1 : 1;
                 }
                 else
+                {
                     return 1;
+                }
             }
             else if(theirDouble != null)
+            {
                 return -1;
+            }
             
             return 0;
         }

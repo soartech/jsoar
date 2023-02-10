@@ -48,7 +48,9 @@ public class ExplainChunk
         {
             number--;
             if(number == 0)
+            {
                 ground = cond;
+            }
         }
         if(number > 0)
         {
@@ -75,7 +77,9 @@ public class ExplainChunk
                 printer.print("Trace condition : %s", prod.trace_cond);
             }
             else
+            {
                 printer.print("The result preference is not stored, sorry.\n");
+            }
             printer.print("\nGrounds:\n");
             Conditions.print_list_of_conditions(printer, prod.grounds);
             printer.print("\nPotentials:\n");

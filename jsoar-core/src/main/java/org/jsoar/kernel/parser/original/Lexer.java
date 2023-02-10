@@ -674,7 +674,9 @@ public class Lexer
         while(true)
         {
             if(current_char == EOF_AS_CHAR)
+            {
                 break;
+            }
             
             if(Character.isWhitespace(current_char))
             {
@@ -906,26 +908,40 @@ public class Lexer
         {
             int ch = 0;
             if((s.charAt(ch) == '+') || (s.charAt(ch) == '-'))
+            {
                 ch++; /* optional leading + or - */
+            }
             while(ch < s.length() && Character.isDigit(s.charAt(ch)))
+            {
                 ch++; /* string of digits */
+            }
             if(ch == s.length() && Character.isDigit(s.charAt(ch - 1)))
+            {
                 p.possible_ic = true;
+            }
             if(ch < s.length() && s.charAt(ch) == '.')
             {
                 ch++; /* decimal point */
                 while(ch < s.length() && Character.isDigit(s.charAt(ch)))
+                {
                     ch++; /* string of digits */
+                }
                 if(ch < s.length() && (s.charAt(ch) == 'e' || s.charAt(ch) == 'E'))
                 {
                     ch++; /* E */
                     if(ch < s.length() && (s.charAt(ch) == '+' || s.charAt(ch) == '-'))
+                    {
                         ch++; /* optional leading + or - */
+                    }
                     while(ch < s.length() && Character.isDigit(s.charAt(ch)))
+                    {
                         ch++; /* string of digits */
+                    }
                 }
                 if(ch == s.length())
+                {
                     p.possible_fc = true;
+                }
             }
         }
         

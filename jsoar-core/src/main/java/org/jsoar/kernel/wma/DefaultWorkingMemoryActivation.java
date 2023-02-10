@@ -366,7 +366,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     {
         final Iterator<Preference> it = w.getPreferences();
         if(!it.hasNext())
+        {
             return false;
+        }
         Preference preference = it.next();
         return ((preference.reference_count != 0) && (preference.o_supported));
     }

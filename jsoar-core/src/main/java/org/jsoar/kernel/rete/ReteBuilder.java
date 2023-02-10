@@ -313,7 +313,9 @@ import org.jsoar.util.markers.Marker;
         while(rt1 != null && rt2 != null)
         {
             if(!single_rete_tests_are_identical(rt1, rt2))
+            {
                 return false;
+            }
             rt1 = rt1.next;
             rt2 = rt2.next;
         }

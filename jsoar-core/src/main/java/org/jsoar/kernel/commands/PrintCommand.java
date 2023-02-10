@@ -210,7 +210,9 @@ public class PrintCommand extends PicocliSoarCommand
             // New in Soar 8.6.3: if no args or options given, print all prods
             if(!printChunks && !printDefaults && !printJustify &&
                     !printRLRules && !printTemplates && !printUserProds)
+            {
                 printAll = true;
+            }
             
             if(printStack)
             {
@@ -421,9 +423,13 @@ public class PrintCommand extends PicocliSoarCommand
                 p.print("%s", prod.getLocation());
                 
                 if(printFullProd)
+                {
                     p.print("\n");
+                }
                 else
+                {
                     p.print(": ");
+                }
             }
             
             if(printFullProd)
@@ -455,15 +461,25 @@ public class PrintCommand extends PicocliSoarCommand
             final List<Production> result = new ArrayList<Production>();
             
             if(printChunks)
+            {
                 result.addAll(pm.getProductions(ProductionType.CHUNK));
+            }
             if(printUserProds)
+            {
                 result.addAll(pm.getProductions(ProductionType.USER));
+            }
             if(printDefaults)
+            {
                 result.addAll(pm.getProductions(ProductionType.DEFAULT));
+            }
             if(printTemplates)
+            {
                 result.addAll(pm.getProductions(ProductionType.TEMPLATE));
+            }
             if(printJustify)
+            {
                 result.addAll(pm.getProductions(ProductionType.JUSTIFICATION));
+            }
             
             return result;
         }

@@ -74,13 +74,15 @@ public class TowersOfHanoi extends /* AbstractAdaptableView */ JPanel implements
         em.addListener(InputEvent.class, event -> game.update(((InputEvent) event).getInputOutput()));
         
         // handle output commands from the agent
-        em.addListener(OutputEvent.class, event -> {
+        em.addListener(OutputEvent.class, event ->
+        {
             game.handleCommands((OutputEvent) event);
             synchDisplay();
         });
         
         // when the agent is reinitialized (init-soar), reset the game
-        em.addListener(BeforeInitSoarEvent.class, event -> {
+        em.addListener(BeforeInitSoarEvent.class, event ->
+        {
             game.reset();
             synchDisplay();
         });

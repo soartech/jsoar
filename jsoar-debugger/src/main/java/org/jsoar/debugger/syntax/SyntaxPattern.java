@@ -150,7 +150,9 @@ public class SyntaxPattern
                     }
                     aliasesStr.append(alias);
                     if(iterator.hasNext())
+                    {
                         aliasesStr.append("|");
+                    }
                 }
                 
             }
@@ -206,7 +208,9 @@ public class SyntaxPattern
                     String command = iterator.next();
                     commandsStr.append(command);
                     if(iterator.hasNext())
+                    {
                         commandsStr.append("|");
+                    }
                 }
                 
             }
@@ -238,7 +242,9 @@ public class SyntaxPattern
                 String rhsFunc = escapeRegexSpecialChars(iterator.next());
                 rhsFuncsString.append(rhsFunc);
                 if(iterator.hasNext())
+                {
                     rhsFuncsString.append("|");
+                }
             }
             expandedRegex = expandedRegex.replaceAll("%rhsfuncs%", Matcher.quoteReplacement(rhsFuncsString.toString()));
         }

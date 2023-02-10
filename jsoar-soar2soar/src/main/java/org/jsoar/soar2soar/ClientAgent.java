@@ -44,7 +44,8 @@ public class ClientAgent
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         
         // It's best to source files and initialize the agent in the agent thread!
-        agent.executeAndWait(() -> {
+        agent.executeAndWait(() ->
+        {
             SoarCommands.source(agent.getInterpreter(), getClass().getResource("env.defaults.soar"));
             SoarCommands.source(agent.getInterpreter(), source);
             return null;

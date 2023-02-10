@@ -184,7 +184,9 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
         JComboBox<?> comboBox = (JComboBox<?>) e.getSource();
         
         if(comboBox.getItemCount() == 0)
+        {
             return;
+        }
         
         final Object child = comboBox.getAccessibleContext().getAccessibleChild(0);
         
@@ -199,7 +201,9 @@ public class ExpandingWidthComboBoxListener implements PopupMenuListener
         scrollPane = getScrollPane(popup);
         
         if(popupWider)
+        {
             popupWider(popup);
+        }
         
         checkHorizontalScrollBar(popup);
         

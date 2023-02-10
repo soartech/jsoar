@@ -554,7 +554,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
                 // mark ol "modified"
                 if((outputLinkStatus == OutputLinkStatus.UNCHANGED_OL_STATUS)
                         || (outputLinkStatus == OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS))
+                {
                     outputLinkStatus = OutputLinkStatus.MODIFIED_OL_STATUS;
+                }
                 
                 if(w.id == outputLinkWme.value)
                 {
@@ -574,7 +576,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             {
                 // mark ol "modified but same tc"
                 if(outputLinkStatus == OutputLinkStatus.UNCHANGED_OL_STATUS)
+                {
                     outputLinkStatus = OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS;
+                }
             }
             setOutputLinkChanged(true);
         }
@@ -606,7 +610,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         {
             final WmeImpl w = it.item;
             if(w.id == io_header)
+            {
                 update_for_top_state_wme_removal(w);
+            }
             update_for_io_wme_change(w, false);
         }
     }
@@ -638,7 +644,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     {
         // if id is already in the TC, exit
         if(id.tc_number == output_link_tc_num)
+        {
             return;
+        }
         id.tc_number = output_link_tc_num;
         
         // add id to output_link's list
@@ -649,7 +657,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         {
             IdentifierImpl valueAsId = w.value.asIdentifier();
             if(valueAsId != null)
+            {
                 add_id_to_output_link_tc(valueAsId);
+            }
         }
         for(Slot s = id.slots; s != null; s = s.next)
         {
@@ -657,7 +667,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             {
                 IdentifierImpl valueAsId = w.value.asIdentifier();
                 if(valueAsId != null)
+                {
                     add_id_to_output_link_tc(valueAsId);
+                }
             }
         }
         // don't need to check impasse_wmes, because we couldn't have a pointer
@@ -673,7 +685,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         // if link doesn't have any substructure, there's no TC
         IdentifierImpl valueAsId = outputLinkWme.value.asIdentifier();
         if(valueAsId == null)
+        {
             return;
+        }
         
         // do TC starting with the link wme's value
         output_link_tc_num = DefaultMarker.create();
@@ -699,13 +713,21 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     {
         LinkedHashSet<Wme> io_wmes = new LinkedHashSet<Wme>();
         io_wmes.add(outputLinkWme);
+        
         for(IdentifierImpl id : ids_in_tc)
         {
             for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+            {
                 io_wmes.add(w);
+            }
+            
             for(Slot s = id.slots; s != null; s = s.next)
+            {
                 for(WmeImpl w = s.getWmes(); w != null; w = w.next)
+                {
                     io_wmes.add(w);
+                }
+            }
         }
         return io_wmes;
     }

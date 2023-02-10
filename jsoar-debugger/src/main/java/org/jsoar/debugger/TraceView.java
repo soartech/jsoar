@@ -135,7 +135,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
                 
                 // Handling scroll lock setting
-                Runnable runnable = () -> {
+                Runnable runnable = () ->
+                {
                     if(scrollLock)
                     {
                         // Scroll to the end
@@ -408,11 +409,13 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             return;
         }
         
-        final Callable<Object> call = () -> {
+        final Callable<Object> call = () ->
+        {
             return object.retrieveSelection(debugger);
         };
         
-        final CompletionHandler<Object> finish = result -> {
+        final CompletionHandler<Object> finish = result ->
+        {
             selectionProvider.setSelection(result);
         };
         
@@ -427,7 +430,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             return;
         }
         
-        final Callable<Void> call = () -> {
+        final Callable<Void> call = () ->
+        {
             
             final Object o = object.retrieveSelection(debugger);
             final String command;
@@ -499,18 +503,21 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         ButtonGroup buttonGroup = new ButtonGroup();
         JRadioButtonMenuItem noHLItem = new JRadioButtonMenuItem("No Highlighting");
-        noHLItem.addActionListener(e1 -> {
+        noHLItem.addActionListener(e1 ->
+        {
             enableHighlighting.set(false);
             noHLItem.setSelected(true);
         });
         JRadioButtonMenuItem immediateHLItem = new JRadioButtonMenuItem("Highlight Immediately");
-        immediateHLItem.addActionListener(e1 -> {
+        immediateHLItem.addActionListener(e1 ->
+        {
             enableHighlighting.set(true);
             highlightImmediately.set(true);
             immediateHLItem.setSelected(true);
         });
         JRadioButtonMenuItem delayedHLItem = new JRadioButtonMenuItem("Highlight In Separate Thread");
-        delayedHLItem.addActionListener(e1 -> {
+        delayedHLItem.addActionListener(e1 ->
+        {
             enableHighlighting.set(true);
             highlightImmediately.set(false);
             delayedHLItem.setSelected(true);

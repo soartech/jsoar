@@ -63,7 +63,8 @@ public class RobotAgent
         final String source = config.getProperty(robot.name + ".agent.source");
         if(source != null)
         {
-            final Callable<Void> call = () -> {
+            final Callable<Void> call = () ->
+            {
                 SoarCommands.source(agent.getInterpreter(), source);
                 return null;
             };
@@ -136,9 +137,13 @@ public class RobotAgent
                 
                 double bearing = Math.toDegrees(Math.atan2(y - wpy, x - wpx) - robot.yaw);
                 while(bearing <= -180.0)
+                {
                     bearing += 180.0;
+                }
                 while(bearing >= 180.0)
+                {
                     bearing -= 180.0;
+                }
                 
                 sub.setDouble("relative-bearing", bearing);
             }

@@ -49,10 +49,16 @@ public class ChunkConditionSet
         ListItem<ChunkCondition> old;
         final ListHead<ChunkCondition> bucket = this.table.get(new_cc.compressed_hash_value);
         for(old = bucket.first; old != null; old = old.next)
+        {
             if(old.item.hash_value == new_cc.hash_value)
+            {
                 if(Condition.conditions_are_equal(old.item.cond, new_cc.cond))
+                {
                     break;
-                
+                }
+            }
+        }
+        
         if(old != null)
         {
             // the new condition was already in the set; so don't add it

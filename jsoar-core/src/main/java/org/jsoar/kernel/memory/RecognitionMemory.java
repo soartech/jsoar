@@ -641,12 +641,16 @@ public class RecognitionMemory
                     if(SoarConstants.DO_TOP_LEVEL_REF_CTS)
                     {
                         if(bt.trace != null)
+                        {
                             bt.trace.preference_add_ref();
+                        }
                     }
                     else
                     {
                         if((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                        {
                             bt.trace.preference_add_ref();
+                        }
                     }
                 }
             }
@@ -1120,7 +1124,9 @@ public class RecognitionMemory
     void possibly_deallocate_instantiation(Instantiation inst)
     {
         if(inst.preferences_generated == null && !inst.in_ms)
+        {
             deallocate_instantiation(inst);
+        }
     }
     
     /**
@@ -1239,7 +1245,9 @@ public class RecognitionMemory
         }
         
         if(!o_rejects.isEmpty())
+        {
             process_o_rejects_and_deallocate_them(o_rejects, bufdeallo);
+        }
         
         // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         
@@ -1278,9 +1286,13 @@ public class RecognitionMemory
                     // might accidentally deallocate some clone that happens to
                     // have refcount==0 just because it hasn't been asserted yet
                     if(pref.next_clone != null)
+                    {
                         pref.next_clone.prev_clone = pref.prev_clone;
+                    }
                     if(pref.prev_clone != null)
+                    {
                         pref.prev_clone.next_clone = pref.next_clone;
+                    }
                     pref.next_clone = pref.prev_clone = null;
                     
                     // now add then remove ref--this should result in deallocation
@@ -1653,7 +1665,9 @@ public class RecognitionMemory
         
         // Deallocate preferences delayed during inner elaboration loop.
         for(Preference p : bufdeallo)
+        {
             p.preference_remove_ref(this);
+        }
         
         // Restore previous active level.
         decider.active_level = decider.highest_active_level;

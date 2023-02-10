@@ -137,7 +137,8 @@ public class TestRunner
     
     public Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
     {
-        return () -> {
+        return () ->
+        {
             final TestCaseResult result = run(testCase, index);
             if(handler != null)
             {

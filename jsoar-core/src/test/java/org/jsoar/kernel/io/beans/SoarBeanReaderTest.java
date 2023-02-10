@@ -46,7 +46,8 @@ public class SoarBeanReaderTest
         final SoarBeanReader converter = new SoarBeanReader();
         
         final ByRef<T> bean = ByRef.create(null);
-        agent.getEvents().addListener(OutputEvent.class, event -> {
+        agent.getEvents().addListener(OutputEvent.class, event ->
+        {
             final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
             assertNotNull(testCommand);
             try

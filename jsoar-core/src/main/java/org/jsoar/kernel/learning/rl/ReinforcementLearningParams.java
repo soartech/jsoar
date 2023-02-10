@@ -105,11 +105,15 @@ public class ReinforcementLearningParams
         public static DecayMode getEnum(String value)
         {
             if(value == null)
+            {
                 throw new IllegalArgumentException();
+            }
             for(DecayMode dm : DecayMode.values())
             {
                 if(value.equals(dm.toString()))
+                {
                     return dm;
+                }
             }
             throw new IllegalArgumentException();
         }
@@ -156,11 +160,15 @@ public class ReinforcementLearningParams
         public static ApoptosisChoices getEnum(String value)
         {
             if(value == null)
+            {
                 throw new IllegalArgumentException();
+            }
             for(ApoptosisChoices ac : ApoptosisChoices.values())
             {
                 if(value.equals(ac.toString()))
+                {
                     return ac;
+                }
             }
             throw new IllegalArgumentException();
         }

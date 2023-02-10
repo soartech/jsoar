@@ -63,7 +63,8 @@ public class OutputEventTest
         // Set up listener to cache changes during run
         final List<List<OutputChange>> changes = new ArrayList<List<OutputChange>>();
         final AtomicReference<Identifier> stuffId = new AtomicReference<Identifier>();
-        agent.getEvents().addListener(OutputEvent.class, event -> {
+        agent.getEvents().addListener(OutputEvent.class, event ->
+        {
             final OutputEvent oe = (OutputEvent) event;
             // Catch the id of the ^stuff attribute so we can use it in tests below.
             if(changes.size() == 0)

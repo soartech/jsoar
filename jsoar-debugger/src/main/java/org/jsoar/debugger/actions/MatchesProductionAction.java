@@ -38,7 +38,8 @@ public class MatchesProductionAction extends AbstractDebuggerAction
         final String command = getBaseCommand(this.showWmes) + prods.get(0).getName();
         final ThreadedAgent agent = getApplication().getAgent();
         
-        agent.execute(() -> {
+        agent.execute(() ->
+        {
             agent.getPrinter().startNewLine();
             agent.getInterpreter().eval("echo " + command);
             agent.getInterpreter().eval(command);

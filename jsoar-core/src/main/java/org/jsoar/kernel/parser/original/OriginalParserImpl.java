@@ -374,7 +374,9 @@ class OriginalParserImpl
     private Test substitute_for_placeholders_in_test(Test t)
     {
         if(Tests.isBlank(t))
+        {
             return t;
+        }
         
         EqualityTest eqTest = t.asEqualityTest();
         if(eqTest != null)
@@ -1288,7 +1290,9 @@ class OriginalParserImpl
         if(handler == null)
         {
             if(!funcs.isDisabled(fun_name.getValue()))
+            {
                 printer.warn("No RHS function named '%s'\n", fun_name);
+            }
         }
         
         // build list of rhs_function and arguments
@@ -1468,9 +1472,13 @@ class OriginalParserImpl
         {
             
             if((currentType() == LexemeType.INTEGER) || (currentType() == LexemeType.FLOAT))
+            {
                 return PreferenceType.NUMERIC_INDIFFERENT;
+            }
             else
+            {
                 return PreferenceType.BINARY_INDIFFERENT;
+            }
         }
         
         // forced unary preference

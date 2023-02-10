@@ -252,7 +252,9 @@ public class ReteNetWriter
         
         // --- For cn_p nodes, write out the CN node's children instead ---
         if(node.node_type == ReteNodeType.CN_PARTNER_BNODE)
+        {
             node = node.b_cn().partner;
+        }
         // --- Write out records for all the node's children. ---
         writeChildrenOfNode(dos, node);
     }
@@ -701,7 +703,9 @@ public class ReteNetWriter
         while(true)
         {
             if(node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
+            {
                 return;
+            }
             if(node.node_type == ReteNodeType.CN_BNODE)
             {
                 node = node.b_cn().partner.parent;

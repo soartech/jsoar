@@ -33,7 +33,9 @@ public class PrintHelper
         middle_width = column_width - left_width - right_width;
         
         if(middle_width < 0)
+        {
             middle_width = 1;
+        }
         
         sep_string = Strings.repeat(" ", middle_width);
         

@@ -51,7 +51,9 @@ public class WorkingMemoryPrinter
         {
             // for wme patterns
             if(pattern.length() > 2 && pattern.charAt(0) == '(' && pattern.charAt(pattern.length() - 1) == ')')
+            {
                 pattern = pattern.substring(1, pattern.length() - 1);
+            }
             
             List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(),
                     WorkingMemoryPatternReader.getPredicate(agent, pattern));
@@ -60,9 +62,13 @@ public class WorkingMemoryPrinter
                 for(Wme w : wmes)
                 {
                     if(exact)
+                    {
                         printer.print("%s", w);
+                    }
                     else
+                    {
                         do_print_for_identifier((IdentifierImpl) w.getIdentifier());
+                    }
                 }
             }
             else
@@ -91,7 +97,9 @@ public class WorkingMemoryPrinter
                         {
                             printer.print(" ^%s %s", w.getAttribute(), w.getValue());
                             if(w.isAcceptable())
+                            {
                                 printer.print(" +");
+                            }
                         }
                         printer.print(")\n");
                     }
@@ -248,16 +256,22 @@ public class WorkingMemoryPrinter
         
         IdentifierImpl id = idIn.asIdentifier();
         if(id == null)
+        {
             return;
+        }
         if(id.tc_number == tc && id.depth >= depth)
+        {
             return;  // this has already been printed at an equal-or-lower depth, RPM 4/07 bug 988
-            
+        }
+        
         id.depth = depth; // set the depth of this id
         id.tc_number = tc;
         
         /* --- if depth<=1, we're done --- */
         if(depth <= 1)
+        {
             return;
+        }
         
         /* --- call this routine recursively --- */
         for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
@@ -316,12 +330,18 @@ public class WorkingMemoryPrinter
         
         IdentifierImpl id = idIn.asIdentifier();
         if(id == null)
+        {
             return;
+        }
         if(id.tc_number == tc)
+        {
             return;  // this has already been printed, so return RPM 4/07 bug 988
+        }
         if(id.depth > depth)
+        {
             return;  // this can be reached via an equal or shorter path, so return without printing RPM 4/07 bug 988
-            
+        }
+        
         // if we're here, then we haven't printed this id yet, so print it
         
         depth = id.depth; // set the depth to the depth via the shallowest path, RPM 4/07 bug 988
@@ -333,15 +353,23 @@ public class WorkingMemoryPrinter
         /* --- next, construct the array of wme pointers and sort them --- */
         List<WmeImpl> list = new ArrayList<WmeImpl>();
         for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
+        {
             list.add(w);
+        }
         for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+        {
             list.add(w);
+        }
         for(Slot s = id.slots; s != null; s = s.next)
         {
             for(WmeImpl w = s.getWmes(); w != null; w = w.next)
+            {
                 list.add(w);
+            }
             for(WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
+            {
                 list.add(w);
+            }
         }
         Collections.sort(list, ATTRIBUTE_COMPARATOR);
         
@@ -354,9 +382,13 @@ public class WorkingMemoryPrinter
             {
                 printer.spaces(indent);
                 if(internal)
+                {
                     printer.print("%s", w);
+                }
                 else
+                {
                     printer.print("%#s", w);
+                }
                 
                 if(depth > 1)
                 { // we're not done yet

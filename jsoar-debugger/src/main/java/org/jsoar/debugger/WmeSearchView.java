@@ -214,12 +214,14 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         final String attr = attrField.getText().trim();
         final String value = valueField.getText().trim();
         
-        final Callable<List<Wme>> call = () -> {
+        final Callable<List<Wme>> call = () ->
+        {
             final Agent agent = debugger.getAgent().getAgent();
             return Wmes.search(agent, id, attr, value);
         };
         
-        final CompletionHandler<List<Wme>> done = result -> {
+        final CompletionHandler<List<Wme>> done = result ->
+        {
             wmeModel.setWmes(result);
             description.setText(String.format(
                     "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));

@@ -41,7 +41,8 @@ public class EnvironmentAgent
         env.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         
         // It's best to source files and initialize the agent in the agent thread!
-        env.executeAndWait(() -> {
+        env.executeAndWait(() ->
+        {
             SoarCommands.source(env.getInterpreter(), getClass().getResource("env.defaults.soar"));
             SoarCommands.source(env.getInterpreter(), source);
             return null;
@@ -216,7 +217,9 @@ public class EnvironmentAgent
     public ThreadedAgent getThreadedAgent(String name)
     {
         if(name.equalsIgnoreCase("env"))
+        {
             return env;
+        }
         
         ClientAgent clientAgent = agentMap.get(name);
         return clientAgent != null ? clientAgent.getAgent() : null;

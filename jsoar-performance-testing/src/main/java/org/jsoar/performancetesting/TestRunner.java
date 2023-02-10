@@ -75,7 +75,9 @@ public class TestRunner
                 boolean result = test.run(i);
                 
                 if(!result)
+                {
                     return false;
+                }
                 
                 out.print(".");
                 out.flush();
@@ -92,7 +94,9 @@ public class TestRunner
             boolean result = runSingleIteration(i);
             
             if(!result)
+            {
                 return false;
+            }
             
             out.print(".");
             out.flush();

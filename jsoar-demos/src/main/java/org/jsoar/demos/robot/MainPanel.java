@@ -51,7 +51,8 @@ public class MainPanel extends JPanel
         this.worldPanel = new WorldPanel();
         loadWorld(MainPanel.class.getResource("/org/jsoar/demos/robot/default.world"));
         
-        timer = new Timer(100, e -> {
+        timer = new Timer(100, e ->
+        {
             world.update(0.1);
             for(RobotAgent agent : agents.values())
             {
@@ -102,7 +103,8 @@ public class MainPanel extends JPanel
         });
         
         final JCheckBox follow = new JCheckBox("Follow");
-        follow.addActionListener(e -> {
+        follow.addActionListener(e ->
+        {
             final Robot robot = !world.getRobots().isEmpty() ? world.getRobots().get(0) : null;
             worldPanel.setFollow(follow.isSelected() ? robot : null);
         });
@@ -274,7 +276,8 @@ public class MainPanel extends JPanel
     {
         SwingTools.initializeLookAndFeel();
         
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             JFrame f = new JFrame();
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             try

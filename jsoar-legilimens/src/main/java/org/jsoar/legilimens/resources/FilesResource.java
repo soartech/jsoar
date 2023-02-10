@@ -89,19 +89,29 @@ public class FilesResource extends BaseAgentResource
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(!(obj instanceof File))
+            {
                 return false;
+            }
             File other = (File) obj;
             if(location == null)
             {
                 if(other.location != null)
+                {
                     return false;
+                }
             }
             else if(!location.equals(other.location))
+            {
                 return false;
+            }
             return true;
         }
         

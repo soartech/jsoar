@@ -119,7 +119,9 @@ public class SoarTechXmlToWme implements XmlToWme
         for(Node node = element.getFirstChild(); node != null; node = node.getNextSibling())
         {
             if(!(node instanceof Element))
+            {
                 continue;
+            }
             
             final Element kid = (Element) node;
             final String linkTo = kid.getAttribute(SoarTechWmeToXml.LINK);

@@ -25,9 +25,13 @@ public class StyleOffset implements Comparable<StyleOffset>
         if(o != null)
         {
             if(start == o.start)
+            {
                 return length() - o.length();
+            }
             else
+            {
                 return start - o.start;
+            }
         }
         else
         {

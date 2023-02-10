@@ -385,11 +385,17 @@ public class LogCommand extends PicocliSoarCommand
         public String getSourceLocation(SoarCommandContext context, boolean abbreviate, SourceLocationMethod sourceLocationMethod)
         {
             if(sourceLocationMethod.equals(SourceLocationMethod.stack))
+            {
                 return getGoalStackLocation(abbreviate);
+            }
             else if(sourceLocationMethod.equals(SourceLocationMethod.disk))
+            {
                 return getSourceFileLocation(context, abbreviate);
+            }
             else
+            {
                 return null;
+            }
         }
         
         public String getGoalStackLocation(boolean abbreviate)
@@ -402,18 +408,27 @@ public class LogCommand extends PicocliSoarCommand
                 // location.append(getOperatorNameFromGoal(it.next()));
                 String thisGoal = getOperatorNameFromGoal(it.next());
                 if(!abbreviate || !it.hasNext())
+                {
                     location.append(thisGoal);
+                }
                 else
+                {
                     location.append(thisGoal.charAt(0));
+                }
+                
                 while(it.hasNext())
                 {
                     location.append(sourceLocationSeparator);
                     // location.append(getOperatorNameFromGoal(it.next()));
                     thisGoal = getOperatorNameFromGoal(it.next());
                     if(!abbreviate || !it.hasNext())
+                    {
                         location.append(thisGoal);
+                    }
                     else
+                    {
                         location.append(thisGoal.charAt(0));
+                    }
                 }
             }
             
@@ -427,7 +442,9 @@ public class LogCommand extends PicocliSoarCommand
             {
                 String fileName = sourceLocation.getFile();
                 if(fileName != null && !fileName.isEmpty())
+                {
                     return collapseFileName(fileName, interpreter.getWorkingDirectory(), abbreviate);
+                }
             }
             return null;
         }
@@ -450,7 +467,9 @@ public class LogCommand extends PicocliSoarCommand
             {
                 String n = f.getName();
                 if(!n.isEmpty())
+                {
                     result.add(f.getName());
+                }
                 f = f.getParentFile();
             }
             
@@ -480,21 +499,29 @@ public class LogCommand extends PicocliSoarCommand
             for(marker = 0; marker < minLength; ++marker)
             {
                 if(!cwdParts[marker].equals(fileParts[marker]))
+                {
                     break;
+                }
             }
             
             String result = "";
             
             int diff = cwdParts.length - marker;
             if(diff > 0)
+            {
                 result += "^" + diff + sourceLocationSeparator;
+            }
             
             for(int i = marker; i < fileParts.length - 1; ++i)
             {
                 if(abbreviate)
+                {
                     result += fileParts[i].charAt(0);
+                }
                 else
+                {
                     result += fileParts[i];
+                }
                 result += sourceLocationSeparator;
             }
             result += fileParts[fileParts.length - 1];

@@ -145,7 +145,9 @@ public class VarNames
         if(ct != null)
         {
             for(Test c : ct.conjunct_list)
+            {
                 starting_vn = add_unbound_varnames_in_test(c, starting_vn);
+            }
         }
         return starting_vn;
     }

@@ -77,7 +77,9 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             public void valueChanged(ListSelectionEvent e)
             {
                 if(e.getValueIsAdjusting())
+                {
                     return;
+                }
                 tableSelectionChange();
             }
         });
@@ -156,12 +158,14 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             return;
         }
         
-        final Callable<WmeSupportInfo> call = () -> {
+        final Callable<WmeSupportInfo> call = () ->
+        {
             final Agent agent = debugger.getAgent().getAgent();
             return WmeSupportInfo.get(agent, w);
         };
         
-        final CompletionHandler<WmeSupportInfo> finish = sourceInfo -> {
+        final CompletionHandler<WmeSupportInfo> finish = sourceInfo ->
+        {
             source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
             entryList.setModel(SwingTools.addAll(new DefaultListModel<Support>(), sourceInfo.getSupports()));
             wmeModel.setWmes(null);

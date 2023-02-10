@@ -62,12 +62,17 @@ public class Repl
                     input = scanner.nextLine();
                 }
                 if(input == null)
+                {
                     return; // it seems this can happen if the process is forcibly terminated
+                }
                 String trimmedInput = input.trim();
                 if("quit".equals(trimmedInput))
+                {
                     return;
+                }
                 
-                this.agent.execute(() -> {
+                this.agent.execute(() ->
+                {
                     String result = this.agent.getInterpreter().eval(trimmedInput);
                     Printer printer = this.agent.getPrinter();
                     if(result != null && result.length() != 0)
@@ -93,7 +98,8 @@ public class Repl
         Runtime.getRuntime().addShutdownHook(new Thread(() -> this.shutdown()));
         
         // echo agent output to the print stream
-        this.agent.execute(() -> {
+        this.agent.execute(() ->
+        {
             this.agent.getPrinter().pushWriter(new PrintWriter(this.out));
             printPrompt();
             return null;
@@ -102,7 +108,8 @@ public class Repl
     
     private void printPrompt()
     {
-        this.agent.execute(() -> {
+        this.agent.execute(() ->
+        {
             this.agent.getPrinter().startNewLine().print("soar> ").flush();
             return null;
         }, null);

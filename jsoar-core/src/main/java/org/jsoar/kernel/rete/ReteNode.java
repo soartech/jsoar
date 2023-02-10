@@ -333,11 +333,17 @@ public class ReteNode
         while(node.node_type != ReteNodeType.DUMMY_TOP_BNODE)
         {
             if(node.node_type == ReteNodeType.CN_BNODE)
+            {
                 node = node.b_cn().partner.parent;
+            }
             else
+            {
                 node = node.real_parent_node();
+            }
             if(node.node_type.bnode_is_posneg() && (node.b_posneg().alpha_mem_ == am))
+            {
                 return node;
+            }
         }
         return null;
     }
@@ -787,7 +793,9 @@ public class ReteNode
     {
         // don't deallocate the dummy top node
         if(node == rete.dummy_top_node)
+        {
             return;
+        }
         
         // sanity check
         if(node.node_type == ReteNodeType.P_BNODE)

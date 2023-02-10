@@ -75,20 +75,32 @@ public abstract class Action
         while(a1 != null && a2 != null)
         {
             if(a1.asFunctionAction() != null)
+            {
                 return false;
+            }
             if(a2.asFunctionAction() != null)
+            {
                 return false;
+            }
             if(a1.preference_type != a2.preference_type)
+            {
                 return false;
+            }
             
             MakeAction ma1 = a1.asMakeAction();
             MakeAction ma2 = a2.asMakeAction();
             if(!ma1.id.equals(ma2.id))
+            {
                 return false;
+            }
             if(!ma1.attr.equals(ma2.attr))
+            {
                 return false;
+            }
             if(!ma1.value.equals(ma2.value))
+            {
                 return false;
+            }
             if(ma1.preference_type.isBinary())
             {
                 if(ma1.referent != ma2.referent)
@@ -115,7 +127,9 @@ public abstract class Action
                         }
                     }
                     if(stop)
+                    {
                         return false;
+                    }
                 }
             }
             a1 = a1.next;
@@ -125,7 +139,9 @@ public abstract class Action
         // If we reached the end of one RHS but not the other, then
         // they must be different
         if(a1 != a2)
+        {
             return false;
+        }
         
         // If we got this far, the RHS's must be identical.
         return true;
@@ -212,9 +228,13 @@ public abstract class Action
             }
             
             if(prev != null)
+            {
                 prev.next = New;
+            }
             else
+            {
                 first = New;
+            }
             prev = New;
             
             New.preference_type = old.preference_type;
@@ -224,16 +244,22 @@ public abstract class Action
         }
         
         if(prev != null)
+        {
             prev.next = null;
+        }
         else
+        {
             first = null;
+        }
         return first;
     }
     
     public static void print_action_list(Printer printer, Action actions, int indent, boolean internal)
     {
         if(actions == null)
+        {
             return;
+        }
         
         boolean did_one_line_already = false;
         

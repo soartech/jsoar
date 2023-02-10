@@ -88,11 +88,15 @@ public class DefaultSemanticMemoryParams
         public static ActivationChoices getEnum(String value)
         {
             if(value == null)
+            {
                 throw new IllegalArgumentException();
+            }
             for(ActivationChoices ac : ActivationChoices.values())
             {
                 if(value.equals(ac.toString()))
+                {
                     return ac;
+                }
             }
             throw new IllegalArgumentException();
         }

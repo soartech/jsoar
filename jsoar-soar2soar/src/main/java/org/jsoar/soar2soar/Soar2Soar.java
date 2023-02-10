@@ -55,7 +55,9 @@ public class Soar2Soar
             
             line = line.trim();
             if(line.equals("quit") || line.equals("exit"))
+            {
                 break;
+            }
             
             // switch agent
             ThreadedAgent temp = ea.getThreadedAgent(line);
@@ -66,7 +68,9 @@ public class Soar2Soar
             else
             {
                 if(line.equals("root"))
+                {
                     currentAgent = null;
+                }
                 
                 if(currentAgent != null)
                 {

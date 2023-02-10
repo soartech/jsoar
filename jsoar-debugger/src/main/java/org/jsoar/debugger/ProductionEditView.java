@@ -163,7 +163,8 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
      */
     public void editProduction(final String name)
     {
-        final Callable<String> call = () -> {
+        final Callable<String> call = () ->
+        {
             final Production p = agent.getProductions().getProduction(name);
             if(p != null)
             {
@@ -174,7 +175,8 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             }
             return "";
         };
-        final CompletionHandler<String> finish = result -> {
+        final CompletionHandler<String> finish = result ->
+        {
             textArea.setText(result);
             status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
             // highlighter.formatText(textArea);
@@ -192,7 +194,8 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             return;
         }
         
-        final Callable<String> call = () -> {
+        final Callable<String> call = () ->
+        {
             try
             {
                 agent.getInterpreter().eval(contents);

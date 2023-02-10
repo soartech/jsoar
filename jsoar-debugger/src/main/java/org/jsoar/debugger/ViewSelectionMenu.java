@@ -60,7 +60,8 @@ public class ViewSelectionMenu
                 item.setAccelerator(KeyStroke.getKeyStroke(ks));
             }
             
-            item.addActionListener(e -> {
+            item.addActionListener(e ->
+            {
                 view.setVisible(true);
                 view.toFront();
                 view.activate();

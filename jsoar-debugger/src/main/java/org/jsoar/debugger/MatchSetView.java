@@ -131,7 +131,8 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     public void refresh(boolean afterInitSoar)
     {
         final Callable<MatchSet> matchCall = () -> agent.getAgent().getMatchSet();
-        final CompletionHandler<MatchSet> finish = result -> {
+        final CompletionHandler<MatchSet> finish = result ->
+        {
             entryList.setModel(SwingTools.addAll(new DefaultListModel<MatchSetEntry>(), result.getEntries()));
             wmeModel.setWmes(null);
             

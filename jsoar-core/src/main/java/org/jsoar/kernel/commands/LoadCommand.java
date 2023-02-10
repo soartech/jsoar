@@ -78,7 +78,8 @@ public class LoadCommand extends PicocliSoarCommand
         @Parameters(arity = "0..*", description = "File names")
         String[] fileNames;
         
-        private final SoarEventListener eventListener = event -> {
+        private final SoarEventListener eventListener = event ->
+        {
             if(event instanceof ProductionAddedEvent)
             {
                 parent.sourceCommand.topLevelState.productionAdded(

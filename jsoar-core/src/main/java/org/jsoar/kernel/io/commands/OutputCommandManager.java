@@ -34,7 +34,8 @@ public class OutputCommandManager
     {
         commandHandlers = Maps.newConcurrentMap();
         this.eventManager = eventManager;
-        this.listener = soarEvent -> {
+        this.listener = soarEvent ->
+        {
             OutputEvent event = (OutputEvent) soarEvent;
             
             Collection<Wme> pendingCommands = Collections2.filter(event.getInputOutput().getPendingCommands(), new ValidityPredicate());

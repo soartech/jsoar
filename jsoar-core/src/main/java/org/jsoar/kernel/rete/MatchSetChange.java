@@ -121,12 +121,15 @@ public class MatchSetChange
                 {
                     
                     if(lowest_goal_wme == null)
+                    {
                         lowest_goal_wme = tok.w;
-                    
+                    }
                     else
                     {
                         if(tok.w.id.level > lowest_goal_wme.id.level)
+                        {
                             lowest_goal_wme = tok.w;
+                        }
                     }
                 }
                 

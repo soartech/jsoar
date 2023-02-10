@@ -753,7 +753,9 @@ public class SoarReteListener implements ReteListener
             if(recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 if(decider.active_goal.goalInfo.ms_o_assertions.isEmpty())
+                {
                     return null;
+                }
                 
                 msc = decider.active_goal.goalInfo.ms_o_assertions.pop();
                 ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
@@ -762,7 +764,9 @@ public class SoarReteListener implements ReteListener
             {
                 /* IE PRODS */
                 if(decider.active_goal.goalInfo.ms_i_assertions.isEmpty())
+                {
                     return null;
+                }
                 
                 msc = decider.active_goal.goalInfo.ms_i_assertions.pop();
                 ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
@@ -843,10 +847,14 @@ public class SoarReteListener implements ReteListener
         
         /* initialization condition (2.107/2.111) */
         if(decider.active_level == 0)
+        {
             return null;
+        }
         
         if(decider.active_goal.goalInfo.ms_retractions.isEmpty())
+        {
             return null;
+        }
         
         // remove from the Waterfall-specific list */
         final MatchSetChange msc = decider.active_goal.goalInfo.ms_retractions.pop();
@@ -879,7 +887,9 @@ public class SoarReteListener implements ReteListener
     public Instantiation get_next_nil_goal_retraction()
     {
         if(nil_goal_retractions.isEmpty())
+        {
             return null;
+        }
         
         // Remove this retraction from the NIL goal list
         final MatchSetChange msc = nil_goal_retractions.pop();
@@ -910,8 +920,10 @@ public class SoarReteListener implements ReteListener
         // all goals in Waterfall/Operand2
         
         if(!nil_goal_retractions.isEmpty())
+        {
             return true;
-            
+        }
+        
         // Loop from bottom to top because we expect activity at
         // the bottom usually
         
@@ -921,7 +933,9 @@ public class SoarReteListener implements ReteListener
             // return TRUE
             if(!goal.goalInfo.ms_o_assertions.isEmpty() || !goal.goalInfo.ms_i_assertions.isEmpty()
                     || !goal.goalInfo.ms_retractions.isEmpty())
+            {
                 return true;
+            }
         }
         
         /*
@@ -1007,7 +1021,9 @@ public class SoarReteListener implements ReteListener
                 // assertions at different levels. See 2.110 in the OPERAND-CHANGE-LOG.
                 printer.print("  %s [%s] ", tmp.sym, tmp.goal);
                 if(tmp.count > 1)
+                {
                     printer.print("(%d)", tmp.count);
+                }
                 printer.print("\n");
             }
         }
@@ -1045,11 +1061,17 @@ public class SoarReteListener implements ReteListener
                 // inspected, even though there can be multiple assertions at
                 // different levels. See 2.110 in the OPERAND-CHANGE-LOG.
                 if(tmp.goal != null)
+                {
                     printer.print(" [%s] ", tmp.goal);
+                }
                 else
+                {
                     printer.print(" [NIL] ");
+                }
                 if(tmp.count > 1)
+                {
                     printer.print("(%d)", tmp.count);
+                }
                 printer.print("\n");
             }
         }

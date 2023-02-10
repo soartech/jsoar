@@ -126,9 +126,13 @@ public class CSoarTest implements Test
         
         if(settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)
+        {
             agent.RunSelfForever();
+        }
         else
+        {
             agent.RunSelf(settings.getDecisionCycles().get(0));
+        }
         
         cpuTime = getCPUTime();
         kernelTime = getKernelTime();
@@ -218,7 +222,9 @@ public class CSoarTest implements Test
     private long getMemory()
     {
         if(agent == null)
+        {
             return 0;
+        }
         
         String result = agent.ExecuteCommandLine("allocate");
         
@@ -285,7 +291,9 @@ public class CSoarTest implements Test
     private double getKernelTime()
     {
         if(agent == null)
+        {
             return -1.0;
+        }
         
         String result = agent.ExecuteCommandLine("stats");
         
@@ -296,7 +304,9 @@ public class CSoarTest implements Test
             String s = splitString.get(i);
             
             if(s == null)
+            {
                 return -1.0;
+            }
             
             if(s.equals("Kernel") && splitString.size() >= (i + 4))
             {
@@ -323,7 +333,9 @@ public class CSoarTest implements Test
     private double getCPUTime()
     {
         if(agent == null)
+        {
             return -1.0;
+        }
         
         String result = agent.ExecuteCommandLine("stats");
         
@@ -334,7 +346,9 @@ public class CSoarTest implements Test
             String s = splitString.get(i);
             
             if(s == null)
+            {
                 return -1.0;
+            }
             
             if(s.equals("Total") && splitString.size() >= (i + 4))
             {
@@ -361,7 +375,9 @@ public class CSoarTest implements Test
     private int getDecisions()
     {
         if(agent == null)
+        {
             return -1;
+        }
         
         String result = agent.ExecuteCommandLine("stats");
         
@@ -372,7 +388,9 @@ public class CSoarTest implements Test
             String s = splitString.get(i);
             
             if(s == null)
+            {
                 return -1;
+            }
             
             if(s.equals("decisions") && i > 0)
             {

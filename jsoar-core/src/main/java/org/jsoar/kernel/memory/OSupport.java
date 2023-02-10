@@ -99,7 +99,9 @@ public class OSupport
                 {
                     add_to_os_tc_if_needed(pref.value);
                     if(pref.type.isBinary())
+                    {
                         add_to_os_tc_if_needed(pref.referent);
+                    }
                 }
                 for(WmeImpl w = s.getWmes(); w != null; w = w.next)
                 {

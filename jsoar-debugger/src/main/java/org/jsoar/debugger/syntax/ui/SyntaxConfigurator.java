@@ -108,7 +108,8 @@ public class SyntaxConfigurator
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             syntaxList.add(sep);
             comp.putClientProperty("JComponent.sizeVariant", "large");
-            comp.addDeleteButtonListener(e -> {
+            comp.addDeleteButtonListener(e ->
+            {
                 syntaxList.remove(comp);
                 syntaxList.remove(sep);
                 settings.getSyntaxPatterns().remove(pattern);
@@ -152,13 +153,15 @@ public class SyntaxConfigurator
         frame.getContentPane().add(panel);
         frame.pack();
         
-        btnAddRegex.addActionListener(e -> {
+        btnAddRegex.addActionListener(e ->
+        {
             final SyntaxPattern newPattern = new SyntaxPattern();
             settings.getSyntaxPatterns().add(newPattern);
             final SyntaxPatternComponent comp = new SyntaxPatternComponent(newPattern, settings.componentStyles.keySet(), debugger);
             final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
             
-            comp.addDeleteButtonListener(e1 -> {
+            comp.addDeleteButtonListener(e1 ->
+            {
                 syntaxList.remove(comp);
                 syntaxList.remove(sep);
                 settings.getSyntaxPatterns().remove(newPattern);
@@ -169,7 +172,8 @@ public class SyntaxConfigurator
             onSyntaxChanged();
         });
         
-        btnAddStyle.addActionListener(e -> {
+        btnAddStyle.addActionListener(e ->
+        {
             TextStyle newStyle = new TextStyle();
             String key = "new style";
             int i = 1;
@@ -182,7 +186,8 @@ public class SyntaxConfigurator
             addStyleComponent(key, newStyle);
         });
         
-        btnReloadDefaults.addActionListener(e -> {
+        btnReloadDefaults.addActionListener(e ->
+        {
             int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to reload the default syntax? This will erase any customizations.", "Are you sure?",
                     JOptionPane.YES_NO_OPTION);
             if(dialogResult == JOptionPane.YES_OPTION)
@@ -198,7 +203,8 @@ public class SyntaxConfigurator
                     final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
                     syntaxList.add(sep);
                     comp.putClientProperty("JComponent.sizeVariant", "large");
-                    comp.addDeleteButtonListener(e1 -> {
+                    comp.addDeleteButtonListener(e1 ->
+                    {
                         syntaxList.remove(comp);
                         syntaxList.remove(sep);
                         syntaxSettings.getSyntaxPatterns().remove(pattern);
@@ -225,19 +231,22 @@ public class SyntaxConfigurator
         
         btnApply.addActionListener(e -> parent.reformatText());
         
-        btnOk.addActionListener(e -> {
+        btnOk.addActionListener(e ->
+        {
             parent.saveSyntax();
             parent.reformatText();
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         
-        btnCancel.addActionListener(e -> {
+        btnCancel.addActionListener(e ->
+        {
             parent.reloadSyntax();
             parent.reformatText();
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         
-        ChangeListener colorChangeListener = e -> {
+        ChangeListener colorChangeListener = e ->
+        {
             settings.setForeground(btnForegroundColorDefault.getChooser().getColor());
             settings.setBackground(btnBackgroundColorDefault.getChooser().getColor());
             settings.setSelection(btnSelectionColorDefault.getChooser().getColor());
@@ -252,7 +261,8 @@ public class SyntaxConfigurator
         final String key = newStyleName;
         final TextStyleComponent comp = new TextStyleComponent(key, textStyle);
         final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-        comp.addDeleteButtonListener(e -> {
+        comp.addDeleteButtonListener(e ->
+        {
             styleList.remove(comp);
             styleList.remove(sep);
             syntaxSettings.getComponentStyles().remove(key);
@@ -289,7 +299,9 @@ public class SyntaxConfigurator
         {
             Component component = syntaxList.getComponent(i);
             if(!(component instanceof SyntaxPatternComponent))
+            {
                 continue;
+            }
             SyntaxPatternComponent patternComponent = (SyntaxPatternComponent) component;
             patternComponent.resetStyleNames(syntaxSettings.componentStyles.keySet());
         }

@@ -188,7 +188,9 @@ public class Preference implements Formattable
             formatter.format(" %s", referent);
         }
         if(o_supported)
+        {
             formatter.format("  :O ");
+        }
         formatter.format(")\n");
         
         /*
@@ -379,7 +381,9 @@ public class Preference implements Formattable
         }
         pref.next_clone = pref.prev_clone = null;
         if(any_clone != null)
+        {
             possibly_deallocate_preference_and_clones(any_clone, recMemory);
+        }
         if(pref.reference_count == 0)
         {
             deallocate_preference(pref, recMemory);

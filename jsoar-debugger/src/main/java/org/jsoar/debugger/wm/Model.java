@@ -209,7 +209,8 @@ class Model
     
     private void expandId(final Object id, final WmeRow.Value parent, CompletionHandler<Void> finish)
     {
-        final Callable<Void> start = () -> {
+        final Callable<Void> start = () ->
+        {
             synchronized (lock)
             {
                 expandIdInternal(id, parent);
@@ -436,7 +437,8 @@ class Model
     
     public void update(CompletionHandler<Void> finish)
     {
-        final Callable<Void> begin = () -> {
+        final Callable<Void> begin = () ->
+        {
             synchronized (lock)
             {
                 ts++;
@@ -468,7 +470,8 @@ class Model
         }
         else
         {
-            return () -> {
+            return () ->
+            {
                 final ContextVariableInfo info = agent.getAgent().getContextVariableInfo(var.toString());
                 final Symbol value = info.getValue();
                 return value != null ? value.asIdentifier() : null;

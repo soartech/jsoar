@@ -629,7 +629,9 @@ public class DecisionCycle
             afterElaboration();
             
             if(this.go_type == GoType.GO_ELABORATION)
+            {
                 break;
+            }
         }
         
         // If we've finished APPLY, then current_phase will be equal to OUTPUT
@@ -730,7 +732,9 @@ public class DecisionCycle
             afterElaboration();
             
             if(this.go_type == GoType.GO_ELABORATION)
+            {
                 break;
+            }
         }
         
         /*
@@ -896,13 +900,17 @@ public class DecisionCycle
         go_type = GoType.GO_ELABORATION;
         // need next line or runs only the input phases for "d 1" after init-soar
         if(d_cycles_at_start == 0)
+        {
             d_cycles_at_start++;
+        }
         
         while(!stop_soar)
         {
             elapsed_cycles++;
             if(n == elapsed_cycles)
+            {
                 break;
+            }
             do_one_top_level_phase();
         }
         go_type = save_go_type;
@@ -925,10 +933,12 @@ public class DecisionCycle
         stop_soar = false;
         reason_for_stopping = null;
         int count = 0;
+        
         while(!stop_soar && n != 0)
         {
             boolean was_output_phase = current_phase.get() == Phase.OUTPUT;
             do_one_top_level_phase();
+            
             if(was_output_phase)
             {
                 if(io.isOutputLinkChanged())
@@ -969,11 +979,17 @@ public class DecisionCycle
         long d_cycles_at_start = d_cycle_count.value.get();
         /* need next line or runs only the input phases for "d 1" after init-soar */
         if(d_cycles_at_start == 0)
+        {
             d_cycles_at_start++;
+        }
+        
         while(!stop_soar)
         {
             if(n == (d_cycle_count.value.get() - d_cycles_at_start))
+            {
                 break;
+            }
+            
             do_one_top_level_phase();
         }
         
@@ -1033,10 +1049,12 @@ public class DecisionCycle
         {
             return;
         }
+        
         startTopLevelTimers();
         
         stop_soar = false;
         reason_for_stopping = null;
+        
         while(!stop_soar)
         {
             do_one_top_level_phase();

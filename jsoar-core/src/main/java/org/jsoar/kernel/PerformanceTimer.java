@@ -55,9 +55,13 @@ public class PerformanceTimer
                     badArg = true;
                 }
                 if(numRuns <= 0)
+                {
                     badArg = true;
+                }
                 if(badArg)
+                {
                     System.out.println("Positive integer argument required for --runs option");
+                }
             }
         }
         
@@ -97,12 +101,15 @@ public class PerformanceTimer
             {
                 decisions = Integer.valueOf(arg);
                 if(decisions == 0)
+                {
                     decisions = -1;
+                }
             }
             else if(runs)
             {
                 runs = false;
-                /* skip arg */ }
+                /* skip arg */
+            }
             else if("--raw".equals(arg))
             {
                 raw = true;

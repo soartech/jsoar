@@ -123,7 +123,8 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         
         this.getContentPane().add(p);
         
-        this.agent.execute(() -> {
+        this.agent.execute(() ->
+        {
             this.agent.getAgent().getEvents().addListener(ProductionAddedEvent.class, eventListener);
             this.agent.getAgent().getEvents().addListener(ProductionExcisedEvent.class, eventListener);
         });
@@ -142,8 +143,10 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             // on the swing thread, schedule another Soar thread execution
             // we do this through the swing thread so it ends up at the end of the Soar agent queue -- otherwise it will execute right away,
             // and we don't want it to execute until after the productions are loaded (e.g., the source command completes)
-            SwingUtilities.invokeLater(() -> {
-                agent.execute(() -> {
+            SwingUtilities.invokeLater(() ->
+            {
+                agent.execute(() ->
+                {
                     // by this time, the production sourcing should be complete, so schedule the refresh on the swing thread and re-register for the events
                     SwingUtilities.invokeLater(() -> refresh(false));
                     agent.getAgent().getEvents().addListener(ProductionAddedEvent.class, eventListener);
@@ -209,7 +212,8 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     {
         final Callable<Map<ProductionType, Integer>> call = () -> agent.getProductions().getProductionCounts();
         
-        final CompletionHandler<Map<ProductionType, Integer>> finish = counts -> {
+        final CompletionHandler<Map<ProductionType, Integer>> finish = counts ->
+        {
             final String spaces = "&nbsp;&nbsp;&nbsp;";
             final StringBuilder b = new StringBuilder("<html>");
             b.append("<b>Total:</b>&nbsp;" + model.getRowCount() + spaces);

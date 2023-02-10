@@ -218,7 +218,9 @@ public class ParseSelectedText
         m_SelectionStart = selectionStart;
         
         if(m_FullText != null && m_FullText.length() > 0)
+        {
             parseTokens();
+        }
     }
     
     public String toString()
@@ -245,7 +247,9 @@ public class ParseSelectedText
         {
             int index = string.indexOf(chars[i], startPos);
             if(index != -1 && (min == -1 || index < min))
+            {
                 min = index;
+            }
         }
         
         return min;
@@ -258,7 +262,9 @@ public class ParseSelectedText
         {
             int index = string.lastIndexOf(chars[i], startPos);
             if(index > max)
+            {
                 max = index;
+            }
         }
         
         return max;
@@ -267,15 +273,21 @@ public class ParseSelectedText
     protected boolean isProductionNameQuickTest(String token)
     {
         if(token == null || token.length() == 0)
+        {
             return false;
+        }
         
         // Productions almost always start with a lower case character
         if(token.charAt(0) < 'a' || token.charAt(0) > 'z')
+        {
             return false;
+        }
         
         // Production names almost always include multiple *'s
         if(token.indexOf('*') == -1)
+        {
             return false;
+        }
         
         return true;
     }
@@ -283,7 +295,9 @@ public class ParseSelectedText
     protected boolean isProductionNameAskKernel(JSoarDebugger debugger, String token)
     {
         if(token == null || token.length() == 0)
+        {
             return false;
+        }
         
         // Go through prod table model so we can call it safely from any thread.
         final ProductionTableModel prods = Adaptables.adapt(debugger, ProductionTableModel.class);
@@ -293,7 +307,9 @@ public class ParseSelectedText
     protected boolean isAttribute(String token)
     {
         if(token == null || token.length() == 0)
+        {
             return false;
+        }
         
         // Attributes start with "^"
         return token.startsWith("^");
@@ -302,25 +318,35 @@ public class ParseSelectedText
     protected String isID(String token)
     {
         if(token == null || token.length() == 0)
+        {
             return null;
+        }
         
         // There can be leading preference symbols in some cases
         int startId = 0;
         if(token.charAt(0) == '@' ||
                 token.charAt(0) == '<' || token.charAt(0) == '>' ||
                 token.charAt(0) == '=' || token.charAt(0) == '+' || token.charAt(0) == '-')
+        {
             startId = 1;
+        }
         
         if(token.length() <= startId)
+        {
             return null;
+        }
         
         // ID's start with capital letters
         if(token.charAt(startId) < 'A' || token.charAt(startId) > 'Z')
+        {
             return null;
+        }
         
         // ID's end with numbers
         if(token.charAt(token.length() - 1) < '0' || token.charAt(token.length() - 1) > '9')
+        {
             return null;
+        }
         
         return token.substring(startId);
     }
@@ -339,15 +365,21 @@ public class ParseSelectedText
         String curr = m_Tokens[kCurrToken];
         
         if(curr == null)
+        {
             return null;
-            
+        }
+        
         // Strip bars if they are present (e.g. |print-NAME-production| => print-NAME-production)
         // One could argue that the kernel should handle this but currently it fails to do so, so we'll handle it here.
         if(curr.length() > 2 && curr.charAt(0) == '|' && curr.charAt(curr.length() - 1) == '|')
+        {
             curr = curr.substring(1, curr.length() - 1);
+        }
         
         if(isProductionNameQuickTest(curr))
+        {
             return new SelectedProduction(curr);
+        }
         
         if(isAttribute(curr))
         {
@@ -360,9 +392,13 @@ public class ParseSelectedText
             
             // Move to the start of the ID
             if(openParens != -1)
+            {
                 openParens++;
+            }
             if(colon != -1)
+            {
                 colon += 2;
+            }
             
             int idPos = Math.max(openParens, colon);
             
@@ -375,7 +411,9 @@ public class ParseSelectedText
                 String foundId = isID(id);
                 
                 if(foundId != null)
+                {
                     return new SelectedWme(foundId, curr, m_Tokens[kNextToken]);
+                }
             }
             
             // Couldn't find an ID to connect to this wme.
@@ -391,7 +429,9 @@ public class ParseSelectedText
         // As a final test check the string against the real list of production names in the kernel
         // We do this last so that most RHS clicks this doesn't come up.
         if(isProductionNameAskKernel(debugger, curr))
+        {
             return new SelectedProduction(curr);
+        }
         
         return new SelectedUnknown(curr);
     }
@@ -399,9 +439,13 @@ public class ParseSelectedText
     protected boolean isWhiteSpace(char ch)
     {
         for(int i = 0; i < kWhiteSpaceChars.length; i++)
+        {
             if(kWhiteSpaceChars[i] == ch)
+            {
                 return true;
-            
+            }
+        }
+        
         return false;
     }
     
@@ -412,10 +456,14 @@ public class ParseSelectedText
         
         // Start by skipping over any white space to get to real content
         while(m_SelectionStart < len && isWhiteSpace(m_FullText.charAt(m_SelectionStart)))
+        {
             m_SelectionStart++;
+        }
         
         if(m_SelectionStart == len)
+        {
             return;
+        }
         
         int startPos = m_SelectionStart;
         
@@ -443,11 +491,17 @@ public class ParseSelectedText
         
         // Extract the three tokens
         if(back1 != -1)
+        {
             m_Tokens[kPrevToken] = m_FullText.substring(back2 + 1, back1);
+        }
         if(fore2 != -1 && fore1 < fore2)
+        {
             m_Tokens[kNextToken] = m_FullText.substring(fore1 + 1, fore2);
+        }
         if(fore1 != -1)
+        {
             m_Tokens[kCurrToken] = m_FullText.substring(back1 + 1, fore1);
+        }
         
         // System.out.println(toString()) ;
     }

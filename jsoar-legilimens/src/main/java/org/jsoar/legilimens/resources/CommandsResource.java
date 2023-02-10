@@ -31,7 +31,8 @@ public class CommandsResource extends BaseAgentResource
         final Form form = new Form(entity);
         final String command = form.getFirstValue("command");
         
-        final Callable<String> callable = () -> {
+        final Callable<String> callable = () ->
+        {
             final Printer printer = agent.getPrinter();
             printer.startNewLine().print(agent.getName() + "> " + command);
             String result;

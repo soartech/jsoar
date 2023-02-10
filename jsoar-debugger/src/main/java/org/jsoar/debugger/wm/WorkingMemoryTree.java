@@ -133,7 +133,8 @@ public class WorkingMemoryTree extends JComponent
                 }
             }
         });
-        addMouseWheelListener(e -> {
+        addMouseWheelListener(e ->
+        {
             synchronized (model.lock)
             {
                 WorkingMemoryTree.this.mouseScrolled(e);
@@ -443,7 +444,8 @@ public class WorkingMemoryTree extends JComponent
         {
             add(asRoot.deleteButton);
             validate();
-            asRoot.deleteButton.addActionListener(e -> {
+            asRoot.deleteButton.addActionListener(e ->
+            {
                 remove(asRoot.deleteButton);
                 validate();
                 model.removeRoot(asRoot.key, repaint);
@@ -817,7 +819,8 @@ public class WorkingMemoryTree extends JComponent
         
         final ThreadedAgent agent = ThreadedAgent.create();
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
-        agent.executeAndWait(() -> {
+        agent.executeAndWait(() ->
+        {
             SoarCommands.source(agent.getInterpreter(),
                     "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
             // agent.getInterpreter().eval(
@@ -835,7 +838,8 @@ public class WorkingMemoryTree extends JComponent
         final JPanel panel = new JPanel(new BorderLayout());
         
         final JTextField idField = new JTextField("S1");
-        idField.addActionListener(e -> {
+        idField.addActionListener(e ->
+        {
             final String idString = idField.getText().trim();
             final Object idOrVar;
             if(!idString.startsWith("<"))
@@ -880,7 +884,8 @@ public class WorkingMemoryTree extends JComponent
     
     public static void main(String[] args)
     {
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             try
             {
                 swingMain();

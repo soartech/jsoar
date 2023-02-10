@@ -145,15 +145,23 @@ public class PrintPreferencesCommand
             for(Slot s = id.slots; s != null; s = s.next)
             {
                 if(s.attr == predefinedSyms.operator_symbol)
+                {
                     printer.print("Preferences for %s ^%s:", s.id, s.attr);
+                }
                 else
+                {
                     printer.print("Support for %s ^%s:\n", s.id, s.attr);
+                }
+                
                 for(PreferenceType pt : PreferenceType.values())
                 {
                     if(s.getPreferencesByType(pt) != null)
                     {
                         if(s.isa_context_slot)
+                        {
                             printer.print("\n%ss:\n", pt.getDisplayName());
+                        }
+                        
                         for(Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
                         {
                             print_preference_and_source(agent, printer, p);
@@ -162,13 +170,20 @@ public class PrintPreferencesCommand
                 }
             }
             if(id.goalInfo != null && id.goalInfo.getImpasseWmes() != null)
+            {
                 printer.print("Arch-created wmes for %s :\n", id);
+            }
+            
             for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
             {
                 printer.print("%s", w);
             }
+            
             if(id.getInputWmes() != null)
+            {
                 printer.print("Input (IO) wmes for %s :\n", id);
+            }
+            
             for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             {
                 printer.print("%s", w);
@@ -187,11 +202,17 @@ public class PrintPreferencesCommand
                 if(w.getValue() == id)
                 {
                     if(w.getValue() == predefinedSyms.operator_symbol)
+                    {
                         printer.print("Preferences for ");
+                    }
                     else
+                    {
                         printer.print("Support for ");
+                    }
+                    
                     printer.print("(%d: %s ^%s %s)\n", w.getTimetag(), w.getIdentifier(), w.getAttribute(), w.getValue());
                     Iterator<Preference> it = w.getPreferences();
+                    
                     if(!it.hasNext())
                     {
                         printer.print("    This is an architecture or input wme and has no prefs.\n");
@@ -252,15 +273,19 @@ public class PrintPreferencesCommand
                 int count = 0;
                 double total_probability = 0;
                 final Exploration exploration = Adaptables.adapt(agent, Exploration.class);
+                
                 // add up positive numeric values, count candidates
                 for(Preference p = cand.value; p != null; p = p.next_candidate)
                 {
                     exploration.exploration_compute_value_of_candidate(p, s, 0);
                     ++count;
                     if(p.numeric_value > 0)
+                    {
                         total_probability += p.numeric_value;
+                    }
                 }
                 assert (count != 0);
+                
                 for(Preference p = cand.value; p != null; p = p.next_candidate)
                 {
                     // if total probability is zero, fall back to random
@@ -293,6 +318,7 @@ public class PrintPreferencesCommand
         final TraceFormats traceFormats = Adaptables.adapt(agnt, TraceFormats.class);
         final PredefinedSymbols predefinedSyms = Adaptables.adapt(agnt, PredefinedSymbols.class);
         printer.print("  ");
+        
         if(pref.attr == predefinedSyms.operator_symbol)
         {
             traceFormats.print_object_trace(printer.getWriter(), pref.value);
@@ -301,19 +327,33 @@ public class PrintPreferencesCommand
         {
             printer.print("(%s ^%s %s) ", pref.id, pref.attr, pref.value);
         }
+        
         if(pref.attr == predefinedSyms.operator_symbol)
         {
             printer.print(" %c", pref.type.getIndicator());
         }
+        
         if(pref.type.isBinary())
+        {
             traceFormats.print_object_trace(printer.getWriter(), pref.referent);
+        }
+        
         if(pref.o_supported)
+        {
             printer.print(" :O ");
+        }
         else
+        {
             printer.print(" :I ");
+        }
+        
         if(selection_probability != null)
+        {
             printer.print("(%.1f%%)", selection_probability * 100.0);
+        }
+        
         printer.print("\n");
+        
         if(print_prod)
         {
             printer.print("    From ");

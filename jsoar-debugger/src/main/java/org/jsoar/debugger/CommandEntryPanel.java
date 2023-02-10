@@ -316,11 +316,14 @@ public class CommandEntryPanel extends JPanel implements Disposable
         completionsList.setSelectedIndex(selectedIndex);
         completionsList.ensureIndexIsVisible(selectedIndex);
         String command = completionsList.getSelectedValue();
-        debugger.getAgent().execute(() -> {
+        debugger.getAgent().execute(() ->
+        {
             return debugger.getAgent().getInterpreter().findCommand(command);
-        }, commandLine -> {
+        }, commandLine ->
+        {
             String help = getHelp(commandLine);
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() ->
+            {
                 if(commandLine == null)
                 {
                     hideHelpTooltip();
@@ -354,7 +357,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             return;
         }
         
-        this.debugger.getAgent().execute(() -> {
+        this.debugger.getAgent().execute(() ->
+        {
             String[] commands = null;
             
             CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(trimmedCommand);
@@ -373,7 +377,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 String help = getHelp(commandLine);
                 
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(() ->
+                {
                     try
                     {
                         if(showCompletions)
@@ -394,7 +399,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }
             else
             {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(() ->
+                {
                     hideCompletions();
                     hideHelpTooltip();
                 });
@@ -499,7 +505,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
         final String command = field.getEditor().getItem().toString().trim();
         if(command.length() > 0)
         {
-            debugger.getAgent().execute(() -> {
+            debugger.getAgent().execute(() ->
+            {
                 debugger.getAgent().execute(new CommandLineRunnable(debugger, command), null);
                 return null;
             }, null);
@@ -569,7 +576,8 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
         else
         {
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() ->
+            {
                 hideHelpTooltipUnsafe();
             });
         }

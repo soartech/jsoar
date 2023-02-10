@@ -141,7 +141,8 @@ public class SyntaxPatternComponent extends JPanel
         this.add(jPanel, constraints);
         
         // handlers
-        btnUpdate.addActionListener(e -> {
+        btnUpdate.addActionListener(e ->
+        {
             SyntaxPattern testSyntax = new SyntaxPattern();
             testSyntax.setRegex(txtRegex.getText());
             testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);

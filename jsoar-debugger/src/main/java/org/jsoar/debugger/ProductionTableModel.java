@@ -47,7 +47,8 @@ public class ProductionTableModel extends AbstractTableModel
         eventManager.addListener(ProductionExcisedEvent.class, listener);
         
         // TODO does this need to block for any reason?
-        this.agent.execute(() -> {
+        this.agent.execute(() ->
+        {
             synchronized (productions)
             {
                 for(ProductionType pt : ProductionType.values())
@@ -221,7 +222,8 @@ public class ProductionTableModel extends AbstractTableModel
         @Override
         public void onEvent(final SoarEvent event)
         {
-            Runnable runnable = () -> {
+            Runnable runnable = () ->
+            {
                 if(event instanceof ProductionAddedEvent)
                 {
                     handleProductionAdded(((ProductionAddedEvent) event).getProduction());

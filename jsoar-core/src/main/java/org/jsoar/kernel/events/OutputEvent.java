@@ -112,8 +112,12 @@ public class OutputEvent extends AbstractInputOutputEvent
     public Symbol getOutputValue(Identifier id, Symbol attr)
     {
         for(Wme iw : wmes)
+        {
             if(((id == null) || (id == iw.getIdentifier())) && ((attr == null) || (attr == iw.getAttribute())))
+            {
                 return iw.getValue();
+            }
+        }
         return null;
     }
     

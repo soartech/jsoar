@@ -137,20 +137,34 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             NodeUniqueRow other = (NodeUniqueRow) obj;
             if(attribute_s_id != other.attribute_s_id)
+            {
                 return false;
+            }
             if(wc_id != other.wc_id)
+            {
                 return false;
+            }
             if(parent_n_id != other.parent_n_id)
+            {
                 return false;
+            }
             if(value_s_id != other.value_s_id)
+            {
                 return false;
+            }
             return true;
         }
     }
@@ -240,21 +254,33 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             SymbolsStringRow other = (SymbolsStringRow) obj;
             if(s_id != other.s_id)
+            {
                 return false;
+            }
             if(symbol_value == null)
             {
                 if(other.symbol_value != null)
+                {
                     return false;
+                }
             }
             else if(!symbol_value.equals(other.symbol_value))
+            {
                 return false;
+            }
             return true;
         }
     }
@@ -363,22 +389,38 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             WMEsIdentifierRow other = (WMEsIdentifierRow) obj;
             if(last_episode_id != other.last_episode_id)
+            {
                 return false;
+            }
             if(wi_id != other.wi_id)
+            {
                 return false;
+            }
             if(parent_n_id != other.parent_n_id)
+            {
                 return false;
+            }
             if(child_n_id != other.child_n_id)
+            {
                 return false;
+            }
             if(attribute_s_id != other.attribute_s_id)
+            {
                 return false;
+            }
             return true;
         }
     }

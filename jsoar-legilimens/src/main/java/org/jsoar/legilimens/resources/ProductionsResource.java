@@ -73,7 +73,8 @@ public class ProductionsResource extends BaseAgentResource
     @Get("txt")
     public Representation getTextRepresentation()
     {
-        final Callable<String> callable = () -> {
+        final Callable<String> callable = () ->
+        {
             final StringWriter writer = new StringWriter();
             final Printer printer = new Printer(writer);
             printer.print("# Generated from JSoar agent at %s\n", new Date());

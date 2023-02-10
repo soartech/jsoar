@@ -82,7 +82,9 @@ public class Conditions
                 {
                     PositiveCondition pc = cond.asPositiveCondition();
                     if(pc == null)
+                    {
                         continue;
+                    }
                     if(Tests.test_includes_equality_test_for_symbol(pc.id_test, var.item))
                     {
                         if(Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, true))
@@ -131,7 +133,9 @@ public class Conditions
     public static void print_condition_list(Printer printer, Condition conds, int indent, boolean internal)
     {
         if(conds == null)
+        {
             return;
+        }
         
         // build dl_list of all the actions
         LinkedList<Condition> conds_not_yet_printed = new LinkedList<Condition>();

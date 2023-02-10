@@ -259,9 +259,13 @@ public class Backtracer
             temp_explain_backtrace = new Backtrace();
             temp_explain_backtrace.trace_cond = trace_cond; /* Not copied yet */
             if(trace_cond == null) /* Backtracing for a result */
+            {
                 temp_explain_backtrace.result = true;
+            }
             else
+            {
                 temp_explain_backtrace.result = false;
+            }
             
             temp_explain_backtrace.grounds = null;
             temp_explain_backtrace.potentials = null;
@@ -273,8 +277,10 @@ public class Backtracer
         }
         
         if(!inst.reliable)
+        {
             reliable.value = false;
-            
+        }
+        
         // mark transitive closure of each higher goal id that was tested in
         // the id field of a top-level positive condition
         Marker tc = DefaultMarker.create(); // use this to mark ids in the ground set
@@ -285,7 +291,9 @@ public class Backtracer
         {
             final PositiveCondition pc = c.asPositiveCondition();
             if(pc == null)
+            {
                 continue;
+            }
             
             final IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
             
@@ -298,7 +306,9 @@ public class Backtracer
                     // if we already saw it before, we're going to have to go
                     // back and make another pass to get the complete TC
                     if(valueId.tc_number == tc2)
+                    {
                         need_another_pass = true;
+                    }
                     valueId.tc_number = tc;
                 }
             }
@@ -312,7 +322,9 @@ public class Backtracer
                     // if we already saw it before, we're going to have to go
                     // back and make another pass to get the complete TC
                     if(valueId.tc_number == tc2)
+                    {
                         need_another_pass = true;
+                    }
                     valueId.tc_number = tc;
                 }
             }
@@ -334,16 +346,22 @@ public class Backtracer
             {
                 PositiveCondition pc = c.asPositiveCondition();
                 if(pc == null)
+                {
                     continue;
+                }
                 if(pc.id_test.asEqualityTest().getReferent().asIdentifier().tc_number != tc)
+                {
                     continue;
+                }
                 IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if(valueId != null)
+                {
                     if(valueId.tc_number != tc)
                     {
                         valueId.tc_number = tc;
                         need_another_pass = true;
                     }
+                }
             }
         }
         
@@ -365,19 +383,25 @@ public class Backtracer
                 {
                     add_to_grounds(pc);
                     if(traceBacktracingOrExplain)
+                    {
                         grounds_to_print.push(c);
+                    }
                 }
                 else if(pc.bt().level <= grounds_level)
                 {
                     add_to_potentials(pc);
                     if(traceBacktracingOrExplain)
+                    {
                         pots_to_print.push(c);
+                    }
                 }
                 else
                 {
                     add_to_locals(pc);
                     if(traceBacktracingOrExplain)
+                    {
                         locals_to_print.push(c);
+                    }
                 }
             }
             else
@@ -385,13 +409,17 @@ public class Backtracer
                 // negative or nc cond's are either grounds or potentials
                 chunker.negated_set.add_to_chunk_cond_set(ChunkCondition.make_chunk_cond_for_condition(c));
                 if(traceBacktracingOrExplain)
+                {
                     negateds_to_print.push(c);
+                }
             }
         }
         
         // add new nots to the not set
         if(inst.nots != null)
+        {
             chunker.instantiations_with_nots.push(inst);
+        }
         
         /* Now record the sets of conditions. Note that these are not necessarily */
         /* the final resting place for these wmes. In particular potentials may */
@@ -399,8 +427,10 @@ public class Backtracer
         /* the list of wmes, this will do as a place to record them. */
         
         if(chunker.explain.isEnabled())
+        {
             chunker.explain.explain_add_temp_to_backtrace_list(temp_explain_backtrace, grounds_to_print, pots_to_print,
                     locals_to_print, negateds_to_print);
+        }
         
         // if tracing BT, print the resulting conditions, etc.
         if(traceBacktracing)

@@ -152,11 +152,17 @@ public class RhsSymbolValue extends AbstractRhsValue
     public boolean equals(Object obj)
     {
         if(this == obj)
+        {
             return true;
+        }
         if(obj == null)
+        {
             return false;
+        }
         if(!(obj instanceof RhsSymbolValue))
+        {
             return false;
+        }
         RhsSymbolValue other = (RhsSymbolValue) obj;
         
         return other.sym == sym;

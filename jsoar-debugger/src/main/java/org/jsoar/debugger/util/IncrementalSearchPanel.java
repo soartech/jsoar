@@ -124,7 +124,8 @@ public class IncrementalSearchPanel extends JPanel
         addonPanel.add(btnPrev, constraints);
         
         JCheckBox chkCase = new JCheckBox("Case Sensitive?");
-        chkCase.addItemListener(e -> {
+        chkCase.addItemListener(e ->
+        {
             searcher.setMatchCase(chkCase.isSelected());
             searcher.runNewSearch(searchField.getText());
         });
@@ -136,7 +137,8 @@ public class IncrementalSearchPanel extends JPanel
         addonPanel.add(chkCase, constraints);
         
         JCheckBox chkRegex = new JCheckBox("Regex?");
-        chkRegex.addItemListener(e -> {
+        chkRegex.addItemListener(e ->
+        {
             searcher.setUseRegex(chkRegex.isSelected());
             searcher.runNewSearch(searchField.getText());
         });

@@ -105,7 +105,8 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     @Override
     public void refresh(boolean afterInitSoar)
     {
-        final Callable<List<Entry>> start = () -> {
+        final Callable<List<Entry>> start = () ->
+        {
             final List<Goal> goals = debugger.getAgent().getAgent().getGoalStack();
             final List<Entry> result = new ArrayList<Entry>();
             for(Goal g : goals)

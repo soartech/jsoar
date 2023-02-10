@@ -47,7 +47,7 @@ public class Utils
     {
         
         // always treat unrecognized options as params, as there are a number of commands whose params can be preceded by a dash (e.g., srand with a negative number, log with negative numbers, debug
-            // time with another command with options, etc.).
+        // time with another command with options, etc.).
         commandLine.setUnmatchedOptionsArePositionalParams(true);
         
         commandLine.setOut(pw);
@@ -57,7 +57,10 @@ public class Utils
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray
                                                            // starting at the second arg
         if(exitCode != 0)
+        {
             throw new SoarException("Error executing command " + String.join(" ", args));
+        }
+        
         return Objects.toString(commandLine.getExecutionResult(), "");
     }
     

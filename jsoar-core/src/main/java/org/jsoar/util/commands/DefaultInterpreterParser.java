@@ -112,7 +112,9 @@ public class DefaultInterpreterParser
         skipWhitespace(reader);
         int c = read(reader);
         if(c == -1)
+        {
             return;
+        }
         if(c == '#')
         {
             skipToEndOfLine(reader);

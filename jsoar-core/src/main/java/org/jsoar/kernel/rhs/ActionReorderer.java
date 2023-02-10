@@ -123,9 +123,13 @@ public class ActionReorderer
         {
             /* --- reconstruct list of all actions --- */
             if(last_action != null)
+            {
                 last_action.next = remaining_actions;
+            }
             else
+            {
                 first_action = remaining_actions;
+            }
             
             // There are remaining_actions but none can be legally added
             String message = String.format("Error: production %s has a bad RHS--\n" +

@@ -1109,7 +1109,9 @@ public class DefaultSemanticMemory implements SemanticMemory
     private static void _smem_lti_from_test(Test t, Set<IdentifierImpl> valid_ltis)
     {
         if(Tests.isBlank(t))
+        {
             return;
+        }
         
         final EqualityTest eq = t.asEqualityTest();
         if(eq != null)
@@ -2694,7 +2696,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                         try
                         {
                             if(!actLtiGetRs.next())
+                            {
                                 throw new IllegalStateException("act_lti_get did not return a result");
+                            }
                             plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong(0 + 1), qrs.getLong(0 + 1)));
                         }
                         finally

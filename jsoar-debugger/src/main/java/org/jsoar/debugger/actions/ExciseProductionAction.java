@@ -61,7 +61,8 @@ public class ExciseProductionAction extends AbstractDebuggerAction
         
         final ThreadedAgent proxy = getApplication().getAgent();
         
-        final Callable<Void> call = () -> {
+        final Callable<Void> call = () ->
+        {
             for(Production p : prods)
             {
                 proxy.getProductions().exciseProduction(p, true);

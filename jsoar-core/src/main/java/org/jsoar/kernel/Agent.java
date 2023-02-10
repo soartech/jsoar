@@ -614,7 +614,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             stateCount++;
             
             if(stateCount > maxStates)
+            {
                 continue;
+            }
             
             try
             {

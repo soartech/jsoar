@@ -93,7 +93,8 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         Color background = highlighter.getPatterns().getBackground();
         Callable<String> matchCall = () -> safeGetMatchOutput(selection, background);
-        CompletionHandler<String> finish = result -> {
+        CompletionHandler<String> finish = result ->
+        {
             if(result != null && result.length() != 0)
             {
                 textArea.setText(result);

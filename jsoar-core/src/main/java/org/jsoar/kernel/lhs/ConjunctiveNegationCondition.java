@@ -75,29 +75,41 @@ public class ConjunctiveNegationCondition extends Condition
         final ListHead<Variable> new_vars = ListHead.newInstance();
         
         for(Condition c = top; c != null; c = c.next)
+        {
             c.already_in_tc = false;
+        }
         
         while(true)
         {
             boolean anything_changed = false;
             for(Condition c = top; c != null; c = c.next)
+            {
                 if(!c.already_in_tc)
+                {
                     if(c.cond_is_in_tc(tc))
                     {
                         c.add_cond_to_tc(tc, new_ids, new_vars);
                         c.already_in_tc = true;
                         anything_changed = true;
                     }
+                }
+            }
             if(!anything_changed)
+            {
                 break;
+            }
         }
         
         // complete TC found, look for anything that didn't get hit
         boolean result = true;
         for(Condition c = top; c != null; c = c.next)
+        {
             if(!c.already_in_tc)
+            {
                 result = false;
-            
+            }
+        }
+        
         // unmark identifiers and variables that we just marked
         IdentifierImpl.unmark(new_ids);
         Variable.unmark(new_vars);

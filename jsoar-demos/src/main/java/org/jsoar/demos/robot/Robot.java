@@ -48,9 +48,13 @@ public class Robot
     {
         yaw += dt * turnRate;
         while(yaw < 0.0)
+        {
             yaw += 2.0 * Math.PI;
+        }
         while(yaw > 2.0 * Math.PI)
+        {
             yaw -= 2.0 * Math.PI;
+        }
         
         final double dx = Math.cos(yaw) * speed;
         final double dy = Math.sin(yaw) * speed;

@@ -519,7 +519,9 @@ public class ConditionReorderer
         for(Condition c = candidates; c != null; c = c.next)
         {
             if(c == chosen)
+            {
                 continue;
+            }
             
             int cost = cost_of_adding_condition(c, tc, root_vars_not_bound_yet);
             if(cost < min_cost)

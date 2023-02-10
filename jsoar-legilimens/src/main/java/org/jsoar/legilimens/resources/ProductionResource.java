@@ -63,7 +63,8 @@ public class ProductionResource extends BaseAgentResource
     @Delete()
     public void deleteProduction()
     {
-        executeCallable(() -> {
+        executeCallable(() ->
+        {
             final Production p = agent.getProductions().getProduction(name);
             if(p != null)
             {

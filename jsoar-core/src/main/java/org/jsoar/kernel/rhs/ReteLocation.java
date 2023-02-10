@@ -90,9 +90,13 @@ public class ReteLocation extends AbstractRhsValue
             tok = tok.parent;
         }
         if(fieldNum == 0)
+        {
             return w.id;
+        }
         if(fieldNum == 1)
+        {
             return w.attr;
+        }
         
         return w.value;
     }
@@ -178,16 +182,26 @@ public class ReteLocation extends AbstractRhsValue
     public boolean equals(Object obj)
     {
         if(this == obj)
+        {
             return true;
+        }
         if(obj == null)
+        {
             return false;
+        }
         if(!(obj instanceof ReteLocation))
+        {
             return false;
+        }
         ReteLocation other = (ReteLocation) obj;
         if(fieldNum != other.fieldNum)
+        {
             return false;
+        }
         if(levelsUp != other.levelsUp)
+        {
             return false;
+        }
         return true;
     }
     

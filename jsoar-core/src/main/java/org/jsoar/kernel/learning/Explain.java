@@ -79,7 +79,9 @@ public class Explain
         back.result = temp.result;
         back.trace_cond = Condition.copy_condition(temp.trace_cond);
         if(back.trace_cond != null)
+        {
             back.trace_cond.next = null;
+        }
         back.prod_name = temp.prod_name;
         
         back.grounds = Condition.copy_conds_from_list(grounds);
@@ -140,7 +142,9 @@ public class Explain
         while(chunk != null)
         {
             if(name.equals(chunk.name))
+            {
                 return chunk;
+            }
             chunk = chunk.next_chunk;
         }
         
@@ -186,11 +190,17 @@ public class Explain
         {
             match = Condition.explain_find_cond(ground, prod.potentials);
             if(match == null)
+            {
                 match = Condition.explain_find_cond(ground, prod.grounds);
+            }
             if(match == null)
+            {
                 match = Condition.explain_find_cond(ground, prod.negated);
+            }
             if(match == null)
+            {
                 prod = prod.next_backtrace;
+            }
         }
         
         final Printer printer = context.getPrinter();
@@ -225,13 +235,21 @@ public class Explain
                 match = Condition.explain_find_cond(target, prod.locals);
                 /* Going to check all the other lists too just to be sure */
                 if(match == null)
+                {
                     match = Condition.explain_find_cond(target, prod.negated);
+                }
                 if(match == null)
+                {
                     match = Condition.explain_find_cond(target, prod.potentials);
+                }
                 if(match == null)
+                {
                     match = Condition.explain_find_cond(target, prod.grounds);
+                }
                 if(match == null)
+                {
                     prod = prod.next_backtrace;
+                }
             }
             
             if(match == null)
@@ -249,9 +267,13 @@ public class Explain
         }
         
         if(prod.result)
+        {
             printer.print("A result to be generated.\n");
+        }
         if(count >= 50)
+        {
             printer.print("EXPLAIN: Exceeded 50 productions traced through, so terminating now.\n");
+        }
     }
     
     /**
@@ -265,11 +287,15 @@ public class Explain
         ExplainChunk chunk = find_chunk(explain_chunk_list, chunk_name);
         
         if(chunk == null)
+        {
             return;
+        }
         
         Condition ground = chunk.find_ground(context.getPrinter(), cond_number);
         if(ground == null)
+        {
             return;
+        }
         
         explain_trace(chunk_name, chunk.backtrace, ground);
     }
@@ -284,7 +310,9 @@ public class Explain
     {
         ExplainChunk chunk = find_chunk(explain_chunk_list, chunk_name);
         if(chunk == null)
+        {
             return;
+        }
         
         // First print out the production in "normal" form
         final Printer printer = context.getPrinter();
@@ -333,7 +361,9 @@ public class Explain
         ExplainChunk chunk = explain_chunk_list;
         
         if(chunk == null)
+        {
             context.getPrinter().print("No chunks/justifications built yet!\n");
+        }
         else
         {
             context.getPrinter().print("List of all explained chunks/justifications:\n");

@@ -38,7 +38,9 @@ public class RLPrintHelper
     {
         // The RL version
         if(prefixString == null || prefixString.length() == 0)
+        {
             return String.format("%n");
+        }
         return String.format("%s %s%n", prefixString, printObject.toString());
         
         // The original code

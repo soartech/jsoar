@@ -51,7 +51,8 @@ public class SourceCommand
     
     /* package */ TopLevelState topLevelState;
     /* package */ final SoarEventManager events;
-    /* package */ final SoarEventListener eventListener = event -> {
+    /* package */ final SoarEventListener eventListener = event ->
+    {
         if(event instanceof ProductionAddedEvent)
         {
             topLevelState.productionAdded(((ProductionAddedEvent) event).getProduction());

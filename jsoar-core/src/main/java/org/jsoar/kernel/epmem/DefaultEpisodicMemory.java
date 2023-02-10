@@ -35,6 +35,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
@@ -1485,8 +1486,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // add the episode only if db is properly initialized2
         if(this.db == null)
+        {
             return;
-            
+        }
+        
         // //////////////////////////////////////////////////////////////////////////
         // my_agent->epmem_timers->storage->start();
         // //////////////////////////////////////////////////////////////////////////
@@ -1559,7 +1562,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 while(it.hasNext())
                                 {
                                     if(!inclusion_wmes.contains(it.next()))
+                                    {
                                         it.remove();
+                                    }
                                 }
                             }
                             if(!wmes.isEmpty())
@@ -3646,31 +3651,26 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (parent_n_id ^ (parent_n_id >>> 32));
-            result = prime * result + (int) (child_n_id ^ (child_n_id >>> 32));
-            result = prime * result + (int) (attribute_s_id ^ (attribute_s_id >>> 32));
-            return result;
+            return Objects.hash(attribute_s_id, child_n_id, parent_n_id);
         }
         
         @Override
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             EpmemTriple other = (EpmemTriple) obj;
-            if(parent_n_id != other.parent_n_id)
-                return false;
-            if(child_n_id != other.child_n_id)
-                return false;
-            if(attribute_s_id != other.attribute_s_id)
-                return false;
-            return true;
+            return attribute_s_id == other.attribute_s_id && child_n_id == other.child_n_id && parent_n_id == other.parent_n_id;
         }
         
     }
@@ -3724,34 +3724,28 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((first == null) ? 0 : first.hashCode());
-            result = prime * result + (int) (second ^ (second >>> 32));
-            return result;
+            return Objects.hash(first, second);
         }
         
         @Override
         public boolean equals(Object obj)
         {
             if(this == obj)
-                return true;
-            if(obj == null)
-                return false;
-            if(getClass() != obj.getClass())
-                return false;
-            EpmemSymbolNodePair other = (EpmemSymbolNodePair) obj;
-            if(first == null)
             {
-                if(other.first != null)
-                    return false;
+                return true;
             }
-            else if(!first.equals(other.first))
+            if(obj == null)
+            {
                 return false;
-            if(second != other.second)
+            }
+            if(getClass() != obj.getClass())
+            {
                 return false;
-            return true;
+            }
+            EpmemSymbolNodePair other = (EpmemSymbolNodePair) obj;
+            return Objects.equals(first, other.first) && second == other.second;
         }
+        
     }
     
     private static class EpmemNodePair implements Comparable<EpmemNodePair>
@@ -3768,28 +3762,26 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (first ^ (first >>> 32));
-            result = prime * result + (int) (second ^ (second >>> 32));
-            return result;
+            return Objects.hash(first, second);
         }
         
         @Override
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             EpmemNodePair other = (EpmemNodePair) obj;
-            if(first != other.first)
-                return false;
-            if(second != other.second)
-                return false;
-            return true;
+            return first == other.first && second == other.second;
         }
         
         @Override
@@ -3805,6 +3797,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             return 0;
         }
+        
     }
     
     /**
@@ -5516,21 +5509,33 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         public boolean equals(Object obj)
         {
             if(this == obj)
+            {
                 return true;
+            }
             if(obj == null)
+            {
                 return false;
+            }
             if(getClass() != obj.getClass())
+            {
                 return false;
+            }
             EpmemPEdgeNodePair other = (EpmemPEdgeNodePair) obj;
             if(node_id != other.node_id)
+            {
                 return false;
+            }
             if(pedge == null)
             {
                 if(other.pedge != null)
+                {
                     return false;
+                }
             }
             else if(!pedge.equals(other.pedge))
+            {
                 return false;
+            }
             return true;
         }
     }
@@ -5592,9 +5597,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         else if(identifier.smem_lti != 0)
         { // WME is an LTI
-            // if we can find the LTI node id, cache it; otherwise, return failure
-            // my_agent->epmem_stmts_graph->find_lti->bind_int(1, identifier.getNameLetter());
-            // my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
+          // if we can find the LTI node id, cache it; otherwise, return failure
+          // my_agent->epmem_stmts_graph->find_lti->bind_int(1, identifier.getNameLetter());
+          // my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
             db.find_lti.setLong(1, identifier.getNameLetter());
             db.find_lti.setLong(2, identifier.getNameNumber());
             ResultSet results = db.find_lti.executeQuery();
@@ -5629,7 +5634,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         else
         { // WME is a normal identifier
-            // we determine whether it is a leaf by checking for children
+          // we determine whether it is a leaf by checking for children
             List<WmeImpl> children = epmem_get_augs_of_id(value, DefaultMarker.create());
             literal.value_is_id = EPMEM_RIT_STATE_EDGE;
             literal.child_n_id = EPMEM_NODEID_BAD;
@@ -6079,7 +6084,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             Set<Slot> filterSlots = null;
                             boolean should_install;
                             if(filter == null)
+                            {
                                 should_install = true;
+                            }
                             else
                             {
                                 should_install = false;
@@ -6110,7 +6117,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                     if(childWme.value.asIdentifier() != null)
                                                     {
                                                         if(filterSlots == null)
+                                                        {
                                                             filterSlots = new HashSet<Slot>();
+                                                        }
                                                         filterSlots.add(slot);
                                                         should_install = true;  // addToWM(wme)
                                                         break;
@@ -6161,9 +6170,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             if(childId != null)
                                             {
                                                 if(childId.slots == null)
+                                                {
                                                     passedFilter.add(childMemoryId);
+                                                }
                                                 else
+                                                {
                                                     currentFilterList.add(childSym);
+                                                }
                                             }
                                         }
                                     }
@@ -6226,7 +6239,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     Set<Slot> filterSlots = null;
                                     boolean should_install;
                                     if(filter == null)
+                                    {
                                         should_install = true;
+                                    }
                                     else
                                     {
                                         should_install = false;
@@ -6257,7 +6272,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                             if(childWme.value.asIdentifier() != null)
                                                             {
                                                                 if(filterSlots == null)
+                                                                {
                                                                     filterSlots = new HashSet<Slot>();
+                                                                }
                                                                 filterSlots.add(slot);
                                                                 should_install = true;  // addToWM(wme)
                                                                 break;
@@ -6308,9 +6325,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                     if(childId != null)
                                                     {
                                                         if(childId.slots == null)
+                                                        {
                                                             passedFilter.add(childMemoryId);
+                                                        }
                                                         else
+                                                        {
                                                             currentFilterList.add(childSym);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -6383,7 +6404,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // get a reference to the parent
                     parent = ids.get(parent_n_id);
                     if(parent == null)
+                    {
                         continue;
+                    }
                     
                     if(dont_abide_by_ids_second || parent.second)
                     {
@@ -6397,7 +6420,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         boolean should_install;
                         if(filter == null)
+                        {
                             should_install = true;
+                        }
                         else
                         {
                             should_install = false;
@@ -6442,7 +6467,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             }
                                             
                                             if(should_install)
+                                            {
                                                 break;
+                                            }
                                         }
                                     }
                                 }
@@ -6474,11 +6501,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     SymbolTriple wme = retrieval_wmes.get(i);
                     if(wme.value.asIdentifier() == null)
+                    {
                         passedFilter.add(wme.id.asIdentifier());
+                    }
                     if(passedFilter.contains(wme.id))
+                    {
                         Collections.swap(retrieval_wmes, i, --goodIndex);
+                    }
                     else
+                    {
                         ++i;
+                    }
                 }
                 
                 while(true)
@@ -6495,11 +6528,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             passedFilter.add(wme.id.asIdentifier());
                         }
                         else
+                        {
                             ++i;
+                        }
                     }
                     
                     if(oldSize == goodIndex)
+                    {
                         break;
+                    }
                 }
                 
                 retrieval_wmes.subList(0, goodIndex).clear();
@@ -7088,7 +7125,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         Set<WmeImpl> wmes = epmem_id_ref_counts.get(id);
         if(wmes == null)
+        {
             return false;
+        }
         
         wmes.add(w);
         return true;
@@ -7472,14 +7511,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if(s.contains("."))
         {
             int firstTrailingZero = s.length() - 1;
+            
             while(s.charAt(firstTrailingZero) == '0')
             {
                 firstTrailingZero--;
             }
+            
             if(s.charAt(firstTrailingZero - 1) == '.')
             {
                 firstTrailingZero--;
             }
+            
             s = s.substring(0, firstTrailingZero);
         }
         return s;
@@ -7624,7 +7666,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     id = ids.get(lexeme.string);
                     if(id == null)
+                    {
                         id = symbols.createIdentifier('X');
+                    }
                     idKey = lexeme.string;
                 }
                 
@@ -7634,7 +7678,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 
                 if(firstHolder.getIdentifier() == null)
+                {
                     firstHolder.setIdentifier(id);
+                }
                 
                 ids.put(idKey, id);
                 
@@ -7730,7 +7776,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                         {
                                             id = ids.get(lexeme.string);
                                             if(id == null)
+                                            {
                                                 id = symbols.createIdentifier('X');
+                                            }
                                             idKey = lexeme.string;
                                         }
                                         
@@ -7752,13 +7800,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     
                                     // Need to check if this WME exists already
                                     Iterator<Wme> it = intermediate_parent.getWmes(EnumSet.of(WmeType.NORMAL));
+                                    
                                     while(it.hasNext())
                                     {
                                         Wme wme = it.next();
                                         if(compare_symbol(wme.getAttribute(), chunk_attr) && compare_symbol(wme.getValue(), chunk_value))
                                         {
                                             if(wme instanceof WmeImpl)
+                                            {
                                                 newWme = (WmeImpl) wme;
+                                            }
                                             break;
                                         }
                                     }
@@ -7803,21 +7854,36 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         Identifier idB = b.asIdentifier();
         
         if((idA == null) != (idB == null))
+        {
             return false;
+        }
+        
         if(idA != null)
+        {
             return a.equals(b);
+        }
         
         if(!a.getClass().equals(b.getClass()))
+        {
             return false;
+        }
         
         if(a instanceof DoubleSymbol)
+        {
             return a.asDouble().getValue() == b.asDouble().getValue();
+        }
         else if(a instanceof IntegerSymbol)
+        {
             return a.asInteger().getValue() == b.asInteger().getValue();
+        }
         else if(a instanceof StringSymbol)
+        {
             return a.asString().getValue().equals(b.asString().getValue());
+        }
         else if(a instanceof JavaSymbol)
+        {
             return a.asJava().getValue().equals(b.asJava().getValue());
+        }
         
         return false;
     }
@@ -7829,9 +7895,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // Figure out if the chunkString is a file or an identifier.
             File filename = new File(chunkString);
             if(filename.isFile())
+            {
                 return epmem_parse_and_add_file(filename);
+            }
             else
+            {
                 return epmem_parse_and_add_string("{" + chunkString + "}");     // The interpreter strips braces; put them back.
+            }
         }
         catch(IOException e)
         {
@@ -7907,30 +7977,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             IdentifierHolder firstHolder = new IdentifierHolder();
             
             long clause_count = 0;          // Which parentheses group we're in (1-based index)
+            
             while(lexer.getCurrentLexeme().type == LexemeType.L_PAREN)
             {
                 clause_count++;
                 
                 IdentifierHolder rootHolder = new IdentifierHolder();
                 boolean good_clause = epmem_parse_chunk(symbols, lexer, ids, wmes, rootHolder, firstHolder);
+                
                 if(!good_clause)
+                {
                     throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index);
+                }
+                
                 if(rootHolder.getIdentifier() != null)
                 {
                     if(rootId != null)
+                    {
                         throw new SoarException("Error parsing clause #" + clause_count + " in episode #" + episode_index + ": too many root nodes.");
+                    }
                     rootId = rootHolder.getIdentifier();
                 }
             }
             
             if(clause_count == 0)
+            {
                 throw new SoarException("Unexpected character at the beginning of episode #" + episode_index);
+            }
             
             if(rootId == null)
             {
                 rootId = firstHolder.getIdentifier();
                 if(rootId == null)
+                {
                     throw new SoarException("No top-state specified in episode #" + episode_index);
+                }
             }
             
             // Make sure that our structure is compatible with a single component.
@@ -7939,10 +8020,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 IdentifierImpl id = wme.value.asIdentifier();
                 if(id != null)
+                {
                     possibleRoots.remove(id);
+                }
             }
             if((possibleRoots.size() == 1 && possibleRoots.iterator().next() != rootId) || possibleRoots.size() > 1)
+            {
                 throw new SoarException("Too many possible top-states in episode #" + episode_index);
+            }
             
             // Clear away anything else marked for addition (we'll re-add it when we re-mark current WM for inclusion in epmem).
             epmem_wme_adds.clear();
@@ -7956,14 +8041,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final Marker marker = DefaultMarker.create();
             Queue<SymbolImpl> symbolsToTraverse = new LinkedList<SymbolImpl>();
             symbolsToTraverse.add(decider.top_state);
+            
             while(!symbolsToTraverse.isEmpty())
             {
                 SymbolImpl sym = symbolsToTraverse.poll();
                 List<WmeImpl> children = epmem_get_augs_of_id(sym, marker);
+                
                 for(WmeImpl wme : children)
                 {
                     if(wme.value.asIdentifier() != null)
+                    {
                         symbolsToTraverse.add(wme.value);
+                    }
                     removeWme(wme);
                 }
             }
@@ -7978,7 +8067,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
             // Mark the fake WMEs for termination
             for(WmeImpl wme : wmes)
+            {
                 removeWme(wme);
+            }
             
             // Print out debug statements
             /*

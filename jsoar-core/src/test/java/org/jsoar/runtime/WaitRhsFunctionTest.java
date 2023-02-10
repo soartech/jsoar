@@ -40,7 +40,8 @@ public class WaitRhsFunctionTest
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
         // Skip first input phase
-        agent.executeAndWait(() -> {
+        agent.executeAndWait(() ->
+        {
             agent.runFor(2, RunType.PHASES);
             return null;
         }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
@@ -51,7 +52,8 @@ public class WaitRhsFunctionTest
         
         // Now run some more. The agent shouldn't wait because input ready came before input phase
         
-        agent.executeAndWait(() -> {
+        agent.executeAndWait(() ->
+        {
             agent.runFor(2, RunType.DECISIONS);
             return null;
         }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
@@ -127,11 +129,13 @@ public class WaitRhsFunctionTest
         final AtomicBoolean signalled = new AtomicBoolean(false);
         final Object signal = new String("testNoWaitIfAgentHalts");
         
-        agent.execute(() -> {
+        agent.execute(() ->
+        {
             agent.runForever();
             return null;
         },
-                result -> {
+                result ->
+                {
                     synchronized (signal)
                     {
                         signal.notifyAll();

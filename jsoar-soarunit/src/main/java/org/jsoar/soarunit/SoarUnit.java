@@ -157,7 +157,8 @@ public class SoarUnit implements Callable<Integer>
         }
         else if(this.ui)
         {
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() ->
+            {
                 MainFrame.initializeLookAndFeel();
                 final MainFrame mf = new MainFrame(agentFactory, collector, getExecutor());
                 mf.setSize(640, 480);
