@@ -22,38 +22,44 @@ public class StringSymbolImplTest
     {
         syms = new SymbolFactoryImpl();
     }
-
-    @Test public void includeBarsWhenStringLooksLikeId()
+    
+    @Test
+    public void includeBarsWhenStringLooksLikeId()
     {
         assertEquals("|S1|", String.format("%s", syms.createString("S1")));
         assertEquals("S1", String.format("%#s", syms.createString("S1")));
     }
     
-    @Test public void includeBarsWhenStringLooksLikeInteger()
+    @Test
+    public void includeBarsWhenStringLooksLikeInteger()
     {
         assertEquals("|12345|", String.format("%s", syms.createString("12345")));
         assertEquals("12345", String.format("%#s", syms.createString("12345")));
     }
     
-    @Test public void includeBarsWhenStringHasSpaces()
+    @Test
+    public void includeBarsWhenStringHasSpaces()
     {
         assertEquals("|this has spaces in it|", String.format("%s", syms.createString("this has spaces in it")));
         assertEquals("this has spaces in it", String.format("%#s", syms.createString("this has spaces in it")));
     }
     
-    @Test public void includeBarsWhenStringHasParens()
+    @Test
+    public void includeBarsWhenStringHasParens()
     {
         assertEquals("|()|", String.format("%s", syms.createString("()")));
         assertEquals("()", String.format("%#s", syms.createString("()")));
     }
     
-    @Test public void includBarsWhenStringLooksLikeFloat()
+    @Test
+    public void includBarsWhenStringLooksLikeFloat()
     {
         assertEquals("|3.14|", String.format("%s", syms.createString("3.14")));
         assertEquals("3.14", String.format("%#s", syms.createString("3.14")));
     }
-
-    @Test public void noBarsForSingleCharacters()
+    
+    @Test
+    public void noBarsForSingleCharacters()
     {
         assertEquals("A", String.format("%s", syms.createString("A")));
         assertEquals("A", String.format("%#s", syms.createString("A")));
@@ -61,7 +67,9 @@ public class StringSymbolImplTest
         assertEquals("b", String.format("%s", syms.createString("b")));
         assertEquals("b", String.format("%#s", syms.createString("b")));
     }
-    @Test public void noBarsForNormalStrings()
+    
+    @Test
+    public void noBarsForNormalStrings()
     {
         assertEquals("s1", String.format("%s", syms.createString("s1")));
         assertEquals("s1", String.format("%#s", syms.createString("s1")));
@@ -69,7 +77,7 @@ public class StringSymbolImplTest
         assertEquals("thisHasCapsInIt", String.format("%#s", syms.createString("thisHasCapsInIt")));
         assertEquals("thisisalllowercase", String.format("%s", syms.createString("thisisalllowercase")));
     }
-
+    
     @Test
     public void includeBarsWhenStringLooksLikeVariable()
     {

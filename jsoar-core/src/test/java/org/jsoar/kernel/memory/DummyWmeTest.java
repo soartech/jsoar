@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.memory;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -23,13 +22,13 @@ import org.junit.jupiter.api.Test;
 public class DummyWmeTest
 {
     private SymbolFactory syms;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
         syms = new SymbolFactoryImpl();
     }
-
+    
     @Test
     public void testGetIdentiferAttrAndValue()
     {

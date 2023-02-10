@@ -5,7 +5,6 @@
  */
 package org.jsoar.util.events;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -28,7 +27,7 @@ public class SoarEventsTest
     {
         final List<TestEvent> caughtEvents = new ArrayList<TestEvent>();
         final SoarEventManager manager = new SoarEventManager();
-        SoarEvents.listenForSingleEvent(manager, TestEvent.class, event -> caughtEvents.add((TestEvent) event)); 
+        SoarEvents.listenForSingleEvent(manager, TestEvent.class, event -> caughtEvents.add((TestEvent) event));
         
         assertEquals(0, caughtEvents.size());
         

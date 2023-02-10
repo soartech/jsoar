@@ -22,17 +22,17 @@ public abstract class TclTestBase
 {
     protected Agent agent;
     protected SoarTclInterface ifc;
-
+    
     protected void sourceTestFile(Class<? extends TclTestBase> childClass, String name) throws SoarException
     {
         ifc.source(getSourceTestFile(childClass, name));
     }
-
+    
     protected URL getSourceTestFile(Class<? extends TclTestBase> childClass, String name)
     {
-        return childClass.getResource("/" + childClass.getName().replace('.', '/')  + "_" + name);
+        return childClass.getResource("/" + childClass.getName().replace('.', '/') + "_" + name);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -42,7 +42,7 @@ public abstract class TclTestBase
         this.agent = new Agent();
         this.ifc = SoarTclInterface.findOrCreate(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */

@@ -16,7 +16,6 @@ import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 public class RunCommandTest
 {
     private MockRunControl mock;
@@ -27,7 +26,9 @@ public class RunCommandTest
         long count = -1;
         RunType runType;
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.AgentRunController#runFor(long, org.jsoar.kernel.RunType)
          */
         @Override
@@ -36,13 +37,13 @@ public class RunCommandTest
             this.count = n;
             this.runType = runType;
         }
-
+        
         @Override
         public Phase getStopPhase()
         {
             throw new UnsupportedOperationException("getStopPhase not implemented in this test mock");
         }
-
+        
         @Override
         public void setStopPhase(Phase phase)
         {
@@ -111,6 +112,7 @@ public class RunCommandTest
         execute("run", "--decision");
         verify(1, RunType.DECISIONS);
     }
+    
     @Test
     public void testCountDefaultsToOneElaborationIfNoIntegerArgumentIsGiven() throws Exception
     {
@@ -119,6 +121,7 @@ public class RunCommandTest
         execute("run", "--elaboration");
         verify(1, RunType.ELABORATIONS);
     }
+    
     @Test
     public void testCountDefaultsToOnePhaseIfNoIntegerArgumentIsGiven() throws Exception
     {
@@ -163,7 +166,6 @@ public class RunCommandTest
         execute("run", "100", "--elaboration");
         verify(100, RunType.ELABORATIONS);
     }
-
     
     @Test
     public void testCountPhases() throws Exception
@@ -173,7 +175,7 @@ public class RunCommandTest
         execute("run", "--phase", "7654321");
         verify(7654321, RunType.PHASES);
     }
-   
+    
     @Test
     public void testCountPhasesReversed() throws Exception
     {
@@ -209,6 +211,7 @@ public class RunCommandTest
         mock.runType = null;
         command.execute(DefaultSoarCommandContext.empty(), args);
     }
+    
     private void verify(long count, RunType runType)
     {
         assertEquals(count, mock.count);

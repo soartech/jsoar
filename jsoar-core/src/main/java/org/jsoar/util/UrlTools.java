@@ -65,39 +65,40 @@ public class UrlTools
         
         return url;
     }
-
+    
     /**
      * Get the parent of a url.
      *
      * @param url the url
      * @return the parent of the url, never {@code null}
-     * @throws URISyntaxException 
-     * @throws MalformedURLException 
+     * @throws URISyntaxException
+     * @throws MalformedURLException
      */
     public static URL getParent(URL url) throws URISyntaxException, MalformedURLException
     {
         URI uri = url.toURI().getPath().endsWith("/") ? url.toURI().resolve("..") : url.toURI().resolve(".");
         return uri.toURL();
     }
-
+    
     /**
      * If url is a classpath url, see {@link UrlTools#isClassPath(String)}, return a URL to its location.
+     * 
      * @param url the string of the classpath url
      * @return the url to the classpath resource.
      */
     public static URL lookupClassPathURL(String url) throws IOException
     {
-        if (isClassPath(url))
+        if(isClassPath(url))
         {
             List<Resource> resources = Arrays.asList(resourceResolver.getResources(url));
-            if (!resources.isEmpty())
+            if(!resources.isEmpty())
             {
                 return resources.get(0).getURL();
             }
         }
         throw new IOException("Invalid classpath resource: " + url);
     }
-
+    
     /**
      * Set a custom {@link org.springframework.core.io.support.ResourcePatternResolver} for resolving classpath:
      * URLs.
@@ -106,7 +107,7 @@ public class UrlTools
     {
         resourceResolver = resourcePatternResolver;
     }
-
+    
     /**
      * Convenience method for setting the {@link java.lang.ClassLoader} used when resolving classpath: URLs.
      */
@@ -114,7 +115,7 @@ public class UrlTools
     {
         resourceResolver = new PathMatchingResourcePatternResolver(cl);
     }
-
+    
     /**
      * Determines if this is a classpath URL or not.
      */
@@ -122,27 +123,29 @@ public class UrlTools
     {
         return url.startsWith("classpath:") || url.startsWith("resource:");
     }
-
+    
     /**
      * Converts a file: URL to a file object, if possible.
+     * 
      * @param url url to convert
      * @return {@link java.io.File} representing the URL
-     * @throws URISyntaxException 
-     * @throws MalformedURLException 
+     * @throws URISyntaxException
+     * @throws MalformedURLException
      */
     public static File toFile(URL url) throws URISyntaxException, MalformedURLException
     {
         URI uri = url.toURI();
         // Handle UNC paths.
-        if (uri.toString().startsWith("file:") && uri.getAuthority() != null && uri.getAuthority().length() > 0)
+        if(uri.toString().startsWith("file:") && uri.getAuthority() != null && uri.getAuthority().length() > 0)
         {
             uri = new URL("file://" + url.toString().substring("file:".length())).toURI();
         }
         return new File(uri);
     }
-
+    
     /**
      * Converts a file: URL to a file object, if possible.
+     * 
      * @param url url to convert
      * @return {@link java.io.File} representing the URL, or null if it can't be converted.
      */
@@ -151,11 +154,13 @@ public class UrlTools
         try
         {
             return toFile(url);
-        } catch (URISyntaxException | MalformedURLException e) {
+        }
+        catch(URISyntaxException | MalformedURLException e)
+        {
             return null;
         }
     }
-
+    
     /**
      * @param url URL to check
      * @return true if the url is url to a file (even if the file doesn't exist), false otherwise.
@@ -165,7 +170,9 @@ public class UrlTools
         try
         {
             toFile(url);
-        } catch (Exception e) {
+        }
+        catch(Exception e)
+        {
             return false;
         }
         return true;

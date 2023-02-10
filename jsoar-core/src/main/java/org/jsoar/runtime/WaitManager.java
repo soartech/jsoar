@@ -36,20 +36,22 @@ public class WaitManager
     private SoarEventListener afterDecisionCycleListener;
     private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
     private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
-    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<WaitInfo>() {
-
+    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<WaitInfo>()
+    {
+        
         @Override
         public WaitInfo get()
         {
             return waitInfo.get();
         }
-
+        
         @Override
         public WaitInfo set(WaitInfo value)
         {
             throw new IllegalArgumentException("Can't set wait_info property");
-        }};
-        
+        }
+    };
+    
     /**
      * Attach this wait manager to the given agent. An agent should have at
      * most one wait manager attached.
@@ -66,17 +68,17 @@ public class WaitManager
         this.agent = agent;
         
         // Listen for input ready events
-        this.agent.getEvents().addListener(AsynchronousInputReadyEvent.class, 
+        this.agent.getEvents().addListener(AsynchronousInputReadyEvent.class,
                 inputReadyListener = event -> setNewInputAvailable());
         
         // Listen for end of decision cycle event. This is where we actually do the wait
         // if one has been requested. Since the next phase will be the input phase,
         // we don't have to worry about additional waits blocking it and we'll conveniently
         // go straight to input when an asynch input ready event knocks us out of a wait.
-        this.agent.getEvents().addListener(AfterDecisionCycleEvent.class, 
+        this.agent.getEvents().addListener(AfterDecisionCycleEvent.class,
                 afterDecisionCycleListener = event -> doWait());
         
-        this.agent.getEvents().addListener(AfterInput.class, 
+        this.agent.getEvents().addListener(AfterInput.class,
                 afterInputListener = event -> inputReady = false);
         
         // Set up "waiting" property
@@ -84,11 +86,11 @@ public class WaitManager
     }
     
     /**
-     * Detach this wait manager from the agent 
+     * Detach this wait manager from the agent
      */
     public void detach()
     {
-        if(agent != null )
+        if(agent != null)
         {
             agent.getEvents().removeListener(null, inputReadyListener);
             agent.getEvents().removeListener(null, afterInputListener);
@@ -96,10 +98,10 @@ public class WaitManager
             agent = null;
         }
     }
-        
+    
     /**
      * @return the agent this manager is attach to, or {@code null} if not
-     *      attached.
+     * attached.
      */
     public ThreadedAgent getAgent()
     {
@@ -132,7 +134,7 @@ public class WaitManager
     }
     
     /**
-     * Wake the agent up if it is currently sleeping 
+     * Wake the agent up if it is currently sleeping
      */
     public void requestResume()
     {
@@ -141,7 +143,7 @@ public class WaitManager
             this.agent.getInputOutput().asynchronousInputReady();
         }
     }
-
+    
     private void doWait()
     {
         if(!requestedWaitInfo.waiting) // no wait requested
@@ -152,7 +154,7 @@ public class WaitManager
         
         // Update the wait property
         waitInfo.set(requestedWaitInfo);
-
+        
         final long start = System.currentTimeMillis();
         final BlockingQueue<Runnable> commands = agent.getCommandQueue();
         boolean done = isDoneWaiting();
@@ -178,7 +180,7 @@ public class WaitManager
                     done = true; // timeout
                 }
             }
-            catch (InterruptedException e)
+            catch(InterruptedException e)
             {
                 done = true;
                 Thread.currentThread().interrupt(); // Reset the interrupt status for higher levels!
@@ -207,11 +209,10 @@ public class WaitManager
     private synchronized boolean isDoneWaiting()
     {
         return agent.getAgent().getReasonForStop() != null ||
-               inputReady || 
-               Thread.currentThread().isInterrupted();
+                inputReady ||
+                Thread.currentThread().isInterrupted();
     }
-
-
+    
     private class AsynchronousInputReadyCommand implements Callable<Void>
     {
         @Override

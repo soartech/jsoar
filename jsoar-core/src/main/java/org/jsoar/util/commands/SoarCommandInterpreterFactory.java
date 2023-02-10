@@ -13,5 +13,6 @@ import org.jsoar.kernel.Agent;
 public interface SoarCommandInterpreterFactory
 {
     String getName();
+    
     SoarCommandInterpreter create(Agent agent);
 }

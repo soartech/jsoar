@@ -23,12 +23,12 @@ import com.google.common.collect.MapMaker;
  * <p>This is the internal implementation class for the symbol factory. It should
  * only be used in the kernel. External code (I/O and RHS functions) should use
  * {@link SymbolFactory}
-
+ * 
  * <p>Primary symbol management class. This class maintains the symbol "cache"
  * for an agent. When a symbol is created, it is cached for reuse the next
- * time a symbol with the same value is requested. We use 
+ * time a symbol with the same value is requested. We use
  * <a href="https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/collect/MapMaker.html">Google Guava MapMaker</a>
- * to make weak maps to correctly manage the symbols. Without this, the memory would grow larger over 
+ * to make weak maps to correctly manage the symbols. Without this, the memory would grow larger over
  * time because symbols can't be garbage collected as long as they're in the
  * cache.
  * 
@@ -65,7 +65,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     private final Map<String, Variable> variables = newReferenceMap();
     private final Map<Object, JavaSymbolImpl> javaSyms = newReferenceMap();
     private final JavaSymbolImpl nullJavaSym;
-    private int current_symbol_hash_id = 0; 
+    private int current_symbol_hash_id = 0;
     
     private final VariableGenerator vars = new VariableGenerator(this);
     
@@ -83,7 +83,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     /**
      * Returns a list of all known symbols for use with the "symbols" command.
      * 
-     * @return a list of all known symbols. 
+     * @return a list of all known symbols.
      */
     public List<Symbol> getAllSymbols()
     {
@@ -107,7 +107,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     @SuppressWarnings("unchecked")
     public <T extends Symbol> List<T> getSymbols(Class<T> klass)
     {
-        if(klass.isAssignableFrom(StringSymbolImpl.class)) 
+        if(klass.isAssignableFrom(StringSymbolImpl.class))
         {
             return new ArrayList<T>((Collection<? extends T>) symConstants.values());
         }
@@ -147,7 +147,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         // Note: In csoar, a warning was printed if any identifiers remained in
         // the cache. This was an indication of a memory leak since ids should
         // have been cleaned up during re-initialization. In Java, the garbage
-        // collector picks up symbols when it gets a chance. So, if we're 
+        // collector picks up symbols when it gets a chance. So, if we're
         // reinitializing, it should be fine to throw out all the existing ids
         // and start over.
         
@@ -160,7 +160,7 @@ public class SymbolFactoryImpl implements SymbolFactory
                 it.remove();
             }
         }
-                
+        
         for(int i = 0; i < id_counter.length; ++i)
         {
             id_counter[i] = 1;
@@ -206,7 +206,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      */
     public void resetIdNumber(char name_letter, long letter_max)
     {
-        final int name_letter_index = name_letter - 'A'; 
+        final int name_letter_index = name_letter - 'A';
         if(id_counter[name_letter_index] <= letter_max)
         {
             id_counter[name_letter_index] = (int) letter_max + 1; // TODO SMEM make name numbers long
@@ -255,8 +255,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return v;
     }
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#findIdentifier(char, int)
      */
     public IdentifierImpl findIdentifier(char name_letter, long name_number)
@@ -269,19 +270,19 @@ public class SymbolFactoryImpl implements SymbolFactory
      * sets the value of the key to be null.
      * 
      * @param identifier
-     * @return Whether or not the identifier was found.  Will also return false if identifier is null.
+     * @return Whether or not the identifier was found. Will also return false if identifier is null.
      */
     public boolean findAndNullIdentifier(IdentifierImpl identifier)
     {
-        if (identifier == null)
+        if(identifier == null)
         {
             return false;
         }
         
         boolean found = identifiers.containsValue(identifier);
         
-        if (found)
-        {            
+        if(found)
+        {
             identifiers.remove(new IdKey(identifier.getNameLetter(), identifier.getNameNumber()));
         }
         
@@ -295,7 +296,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @param level the goal stack level of the id
      * @return the new identifier
      */
-    public IdentifierImpl make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
+    public IdentifierImpl make_new_identifier(char name_letter, int /* goal_stack_level */ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         long name_number = id_counter[name_letter - 'A']++;
@@ -310,15 +311,15 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * This version creates an id with a specific number. NOTE: it does not check if an id with that number already exists. 
-     * This should only be called indirectly via other methods that do check (e.g., findOrCreateIdentifierExact) 
+     * This version creates an id with a specific number. NOTE: it does not check if an id with that number already exists.
+     * This should only be called indirectly via other methods that do check (e.g., findOrCreateIdentifierExact)
      * 
      * @param name_letter the name letter
      * @param name_number the name number
      * @param level the goal stack level of the id
      * @return the new identifier
      */
-    public IdentifierImpl make_new_identifier(char name_letter, long name_number, int /*goal_stack_level*/ level)
+    public IdentifierImpl make_new_identifier(char name_letter, long name_number, int /* goal_stack_level */ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         if(name_number >= id_counter[name_letter - 'A'])
@@ -334,7 +335,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return id;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#createIdentifier(char)
      */
     public IdentifierImpl createIdentifier(char name_letter)
@@ -342,39 +345,43 @@ public class SymbolFactoryImpl implements SymbolFactory
         return make_new_identifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, long)
      */
     @Override
     public IdentifierImpl findOrCreateIdentifier(char nameLetter, long nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
-
-        if (id == null)
+        
+        if(id == null)
         {
             id = createIdentifier(nameLetter);
         }
-
+        
         return id;
     }
     
-    /* 
-     * If the id gets created, this version creates an id with the actual number specified, 
+    /*
+     * If the id gets created, this version creates an id with the actual number specified,
      * as opposed to using the next available number
      */
     public IdentifierImpl findOrCreateIdentifierExact(char nameLetter, long nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
-
-        if (id == null)
+        
+        if(id == null)
         {
             id = make_new_identifier(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
         }
-
+        
         return id;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#find_sym_constant(java.lang.String)
      */
     public StringSymbolImpl findString(String name)
@@ -382,7 +389,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return symConstants.get(name);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#make_sym_constant(java.lang.String)
      */
     public StringSymbolImpl createString(String name)
@@ -400,8 +409,8 @@ public class SymbolFactoryImpl implements SymbolFactory
      * symtab.cpp:546:generate_new_sym_constant
      * 
      * @param prefix Prefix for the constant
-     * @param number Starting index for search. Receives one more than final value 
-     *               of postfix index.
+     * @param number Starting index for search. Receives one more than final value
+     *     of postfix index.
      * @return New StringSymbolImpl
      */
     public StringSymbol generateUniqueString(String prefix, ByRef<Integer> number)
@@ -416,7 +425,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return createString(name);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#createInteger(long)
      */
     public IntegerSymbolImpl createInteger(long value)
@@ -430,7 +441,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return sym;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#findInteger(long)
      */
     public IntegerSymbolImpl findInteger(long value)
@@ -438,7 +451,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         return intConstants.get(value);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#make_float_constant(double)
      */
     public DoubleSymbolImpl createDouble(double value)
@@ -452,15 +467,19 @@ public class SymbolFactoryImpl implements SymbolFactory
         return sym;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#find_float_constant(double)
      */
     public DoubleSymbolImpl findDouble(double value)
     {
         return floatConstants.get(value);
     }
-        
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#createJavaSymbol(java.lang.Object)
      */
     @Override
@@ -474,8 +493,10 @@ public class SymbolFactoryImpl implements SymbolFactory
         }
         return sym;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#findJavaSymbol(java.lang.Object)
      */
     @Override
@@ -483,8 +504,10 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         return value != null ? javaSyms.get(value) : nullJavaSym;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolFactory#importSymbol(org.jsoar.kernel.symbols.Symbol)
      */
     @Override
@@ -501,7 +524,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         
         return ((SymbolImpl) s).importInto(this);
     }
-
+    
     /**
      * symtab.cpp:153:get_next_hash_id
      */
@@ -514,7 +537,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         // Using just a packed only has very minor memory usage or
         // performance gains, so don't bother. IdKey is clearer.
-        //return (((long) letter) << 48) | number;
+        // return (((long) letter) << 48) | number;
         return new IdKey(letter, number);
     }
     
@@ -528,21 +551,21 @@ public class SymbolFactoryImpl implements SymbolFactory
             this.letter = letter;
             this.number = number;
         }
-
+        
         @Override
         public int hashCode()
         {
             return Objects.hash(letter, number);
         }
-
+        
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
+            if(this == obj)
                 return true;
-            if (obj == null)
+            if(obj == null)
                 return false;
-            if (getClass() != obj.getClass())
+            if(getClass() != obj.getClass())
                 return false;
             IdKey other = (IdKey) obj;
             return letter == other.letter && number == other.number;

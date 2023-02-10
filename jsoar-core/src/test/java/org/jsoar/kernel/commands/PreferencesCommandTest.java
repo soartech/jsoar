@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.kernel.Agent;
@@ -30,7 +29,7 @@ public class PreferencesCommandTest
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
@@ -48,7 +47,7 @@ public class PreferencesCommandTest
         assertNotNull(Adaptables.adapt(agent, Decider.class), "Decider not found in Agent");
         assertNotNull(Adaptables.adapt(agent, PredefinedSymbols.class), "PredefinedSymbols not found in Agent");
     }
-
+    
     @Test
     public void testThatAttributeParametersAreHandledCorrectly() throws Exception
     {
@@ -58,6 +57,7 @@ public class PreferencesCommandTest
         
         // No exception should be thrown
     }
+    
     @Test
     public void testThatAttributeParametersWithHyphensAreHandledCorrectly() throws Exception
     {

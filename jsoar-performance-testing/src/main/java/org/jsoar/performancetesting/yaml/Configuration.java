@@ -13,17 +13,17 @@ public class Configuration
 {
     public static TestSettings defaultSettings;
     private List<ConfigurationTest> tests;
-
+    
     public List<ConfigurationTest> getTests()
     {
         return tests;
     }
-
+    
     public void setConfigurationTests(List<ConfigurationTest> tests)
     {
         this.tests = tests;
     }
-
+    
     public TestSettings getDefaultSettings()
     {
         return Configuration.defaultSettings;

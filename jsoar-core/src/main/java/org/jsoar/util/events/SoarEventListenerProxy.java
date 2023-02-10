@@ -24,8 +24,10 @@ public class SoarEventListenerProxy implements SoarEventListener
     {
         this.target = target;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
      */
     @Override

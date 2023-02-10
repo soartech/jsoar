@@ -8,8 +8,6 @@ package org.jsoar.kernel.exploration;
 import java.util.EnumMap;
 import java.util.Map;
 
-
-
 /**
  * <p>exploration.h:32:exploration_parameter
  * 
@@ -24,9 +22,12 @@ public class ExplorationParameter
      */
     public static enum ReductionPolicy
     {
-        EXPLORATION_REDUCTION_EXPONENTIAL("exponential") {
-
-            /* (non-Javadoc)
+        EXPLORATION_REDUCTION_EXPONENTIAL("exponential")
+        {
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy#isRateValid(double)
              */
             @Override
@@ -34,11 +35,15 @@ public class ExplorationParameter
             {
                 // exploration.cpp:427:exploration_valid_exponential
                 return rate >= 0 && rate <= 1;
-            }},
+            }
+        },
+        
+        EXPLORATION_REDUCTION_LINEAR("linear")
+        {
             
-        EXPLORATION_REDUCTION_LINEAR("linear") {
-
-            /* (non-Javadoc)
+            /*
+             * (non-Javadoc)
+             * 
              * @see org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy#isRateValid(double)
              */
             @Override
@@ -46,7 +51,8 @@ public class ExplorationParameter
             {
                 // exploration.cpp:435:exploration_valid_linear
                 return rate >= 0;
-            }};
+            }
+        };
         
         private final String policyName;
         
@@ -99,31 +105,31 @@ public class ExplorationParameter
     Map<ReductionPolicy, Double> rates = new EnumMap<ReductionPolicy, Double>(ReductionPolicy.class);
     
     /**
-     * exploration.cpp::exploration_update_parameters 
+     * exploration.cpp::exploration_update_parameters
      */
     void update()
     {
-        double reduction_rate = rates.get(reduction_policy).doubleValue();            
-
-        if ( reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_EXPONENTIAL )
+        double reduction_rate = rates.get(reduction_policy).doubleValue();
+        
+        if(reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_EXPONENTIAL)
         {
-            if ( reduction_rate != 1 )
+            if(reduction_rate != 1)
             {
                 this.value = value * reduction_rate;
             }
         }
-        else if ( reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_LINEAR )
+        else if(reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_LINEAR)
         {
             double current_value = this.value;
             
-            if ( ( current_value > 0 ) && ( reduction_rate != 0 ) )
-                this.value = ( ( ( current_value - reduction_rate ) > 0 )?( current_value - reduction_rate ):( 0 ) );
+            if((current_value > 0) && (reduction_rate != 0))
+                this.value = (((current_value - reduction_rate) > 0) ? (current_value - reduction_rate) : (0));
         }
     }
     
     public double getReductionRate(ReductionPolicy policy)
     {
-    	return rates.get(policy).doubleValue();
+        return rates.get(policy).doubleValue();
     }
     
     public boolean setReductionRate(ReductionPolicy policy, double rate)

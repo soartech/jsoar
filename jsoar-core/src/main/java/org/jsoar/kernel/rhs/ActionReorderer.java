@@ -45,7 +45,7 @@ public class ActionReorderer
      * if successful, FALSE if it was unable to produce a legal ordering.
      * =====================================================================
      */
-
+    
     /**
      * Construct a new reorderer
      * 
@@ -57,7 +57,7 @@ public class ActionReorderer
         this.printer = printer;
         this.prodName = prodName;
     }
-
+    
     /**
      * reorder.cpp:86:reorder_action_list
      * 
@@ -72,31 +72,31 @@ public class ActionReorderer
         Action first_action = null;
         Action last_action = null;
         Action prev_a = null;
-
-        while (remaining_actions != null)
+        
+        while(remaining_actions != null)
         {
             // scan through remaining_actions, look for one that's legal
             prev_a = null;
             Action a = remaining_actions;
-            while (true)
+            while(true)
             {
-                if (a == null)
+                if(a == null)
                 {
                     break; /* looked at all candidates, but none were legal */
                 }
-                if (legal_to_execute_action(a, lhs_tc))
+                if(legal_to_execute_action(a, lhs_tc))
                 {
                     break;
                 }
                 prev_a = a;
                 a = a.next;
             }
-            if (a == null)
+            if(a == null)
             {
                 break;
             }
             // move action a from remaining_actions to reordered list
-            if (prev_a != null)
+            if(prev_a != null)
             {
                 prev_a.next = a.next;
             }
@@ -105,7 +105,7 @@ public class ActionReorderer
                 remaining_actions = a.next;
             }
             a.next = null;
-            if (last_action != null)
+            if(last_action != null)
             {
                 last_action.next = a;
             }
@@ -118,36 +118,36 @@ public class ActionReorderer
             // add new variables from a to new_bound_vars
             Action.addAllVariables(a, lhs_tc, new_bound_vars);
         }
-
-        if (remaining_actions != null)
+        
+        if(remaining_actions != null)
         {
             /* --- reconstruct list of all actions --- */
-            if (last_action != null)
+            if(last_action != null)
                 last_action.next = remaining_actions;
             else
                 first_action = remaining_actions;
-
+            
             // There are remaining_actions but none can be legally added
             String message = String.format("Error: production %s has a bad RHS--\n" +
-                          " Either it creates structure not connected to anything\n" +  
-                          " else in WM, or it tries to pass an unbound variable as\n" + 
-                          " an argument to a function.\n", prodName);
+                    " Either it creates structure not connected to anything\n" +
+                    " else in WM, or it tries to pass an unbound variable as\n" +
+                    " an argument to a function.\n", prodName);
             printer.error(message);
             
             throw new ReordererException(message);
         }
-
+        
         /* --- unmark variables that we just marked --- */
-        for (ListItem<Variable> var = new_bound_vars.first; var != null; var = var.next)
+        for(ListItem<Variable> var = new_bound_vars.first; var != null; var = var.next)
         {
             var.item.unmark();
         }
-
+        
         /* --- return final result --- */
         action_list.value = first_action;
-
+        
     }
-
+    
     /**
      * reorder.cpp:164:legal_to_execute_action
      * 
@@ -155,23 +155,23 @@ public class ActionReorderer
     private boolean legal_to_execute_action(Action a, Marker tc)
     {
         MakeAction ma = a.asMakeAction();
-        if (ma != null)
+        if(ma != null)
         {
-            if (!all_variables_in_rhs_value_bound(ma.id, tc))
+            if(!all_variables_in_rhs_value_bound(ma.id, tc))
             {
                 return false;
             }
-            if (ma.attr.asFunctionCall() != null
+            if(ma.attr.asFunctionCall() != null
                     && (!all_variables_in_rhs_value_bound(ma.attr, tc)))
             {
                 return false;
             }
-            if (ma.value.asFunctionCall() != null
+            if(ma.value.asFunctionCall() != null
                     && (!all_variables_in_rhs_value_bound(ma.value, tc)))
             {
                 return false;
             }
-            if (a.preference_type.isBinary()
+            if(a.preference_type.isBinary()
                     && ma.referent.asFunctionCall() != null
                     && (!all_variables_in_rhs_value_bound(ma.referent, tc)))
             {
@@ -183,18 +183,18 @@ public class ActionReorderer
         return all_variables_in_rhs_value_bound(a.asFunctionAction().getCall(),
                 tc);
     }
-
+    
     private boolean all_variables_in_rhs_value_bound(RhsValue rv, Marker tc)
     {
-
+        
         RhsFunctionCall fc = rv.asFunctionCall();
-
-        if (fc != null)
+        
+        if(fc != null)
         {
             /* --- function calls --- */
-            for (RhsValue arg : fc.getArguments())
+            for(RhsValue arg : fc.getArguments())
             {
-                if (!all_variables_in_rhs_value_bound(arg, tc))
+                if(!all_variables_in_rhs_value_bound(arg, tc))
                 {
                     return false;
                 }
@@ -205,12 +205,12 @@ public class ActionReorderer
         {
             /* --- ordinary (symbol) rhs values --- */
             Variable var = rv.asSymbolValue().getSym().asVariable();
-            if (var != null)
+            if(var != null)
             {
                 return var.tc_number == tc;
             }
             return true;
         }
     }
-
+    
 }

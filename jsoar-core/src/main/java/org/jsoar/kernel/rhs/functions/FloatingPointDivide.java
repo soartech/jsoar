@@ -23,8 +23,10 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
     {
         super("/", 1, Integer.MAX_VALUE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -32,14 +34,14 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
         RhsFunctions.checkArgumentCount(this, arguments);
-
+        
         final SymbolFactory syms = context.getSymbols();
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
         {
             IntegerSymbol i = arg.asInteger();
             
-            double f =  i != null ? i.getValue() : arg.asDouble().getValue();
+            double f = i != null ? i.getValue() : arg.asDouble().getValue();
             if(f == 0.0)
             {
                 throw new RhsFunctionException("Attempt to divide ('/') by zero");

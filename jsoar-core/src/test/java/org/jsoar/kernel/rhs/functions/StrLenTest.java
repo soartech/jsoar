@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  */
 public class StrLenTest extends JSoarTest
 {
-
+    
     @Test
     public void testExecute() throws Exception
     {
@@ -29,5 +29,5 @@ public class StrLenTest extends JSoarTest
             assertEquals(i, strlen.execute(rhsFuncContext, Symbols.asList(syms, s)).asInteger().getValue());
         }
     }
-
+    
 }

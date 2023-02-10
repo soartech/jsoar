@@ -7,7 +7,6 @@ package org.jsoar.kernel.rete;
 
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */

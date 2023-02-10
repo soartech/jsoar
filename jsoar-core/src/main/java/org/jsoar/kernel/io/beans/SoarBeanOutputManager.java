@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class SoarBeanOutputManager
 {
     private static final Logger logger = LoggerFactory.getLogger(SoarBeanOutputManager.class);
-
+    
     private final SoarEventManager eventManager;
     private final SoarEventListener listener;
     private final SoarBeanReader reader = new SoarBeanReader();
@@ -64,14 +64,14 @@ public class SoarBeanOutputManager
      * @param <T> type of Java object that receives output command structure
      * @param name the name of the output command
      * @param handler the handler object to call when new output commands are
-     *      detected.
+     *     detected.
      * @param beanClass Java bean class
      */
     public <T> void registerHandler(String name, SoarBeanOutputHandler<T> handler, Class<T> beanClass)
     {
         handlers.put(name, new HandlerInfo(handler, beanClass));
     }
-        
+    
     /**
      * Unregister a handler previously registered with {@link #registerHandler(String, SoarBeanOutputHandler, Class)}.
      * 
@@ -109,26 +109,27 @@ public class SoarBeanOutputManager
         try
         {
             final Object bean = reader.read(id, info.beanClass);
-            final SoarBeanOutputContext context = new SoarBeanOutputContext() {
-
+            final SoarBeanOutputContext context = new SoarBeanOutputContext()
+            {
+                
                 @Override
                 public Wme getCommand()
                 {
                     return command;
                 }
-
+                
                 @Override
                 public InputOutput getInputOutput()
                 {
                     return outputEvent.getInputOutput();
                 }
-
+                
                 @Override
                 public void setStatus(Object status)
                 {
                     InputWmes.add(getInputOutput(), id, "status", status);
                 }
-
+                
                 @Override
                 public void setStatusComplete()
                 {
@@ -137,7 +138,7 @@ public class SoarBeanOutputManager
             };
             info.handler.handleOutputCommand(context, bean);
         }
-        catch (SoarBeanException e)
+        catch(SoarBeanException e)
         {
             if(info.handler.exceptionHandler != null)
             {

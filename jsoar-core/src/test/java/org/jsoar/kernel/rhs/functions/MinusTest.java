@@ -12,7 +12,6 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.symbols.Symbols;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */
@@ -82,5 +81,5 @@ public class MinusTest extends JSoarTest
         
         assertEquals(2.0 - 3.0 - 4.0 - -2.0, minus.execute(rhsFuncContext, Symbols.asList(syms, 2.0, 3.0, 4.0, -2.0)).asDouble().getValue(), 0.0001);
     }
-
+    
 }

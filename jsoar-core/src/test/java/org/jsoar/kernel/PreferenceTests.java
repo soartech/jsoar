@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
@@ -52,18 +51,18 @@ public class PreferenceTests extends FunctionalTestHarness
     {
         runTest("testStateNoChangeImpasse", 1);
     }
-            
+    
     @Test
     // this test actually touches code outside of the decision procedure, in RecognitionMemory, but it's still preference related
     public void testORejectsFirst() throws Exception
     {
         runTest("testORejectsFirst", 1);
     }
-
+    
     @Test
     public void testDeallocation() throws Exception
     {
         runTest("testDeallocation", 6);
     }
-
+    
 }

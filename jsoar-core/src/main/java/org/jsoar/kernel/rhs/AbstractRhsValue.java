@@ -29,10 +29,10 @@ public abstract class AbstractRhsValue implements RhsValue
     {
         return null;
     }
-
+    
     public char getFirstLetter()
     {
         return '*';
     }
-
+    
 }

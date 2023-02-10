@@ -25,7 +25,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * Simple class that retrieves support information for a particular WME.
  * 
- * <p>This code is based very loosely on the implementation of the 
+ * <p>This code is based very loosely on the implementation of the
  * preferences command in csoar.
  * 
  * @author ray
@@ -57,22 +57,58 @@ public class WmeSupportInfo
             this.wmes = wmes;
         }
         
-        public PreferenceType getType() { return pref.type; }
-        public Identifier getIdentifier() { return pref.id; }
-        public Symbol getAttribute() { return pref.attr; }
-        public Symbol getValue() { return pref.value; }
-        public String getValueTrace() { return valueTrace; }
-        public Symbol getReferent() { return pref.referent; }
-        public boolean isOSupported() { return osupported; }
-        public Production getSource() { 
-            if(pref.inst != null) {
-                return pref.inst.prod; 
-            } 
+        public PreferenceType getType()
+        {
+            return pref.type;
+        }
+        
+        public Identifier getIdentifier()
+        {
+            return pref.id;
+        }
+        
+        public Symbol getAttribute()
+        {
+            return pref.attr;
+        }
+        
+        public Symbol getValue()
+        {
+            return pref.value;
+        }
+        
+        public String getValueTrace()
+        {
+            return valueTrace;
+        }
+        
+        public Symbol getReferent()
+        {
+            return pref.referent;
+        }
+        
+        public boolean isOSupported()
+        {
+            return osupported;
+        }
+        
+        public Production getSource()
+        {
+            if(pref.inst != null)
+            {
+                return pref.inst.prod;
+            }
             return null;
         }
-        public List<Wme> getSourceWmes() { return wmes; }
-
-        /* (non-Javadoc)
+        
+        public List<Wme> getSourceWmes()
+        {
+            return wmes;
+        }
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
          */
         @Override
@@ -85,7 +121,6 @@ public class WmeSupportInfo
             return super.getAdapter(klass);
         }
         
-        
     }
     
     /**
@@ -93,8 +128,8 @@ public class WmeSupportInfo
      * 
      * @param agent The agent
      * @param wme The wme
-     * @return support info  for the given wme, or null if it is architectural
-     *      or I/O, i.e. if it has no preference
+     * @return support info for the given wme, or null if it is architectural
+     * or I/O, i.e. if it has no preference
      * @throws IllegalArgumentException if agent or wme is <code>null</code>.
      */
     public static WmeSupportInfo get(Agent agent, Wme wme)
@@ -118,9 +153,7 @@ public class WmeSupportInfo
     {
         return wme;
     }
-
-
-
+    
     /**
      * @return the list of supports (one per preference) for the WME.
      */
@@ -128,9 +161,7 @@ public class WmeSupportInfo
     {
         return supports;
     }
-
-
-
+    
     private static Support createSupport(Agent agent, Preference pref)
     {
         final TraceFormats traceFormats = Adaptables.adapt(agent, TraceFormats.class);
@@ -145,7 +176,7 @@ public class WmeSupportInfo
             {
                 traceFormats.print_object_trace(w, pref.value);
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 e.printStackTrace();
             }
@@ -165,8 +196,9 @@ public class WmeSupportInfo
         this.supports = Collections.unmodifiableList(supports);
     }
     
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -182,10 +214,7 @@ public class WmeSupportInfo
                 b.append(String.format("      %s\n", w));
             }
         }
-        return b.toString(); 
+        return b.toString();
     }
-    
-   
-    
     
 }

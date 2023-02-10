@@ -55,5 +55,5 @@ public class SoarBeanException extends Exception
         this.klass = klass;
         this.id = id;
     }
-
+    
 }

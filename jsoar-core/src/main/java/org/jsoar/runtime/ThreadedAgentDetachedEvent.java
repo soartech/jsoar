@@ -15,7 +15,7 @@ import org.jsoar.util.events.SoarEvent;
 public class ThreadedAgentDetachedEvent implements SoarEvent
 {
     private final ThreadedAgent agent;
-
+    
     /**
      * @param agent
      */
@@ -23,7 +23,7 @@ public class ThreadedAgentDetachedEvent implements SoarEvent
     {
         this.agent = agent;
     }
-
+    
     /**
      * @return the agent
      */

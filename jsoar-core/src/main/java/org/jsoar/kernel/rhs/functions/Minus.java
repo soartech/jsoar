@@ -23,7 +23,7 @@ public final class Minus extends AbstractRhsFunctionHandler
     {
         super("-", 1, Integer.MAX_VALUE);
     }
-
+    
     @Override
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
@@ -37,8 +37,7 @@ public final class Minus extends AbstractRhsFunctionHandler
         {
             IntegerSymbol i = arg.asInteger();
             
-            return i != null ? syms.createInteger(-i.getValue()) : 
-                               syms.createDouble(-arg.asDouble().getValue());
+            return i != null ? syms.createInteger(-i.getValue()) : syms.createDouble(-arg.asDouble().getValue());
         }
         
         long i = 0;

@@ -27,8 +27,10 @@ public class CommandLineRunnable implements Callable<Void>
         this.ifc = ifc;
         this.command = command;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Runnable#run()
      */
     @Override
@@ -44,7 +46,7 @@ public class CommandLineRunnable implements Callable<Void>
                 printer.startNewLine().print(result).flush();
             }
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             printer.error(e.getMessage() + "\n");
         }
@@ -52,5 +54,5 @@ public class CommandLineRunnable implements Callable<Void>
         ifc.update(false);
         return null;
     }
-
+    
 }

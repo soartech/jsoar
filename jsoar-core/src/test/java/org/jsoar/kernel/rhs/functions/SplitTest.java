@@ -21,33 +21,35 @@ import org.junit.jupiter.api.Test;
  */
 public class SplitTest extends JSoarTest
 {
-    @Test 
+    @Test
     public void testSplit() throws Exception
-    {        
+    {
         final ByRef<Boolean> succeeded = ByRef.create(false);
         final Agent agent = new Agent();
         agent.getTrace().disableAll();
-        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("succeeded") {
-
+        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("succeeded")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext context,
                     List<Symbol> arguments) throws RhsFunctionException
             {
                 succeeded.value = true;
                 return null;
-            }});
+            }
+        });
         agent.getProductions().loadProduction("" +
-        		"callSplit (state <s> ^superstate nil) " +
-        		"--> " +
-        		"(<s> ^result (split |string to split| | |))");
+                "callSplit (state <s> ^superstate nil) " +
+                "--> " +
+                "(<s> ^result (split |string to split| | |))");
         agent.getProductions().loadProduction("" +
-        		"checkResult (state <s> ^superstate nil ^result <r>) " +
-        		"(<r> ^value string ^next <n1>)" +
-        		"(<n1> ^value to ^next <n2>)" +
-        		"(<n2> ^value split ^next nil) " +
-        		"-->" +
-        		"(succeeded)");
-        		
+                "checkResult (state <s> ^superstate nil ^result <r>) " +
+                "(<r> ^value string ^next <n1>)" +
+                "(<n1> ^value to ^next <n2>)" +
+                "(<n2> ^value split ^next nil) " +
+                "-->" +
+                "(succeeded)");
+        
         agent.runFor(1, RunType.DECISIONS);
         assertTrue(succeeded.value);
     }

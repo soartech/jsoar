@@ -36,7 +36,7 @@ public class SelectionManager
         this.provider.activate(this);
         fireSelectionChanged();
     }
-
+    
     /**
      * 
      */
@@ -52,32 +52,37 @@ public class SelectionManager
     {
         return provider.getSelectedObject();
     }
-
+    
     public List<Object> getSelection()
     {
         return provider.getSelection();
     }
     
-    
     private static class NullProvider implements SelectionProvider
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
          */
         @Override
         public void activate(SelectionManager manager)
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
          */
         @Override
         public void deactivate()
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
          */
         @Override
@@ -85,8 +90,10 @@ public class SelectionManager
         {
             return new ArrayList<Object>();
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
          */
         @Override

@@ -5,7 +5,6 @@
  */
 package org.jsoar.script;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -26,7 +25,9 @@ public class ScriptCommandTest
     private Agent agent;
     private ScriptCommand command;
     
-    public static class TestEvent implements SoarEvent {};
+    public static class TestEvent implements SoarEvent
+    {
+    };
     
     @BeforeEach
     public void setUp() throws Exception
@@ -34,12 +35,12 @@ public class ScriptCommandTest
         agent = new Agent();
         command = new ScriptCommand(agent);
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testThrowsAnExceptionForUnknownScriptEngines()
     {
@@ -97,10 +98,10 @@ public class ScriptCommandTest
             // Initialize javascript engine and register a handler for our test
             // function. It throws an exception.
             agent.getInterpreter().eval("script javascript {\n" +
-                "soar.rhsFunction( { name: 'cleanup-test', \n" +
-                "   execute: function(context, args) { throw 'Failed'; } " +
-                "});\n" +
-                "\n}");
+                    "soar.rhsFunction( { name: 'cleanup-test', \n" +
+                    "   execute: function(context, args) { throw 'Failed'; } " +
+                    "});\n" +
+                    "\n}");
             
             // reset javascript engine
             agent.getInterpreter().eval("script --reset javascript");

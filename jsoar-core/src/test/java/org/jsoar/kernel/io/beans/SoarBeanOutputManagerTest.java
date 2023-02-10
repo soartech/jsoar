@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.io.beans;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -45,7 +44,7 @@ public class SoarBeanOutputManagerTest
         this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -54,7 +53,7 @@ public class SoarBeanOutputManagerTest
     {
         this.output.dispose();
     }
-
+    
     public static class Point
     {
         public int x;
@@ -71,8 +70,9 @@ public class SoarBeanOutputManagerTest
     public void testRegisterHandler() throws Exception
     {
         final ByRef<MoveToPoint> commandHolder = ByRef.create(null);
-        final SoarBeanOutputHandler<MoveToPoint> handler = new SoarBeanOutputHandler<MoveToPoint>() {
-
+        final SoarBeanOutputHandler<MoveToPoint> handler = new SoarBeanOutputHandler<MoveToPoint>()
+        {
+            
             @Override
             public void handleOutputCommand(SoarBeanOutputContext context, MoveToPoint bean)
             {
@@ -80,7 +80,8 @@ public class SoarBeanOutputManagerTest
                 assertSame(agent.getInputOutput(), context.getInputOutput());
                 commandHolder.value = bean;
                 context.setStatus("all done");
-            }};
+            }
+        };
         output.registerHandler("move-to-point", handler, MoveToPoint.class);
         
         agent.getProductions().loadProduction("testRegisterHandler\n" +

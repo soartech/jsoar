@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.io;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -39,7 +38,7 @@ public class CycleCountInputTest
     {
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -47,26 +46,28 @@ public class CycleCountInputTest
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testCycleCountInput() throws Exception
     {
         final List<Long> matches = new ArrayList<Long>();
-        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match") {
-
+        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
                 matches.add(arguments.get(0).asInteger().getValue());
                 return null;
-            }});
+            }
+        });
         CycleCountInput input = new CycleCountInput(agent.getInputOutput());
         
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction("testCycleCountInput " +
-        		"(state <s> ^superstate nil ^io.input-link.cycle-count <cc>)" +
-        		"-->" +
-        		"(match <cc>)");
+                "(state <s> ^superstate nil ^io.input-link.cycle-count <cc>)" +
+                "-->" +
+                "(match <cc>)");
         
         final long n = 50;
         agent.runFor(n, RunType.DECISIONS);

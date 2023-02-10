@@ -18,7 +18,9 @@ public class ConjunctiveNegationCondition extends Condition
     public Condition top;
     public Condition bottom;
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#asConjunctiveNegationCondition()
      */
     @Override
@@ -26,8 +28,10 @@ public class ConjunctiveNegationCondition extends Condition
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
@@ -35,8 +39,10 @@ public class ConjunctiveNegationCondition extends Condition
     {
         addAllVariables(top, tc_number, var_list);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
@@ -44,8 +50,10 @@ public class ConjunctiveNegationCondition extends Condition
     {
         // Do nothing
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
@@ -53,8 +61,10 @@ public class ConjunctiveNegationCondition extends Condition
     {
         // Do nothing
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Condition#cond_is_in_tc(int)
      */
     @Override
@@ -63,37 +73,36 @@ public class ConjunctiveNegationCondition extends Condition
         // conjunctive negations: keep trying to add stuff to the TC
         final ListHead<IdentifierImpl> new_ids = ListHead.newInstance();
         final ListHead<Variable> new_vars = ListHead.newInstance();
-
-        for (Condition c = top; c != null; c = c.next)
+        
+        for(Condition c = top; c != null; c = c.next)
             c.already_in_tc = false;
-
-        while (true)
+        
+        while(true)
         {
             boolean anything_changed = false;
-            for (Condition c = top; c != null; c = c.next)
-                if (!c.already_in_tc)
-                    if (c.cond_is_in_tc(tc))
+            for(Condition c = top; c != null; c = c.next)
+                if(!c.already_in_tc)
+                    if(c.cond_is_in_tc(tc))
                     {
                         c.add_cond_to_tc(tc, new_ids, new_vars);
                         c.already_in_tc = true;
                         anything_changed = true;
                     }
-            if (!anything_changed)
+            if(!anything_changed)
                 break;
         }
-
+        
         // complete TC found, look for anything that didn't get hit
         boolean result = true;
-        for (Condition c = top; c != null; c = c.next)
-            if (!c.already_in_tc)
+        for(Condition c = top; c != null; c = c.next)
+            if(!c.already_in_tc)
                 result = false;
-
+            
         // unmark identifiers and variables that we just marked
         IdentifierImpl.unmark(new_ids);
         Variable.unmark(new_vars);
-
+        
         return result;
     }
     
-
 }

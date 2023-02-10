@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
 import org.jsoar.runtime.CompletionHandler;
 
 /**
- * Wrap a completion handler in logic to ensure that it executes on the 
+ * Wrap a completion handler in logic to ensure that it executes on the
  * Swing event thread. Do not interact with the Soar agent in this unless
  * rewrapping in a {@code ThreadedAgent.execute}
  * 
@@ -20,7 +20,7 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T>
 {
     private final CompletionHandler<T> inner;
     
-    public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner) 
+    public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner)
     {
         return new SwingCompletionHandler<V>(inner);
     }
@@ -30,7 +30,9 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T>
         this.inner = inner;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.runtime.Result#finish(java.lang.Object)
      */
     @Override
@@ -45,5 +47,5 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T>
             SwingUtilities.invokeLater(() -> inner.finish(result));
         }
     }
-
+    
 }

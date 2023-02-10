@@ -18,7 +18,7 @@ import org.jsoar.runtime.ThreadedAgent;
  */
 public class StopEvent extends AbstractAgentEvent
 {
-
+    
     /**
      * Construct a new stop event for the given agent
      * 
@@ -28,5 +28,5 @@ public class StopEvent extends AbstractAgentEvent
     {
         super(agent);
     }
-
+    
 }

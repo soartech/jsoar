@@ -30,10 +30,10 @@ public class FormatRhsFunctionTest extends JSoarTest
     @Test
     public void testFormatWithSeveralArgs() throws Exception
     {
-        checkResult("S1: hi 987 3.140000 null", func.execute(rhsFuncContext, 
+        checkResult("S1: hi 987 3.140000 null", func.execute(rhsFuncContext,
                 Symbols.asList(syms, "%s: %s %d %f %s", syms.createIdentifier('S'), "hi", 987, 3.14, null)));
     }
-
+    
     @Test
     public void testFormatThrowsExceptionWhenGivenAnInvalidFormatSpecifier()
     {

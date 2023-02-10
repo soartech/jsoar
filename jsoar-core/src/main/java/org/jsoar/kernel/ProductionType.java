@@ -11,6 +11,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
  * Enumeration of various production types.
  * 
  * <p>gsysparam.h:43:_PRODUCTION_TYPE
+ * 
  * @author ray
  */
 public enum ProductionType
@@ -39,10 +40,10 @@ public enum ProductionType
      * gsysparam.h:47:TEMPLATE_PRODUCTION_TYPE
      */
     TEMPLATE(Category.FIRINGS_OF_TEMPLATES);
-
-    //NUM_PRODUCTION_TYPES 5
+    
+    // NUM_PRODUCTION_TYPES 5
     // Soar-RL assumes that the production types start at 0 and go to (NUM_PRODUCTION_TYPES-1) sequentially
-
+    
     private final Category category;
     private final String displayString;
     
@@ -60,7 +61,7 @@ public enum ProductionType
     {
         return category;
     }
-
+    
     /**
      * @return A display string in title case
      */

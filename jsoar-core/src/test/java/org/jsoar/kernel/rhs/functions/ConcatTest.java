@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
  */
 public class ConcatTest extends JSoarTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.rhs.functions.Concat#execute(RhsFunctionContext, List)}.
      */
@@ -28,5 +28,5 @@ public class ConcatTest extends JSoarTest
         Concat c = new Concat();
         assertEquals("abc  D  e><>123", c.execute(rhsFuncContext, Symbols.asList(syms, "a", "b", "c  D  e>", "<>", 1, 2, 3)).asString().getValue());
     }
-
+    
 }

@@ -10,8 +10,10 @@ package org.jsoar.kernel.modules;
  */
 public interface Param
 {
-
+    
     String get_name();
+    
     boolean set_string(String new_string);
+    
     boolean validate_string(String new_string);
 }

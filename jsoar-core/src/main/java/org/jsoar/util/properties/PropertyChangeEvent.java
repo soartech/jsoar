@@ -5,7 +5,6 @@
  */
 package org.jsoar.util.properties;
 
-
 /**
  * Event fired when the value of a property is changed.
  * 
@@ -30,7 +29,7 @@ public class PropertyChangeEvent<T>
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
-
+    
     /**
      * @return the key of the property that is changing
      */
@@ -38,7 +37,7 @@ public class PropertyChangeEvent<T>
     {
         return key;
     }
-
+    
     /**
      * @return the new value of the property
      */
@@ -46,7 +45,7 @@ public class PropertyChangeEvent<T>
     {
         return newValue;
     }
-
+    
     /**
      * @return the old value of the property
      */
@@ -54,5 +53,5 @@ public class PropertyChangeEvent<T>
     {
         return oldValue;
     }
-
+    
 }

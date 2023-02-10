@@ -18,7 +18,7 @@ import org.jsoar.debugger.RunControlModel;
 public class RunAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -1460902354871319429L;
-
+    
     /**
      * @param manager the owning action manager
      */
@@ -27,8 +27,10 @@ public class RunAction extends AbstractDebuggerAction
         super(manager, "Run", Images.START);
         setAcceleratorKey(KeyStroke.getKeyStroke("F5"));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -36,8 +38,10 @@ public class RunAction extends AbstractDebuggerAction
     {
         setEnabled(!getApplication().getAgent().isRunning());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -47,5 +51,5 @@ public class RunAction extends AbstractDebuggerAction
         getApplication().getAgent().runFor(model.getCount(), model.getType());
         getApplication().updateActionsAndStatus();
     }
-
+    
 }

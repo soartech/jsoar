@@ -8,4 +8,3 @@ public @interface SoarUnitSettings
 {
     int threads() default 1;
 }
-

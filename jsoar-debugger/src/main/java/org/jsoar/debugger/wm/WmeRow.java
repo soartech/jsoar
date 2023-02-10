@@ -29,7 +29,7 @@ class WmeRow extends Row
     Rectangle2D attrBounds;
     
     final List<Value> values = new ArrayList<Value>();
-
+    
     public WmeRow(RootRow root, Value parent, Identifier id, Symbol attr)
     {
         super(root, parent != null ? parent.row.level + 1 : 0);
@@ -39,7 +39,9 @@ class WmeRow extends Row
         this.attr = attr;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.wm.Row#asWme()
      */
     @Override
@@ -47,7 +49,7 @@ class WmeRow extends Row
     {
         return this;
     }
-
+    
     public Value getValue(Wme wme)
     {
         for(Value value : values)
@@ -76,7 +78,7 @@ class WmeRow extends Row
         boolean expanded;
         final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
         Rectangle2D bounds;
-
+        
         private Value(long ts, WmeRow row, Wme wme)
         {
             this.ts = ts;
@@ -98,8 +100,10 @@ class WmeRow extends Row
         {
             children.remove(child.attr);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Comparable#compareTo(java.lang.Object)
          */
         @Override
@@ -122,13 +126,18 @@ class WmeRow extends Row
                 {
                     final int letter = mineId.getNameLetter() - theirId.getNameLetter();
                     final long number = mineId.getNameNumber() - theirId.getNameNumber();
-                    if(letter < 0) return -1;
-                    else if(letter == 0) return number < 0 ? -1 : 1;
-                    else return 1;
+                    if(letter < 0)
+                        return -1;
+                    else if(letter == 0)
+                        return number < 0 ? -1 : 1;
+                    else
+                        return 1;
                 }
-                else return 1;
+                else
+                    return 1;
             }
-            else if(theirId != null) return -1;
+            else if(theirId != null)
+                return -1;
             
             // String is next
             final StringSymbol myString = mine.asString();
@@ -139,10 +148,12 @@ class WmeRow extends Row
                 {
                     return myString.getValue().compareTo(theirString.getValue());
                 }
-                else return 1;
+                else
+                    return 1;
             }
-            else if(theirString != null) return -1;
-                
+            else if(theirString != null)
+                return -1;
+            
             // int is next
             final IntegerSymbol myInt = mine.asInteger();
             final IntegerSymbol theirInt = theirs.asInteger();
@@ -153,9 +164,11 @@ class WmeRow extends Row
                     final long d = myInt.getValue() - theirInt.getValue();
                     return d < 0 ? -1 : 1;
                 }
-                else return 1;
+                else
+                    return 1;
             }
-            else if(theirInt != null) return -1;
+            else if(theirInt != null)
+                return -1;
             
             // double is next
             final DoubleSymbol myDouble = mine.asDouble();
@@ -167,9 +180,11 @@ class WmeRow extends Row
                     final double d = myDouble.getValue() - theirDouble.getValue();
                     return d < 0 ? -1 : 1;
                 }
-                else return 1;
+                else
+                    return 1;
             }
-            else if(theirDouble != null) return -1;
+            else if(theirDouble != null)
+                return -1;
             
             return 0;
         }

@@ -27,64 +27,64 @@ import org.jsoar.util.adaptables.AbstractAdaptable;
  * 
  * <p>Internal implementation of {@link Wme} interface.
  * 
-   <p>Fields in a WME:
-   <ul>
-   <li>id, attr, value:  points to symbols for the wme fields
-
-      <li>acceptable:  TRUE iff this is an acceptable pref. wme
-
-      <li>timetag:  timetag of the wme
-
-      <li>reference count:  (see below)
-
-      <li>rete_next, rete_prev:  pointers in the doubly-linked list of all
-         wmes currently known to the rete (header is all_wmes_in_rete)
-         (this equals WM except while WM is being changed)
-
-      <li>right_mems:  header of a doubly-linked list of right memory entries
-         (in one or more alpha memories containing the wme).  This is used
-         only by the Rete, as part of list-based remove.
-
-      <li>tokens:  header of a doubly-linked list of tokens in the Rete.
-         This is used only by the Rete, as part of list-based remove.
-
-      <li>next, prev:  pointers in a doubly-linked list of wmes.
-         Depending on the wme type, the header of this DLL is:
-           - slot.wmes (for ordinary wmes)
-           - slot.acceptable_preference_wmes (for acceptable pref. wmes)
-           - id.impasse_wmes (for architecture-created goal/impasse wmes)
-           - id.input_wmes (for Soar I/O wmes)
-
-      <li>preference:  points to the preference supporting the wme.  For I/O
-         wmes and (most) architecture-created wmes, this is NIL.
-
-      <li>output_link:  this is used only for top-state output links.
-         It points to an output_link structure used by the I/O routines.
-
-      <li>grounds_tc, potentials_tc, locals_tc:  used by the chunker to indicate
-         whether this wme is in the grounds, potentials, and/or locals sets
-
-      <li>chunker_bt_pref: used by the chunker; set to {@code cond->bt.trace} when
-         a wme is added to either the potentials or locals set
-
-      <li>These are the additions to the WME structure that will be used
-         to track dependencies for goals.  Each working memory element
-     now includes a pointer  to a gds_struct (defined below) and
-     pointers to other WMEs on the same GDS.
-
-      <li>gds: the goal dependency set the wme is in
-      <li>gds_next, gds_prev:  used for dll of all wmes in gds
-    </ul>
-      <p>If a particular working memory element is not dependent for any goal,
-     then the values for these pointers will all be NIL. If a WME is
-     dependent for more than one goal, then it will point to the GDS
-     of the highest goal.
-
-   <p>Reference counts on wmes:
-      +1 if the wme is currently in WM
-      +1 for each instantiation condition that points to it (bt.wme)
-   We deallocate a wme when its reference count goes to 0.
-
+ * <p>Fields in a WME:
+ * <ul>
+ * <li>id, attr, value: points to symbols for the wme fields
+ * 
+ * <li>acceptable: TRUE iff this is an acceptable pref. wme
+ * 
+ * <li>timetag: timetag of the wme
+ * 
+ * <li>reference count: (see below)
+ * 
+ * <li>rete_next, rete_prev: pointers in the doubly-linked list of all
+ * wmes currently known to the rete (header is all_wmes_in_rete)
+ * (this equals WM except while WM is being changed)
+ * 
+ * <li>right_mems: header of a doubly-linked list of right memory entries
+ * (in one or more alpha memories containing the wme). This is used
+ * only by the Rete, as part of list-based remove.
+ * 
+ * <li>tokens: header of a doubly-linked list of tokens in the Rete.
+ * This is used only by the Rete, as part of list-based remove.
+ * 
+ * <li>next, prev: pointers in a doubly-linked list of wmes.
+ * Depending on the wme type, the header of this DLL is:
+ * - slot.wmes (for ordinary wmes)
+ * - slot.acceptable_preference_wmes (for acceptable pref. wmes)
+ * - id.impasse_wmes (for architecture-created goal/impasse wmes)
+ * - id.input_wmes (for Soar I/O wmes)
+ * 
+ * <li>preference: points to the preference supporting the wme. For I/O
+ * wmes and (most) architecture-created wmes, this is NIL.
+ * 
+ * <li>output_link: this is used only for top-state output links.
+ * It points to an output_link structure used by the I/O routines.
+ * 
+ * <li>grounds_tc, potentials_tc, locals_tc: used by the chunker to indicate
+ * whether this wme is in the grounds, potentials, and/or locals sets
+ * 
+ * <li>chunker_bt_pref: used by the chunker; set to {@code cond->bt.trace} when
+ * a wme is added to either the potentials or locals set
+ * 
+ * <li>These are the additions to the WME structure that will be used
+ * to track dependencies for goals. Each working memory element
+ * now includes a pointer to a gds_struct (defined below) and
+ * pointers to other WMEs on the same GDS.
+ * 
+ * <li>gds: the goal dependency set the wme is in
+ * <li>gds_next, gds_prev: used for dll of all wmes in gds
+ * </ul>
+ * <p>If a particular working memory element is not dependent for any goal,
+ * then the values for these pointers will all be NIL. If a WME is
+ * dependent for more than one goal, then it will point to the GDS
+ * of the highest goal.
+ * 
+ * <p>Reference counts on wmes:
+ * +1 if the wme is currently in WM
+ * +1 for each instantiation condition that points to it (bt.wme)
+ * We deallocate a wme when its reference count goes to 0.
+ * 
  * 
  * <p>wmem.h:125:wme
  * <p>The following fields or functions were removed because they were unused or
@@ -111,7 +111,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public Token tokens = null; // dll of tokens in rete
     
     /**
-     * next/previous pointers for lists this WME is a member of. 
+     * next/previous pointers for lists this WME is a member of.
      * 
      * <p>Possible list heads are:
      * <ul>
@@ -126,12 +126,12 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     
     public Preference preference;     // pref. supporting it, or null
     
-    public int grounds_tc;                     /* for chunker use only */
+    public int grounds_tc; /* for chunker use only */
     public int potentials_tc;
     public int locals_tc;
     
-    public /*epmem_node_id*/ long epmem_id = 0;
-    public /*uint64_t*/ long epmem_valid = 0;
+    public /* epmem_node_id */ long epmem_id = 0;
+    public /* uint64_t */ long epmem_valid = 0;
     
     public Preference chunker_bt_pref;
     
@@ -181,11 +181,11 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public void setOuterInputWme(InputWme outer)
     {
         assert (this.outerInputWme == null && outer != null) ||
-               (this.outerInputWme != null && outer == null);
+                (this.outerInputWme != null && outer == null);
         
         this.outerInputWme = outer;
     }
-
+    
     /**
      * Retrieve a field by index, 0 = id, 1 = attr, 2 = value.
      * 
@@ -199,18 +199,21 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         switch(field)
         {
-        case 0: return id;
-        case 1: return attr;
-        case 2: return value;
+        case 0:
+            return id;
+        case 1:
+            return attr;
+        case 2:
+            return value;
         }
         throw new IllegalArgumentException("field_num must be 0, 1, or 2, got" + field);
-    } 
+    }
     
     /**
      * Test if this WME is a member of a WME list
      * 
      * @param head The head of the list to search using {@link #next}/{@link #previous}
-     *      list pointers.
+     *     list pointers.
      * @return true if this WME is a member of the given list
      */
     public boolean isMemberOfList(WmeImpl head)
@@ -255,7 +258,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         
         return head;
     }
-        
+    
     /**
      * @return An iterator over the {@link #next} pointer starting at this WME
      */
@@ -271,7 +274,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     
     public void clearRightMemories()
     {
-        right_mems= null;
+        right_mems = null;
     }
     
     public void addRightMemory(RightMemory rm)
@@ -284,7 +287,9 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         right_mems = rm.removeFromWme(right_mems);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getAttribute()
      */
     @Override
@@ -292,8 +297,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return attr;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getIdentifier()
      */
     @Override
@@ -301,8 +308,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return id;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getTimetag()
      */
     @Override
@@ -310,8 +319,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return timetag;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getValue()
      */
     @Override
@@ -319,8 +330,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return value;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#isAcceptable()
      */
     @Override
@@ -328,18 +341,22 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return acceptable;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getChildren()
      */
     @Override
     public Iterator<Wme> getChildren()
     {
         Identifier valueAsId = value.asIdentifier();
-        return valueAsId != null ? valueAsId.getWmes() : Collections.<Wme>emptyIterator();
+        return valueAsId != null ? valueAsId.getWmes() : Collections.<Wme> emptyIterator();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.memory.Wme#getPreferences()
      */
     @Override
@@ -347,8 +364,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return new WmePreferenceIterator(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -356,8 +375,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     {
         return "(" + timetag + ": " + id + " ^" + attr + " " + value + ")";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -369,7 +390,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         // TODO: I don't think that this should automatically insert a newline!
         if((f & FormattableFlags.ALTERNATE) == 0)
         {
-            // This is the normal print_wme case. It is specified with the 
+            // This is the normal print_wme case. It is specified with the
             // usual %s format string
             if(wma != null && wma.wma_enabled())
             {
@@ -386,12 +407,14 @@ public class WmeImpl extends AbstractAdaptable implements Wme
             // It is specified with the %#s format string.
             fmt.format("(%s ^%s %s%s)\n", id, attr, value, acceptable ? " +" : "");
         }
-
+        
         // <wme tag="123" id="s1" attr="foo" attrtype="string" val="123" valtype="string"></wme>
         // TODO xml_object( thisAgent, w );
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -407,6 +430,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         }
         return super.getAdapter(klass);
     }
+    
     /**
      * soar_module.h: 43
      * This was placed here because it is being used as a concise version of a Wme
@@ -418,7 +442,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         public final SymbolImpl id;
         public final SymbolImpl attr;
         public final SymbolImpl value;
-
+        
         public SymbolTriple(SymbolImpl id, SymbolImpl attr, SymbolImpl value)
         {
             this.id = id;

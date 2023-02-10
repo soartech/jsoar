@@ -14,7 +14,10 @@ public class DefaultSourceLocation implements SourceLocation
 {
     public static final DefaultSourceLocation UNKNOWN = new DefaultSourceLocation(null, -1, -1, -1);
     
-    public static Builder newBuilder() { return new Builder(); }
+    public static Builder newBuilder()
+    {
+        return new Builder();
+    }
     
     public static class Builder
     {
@@ -23,12 +26,33 @@ public class DefaultSourceLocation implements SourceLocation
         private int length = -1;
         private int line = -1;
         
-        private Builder() {}
+        private Builder()
+        {
+        }
         
-        public Builder file(String v) { file = v; return this; }
-        public Builder offset(int v)  { offset = v; return this; }
-        public Builder length(int v) { length = v; return this; }
-        public Builder line(int v) { line = v; return this; }
+        public Builder file(String v)
+        {
+            file = v;
+            return this;
+        }
+        
+        public Builder offset(int v)
+        {
+            offset = v;
+            return this;
+        }
+        
+        public Builder length(int v)
+        {
+            length = v;
+            return this;
+        }
+        
+        public Builder line(int v)
+        {
+            line = v;
+            return this;
+        }
         
         public DefaultSourceLocation build()
         {
@@ -48,8 +72,10 @@ public class DefaultSourceLocation implements SourceLocation
         this.length = length;
         this.line = line;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.SourceLocation#getFile()
      */
     @Override
@@ -57,8 +83,10 @@ public class DefaultSourceLocation implements SourceLocation
     {
         return file;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.SourceLocation#getLength()
      */
     @Override
@@ -66,8 +94,10 @@ public class DefaultSourceLocation implements SourceLocation
     {
         return length;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.SourceLocation#getOffset()
      */
     @Override
@@ -75,8 +105,10 @@ public class DefaultSourceLocation implements SourceLocation
     {
         return offset;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.SourceLocation#getLine()
      */
     @Override
@@ -84,16 +116,17 @@ public class DefaultSourceLocation implements SourceLocation
     {
         return line;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString()
     {
-        return  (file != null && file.length() > 0 ? file : "*unknown*") +
+        return (file != null && file.length() > 0 ? file : "*unknown*") +
                 (line != -1 ? (":" + (line + 1)) : "");
     }
-
     
 }

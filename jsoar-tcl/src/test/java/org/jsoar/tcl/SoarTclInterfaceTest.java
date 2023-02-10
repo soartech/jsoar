@@ -5,7 +5,6 @@
  */
 package org.jsoar.tcl;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -43,7 +42,7 @@ public class SoarTclInterfaceTest
         final Agent agent = new Agent();
         ifc = SoarTclInterface.findOrCreate(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -61,7 +60,7 @@ public class SoarTclInterfaceTest
         
         assertNotNull(ifc.getAgent().getProductions().getProduction("top-state*propose*wait"));
     }
-
+    
     @Test
     public void testSrandCommand() throws Exception
     {
@@ -89,7 +88,9 @@ public class SoarTclInterfaceTest
     
     public static class TestParser extends AbstractAdaptable implements Parser
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.parser.Parser#parseProduction(org.jsoar.kernel.parser.ParserContext, java.io.Reader)
          */
         @Override
@@ -140,7 +141,7 @@ public class SoarTclInterfaceTest
         String inputFile = "jar:" + path + "!/test.soar";
         
         URL url = new URL(inputFile);
-        SoarCommands.source(ifc, url );
+        SoarCommands.source(ifc, url);
         
         assertEquals(1, ifc.getAgent().getProductions().getProductionCount(), "Expected a rule to be loaded");
     }

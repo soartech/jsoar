@@ -20,7 +20,7 @@ import org.jsoar.kernel.symbols.Symbols;
 public class InputWmes
 {
     /**
-     * Create a new input Wme with the given id, attribute and value. The 
+     * Create a new input Wme with the given id, attribute and value. The
      * attribute and value are created according to the rules of
      * {@link Symbols#create(SymbolFactory, Object)}. This method should
      * only be called from inside {@link InputEvent}.
@@ -29,7 +29,7 @@ public class InputWmes
      * @param id the identifier of the wme
      * @param attr the attribute
      * @param value the value
-     * @return the new input wme. 
+     * @return the new input wme.
      * @see Symbols#create(SymbolFactory, Object)
      */
     public static InputWme add(InputOutput io, Identifier id, Object attr, Object value)
@@ -39,7 +39,7 @@ public class InputWmes
     }
     
     /**
-     * Convenience form of {@link #add(InputOutput, Identifier, Object, Object)} 
+     * Convenience form of {@link #add(InputOutput, Identifier, Object, Object)}
      * which creates a new input wme directly on the input-link, i.e. <code>I2</code>.
      * 
      * @param io the input/output interface
@@ -54,7 +54,7 @@ public class InputWmes
     }
     
     /**
-     * Convenience form of {@link #add(InputOutput, Identifier, Object, Object)} 
+     * Convenience form of {@link #add(InputOutput, Identifier, Object, Object)}
      * which creates a new input wme under the given input wme.
      * 
      * <p>For example, if {@code parent} is {@code (I2 ^contact C2)},
@@ -66,7 +66,7 @@ public class InputWmes
      * @param value the value
      * @return the new input wme
      * @throws IllegalArgumentException if {@code parent.getValue()} is not an
-     *      {@link Identifier}
+     *     {@link Identifier}
      * @see Symbols#create(SymbolFactory, Object)
      */
     public static InputWme add(InputWme parent, Object attr, Object value)
@@ -78,7 +78,6 @@ public class InputWmes
         }
         return add(parent.getInputOutput(), id, attr, value);
     }
-    
     
     /**
      * Update the value of the given input wme with the given value according
@@ -97,5 +96,4 @@ public class InputWmes
         return wme;
     }
     
-
 }

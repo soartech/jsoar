@@ -7,12 +7,11 @@ package org.jsoar.util.commands;
 
 import org.jsoar.util.adaptables.Adaptable;
 
-
 /**
  * Service loader interface for auto-registering custom commands. Implementers
  * of this interface can register it with the usual ServiceLoader mechanism, i.e.
- * a file in {@code META-INF/services/org.jsoar.util.commands.SoarCommandProvider} 
- *  
+ * a file in {@code META-INF/services/org.jsoar.util.commands.SoarCommandProvider}
+ * 
  * @author ray
  * @see SoarCommands
  */

@@ -24,13 +24,13 @@ public final class SemanticMemoryDatabase extends AbstractSoarDatabase
     static final String SMEM_SCHEMA_VERSION = "2.0";
     
     static final String IN_MEMORY_PATH = ":memory:";
-
+    
     // These are all the prepared statements for SMEM (in addition to those in the superclass).
     // They're filled in via reflection from statements.properties.
     PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
-
+    
     PreparedStatement hash_rev_int;
     PreparedStatement hash_rev_float;
     PreparedStatement hash_rev_str;
@@ -42,7 +42,7 @@ public final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement hash_add_int;
     PreparedStatement hash_add_float;
     PreparedStatement hash_add_str;
-
+    
     PreparedStatement lti_add;
     PreparedStatement lti_get;
     PreparedStatement lti_letter_num;
@@ -54,13 +54,13 @@ public final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement web_add;
     PreparedStatement web_truncate;
     PreparedStatement web_expand;
-
+    
     PreparedStatement web_all;
-
+    
     PreparedStatement web_attr_all;
     PreparedStatement web_const_all;
     PreparedStatement web_lti_all;
-
+    
     PreparedStatement web_attr_child;
     PreparedStatement web_const_child;
     PreparedStatement web_lti_child;
@@ -68,25 +68,25 @@ public final class SemanticMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement attribute_frequency_check;
     PreparedStatement wmes_constant_frequency_check;
     PreparedStatement wmes_lti_frequency_check;
-
+    
     PreparedStatement attribute_frequency_add;
     PreparedStatement wmes_constant_frequency_add;
     PreparedStatement wmes_lti_frequency_add;
-
+    
     PreparedStatement attribute_frequency_update;
     PreparedStatement wmes_constant_frequency_update;
     PreparedStatement wmes_lti_frequency_update;
-
+    
     PreparedStatement attribute_frequency_get;
     PreparedStatement wmes_constant_frequency_get;
     PreparedStatement wmes_lti_frequency_get;
-
+    
     PreparedStatement act_set;
     PreparedStatement act_lti_child_ct_set;
     PreparedStatement act_lti_child_ct_get;
     PreparedStatement act_lti_set;
     PreparedStatement act_lti_get;
-
+    
     PreparedStatement history_get;
     PreparedStatement history_push;
     PreparedStatement history_add;
@@ -118,7 +118,8 @@ public final class SemanticMemoryDatabase extends AbstractSoarDatabase
         getFilterMap().put("@PREFIX@", SMEM_SCHEMA);
     }
     
-    public void dropSmemTables() throws SQLException{
+    public void dropSmemTables() throws SQLException
+    {
         drop_smem_persistent_variables.execute();
         drop_smem_symbols_type.execute();
         drop_smem_symbols_integer.execute();

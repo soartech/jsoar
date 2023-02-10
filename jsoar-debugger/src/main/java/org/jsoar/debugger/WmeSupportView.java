@@ -70,19 +70,21 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         this.entryList.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.entryList.setCellRenderer(new CellRenderer());
         this.entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-
+        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            
             @Override
             public void valueChanged(ListSelectionEvent e)
             {
-                if(e.getValueIsAdjusting()) return;
+                if(e.getValueIsAdjusting())
+                    return;
                 tableSelectionChange();
-            }});
+            }
+        });
         
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.wmeTable.setShowGrid(false);
         this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
-        
         
         final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entryList), new JScrollPane(wmeTable));
         split.setDividerSize(5);
@@ -93,23 +95,25 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         
         this.selectionManager.addListener(this);
     }
-
+    
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
-        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
+        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY)
+        {
             private static final long serialVersionUID = -3614573079885324027L;
-
+            
             {
                 setToolTip("Print preferences to trace");
             }
+            
             @Override
             public void update()
             {
             }
-
+            
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
@@ -117,10 +121,11 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 {
                     debugger.getAgent().getPrinter().startNewLine().print(sourceInfo.toString()).flush();
                 }
-            }});
+            }
+        });
         return bar;
     }
-
+    
     private void tableSelectionChange()
     {
         final Support support = (Support) entryList.getSelectedValue();
@@ -136,7 +141,9 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
@@ -183,11 +190,11 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             final Support support = (Support) value;
             setIcon(Images.PRODUCTION);
             setFont(boldFont);
-            setText(String.format("%s (:%c)", 
-                                  support.getSource() != null ? support.getSource().getName().toString() : "[dummy]",
-                                  support.isOSupported() ? 'O' : 'I'));
+            setText(String.format("%s (:%c)",
+                    support.getSource() != null ? support.getSource().getName().toString() : "[dummy]",
+                    support.isOSupported() ? 'O' : 'I'));
             return c;
         }
     }
-
+    
 }

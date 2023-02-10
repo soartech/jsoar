@@ -29,83 +29,84 @@ import com.google.re2j.Pattern;
 import com.google.re2j.PatternSyntaxException;
 
 @SuppressWarnings("serial")
-public class SyntaxPatternComponent extends JPanel {
+public class SyntaxPatternComponent extends JPanel
+{
     @SuppressWarnings("unused")
     private Set<String> styleNames;
     private final SyntaxPattern pattern;
     private JSoarDebugger debugger;
     private final CaptureGroupTableModel tableModel = new CaptureGroupTableModel();
     private final JXTable tblCaptureGroups;
-
+    
     private static final Color goodBackground = new Color(102, 242, 96);
     private static final Color badBackground = new Color(242, 102, 96);
     private final JButton btnDelete = new JButton("Delete");
-
-    public SyntaxPatternComponent(final SyntaxPattern pattern, Set<String> styleNames, final JSoarDebugger debugger) {
+    
+    public SyntaxPatternComponent(final SyntaxPattern pattern, Set<String> styleNames, final JSoarDebugger debugger)
+    {
         this.styleNames = styleNames;
         this.pattern = pattern;
         this.debugger = debugger;
         GridBagLayout mgr = new GridBagLayout();
         this.setLayout(mgr);
-
+        
         this.setBorder(new EmptyBorder(5, 5, 5, 5));
         GridBagConstraints constraints;
-
-
-        //regex label
+        
+        // regex label
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(new JLabel("Regex"), constraints);
-
-        //regex
+        
+        // regex
         final JTextField txtRegex = new JTextField(pattern.getRegex());
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        constraints.gridwidth=3;
+        constraints.gridwidth = 3;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         txtRegex.setColumns(45);
         this.add(txtRegex, constraints);
-
-        //controls
+        
+        // controls
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         JButton btnUpdate = new JButton("Test & Update");
         this.add(btnUpdate, constraints);
-
+        
         final JCheckBox chkEnabled = new JCheckBox("Enabled?");
         constraints.gridx = 1;
         constraints.gridy = 2;
         constraints.anchor = GridBagConstraints.LINE_START;
         chkEnabled.setSelected(pattern.isEnabled());
         this.add(chkEnabled, constraints);
-
+        
         final JCheckBox chkImportant = new JCheckBox("Always Instant?");
         constraints.gridx = 2;
         constraints.gridy = 2;
         constraints.anchor = GridBagConstraints.LINE_START;
         chkEnabled.setSelected(pattern.isImportant());
         this.add(chkImportant, constraints);
-
+        
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 3;
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         this.add(btnDelete, constraints);
-
-        //comment
+        
+        // comment
         constraints = new GridBagConstraints();
         constraints.gridx = 3;
         constraints.gridy = 0;
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(new JLabel("Comment"), constraints);
-
-        //syntax pattern comment
+        
+        // syntax pattern comment
         final JTextArea txtComment = new JTextArea(pattern.getComment());
         constraints = new GridBagConstraints();
         constraints.gridx = 3;
@@ -117,135 +118,155 @@ public class SyntaxPatternComponent extends JPanel {
         txtComment.setRows(6);
         txtComment.setLineWrap(true);
         this.add(txtComment, constraints);
-
-
-        //capture groups
+        
+        // capture groups
         constraints = new GridBagConstraints();
         constraints.gridx = 4;
         constraints.gridy = 0;
         constraints.anchor = GridBagConstraints.LINE_START;
         this.add(new JLabel("Capture Groups"), constraints);
-
+        
         tblCaptureGroups = new JXTable(tableModel);
-        //combo box column
+        // combo box column
         resetStyleNames(styleNames);
         constraints = new GridBagConstraints();
         constraints.gridx = 4;
         constraints.gridy = 1;
         constraints.gridheight = 3;
         constraints.fill = GridBagConstraints.BOTH;
-//        tblCaptureGroups.packAll();
+        // tblCaptureGroups.packAll();
         JPanel jPanel = new JPanel(new BorderLayout());
         jPanel.add(tblCaptureGroups, BorderLayout.CENTER);
         jPanel.add(tblCaptureGroups.getTableHeader(), BorderLayout.NORTH);
         this.add(jPanel, constraints);
-
-        //handlers
-        btnUpdate.addActionListener(e ->
-        {
+        
+        // handlers
+        btnUpdate.addActionListener(e -> {
             SyntaxPattern testSyntax = new SyntaxPattern();
             testSyntax.setRegex(txtRegex.getText());
             testSyntax.expandMacros(SyntaxPatternComponent.this.debugger);
             String text = testSyntax.getExpandedRegex();
-            try {
+            try
+            {
                 Pattern p = Pattern.compile(text);
                 int groupCount = p.groupCount();
-                while (groupCount > pattern.getComponents().size()) {
+                while(groupCount > pattern.getComponents().size())
+                {
                     pattern.getComponents().add("");
                 }
-                while (groupCount < pattern.getComponents().size()) {
+                while(groupCount < pattern.getComponents().size())
+                {
                     pattern.getComponents().remove(pattern.getComponents().size() - 1);
                 }
                 pattern.setRegex(txtRegex.getText());
                 tableModel.fireTableDataChanged();
                 txtRegex.setBackground(goodBackground);
-                txtRegex.setToolTipText("<html><b>Detected "+groupCount+" groups in pattern:</b><br>"+text+"</html>");
-
-            } catch (PatternSyntaxException ex) {
+                txtRegex.setToolTipText("<html><b>Detected " + groupCount + " groups in pattern:</b><br>" + text + "</html>");
+                
+            }
+            catch(PatternSyntaxException ex)
+            {
                 txtRegex.setBackground(badBackground);
-                txtRegex.setToolTipText("<html><b>"+ex.getDescription()+"</b><br>"+text+"</html>");
+                txtRegex.setToolTipText("<html><b>" + ex.getDescription() + "</b><br>" + text + "</html>");
             }
         });
-
+        
         chkEnabled.addActionListener(e -> pattern.setEnabled(chkEnabled.isSelected()));
         chkImportant.addActionListener(e -> pattern.setImportant(chkImportant.isSelected()));
-
-        txtComment.getDocument().addDocumentListener(new DocumentListener() {
+        
+        txtComment.getDocument().addDocumentListener(new DocumentListener()
+        {
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(DocumentEvent e)
+            {
                 pattern.setComment(txtComment.getText());
             }
-
+            
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(DocumentEvent e)
+            {
                 pattern.setComment(txtComment.getText());
             }
-
+            
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(DocumentEvent e)
+            {
                 pattern.setComment(txtComment.getText());
             }
         });
-
+        
     }
-
-    public void resetStyleNames(Set<String> styleNames) {
+    
+    public void resetStyleNames(Set<String> styleNames)
+    {
         TableColumn styleColumn = tblCaptureGroups.getColumnModel().getColumn(1);
-
+        
         JComboBox<String> comboBox = new JComboBox<>();
-        comboBox.addPopupMenuListener(new ExpandingWidthComboBoxListener(true,false));
-//        comboBox.setPrototypeDisplayValue("Use this for width because we need a fixed width");//will use this string to set max width of the combo box
-        comboBox.setMaximumSize( comboBox.getPreferredSize() );
-        for (String name : styleNames) {
+        comboBox.addPopupMenuListener(new ExpandingWidthComboBoxListener(true, false));
+        // comboBox.setPrototypeDisplayValue("Use this for width because we need a fixed width");//will use this string to set max width of the combo box
+        comboBox.setMaximumSize(comboBox.getPreferredSize());
+        for(String name : styleNames)
+        {
             comboBox.addItem(name);
         }
         styleColumn.setCellEditor(new DefaultCellEditor(comboBox));
     }
-
-    public void addDeleteButtonListener(ActionListener actionListener) {
+    
+    public void addDeleteButtonListener(ActionListener actionListener)
+    {
         btnDelete.addActionListener(actionListener);
     }
-
-
-    private class CaptureGroupTableModel extends AbstractTableModel {
+    
+    private class CaptureGroupTableModel extends AbstractTableModel
+    {
         private String[] columnNames = {
                 "Capture Group",
-                "Style Name"};
-
+                "Style Name" };
+        
         @Override
-        public int getRowCount() {
+        public int getRowCount()
+        {
             return pattern.getComponents().size();
         }
-
+        
         @Override
-        public int getColumnCount() {
+        public int getColumnCount()
+        {
             return 2;
         }
-
+        
         @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            if (columnIndex == 0) {
+        public Object getValueAt(int rowIndex, int columnIndex)
+        {
+            if(columnIndex == 0)
+            {
                 return "Group " + rowIndex;
-            } else {
+            }
+            else
+            {
                 return pattern.getComponents().get(rowIndex);
             }
         }
-
+        
         @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
+        public boolean isCellEditable(int rowIndex, int columnIndex)
+        {
             return columnIndex != 0;
         }
-
+        
         @Override
-        public void setValueAt(Object newValue, int rowIndex, int columnIndex) {
-            if (columnIndex == 1) {
+        public void setValueAt(Object newValue, int rowIndex, int columnIndex)
+        {
+            if(columnIndex == 1)
+            {
                 pattern.getComponents().set(rowIndex, newValue.toString());
             }
         }
-
-        public String getColumnName(int col) {
+        
+        public String getColumnName(int col)
+        {
             return columnNames[col];
         }
-
+        
     }
 }

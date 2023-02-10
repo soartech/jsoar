@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PropertyManagerTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -27,7 +27,7 @@ public class PropertyManagerTest
     public void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -35,7 +35,7 @@ public class PropertyManagerTest
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testGetReturnsDefaultValue()
     {
@@ -68,14 +68,15 @@ public class PropertyManagerTest
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final ByRef<String> storage = ByRef.create("hello");
-        final PropertyProvider<String> provider = new PropertyProvider<String>() {
-
+        final PropertyProvider<String> provider = new PropertyProvider<String>()
+        {
+            
             @Override
             public String get()
             {
                 return storage.value;
             }
-
+            
             @Override
             public String set(String value)
             {
@@ -101,8 +102,9 @@ public class PropertyManagerTest
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
         PropertyManager pm = new PropertyManager();
         final int[] key1Count = new int[] { 0 };
-        pm.addListener(KEY, new PropertyListener<String>(){
-
+        pm.addListener(KEY, new PropertyListener<String>()
+        {
+            
             @Override
             public void propertyChanged(PropertyChangeEvent<String> event)
             {
@@ -111,10 +113,12 @@ public class PropertyManagerTest
                 assertEquals("default", event.getOldValue());
                 assertEquals("new", event.getNewValue());
                 key1Count[0]++;
-            }});
+            }
+        });
         final int[] key2Count = new int[] { 0 };
-        pm.addListener(KEY2, new PropertyListener<Integer>(){
-
+        pm.addListener(KEY2, new PropertyListener<Integer>()
+        {
+            
             @Override
             public void propertyChanged(PropertyChangeEvent<Integer> event)
             {
@@ -123,7 +127,8 @@ public class PropertyManagerTest
                 assertEquals(666, event.getOldValue().intValue());
                 assertEquals(555, event.getNewValue().intValue());
                 key2Count[0]++;
-            }});
+            }
+        });
         
         assertEquals("default", pm.get(KEY));
         assertEquals("default", pm.set(KEY, "new"));
@@ -136,7 +141,7 @@ public class PropertyManagerTest
         assertEquals(1, key1Count[0]);
         assertEquals(1, key2Count[0]);
     }
-
+    
     @Test
     public void testCanGetAKeyByName()
     {

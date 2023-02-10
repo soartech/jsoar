@@ -27,6 +27,7 @@ import picocli.CommandLine.ParentCommand;
 
 /**
  * This is the implementation of the "debug" command.
+ * 
  * @author austin.brehob
  */
 public class DebugCommand extends PicocliSoarCommand
@@ -36,11 +37,10 @@ public class DebugCommand extends PicocliSoarCommand
     {
         super(agent, new Debug(agent));
     }
-
-    @Command(name="debug", description="Contains low-level technical debugging commands",
-            subcommands={HelpCommand.class,
-                         DebugCommand.InternalSymbols.class,
-                         DebugCommand.Time.class})
+    
+    @Command(name = "debug", description = "Contains low-level technical debugging commands", subcommands = { HelpCommand.class,
+            DebugCommand.InternalSymbols.class,
+            DebugCommand.Time.class })
     static public class Debug implements Runnable
     {
         private Agent agent;
@@ -60,8 +60,7 @@ public class DebugCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="internal-symbols", description="Prints symbol table", subcommands={HelpCommand.class})
+    @Command(name = "internal-symbols", description = "Prints symbol table", subcommands = { HelpCommand.class })
     static public class InternalSymbols implements Runnable
     {
         @ParentCommand
@@ -87,7 +86,7 @@ public class DebugCommand extends PicocliSoarCommand
             final List<String> asStrings = collectSymbolsOfType(all, klass);
             result.append("--- " + klass + " (" + asStrings.size() + ") ---\n");
             Collections.sort(asStrings);
-            for (String s : asStrings)
+            for(String s : asStrings)
             {
                 result.append(s);
                 result.append('\n');
@@ -97,9 +96,9 @@ public class DebugCommand extends PicocliSoarCommand
         private <T extends Symbol> List<String> collectSymbolsOfType(List<Symbol> in, Class<T> klass)
         {
             final List<String> result = new ArrayList<String>();
-            for (Symbol s : in)
+            for(Symbol s : in)
             {
-                if (klass.isInstance(s))
+                if(klass.isInstance(s))
                 {
                     result.add(s.toString());
                 }
@@ -107,22 +106,20 @@ public class DebugCommand extends PicocliSoarCommand
             return result;
         }
     }
-
     
-    @Command(name="time", description="Executes command and prints time spent",
-            subcommands={HelpCommand.class})
+    @Command(name = "time", description = "Executes command and prints time spent", subcommands = { HelpCommand.class })
     static public class Time implements Runnable
     {
         @ParentCommand
         Debug parent; // injected by picocli
         
-        @Parameters(description="The Soar command")
+        @Parameters(description = "The Soar command")
         String[] command;
         
         @Override
         public void run()
         {
-            if (command == null)
+            if(command == null)
             {
                 parent.agent.getPrinter().startNewLine().print(
                         "You must submit a command that you'd like timed.");
@@ -137,7 +134,7 @@ public class DebugCommand extends PicocliSoarCommand
             ExecutionTimer real = DefaultExecutionTimer.newInstance(real_source);
             
             String combined = "";
-            for (String s : command)
+            for(String s : command)
             {
                 combined += s + " ";
             }
@@ -150,7 +147,7 @@ public class DebugCommand extends PicocliSoarCommand
             {
                 result = parent.agent.getInterpreter().eval(combined);
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 parent.agent.getPrinter().startNewLine().print(e.getMessage());
                 return;
@@ -158,7 +155,7 @@ public class DebugCommand extends PicocliSoarCommand
             real.pause();
             double seconds = real.getTotalSeconds();
             
-            if (result == null)
+            if(result == null)
             {
                 result = new String();
             }

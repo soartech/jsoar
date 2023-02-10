@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Predicate;
 
-
 /**
  * @author ray
  */

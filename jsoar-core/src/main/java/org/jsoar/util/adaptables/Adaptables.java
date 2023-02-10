@@ -16,15 +16,15 @@ import java.util.List;
  */
 public class Adaptables
 {
-
+    
     /**
      * Adapt an object to the given class. This is equivalent to o.getAdapter(klass)
-     * but o may be null or not adaptable and casting is handled automatically with 
+     * but o may be null or not adaptable and casting is handled automatically with
      * generics.
      * 
      * @param <T> The desired type
      * @param o The object to adapt. If not Adaptable, then a simple instanceof test
-     *      is performed. May be null.
+     *     is performed. May be null.
      * @param klass The desired class. May not be null
      * @return An object of the desired type, or null.
      */
@@ -74,7 +74,7 @@ public class Adaptables
         
         return r;
     }
-
+    
     /**
      * Search a collection for the first object that is adaptable to a particular
      * type.
@@ -83,7 +83,7 @@ public class Adaptables
      * @param collection Collection to search
      * @param klass Desired type class
      * @return First object in collection that is adaptable to T, or null if
-     *  none was found.
+     * none was found.
      */
     public static <T> T findAdapter(Collection<?> collection, Class<T> klass)
     {
@@ -106,6 +106,6 @@ public class Adaptables
             throw new IllegalStateException(requiringClass.getName() + " requires " + requiredClass.getCanonicalName());
         }
         return t;
-    } 
-
+    }
+    
 }

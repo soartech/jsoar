@@ -38,7 +38,7 @@ import freemarker.template.Configuration;
 public class LegilimensApplication extends Application
 {
     private static final Logger logger = LoggerFactory.getLogger(LegilimensApplication.class);
-
+    
     private final Configuration fmc = new Configuration(Configuration.VERSION_2_3_28);
     private final SoarEventListener attachListener = event -> agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
     private final SoarEventListener detachListener = event -> agentDetached(((ThreadedAgentDetachedEvent) event).getAgent());
@@ -77,13 +77,15 @@ public class LegilimensApplication extends Application
         }
         return null;
     }
-
+    
     public Configuration getFreeMarker()
     {
         return fmc;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.restlet.Application#createInboundRoot()
      */
     @Override
@@ -111,7 +113,7 @@ public class LegilimensApplication extends Application
     
     private static void attachPublicResource(Router router, String name)
     {
-        router.attach(name, new Directory(router.getContext(), 
+        router.attach(name, new Directory(router.getContext(),
                 LocalReference.createClapReference(LocalReference.CLAP_THREAD, "/org/jsoar/legilimens/public" + name)));
     }
     
@@ -122,12 +124,12 @@ public class LegilimensApplication extends Application
         {
             AgentTraceBuffer.attach(agent.getAgent());
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             logger.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
         }
     }
-
+    
     protected void agentDetached(ThreadedAgent agent)
     {
         logger.info("Detaching from agent '" + agent + "'");
@@ -136,10 +138,10 @@ public class LegilimensApplication extends Application
         {
             traceBuffer.detach();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             logger.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
         }
     }
-
+    
 }

@@ -36,13 +36,13 @@ public class ReteSerializeTest
     {
         agent = new Agent();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();
     }
-
+    
     @Test
     public void serializationTest() throws Exception
     {
@@ -54,12 +54,13 @@ public class ReteSerializeTest
     
     private void serializationTestBuilder(boolean initializeBeforeSerialization, boolean initializeBeforeDeSerialization) throws Exception
     {
-        if (initializeBeforeSerialization)
+        if(initializeBeforeSerialization)
         {
             agent.initialize();
         }
         final ByRef<Boolean> matched = ByRef.create(Boolean.FALSE);
-        StandaloneRhsFunctionHandler match = new StandaloneRhsFunctionHandler("match") {
+        StandaloneRhsFunctionHandler match = new StandaloneRhsFunctionHandler("match")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -67,7 +68,8 @@ public class ReteSerializeTest
                 return null;
             }
         };
-        StandaloneRhsFunctionHandler rhsFailure = new StandaloneRhsFunctionHandler("rhs-failure") {
+        StandaloneRhsFunctionHandler rhsFailure = new StandaloneRhsFunctionHandler("rhs-failure")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -105,7 +107,7 @@ public class ReteSerializeTest
                 "(match)");
         
         Agent newAgent;
-        if (initializeBeforeDeSerialization)
+        if(initializeBeforeDeSerialization)
         {
             newAgent = new Agent();
             newAgent.getProductions().loadProduction("" +
@@ -121,14 +123,14 @@ public class ReteSerializeTest
             newAgent = serialize(agent);
         }
         
-        if (!initializeBeforeSerialization)
+        if(!initializeBeforeSerialization)
         {
             agent.initialize();
         }
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.runFor(2, RunType.DECISIONS);
         assertTrue(matched.value);
-
+        
         matched.value = false;
         newAgent.getRhsFunctions().registerHandler(match);
         newAgent.getRhsFunctions().registerHandler(rhsFailure);
@@ -144,7 +146,8 @@ public class ReteSerializeTest
         // Verify we don't get a stack overflow for reasonably sized agents.
         final int SIZE = 5000;
         final ByRef<HashSet<Long>> recordKeeper = ByRef.create(new HashSet<Long>());
-        StandaloneRhsFunctionHandler record = new StandaloneRhsFunctionHandler("record"){
+        StandaloneRhsFunctionHandler record = new StandaloneRhsFunctionHandler("record")
+        {
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {

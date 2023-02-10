@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,12 +24,14 @@ public class FunctionalTests extends FunctionalTestHarness
     {
         runTest("testWaterJug", -1);
     }
+    
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterJugLookAhead() throws Exception
     {
         runTest("testWaterJugLookAhead", -1);
     }
+    
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterJugHierarchy() throws Exception

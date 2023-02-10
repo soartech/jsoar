@@ -59,25 +59,25 @@ public class XmlTools
         docFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         try
         {
-           return docFactory.newDocumentBuilder();
+            return docFactory.newDocumentBuilder();
         }
-        catch (ParserConfigurationException e)
+        catch(ParserConfigurationException e)
         {
             throw new RuntimeException(e);
         }
     }
     
-    public static Document parse(InputStream is) throws SAXException, IOException 
+    public static Document parse(InputStream is) throws SAXException, IOException
     {
         return createDocumentBuilder().parse(is);
     }
-
-    public static Document parse(Reader reader) throws SAXException, IOException 
+    
+    public static Document parse(Reader reader) throws SAXException, IOException
     {
         return createDocumentBuilder().parse(new InputSource(reader));
     }
-
-    public static Document parse(String input) throws SAXException, IOException 
+    
+    public static Document parse(String input) throws SAXException, IOException
     {
         return parse(new StringReader(input));
     }
@@ -89,13 +89,13 @@ public class XmlTools
      * @param out the output stream
      * @throws IOException if there is an error writing to the stream
      */
-    public static void write(Node node, OutputStream out) throws IOException 
+    public static void write(Node node, OutputStream out) throws IOException
     {
-        if(node == null) 
+        if(node == null)
         {
             throw new NullPointerException("doc must not be null");
         }
-        if(out == null) 
+        if(out == null)
         {
             throw new NullPointerException("out must not be null");
         }
@@ -112,15 +112,15 @@ public class XmlTools
             Result output = new StreamResult(out);
             idTransform.transform(input, output);
         }
-        catch (TransformerConfigurationException e)
+        catch(TransformerConfigurationException e)
         {
             throw new IllegalStateException(e);
         }
-        catch (TransformerFactoryConfigurationError e)
+        catch(TransformerFactoryConfigurationError e)
         {
             throw new IllegalStateException(e);
         }
-        catch (TransformerException e)
+        catch(TransformerException e)
         {
             throw new IllegalStateException(e);
         }
@@ -150,11 +150,11 @@ public class XmlTools
         {
             domImpl = node.getOwnerDocument().getImplementation();
         }
-        if (domImpl.hasFeature("LS", "3.0") && domImpl.hasFeature("Core", "2.0"))
+        if(domImpl.hasFeature("LS", "3.0") && domImpl.hasFeature("Core", "2.0"))
         {
             final DOMImplementationLS domImplLS = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
             final LSSerializer lss = domImplLS.createLSSerializer();
-            if (lss.getDomConfig().canSetParameter("format-pretty-print", true))
+            if(lss.getDomConfig().canSetParameter("format-pretty-print", true))
             {
                 lss.getDomConfig().setParameter("format-pretty-print", true);
                 
@@ -176,31 +176,31 @@ public class XmlTools
             write(node, out);
         }
     }
-
-    public static String toString(Node node) 
+    
+    public static String toString(Node node)
     {
-        try 
+        try
         {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             write(node, out);
             return out.toString();
-        } 
-        catch (IOException ex) 
+        }
+        catch(IOException ex)
         {
             // ByteArrayOutputStream never throws IOException
             throw new IllegalStateException(ex);
         }
     }
     
-    public static String toPrettyString(Node node) 
+    public static String toPrettyString(Node node)
     {
-        try 
+        try
         {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             writePretty(node, out);
             return out.toString();
-        } 
-        catch (IOException ex) 
+        }
+        catch(IOException ex)
         {
             // ByteArrayOutputStream never throws IOException
             throw new IllegalStateException(ex);
@@ -211,43 +211,43 @@ public class XmlTools
     {
         return getFirstChild(parent, null);
     }
-
+    
     public static Element getFirstChild(Element parent, String name)
     {
         return getNextChild(parent.getFirstChild(), name, true);
     }
-
+    
     public static Element getNextChild(Node child)
     {
         return getNextChild(child, null);
     }
-
+    
     public static Element getNextChild(Node child, String name)
     {
         return getNextChild(child, name, false);
     }
-
+    
     public static Element getNextChild(Node child, String name,
             boolean checkFirst)
     {
-        if (child == null)
+        if(child == null)
         {
             return null;
         }
-        if (checkFirst && child instanceof Element)
+        if(checkFirst && child instanceof Element)
         {
             final Element e = (Element) child;
-            if (name == null || name.equals(e.getTagName()))
+            if(name == null || name.equals(e.getTagName()))
             {
                 return e;
             }
         }
-        for (Node n = child.getNextSibling(); n != null; n = n.getNextSibling())
+        for(Node n = child.getNextSibling(); n != null; n = n.getNextSibling())
         {
-            if (n instanceof Element)
+            if(n instanceof Element)
             {
                 final Element e = (Element) n;
-                if (name == null || name.equals(e.getTagName()))
+                if(name == null || name.equals(e.getTagName()))
                 {
                     return e;
                 }

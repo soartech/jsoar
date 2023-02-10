@@ -14,17 +14,41 @@ import org.jsoar.util.properties.PropertyManager;
 
 /**
  * <p>wma.h:62:wma_param_container
+ * 
  * @author bob.marinier
  *
  */
 public class DefaultWorkingMemoryActivationParams
 {
-    public static enum ActivationChoices { on, off };
-    public static enum PetrovApproxChoices { on, off };
-    public static enum ForgettingChoices { off, naive, bsearch, approx };
-    public static enum ForgetWmeChoices { all, lti };
-    public static enum FakeForgettingChoices { on, off };
-    public static enum TimerLevels { off, one };
+    public static enum ActivationChoices
+    {
+        on, off
+    };
+    
+    public static enum PetrovApproxChoices
+    {
+        on, off
+    };
+    
+    public static enum ForgettingChoices
+    {
+        off, naive, bsearch, approx
+    };
+    
+    public static enum ForgetWmeChoices
+    {
+        all, lti
+    };
+    
+    public static enum FakeForgettingChoices
+    {
+        on, off
+    };
+    
+    public static enum TimerLevels
+    {
+        off, one
+    };
     
     private static final String PREFIX = "wma.params.";
     
@@ -45,6 +69,7 @@ public class DefaultWorkingMemoryActivationParams
     {
         return PropertyKey.builder(PREFIX + name, type);
     }
+    
     public static final PropertyKey<ActivationChoices> ACTIVATION = key("activation", ActivationChoices.class).defaultValue(ActivationChoices.off).build();
     public final EnumPropertyProvider<ActivationChoices> activation = new EnumPropertyProvider<ActivationChoices>(ACTIVATION);
     
@@ -66,17 +91,14 @@ public class DefaultWorkingMemoryActivationParams
     public static final PropertyKey<FakeForgettingChoices> FAKE_FORGETTING = key("fake-forgetting", FakeForgettingChoices.class).defaultValue(FakeForgettingChoices.off).build();
     public final EnumPropertyProvider<FakeForgettingChoices> fake_forgetting = new EnumPropertyProvider<FakeForgettingChoices>(FAKE_FORGETTING);
     
-    
     /**
-     *  performance
+     * performance
      */
     public static final PropertyKey<TimerLevels> TIMERS = key("timers", TimerLevels.class).defaultValue(TimerLevels.off).build();
     public final EnumPropertyProvider<TimerLevels> timers = new EnumPropertyProvider<TimerLevels>(TIMERS);
     
-        
     static final PropertyKey<Integer> MAX_POW_CACHE = key("max-pow-cache", Integer.class).defaultValue(10).build();
     public final IntegerPropertyProvider max_pow_cache = new IntegerPropertyProvider(MAX_POW_CACHE);
-    
     
     private final PropertyManager properties;
     

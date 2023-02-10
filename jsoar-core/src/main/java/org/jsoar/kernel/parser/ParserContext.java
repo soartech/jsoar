@@ -18,5 +18,5 @@ import org.jsoar.util.adaptables.Adaptable;
  */
 public interface ParserContext extends Adaptable
 {
-
+    
 }

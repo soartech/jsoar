@@ -52,19 +52,19 @@ public class ReteNetWriter
     private final Agent context;
     private final SymbolFactoryImpl syms;
     private final Rete rete;
-
+    
     private Map<Symbol, Integer> symbolIndex;
     private Map<AlphaMemory, Integer> amIndex;
-
+    
     protected ReteNetWriter(Agent context)
     {
         Arguments.checkNotNull(context, "context");
-
+        
         this.context = context;
         this.syms = Adaptables.require(getClass(), this.context, SymbolFactoryImpl.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
     }
-
+    
     /**
      * Write a rete net to the given output stream. All rules and
      * symbols are written.
@@ -75,7 +75,7 @@ public class ReteNetWriter
      * 
      * @param os the output stream to write to
      * @throws IOException if an error occurs while writing
-     * @throws SoarException 
+     * @throws SoarException
      * @see ReteNetReader#read(java.io.InputStream)
      */
     protected void write(OutputStream os) throws IOException, SoarException
@@ -83,15 +83,16 @@ public class ReteNetWriter
         ensureNoJustifications();
         
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(os));
-        try {
+        try
+        {
             // This is only to try to get rid of any symbols that may be hanging around
             // they won't hurt the rete if they stay, just make the image bigger.
-            System.gc(); 
-
+            System.gc();
+            
             // Write out version information uncompressed.
             dos.writeUTF(ReteNetReader.MAGIC_STRING);
             dos.writeInt(ReteNetReader.FORMAT_VERSION);
-
+            
             // Write out symbols, alpha memories, and beta network.
             writeAllSymbols(dos);
             writeAlphaMemories(dos, rete.getAllAlphaMemories());
@@ -102,7 +103,7 @@ public class ReteNetWriter
             dos.flush();
         }
     }
-
+    
     /**
      * Make sure there are no justifications present in the agent.
      * 
@@ -110,15 +111,16 @@ public class ReteNetWriter
      */
     private void ensureNoJustifications() throws SoarException
     {
-        if (!context.getProductions().getProductions(ProductionType.JUSTIFICATION).isEmpty())
+        if(!context.getProductions().getProductions(ProductionType.JUSTIFICATION).isEmpty())
         {
             throw new SoarException("Internal error: cannot save rete net with justifications present.");
         }
     }
-
+    
     /**
      * Writes out the children of a particular {@link ReteNode}.
      * <p>rete.cpp:7270:retesave_children_of_node
+     * 
      * @see ReteNetReader#readChildrenOfNode
      */
     private void writeChildrenOfNode(DataOutputStream dos, ReteNode node) throws IOException, SoarException
@@ -126,26 +128,26 @@ public class ReteNetWriter
         FluentIterable<ReteNode> children = getChildrenOfNode(node);
         // Filter out children of type CN_BNODE.
         children = children.filter(new Predicate<ReteNode>()
-                {
-                    public boolean apply(ReteNode child)
-                    {
-                        return child.node_type != ReteNodeType.CN_BNODE;
-                    }
-                });
-        // RETECOMPAT: These are written out in reverse order. When child nodes are reinserted in 
+        {
+            public boolean apply(ReteNode child)
+            {
+                return child.node_type != ReteNodeType.CN_BNODE;
+            }
+        });
+        // RETECOMPAT: These are written out in reverse order. When child nodes are reinserted in
         // ReteNetReader, they are inserted at the head of the list.
         // For example: @see org.jsoar.kernel.rete.ReteNode.make_new_mem_node(Rete, ReteNode, ReteNodeType, VarLocation)
         children = FluentIterable.from(children.toList().reverse());
         
-        // --- Count number of non-CN-node children. --- 
+        // --- Count number of non-CN-node children. ---
         dos.writeInt(children.size());
         
-        for (ReteNode child : children)
+        for(ReteNode child : children)
         {
             writeNodeAndChildren(dos, child);
         }
     }
-
+    
     /**
      * Returns, in the order they appear in the node's linked list, a list of the node's
      * children.
@@ -154,38 +156,39 @@ public class ReteNetWriter
     {
         ImmutableList.Builder<ReteNode> children = ImmutableList.builder();
         
-        for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+        for(ReteNode child = node.first_child; child != null; child = child.next_sibling)
         {
             children.add(child);
         }
         
         return FluentIterable.from(children.build());
     }
-
+    
     /**
      * Writes out a rete node (and its descendants.)
      * <p>rete.cpp:7284:retesave_rete_node_and_children
+     * 
      * @see ReteNetReader#readNodeAndChildren
      */
     private void writeNodeAndChildren(DataOutputStream dos, ReteNode node) throws IOException, SoarException
     {
         Production prod;
         ReteNode temp;
-
+        
         // RETECOMPAT: When writing out an enum type, JSoar uses the enum's toString(), but CSoar writes out one byte.
         dos.writeUTF(node.node_type.toString());
-
-        switch (node.node_type)
+        
+        switch(node.node_type)
         {
         case MEMORY_BNODE:
             writeLeftHashLoc(dos, node);
-            // ... and fall through to the next case below ... 
+            // ... and fall through to the next case below ...
         case UNHASHED_MEMORY_BNODE:
             break;
-
+        
         case MP_BNODE:
             writeLeftHashLoc(dos, node);
-            // ... and fall through to the next case below ... 
+            // ... and fall through to the next case below ...
         case UNHASHED_MP_BNODE:
             // RETECOMPAT: No effort has been put in writing out CSoar compatible integers. Everything is written
             // out as a 32-bit integer.
@@ -193,33 +196,33 @@ public class ReteNetWriter
             writeTestList(dos, node.b_posneg().other_tests);
             dos.writeBoolean(node.a_np().is_left_unlinked);
             break;
-
+        
         case POSITIVE_BNODE:
         case UNHASHED_POSITIVE_BNODE:
             dos.writeInt(getAlphaMemoryIndex(node.b_posneg().alpha_mem_));
             writeTestList(dos, node.b_posneg().other_tests);
             dos.writeBoolean(node.node_is_left_unlinked());
             break;
-
+        
         case NEGATIVE_BNODE:
             writeLeftHashLoc(dos, node);
-            // ... and fall through to the next case below ... 
+            // ... and fall through to the next case below ...
         case UNHASHED_NEGATIVE_BNODE:
             dos.writeInt(getAlphaMemoryIndex(node.b_posneg().alpha_mem_));
             writeTestList(dos, node.b_posneg().other_tests);
             break;
-
+        
         case CN_PARTNER_BNODE:
             int i = 0;
             temp = node.real_parent_node();
-            while (temp != node.b_cn().partner.parent)
+            while(temp != node.b_cn().partner.parent)
             {
                 temp = temp.real_parent_node();
                 i++;
             }
             dos.writeInt(i);
             break;
-
+        
         case P_BNODE:
             prod = node.b_p().prod;
             // RETECOMPAT: Production names in JSoar are strings, but in CSoar they're string symbols.
@@ -229,33 +232,35 @@ public class ReteNetWriter
             dos.writeUTF(prod.getDeclaredSupport().toString());
             writeActionList(dos, prod.getFirstAction());
             dos.writeInt(prod.getRhsUnboundVariables().size());
-            for (Variable unboundVar : prod.getRhsUnboundVariables())
+            for(Variable unboundVar : prod.getRhsUnboundVariables())
             {
                 dos.writeInt(getSymbolIndex(unboundVar));
             }
-            if (node.b_p().parents_nvn != null)
+            if(node.b_p().parents_nvn != null)
             {
                 dos.writeBoolean(true);
                 writeNodeVarNames(dos, node.b_p().parents_nvn, node.parent);
-            } else {
+            }
+            else
+            {
                 dos.writeBoolean(false);
             }
             break;
         default:
             throw new SoarException("Unhandled ReteNodeType: " + node.node_type);
         }
-
-        // --- For cn_p nodes, write out the CN node's children instead --- 
-        if (node.node_type == ReteNodeType.CN_PARTNER_BNODE)
+        
+        // --- For cn_p nodes, write out the CN node's children instead ---
+        if(node.node_type == ReteNodeType.CN_PARTNER_BNODE)
             node = node.b_cn().partner;
-        // --- Write out records for all the node's children. --- 
+        // --- Write out records for all the node's children. ---
         writeChildrenOfNode(dos, node);
     }
-
     
     /**
      * Convenience function for writing out the field_num and levels_up
      * for a {@link ReteNode}.
+     * 
      * @see ReteNetReader#readLeftHashLoc
      */
     private void writeLeftHashLoc(DataOutputStream dos, ReteNode node) throws IOException
@@ -263,13 +268,13 @@ public class ReteNetWriter
         dos.writeInt(node.left_hash_loc_field_num);
         dos.writeInt(node.left_hash_loc_levels_up);
     }
-
+    
     /**
      * Writes all the actions in a provided list of actions.
      * 
      * Format: Writes an integer containing the number of actions to be
      * written, then writes each action.
-     *  
+     * 
      * <p>rete.cpp:7107:retesave_action_list
      * 
      * @param dos
@@ -281,19 +286,19 @@ public class ReteNetWriter
     {
         int numActions = 0;
         Action a;
-
-        for (a = firstAction; a != null; a = a.next)
+        
+        for(a = firstAction; a != null; a = a.next)
         {
             numActions++;
         }
         dos.writeInt(numActions);
-
-        for (a = firstAction; a != null; a = a.next)
+        
+        for(a = firstAction; a != null; a = a.next)
         {
             writeAction(dos, a);
         }
     }
-
+    
     /**
      * Writes out an {@link Action}.
      * 
@@ -308,11 +313,11 @@ public class ReteNetWriter
      */
     private void writeAction(DataOutputStream dos, Action a) throws IOException, SoarException
     {
-        if (a instanceof MakeAction)
+        if(a instanceof MakeAction)
         {
             dos.writeInt(ReteNetConstants.Action.MAKE_ACTION.ordinal());
         }
-        else if (a instanceof FunctionAction) 
+        else if(a instanceof FunctionAction)
         {
             dos.writeInt(ReteNetConstants.Action.FUNCALL_ACTION.ordinal());
         }
@@ -321,7 +326,7 @@ public class ReteNetWriter
             throw new SoarException("Unhandled action type.");
         }
         
-        if (a.preference_type != null)
+        if(a.preference_type != null)
         {
             dos.writeBoolean(true);
             dos.writeUTF(a.preference_type.toString());
@@ -331,23 +336,23 @@ public class ReteNetWriter
             dos.writeBoolean(false);
         }
         dos.writeUTF(a.support.toString());
-
-        if (a instanceof FunctionAction) 
+        
+        if(a instanceof FunctionAction)
         {
             writeRHSValue(dos, a.asFunctionAction().call);
         }
-        else if (a instanceof MakeAction)
-        { 
+        else if(a instanceof MakeAction)
+        {
             writeRHSValue(dos, a.asMakeAction().id);
             writeRHSValue(dos, a.asMakeAction().attr);
             writeRHSValue(dos, a.asMakeAction().value);
-            if (a.preference_type != null && a.preference_type.isBinary())
+            if(a.preference_type != null && a.preference_type.isBinary())
             {
                 writeRHSValue(dos, a.asMakeAction().referent);
             }
         }
     }
-
+    
     /**
      * Writes a RHSValue {@link RhsValue}.
      * 
@@ -372,31 +377,31 @@ public class ReteNetWriter
     {
         Symbol sym;
         
-        if (rv instanceof RhsSymbolValue)
+        if(rv instanceof RhsSymbolValue)
         {
             dos.writeInt(ReteNetConstants.RHS.RHS_SYMBOL.ordinal());
             sym = rv.asSymbolValue().getSym();
             dos.writeInt(getSymbolIndex(sym));
         }
-        else if (rv instanceof RhsFunctionCall)
+        else if(rv instanceof RhsFunctionCall)
         {
             dos.writeInt(ReteNetConstants.RHS.RHS_FUNCALL.ordinal());
             dos.writeInt(getSymbolIndex(rv.asFunctionCall().getName()));
             dos.writeBoolean(rv.asFunctionCall().isStandalone());
             List<RhsValue> arguments = rv.asFunctionCall().getArguments();
             dos.writeInt(arguments.size());
-            for (RhsValue value : arguments)
+            for(RhsValue value : arguments)
             {
                 writeRHSValue(dos, value);
             }
         }
-        else if (rv instanceof ReteLocation)
+        else if(rv instanceof ReteLocation)
         {
             dos.writeInt(ReteNetConstants.RHS.RHS_RETELOC.ordinal());
             dos.writeInt(rv.asReteLocation().getFieldNum());
             dos.writeInt(rv.asReteLocation().getLevelsUp());
         }
-        else if (rv instanceof UnboundVariable)
+        else if(rv instanceof UnboundVariable)
         {
             dos.writeInt(ReteNetConstants.RHS.RHS_UNBOUND_VAR.ordinal());
             dos.writeInt(rv.asUnboundVariable().getIndex());
@@ -406,7 +411,7 @@ public class ReteNetWriter
             throw new SoarException("Unhandled RHS value");
         }
     }
-
+    
     /**
      * Saves a linked list of rete tests ({@link ReteTest}).
      * 
@@ -423,19 +428,19 @@ public class ReteNetWriter
     {
         int numTests = 0;
         ReteTest rt;
-
-        for (rt = firstRete; rt != null; rt = rt.next)
+        
+        for(rt = firstRete; rt != null; rt = rt.next)
         {
             numTests++;
         }
         dos.writeInt(numTests);
-
-        for (rt = firstRete; rt != null; rt = rt.next)
+        
+        for(rt = firstRete; rt != null; rt = rt.next)
         {
             writeTest(dos, rt);
         }
     }
-
+    
     /**
      * Writes out an individual {@link ReteTest}.
      * 
@@ -456,31 +461,31 @@ public class ReteNetWriter
         dos.writeInt(rt.type);
         dos.writeInt(rt.right_field_num);
         // Relational tests to constants.
-        if (rt.test_is_constant_relational_test())
+        if(rt.test_is_constant_relational_test())
         {
             dos.writeInt(getSymbolIndex(rt.constant_referent));
         }
         // Relational tests to variables.
-        else if (rt.test_is_variable_relational_test())
+        else if(rt.test_is_variable_relational_test())
         {
             dos.writeInt(rt.variable_referent.field_num);
             dos.writeInt(rt.variable_referent.levels_up);
         }
-        else if (rt.type == ReteTest.DISJUNCTION) 
+        else if(rt.type == ReteTest.DISJUNCTION)
         {
             List<SymbolImpl> disjunctions = rt.disjunction_list;
             dos.writeInt(disjunctions.size());
-            for (SymbolImpl disjunction : disjunctions)
+            for(SymbolImpl disjunction : disjunctions)
             {
                 dos.writeInt(getSymbolIndex(disjunction));
             }
-        } 
+        }
         // These both aren't included in CSoar's retesave_rete_test
-        else if (rt.type == ReteTest.ID_IS_GOAL)
+        else if(rt.type == ReteTest.ID_IS_GOAL)
         {
             // Nothing to write.
         }
-        else if (rt.type == ReteTest.ID_IS_IMPASSE)
+        else if(rt.type == ReteTest.ID_IS_IMPASSE)
         {
             // Nothing to write.
         }
@@ -489,48 +494,66 @@ public class ReteNetWriter
             throw new SoarException("Unhandled ReteTest: " + rt);
         }
     }
-
+    
     private static interface SymbolWriter<T>
     {
         void write(DataOutputStream dos, T s) throws IOException;
     }
-
+    
     /**
      * Writes out all instances of {@link StringSymbol}, {@link Variable},
      * {@link IntegerSymbol}, and {@link DoubleSymbol}.
      * 
      * <p>rete.cpp:6672:retesave_symbol_table
+     * 
      * @see ReteNetReader#readAllSymbols
      */
     private void writeAllSymbols(DataOutputStream dos) throws IOException
     {
         symbolIndex = new HashMap<Symbol, Integer>();
-
+        
         // symbol index numbers start at one so we can use zero for "no symbol" in alpha memories
         int nextIndex = writeSymbolList(dos, 1,
                 syms.getSymbols(StringSymbol.class),
-                new SymbolWriter<StringSymbol>() {
-            public void write(DataOutputStream dos, StringSymbol s) throws IOException { dos.writeUTF(s.getValue()); }
-        });
+                new SymbolWriter<StringSymbol>()
+                {
+                    public void write(DataOutputStream dos, StringSymbol s) throws IOException
+                    {
+                        dos.writeUTF(s.getValue());
+                    }
+                });
         nextIndex = writeSymbolList(dos, nextIndex,
                 syms.getSymbols(Variable.class),
-                new SymbolWriter<Variable>() {
-            public void write(DataOutputStream dos, Variable s) throws IOException { dos.writeUTF(s.name); }
-        });
+                new SymbolWriter<Variable>()
+                {
+                    public void write(DataOutputStream dos, Variable s) throws IOException
+                    {
+                        dos.writeUTF(s.name);
+                    }
+                });
         nextIndex = writeSymbolList(dos, nextIndex,
                 syms.getSymbols(IntegerSymbol.class),
-                new SymbolWriter<IntegerSymbol>() {
-            public void write(DataOutputStream dos, IntegerSymbol s) throws IOException { dos.writeLong(s.getValue()); }
-        });
+                new SymbolWriter<IntegerSymbol>()
+                {
+                    public void write(DataOutputStream dos, IntegerSymbol s) throws IOException
+                    {
+                        dos.writeLong(s.getValue());
+                    }
+                });
         nextIndex = writeSymbolList(dos, nextIndex,
                 syms.getSymbols(DoubleSymbol.class),
-                new SymbolWriter<DoubleSymbol>() {
-            public void write(DataOutputStream dos, DoubleSymbol s) throws IOException { dos.writeDouble(s.getValue()); }
-        });
+                new SymbolWriter<DoubleSymbol>()
+                {
+                    public void write(DataOutputStream dos, DoubleSymbol s) throws IOException
+                    {
+                        dos.writeDouble(s.getValue());
+                    }
+                });
     }
-
+    
     /**
      * Writes out a list of symbols.
+     * 
      * @see ReteNetReader#readSymbolList
      */
     private <T extends Symbol> int writeSymbolList(DataOutputStream dos, int nextIndex, List<T> symbols,
@@ -542,10 +565,10 @@ public class ReteNetWriter
             writer.write(dos, s);
             nextIndex = indexSymbol(s, nextIndex);
         }
-
+        
         return nextIndex;
     }
-
+    
     /**
      * Creates a unique index for a symbol.
      */
@@ -553,8 +576,8 @@ public class ReteNetWriter
     {
         symbolIndex.put(s, nextIndex);
         return ++nextIndex;
-    }    
-
+    }
+    
     /**
      * Gets the symbol index for a symbol s. If s is null, returns 0.
      * If s has no existing index, returns 0.
@@ -566,29 +589,30 @@ public class ReteNetWriter
             return 0;
         }
         final Integer i = symbolIndex.get(s);
-
+        
         return i != null ? i : 0;
     }
-
+    
     /**
      * Writes out a list of alpha memories.
      * 
      * <p>rete.cpp:6792:retesave_alpha_memories
+     * 
      * @see ReteNetReader#readAlphaMemories
      */
     private void writeAlphaMemories(DataOutputStream dos, List<AlphaMemory> ams) throws IOException
     {
         amIndex = new HashMap<AlphaMemory, Integer>();
-
+        
         dos.writeInt(ams.size());
-        int nextIndex = 1; 
+        int nextIndex = 1;
         for(AlphaMemory am : ams)
         {
             writeAlphaMemory(dos, am);
             amIndex.put(am, nextIndex++);
         }
     }
-
+    
     /**
      * Gets the index for a particular alpha memory.
      * 
@@ -596,21 +620,21 @@ public class ReteNetWriter
      */
     private int getAlphaMemoryIndex(AlphaMemory am) throws SoarException
     {
-        if (am == null)
+        if(am == null)
         {
             throw new SoarException("Alpha memory is null.");
         }
-
+        
         final Integer i = amIndex.get(am);
-
-        if (i == null)
+        
+        if(i == null)
         {
             throw new SoarException("Unknown alpha memory.");
         }
-
+        
         return i;
     }
-
+    
     /**
      * Writes out a particular alpha memory.
      * 
@@ -618,6 +642,7 @@ public class ReteNetWriter
      * One boolean for the acceptable preference.
      * 
      * <p>rete.cpp:6858:retesave_node_varnames
+     * 
      * @see ReteNetReader#readAlphaMemories
      */
     private void writeAlphaMemory(DataOutputStream dos, AlphaMemory am) throws IOException
@@ -627,16 +652,17 @@ public class ReteNetWriter
         dos.writeInt(getSymbolIndex(am.value));
         dos.writeBoolean(am.acceptable);
     }
-
+    
     /**
      * Writes varnames.
      * 
      * <p> Record format:
-     *    type (1 byte): 0=null, 1=one var, 2=list
-     *    if one var: 4 bytes (symindex)
-     *    if list: 4 bytes (number of items) + list of symindices
+     * type (1 byte): 0=null, 1=one var, 2=list
+     * if one var: 4 bytes (symindex)
+     * if list: 4 bytes (number of items) + list of symindices
      * 
      * <p>rete.cpp:6858:retesave_varnames
+     * 
      * @see ReteNetReader#readVarNames
      */
     private void writeVarNames(DataOutputStream dos, Object varNames) throws IOException
@@ -661,26 +687,28 @@ public class ReteNetWriter
             }
         }
     }
-
+    
     /**
      * Writes a node varname (NVN) structure.
      * 
      * <p>rete.cpp:6902:retesave_node_varnames
+     * 
      * @see ReteNetReader#readNodeVarNames
      */
     private void writeNodeVarNames(DataOutputStream dos, NodeVarNames nvn,
             ReteNode node) throws IOException
     {
-        while (true) 
+        while(true)
         {
-            if (node.node_type == ReteNodeType.DUMMY_TOP_BNODE) return;
-            if (node.node_type == ReteNodeType.CN_BNODE) 
+            if(node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
+                return;
+            if(node.node_type == ReteNodeType.CN_BNODE)
             {
                 node = node.b_cn().partner.parent;
                 nvn = nvn.bottom_of_subconditions;
                 continue;
             }
-
+            
             writeVarNames(dos, nvn.fields.id_varnames);
             writeVarNames(dos, nvn.fields.attr_varnames);
             writeVarNames(dos, nvn.fields.value_varnames);

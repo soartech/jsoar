@@ -47,7 +47,7 @@ public class RhsFunctionsTest
         // No exception should be thrown
         RhsFunctions.checkArgumentCount("test", Symbols.asList(syms, "a", "b", "c"), 1, 5);
     }
-
+    
     @Test
     public void testCheckAllArgumentsAreNumericThrowsExceptionWhenConstraintViolated()
     {

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,7 +23,7 @@ public class TraceCommandTest
 {
     private Trace trace;
     private TraceCommand traceCommand;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -32,79 +31,92 @@ public class TraceCommandTest
         this.trace = agent.getTrace();
         this.traceCommand = new TraceCommand(agent);
     }
-
+    
     @Test
     public void testBacktracing() throws SoarException
     {
         verifyOption(Category.BACKTRACING, "backtracing");
     }
-
+    
     @Test
     public void testChunks() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_CHUNKS, "chunks");
     }
+    
     @Test
     public void testDefault() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_DEFAULT_PRODS, "default", "D");
     }
+    
     @Test
     public void testJustifications() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_JUSTIFICATIONS, "justifications");
     }
+    
     @Test
     public void testTemplates() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_TEMPLATES, "template", "T");
     }
+    
     @Test
     public void testUserProds() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_USER_PRODS, "user");
     }
+    
     @Test
     public void testPreferences() throws SoarException
     {
         verifyOption(Category.FIRINGS_PREFERENCES, "preferences", "r");
     }
+    
     @Test
     public void testGds() throws SoarException
     {
         verifyOption(Category.GDS, "gds");
     }
+    
     @Test
     public void testIndifferentSelection() throws SoarException
     {
         verifyOption(Category.INDIFFERENT, "indifferent-selection");
     }
+    
     @Test
     public void testPhases() throws SoarException
     {
         verifyOption(Category.PHASES, "phases");
     }
+    
     @Test
     public void testRl() throws SoarException
     {
         verifyOption(Category.RL, "rl", "R");
     }
+    
     @Test
     public void testVerbose() throws SoarException
     {
         verifyOption(Category.VERBOSE, "assertions", "A");
     }
+    
     @Test
     public void testWorkingMemory() throws SoarException
     {
         verifyOption(Category.WM_CHANGES, "wmes");
     }
+    
     @Test
     public void testWaterfall() throws SoarException
     {
         verifyOption(Category.WATERFALL, "waterfall", "W");
     }
-    @Test 
+    
+    @Test
     public void testProductions() throws SoarException
     {
         verifyOption(Category.FIRINGS_OF_USER_PRODS, "productions", "P");
@@ -127,6 +139,7 @@ public class TraceCommandTest
             verifyWatchLevel(i, "watch", "-l", Integer.toString(i));
         }
     }
+    
     @Test
     public void testExplicitLevelLong() throws SoarException
     {

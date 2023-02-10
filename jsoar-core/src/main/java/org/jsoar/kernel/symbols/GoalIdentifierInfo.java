@@ -25,13 +25,13 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
     private final IdentifierImpl id;
     public final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance(); /* dll of o assertions at this level */
     public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance(); /* dll of i assertions at this level */
-    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
+    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance(); /* dll of retractions at this level */
     public Slot operator_slot;
     public Preference preferences_from_goal = null;
     public IdentifierImpl higher_goal;
     public IdentifierImpl lower_goal;
     public boolean allow_bottom_up_chunks;
-        
+    
     public GoalDependencySetImpl gds; // pointer to a goal's dependency set
     private WmeImpl impasse_wmes;
     
@@ -45,11 +45,11 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
     {
         this.id = id;
     }
-
+    
     // RL related structures
     public IdentifierImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;   // various Soar-RL information
-
+    
     public WmeImpl getImpasseWmes()
     {
         return impasse_wmes;
@@ -102,7 +102,7 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
         }
         pref.all_of_goal_next = pref.all_of_goal_prev = null;
     }
-
+    
     public Preference popGoalPreference()
     {
         final Preference head = preferences_from_goal;
@@ -113,7 +113,9 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
         return head;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Goal#getIdentifier()
      */
     @Override
@@ -121,8 +123,10 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
     {
         return id;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Goal#getOperator()
      */
     @Override
@@ -131,8 +135,10 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
         final WmeImpl wmes = operator_slot != null ? operator_slot.getWmes() : null;
         return wmes != null ? wmes.value.asIdentifier() : null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Goal#getOperatorName()
      */
     @Override
@@ -143,8 +149,10 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
         
         return slot != null && id.slots.getWmes() != null ? slot.getWmes().getValue() : null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -160,8 +168,10 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
         }
         return super.getAdapter(klass);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -169,5 +179,5 @@ public class GoalIdentifierInfo extends AbstractAdaptable implements Goal
     {
         return getIdentifier().toString();
     }
-
+    
 }

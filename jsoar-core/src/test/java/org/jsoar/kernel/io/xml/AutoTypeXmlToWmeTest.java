@@ -28,37 +28,37 @@ import org.junit.jupiter.api.Test;
 public class AutoTypeXmlToWmeTest
 {
     private Agent agent;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();
     }
-
+    
     @Test
     public void testXmlToWme() throws URISyntaxException
     {
         File testMsg = new File(this.getClass().getResource("testMessage.xml")
                 .toURI());
         assertTrue(testMsg.canRead());
-
+        
         AutoTypeXmlToWme pat = new AutoTypeXmlToWme(agent.getInputOutput());
         pat.xmlToWme(testMsg, agent.getInputOutput());
         agent.runFor(1, RunType.DECISIONS);
-
+        
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier il = agent.getInputOutput().getInputLink();
         final Identifier msg = m.attr("Message").find(il).getValue()
                 .asIdentifier();
         assertNotNull(msg);
-
+        
         assertEquals("", m.attr("TestEmpty").find(msg).getValue().asString()
                 .getValue());
         assertEquals("", m.attr("TestEmpty1").find(msg).getValue().asString()
@@ -69,17 +69,17 @@ public class AutoTypeXmlToWmeTest
                 .getValue());
         assertEquals("", m.attr("TestEmpty4").find(msg).getValue().asString()
                 .getValue());
-
+        
         assertEquals(0d, m.attr("TestFloat").find(msg).getValue().asDouble()
                 .getValue(), .000001);
         assertTrue(m.attr("TestFloat").find(msg).getValue().asInteger() == null);
         assertTrue(m.attr("TestFloat").find(msg).getValue().asString() == null);
-
+        
         assertEquals(0L, m.attr("TestInt").find(msg).getValue().asInteger()
                 .getValue());
         assertTrue(m.attr("TestInt").find(msg).getValue().asString() == null);
         assertTrue(m.attr("TestInt").find(msg).getValue().asDouble() == null);
-
+        
         assertTrue(m.attr("Attribute").find(msg).getValue().asString() == null);
         final Identifier att = m.attr("Attribute").find(msg).getValue()
                 .asIdentifier();
@@ -90,7 +90,7 @@ public class AutoTypeXmlToWmeTest
         assertEquals(1d, m.attr("myFloat").find(att).getValue().asDouble()
                 .getValue(), .000001);
     }
-
+    
     @Test
     public void testXmlToWmeSp() throws URISyntaxException, ReordererException,
             ParserException
@@ -111,24 +111,24 @@ public class AutoTypeXmlToWmeTest
                                 + "<attribute name=\"test\" int=\"1\" float=\"5.23\" />"
                                 + "</ignored>|))");
         agent.runFor(1, RunType.DECISIONS);
-
+        
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
-
+        
         final Wme location = m.attr("location").find(xml);
         assertNotNull(location);
         assertEquals("Ann Arbor", m.attr("name").find(location).getValue()
                 .asString().getValue());
         assertEquals(100000L, m.attr("population").find(location).getValue()
                 .asInteger().getValue());
-
+        
         final Wme person = m.attr("person").find(xml);
         assertNotNull(person);
         assertEquals("Bill", m.attr("name").find(person).getValue().asString()
                 .getValue());
-
+        
         final Wme attribute = m.attr("attribute").find(xml);
         assertNotNull(attribute);
         assertEquals("test", m.attr("name").find(attribute).getValue()

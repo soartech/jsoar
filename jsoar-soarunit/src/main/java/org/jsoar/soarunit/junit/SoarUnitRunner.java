@@ -57,9 +57,9 @@ public class SoarUnitRunner extends Runner
     private final ListeningExecutorService runNotifierExec = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
     private final Description rootDescription;
     private final Queue<Function<TestContext, Void>> testRunners = Queues.newConcurrentLinkedQueue();
-    private final Collection<ListenableFuture<Void>> runNotifications = Collections.synchronizedCollection(Lists.<ListenableFuture<Void>>newArrayList());
+    private final Collection<ListenableFuture<Void>> runNotifications = Collections.synchronizedCollection(Lists.<ListenableFuture<Void>> newArrayList());
     private final List<String> sourceIncludes = Lists.newArrayList();
-
+    
     @SuppressWarnings("serial")
     public SoarUnitRunner(Class<?> clazz) throws IOException, SoarException
     {
@@ -67,17 +67,17 @@ public class SoarUnitRunner extends Runner
         out = () -> pw;
         
         this.testClass = new TestClass(clazz);
-        if (testClass.getAnnotation(SoarInterpreter.class) != null)
+        if(testClass.getAnnotation(SoarInterpreter.class) != null)
         {
             String newInterpreter = testClass.getAnnotation(SoarInterpreter.class).interpreter();
             System.setProperty("jsoar.agent.interpreter", newInterpreter);
         }
-        if (testClass.getAnnotation(SoarSourceInclude.class) != null)
+        if(testClass.getAnnotation(SoarSourceInclude.class) != null)
         {
             // TODO: When jsoar upgrades to Java 8, turn this into a repeatable.
             sourceIncludes.add(testClass.getAnnotation(SoarSourceInclude.class).url());
         }
-        if (testClass.getAnnotation(SoarUnitSettings.class) != null)
+        if(testClass.getAnnotation(SoarUnitSettings.class) != null)
         {
             POOL_SIZE = testClass.getAnnotation(SoarUnitSettings.class).threads();
         }
@@ -85,13 +85,13 @@ public class SoarUnitRunner extends Runner
         {
             POOL_SIZE = 1;
         }
-
+        
         List<FrameworkMethod> annotatedMethods = testClass.getAnnotatedMethods(SoarUnitTestFile.class);
         this.rootDescription = Description.createSuiteDescription(clazz);
         final TestRunner testRunner = new TestRunner(agentFactory, out, exec);
-        for (FrameworkMethod method : annotatedMethods)
+        for(FrameworkMethod method : annotatedMethods)
         {
-            Description testCaseDescription = Description.createSuiteDescription(method.getName(), (Annotation[])null);
+            Description testCaseDescription = Description.createSuiteDescription(method.getName(), (Annotation[]) null);
             rootDescription.addChild(testCaseDescription);
             SoarUnitTestFile testFile = method.getAnnotation(SoarUnitTestFile.class);
             for(URL url : getResources(testFile.url()))
@@ -105,20 +105,18 @@ public class SoarUnitRunner extends Runner
                     final Description testDescription = Description.createTestDescription(testCaseName, testName);
                     testCaseDescription.addChild(testDescription);
                     testDescriptions.put(test.getName(), testDescription);
-                    testRunners.add(testContext -> 
-                    {
+                    testRunners.add(testContext -> {
                         final TestResult testResult;
                         try
                         {
                             testContext.agent.reinitialize(test);
                             // XXX: JUnit isn't threadsafe with run notifications - so these all get sent in their own dedicated thread.
-                            runNotifications.add(runNotifierExec.submit(() ->
-                            {
+                            runNotifications.add(runNotifierExec.submit(() -> {
                                 testContext.runNotifier.fireTestStarted(testDescription);
                                 return null;
                             }));
                             testResult = testRunner.runTest(test, testContext.agent);
-                            if (!testResult.isPassed())
+                            if(!testResult.isPassed())
                             {
                                 runNotifications.add(runNotifierExec.submit(() -> {
                                     testContext.runNotifier.fireTestFailure(new Failure(testDescription, new Exception()
@@ -132,15 +130,15 @@ public class SoarUnitRunner extends Runner
                                     return null;
                                 }));
                             }
-                        } catch (final SoarException e) {
-                            runNotifications.add(runNotifierExec.submit(() ->
-                            {
+                        }
+                        catch(final SoarException e)
+                        {
+                            runNotifications.add(runNotifierExec.submit(() -> {
                                 testContext.runNotifier.fireTestFailure(new Failure(testDescription, e));
                                 return null;
                             }));
                         }
-                        runNotifications.add(runNotifierExec.submit(() ->
-                        {
+                        runNotifications.add(runNotifierExec.submit(() -> {
                             testContext.runNotifier.fireTestFinished(testDescription);
                             return null;
                         }));
@@ -151,13 +149,13 @@ public class SoarUnitRunner extends Runner
             }
         }
     }
-
+    
     @Override
     public Description getDescription()
     {
         return rootDescription;
     }
-
+    
     @Override
     public void run(final RunNotifier runNotifier)
     {
@@ -165,28 +163,28 @@ public class SoarUnitRunner extends Runner
         List<ListenableFuture<?>> wait = Lists.newArrayList();
         for(int i = 0; i < POOL_SIZE; i++)
         {
-            wait.add(exec.submit(() -> 
-            {
+            wait.add(exec.submit(() -> {
                 TestAgent agent = agentFactory.createTestAgent();
                 Function<TestContext, Void> item = null;
-                while ((item = testRunners.poll()) != null)
+                while((item = testRunners.poll()) != null)
                 {
                     item.apply(new TestContext(runNotifier, agent));
                 }
                 return null;
             }));
         }
-
+        
         // Block until completion.
         try
         {
             Futures.successfulAsList(wait).get();
             Futures.successfulAsList(runNotifications).get();
         }
-        catch (InterruptedException e) {
+        catch(InterruptedException e)
+        {
             Thread.currentThread().interrupt();
         }
-        catch (ExecutionException e)
+        catch(ExecutionException e)
         {
             LOG.error("Error while running tests", e);
         }
@@ -196,10 +194,10 @@ public class SoarUnitRunner extends Runner
             runNotifierExec.shutdown();
         }
     }
-
+    
     private List<URL> getResources(String path) throws IOException
     {
-        if (path.startsWith("classpath:"))
+        if(path.startsWith("classpath:"))
         {
             List<Resource> resources = Arrays.asList(resolverSoarUnit.getResources(path));
             List<URL> urls = Lists.newArrayList();
@@ -214,10 +212,11 @@ public class SoarUnitRunner extends Runner
             return Lists.newArrayList(new URL(path));
         }
     }
-
+    
     private class AgentFactory extends JSoarTestAgentFactory
     {
-        private final JSoarTestAgent testAgent = new JSoarTestAgent() {
+        private final JSoarTestAgent testAgent = new JSoarTestAgent()
+        {
             @Override
             public void initialize(Test test) throws SoarException
             {
@@ -225,13 +224,13 @@ public class SoarUnitRunner extends Runner
                 attachSource();
             }
         };
-
+        
         @Override
         public TestAgent createTestAgent()
         {
             return testAgent;
         }
-
+        
         private void attachSource()
         {
             try
@@ -244,12 +243,15 @@ public class SoarUnitRunner extends Runner
                     }
                 }
             }
-            catch (IOException | SoarException e) {
+            catch(IOException | SoarException e)
+            {
                 throw new RuntimeException(e);
             }
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.soarunit.TestAgentFactory#debugTest(org.jsoar.soarunit.Test)
          */
         @Override
@@ -258,12 +260,12 @@ public class SoarUnitRunner extends Runner
             testAgent.debug(test, exitOnClose);
         }
     }
-
+    
     private static class TestContext
     {
         public final RunNotifier runNotifier;
         public final TestAgent agent;
-
+        
         private TestContext(RunNotifier runNotifier, TestAgent agent)
         {
             this.runNotifier = runNotifier;

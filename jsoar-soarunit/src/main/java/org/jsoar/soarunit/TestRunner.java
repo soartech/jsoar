@@ -35,7 +35,7 @@ public class TestRunner
         
         this.executor = executor != null ? executor : Executors.newSingleThreadExecutor();
     }
-
+    
     /**
      * @return the total
      */
@@ -43,7 +43,7 @@ public class TestRunner
     {
         return total;
     }
-
+    
     /**
      * @return the haltOnFailure
      */
@@ -51,7 +51,7 @@ public class TestRunner
     {
         return haltOnFailure;
     }
-
+    
     /**
      * @param haltOnFailure the haltOnFailure to set
      */
@@ -59,7 +59,7 @@ public class TestRunner
     {
         this.haltOnFailure = haltOnFailure;
     }
-
+    
     /**
      * @return the firingCounts
      */
@@ -67,12 +67,12 @@ public class TestRunner
     {
         return firingCounts;
     }
-
+    
     public List<TestCaseResult> runAllTestCases(final List<TestCase> all, TestCaseResultHandler handler) throws SoarException
     {
         total = all.size();
         firingCounts = new FiringCounts();
-
+        
         final long startTime = System.nanoTime();
         int index = 0;
         final List<Callable<TestCaseResult>> tasks = new ArrayList<Callable<TestCaseResult>>();
@@ -84,19 +84,19 @@ public class TestRunner
         try
         {
             final List<Future<TestCaseResult>> futures = executor.invokeAll(tasks);
-            for(Future<TestCaseResult> future : futures) 
+            for(Future<TestCaseResult> future : futures)
             {
                 final TestCaseResult result = future.get();
                 firingCounts.merge(result.getFiringCounts());
                 results.add(result);
             }
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             Thread.currentThread().interrupt();
             throw new SoarException(e.getMessage(), e);
         }
-        catch (ExecutionException e)
+        catch(ExecutionException e)
         {
             throw new SoarException(e.getMessage(), e);
         }
@@ -107,52 +107,51 @@ public class TestRunner
         return results;
         
         /*
-        final long startTime = System.nanoTime();
-        int index = 0;
-        final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
-        for(TestCase testCase : all)
-        {
-            try
-            {
-                final TestCaseResult result = createTestCaseRunner(testCase, handler, ++index).call();
-                firingCounts.merge(result.getFiringCounts());
-                results.add(result);
-                
-                if(haltOnFailure && result.getFailed() > 0)
-                {
-                    break;
-                }
-            }
-            catch (Exception e)
-            {
-                throw new SoarException(e.getMessage(), e);
-            }
-        }
-        final long elapsedTime = System.nanoTime() - startTime;
-        out.printf("Ran %d test cases in %f s\n", total, elapsedTime / 1000000000.0);
-        return results;
-        */
-       
+         * final long startTime = System.nanoTime();
+         * int index = 0;
+         * final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
+         * for(TestCase testCase : all)
+         * {
+         * try
+         * {
+         * final TestCaseResult result = createTestCaseRunner(testCase, handler, ++index).call();
+         * firingCounts.merge(result.getFiringCounts());
+         * results.add(result);
+         * 
+         * if(haltOnFailure && result.getFailed() > 0)
+         * {
+         * break;
+         * }
+         * }
+         * catch (Exception e)
+         * {
+         * throw new SoarException(e.getMessage(), e);
+         * }
+         * }
+         * final long elapsedTime = System.nanoTime() - startTime;
+         * out.printf("Ran %d test cases in %f s\n", total, elapsedTime / 1000000000.0);
+         * return results;
+         */
+        
     }
     
     public Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
     {
-        return () ->
-        {
+        return () -> {
             final TestCaseResult result = run(testCase, index);
-            if(handler != null) 
+            if(handler != null)
             {
                 handler.handleTestCaseResult(result);
             }
             return result;
         };
     }
-   
+    
     public TestCaseResult run(TestCase testCase, int index) throws SoarException
     {
-        out.printf("%d/%d: Running test case '%s' from '%s'%n", index, total, 
-                            testCase.getName(), 
-                            testCase.getUrl());
+        out.printf("%d/%d: Running test case '%s' from '%s'%n", index, total,
+                testCase.getName(),
+                testCase.getUrl());
         final TestCaseResult result = new TestCaseResult(testCase);
         for(Test test : testCase.getTests())
         {
@@ -164,7 +163,7 @@ public class TestRunner
                 {
                     testResult = runTest(test, agent);
                 }
-                catch (SoarException e)
+                catch(SoarException e)
                 {
                     throw new SoarException(testCase.getUrl() + ":" + testCase.getName() + ": " + e.getMessage(), e);
                 }
@@ -174,7 +173,7 @@ public class TestRunner
                     break;
                 }
             }
-            catch (Throwable t)
+            catch(Throwable t)
             {
                 t.printStackTrace();
             }
@@ -191,7 +190,6 @@ public class TestRunner
         factory.debugTest(test, exitOnClose);
     }
     
-    
     public TestResult runTest(Test test, final TestAgent agent) throws SoarException
     {
         out.printf("   Running test: '%s/%s' on thread %s%n", test.getTestCase().getName(), test.getName(), Thread.currentThread().getName());
@@ -201,34 +199,34 @@ public class TestRunner
         final long startRunTimeNanos = System.nanoTime();
         final long elapsedInitTimeNanos = startRunTimeNanos - startInitTimeNanos;
         agent.run();
-        final long elapsedNanos = System.nanoTime() - startRunTimeNanos; 
+        final long elapsedNanos = System.nanoTime() - startRunTimeNanos;
         out.printf("      finished in %f seconds\n", elapsedNanos / 1000000000.0);
-       
+        
         final FiringCounts firingCounts = agent.getFiringCounts();
         
         if(agent.isFailCalled())
         {
             agent.printMatchesOnFailure();
-            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false, 
-                              agent.getFailMessage(),
-                              agent.getOutput(),
-                              firingCounts);
+            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false,
+                    agent.getFailMessage(),
+                    agent.getOutput(),
+                    firingCounts);
         }
         else if(!agent.isPassCalled())
         {
             agent.printMatchesOnFailure();
             final long actualCycles = agent.getCycleCount();
-            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false, 
+            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false,
                     String.format("never called (pass) function. Ran %d decisions.", actualCycles),
-                              agent.getOutput(),
-                              firingCounts);
+                    agent.getOutput(),
+                    firingCounts);
         }
         else
         {
             return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, true,
-                    agent.getPassMessage(), 
-                     agent.getOutput(),
-                     firingCounts);
+                    agent.getPassMessage(),
+                    agent.getOutput(),
+                    firingCounts);
         }
     }
 }

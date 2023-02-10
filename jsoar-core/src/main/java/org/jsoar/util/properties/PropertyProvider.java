@@ -10,7 +10,7 @@ package org.jsoar.util.properties;
  * {@link PropertyManager}.
  * 
  * <p>Although {@link PropertyManager} will create a default implementation
- * of this interface the first time a property is set, a property provide 
+ * of this interface the first time a property is set, a property provide
  * may provide custom storage along with expanded constraints on the value
  * of the property.
  * 
@@ -21,7 +21,7 @@ package org.jsoar.util.properties;
  * 
  * @author ray
  */
-public interface PropertyProvider <T>
+public interface PropertyProvider<T>
 {
     /**
      * @return the current value of the property

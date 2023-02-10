@@ -14,6 +14,7 @@ import picocli.CommandLine.HelpCommand;
 
 /**
  * This is the implementation of the "rhs-functions" command.
+ * 
  * @author austin.brehob
  */
 public class RhsFunctionsCommand extends PicocliSoarCommand
@@ -22,9 +23,8 @@ public class RhsFunctionsCommand extends PicocliSoarCommand
     {
         super(agent, new RhsFunctionsC(agent));
     }
-
-    @Command(name="rhs-functions", description="Prints a list of all RHS functions",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "rhs-functions", description = "Prints a list of all RHS functions", subcommands = { HelpCommand.class })
     static public class RhsFunctionsC implements Runnable
     {
         private Agent agent;
@@ -33,13 +33,13 @@ public class RhsFunctionsCommand extends PicocliSoarCommand
         {
             this.agent = agent;
         }
-
+        
         @Override
         public void run()
         {
             final Printer p = agent.getPrinter();
             p.startNewLine();
-
+            
             // Obtain all RHS functions and sort them
             final List<RhsFunctionHandler> handlers = agent.getRhsFunctions().getHandlers();
             Collections.sort(handlers, new Comparator<RhsFunctionHandler>()
@@ -50,8 +50,8 @@ public class RhsFunctionsCommand extends PicocliSoarCommand
                     return a.getName().compareTo(b.getName());
                 }
             });
-
-            for (RhsFunctionHandler f : handlers)
+            
+            for(RhsFunctionHandler f : handlers)
             {
                 int max = f.getMaxArguments();
                 p.print("%20s (%d, %s)%n", f.getName(), f.getMinArguments(),

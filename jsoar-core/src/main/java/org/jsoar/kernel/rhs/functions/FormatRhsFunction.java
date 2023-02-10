@@ -23,8 +23,10 @@ public class FormatRhsFunction extends AbstractRhsFunctionHandler
     {
         super("format", 1, Integer.MAX_VALUE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -49,5 +51,5 @@ public class FormatRhsFunction extends AbstractRhsFunctionHandler
             throw new RhsFunctionException("Invalid format '" + format + "' in rule '" + (p != null ? p.getName() : "unknown") + "': " + e.getMessage(), e);
         }
     }
-
+    
 }

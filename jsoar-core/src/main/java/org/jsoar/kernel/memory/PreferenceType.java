@@ -15,58 +15,58 @@ public enum PreferenceType
     /**
      * gdatastructs.h:146:ACCEPTABLE_PREFERENCE_TYPE
      */
-    ACCEPTABLE('+', false), 
+    ACCEPTABLE('+', false),
     
     /**
      * gdatastructs.h:147:REQUIRE_PREFERENCE_TYPE
      */
-    REQUIRE('!', false), 
+    REQUIRE('!', false),
     
     /**
      * gdatastructs.h:148:REJECT_PREFERENCE_TYPE
      */
-    REJECT('-', false), 
+    REJECT('-', false),
     
     /**
      * gdatastructs.h:149:PROHIBIT_PREFERENCE_TYPE
      */
-    PROHIBIT('~', false), 
+    PROHIBIT('~', false),
     
     /**
      * gdatastructs.h:151:UNARY_INDIFFERENT_PREFERENCE_TYPE
      */
-    UNARY_INDIFFERENT('=', false), 
+    UNARY_INDIFFERENT('=', false),
     
     /**
      * gdatastructs.h:153:BEST_PREFERENCE_TYPE
      */
-    BEST('>', false), 
+    BEST('>', false),
     
     /**
      * gdatastructs.h:154:WORST_PREFERENCE_TYPE
      */
-    WORST('<', false), 
+    WORST('<', false),
     
     /**
      * gdatastructs.h:155:BINARY_INDIFFERENT_PREFERENCE_TYPE
      */
-    BINARY_INDIFFERENT('=', true), 
-      
+    BINARY_INDIFFERENT('=', true),
+    
     /**
      * gdatastructs.h:157:BETTER_PREFERENCE_TYPE
      */
-    BETTER('>', true), 
+    BETTER('>', true),
     
     /**
      * gdatastructs.h:158:WORSE_PREFERENCE_TYPE
      */
-    WORSE('<', true), 
+    WORSE('<', true),
     
     /**
      * gdatastructs.h:159:NUMERIC_INDIFFERENT_PREFERENCE_TYPE
      */
     NUMERIC_INDIFFERENT('=', true);
-
+    
     /**
      * sml_KernelHelpers.cpp:889:pref_names
      */
@@ -94,7 +94,7 @@ public enum PreferenceType
     {
         return binary;
     }
-
+    
     /**
      * <p>gdatastructs.h:169:preference_is_unary
      * 

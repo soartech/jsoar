@@ -29,15 +29,18 @@ import org.junit.jupiter.api.BeforeEach;
 public class JSoarTest
 {
     protected SymbolFactoryImpl syms;
-    protected RhsFunctionContext rhsFuncContext = new RhsFunctionContext() {
-
+    protected RhsFunctionContext rhsFuncContext = new RhsFunctionContext()
+    {
+        
         @Override
         public SymbolFactory getSymbols()
         {
             return syms;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
@@ -45,8 +48,10 @@ public class JSoarTest
         {
             throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
          */
         @Override
@@ -83,5 +88,5 @@ public class JSoarTest
         assertEquals(body, writer.toString());
         
     }
-
+    
 }

@@ -91,7 +91,7 @@ public class DefaultWmeToXml
         final Element wmeElement = doc.createElement(wme.getAttribute().toString());
         element.appendChild(wmeElement);
         
-        //  If it's an ID, process sub-structure
+        // If it's an ID, process sub-structure
         final Identifier idValue = wme.getValue().asIdentifier();
         if(idValue != null)
         {
@@ -113,7 +113,7 @@ public class DefaultWmeToXml
             // element's text content.
             final String value = wme.getValue().toString();
             wmeElement.setTextContent(value);
-        }        
+        }
     }
     
     /**

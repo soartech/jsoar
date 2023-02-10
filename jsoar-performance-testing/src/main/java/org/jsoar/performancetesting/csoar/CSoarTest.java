@@ -21,38 +21,38 @@ import org.jsoar.performancetesting.yaml.TestSettings;
 public class CSoarTest implements Test
 {
     private String testName;
-
+    
     private Path testFile;
-
+    
     private TestSettings settings = null;
-
+    
     private CSoarAgentWrapper agent;
-
+    
     private CSoarKernelFactory kernelFactory;
-
+    
     private CSoarKernelWrapper kernel;
-
+    
     private Double cpuTime;
-
+    
     private Double kernelTime;
-
+    
     private int decisionsRunFor;
-
+    
     private long memoryForRun;
-
+    
     public CSoarTest(Path csoarDirectory) throws IllegalAccessException, NoSuchFieldException, ClassNotFoundException
     {
         this.agent = null;
         this.kernel = null;
-
+        
         this.cpuTime = -1.0;
         this.kernelTime = -1.0;
         this.decisionsRunFor = -1;
         this.memoryForRun = -1;
-
+        
         this.kernelFactory = new CSoarKernelFactory(csoarDirectory);
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -66,12 +66,13 @@ public class CSoarTest implements Test
         this.testName = testName;
         this.testFile = testFile.toAbsolutePath();
         this.settings = settings;
-
+        
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
     }
-
+    
     @Override
-    public Path getSoarPath() {
+    public Path getSoarPath()
+    {
         return this.kernelFactory.getSoarPath();
     }
     
@@ -85,7 +86,7 @@ public class CSoarTest implements Test
     {
         return testName;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -96,7 +97,7 @@ public class CSoarTest implements Test
     {
         return testFile;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -107,49 +108,49 @@ public class CSoarTest implements Test
     {
         agent = kernel.CreateAgent("CSoar Performance Testing Agent - "
                 + testName + " - " + runCount);
-
-        if (agent.LoadProductions(testFile) == false)
+        
+        if(agent.LoadProductions(testFile) == false)
         {
             agent.ExecuteCommandLine("excise --all");
             System.err.println(agent.ExecuteCommandLine("source " + testFile.toString().replace(File.separatorChar, '/')));
             System.err.println("\n" + "ERROR: Failed to load " + testFile);
             return false;
         }
-
-        if (settings.isUsingSeed())
+        
+        if(settings.isUsingSeed())
         {
             agent.ExecuteCommandLine("srand " + settings.getSeed());
         }
-
+        
         agent.ExecuteCommandLine("soar stop-phase output");
-
-        if (settings.getDecisionCycles().size() == 0
+        
+        if(settings.getDecisionCycles().size() == 0
                 || settings.getDecisionCycles().get(0) == 0)
             agent.RunSelfForever();
         else
             agent.RunSelf(settings.getDecisionCycles().get(0));
-
+        
         cpuTime = getCPUTime();
         kernelTime = getKernelTime();
-
+        
         decisionsRunFor = getDecisions();
-
+        
         // JSoar will always be more memory than CSoar and there is no easy way
         // to
         // measure CSoar memory since there is no built in command to CSoar and
         // getting the runtime memory will also include the JVM therefore just
         // return 0.
         memoryForRun = getMemory();
-
+        
         agent = null;
         kernel.Shutdown();
-
+        
         System.gc();
         System.gc();
-
+        
         return true;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -158,14 +159,14 @@ public class CSoarTest implements Test
     @Override
     public boolean reset()
     {
-        if (agent != null)
+        if(agent != null)
         {
             agent = null;
         }
-
+        
         return true;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -176,7 +177,7 @@ public class CSoarTest implements Test
     {
         return cpuTime;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -187,7 +188,7 @@ public class CSoarTest implements Test
     {
         return kernelTime;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -198,7 +199,7 @@ public class CSoarTest implements Test
     {
         return decisionsRunFor;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -209,18 +210,18 @@ public class CSoarTest implements Test
     {
         return memoryForRun;
     }
-
+    
     /**
      * 
      * @return the memory via an allocate command.
      */
     private long getMemory()
     {
-        if (agent == null)
+        if(agent == null)
             return 0;
-
+        
         String result = agent.ExecuteCommandLine("allocate");
-
+        
         /*
          * Example Allocate Command Result
          * 
@@ -247,145 +248,145 @@ public class CSoarTest implements Test
          * dynamic 24 1364 6 196416 dynamic 40 818 1 32720 dynamic 48 682 1
          * 32736 dl cons 24 1364 1 32736 cons cell 16 2047 2 65504
          */
-
+        
         List<String> splitString = Arrays.asList(result.split("\\s+"));
-
+        
         List<Long> numericsOnly = new ArrayList<Long>();
-
-        for (int i = 0; i < splitString.size(); i++)
+        
+        for(int i = 0; i < splitString.size(); i++)
         {
             try
             {
                 Long numeric = Long.parseLong(splitString.get(i));
-
+                
                 numericsOnly.add(numeric);
             }
-            catch (NumberFormatException e)
+            catch(NumberFormatException e)
             {
             } // Ignored
         }
-
+        
         long memoryUsed = 0;
-
+        
         int i = 3;
         // i is now at the number of bytes after the first 'dynamic' pool
-        for (; i < numericsOnly.size(); i += 4)
+        for(; i < numericsOnly.size(); i += 4)
         {
             memoryUsed += numericsOnly.get(i);
         }
-
+        
         return memoryUsed;
     }
-
+    
     /**
      * 
      * @return the kernel time via a stats command.
      */
     private double getKernelTime()
     {
-        if (agent == null)
+        if(agent == null)
             return -1.0;
-
+        
         String result = agent.ExecuteCommandLine("stats");
-
+        
         List<String> splitString = Arrays.asList(result.split("\\s+"));
-
-        for (int i = 0; i < splitString.size(); i++)
+        
+        for(int i = 0; i < splitString.size(); i++)
         {
             String s = splitString.get(i);
-
-            if (s == null)
+            
+            if(s == null)
                 return -1.0;
-
-            if (s.equals("Kernel") && splitString.size() >= (i + 4))
+            
+            if(s.equals("Kernel") && splitString.size() >= (i + 4))
             {
                 String next = splitString.get(i + 1);
-
-                if (next.equals("CPU"))
+                
+                if(next.equals("CPU"))
                 {
                     // It is our match
-
+                    
                     String time = splitString.get(i + 3);
-
+                    
                     return Double.parseDouble(time);
                 }
             }
         }
-
+        
         return -1.0;
     }
-
+    
     /**
      * 
      * @return the cpu time via a stats command.
      */
     private double getCPUTime()
     {
-        if (agent == null)
+        if(agent == null)
             return -1.0;
-
+        
         String result = agent.ExecuteCommandLine("stats");
-
+        
         List<String> splitString = Arrays.asList(result.split("\\s+"));
-
-        for (int i = 0; i < splitString.size(); i++)
+        
+        for(int i = 0; i < splitString.size(); i++)
         {
             String s = splitString.get(i);
-
-            if (s == null)
+            
+            if(s == null)
                 return -1.0;
-
-            if (s.equals("Total") && splitString.size() >= (i + 4))
+            
+            if(s.equals("Total") && splitString.size() >= (i + 4))
             {
                 String next = splitString.get(i + 1);
-
-                if (next.equals("CPU"))
+                
+                if(next.equals("CPU"))
                 {
                     // It is our match
-
+                    
                     String time = splitString.get(i + 3);
-
+                    
                     return Double.parseDouble(time);
                 }
             }
         }
-
+        
         return -1.0;
     }
-
+    
     /**
      * 
      * @return the number of decisions run so far via a stats command.
      */
     private int getDecisions()
     {
-        if (agent == null)
+        if(agent == null)
             return -1;
-
+        
         String result = agent.ExecuteCommandLine("stats");
-
+        
         List<String> splitString = Arrays.asList(result.split("\\s+"));
-
-        for (int i = 0; i < splitString.size(); i++)
+        
+        for(int i = 0; i < splitString.size(); i++)
         {
             String s = splitString.get(i);
-
-            if (s == null)
+            
+            if(s == null)
                 return -1;
-
-            if (s.equals("decisions") && i > 0)
+            
+            if(s.equals("decisions") && i > 0)
             {
                 // The number we want is the previous string
-
+                
                 String decisions = splitString.get(i - 1);
-
+                
                 return Integer.parseInt(decisions);
             }
         }
-
+        
         return -1;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -396,7 +397,7 @@ public class CSoarTest implements Test
     {
         return "CSoar";
     }
-
+    
     /*
      * (non-Javadoc)
      * 

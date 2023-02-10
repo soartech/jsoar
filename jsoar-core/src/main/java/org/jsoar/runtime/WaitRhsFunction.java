@@ -20,7 +20,7 @@ import org.jsoar.util.Arguments;
 /**
  * A "wait" RHS function used in conjunction with a {@link ThreadedAgent}.
  * 
- * <p>Takes a single optional argument, the amount of time to wait in 
+ * <p>Takes a single optional argument, the amount of time to wait in
  * milliseconds. If the argument is omitted, the function will wait forever.
  * The wait RHS function causes the agent to stop executing (i.e. its
  * thread goes to sleep) until one of the following conditions occurs:
@@ -30,19 +30,19 @@ import org.jsoar.util.Arguments;
  * <li>The agent is stopped with {@link ThreadedAgent#stop()}
  * <li>The agent's thread is interrupted
  * <li>A {@link AsynchronousInputReadyEvent} is fired through the agent indicating that new asynchronous
- *     I/O is available.
- * <li>The optional timeout provided as an argument to the wait function 
- *     expires.
+ * I/O is available.
+ * <li>The optional timeout provided as an argument to the wait function
+ * expires.
  * </ul>
  * 
  * <p>The wait function may only be used as a standalone function.
  * 
- * <p>The wait function only schedules a wait at the end of the current decision 
+ * <p>The wait function only schedules a wait at the end of the current decision
  * cycle. That is, the agent is not suspended while the production is firing.
  * This means that if multiple productions call the wait function in the same
- * decision, the wait time of the last call "wins". This approach avoids 
+ * decision, the wait time of the last call "wins". This approach avoids
  * reentrancy issues as well as ensuring that when a wait is stopped because of
- * new input, another wait before the input cycle doesn't cause a deadlock. 
+ * new input, another wait before the input cycle doesn't cause a deadlock.
  * 
  * <p>The current waiting status of the agent is stored in the {@link SoarProperties#WAIT_INFO}
  * property.
@@ -57,7 +57,6 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     private ThreadedAgent agent;
     private RhsFunctionHandler oldHandler;
     
-    
     public WaitRhsFunction()
     {
         super("wait", 0, 1);
@@ -69,7 +68,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
      * 
      * @param waitManager the wait manager
      * @throws IllegalStateException if attach has already been called before,
-     *      or if the {@code waitManager} is not attached to an agent.
+     *     or if the {@code waitManager} is not attached to an agent.
      */
     public void attach(WaitManager waitManager)
     {
@@ -94,7 +93,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
      */
     public void detach()
     {
-        if(agent != null )
+        if(agent != null)
         {
             agent.getRhsFunctions().unregisterHandler(getName());
             if(oldHandler != null)
@@ -107,7 +106,9 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         waitManager = null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -123,8 +124,10 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         
         return null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
      */
     @Override

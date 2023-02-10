@@ -34,8 +34,10 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
     {
         super("make-constant-symbol");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -51,5 +53,5 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
         }
         return syms.generateUniqueString(prefix, counter);
     }
-
+    
 }

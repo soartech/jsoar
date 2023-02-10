@@ -9,21 +9,36 @@ import org.jsoar.kernel.symbols.Symbol;
 class MemoryNode
 {
     private Object value;
-
+    
     static MemoryNode create(Symbol value)
     {
-        if (value == null) { return null; }
-
+        if(value == null)
+        {
+            return null;
+        }
+        
         MemoryNode node = new MemoryNode();
         
         IntegerSymbol ie = value.asInteger();
-        if (ie != null) { node.setIntValue(ie.getValue()); return node; }
-
+        if(ie != null)
+        {
+            node.setIntValue(ie.getValue());
+            return node;
+        }
+        
         DoubleSymbol fe = value.asDouble();
-        if (fe != null) { node.setDoubleValue(fe.getValue()); return node; }
+        if(fe != null)
+        {
+            node.setDoubleValue(fe.getValue());
+            return node;
+        }
         
         StringSymbol se = value.asString();
-        if (se != null) { node.setStringValue(se.getValue()); return node; }
+        if(se != null)
+        {
+            node.setStringValue(se.getValue());
+            return node;
+        }
         
         node.clearValue();
         return node;
@@ -33,17 +48,17 @@ class MemoryNode
     {
         return value instanceof String;
     }
-
+    
     public boolean isInt()
     {
         return value instanceof Long;
     }
-
+    
     public boolean isDouble()
     {
         return value instanceof Double;
     }
-
+    
     public boolean isNumeric()
     {
         return isInt() || isDouble();
@@ -53,34 +68,34 @@ class MemoryNode
     {
         return value != null;
     }
-
+    
     public boolean setStringValue(String strVal)
     {
-        assert(strVal != null);
+        assert (strVal != null);
         final boolean changed = !strVal.equals(this.value);
         this.value = strVal;
         return changed;
     }
-
+    
     public boolean setIntValue(long intVal)
     {
         final boolean changed = !isInt() || intVal != getIntValue();
         this.value = intVal;
         return changed;
     }
-
+    
     public boolean setDoubleValue(double doubleVal)
     {
         final boolean changed = !isDouble() || doubleVal != getDoubleValue();
         this.value = doubleVal;
         return changed;
     }
-
+    
     public String getStringValue()
     {
-        return value != null ? value.toString() : ""; 
+        return value != null ? value.toString() : "";
     }
-
+    
     public Object getValue()
     {
         return value;
@@ -105,7 +120,7 @@ class MemoryNode
         }
         return 0;
     }
-
+    
     public double getDoubleValue()
     {
         if(value instanceof Number)
@@ -118,21 +133,21 @@ class MemoryNode
         }
         return 0;
     }
-
+    
     public void clearValue()
     {
         value = null;
     }
-
+    
     public boolean hasSameType(MemoryNode node)
     {
         if((value == null && node.value != null) ||
-           (value != null && node.value == null))
+                (value != null && node.value == null))
         {
             return false;
         }
         return (value == null && node.value == null) ||
-               (value.getClass().equals(node.value.getClass()));
+                (value.getClass().equals(node.value.getClass()));
     }
     
     public boolean valueIsEqual(MemoryNode other)
@@ -143,19 +158,18 @@ class MemoryNode
         }
         return value == other.value;
     }
-
+    
     public String valueToString()
     {
-        if (value == null)
+        if(value == null)
         {
             return "[NODE]";
         }
         return value.toString();
     }
-     
+    
     public String toString()
     {
         return super.toString() + valueToString();
     }
 }
-

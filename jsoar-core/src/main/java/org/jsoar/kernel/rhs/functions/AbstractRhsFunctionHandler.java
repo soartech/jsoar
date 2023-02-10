@@ -7,8 +7,6 @@ package org.jsoar.kernel.rhs.functions;
 
 import org.jsoar.util.Arguments;
 
-
-
 /**
  * Base class for RHS functions. Defaults to non-standalone function.
  * 
@@ -39,7 +37,7 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
      * @param minArgs Minimum number of arguments
      * @param maxArgs Maximum number of arguments
      * @throws IllegalArgumentException If name is <code>null</code> or minArgs is
-     *      greater than maxArgs
+     *     greater than maxArgs
      */
     public AbstractRhsFunctionHandler(String name, int minArgs, int maxArgs)
     {
@@ -51,9 +49,10 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
         this.minArgs = minArgs;
         this.maxArgs = maxArgs;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#getMaxArguments()
      */
     @Override
@@ -61,8 +60,10 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
     {
         return maxArgs;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#getMinArguments()
      */
     @Override
@@ -70,20 +71,22 @@ public abstract class AbstractRhsFunctionHandler implements RhsFunctionHandler
     {
         return minArgs;
     }
-
+    
     @Override
     public boolean mayBeStandalone()
     {
         return false;
     }
-
+    
     @Override
     public boolean mayBeValue()
     {
         return true;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.RhsFunctionHandler#getName()
      */
     @Override

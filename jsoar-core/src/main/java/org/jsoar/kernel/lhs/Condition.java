@@ -24,9 +24,9 @@ import org.jsoar.util.markers.Marker;
  */
 public abstract class Condition implements Formattable
 {
-    public boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
-    public Condition  next, prev;
-
+    public boolean already_in_tc; /* used only by cond_is_in_tc stuff */
+    public Condition next, prev;
+    
     public static Condition insertAtHead(Condition header, Condition c)
     {
         c.next = header;
@@ -83,7 +83,7 @@ public abstract class Condition implements Formattable
     }
     
     public abstract void addBoundVariables(Marker tc_number, ListHead<Variable> var_list);
-
+    
     /**
      * production.cpp:1191:add_all_variables_in_condition
      * 
@@ -91,7 +91,7 @@ public abstract class Condition implements Formattable
      * @param var_list
      */
     public abstract void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
-
+    
     public ThreeFieldCondition asThreeFieldCondition()
     {
         return null;
@@ -101,15 +101,17 @@ public abstract class Condition implements Formattable
     {
         return null;
     }
+    
     public NegativeCondition asNegativeCondition()
     {
         return null;
     }
+    
     public ConjunctiveNegationCondition asConjunctiveNegationCondition()
     {
         return null;
     }
-
+    
     /**
      * Test whether this condition is in the given transitive closure
      * 
@@ -120,7 +122,7 @@ public abstract class Condition implements Formattable
      * @return true if the condition is in the given transitive closure
      */
     public abstract boolean cond_is_in_tc(Marker tc);
-
+    
     /**
      * Add this condition to the given transitive closure
      * 
@@ -132,7 +134,7 @@ public abstract class Condition implements Formattable
      * @param var_list list of variables added
      */
     public abstract void add_cond_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list);
-
+    
     /**
      * Returns a hash value for the given condition.
      * 
@@ -146,23 +148,23 @@ public abstract class Condition implements Formattable
     public static int hash_condition(Condition cond)
     {
         int result;
-
+        
         final PositiveCondition pc = cond.asPositiveCondition();
-        if (pc != null)
+        if(pc != null)
         {
             result = Tests.hash_test(pc.id_test);
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(pc.attr_test);
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(pc.value_test);
-            if (pc.test_for_acceptable_preference)
+            if(pc.test_for_acceptable_preference)
                 result++;
-
+            
             return result;
         }
-
+        
         final NegativeCondition nc = cond.asNegativeCondition();
-        if (nc != null)
+        if(nc != null)
         {
             result = 1267818;
             result ^= Tests.hash_test(nc.id_test);
@@ -170,24 +172,24 @@ public abstract class Condition implements Formattable
             result ^= Tests.hash_test(nc.attr_test);
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(nc.value_test);
-            if (nc.test_for_acceptable_preference)
+            if(nc.test_for_acceptable_preference)
                 result++;
-
+            
             return result;
         }
-
+        
         final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
-        if (ncc != null)
+        if(ncc != null)
         {
             result = 82348149;
-            for (Condition c = ncc.top; c != null; c = c.next)
+            for(Condition c = ncc.top; c != null; c = c.next)
             {
                 result ^= hash_condition(c);
                 result = (result << 24) | (result >> 8);
             }
             return result;
         }
-
+        
         throw new IllegalStateException("Internal error: bad cond type in hash_condition");
     }
     
@@ -202,38 +204,38 @@ public abstract class Condition implements Formattable
      */
     public static boolean conditions_are_equal(Condition c1, Condition c2)
     {
-        if (!c1.getClass().equals(c2.getClass()))
+        if(!c1.getClass().equals(c2.getClass()))
             return false;
-
+        
         // Positive or negative
         ThreeFieldCondition tfc1 = c1.asThreeFieldCondition();
-        if (tfc1 != null)
+        if(tfc1 != null)
         {
-        	// treat variables in negations slightly differently, bug 510
-        	boolean neg = c1.asNegativeCondition() != null;
+            // treat variables in negations slightly differently, bug 510
+            boolean neg = c1.asNegativeCondition() != null;
             ThreeFieldCondition tfc2 = c2.asThreeFieldCondition();
-            if (!Tests.tests_are_equal(tfc1.id_test, tfc2.id_test, neg))
+            if(!Tests.tests_are_equal(tfc1.id_test, tfc2.id_test, neg))
                 return false;
-            if (!Tests.tests_are_equal(tfc1.attr_test, tfc2.attr_test, neg))
+            if(!Tests.tests_are_equal(tfc1.attr_test, tfc2.attr_test, neg))
                 return false;
-            if (!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test, neg))
+            if(!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test, neg))
                 return false;
-            if (tfc1.test_for_acceptable_preference != tfc2.test_for_acceptable_preference)
+            if(tfc1.test_for_acceptable_preference != tfc2.test_for_acceptable_preference)
                 return false;
             return true;
         }
         ConjunctiveNegationCondition ncc1 = c1.asConjunctiveNegationCondition();
-        if (ncc1 != null)
+        if(ncc1 != null)
         {
             ConjunctiveNegationCondition ncc2 = c2.asConjunctiveNegationCondition();
-            for (c1 = ncc1.top, c2 = ncc2.top; ((c1 != null) && (c2 != null)); c1 = c1.next, c2 = c2.next)
-                if (!conditions_are_equal(c1, c2))
+            for(c1 = ncc1.top, c2 = ncc2.top; ((c1 != null) && (c2 != null)); c1 = c1.next, c2 = c2.next)
+                if(!conditions_are_equal(c1, c2))
                     return false;
-            if (c1 == c2)
+            if(c1 == c2)
                 return true; /* make sure they both hit end-of-list */
             return false;
         }
-
+        
         throw new IllegalStateException("Unknown condition types: " + c1 + ", " + c2);
     }
     
@@ -248,16 +250,16 @@ public abstract class Condition implements Formattable
      */
     public static Condition copy_condition(Condition cond)
     {
-        if (cond == null)
+        if(cond == null)
             return null;
-
+        
         final PositiveCondition pc = cond.asPositiveCondition();
-        if (pc != null)
+        if(pc != null)
         {
             return pc.copy();
         }
         final NegativeCondition nc = cond.asNegativeCondition();
-        if (nc != null)
+        if(nc != null)
         {
             NegativeCondition New = new NegativeCondition();
             New.id_test = Tests.copy(nc.id_test);
@@ -267,7 +269,7 @@ public abstract class Condition implements Formattable
             return New;
         }
         final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
-        if (ncc != null)
+        if(ncc != null)
         {
             ConjunctiveNegationCondition New = new ConjunctiveNegationCondition();
             ByRef<Condition> ncc_top = ByRef.create(null);
@@ -277,10 +279,10 @@ public abstract class Condition implements Formattable
             New.bottom = ncc_bottom.value;
             return New;
         }
-
+        
         throw new IllegalStateException("Unknown condition type to copy_condition(): " + cond);
     }
-
+    
     /**
      * Copies the given condition list, returning pointers to the top-most and
      * bottom-most conditions in the new copy.
@@ -294,11 +296,11 @@ public abstract class Condition implements Formattable
     public static void copy_condition_list(Condition top_cond, ByRef<Condition> dest_top, ByRef<Condition> dest_bottom)
     {
         Condition prev = null;
-        while (top_cond != null)
+        while(top_cond != null)
         {
             Condition New = copy_condition(top_cond);
             
-            if (prev != null)
+            if(prev != null)
                 prev.next = New;
             else
                 dest_top.value = New;
@@ -307,7 +309,7 @@ public abstract class Condition implements Formattable
             prev = New;
             top_cond = top_cond.next;
         }
-        if (prev != null)
+        if(prev != null)
             prev.next = null;
         else
             dest_top.value = null;
@@ -315,7 +317,6 @@ public abstract class Condition implements Formattable
         dest_bottom.value = prev;
     }
     
-
     /**
      * Copy a condition list and return the new head
      * <p>explain.cpp:117:copy_cond_list
@@ -327,11 +328,11 @@ public abstract class Condition implements Formattable
     {
         ByRef<Condition> new_top = ByRef.create(null);
         ByRef<Condition> new_bottom = ByRef.create(null);
-
+        
         copy_condition_list(top_list, new_top, new_bottom);
         return new_top.value;
     }
-
+    
     /**
      * Copy the conditions from a list and return the head of a new list
      * 
@@ -343,18 +344,18 @@ public abstract class Condition implements Formattable
     public static Condition copy_conds_from_list(List<Condition> top_list)
     {
         Condition top = null, prev = null;
-
-        for (Condition cc : top_list)
+        
+        for(Condition cc : top_list)
         {
             Condition cond = copy_condition(cc);
             cond.prev = prev;
             cond.next = null;
-
-            if (prev == null)
+            
+            if(prev == null)
                 top = cond;
             else
                 prev.next = cond;
-
+            
             prev = cond;
         }
         return (top);
@@ -362,7 +363,7 @@ public abstract class Condition implements Formattable
     
     /**
      * Find a condition in a condition list using {@link #conditions_are_equal(Condition, Condition)}.
-     *  
+     * 
      * <p>Moved from explain.cpp since this is fairly generic
      * 
      * <p>explain.cpp:353:explain_find_cond
@@ -373,16 +374,17 @@ public abstract class Condition implements Formattable
      */
     public static Condition explain_find_cond(Condition target, Condition cond_list)
     {
-        for (Condition cond = cond_list; cond != null; cond = cond.next)
+        for(Condition cond = cond_list; cond != null; cond = cond.next)
         {
-            if (conditions_are_equal(target, cond))
+            if(conditions_are_equal(target, cond))
                 return cond;
         }
         return null;
     }
     
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -396,13 +398,12 @@ public abstract class Condition implements Formattable
         this.prev = null;
         
         StringWriter writer = new StringWriter();
-        Conditions.print_condition_list (new Printer(writer), this, 0, true);
+        Conditions.print_condition_list(new Printer(writer), this, 0, true);
         
         this.next = old_next;
         this.prev = old_prev;
         
         formatter.format(writer.toString());
     }
-
     
 }

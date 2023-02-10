@@ -47,13 +47,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
- * and provides methods for safely interacting with the agent from other 
+ * and provides methods for safely interacting with the agent from other
  * threads. The wrapper includes a number of convenience wrapper methods that
  * forward to the methods with the same name in the underlying agent.
  * 
  * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarUsersGuide">JSoar User Guide</a>
  * 
- * <p>Generally, <b>all</b> access to agent data structures, i.e. the 
+ * <p>Generally, <b>all</b> access to agent data structures, i.e. the
  * {@link Agent} instance should be marshaled through the {@link #executeInternal(Runnable)}
  * methods. Note however, that many public Soar interfaces, or at least parts of them,
  * are immutable, so it is safe to access them from other threads.
@@ -80,14 +80,15 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicBoolean agentRunning = new AtomicBoolean(false);
-    private final PropertyProvider<Boolean> agentRunningProvider = new PropertyProvider<Boolean>() {
-
+    private final PropertyProvider<Boolean> agentRunningProvider = new PropertyProvider<Boolean>()
+    {
+        
         @Override
         public Boolean get()
         {
             return agentRunning.get();
         }
-
+        
         @Override
         public Boolean set(Boolean value)
         {
@@ -101,7 +102,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     
     private final RunCommand runCommand = new RunCommand(this);
     private final SoarSettingsCommand soarCommand;
-
+    
     /**
      * Create a new threaded agent with a generated name.
      * 
@@ -112,10 +113,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     {
         return create(null);
     }
-
+    
     /**
      * Create a new {@link Agent} and automatically wrap it with a ThreadedAgent.
-     * This method also initializes the agent and starts its thread. 
+     * This method also initializes the agent and starts its thread.
      * 
      * <p>This is a convenience method equivalent to
      * <pre>{@code
@@ -143,8 +144,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * it.
      * 
      * @param agent the agent
-     * @return the ThreadedAgent proxy, or <code>null</code> if none is 
-     *  currently attached.
+     * @return the ThreadedAgent proxy, or <code>null</code> if none is
+     * currently attached.
      */
     public static ThreadedAgent find(Agent agent)
     {
@@ -168,7 +169,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @param agent the agent to wrap
      * @return a threaded agent wrapper
      */
-    public static ThreadedAgent attach(Agent agent) 
+    public static ThreadedAgent attach(Agent agent)
     {
         return ThreadedAgentManager.INSTANCE.attach(agent);
     }
@@ -194,13 +195,12 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         
         this.agent.getProperties().setProvider(SoarProperties.IS_RUNNING, agentRunningProvider);
         
-        getEvents().addListener(RunLoopEvent.class, event ->
-        {
+        getEvents().addListener(RunLoopEvent.class, event -> {
             // If the thread has been interrupted (due to shutdown), throw
             // an exception to break us out of the agent run loop.
             // TODO: It may be nice to have a more official way of doing this
             // from the RunLoopEvent.
-            if(Thread.currentThread().isInterrupted()) 
+            if(Thread.currentThread().isInterrupted())
             {
                 throw new InterruptAgentException();
             }
@@ -209,12 +209,12 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             {
                 runnable.run();
                 runnable = commands.poll();
-            }                
+            }
         });
         
         waitManager.attach(this);
         waitFunction.attach(waitManager);
-
+        
         this.soarCommand = new SoarSettingsCommand(this);
         final SoarCommandInterpreter interp = agent.getInterpreter();
         interp.addCommand("run", runCommand);
@@ -238,8 +238,8 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * This returns immediately. If want to wait, use a completion handler like
      * the one in {@link ThreadedAgentManager#create}
      * 
-     * @param done if not <code>null</code> this handler is called after the 
-     * agent is initialized.
+     * @param done if not <code>null</code> this handler is called after the
+     *     agent is initialized.
      * @return this
      * @see Agent#initialize()
      */
@@ -279,7 +279,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             {
                 agentThread.join();
             }
-            catch (InterruptedException e)
+            catch(InterruptedException e)
             {
                 logger.error("Interrupted while waiting for agent thread to exit", e);
                 Thread.currentThread().interrupt();
@@ -326,7 +326,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     {
         return agent;
     }
-
+    
     /**
      * @return <code>true</code> if the agent is current running
      */
@@ -335,7 +335,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         return agentRunning.get();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#getStopPhase()
      */
     @Override
@@ -343,8 +345,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     {
         return agent.getStopPhase();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#setStopPhase(org.jsoar.kernel.Phase)
      */
     @Override
@@ -352,7 +356,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     {
         agent.setStopPhase(phase);
     }
-
+    
     /**
      * Run the agent in a separate thread. This method returns immediately.
      * If the agent is already running, the command is ignored. When the agent
@@ -383,7 +387,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
                 agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, false, true);
                 getEvents().fireEvent(new StopEvent(agent));
             }
-                
+            
         });
     }
     
@@ -408,26 +412,86 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     }
     
     // Convenience methods forwarded to equivalent {@link Agent} methods.
-    public String getName() { return agent.getName(); }
-    public void setName(String name) 
-    { 
-        agent.setName(name); 
+    public String getName()
+    {
+        return agent.getName();
+    }
+    
+    public void setName(String name)
+    {
+        agent.setName(name);
         agentThread.setName("Agent '" + this.agent + "' thread");
     }
-    public SoarCommandInterpreter getInterpreter() { return agent.getInterpreter(); }
-    public Printer getPrinter() { return agent.getPrinter(); }
-    public Trace getTrace() { return agent.getTrace(); }
-    public SoarEventManager getEvents() { return agent.getEvents(); }
-    public PropertyManager getProperties() { return agent.getProperties(); }
-    public SymbolFactory getSymbols() { return agent.getSymbols(); }
-    public InputOutput getInputOutput() { return agent.getInputOutput(); }
-    public ProductionManager getProductions() { return agent.getProductions(); }
-    public RhsFunctionManager getRhsFunctions() { return agent.getRhsFunctions(); }
-    public DebuggerProvider getDebuggerProvider() { return agent.getDebuggerProvider(); }
-    public void setDebuggerProvider(DebuggerProvider p) { agent.setDebuggerProvider(p); }
-    public void openDebugger() throws SoarException { agent.openDebugger(); }
-    public void openDebuggerAndWait() throws SoarException, InterruptedException { agent.openDebuggerAndWait(); }
-    public void closeDebugger() throws SoarException, InterruptedException { agent.closeDebugger(); }
+    
+    public SoarCommandInterpreter getInterpreter()
+    {
+        return agent.getInterpreter();
+    }
+    
+    public Printer getPrinter()
+    {
+        return agent.getPrinter();
+    }
+    
+    public Trace getTrace()
+    {
+        return agent.getTrace();
+    }
+    
+    public SoarEventManager getEvents()
+    {
+        return agent.getEvents();
+    }
+    
+    public PropertyManager getProperties()
+    {
+        return agent.getProperties();
+    }
+    
+    public SymbolFactory getSymbols()
+    {
+        return agent.getSymbols();
+    }
+    
+    public InputOutput getInputOutput()
+    {
+        return agent.getInputOutput();
+    }
+    
+    public ProductionManager getProductions()
+    {
+        return agent.getProductions();
+    }
+    
+    public RhsFunctionManager getRhsFunctions()
+    {
+        return agent.getRhsFunctions();
+    }
+    
+    public DebuggerProvider getDebuggerProvider()
+    {
+        return agent.getDebuggerProvider();
+    }
+    
+    public void setDebuggerProvider(DebuggerProvider p)
+    {
+        agent.setDebuggerProvider(p);
+    }
+    
+    public void openDebugger() throws SoarException
+    {
+        agent.openDebugger();
+    }
+    
+    public void openDebuggerAndWait() throws SoarException, InterruptedException
+    {
+        agent.openDebuggerAndWait();
+    }
+    
+    public void closeDebugger() throws SoarException, InterruptedException
+    {
+        agent.closeDebugger();
+    }
     
     /**
      * Schedule loading a rete in the agent thread and return
@@ -438,9 +502,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @param source the source to load
      * @param finish called after the callable is executed. Ignored if <code>null</code>.
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
-    public void loadProductions(Object source, final CompletionHandler<Void> finish) {
+    public void loadProductions(Object source, final CompletionHandler<Void> finish)
+    {
         this.execute(() -> {
             SoarCommands.source(this.getInterpreter(), source);
             return null;
@@ -453,24 +518,26 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * 
      * @param source the source to load
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
-    public void loadProductions(Object source) {
+    public void loadProductions(Object source)
+    {
         this.execute(() -> {
             SoarCommands.source(this.getInterpreter(), source);
             return null;
         }, null);
     }
-
+    
     /**
      * Schedule loading a rete in the agent thread and return
      * immediately. This will not deadlock.
      * 
      * @param rete the rete to load
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
-    public void loadRete(Object rete) {
+    public void loadRete(Object rete)
+    {
         this.execute(() -> {
             SoarCommands.loadRete(this.getInterpreter(), rete);
             return null;
@@ -486,9 +553,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @param rete the rete to load
      * @param finish called after the callable is executed. Ignored if <code>null</code>.
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
-    public void loadRete(Object rete, final CompletionHandler<Void> finish) {
+    public void loadRete(Object rete, final CompletionHandler<Void> finish)
+    {
         this.execute(() -> {
             SoarCommands.loadRete(this.getInterpreter(), rete);
             return null;
@@ -523,7 +591,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * 
      * @param runnable the runnable to run
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
     public void execute(Runnable runnable)
     {
@@ -544,12 +612,11 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * @param callable the callable to run
      * @param finish called after the callable is executed. Ignored if <code>null</code>.
      * @throws RuntimeException if an exception is thrown while waiting for the
-     *  result.
+     *     result.
      */
     public <V> void execute(final Callable<V> callable, final CompletionHandler<V> finish)
     {
-        executeInternal(() -> 
-        {
+        executeInternal(() -> {
             try
             {
                 final V result = callable.call();
@@ -566,7 +633,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             {
                 Thread.currentThread().interrupt();
             }
-            catch (Exception e3)
+            catch(Exception e3)
             {
                 processUncaughtException(e3);
             }
@@ -574,11 +641,11 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     }
     
     /**
-     * Execute a callable in the agent thread and wait for its result. 
+     * Execute a callable in the agent thread and wait for its result.
      * 
      * <p>Note that in almost all cases, {@link #execute(Callable, CompletionHandler)} is
      * what you want. This method is very prone to deadlocks if the thread that is calling
-     * it (e.g. the Swing UI thread) handles events from the agent.  
+     * it (e.g. the Swing UI thread) handles events from the agent.
      * 
      * @param <V> the return type
      * @param callable the callable to run in the agent thread
@@ -608,7 +675,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         return commands;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override
@@ -625,8 +694,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         }
         return super.getAdapter(klass);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -641,7 +712,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         {
             final Throwable cause = e.getCause();
             logger.error("Agent thread caught unhandled exception", e);
-            agent.getPrinter().error("Agent thread caught unhandled exception: " + 
+            agent.getPrinter().error("Agent thread caught unhandled exception: " +
                     (cause != null ? cause.getMessage() : e.getMessage()) + "\n" +
                     StringTools.getStackTrace(e));
             getEvents().fireEvent(new UncaughtExceptionEvent(agent, e));
@@ -651,22 +722,25 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             logger.error("Exception thrown while handling uncaught exception", otherException);
         }
     }
-
+    
     private class AgentThread extends Thread
     {
         private AtomicBoolean interrupted = new AtomicBoolean(false);
         
         /**
-         *  it seems that sometimes the InterruptedException is swallowed (e.g., deep down inside jtcl)
-         *  so this is a way to guarantee that this loop stops processing even in that case
+         * it seems that sometimes the InterruptedException is swallowed (e.g., deep down inside jtcl)
+         * so this is a way to guarantee that this loop stops processing even in that case
          */
         @Override
-        public void interrupt() {
+        public void interrupt()
+        {
             super.interrupt();
             interrupted.set(true);
         }
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Thread#run()
          */
         @Override
@@ -676,9 +750,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             {
                 try
                 {
-                      commands.take().run();
+                    commands.take().run();
                 }
-                catch (InterruptAgentException | InterruptedException e)
+                catch(InterruptAgentException | InterruptedException e)
                 {
                     this.interrupt();
                 }
@@ -689,7 +763,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             }
         }
     }
-        
+    
     private static class InterruptAgentException extends RuntimeException
     {
         private static final long serialVersionUID = 3075897216751716278L;

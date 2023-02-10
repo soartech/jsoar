@@ -5,7 +5,6 @@
  */
 package org.jsoar.runtime;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -50,7 +49,7 @@ public class ThreadedAgentTest
     {
         logger.debug("Starting test: {}", testInfo.getDisplayName());
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -80,7 +79,7 @@ public class ThreadedAgentTest
         assertSame(proxy1, proxy2);
         assertSame(proxy1, ThreadedAgent.find(agent));
     }
-
+    
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)
     public void testShutdownDoesntHangIfAgentIsRunningForever() throws Exception
@@ -97,7 +96,7 @@ public class ThreadedAgentTest
     @Test
     public void testAttachedEventIsFired() throws Exception
     {
-        final AtomicReference<ThreadedAgent>  gotIt = new AtomicReference<ThreadedAgent>();
+        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<ThreadedAgent>();
         final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentAttachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentAttachedEvent.class, listener);
@@ -108,8 +107,8 @@ public class ThreadedAgentTest
     @Test
     public void testDetachedEventIsFired() throws Exception
     {
-        final AtomicReference<ThreadedAgent>  gotIt = new AtomicReference<ThreadedAgent>();
-        final SoarEventListener listener =  event -> gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
+        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<ThreadedAgent>();
+        final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentDetachedEvent.class, listener);
         final ThreadedAgent agent = ThreadedAgent.create();
@@ -141,21 +140,19 @@ public class ThreadedAgentTest
         
         final AtomicBoolean called = new AtomicBoolean();
         final Object signal = new Object();
-        agent.getEvents().addListener(UncaughtExceptionEvent.class, event ->
-        {
-            synchronized(signal)
+        agent.getEvents().addListener(UncaughtExceptionEvent.class, event -> {
+            synchronized (signal)
             {
                 called.set(true);
                 signal.notifyAll();
             }
         });
         
-        agent.execute(() ->
-        {
+        agent.execute(() -> {
             throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
         }, null);
         
-        synchronized(signal)
+        synchronized (signal)
         {
             while(!called.get())
             {
@@ -182,24 +179,24 @@ public class ThreadedAgentTest
         String sourceName = getClass().getSimpleName() + "_testMultipleAgents.soar";
         URL sourceUrl = getClass().getResource(sourceName);
         assertNotNull(sourceUrl, "Could not find test file " + sourceName);
-
+        
         // Create the agents and source their rules
-        for (int i = 0; i < numAgents; i++)
+        for(int i = 0; i < numAgents; i++)
         {
             ThreadedAgent ta = ThreadedAgent.create();
             logger.debug("Sourcing agent: {}", ta.getName());
             ta.getInterpreter().source(sourceUrl);
             agents.add(ta);
         }
-
+        
         // Start the threads in a random order
         Collections.shuffle(agents, rand);
-        for (ThreadedAgent ta : agents)
+        for(ThreadedAgent ta : agents)
         {
             logger.debug("Running agent: {}", ta.getName());
             ta.runForever();
         }
-
+        
         // Give the agents a chance to start
         logger.debug("Giving agents a chance to start");
         Thread.sleep(500);
@@ -208,49 +205,49 @@ public class ThreadedAgentTest
         // If the agents are unhappy or unresponsive, we will timeout in this
         // loop
         List<ThreadedAgent> startedAgents = new ArrayList<>(agents);
-        while (!startedAgents.isEmpty())
+        while(!startedAgents.isEmpty())
         {
             Iterator<ThreadedAgent> iter = startedAgents.iterator();
-            while (iter.hasNext())
+            while(iter.hasNext())
             {
                 ThreadedAgent ta = iter.next();
                 // If the agent successfully started, remove it from the list
-                if (ta.isRunning())
+                if(ta.isRunning())
                 {
                     logger.debug("Agent is running: {}", ta.getName());
                     iter.remove();
                 }
             }
         }
-
+        
         // Let the threads run for a bit longer
         logger.debug("Let agents run a bit");
         Thread.sleep(500);
-
+        
         // Stop the threads in a random order
         logger.debug("Shuffling agents");
         Collections.shuffle(agents, rand);
         // Stop the threads
-        for (ThreadedAgent ta : agents)
+        for(ThreadedAgent ta : agents)
         {
             logger.debug("Stopping agent: {}", ta.getName());
             ta.stop();
         }
-
+        
         // Give the threads a chance to stop
         logger.debug("Giving agents a chance to stop");
         Thread.sleep(500);
-
+        
         // If the agents are unhappy or unresponsive, we will timeout in this
         // loop
-        while (!agents.isEmpty())
+        while(!agents.isEmpty())
         {
             Iterator<ThreadedAgent> iter = agents.iterator();
-            while (iter.hasNext())
+            while(iter.hasNext())
             {
                 ThreadedAgent ta = iter.next();
                 // If the agent successfully stopped, remove it from the list
-                if (!ta.isRunning())
+                if(!ta.isRunning())
                 {
                     logger.debug("Cleaning up stopped agent: {}", ta.getName());
                     ta.dispose();

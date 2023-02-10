@@ -2,7 +2,8 @@
  * Copyright (c) 2013 Soar Technology Inc.
  *
  * Created on January 07, 2013
- */package org.jsoar.tcl;
+ */
+package org.jsoar.tcl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,7 +33,7 @@ public class TclCmdTest
     private Agent agent;
     private StringWriter outputWriter;
     private SoarTclInterface ifc;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -47,11 +48,11 @@ public class TclCmdTest
         // called.
         this.agent.initialize();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
-        if (this.agent != null)
+        if(this.agent != null)
         {
             ifc = null;
             this.agent.dispose();

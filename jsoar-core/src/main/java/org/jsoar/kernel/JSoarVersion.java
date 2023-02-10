@@ -22,14 +22,14 @@ public final class JSoarVersion
     private static final String PREFIX = "jsoar-core.buildinfo";
     
     private static JSoarVersion instance = new JSoarVersion();
-        
+    
     private Properties properties = new Properties();
     
     public static JSoarVersion getInstance()
     {
         return instance;
     }
-
+    
     private JSoarVersion()
     {
         InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties");
@@ -39,7 +39,7 @@ public final class JSoarVersion
             {
                 properties.load(input);
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 logger.error("Failed to load buildinfo properties: " + e.getMessage());
             }
@@ -49,7 +49,7 @@ public final class JSoarVersion
                 {
                     input.close();
                 }
-                catch (IOException e)
+                catch(IOException e)
                 {
                 }
             }
@@ -65,13 +65,15 @@ public final class JSoarVersion
     {
         return properties.getProperty(PREFIX + ".date", "Unknown");
     }
-
+    
     public String getBuiltBy()
     {
         return properties.getProperty(PREFIX + ".builtBy", "Unknown");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

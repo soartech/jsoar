@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,38 +21,38 @@ import org.junit.jupiter.api.Test;
 public class SoarReteListenerTest
 {
     private Agent agent;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent("SoarReteListenerTest");
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();
         agent = null;
     }
-
+    
     @Test
     public void testInterruptsTheAgentWhenTheInterruptFlagIsSet() throws Exception
     {
         agent.getProductions().loadProduction(
-        "propose*init\n" +
-        "(state <s> ^superstate nil\n" +
-        "          -^name)\n" +
-        "-->\n" +
-        "(<s> ^operator.name init)\n" +
-        "");
+                "propose*init\n" +
+                        "(state <s> ^superstate nil\n" +
+                        "          -^name)\n" +
+                        "-->\n" +
+                        "(<s> ^operator.name init)\n" +
+                        "");
         
         agent.getProductions().loadProduction(
-        "apply*init\n" +
-        ":interrupt\n" +
-        "(state <s> ^operator.name init)\n" +
-        "-->\n" +
-        "(<s> ^name done)\n" +
-        "");
+                "apply*init\n" +
+                        ":interrupt\n" +
+                        "(state <s> ^operator.name init)\n" +
+                        "-->\n" +
+                        "(<s> ^name done)\n" +
+                        "");
         
         agent.runFor(500, RunType.DECISIONS);
         
@@ -67,19 +66,19 @@ public class SoarReteListenerTest
     public void testInterruptsTheAgentWhenBreakpointIsEnabled() throws Exception
     {
         agent.getProductions().loadProduction(
-        "propose*init\n" +
-        "(state <s> ^superstate nil\n" +
-        "          -^name)\n" +
-        "-->\n" +
-        "(<s> ^operator.name init)\n" +
-        "");
+                "propose*init\n" +
+                        "(state <s> ^superstate nil\n" +
+                        "          -^name)\n" +
+                        "-->\n" +
+                        "(<s> ^operator.name init)\n" +
+                        "");
         
         agent.getProductions().loadProduction(
-        "apply*init\n" +
-        "(state <s> ^operator.name init)\n" +
-        "-->\n" +
-        "(<s> ^name done)\n" +
-        "");
+                "apply*init\n" +
+                        "(state <s> ^operator.name init)\n" +
+                        "-->\n" +
+                        "(<s> ^name done)\n" +
+                        "");
         final Production p = agent.getProductions().getProduction("apply*init");
         p.setBreakpointEnabled(true);
         

@@ -15,7 +15,7 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.markers.Marker;
 
 /**
- * Stores a relative reference to a rete field. Instances of this class are 
+ * Stores a relative reference to a rete field. Instances of this class are
  * immutable.
  * 
  * @author ray
@@ -83,22 +83,23 @@ public class ReteLocation extends AbstractRhsValue
     public SymbolImpl lookupSymbol(Token tok, WmeImpl w)
     {
         int levels_up = levelsUp;
-        while (levels_up != 0)
+        while(levels_up != 0)
         {
             levels_up--;
             w = tok.w;
             tok = tok.parent;
         }
-        if (fieldNum == 0)
+        if(fieldNum == 0)
             return w.id;
-        if (fieldNum == 1)
+        if(fieldNum == 1)
             return w.attr;
         
         return w.value;
     }
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.RhsValue#copy()
      */
     @Override
@@ -106,8 +107,10 @@ public class ReteLocation extends AbstractRhsValue
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#asReteLocation()
      */
     @Override
@@ -116,7 +119,9 @@ public class ReteLocation extends AbstractRhsValue
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
@@ -126,7 +131,9 @@ public class ReteLocation extends AbstractRhsValue
         throw new UnsupportedOperationException("addAllVariables not supported on ReteLocation RhsValue");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -136,7 +143,9 @@ public class ReteLocation extends AbstractRhsValue
         return "(rete-location " + levelsUp + ":" + fieldNum + ")";
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -144,8 +153,10 @@ public class ReteLocation extends AbstractRhsValue
     {
         throw new IllegalStateException("Internal error: rhs_value_to_string called on reteloc.");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -157,23 +168,25 @@ public class ReteLocation extends AbstractRhsValue
         result = prime * result + levelsUp;
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj)
+        if(this == obj)
             return true;
-        if (obj == null)
+        if(obj == null)
             return false;
-        if (!(obj instanceof ReteLocation))
+        if(!(obj instanceof ReteLocation))
             return false;
         ReteLocation other = (ReteLocation) obj;
-        if (fieldNum != other.fieldNum)
+        if(fieldNum != other.fieldNum)
             return false;
-        if (levelsUp != other.levelsUp)
+        if(levelsUp != other.levelsUp)
             return false;
         return true;
     }

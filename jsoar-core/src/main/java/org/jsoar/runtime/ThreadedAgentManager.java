@@ -33,27 +33,30 @@ enum ThreadedAgentManager
     
     /**
      * Creates a ThreadedAgent. Automatically initializes it. Returns when complete.
+     * 
      * @param name
      */
     public ThreadedAgent create(String name)
     {
-        synchronized(agents)
+        synchronized (agents)
         {
-            final ThreadedAgent agent = attach(new Agent(name, false)).initialize(new CompletionHandler<Void>() {
-
+            final ThreadedAgent agent = attach(new Agent(name, false)).initialize(new CompletionHandler<Void>()
+            {
+                
                 @Override
                 public void finish(Void result)
                 {
-                    synchronized(agents)
+                    synchronized (agents)
                     {
                         agents.notifyAll();
                     }
-                }});
+                }
+            });
             try
             {
                 agents.wait();
             }
-            catch (InterruptedException e)
+            catch(InterruptedException e)
             {
                 logger.error("Interrupted waiting for new ThreadedAgent to initialize.", e);
                 Thread.currentThread().interrupt(); // reset interrupt
@@ -79,9 +82,9 @@ enum ThreadedAgentManager
         }
     }
     
-    public ThreadedAgent attach(Agent agent) 
+    public ThreadedAgent attach(Agent agent)
     {
-        synchronized(agents)
+        synchronized (agents)
         {
             ThreadedAgent ta = agents.get(agent);
             if(ta == null)
@@ -100,13 +103,13 @@ enum ThreadedAgentManager
     
     public void detach(ThreadedAgent agent)
     {
-        synchronized(agents)
+        synchronized (agents)
         {
             agents.remove(agent.getAgent());
             events.fireEvent(new ThreadedAgentDetachedEvent(agent));
         }
     }
-
+    
     /**
      * @return the events
      */

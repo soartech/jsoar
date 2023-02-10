@@ -14,7 +14,6 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */
@@ -31,7 +30,7 @@ public class TraceTest
         printer = new Printer(output);
         trace = new Trace(printer);
     }
-
+    
     @Test
     public void testEnabledByDefault()
     {

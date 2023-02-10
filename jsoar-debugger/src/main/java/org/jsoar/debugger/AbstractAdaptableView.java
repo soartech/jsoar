@@ -57,13 +57,15 @@ public abstract class AbstractAdaptableView extends DefaultSingleCDockable imple
     }
     
     /**
-     * Called when the view becomes active 
+     * Called when the view becomes active
      */
     public void activate()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
      */
     @Override

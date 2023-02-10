@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 public class LegilimensServer
 {
     private static final Logger logger = LoggerFactory.getLogger(LegilimensServer.class);
-
+    
     private static final String ROOT_PROPERTY = "jsoar.legilimens.root";
     private static final String DEFAULT_ROOT = "/jsoar";
     private static final String PORT_PROPERTY = "jsoar.legilimens.port";
     private static final int DEFAULT_PORT = 12122;
-
+    
     // See Effective Java, page 283
     private static class InstanceHolder
     {
@@ -72,7 +72,7 @@ public class LegilimensServer
         {
             component.start();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             throw new RuntimeException("Failed to start server: " + e.getMessage(), e);
         }
@@ -92,10 +92,10 @@ public class LegilimensServer
     
     /**
      * @param args
-     * @throws IOException 
-     * @throws TimeoutException 
-     * @throws ExecutionException 
-     * @throws InterruptedException 
+     * @throws IOException
+     * @throws TimeoutException
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
@@ -107,7 +107,7 @@ public class LegilimensServer
         createAgent("waterjugs", "http://darevay.com/jsoar/waterjugs.soar");
         createAgent("Towers of Hanoi", "http://darevay.com/jsoar/towers.soar");
     }
-
+    
     private static ThreadedAgent createAgent(String name, final String rules) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
         final ThreadedAgent agent = ThreadedAgent.create();
@@ -115,8 +115,7 @@ public class LegilimensServer
         AgentTraceBuffer.attach(agent.getAgent());
         if(rules != null)
         {
-            agent.executeAndWait(() ->
-            {
+            agent.executeAndWait(() -> {
                 agent.getInterpreter().eval("source " + rules);
                 agent.runFor(5, RunType.DECISIONS);
                 return null;

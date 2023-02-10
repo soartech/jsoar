@@ -36,9 +36,9 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         this.sym = sym;
     }
-
+    
     /**
-     * "Change" the symbol this value refers to, this method creates and 
+     * "Change" the symbol this value refers to, this method creates and
      * returns a new value, or returns <code>this</code> if the symbol
      * is the same as the one it already holds. This takes advantage of the
      * fact that these objects are immutable to avoid unnecessary allocations.
@@ -58,9 +58,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         return sym;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#asSymbolValue()
      */
     @Override
@@ -68,9 +69,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         return this;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.RhsValue#copy()
      */
     @Override
@@ -78,8 +80,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#getFirstLetter()
      */
     @Override
@@ -87,9 +91,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         return sym.getFirstLetter();
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
@@ -101,9 +106,10 @@ public class RhsSymbolValue extends AbstractRhsValue
             var.markIfUnmarked(tc_number, var_list);
         }
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -111,9 +117,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         return sym.toString();
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -121,8 +128,10 @@ public class RhsSymbolValue extends AbstractRhsValue
     {
         formatter.format("%s", getSym());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -133,23 +142,24 @@ public class RhsSymbolValue extends AbstractRhsValue
         result = prime * result + ((sym == null) ? 0 : sym.hashCode());
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj)
+        if(this == obj)
             return true;
-        if (obj == null)
+        if(obj == null)
             return false;
-        if (!(obj instanceof RhsSymbolValue))
+        if(!(obj instanceof RhsSymbolValue))
             return false;
         RhsSymbolValue other = (RhsSymbolValue) obj;
         
         return other.sym == sym;
     }
-    
     
 }

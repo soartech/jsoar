@@ -15,27 +15,31 @@ public class TestResultProxy
 {
     private final Test test;
     private TestResult result;
+    
     public TestResultProxy(Test test)
     {
         this.test = test;
     }
+    
     public TestResult getResult()
     {
         return result;
     }
+    
     public void setResult(TestResult result)
     {
         this.result = result;
     }
+    
     public Test getTest()
     {
         return test;
     }
+    
     @Override
     public String toString()
     {
         return result != null ? result.toString() : test.toString();
     }
-    
     
 }

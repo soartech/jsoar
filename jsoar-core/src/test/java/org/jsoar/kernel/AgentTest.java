@@ -28,13 +28,13 @@ public class AgentTest
     {
         agent = new Agent();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         agent.dispose();
     }
-
+    
     @Test
     public void testDefaultStopPhaseIsApply()
     {
@@ -58,14 +58,14 @@ public class AgentTest
         assertNotNull(gs);
         assertEquals(4, gs.size());
         final SymbolFactory syms = agent.getSymbols();
-        assertEquals(Arrays.asList(syms.findIdentifier('S', 1), 
-                                   syms.findIdentifier('S', 3), 
-                                   syms.findIdentifier('S', 5), 
-                                   syms.findIdentifier('S', 7)),
-                     Arrays.asList(gs.get(0).getIdentifier(),
-                             gs.get(1).getIdentifier(),
-                             gs.get(2).getIdentifier(),
-                             gs.get(3).getIdentifier()));
+        assertEquals(Arrays.asList(syms.findIdentifier('S', 1),
+                syms.findIdentifier('S', 3),
+                syms.findIdentifier('S', 5),
+                syms.findIdentifier('S', 7)),
+                Arrays.asList(gs.get(0).getIdentifier(),
+                        gs.get(1).getIdentifier(),
+                        gs.get(2).getIdentifier(),
+                        gs.get(3).getIdentifier()));
     }
-
+    
 }

@@ -51,7 +51,7 @@ public class TemporaryMemory
      * agent.h:605:slots_for_possible_removal
      */
     private final LinkedList<Slot> slots_for_possible_removal = new LinkedList<Slot>();
-
+    
     /**
      * Mark_slot_as_changed() is called by the preference manager whenever the
      * preferences for a slot change. This updates the list of changed_slots and
@@ -63,11 +63,11 @@ public class TemporaryMemory
      */
     public void mark_slot_as_changed(Slot s)
     {
-        if (s.isa_context_slot)
+        if(s.isa_context_slot)
         {
-            if (this.highest_goal_whose_context_changed != null)
+            if(this.highest_goal_whose_context_changed != null)
             {
-                if (s.id.level < this.highest_goal_whose_context_changed.level)
+                if(s.id.level < this.highest_goal_whose_context_changed.level)
                 {
                     this.highest_goal_whose_context_changed = s.id;
                 }
@@ -80,7 +80,7 @@ public class TemporaryMemory
         }
         else
         {
-            if (s.changed == null)
+            if(s.changed == null)
             {
                 ListItem<Slot> dc = new ListItem<Slot>(s);
                 s.changed = dc;
@@ -96,7 +96,7 @@ public class TemporaryMemory
      */
     public void mark_slot_for_possible_removal(Slot s)
     {
-        if (s.marked_for_possible_removal)
+        if(s.marked_for_possible_removal)
         {
             return;
         }
@@ -110,17 +110,17 @@ public class TemporaryMemory
     @SuppressWarnings("unchecked")
     public void remove_garbage_slots(final Adaptable context)
     {
-        while (!slots_for_possible_removal.isEmpty())
+        while(!slots_for_possible_removal.isEmpty())
         {
             final Slot s = slots_for_possible_removal.pop();
-
-            if (s.getWmes() != null || s.getAllPreferences() != null)
+            
+            if(s.getWmes() != null || s.getAllPreferences() != null)
             {
                 // don't deallocate it if it still has any wmes or preferences
                 s.marked_for_possible_removal = false;
                 continue;
             }
-
+            
             /* --- deallocate the slot --- */
             // #ifdef DEBUG_SLOTS
             // print_with_symbols (thisAgent, "\nDeallocate slot %y ^%y", s->id,
@@ -128,12 +128,12 @@ public class TemporaryMemory
             // #endif
             
             final Chunker chunker = Adaptables.adapt(context, Chunker.class);
-            if (s.hasContextDependentPreferenceSet() && chunker.chunkThroughEvaluationRules)
+            if(s.hasContextDependentPreferenceSet() && chunker.chunkThroughEvaluationRules)
             {
                 s.clear_CDPS(context);
             }
-
-            if (s.changed != null && !s.isa_context_slot)
+            
+            if(s.changed != null && !s.isa_context_slot)
             {
                 final ListItem<Slot> changed = (ListItem<Slot>) s.changed;
                 changed.remove(changed_slots);
@@ -146,5 +146,5 @@ public class TemporaryMemory
             }
         }
     }
-
+    
 }

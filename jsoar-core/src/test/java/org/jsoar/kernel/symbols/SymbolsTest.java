@@ -28,7 +28,7 @@ public class SymbolsTest extends JSoarTest
         final Symbol s = Symbols.create(syms, Symbols.NEW_ID);
         assertNotNull(s.asIdentifier());
     }
-
+    
     @Test
     public void testCreateWithSymbolReturnsTheSymbol()
     {
@@ -63,30 +63,35 @@ public class SymbolsTest extends JSoarTest
         final Symbol s = Symbols.create(syms, 98);
         assertEquals(98, s.asInteger().getValue());
     }
+    
     @Test
     public void testCreateWithLongReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, 98L);
         assertEquals(98, s.asInteger().getValue());
     }
+    
     @Test
     public void testCreateWithShortReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, (short) 98);
         assertEquals(98, s.asInteger().getValue());
     }
+    
     @Test
     public void testCreateWithByteReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, (byte) 34);
         assertEquals(34, s.asInteger().getValue());
     }
+    
     @Test
     public void testCreateWithAtomicIntegerReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, new AtomicInteger(42));
         assertEquals(42, s.asInteger().getValue());
     }
+    
     @Test
     public void testCreateWithAtomicLongReturnsInteger()
     {
@@ -153,7 +158,7 @@ public class SymbolsTest extends JSoarTest
         final JavaSymbol s = syms.createJavaSymbol(null);
         assertNull(Symbols.valueOf(s));
     }
-
+    
     @Test
     public void testGetFirstLetterOfEmptyStringReturnsZ()
     {
@@ -171,16 +176,17 @@ public class SymbolsTest extends JSoarTest
     {
         assertEquals('Z', Symbols.getFirstLetter(5678));
     }
+    
     @Test
     public void testGetFirstLetterOfDoubleReturnsZ()
     {
         assertEquals('Z', Symbols.getFirstLetter(3.14159));
     }
+    
     @Test
     public void testGetFirstLetterOfAlphabeticString()
     {
         assertEquals('C', Symbols.getFirstLetter("Cat"));
     }
     
-
 }

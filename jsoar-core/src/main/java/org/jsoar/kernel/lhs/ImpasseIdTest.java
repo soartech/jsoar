@@ -18,13 +18,15 @@ public class ImpasseIdTest extends ComplexTest
     {
         
     }
-
+    
     public ImpasseIdTest asImpasseIdTest()
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
@@ -32,8 +34,10 @@ public class ImpasseIdTest extends ComplexTest
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -41,6 +45,5 @@ public class ImpasseIdTest extends ComplexTest
     {
         formatter.format("[IMPASSE ID TEST]");
     }
-    
     
 }

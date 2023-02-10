@@ -10,8 +10,10 @@ package org.jsoar.debugger;
  */
 public interface JSoarDebuggerPlugin
 {
-
+    
     void initialize(JSoarDebugger debugger, String[] args);
     
-    default void shutdown() {};
+    default void shutdown()
+    {
+    };
 }

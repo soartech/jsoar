@@ -31,17 +31,17 @@ import org.w3c.dom.Element;
  * <p>A typical message queue (defaults) would look like this:
  * <pre>
  * ^io.input-link
- *   ^messages
- *     ^message
- *       ^/next  (points to id of next message in queue)
- *       ... structure of message from XmlToWme ...
- *     ^message
- *       ^/previous (points to id of previous message)
- *       ^/next  (points to id of next message in queue)
- *       ... structure of message from XmlToWme ...
- *     ^message
- *       ^/previous (points to id of previous message)
- *       ... structure of message from XmlToWme ... *       
+ * ^messages
+ * ^message
+ * ^/next (points to id of next message in queue)
+ * ... structure of message from XmlToWme ...
+ * ^message
+ * ^/previous (points to id of previous message)
+ * ^/next (points to id of next message in queue)
+ * ... structure of message from XmlToWme ...
+ * ^message
+ * ^/previous (points to id of previous message)
+ * ... structure of message from XmlToWme ... *
  * </pre>
  * 
  * <p>The newest message in the queue will have no {@code ^/next} WME. The
@@ -68,9 +68,9 @@ import org.w3c.dom.Element;
  * <p>Using the defaults, this would construct input like this:
  * <pre>
  * ^io.input-link
- *   ^messages
- *     ^test
- *       ^/text |this is a test message|
+ * ^messages
+ * ^test
+ * ^/text |this is a test message|
  * </pre>
  * 
  * <p>Once added, a message will remain in working memory until {@link Builder#timeToLive()}
@@ -108,23 +108,35 @@ public class XmlMessageQueue
         private long timeToLive = 50;
         private String queueName = "messages";
         
-        private Builder(InputOutput io) 
+        private Builder(InputOutput io)
         {
             Arguments.checkNotNull(io, "io");
             this.io = io;
         }
         
-        public XmlToWme converter() { return converter; }
+        public XmlToWme converter()
+        {
+            return converter;
+        }
+        
         /**
-         * Set the {@link XmlToWme} converter used by the queue. Defaults to 
+         * Set the {@link XmlToWme} converter used by the queue. Defaults to
          * {@link DefaultXmlToWme}.
          * 
          * @param c the converter
          * @return this
          */
-        public Builder converter(XmlToWme c) { this.converter = c; return this; }
+        public Builder converter(XmlToWme c)
+        {
+            this.converter = c;
+            return this;
+        }
         
-        public long timeToLive() { return timeToLive; }
+        public long timeToLive()
+        {
+            return timeToLive;
+        }
+        
         /**
          * Set the number of input cycles that messages stay in working memory before
          * being removed.
@@ -132,21 +144,36 @@ public class XmlMessageQueue
          * @param ttl number of input cycles
          * @return this
          */
-        public Builder timeToLive(long ttl) { this.timeToLive = ttl; return this; }
+        public Builder timeToLive(long ttl)
+        {
+            this.timeToLive = ttl;
+            return this;
+        }
         
-        public String queueName() { return queueName; }
+        public String queueName()
+        {
+            return queueName;
+        }
+        
         /**
          * Set the name of the queue attribute on the input-link. Defaults to {@code "messages"}.
          * 
          * @param qn the name of the queue attribute
          * @return this
          */
-        public Builder queueName(String qn) { this.queueName = qn; return this; }
+        public Builder queueName(String qn)
+        {
+            this.queueName = qn;
+            return this;
+        }
         
         /**
          * @return the new message queue object with the current settings
          */
-        public XmlMessageQueue create() { return new XmlMessageQueue(this); } 
+        public XmlMessageQueue create()
+        {
+            return new XmlMessageQueue(this);
+        }
     }
     
     /**
@@ -155,7 +182,10 @@ public class XmlMessageQueue
      * @param io the I/O interface to use
      * @return a new builder object
      */
-    public static Builder newBuilder(InputOutput io) { return new Builder(io); }
+    public static Builder newBuilder(InputOutput io)
+    {
+        return new Builder(io);
+    }
     
     private XmlMessageQueue(Builder builder)
     {
@@ -172,7 +202,7 @@ public class XmlMessageQueue
     
     /**
      * Dispose this object, detaching it from the agent and removing any working
-     * memory structures it may have created. WMEs will not be removed until the 
+     * memory structures it may have created. WMEs will not be removed until the
      * next input phase.
      * 
      * @return this
@@ -195,7 +225,7 @@ public class XmlMessageQueue
     /**
      * Add a message to the end of this queue. This method will take the
      * given XML element and cause it to be placed in working memory during
-     * the next input phase. 
+     * the next input phase.
      * 
      * <p>This method is thread-safe and will wake the agent if it is currently
      * waiting for input.
@@ -219,7 +249,7 @@ public class XmlMessageQueue
         
         processNewMessages();
     }
-
+    
     private void processNewMessages()
     {
         NewMessage nm = newMessages.poll();
@@ -292,7 +322,7 @@ public class XmlMessageQueue
             this.name = name;
         }
     }
- 
+    
     private static class Entry
     {
         final InputWme wme;
@@ -329,8 +359,10 @@ public class XmlMessageQueue
     
     private class Listener implements SoarEventListener
     {
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
          */
         @Override

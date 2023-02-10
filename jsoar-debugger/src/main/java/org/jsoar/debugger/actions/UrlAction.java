@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 public class UrlAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -7639843952865259437L;
-
+    
     private final String url;
     
     /**
@@ -35,16 +35,20 @@ public class UrlAction extends AbstractDebuggerAction
         
         this.url = url;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -54,14 +58,14 @@ public class UrlAction extends AbstractDebuggerAction
         {
             Desktop.getDesktop().browse(new URI(this.url));
         }
-        catch (IOException e1)
+        catch(IOException e1)
         {
             JOptionPane.showMessageDialog(getApplication(), e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        catch (URISyntaxException e1)
+        catch(URISyntaxException e1)
         {
             JOptionPane.showMessageDialog(getApplication(), e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
 }

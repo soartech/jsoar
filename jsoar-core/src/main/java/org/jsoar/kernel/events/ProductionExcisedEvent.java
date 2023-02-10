@@ -15,7 +15,7 @@ import org.jsoar.kernel.Production;
  */
 public class ProductionExcisedEvent extends AbstractProductionEvent
 {
-
+    
     /**
      * Construct a new event
      * 
@@ -26,5 +26,5 @@ public class ProductionExcisedEvent extends AbstractProductionEvent
     {
         super(agent, production);
     }
-
+    
 }

@@ -45,9 +45,9 @@ public class RobotAgent
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
         new CycleCountInput(this.agent.getInputOutput());
         
-        //debug();
+        // debug();
     }
-
+    
     private String getWaypointKey(Waypoint w)
     {
         return "self.waypoints.waypoint[" + w.name + "]";
@@ -63,8 +63,7 @@ public class RobotAgent
         final String source = config.getProperty(robot.name + ".agent.source");
         if(source != null)
         {
-            final Callable<Void> call = () ->
-            {
+            final Callable<Void> call = () -> {
                 SoarCommands.source(agent.getInterpreter(), source);
                 return null;
             };
@@ -88,12 +87,13 @@ public class RobotAgent
         {
             this.agent.openDebugger();
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+    
     /**
      * 
      */
@@ -103,14 +103,13 @@ public class RobotAgent
         this.agent.detach();
     }
     
-    
     public void update()
     {
-        synchronized(memory)
+        synchronized (memory)
         {
             memory.setString("self.name", robot.name);
             memory.setDouble("self.radius", robot.radius);
-
+            
             final double x = robot.shape.getCenterX();
             final double y = robot.shape.getCenterY();
             memory.setDouble("self.pose.x", x);
@@ -136,12 +135,14 @@ public class RobotAgent
                 sub.setDouble("distance", wp.point.distance(x, y));
                 
                 double bearing = Math.toDegrees(Math.atan2(y - wpy, x - wpx) - robot.yaw);
-                while(bearing <= -180.0) bearing += 180.0;
-                while(bearing >= 180.0) bearing -= 180.0;
+                while(bearing <= -180.0)
+                    bearing += 180.0;
+                while(bearing >= 180.0)
+                    bearing -= 180.0;
                 
                 sub.setDouble("relative-bearing", bearing);
             }
         }
     }
-
+    
 }

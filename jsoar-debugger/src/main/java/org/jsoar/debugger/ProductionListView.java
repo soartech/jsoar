@@ -40,7 +40,6 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
-
 /**
  * @author ray
  */
@@ -86,8 +85,9 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         this.table.setShowGrid(false);
         this.table.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.table.setColumnControlVisible(true);
-        this.table.addMouseListener(new MouseAdapter() {
-
+        this.table.addMouseListener(new MouseAdapter()
+        {
+            
             @Override
             public void mouseClicked(MouseEvent e)
             {
@@ -96,18 +96,19 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                     handleDoubleClick();
                 }
             }
-
+            
             @Override
             public void mousePressed(MouseEvent e)
             {
                 ObjectPopupMenu.show(e, actionManager, true);
             }
-
+            
             @Override
             public void mouseReleased(MouseEvent e)
             {
                 ObjectPopupMenu.show(e, actionManager, true);
-            }});
+            }
+        });
         
         p.add(new JScrollPane(table), BorderLayout.CENTER);
         
@@ -128,8 +129,9 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         });
     }
     
-    private final SoarEventListener eventListener = new SoarEventListener() {
-
+    private final SoarEventListener eventListener = new SoarEventListener()
+    {
+        
         @Override
         public void onEvent(SoarEvent event)
         {
@@ -141,7 +143,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             // we do this through the swing thread so it ends up at the end of the Soar agent queue -- otherwise it will execute right away,
             // and we don't want it to execute until after the productions are loaded (e.g., the source command completes)
             SwingUtilities.invokeLater(() -> {
-                agent.execute( () -> {
+                agent.execute(() -> {
                     // by this time, the production sourcing should be complete, so schedule the refresh on the swing thread and re-register for the events
                     SwingUtilities.invokeLater(() -> refresh(false));
                     agent.getAgent().getEvents().addListener(ProductionAddedEvent.class, eventListener);
@@ -152,7 +154,9 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         }
     };
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     public void refresh(boolean afterInitSoar)
@@ -162,8 +166,10 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         
         updateStats();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
      */
     public void selectionChanged(SelectionManager manager)
@@ -203,8 +209,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     {
         final Callable<Map<ProductionType, Integer>> call = () -> agent.getProductions().getProductionCounts();
         
-        final CompletionHandler<Map<ProductionType, Integer>> finish = counts ->
-        {
+        final CompletionHandler<Map<ProductionType, Integer>> finish = counts -> {
             final String spaces = "&nbsp;&nbsp;&nbsp;";
             final StringBuilder b = new StringBuilder("<html>");
             b.append("<b>Total:</b>&nbsp;" + model.getRowCount() + spaces);
@@ -213,14 +218,16 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 b.append(" <b>" + e.getKey().getDisplayString() + ":</b>&nbsp;" + e.getValue() + spaces);
             }
             b.append("</html>");
-                
+            
             stats.setText(b.toString());
         };
         
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
      */
     @Override
@@ -236,12 +243,14 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         }
         return super.getAdapter(klass);
     }
-
+    
     private static class NameCellRenderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = -7488455622043120329L;
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
          */
         @Override
@@ -250,17 +259,16 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             final Production p = (Production) value;
-            setIcon(column == 0 ? 
-                        (p.isBreakpointEnabled() ? Images.PRODUCTION_BREAK : Images.PRODUCTION) 
+            setIcon(column == 0 ? (p.isBreakpointEnabled() ? Images.PRODUCTION_BREAK : Images.PRODUCTION)
                     : null);
             setText(p.getName());
             final long fc = p.getFiringCount();
             setToolTipText("<html>" +
-                           "<b>" + p.getName() + "</b><br>" +
-                            p.getType().getDisplayString() + " production<br>" +
-                           "Fired " + fc + " time" + (fc != 1 ? "s" : "") +
-                           (p.isBreakpointEnabled() ? "<br>:interrupt" : "") + "<p>" +
-                            p.getDocumentation() + "</html>");
+                    "<b>" + p.getName() + "</b><br>" +
+                    p.getType().getDisplayString() + " production<br>" +
+                    "Fired " + fc + " time" + (fc != 1 ? "s" : "") +
+                    (p.isBreakpointEnabled() ? "<br>:interrupt" : "") + "<p>" +
+                    p.getDocumentation() + "</html>");
             return c;
         }
     }

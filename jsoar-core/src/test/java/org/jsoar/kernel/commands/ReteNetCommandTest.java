@@ -25,7 +25,7 @@ public class ReteNetCommandTest
     private Agent revivedAgent;
     private Agent originalAgent;
     private FunctionalTests funTests;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -36,14 +36,14 @@ public class ReteNetCommandTest
         revivedAgent = new Agent();
         revivedAgent.getTrace().disableAll();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         funTests.tearDown();
         revivedAgent.dispose();
         File file = new File("test.jrete");
-        if (file.exists())
+        if(file.exists())
         {
             file.delete();
         }
@@ -95,7 +95,7 @@ public class ReteNetCommandTest
     {
         runTest("testBlocksWorld", 12, 0);
     }
- 
+    
     @Test
     @Timeout(value = 2 * 10, unit = TimeUnit.SECONDS)
     public void testBlocksWorldOperatorSubgoaling() throws Exception
@@ -128,7 +128,7 @@ public class ReteNetCommandTest
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", 41982, 0);
-    } 
+    }
     
     @Test
     @Timeout(value = 2 * 80, unit = TimeUnit.SECONDS)
@@ -174,7 +174,8 @@ public class ReteNetCommandTest
         revivedAgent.getInterpreter().eval("load rete-net -l test.jrete");
         
         // restore required properties for test
-        if(learning) {
+        if(learning)
+        {
             revivedAgent.getInterpreter().eval("chunk --on");
         }
         revivedAgent.getInterpreter().eval("soar max-elaborations " + maxElaborations);

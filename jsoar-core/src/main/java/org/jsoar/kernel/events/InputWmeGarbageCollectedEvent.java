@@ -20,7 +20,7 @@ import org.jsoar.util.events.SoarEvent;
 public class InputWmeGarbageCollectedEvent implements SoarEvent
 {
     private final WmeImpl headOfList;
-
+    
     /**
      * @param headOfList Head of list of removed WMEs
      */

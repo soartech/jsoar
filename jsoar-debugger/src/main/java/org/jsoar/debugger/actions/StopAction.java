@@ -17,15 +17,17 @@ import org.jsoar.debugger.Images;
 public class StopAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -7639843952865259437L;
-
+    
     public StopAction(ActionManager manager)
     {
         super(manager, "Stop", Images.STOP);
         
         setAcceleratorKey(KeyStroke.getKeyStroke("F6"));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
@@ -33,8 +35,10 @@ public class StopAction extends AbstractDebuggerAction
     {
         setEnabled(getApplication().getAgent().isRunning());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -42,5 +46,5 @@ public class StopAction extends AbstractDebuggerAction
     {
         getApplication().getAgent().stop();
     }
-
+    
 }

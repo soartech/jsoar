@@ -9,7 +9,7 @@ import com.google.common.collect.Streams;
 
 public class SetCount extends AbstractRhsFunctionHandler
 {
-
+    
     public SetCount()
     {
         super("set-count", 1, 2);
@@ -31,13 +31,13 @@ public class SetCount extends AbstractRhsFunctionHandler
         {
             Symbol targetAttr = arguments.get(1);
             long setSize = Streams.stream(setId.getWmes())
-                .filter(w -> w.getAttribute().equals(targetAttr))
-                .count();
+                    .filter(w -> w.getAttribute().equals(targetAttr))
+                    .count();
             return context.getSymbols().createInteger(setSize);
             
         }
         
         return context.getSymbols().createInteger(0);
     }
-
+    
 }

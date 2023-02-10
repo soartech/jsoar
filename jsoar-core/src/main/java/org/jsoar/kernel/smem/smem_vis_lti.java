@@ -12,7 +12,7 @@ package org.jsoar.kernel.smem;
  */
 class smem_vis_lti
 {
-    /*smem_lti_id*/ long lti_id;
+    /* smem_lti_id */ long lti_id;
     String lti_name;
-    /*unsigned int*/ int level;
+    /* unsigned int */ int level;
 }

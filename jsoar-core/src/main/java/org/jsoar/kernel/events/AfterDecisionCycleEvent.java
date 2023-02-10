@@ -26,7 +26,7 @@ public class AfterDecisionCycleEvent extends AbstractAgentEvent
         super(agent);
         this.phase = phase;
     }
-
+    
     /**
      * @return the current phase
      */

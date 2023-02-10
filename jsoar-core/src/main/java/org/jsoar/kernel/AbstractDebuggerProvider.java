@@ -16,8 +16,10 @@ import java.util.Map;
 public abstract class AbstractDebuggerProvider implements DebuggerProvider
 {
     private Map<String, Object> properties = new HashMap<String, Object>();
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#getProperties()
      */
     @Override
@@ -25,8 +27,10 @@ public abstract class AbstractDebuggerProvider implements DebuggerProvider
     {
         return new HashMap<String, Object>(properties);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#setProperties(java.util.Map)
      */
     @Override

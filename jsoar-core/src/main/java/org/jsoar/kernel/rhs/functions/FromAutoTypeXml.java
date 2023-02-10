@@ -29,7 +29,7 @@ public class FromAutoTypeXml extends AbstractRhsFunctionHandler
     {
         super("from-at-xml", 1, 1);
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -42,28 +42,28 @@ public class FromAutoTypeXml extends AbstractRhsFunctionHandler
             List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-
+        
         final String xml = arguments.get(0).toString();
-        if (xml == null)
+        if(xml == null)
         {
             throw new RhsFunctionException("Only argument to '" + getName()
                     + "' RHS function must be an XML string.");
         }
-
+        
         final Document doc;
         try
         {
             doc = XmlTools.parse(xml);
         }
-        catch (SAXException e)
+        catch(SAXException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
-
+        
         return AutoTypeXmlToWme.forRhsFunction(context).fromXml(
                 doc.getDocumentElement());
     }

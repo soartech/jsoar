@@ -22,20 +22,20 @@ import com.google.common.collect.Iterators;
 
 public class DefaultXmlToWmeTest
 {
-
+    
     @Test
     public void testFromXml() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-xml |" +
-                "<ignored>" +
-                "<location name='Ann Arbor' population='100000'>This is some text" +
-                "</location>" +
-                "<person>" +
-                "   <name>Bill</name>" +
-                "</person>" +
-                "</ignored>|))");
+                        "(<il> ^xml (from-xml |" +
+                        "<ignored>" +
+                        "<location name='Ann Arbor' population='100000'>This is some text" +
+                        "</location>" +
+                        "<person>" +
+                        "   <name>Bill</name>" +
+                        "</person>" +
+                        "</ignored>|))");
         
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
@@ -59,12 +59,13 @@ public class DefaultXmlToWmeTest
         final Wme name = m.attr("name").find(person);
         assertEquals("Bill", m.attr(DefaultWmeToXml.TEXT).find(name).getValue().asString().getValue());
     }
+    
     @Test
     public void testFromXmlWithOnlyText() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-xml |<ignored>This is the only text in the document</ignored>|))");
+                        "(<il> ^xml (from-xml |<ignored>This is the only text in the document</ignored>|))");
         
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
@@ -78,7 +79,7 @@ public class DefaultXmlToWmeTest
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-xml |<ignored name='Boo' value='Radley'/>|))");
+                        "(<il> ^xml (from-xml |<ignored name='Boo' value='Radley'/>|))");
         
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
@@ -97,7 +98,7 @@ public class DefaultXmlToWmeTest
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-xml |<ignored name='Boo' value='Radley'>This is text</ignored>|))");
+                        "(<il> ^xml (from-xml |<ignored name='Boo' value='Radley'>This is text</ignored>|))");
         
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
@@ -119,21 +120,21 @@ public class DefaultXmlToWmeTest
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
-                "(<il> ^xml (from-xml |<ignored><a/><b/><c/><d/></ignored>|))");
+                        "(<il> ^xml (from-xml |<ignored><a/><b/><c/><d/></ignored>|))");
         
         final Identifier il = agent.getInputOutput().getInputLink();
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
         
-        final Wme[] wmes = { m.attr("a").find(xml), m.attr("b").find(xml),  m.attr("c").find(xml), m.attr("d").find(xml) };
+        final Wme[] wmes = { m.attr("a").find(xml), m.attr("b").find(xml), m.attr("c").find(xml), m.attr("d").find(xml) };
         for(int i = 0; i < wmes.length; ++i)
         {
             Wme wme = wmes[i];
             assertNotNull(wme);
             if(i != 0)
             {
-                Wme prev = wmes[i-1];
+                Wme prev = wmes[i - 1];
                 Wme next = m.attr(DefaultWmeToXml.NEXT).find(prev);
                 assertNotNull(next);
                 assertSame(prev.getValue(), next.getIdentifier());
@@ -141,7 +142,7 @@ public class DefaultXmlToWmeTest
             }
         }
     }
-
+    
     private Agent setUpAndRunAgent(String rule) throws Exception
     {
         final Agent agent = new Agent();

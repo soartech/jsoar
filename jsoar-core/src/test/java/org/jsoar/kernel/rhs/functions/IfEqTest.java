@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class IfEqTest extends JSoarTest
 {
-
+    
     @Test
     public void testReturnThirdArgWhenFirstTwoEqual() throws Exception
     {
@@ -33,5 +33,5 @@ public class IfEqTest extends JSoarTest
         List<Symbol> args = Symbols.asList(syms, "a", "x", "b", "c");
         assertSame(args.get(3), new IfEq().execute(rhsFuncContext, args));
     }
-
+    
 }

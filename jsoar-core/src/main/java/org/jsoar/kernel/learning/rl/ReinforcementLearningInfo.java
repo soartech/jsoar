@@ -48,5 +48,5 @@ public class ReinforcementLearningInfo
      * the number of steps in a subgoal
      */
     long hrl_age;
-
+    
 }

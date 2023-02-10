@@ -16,10 +16,10 @@ package org.jsoar.util.events;
 public class SoarEvents
 {
     /**
-     * Adds an event listener that listens for a single event and then removes 
-     * itself from the event manager. Note that the event may be called from 
+     * Adds an event listener that listens for a single event and then removes
+     * itself from the event manager. Note that the event may be called from
      * another thread, possibly before this method even returns.
-     *  
+     * 
      * @param <T> The event type to register for.
      * @param manager the event manager
      * @param klass the event type
@@ -27,8 +27,9 @@ public class SoarEvents
      */
     public static <T extends SoarEvent> void listenForSingleEvent(final SoarEventManager manager, final Class<T> klass, final SoarEventListener listener)
     {
-        manager.addListener(klass, new SoarEventListener() {
-
+        manager.addListener(klass, new SoarEventListener()
+        {
+            
             @Override
             public void onEvent(SoarEvent event)
             {
@@ -40,6 +41,7 @@ public class SoarEvents
                 {
                     manager.removeListener(klass, this);
                 }
-            }});
+            }
+        });
     }
 }

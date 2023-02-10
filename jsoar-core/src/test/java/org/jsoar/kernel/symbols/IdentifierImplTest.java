@@ -47,7 +47,7 @@ public class IdentifierImplTest extends JSoarTest
         
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -55,7 +55,7 @@ public class IdentifierImplTest extends JSoarTest
     public void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.symbols.IdentifierImpl#getWmes()}.
      */
@@ -65,10 +65,10 @@ public class IdentifierImplTest extends JSoarTest
         // Load a production that creates some WMEs off of S1, then
         // test iterating over them.
         agent.getProductions().loadProduction("testGetWmes " +
-        		"(state <s> ^superstate nil)" +
-        		"-->" +
-        		"(<s> ^test <w>)" +
-        		"(<w> ^a 1 ^b 2 ^c 3 ^d 4)");
+                "(state <s> ^superstate nil)" +
+                "-->" +
+                "(<s> ^test <w>)" +
+                "(<w> ^a 1 ^b 2 ^c 3 ^d 4)");
         
         agent.runFor(1, RunType.DECISIONS);
         
@@ -90,7 +90,7 @@ public class IdentifierImplTest extends JSoarTest
         assertNotNull(m.reset().attr("c").value(3).find(kids));
         assertNotNull(m.reset().attr("d").value(4).find(kids));
     }
-
+    
     @Test
     public void testIsAdaptableToGoalDependencySet()
     {

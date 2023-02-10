@@ -45,12 +45,14 @@ public class ActionManager
         this.app = app;
         
         SelectionManager selectionManager = this.app.getSelectionManager();
-        selectionManager.addListener(new SelectionListener() {
-
+        selectionManager.addListener(new SelectionListener()
+        {
+            
             public void selectionChanged(SelectionManager manager)
             {
                 updateActions();
-            }});
+            }
+        });
     }
     
     /**
@@ -68,7 +70,7 @@ public class ActionManager
     {
         return app.getSelectionManager();
     }
-
+    
     public AbstractDebuggerAction getAction(String id)
     {
         AbstractDebuggerAction r = actionCache.get(id);
@@ -120,7 +122,7 @@ public class ActionManager
             action.update();
         }
     }
-
+    
     public void executeAction(String id)
     {
         AbstractDebuggerAction action = getAction(id);
@@ -140,7 +142,7 @@ public class ActionManager
      * @param action The action
      * @param klass The class of object this action is associated with.
      * @param adapt If true, the class is located through adapters in addition to the usual
-     *      instanceof test.
+     *     instanceof test.
      */
     public void addObjectAction(AbstractDebuggerAction action, Class<?> klass, boolean adapt)
     {
@@ -155,7 +157,7 @@ public class ActionManager
     }
     
     /**
-     * Return a list of actions applicable to the given object. These are 
+     * Return a list of actions applicable to the given object. These are
      * actions previously installed with a call to {@link #addObjectAction(AbstractDebuggerAction, Class, boolean)}.
      * 
      * @param o The object

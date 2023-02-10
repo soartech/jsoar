@@ -44,43 +44,38 @@ public class DefaultInterpreterParser
                 word = parseWord(reader);
             }
         }
-        final SourceLocation loc = DefaultSourceLocation.newBuilder().
-                                        file(reader.getFile()).
-                                        offset(startOfCommand).
-                                        length(reader.getCurrentOffset() - startOfCommand).
-                                        line(lineOfCommand).
-                                        build();
+        final SourceLocation loc = DefaultSourceLocation.newBuilder().file(reader.getFile()).offset(startOfCommand).length(reader.getCurrentOffset() - startOfCommand).line(lineOfCommand).build();
         return new ParsedCommand(loc, result);
     }
     
     private boolean atEndOfCommand(ParserBuffer reader) throws IOException
     {
         int c = 0;
-        while((c = read(reader)) != -1) 
+        while((c = read(reader)) != -1)
         {
             switch(c)
             {
             // EOL, comment, or semicolon marks end of command
             case '\r':
             case '\n':
-            case '#': 
-                unread(reader, c); 
+            case '#':
+                unread(reader, c);
                 return true;
             // Consume in the case of a semicolon: it's lexically a part of the command we just processed.
             // (E.g., consider the case of the empty command ";": we would expect that parsing this would
             // leave nothing on the buffer.)
             case ';':
                 return true;
-                
+            
             // Skip whitespace
             case ' ':
             case '\t':
             case '\f':
                 break;
-                
+            
             // Anything else means there's more to the command
-            default: 
-                unread(reader, c); 
+            default:
+                unread(reader, c);
                 return false;
             }
         }
@@ -91,7 +86,9 @@ public class DefaultInterpreterParser
     public void skipWhitespace(ParserBuffer reader) throws IOException
     {
         int c = 0;
-        while((c = read(reader)) != -1 && Character.isWhitespace(c)) {}
+        while((c = read(reader)) != -1 && Character.isWhitespace(c))
+        {
+        }
         if(c != -1)
         {
             unread(reader, c);
@@ -101,7 +98,9 @@ public class DefaultInterpreterParser
     private void skipToEndOfLine(ParserBuffer reader) throws IOException
     {
         int c = 0;
-        while((c = read(reader)) != -1 && c != '\n' && c != '\r') {}
+        while((c = read(reader)) != -1 && c != '\n' && c != '\r')
+        {
+        }
         if(c != -1 && c != '\n' && c != '\r')
         {
             unread(reader, c);
@@ -112,7 +111,8 @@ public class DefaultInterpreterParser
     {
         skipWhitespace(reader);
         int c = read(reader);
-        if(c == -1) return;
+        if(c == -1)
+            return;
         if(c == '#')
         {
             skipToEndOfLine(reader);
@@ -123,7 +123,7 @@ public class DefaultInterpreterParser
             unread(reader, c);
         }
     }
-
+    
     public String parseWord(ParserBuffer reader) throws SoarException, IOException
     {
         skipWhitespace(reader);
@@ -142,7 +142,7 @@ public class DefaultInterpreterParser
         
         if(c == '"')
         {
-            while((c = read(reader)) != -1 && c != '"') 
+            while((c = read(reader)) != -1 && c != '"')
             {
                 switch(c)
                 {
@@ -151,7 +151,7 @@ public class DefaultInterpreterParser
                     if(c == -1)
                     {
                         throw new SoarParserException("Unexpected end of file", startOfCommand);
-                        //throw error(reader, "Unexpected end of file");
+                        // throw error(reader, "Unexpected end of file");
                     }
                 default:
                     result.append((char) c);
@@ -160,13 +160,13 @@ public class DefaultInterpreterParser
             if(c == -1)
             {
                 throw new SoarParserException("Unexpected end of input. Unmatched quote.", startOfCommand);
-                //throw error(reader, "Unexpected end of input. Unmatched quote.");
+                // throw error(reader, "Unexpected end of input. Unmatched quote.");
             }
         }
         else if(c == '{')
         {
             int braces = 1;
-            while(braces > 0 && (c = read(reader)) != -1) 
+            while(braces > 0 && (c = read(reader)) != -1)
             {
                 switch(c)
                 {
@@ -186,13 +186,13 @@ public class DefaultInterpreterParser
             if(braces > 0)
             {
                 throw new SoarParserException("Unexpected end of input. Unmatched opening brace", startOfCommand);
-                //throw error(reader, "Unexpected end of input. Unmatched opening brace");
+                // throw error(reader, "Unexpected end of input. Unmatched opening brace");
             }
         }
         else
         {
             result.append((char) c);
-            while((c = read(reader)) != -1 && !Character.isWhitespace(c)) 
+            while((c = read(reader)) != -1 && !Character.isWhitespace(c))
             {
                 result.append((char) c);
             }
@@ -209,11 +209,21 @@ public class DefaultInterpreterParser
         int c = read(reader);
         switch(c)
         {
-        case 'n': c = '\n'; break;
-        case 'r': c = '\r'; break;
-        case 't': c = '\t'; break;
-        case 'f': c = '\f'; break;
-        case 'b': c = '\b'; break;
+        case 'n':
+            c = '\n';
+            break;
+        case 'r':
+            c = '\r';
+            break;
+        case 't':
+            c = '\t';
+            break;
+        case 'f':
+            c = '\f';
+            break;
+        case 'b':
+            c = '\b';
+            break;
         }
         return c;
     }
@@ -227,5 +237,5 @@ public class DefaultInterpreterParser
     {
         reader.unread(c);
     }
-
+    
 }

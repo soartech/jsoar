@@ -24,8 +24,8 @@ public class VarLocation
     /**
      * This routine finds the most recent place a variable was bound.
      * It does this simply by looking at the top of the binding stack
-     * for that variable.  If there is any binding, its location is stored
-     * in the parameter *result, and the function returns TRUE.  If no
+     * for that variable. If there is any binding, its location is stored
+     * in the parameter *result, and the function returns TRUE. If no
      * binding is found, the function returns FALSE.
      * 
      * <p>rete.cpp:2373:find_var_location
@@ -33,18 +33,18 @@ public class VarLocation
      * @param var
      * @param current_depth
      * @return a new var location for the given variable and depth, {@code null} if the
-     *      variable is not bound
+     * variable is not bound
      */
     static VarLocation find(Variable var, /* rete_node_level */ int current_depth)
     {
-        if (!var.var_is_bound())
+        if(!var.var_is_bound())
         {
             return null;
         }
         int dummy = var.rete_binding_locations.peek();
         
         return new VarLocation(current_depth - Variable.dummy_to_varloc_depth(dummy),
-                               Variable.dummy_to_varloc_field_num(dummy));
+                Variable.dummy_to_varloc_field_num(dummy));
     }
     
     /**
@@ -56,7 +56,7 @@ public class VarLocation
         this.levels_up = levels_up;
         this.field_num = field_num;
     }
-
+    
     /**
      * <p>rete.cpp:263:var_locations_equal
      * 
@@ -66,10 +66,12 @@ public class VarLocation
      */
     public static boolean var_locations_equal(VarLocation v1, VarLocation v2)
     {
-      return ( ((v1).levels_up==(v2).levels_up) && ((v1).field_num==(v2).field_num) );
+        return (((v1).levels_up == (v2).levels_up) && ((v1).field_num == (v2).field_num));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

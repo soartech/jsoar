@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  */
 public class IntegerPropertyProviderTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -24,7 +24,7 @@ public class IntegerPropertyProviderTest
     public void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -32,7 +32,7 @@ public class IntegerPropertyProviderTest
     public void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.util.properties.IntegerPropertyProvider#toString()}.
      */
@@ -43,5 +43,5 @@ public class IntegerPropertyProviderTest
         IntegerPropertyProvider provider = new IntegerPropertyProvider(key);
         assertEquals("1234", provider.toString());
     }
-
+    
 }

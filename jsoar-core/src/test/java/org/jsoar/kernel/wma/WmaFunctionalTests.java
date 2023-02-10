@@ -24,9 +24,9 @@ public class WmaFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("print s1 -i");
         final String result = sw.toString();
         
-        assert(result.contains("S1 ^o-from-a true [-1.5]"));
-        assert(result.contains("S1 ^o-from-o true [-1.9]"));
-        assert(result.contains("S1 ^i-from-i true [1.0]"));
-        assert(!result.contains("S1 ^o-from-i2"));
+        assert (result.contains("S1 ^o-from-a true [-1.5]"));
+        assert (result.contains("S1 ^o-from-o true [-1.9]"));
+        assert (result.contains("S1 ^i-from-i true [1.0]"));
+        assert (!result.contains("S1 ^o-from-i2"));
     }
 }

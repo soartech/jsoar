@@ -38,6 +38,7 @@ import picocli.CommandLine.ParentCommand;
 
 /**
  * This is the implementation of the "production" command.
+ * 
  * @author austin.brehob
  */
 public class ProductionCommand extends PicocliSoarCommand
@@ -47,22 +48,22 @@ public class ProductionCommand extends PicocliSoarCommand
     {
         super(agent, new ProductionC(agent));
     }
-
+    
     @Override
-    public ProductionC getCommand() {
-        return (ProductionC)super.getCommand();
+    public ProductionC getCommand()
+    {
+        return (ProductionC) super.getCommand();
     }
-
-    @Command(name="production", description="Commands related to altering and printing production info",
-            subcommands={HelpCommand.class,
-                         ProductionCommand.Break.class,
-                         ProductionCommand.Excise.class,
-                         ProductionCommand.Find.class,
-                         ProductionCommand.FiringCounts.class,
-                         ProductionCommand.Matches.class,
-                         ProductionCommand.MemoryUsage.class,
-                         ProductionCommand.OptimizeAttribute.class,
-                         ProductionCommand.Watch.class})
+    
+    @Command(name = "production", description = "Commands related to altering and printing production info", subcommands = { HelpCommand.class,
+            ProductionCommand.Break.class,
+            ProductionCommand.Excise.class,
+            ProductionCommand.Find.class,
+            ProductionCommand.FiringCounts.class,
+            ProductionCommand.Matches.class,
+            ProductionCommand.MemoryUsage.class,
+            ProductionCommand.OptimizeAttribute.class,
+            ProductionCommand.Watch.class })
     static public class ProductionC implements Runnable
     {
         private Agent agent;
@@ -78,32 +79,29 @@ public class ProductionCommand extends PicocliSoarCommand
         {
             agent.getPrinter().startNewLine().print(
                     "=======================================================\n" +
-                    "-                     Productions                     -\n" +
-                    "=======================================================\n" +
-                    "Not yet implemented\n"
-            );
+                            "-                     Productions                     -\n" +
+                            "=======================================================\n" +
+                            "Not yet implemented\n");
         }
     }
     
-
-    @Command(name="break", description="Stops the Soar decision cycle when the given rule fires",
-            subcommands={HelpCommand.class})
+    @Command(name = "break", description = "Stops the Soar decision cycle when the given rule fires", subcommands = { HelpCommand.class })
     static public class Break implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-c", "--clear"}, description="Clear :interrupt flag from a production")
+        @Option(names = { "-c", "--clear" }, description = "Clear :interrupt flag from a production")
         String prodToClear;
         
-        @Option(names={"-p", "--print"}, defaultValue="false", description="Print which production rules "
+        @Option(names = { "-p", "--print" }, defaultValue = "false", description = "Print which production rules "
                 + "have had their :interrupt flags set")
         boolean printBreaks;
         
-        @Option(names={"-s", "--set"}, description="Set interrupt flag on a production rule")
+        @Option(names = { "-s", "--set" }, description = "Set interrupt flag on a production rule")
         String prodToBreak;
         
-        @Parameters(index="0", arity="0..1", description="Production rule on which to set :interrupt flag")
+        @Parameters(index = "0", arity = "0..1", description = "Production rule on which to set :interrupt flag")
         private String prodName;
         
         @Override
@@ -113,25 +111,25 @@ public class ProductionCommand extends PicocliSoarCommand
             boolean flag = false;
             
             // Determine the production on which to set/clear the :interrupt flag
-            if (prodToClear != null)
+            if(prodToClear != null)
             {
                 name = prodToClear;
             }
-            else if (prodToBreak != null)
+            else if(prodToBreak != null)
             {
                 name = prodToBreak;
                 flag = true;
             }
-            else if (prodName != null)
+            else if(prodName != null)
             {
                 name = prodName;
                 flag = true;
             }
             
-            if (name != null)
+            if(name != null)
             {
                 Production p = parent.agent.getProductions().getProduction(name);
-                if (p != null)
+                if(p != null)
                 {
                     p.setBreakpointEnabled(flag);
                 }
@@ -151,9 +149,9 @@ public class ProductionCommand extends PicocliSoarCommand
             ProductionManager pm = parent.agent.getProductions();
             final List<String> result = new ArrayList<String>();
             
-            for (Production p : pm.getProductions(null))
+            for(Production p : pm.getProductions(null))
             {
-                if (p.isBreakpointEnabled())
+                if(p.isBreakpointEnabled())
                 {
                     result.add(p.getName());
                 }
@@ -163,53 +161,52 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="excise", description="Excises specified productions", subcommands={HelpCommand.class})
+    @Command(name = "excise", description = "Excises specified productions", subcommands = { HelpCommand.class })
     static public class Excise implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-a", "--all"}, defaultValue="false", description="Remove all productions from "
+        @Option(names = { "-a", "--all" }, defaultValue = "false", description = "Remove all productions from "
                 + "memory and perform an init-soar command")
         boolean exciseAll;
         
-        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Remove all chunks (learned productions) from memory")
+        @Option(names = { "-c", "--chunks" }, defaultValue = "false", description = "Remove all chunks (learned productions) from memory")
         boolean exciseChunks;
         
-        @Option(names={"-d", "--default"}, defaultValue="false", description="Remove all default productions from memory")
+        @Option(names = { "-d", "--default" }, defaultValue = "false", description = "Remove all default productions from memory")
         boolean exciseDefault;
         
-        @Option(names={"-n", "--never-fired"}, defaultValue="false", description="Excise rules that have a firing count of 0")
+        @Option(names = { "-n", "--never-fired" }, defaultValue = "false", description = "Excise rules that have a firing count of 0")
         boolean exciseNeverFired;
         
-        @Option(names={"-r", "--rl"}, defaultValue="false", description="Excise Soar-RL rules")
+        @Option(names = { "-r", "--rl" }, defaultValue = "false", description = "Excise Soar-RL rules")
         boolean exciseRL;
         
-        @Option(names={"-t", "--task"}, defaultValue="false", description="Remove chunks, "
+        @Option(names = { "-t", "--task" }, defaultValue = "false", description = "Remove chunks, "
                 + "justifications, and user productions from memory")
         boolean exciseTasks;
         
-        @Option(names={"-T", "--templates"}, defaultValue="false", description="Excise Soar-RL templates")
+        @Option(names = { "-T", "--templates" }, defaultValue = "false", description = "Excise Soar-RL templates")
         boolean exciseTemplates;
         
-        @Option(names={"-u", "--user"}, defaultValue="false", description="Remove all user productions "
+        @Option(names = { "-u", "--user" }, defaultValue = "false", description = "Remove all user productions "
                 + "(but not chunks or default rules) from memory")
         boolean exciseUser;
         
-        @Parameters(index="0", arity="0..1", description="Remove the specific production with this name")
+        @Parameters(index = "0", arity = "0..1", description = "Remove the specific production with this name")
         private String prodName;
-
+        
         @Override
         public void run()
         {
             ProductionManager pm = parent.agent.getProductions();
             
-            if (prodName != null)
+            if(prodName != null)
             {
                 // If the production of the given name exists, excise it
                 Production p = pm.getProduction(prodName);
-                if (p == null)
+                if(p == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("No production named '" + prodName + "'");
                 }
@@ -225,72 +222,72 @@ public class ProductionCommand extends PicocliSoarCommand
                 boolean doInit = false;
                 
                 // Determine which productions to excise based on the options provided
-                if (exciseAll)
+                if(exciseAll)
                 {
                     toExcise.addAll(pm.getProductions(null));
                     doInit = true;
                 }
-                if (exciseChunks)
+                if(exciseChunks)
                 {
                     toExcise.addAll(pm.getProductions(ProductionType.CHUNK));
                 }
-                if (exciseDefault)
+                if(exciseDefault)
                 {
                     toExcise.addAll(pm.getProductions(ProductionType.DEFAULT));
                 }
-                if (exciseNeverFired)
+                if(exciseNeverFired)
                 {
-                    for (Production p : pm.getProductions(null))
+                    for(Production p : pm.getProductions(null))
                     {
-                        if (p.getFiringCount() == 0)
+                        if(p.getFiringCount() == 0)
                         {
                             toExcise.add(p);
                         }
                     }
                 }
-                if (exciseRL)
+                if(exciseRL)
                 {
                     final Set<Production> maybeExcise = new LinkedHashSet<Production>();
                     maybeExcise.addAll(pm.getProductions(ProductionType.DEFAULT));
                     maybeExcise.addAll(pm.getProductions(ProductionType.USER));
                     maybeExcise.addAll(pm.getProductions(ProductionType.CHUNK));
                     
-                    for (Production p : toExcise)
+                    for(Production p : toExcise)
                     {
-                        if (p.rlRuleInfo != null)
+                        if(p.rlRuleInfo != null)
                         {
                             toExcise.add(p);
                         }
                     }
                 }
-                if (exciseTasks)
+                if(exciseTasks)
                 {
                     toExcise.addAll(pm.getProductions(ProductionType.CHUNK));
                     toExcise.addAll(pm.getProductions(ProductionType.JUSTIFICATION));
                     toExcise.addAll(pm.getProductions(ProductionType.USER));
                 }
-                if (exciseTemplates)
+                if(exciseTemplates)
                 {
                     toExcise.addAll(pm.getProductions(ProductionType.TEMPLATE));
                 }
-                if (exciseUser)
+                if(exciseUser)
                 {
                     toExcise.addAll(pm.getProductions(ProductionType.USER));
                 }
                 
-                for (Production p : toExcise)
+                for(Production p : toExcise)
                 {
                     pm.exciseProduction(p, false);
                 }
                 
-                if (exciseRL)
+                if(exciseRL)
                 {
                     // cli_excise.cpp:DoExcise
                     Adaptables.adapt(parent.agent, ReinforcementLearning.class).rl_initialize_template_tracking();
                 }
                 
                 // Initialize the agent if the "-a" option is provided
-                if (doInit)
+                if(doInit)
                 {
                     parent.agent.initialize();
                 }
@@ -301,31 +298,29 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="find", description="Find productions by condition or action patterns",
-            subcommands={HelpCommand.class})
+    @Command(name = "find", description = "Find productions by condition or action patterns", subcommands = { HelpCommand.class })
     static public class Find implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-l", "--lhs"}, defaultValue="false", description="Match pattern only "
+        @Option(names = { "-l", "--lhs" }, defaultValue = "false", description = "Match pattern only "
                 + "against the conditions of productions (default)")
         boolean matchLHS;
         
-        @Option(names={"-r", "--rhs"}, defaultValue="false", description="Match pattern against the actions of productions")
+        @Option(names = { "-r", "--rhs" }, defaultValue = "false", description = "Match pattern against the actions of productions")
         boolean matchRHS;
         
-        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Look only for chunks that match the pattern")
+        @Option(names = { "-c", "--chunks" }, defaultValue = "false", description = "Look only for chunks that match the pattern")
         boolean matchChunks;
         
-        @Option(names={"-n", "--nochunks"}, defaultValue="false", description="Disregard chunks when looking for the pattern")
+        @Option(names = { "-n", "--nochunks" }, defaultValue = "false", description = "Disregard chunks when looking for the pattern")
         boolean matchNoChunks;
         
-        @Option(names={"-s", "--show-bindings"}, defaultValue="false", description="Show the bindings associated with a wildcard pattern")
+        @Option(names = { "-s", "--show-bindings" }, defaultValue = "false", description = "Show the bindings associated with a wildcard pattern")
         boolean showBindings;
         
-        @Parameters(arity="1", description="Any pattern that can appear in productions")
+        @Parameters(arity = "1", description = "Any pattern that can appear in productions")
         String[] arrPattern;
         
         @Override
@@ -334,7 +329,7 @@ public class ProductionCommand extends PicocliSoarCommand
             final ProductionFinder finder = new ProductionFinder(parent.agent);
             finder.options().clear();
             
-            if (matchRHS)
+            if(matchRHS)
             {
                 finder.options().add(Options.RHS);
             }
@@ -343,7 +338,7 @@ public class ProductionCommand extends PicocliSoarCommand
                 finder.options().add(Options.LHS);
             }
             
-            if (showBindings)
+            if(showBindings)
             {
                 parent.agent.getPrinter().startNewLine().print("Option not yet supported");
                 return;
@@ -357,7 +352,7 @@ public class ProductionCommand extends PicocliSoarCommand
                 List<Production> result = finder.find(pattern, productions);
                 printResults(pattern, result);
             }
-            catch (ParserException e)
+            catch(ParserException e)
             {
                 parent.agent.getPrinter().startNewLine().print(e.getMessage());
             }
@@ -367,19 +362,19 @@ public class ProductionCommand extends PicocliSoarCommand
         {
             final Printer printer = parent.agent.getPrinter();
             printer.startNewLine();
-            if (result.isEmpty())
+            if(result.isEmpty())
             {
                 printer.print("No productions match '%s'\n", pattern);
             }
             else
             {
-                for (Production p : result)
+                for(Production p : result)
                 {
                     printer.print("%s\n", p.getName());
                 }
             }
         }
-
+        
         // Obtains all productions filtered by chunks, nochunks, or neither
         private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
         {
@@ -390,20 +385,18 @@ public class ProductionCommand extends PicocliSoarCommand
                 {
                     final ProductionType type = p.getType();
                     return (type == ProductionType.CHUNK && chunks) ||
-                           (type != ProductionType.CHUNK && nochunks) ||
-                           (!chunks && !nochunks);
+                            (type != ProductionType.CHUNK && nochunks) ||
+                            (!chunks && !nochunks);
                 }
             };
-                
+            
             final Collection<Production> productions = Collections2.filter(
                     parent.agent.getProductions().getProductions(null), filter);
             return productions;
         }
     }
     
-    
-    @Command(name="firing-counts", description="Print the number of times productions have fired",
-            subcommands={HelpCommand.class})
+    @Command(name = "firing-counts", description = "Print the number of times productions have fired", subcommands = { HelpCommand.class })
     static public class FiringCounts implements Runnable
     {
         @ParentCommand
@@ -412,28 +405,28 @@ public class ProductionCommand extends PicocliSoarCommand
         // TODO: Implement these options
         // In CSoar, when multiple options are provided, only productions that fit into all categories
         // are displayed along with their firing counts
-        @Option(names={"-a", "--all"}, defaultValue="false", description="Print how many times all productions fired")
+        @Option(names = { "-a", "--all" }, defaultValue = "false", description = "Print how many times all productions fired")
         boolean countAll;
         
-        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Print how many times chunks (learned rules) fired")
+        @Option(names = { "-c", "--chunks" }, defaultValue = "false", description = "Print how many times chunks (learned rules) fired")
         boolean countChunks;
         
-        @Option(names={"-d", "--default"}, defaultValue="false", description="Print how many times default productions fired")
+        @Option(names = { "-d", "--default" }, defaultValue = "false", description = "Print how many times default productions fired")
         boolean countDefault;
         
-        @Option(names={"-f", "--fired"}, defaultValue="false", description="Prints only rules that have fired")
+        @Option(names = { "-f", "--fired" }, defaultValue = "false", description = "Prints only rules that have fired")
         boolean countFired;
         
-        @Option(names={"-r", "--rl"}, defaultValue="false", description="Print how many times Soar-RL rules fired")
+        @Option(names = { "-r", "--rl" }, defaultValue = "false", description = "Print how many times Soar-RL rules fired")
         boolean countRL;
         
-        @Option(names={"-T", "--templates"}, defaultValue="false", description="Print how many times Soar-RL templates fired")
+        @Option(names = { "-T", "--templates" }, defaultValue = "false", description = "Print how many times Soar-RL templates fired")
         boolean countTemplates;
         
-        @Option(names={"-u", "--user"}, defaultValue="false", description="Print how many times user productions fired")
+        @Option(names = { "-u", "--user" }, defaultValue = "false", description = "Print how many times user productions fired")
         boolean countUser;
         
-        @Parameters(index="0", arity="0..1", description="If an integer, list the top n productions; "
+        @Parameters(index = "0", arity = "0..1", description = "If an integer, list the top n productions; "
                 + "if n is 0, only the productions which haven't fired are listed. "
                 + "If not an integer, print how many times a specific production has fired.")
         private String param;
@@ -445,27 +438,27 @@ public class ProductionCommand extends PicocliSoarCommand
             String prodName = null;
             
             // Determine if the parameter provided is an integer or string
-            if (param != null)
+            if(param != null)
             {
                 try
                 {
                     topN = Integer.valueOf(param);
                 }
-                catch (NumberFormatException e)
+                catch(NumberFormatException e)
                 {
                     prodName = param;
                 }
             }
             
-            if (topN != null)
+            if(topN != null)
             {
-                if (topN == 0)
+                if(topN == 0)
                 {
                     // Find and print all productions that have not fired yet
                     List<Production> productionsNotFired = new ArrayList<Production>();
-                    for (Production p : parent.agent.getProductions().getProductions(null))
+                    for(Production p : parent.agent.getProductions().getProductions(null))
                     {
-                        if (p.getFiringCount() == 0)
+                        if(p.getFiringCount() == 0)
                         {
                             productionsNotFired.add(p);
                         }
@@ -477,13 +470,13 @@ public class ProductionCommand extends PicocliSoarCommand
                     printTopProductions(topN);
                 }
             }
-            else if (prodName != null)
+            else if(prodName != null)
             {
                 printSingleProduction(prodName);
             }
             else
             {
-                if (countChunks || countDefault || countFired || countRL || countTemplates || countUser)
+                if(countChunks || countDefault || countFired || countRL || countTemplates || countUser)
                 {
                     parent.agent.getPrinter().startNewLine().print("Option(s) not "
                             + "implemented yet. Displaying all firing counts:");
@@ -494,14 +487,15 @@ public class ProductionCommand extends PicocliSoarCommand
         
         private void printResults(List<Production> productions, int n)
         {
-            if(productions.size() > 0 && n > 0) {
+            if(productions.size() > 0 && n > 0)
+            {
                 Production p = productions.get(0);
                 final Printer printer = parent.agent.getPrinter();
                 
                 // don't print a newline for the first one, but do print one before each subsequent one
                 printer.print("%5d:  %s", p.getFiringCount(), p.getName());
-
-                for (int i = 1; i < n && i < productions.size(); ++i)
+                
+                for(int i = 1; i < n && i < productions.size(); ++i)
                 {
                     p = productions.get(i);
                     printer.startNewLine().print("%5d:  %s", p.getFiringCount(), p.getName());
@@ -512,7 +506,7 @@ public class ProductionCommand extends PicocliSoarCommand
         private void printSingleProduction(String name)
         {
             final Production p = parent.agent.getProductions().getProduction(name);
-            if (p == null)
+            if(p == null)
             {
                 parent.agent.getPrinter().startNewLine().print("No production named '" + name + "'");
             }
@@ -531,11 +525,11 @@ public class ProductionCommand extends PicocliSoarCommand
                 public int compare(Production o1, Production o2)
                 {
                     final long d = o2.getFiringCount() - o1.getFiringCount();
-                    if (d < 0)
+                    if(d < 0)
                     {
                         return -1;
                     }
-                    else if (d > 0)
+                    else if(d > 0)
                     {
                         return 1;
                     }
@@ -546,40 +540,38 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="matches", description="Print the list of productions that will "
-            + "retract or fire in the next propose or apply phase",
-            subcommands={HelpCommand.class})
+    @Command(name = "matches", description = "Print the list of productions that will "
+            + "retract or fire in the next propose or apply phase", subcommands = { HelpCommand.class })
     static public class Matches implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-c", "--counts"}, defaultValue="false", description="Same as default implementation")
+        @Option(names = { "-c", "--counts" }, defaultValue = "false", description = "Same as default implementation")
         boolean includeCounts;
         
-        @Option(names={"-n", "--names"}, defaultValue="false", description="Same as default implementation")
+        @Option(names = { "-n", "--names" }, defaultValue = "false", description = "Same as default implementation")
         boolean includeNames;
         
-        @Option(names={"-t", "--timetags"}, defaultValue="false", description="Also print the "
+        @Option(names = { "-t", "--timetags" }, defaultValue = "false", description = "Also print the "
                 + "timetags of the wmes at the first failing condition")
         boolean includeTimetags;
         
-        @Option(names={"-w", "--wmes"}, defaultValue="false", description="Also print the full wmes, not just "
+        @Option(names = { "-w", "--wmes" }, defaultValue = "false", description = "Also print the full wmes, not just "
                 + "the timetags, at the first failing condition")
         boolean includeWmes;
         
-        @Option(names={"-a", "--assertions"}, defaultValue="false", description="List only productions about to fire")
+        @Option(names = { "-a", "--assertions" }, defaultValue = "false", description = "List only productions about to fire")
         boolean onlyAssertions;
         
-        @Option(names={"-r", "--retractions"}, defaultValue="false", description="List only productions about to retract")
+        @Option(names = { "-r", "--retractions" }, defaultValue = "false", description = "List only productions about to retract")
         boolean onlyRetractions;
         
-        @Option(names={"-i", "--internal"}, defaultValue="false", description="Also print some internal "
+        @Option(names = { "-i", "--internal" }, defaultValue = "false", description = "Also print some internal "
                 + "information when a production name is provided")
         boolean includeInternalInfo;
         
-        @Parameters(index="0", arity="0..1", description="Print partial match information for the named production")
+        @Parameters(index = "0", arity = "0..1", description = "Print partial match information for the named production")
         private String prodName;
         
         @Override
@@ -588,35 +580,35 @@ public class ProductionCommand extends PicocliSoarCommand
             WmeTraceType wmeTraceType = WmeTraceType.NONE;
             EnumSet<MatchSetTraceType> mstt = EnumSet.allOf(MatchSetTraceType.class);
             
-            if (includeWmes)
+            if(includeWmes)
             {
                 wmeTraceType = WmeTraceType.FULL;
             }
-            else if (includeTimetags)
+            else if(includeTimetags)
             {
                 wmeTraceType = WmeTraceType.TIMETAG;
             }
             
-            if (onlyAssertions)
+            if(onlyAssertions)
             {
                 mstt.clear();
                 mstt.add(MatchSetTraceType.MS_ASSERT);
             }
-            else if (onlyRetractions)
+            else if(onlyRetractions)
             {
                 mstt.clear();
                 mstt.add(MatchSetTraceType.MS_RETRACT);
             }
             
-            if (prodName != null)
+            if(prodName != null)
             {
                 // Print partial matches for the named production
                 Production p = parent.agent.getProductions().getProduction(prodName);
-                if (p == null)
+                if(p == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("No production '" + prodName + "'");
                 }
-                else if (p.getReteNode() == null)
+                else if(p.getReteNode() == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("Production '" + prodName + "' is not in rete");
                 }
@@ -633,30 +625,28 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="memory-usage", description="Print memory usage for partial matches",
-            subcommands={HelpCommand.class})
+    @Command(name = "memory-usage", description = "Print memory usage for partial matches", subcommands = { HelpCommand.class })
     static public class MemoryUsage implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"-c", "--chunks"}, defaultValue="false", description="Print memory usage of chunks")
+        @Option(names = { "-c", "--chunks" }, defaultValue = "false", description = "Print memory usage of chunks")
         boolean filterByChunks;
         
-        @Option(names={"-d", "--default"}, defaultValue="false", description="Print memory usage of default productions")
+        @Option(names = { "-d", "--default" }, defaultValue = "false", description = "Print memory usage of default productions")
         boolean filterByDefault;
         
-        @Option(names={"-j", "--justifications"}, defaultValue="false", description="Print memory usage of justifications")
+        @Option(names = { "-j", "--justifications" }, defaultValue = "false", description = "Print memory usage of justifications")
         boolean filterByJustify;
         
-        @Option(names={"-T", "--templates"}, defaultValue="false", description="Print how many times Soar-RL templates fired")
+        @Option(names = { "-T", "--templates" }, defaultValue = "false", description = "Print how many times Soar-RL templates fired")
         boolean filterByTemplates;
         
-        @Option(names={"-u", "--user"}, defaultValue="false", description="Print memory usage of user-defined productions")
+        @Option(names = { "-u", "--user" }, defaultValue = "false", description = "Print memory usage of user-defined productions")
         boolean filterByUser;
         
-        @Parameters(index="0", arity="0..1", description="If an integer, list the top n productions according to "
+        @Parameters(index = "0", arity = "0..1", description = "If an integer, list the top n productions according to "
                 + "memory usage. If not an integer, print memory usage for a specific production.")
         private String param;
         
@@ -671,65 +661,65 @@ public class ProductionCommand extends PicocliSoarCommand
             final EnumSet<ProductionType> types = EnumSet.noneOf(ProductionType.class);
             
             // Determine if the parameter provided is an integer or string
-            if (param != null)
+            if(param != null)
             {
                 try
                 {
                     topN = Integer.valueOf(param);
                 }
-                catch (NumberFormatException e)
+                catch(NumberFormatException e)
                 {
                     prodName = param;
                 }
             }
             
-            if (topN != null)
+            if(topN != null)
             {
                 count = topN;
-                if (count < 1)
+                if(count < 1)
                 {
                     parent.agent.getPrinter().startNewLine().print("Count argument "
                             + "must be greater than 0, got " + count);
                     return;
                 }
             }
-            else if (prodName != null)
+            else if(prodName != null)
             {
                 single = parent.agent.getProductions().getProduction(prodName);
-                if (single == null)
+                if(single == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("No production named '" + prodName + "'");
                     return;
                 }
             }
-            else if (filterByDefault)
+            else if(filterByDefault)
             {
                 types.add(ProductionType.DEFAULT);
             }
-            else if (filterByChunks)
+            else if(filterByChunks)
             {
                 types.add(ProductionType.CHUNK);
             }
-            else if (filterByUser)
+            else if(filterByUser)
             {
                 types.add(ProductionType.USER);
             }
-            else if (filterByJustify)
+            else if(filterByJustify)
             {
                 types.add(ProductionType.JUSTIFICATION);
             }
-            else if (filterByTemplates)
+            else if(filterByTemplates)
             {
                 types.add(ProductionType.TEMPLATE);
             }
             
-            if (single != null)
+            if(single != null)
             {
                 printResults(Arrays.asList(single), 1);
             }
             else
             {
-                if (types.isEmpty())
+                if(types.isEmpty())
                 {
                     types.addAll(EnumSet.allOf(ProductionType.class));
                 }
@@ -740,17 +730,17 @@ public class ProductionCommand extends PicocliSoarCommand
         private void printResults(List<Production> productions, int n)
         {
             final Printer printer = parent.agent.getPrinter();
-            for (int i = 0; i < n && i < productions.size(); ++i)
+            for(int i = 0; i < n && i < productions.size(); ++i)
             {
                 final Production p = productions.get(i);
                 printer.startNewLine().print("%5d:  %s", p.getReteTokenCount(), p.getName());
             }
         }
-
+        
         private void printTopProductions(EnumSet<ProductionType> types, int n)
         {
             final List<Production> prods = new ArrayList<Production>();
-            for (ProductionType type : types)
+            for(ProductionType type : types)
             {
                 prods.addAll(parent.agent.getProductions().getProductions(type));
             }
@@ -767,19 +757,17 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="optimize-attribute", description="Declare a symbol to be multi-attributed so "
-            + "the rule can be matched more efficiently",
-            subcommands={HelpCommand.class})
+    @Command(name = "optimize-attribute", description = "Declare a symbol to be multi-attributed so "
+            + "the rule can be matched more efficiently", subcommands = { HelpCommand.class })
     static public class OptimizeAttribute implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Parameters(index="0", description="Any Soar attribute")
+        @Parameters(index = "0", description = "Any Soar attribute")
         private String attribute;
         
-        @Parameters(index="1", description="Estimate of degree of simultaneous values for attribute")
+        @Parameters(index = "1", description = "Estimate of degree of simultaneous values for attribute")
         private Integer degree;
         
         @Override
@@ -791,26 +779,25 @@ public class ProductionCommand extends PicocliSoarCommand
         }
     }
     
-    @Command(name="watch", description="Alters the set of watched productions",
-            subcommands={HelpCommand.class})
+    @Command(name = "watch", description = "Alters the set of watched productions", subcommands = { HelpCommand.class })
     static public class Watch implements Runnable
     {
         @ParentCommand
         ProductionC parent; // injected by picocli
         
-        @Option(names={"on", "-e", "--on", "--enable"}, description="Enables watching of given productions")
+        @Option(names = { "on", "-e", "--on", "--enable" }, description = "Enables watching of given productions")
         List<String> productionsToEnable;
         
-        @Option(names={"off", "-d", "--off", "--disable"}, description="Disables watching of given productions")
+        @Option(names = { "off", "-d", "--off", "--disable" }, description = "Disables watching of given productions")
         List<String> productionsToDisable;
-
+        
         @Override
         public void run()
         {
-            if (productionsToEnable == null && productionsToDisable == null)
+            if(productionsToEnable == null && productionsToDisable == null)
             {
                 List<String> tracedRuleNames = collectAndSortTracedRuleNames();
-                if (tracedRuleNames.size() == 0)
+                if(tracedRuleNames.size() == 0)
                 {
                     parent.agent.getPrinter().startNewLine().print("No watched productions found.");
                 }
@@ -819,12 +806,12 @@ public class ProductionCommand extends PicocliSoarCommand
                     parent.agent.getPrinter().print(Joiner.on('\n').join(collectAndSortTracedRuleNames()));
                 }
             }
-            if (productionsToEnable != null)
+            if(productionsToEnable != null)
             {
-                for (String name : productionsToEnable)
+                for(String name : productionsToEnable)
                 {
                     final Production p = parent.agent.getProductions().getProduction(name);
-                    if (p != null)
+                    if(p != null)
                     {
                         p.setTraceFirings(true);
                     }
@@ -834,12 +821,12 @@ public class ProductionCommand extends PicocliSoarCommand
                     }
                 }
             }
-            if (productionsToDisable != null)
+            if(productionsToDisable != null)
             {
-                for (String name : productionsToDisable)
+                for(String name : productionsToDisable)
                 {
                     final Production p = parent.agent.getProductions().getProduction(name);
-                    if (p != null)
+                    if(p != null)
                     {
                         p.setTraceFirings(false);
                     }

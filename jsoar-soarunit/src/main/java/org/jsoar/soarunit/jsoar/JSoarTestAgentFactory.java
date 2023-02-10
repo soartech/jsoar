@@ -15,8 +15,10 @@ import org.jsoar.soarunit.TestAgentFactory;
  */
 public class JSoarTestAgentFactory implements TestAgentFactory
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgentFactory#createTestAgent(org.jsoar.soarunit.Test)
      */
     @Override
@@ -24,8 +26,10 @@ public class JSoarTestAgentFactory implements TestAgentFactory
     {
         return new JSoarTestAgent();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.soarunit.TestAgentFactory#debugTest(org.jsoar.soarunit.Test)
      */
     @Override
@@ -33,5 +37,5 @@ public class JSoarTestAgentFactory implements TestAgentFactory
     {
         new JSoarTestAgent().debug(test, exitOnClose);
     }
-
+    
 }

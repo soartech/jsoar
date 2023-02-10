@@ -19,7 +19,7 @@ import org.jsoar.util.markers.Marker;
 public class UnboundVariable extends AbstractRhsValue
 {
     private final int index;
-
+    
     // Pre-allocate common values rather than constantly reallocating
     // This is safe because instances are immutable
     private static final UnboundVariable[] COMMON = new UnboundVariable[100];
@@ -39,7 +39,7 @@ public class UnboundVariable extends AbstractRhsValue
      */
     public static UnboundVariable create(int index)
     {
-        if(index < COMMON.length) 
+        if(index < COMMON.length)
         {
             return COMMON[index];
         }
@@ -53,7 +53,7 @@ public class UnboundVariable extends AbstractRhsValue
     {
         this.index = index;
     }
-
+    
     /**
      * @return the index
      */
@@ -61,8 +61,10 @@ public class UnboundVariable extends AbstractRhsValue
     {
         return index;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#asUnboundVariable()
      */
     @Override
@@ -70,8 +72,10 @@ public class UnboundVariable extends AbstractRhsValue
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.RhsValue#copy()
      */
     @Override
@@ -79,8 +83,10 @@ public class UnboundVariable extends AbstractRhsValue
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
@@ -89,8 +95,10 @@ public class UnboundVariable extends AbstractRhsValue
         // See comment in RhsValue.addAllVariables.
         throw new UnsupportedOperationException("addAllVariables not supported on UnboundVariable RhsValue");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -98,8 +106,10 @@ public class UnboundVariable extends AbstractRhsValue
     {
         return "(unbound-var + " + index + ")";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
@@ -107,8 +117,10 @@ public class UnboundVariable extends AbstractRhsValue
     {
         throw new IllegalStateException("Internal error: rhs_value_to_string called on unbound variable.");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -119,24 +131,25 @@ public class UnboundVariable extends AbstractRhsValue
         result = prime * result + index;
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj)
+        if(this == obj)
             return true;
-        if (obj == null)
+        if(obj == null)
             return false;
-        if (!(obj instanceof UnboundVariable))
+        if(!(obj instanceof UnboundVariable))
             return false;
         UnboundVariable other = (UnboundVariable) obj;
-        if (index != other.index)
+        if(index != other.index)
             return false;
         return true;
     }
-    
     
 }

@@ -22,13 +22,15 @@ public enum LexemeType
     QUOTED_STRING("quoted string"),
     R_PAREN(")"),
     AT("@"),
-    TILDE("~") {
+    TILDE("~")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
+        
         @Override
         public PreferenceType getPreferenceType()
         {
@@ -38,13 +40,15 @@ public enum LexemeType
     UP_ARROW("^"),
     L_BRACE("{"),
     R_BRACE("}"),
-    EXCLAMATION_POINT("!") {
+    EXCLAMATION_POINT("!")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
+        
         @Override
         public PreferenceType getPreferenceType()
         {
@@ -52,14 +56,15 @@ public enum LexemeType
         }
     },
     COMMA(","),
-    GREATER(">") {
+    GREATER(">")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
-
+        
         @Override
         public int getRelationalTestType()
         {
@@ -67,15 +72,18 @@ public enum LexemeType
         }
     },
     GREATER_GREATER(">>"),
-    GREATER_EQUAL(">=") {
-
+    GREATER_EQUAL(">=")
+    {
+        
         @Override
         public int getRelationalTestType()
         {
             return RelationalTest.GREATER_OR_EQUAL_TEST;
-        }},
+        }
+    },
     L_PAREN("("),
-    EQUAL("=") {
+    EQUAL("=")
+    {
         
         @Override
         public boolean isPreference()
@@ -83,64 +91,74 @@ public enum LexemeType
             return true;
         }
     },
-    NOT_EQUAL("<>") {
-
+    NOT_EQUAL("<>")
+    {
+        
         @Override
         public int getRelationalTestType()
         {
             return RelationalTest.NOT_EQUAL_TEST;
-        }},
-    LESS("<") {
+        }
+    },
+    LESS("<")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
-
+        
         @Override
         public int getRelationalTestType()
         {
             return RelationalTest.LESS_TEST;
         }
     },
-    LESS_EQUAL("<=") {
-
+    LESS_EQUAL("<=")
+    {
+        
         @Override
         public int getRelationalTestType()
         {
             return RelationalTest.LESS_OR_EQUAL_TEST;
-        }},
+        }
+    },
     LESS_LESS("<<"),
-    LESS_EQUAL_GREATER("<=>") {
-
+    LESS_EQUAL_GREATER("<=>")
+    {
+        
         @Override
         public int getRelationalTestType()
         {
             return RelationalTest.SAME_TYPE_TEST;
-        }},
+        }
+    },
     PERIOD("."),
-    PLUS("+") {
+    PLUS("+")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
-
+        
         @Override
         public PreferenceType getPreferenceType()
         {
             return PreferenceType.ACCEPTABLE;
         }
     },
-    MINUS("-") {
+    MINUS("-")
+    {
         
         @Override
         public boolean isPreference()
         {
             return true;
         }
+        
         @Override
         public PreferenceType getPreferenceType()
         {

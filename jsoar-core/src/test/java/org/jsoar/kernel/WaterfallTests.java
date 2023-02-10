@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,10 +31,10 @@ public class WaterfallTests
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
-
+    
     private void sourceTestFile(String name) throws SoarException
     {
-        ifc.source(getClass().getResource("/" + WaterfallTests.class.getName().replace('.', '/')  + "_" + name));
+        ifc.source(getClass().getResource("/" + WaterfallTests.class.getName().replace('.', '/') + "_" + name));
     }
     
     private void runTest(String testName, int expectedDecisions) throws Exception
@@ -43,40 +42,46 @@ public class WaterfallTests
         sourceTestFile(testName + ".soar");
         
         agent.getTrace().disableAll();
-        //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
-        //agent.trace.setEnabled(false);
+        // agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
+        // agent.trace.setEnabled(false);
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
         final boolean halted[] = { false };
         final boolean failed[] = { false };
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
-
+            }
+        });
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
-
+            }
+        });
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = false;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
+            }
+        });
         
         agent.runForever();
         assertTrue(halted[0], testName + " functional test did not halt");
@@ -88,6 +93,7 @@ public class WaterfallTests
         
         ifc.eval("stats");
     }
+    
     /**
      * @throws java.lang.Exception
      */
@@ -98,7 +104,7 @@ public class WaterfallTests
         agent.getTrace().enableAll();
         ifc = agent.getInterpreter();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -108,7 +114,7 @@ public class WaterfallTests
         agent.getPrinter().flush();
         agent.dispose();
     }
-
+    
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testWaterfall() throws Exception

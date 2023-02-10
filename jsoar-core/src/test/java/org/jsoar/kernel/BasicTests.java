@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import org.junit.jupiter.api.Test;
 
 /**

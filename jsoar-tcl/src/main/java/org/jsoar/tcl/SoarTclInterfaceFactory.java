@@ -14,8 +14,10 @@ import org.jsoar.util.commands.SoarCommandInterpreterFactory;
  */
 public class SoarTclInterfaceFactory implements SoarCommandInterpreterFactory
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#create(org.jsoar.kernel.Agent)
      */
     @Override
@@ -23,8 +25,10 @@ public class SoarTclInterfaceFactory implements SoarCommandInterpreterFactory
     {
         return SoarTclInterface.findOrCreate(agent);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.commands.SoarCommandInterpreterFactory#getName()
      */
     @Override
@@ -32,5 +36,5 @@ public class SoarTclInterfaceFactory implements SoarCommandInterpreterFactory
     {
         return "tcl";
     }
-
+    
 }

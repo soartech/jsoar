@@ -22,7 +22,7 @@ public interface TestFactory
      * @param testName
      * @param testFile
      * @return A new instance of a class which has already been created and
-     *         initialized.
+     * initialized.
      */
     public Test createTest(String testName, Path testFile,
             TestSettings settings) throws Exception;

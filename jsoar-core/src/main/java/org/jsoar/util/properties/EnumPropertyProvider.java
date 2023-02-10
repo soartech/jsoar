@@ -28,7 +28,7 @@ public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider
     {
         return value.get();
     }
-
+    
     @Override
     public T set(T newValue)
     {
@@ -40,8 +40,10 @@ public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider
         value.set(newValue);
         return oldValue;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -49,5 +51,5 @@ public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider
     {
         return value.toString();
     }
-
+    
 }

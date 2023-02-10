@@ -13,14 +13,14 @@ package org.jsoar.kernel;
 public class SoarException extends Exception
 {
     private static final long serialVersionUID = 6819941600876892428L;
-
+    
     /**
      * 
      */
     public SoarException()
     {
     }
-
+    
     /**
      * @param message
      */
@@ -28,7 +28,7 @@ public class SoarException extends Exception
     {
         super(message);
     }
-
+    
     /**
      * @param cause
      */
@@ -36,7 +36,7 @@ public class SoarException extends Exception
     {
         super(cause);
     }
-
+    
     /**
      * @param message
      * @param cause

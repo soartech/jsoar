@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.io;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,9 +55,14 @@ public class InputOutputImplTest extends JSoarTest
         boolean called = false;
         List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
         
-        public MatchFunction() { super("match"); }
+        public MatchFunction()
+        {
+            super("match");
+        }
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
@@ -74,7 +78,7 @@ public class InputOutputImplTest extends JSoarTest
     
     private void sourceTestFile(String name) throws SoarException
     {
-        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/')  + "_" + name));
+        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/') + "_" + name));
     }
     
     /**
@@ -95,7 +99,7 @@ public class InputOutputImplTest extends JSoarTest
         // - ALT
         agent.setStopPhase(Phase.INPUT);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -104,30 +108,17 @@ public class InputOutputImplTest extends JSoarTest
     {
         agent.dispose();
     }
-
+    
     @Test
     public void testBasicInput() throws Exception
     {
         final int listenerCallCount[] = { 0 };
-        agent.getEvents().addListener(InputEvent.class, event ->
-        {
+        agent.getEvents().addListener(InputEvent.class, event -> {
             listenerCallCount[0]++;
             
             InputBuilder builder = InputBuilder.create(agent.getInputOutput());
-            builder.push("location").markId("L1").
-                        add("x", 3).
-                        add("y", 4).
-                        add("name", "hello").
-                        pop().
-                    push("location").markId("L2").
-                        add("x", 5).
-                        add("y", 6).
-                        add("name", "goodbye").
-                        link("a link", "L1").
-                        pop().
-                    add(99, "integer attribute").
-                    add(3.0, "double attribute").
-                    add("flag", Symbols.NEW_ID);
+            builder.push("location").markId("L1").add("x", 3).add("y", 4).add("name", "hello").pop().push("location").markId("L2").add("x", 5).add("y", 6).add("name", "goodbye").link("a link", "L1")
+                    .pop().add(99, "integer attribute").add(3.0, "double attribute").add("flag", Symbols.NEW_ID);
         });
         
         sourceTestFile("testBasicInput.soar");
@@ -144,8 +135,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
-        agent.getEvents().addListener(InputEvent.class, event ->
-        {
+        agent.getEvents().addListener(InputEvent.class, event -> {
             if(wme[0] == null)
             {
                 InputBuilder builder = InputBuilder.create(agent.getInputOutput());
@@ -178,16 +168,14 @@ public class InputOutputImplTest extends JSoarTest
         
         final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
         
-        agent.getEvents().addListener(InputEvent.class, event ->
-        {
+        agent.getEvents().addListener(InputEvent.class, event -> {
             if(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() == 2)
             {
                 InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                 builder.add("retract-output", "*yes*");
             }
         });
-        agent.getEvents().addListener(OutputEvent.class, event ->
-        {
+        agent.getEvents().addListener(OutputEvent.class, event -> {
             OutputEvent oe = (OutputEvent) event;
             
             if(oe.getMode() == OutputMode.MODIFIED_OUTPUT_COMMAND)
@@ -249,40 +237,40 @@ public class InputOutputImplTest extends JSoarTest
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
     }
     /*
-    @Test
-    public void testInputIsRestoredAfterInitSoar() throws Exception
-    {
-        final InputOutput io = agent.getInputOutput();
-        final ByRef<InputWme> wme1 = ByRef.create(null);
-        final ByRef<InputWme> wme2 = ByRef.create(null);
-        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                if(wme1.value == null)
-                {
-                    io.getSymbols().createIdentifier('S'); // dummy symbol to force use of idMap in restorePreviousInput()
-                    final Identifier id = io.getSymbols().createIdentifier('S');
-                    wme1.value = InputWmes.add(io, "some", id);
-                    wme2.value = InputWmes.add(io, id, "test", 99);
-                }
-            }});
-        agent.runFor(1, RunType.DECISIONS);
-        assertNotNull(wme1.value);
-        assertNotNull(wme2.value);
-        
-        agent.initialize();
-        
-        final Wme inner1 = Wmes.matcher(agent).id(io.getInputLink()).attr("some").find(io.getInputLink().getWmes());
-        assertNotNull(inner1);
-        assertSame(wme1.value, inner1.getAdapter(InputWme.class));
-        
-        final Wme inner2 = Wmes.matcher(agent).id(inner1.getValue().asIdentifier()).attr("test").value(99).find(inner1.getChildren());
-        assertNotNull(inner2);
-        assertSame(wme2.value, inner2.getAdapter(InputWme.class));
-    }
-    */
+     * @Test
+     * public void testInputIsRestoredAfterInitSoar() throws Exception
+     * {
+     * final InputOutput io = agent.getInputOutput();
+     * final ByRef<InputWme> wme1 = ByRef.create(null);
+     * final ByRef<InputWme> wme2 = ByRef.create(null);
+     * agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
+     * 
+     * @Override
+     * public void onEvent(SoarEvent event)
+     * {
+     * if(wme1.value == null)
+     * {
+     * io.getSymbols().createIdentifier('S'); // dummy symbol to force use of idMap in restorePreviousInput()
+     * final Identifier id = io.getSymbols().createIdentifier('S');
+     * wme1.value = InputWmes.add(io, "some", id);
+     * wme2.value = InputWmes.add(io, id, "test", 99);
+     * }
+     * }});
+     * agent.runFor(1, RunType.DECISIONS);
+     * assertNotNull(wme1.value);
+     * assertNotNull(wme2.value);
+     * 
+     * agent.initialize();
+     * 
+     * final Wme inner1 = Wmes.matcher(agent).id(io.getInputLink()).attr("some").find(io.getInputLink().getWmes());
+     * assertNotNull(inner1);
+     * assertSame(wme1.value, inner1.getAdapter(InputWme.class));
+     * 
+     * final Wme inner2 = Wmes.matcher(agent).id(inner1.getValue().asIdentifier()).attr("test").value(99).find(inner1.getChildren());
+     * assertNotNull(inner2);
+     * assertSame(wme2.value, inner2.getAdapter(InputWme.class));
+     * }
+     */
     
     @Test
     public void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()

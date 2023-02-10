@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
-
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,8 +22,9 @@ import org.junit.jupiter.api.Test;
  */
 public class DebugTest
 {
-
+    
     private Agent agent;
+    
     /**
      * @throws java.lang.Exception
      */
@@ -34,7 +33,7 @@ public class DebugTest
     {
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -42,33 +41,34 @@ public class DebugTest
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testDebugCallsOpenDebugger() throws Exception
     {
         final ByRef<Boolean> called = ByRef.create(false);
-        agent.setDebuggerProvider(new AbstractDebuggerProvider() {
-
+        agent.setDebuggerProvider(new AbstractDebuggerProvider()
+        {
+            
             @Override
             public void openDebugger(Agent agent)
             {
                 assertSame(DebugTest.this.agent, agent);
                 called.value = true;
             }
-
+            
             @Override
             public void openDebuggerAndWait(Agent agent) throws SoarException,
                     InterruptedException
             {
                 throw new UnsupportedOperationException("openDebuggerAndWait");
             }
-
+            
             @Override
             public void closeDebugger(Agent agent)
             {
                 throw new UnsupportedOperationException("closeDebugger");
             }
-
+            
             @Override
             public Object getDebugger(Agent agent)
             {

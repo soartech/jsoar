@@ -13,11 +13,12 @@ public class wma_cycle_reference
     
     /**
      * wma.cpp:1224:_wma_ref_to_str
+     * 
      * @param current_cycle
      */
-    String toString(long current_cycle )
+    String toString(long current_cycle)
     {
-        final long cycle_diff = ( current_cycle - d_cycle );
+        final long cycle_diff = (current_cycle - d_cycle);
         return num_references + " @ d" + d_cycle + " (-" + cycle_diff + ")";
     }
 }

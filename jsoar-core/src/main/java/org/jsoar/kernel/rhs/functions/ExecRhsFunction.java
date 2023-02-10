@@ -10,7 +10,7 @@ import java.util.List;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * Implementation of 'exec' RHS function from SML. This function simply 
+ * Implementation of 'exec' RHS function from SML. This function simply
  * assumes that its first argument is the name of a RHS function. It
  * routes the function call back to that function and returns the result.
  * This function is intended mostly for backward compatibility with
@@ -30,8 +30,10 @@ public class ExecRhsFunction extends AbstractRhsFunctionHandler
         
         this.rhsFunctions = rhsFunctions;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -47,8 +49,10 @@ public class ExecRhsFunction extends AbstractRhsFunctionHandler
         }
         return rhsFunctions.execute(functionName, arguments.subList(1, arguments.size()));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
      */
     @Override

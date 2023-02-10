@@ -84,10 +84,10 @@ public class WorkingMemory
         this.smem = Adaptables.adapt(context, SemanticMemory.class);
         this.symbols = Adaptables.adapt(context, SymbolFactoryImpl.class);
     }
-
+    
     /**
      * <p>wmem.cpp:71:reset_wme_timetags
-     * <p>init_soar.cpp:297:reset_statistics 
+     * <p>init_soar.cpp:297:reset_statistics
      */
     public void reset()
     {
@@ -100,7 +100,7 @@ public class WorkingMemory
         
         // Note: Originally num_existing_wmes was checked here and a warning was printed
         // to catch memory leaks. Removed in jsoar.
-
+        
         current_wme_timetag = 1;
     }
     
@@ -113,7 +113,7 @@ public class WorkingMemory
      */
     public void updateStats(int num_wmes_in_rete)
     {
-        if (num_wmes_in_rete > max_wm_size.longValue())
+        if(num_wmes_in_rete > max_wm_size.longValue())
             max_wm_size.value.set(num_wmes_in_rete);
         cumulative_wm_size.value.addAndGet(num_wmes_in_rete);
         num_wm_sizes_accumulated.increment();
@@ -136,7 +136,6 @@ public class WorkingMemory
         return w;
     }
     
-
     /**
      * wmem.cpp:122:add_wme_to_wm
      * 
@@ -146,16 +145,16 @@ public class WorkingMemory
     {
         wmes_to_add.push(w);
         IdentifierImpl valueId = w.value.asIdentifier();
-        if (valueId != null)
+        if(valueId != null)
         {
             this.decider.post_link_addition(w.id, valueId);
-            if (w.attr == this.predefinedSyms.operator_symbol)
+            if(w.attr == this.predefinedSyms.operator_symbol)
             {
                 valueId.isa_operator++;
             }
         }
     }
-
+    
     /**
      * wmem.cpp:135:remove_wme_from_wm
      * 
@@ -164,10 +163,10 @@ public class WorkingMemory
     public void remove_wme_from_wm(WmeImpl w)
     {
         wmes_to_remove.push(w);
-
+        
         IdentifierImpl valueId = w.value.asIdentifier();
-
-        if (valueId != null)
+        
+        if(valueId != null)
         {
             if(valueId.decider_wme == w)
             {
@@ -175,33 +174,33 @@ public class WorkingMemory
             }
             
             this.decider.post_link_removal(w.id, valueId);
-            if (w.attr == this.predefinedSyms.operator_symbol)
+            if(w.attr == this.predefinedSyms.operator_symbol)
             {
                 // Do this afterward so that gSKI can know that this is an operator
                 valueId.isa_operator--;
             }
         }
-
+        
         // Avoid memory leaks!
         w.preference = null;
         w.chunker_bt_pref = null;
-
+        
         // When we remove a WME, we always have to determine if it's on a GDS,
         // and, if so, after removing the WME, if there are no longer any WMEs
         // on the GDS, then we can free the GDS memory
-        if (w.gds != null)
+        if(w.gds != null)
         {
             w.gds.removeWme(w);
         }
     }
-
+    
     /**
      * wmem.cpp:167:remove_wme_list_from_wm
      * 
      * @param w
      * @param updateWmeMap (defaults to false in CSoar)
      */
-    public void remove_wme_list_from_wm(WmeImpl w, boolean updateWmeMap /*=false*/)
+    public void remove_wme_list_from_wm(WmeImpl w, boolean updateWmeMap /* =false */)
     {
         if(updateWmeMap)
         {
@@ -210,7 +209,7 @@ public class WorkingMemory
             eventManager.fireEvent(new InputWmeGarbageCollectedEvent(w));
         }
         
-        while (w != null)
+        while(w != null)
         {
             final WmeImpl next_w = w.next;
             remove_wme_from_wm(w);
@@ -218,7 +217,6 @@ public class WorkingMemory
         }
     }
     
-
     /**
      * wmem.cpp:186:do_buffered_wm_changes
      */
@@ -229,15 +227,15 @@ public class WorkingMemory
         // struct timeval start_tv;
         // #endif
         // #endif
-
+        
         // if no wme changes are buffered, do nothing
-        if (wmes_to_add.isEmpty() && wmes_to_remove.isEmpty())
+        if(wmes_to_add.isEmpty() && wmes_to_remove.isEmpty())
         {
             return;
         }
-
+        
         // call output module in case any changes are output link changes
-        io.inform_output_module_of_wm_changes (wmes_to_add, wmes_to_remove);
+        io.inform_output_module_of_wm_changes(wmes_to_add, wmes_to_remove);
         
         eventManager.fireEvent(new WorkingMemoryChangedEvent(wmes_to_add, wmes_to_remove));
         
@@ -247,12 +245,12 @@ public class WorkingMemory
         // start_timer (thisAgent, &start_tv);
         // #endif
         // #endif
-        for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
+        for(ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             this.rete.add_wme_to_rete(w.item);
         }
         
-        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
+        for(ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             this.rete.remove_wme_from_rete(w.item);
             
@@ -260,16 +258,16 @@ public class WorkingMemory
             // added check for wma_enabled to minimize impact on non-wma agents
             if(wma.wma_enabled())
                 this.wma.wma_remove_decay_element(w.item);
-            
+                
             // This is to fix a bug in SMem related to CSoar expecting to recreate WMEs whereas
             // in JSoar it wouldn't because the garbage collector might not have collected them
             // yet and so JSoar would get wrong levels which would cause a memory leak and the
             // WM size would grow and never shrink when you query on LTIs.
             // - ALT
-            if (smem.smem_enabled())
+            if(smem.smem_enabled())
             {
                 // Make sure it is an LTI
-                if (w.item.id != null && w.item.id.smem_lti > 0)
+                if(w.item.id != null && w.item.id.smem_lti > 0)
                 {
                     symbols.findAndNullIdentifier(w.item.id);
                 }
@@ -281,12 +279,12 @@ public class WorkingMemory
         // stop_timer (thisAgent, &start_tv, &thisAgent->match_cpu_time[thisAgent->current_phase]);
         // #endif
         // #endif
-
+        
         warnIfSameWmeAddedAndRemoved();
         
         final boolean traceChanges = trace.isEnabled(Category.WM_CHANGES);
         // do tracing and cleanup stuff
-        for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
+        for(ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
             if(traceChanges)
@@ -296,7 +294,7 @@ public class WorkingMemory
             wme_addition_count.increment();
         }
         
-        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
+        for(ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
             if(traceChanges)
@@ -314,7 +312,7 @@ public class WorkingMemory
     {
         return this.wme_removal_count.get();
     }
-
+    
     /**
      * Extracted from do_buffered_wm_changes
      */

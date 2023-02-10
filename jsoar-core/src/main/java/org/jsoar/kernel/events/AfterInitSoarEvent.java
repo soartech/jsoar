@@ -21,5 +21,5 @@ public class AfterInitSoarEvent extends AbstractAgentEvent
     {
         super(agent);
     }
-
+    
 }

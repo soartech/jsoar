@@ -30,11 +30,11 @@ import org.jsoar.debugger.util.SwingTools;
 /**
  * @author ray
  */
-public class WorldPanel extends JPanel 
+public class WorldPanel extends JPanel
 {
-	private static final long serialVersionUID = -8738777236222717325L;
-
-	private double pixelsPerMeter = 55;
+    private static final long serialVersionUID = -8738777236222717325L;
+    
+    private double pixelsPerMeter = 55;
     private double panX = 0.0;
     private double panY = 0.0;
     private Robot follow = null;
@@ -47,10 +47,13 @@ public class WorldPanel extends JPanel
     public WorldPanel()
     {
         setBackground(Color.BLACK);
-                
-        addMouseListener(new MouseAdapter() {
-
-            /* (non-Javadoc)
+        
+        addMouseListener(new MouseAdapter()
+        {
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
              */
             @Override
@@ -58,8 +61,10 @@ public class WorldPanel extends JPanel
             {
                 lastDrag = null;
             }
-
-            /* (non-Javadoc)
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
              */
             @Override
@@ -69,8 +74,11 @@ public class WorldPanel extends JPanel
             }
         });
         
-        addMouseWheelListener(new MouseAdapter() {
-            /* (non-Javadoc)
+        addMouseWheelListener(new MouseAdapter()
+        {
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseWheelMoved(java.awt.event.MouseWheelEvent)
              */
             @Override
@@ -87,9 +95,12 @@ public class WorldPanel extends JPanel
                 }
             }
         });
-        addMouseMotionListener(new MouseAdapter() {
-
-            /* (non-Javadoc)
+        addMouseMotionListener(new MouseAdapter()
+        {
+            
+            /*
+             * (non-Javadoc)
+             * 
              * @see java.awt.event.MouseAdapter#mouseDragged(java.awt.event.MouseEvent)
              */
             @Override
@@ -109,7 +120,7 @@ public class WorldPanel extends JPanel
                     else
                     {
                         panX += dx / pixelsPerMeter;
-                        panY += -dy / pixelsPerMeter; 
+                        panY += -dy / pixelsPerMeter;
                     }
                     
                     lastDrag.setLocation(e.getPoint());
@@ -119,7 +130,8 @@ public class WorldPanel extends JPanel
                 {
                     lastDrag = new Point(e.getPoint());
                 }
-            }});
+            }
+        });
     }
     
     /**
@@ -128,8 +140,8 @@ public class WorldPanel extends JPanel
     private void handleMouseClick(MouseEvent e)
     {
         Graphics2D g2d = (Graphics2D) this.getGraphics().create();
-
-        try 
+        
+        try
         {
             setupWorldTransform(g2d);
             final Rectangle rect = new Rectangle(e.getPoint(), new Dimension(1, 1));
@@ -149,7 +161,7 @@ public class WorldPanel extends JPanel
         
         repaint();
     }
-
+    
     public void setWorld(World world)
     {
         this.world = world;
@@ -182,7 +194,9 @@ public class WorldPanel extends JPanel
         g2d.draw(shape);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -192,8 +206,8 @@ public class WorldPanel extends JPanel
         super.paintComponent(g);
         
         final Graphics2D g2d = setupWorldTransform((Graphics2D) g.create());
-
-        g2d.setStroke(new BasicStroke(2 * (1.0f / (float)pixelsPerMeter)));
+        
+        g2d.setStroke(new BasicStroke(2 * (1.0f / (float) pixelsPerMeter)));
         
         drawShape(g2d, world.extents, Color.LIGHT_GRAY, Color.BLUE);
         
@@ -201,7 +215,7 @@ public class WorldPanel extends JPanel
         {
             drawRobot(g2d, robot);
         }
-       
+        
         for(Waypoint w : world.getWaypoints())
         {
             drawWaypoint(g2d, w);
@@ -213,21 +227,21 @@ public class WorldPanel extends JPanel
         }
         g2d.dispose();
         /*
-        final double fontHeight = 12 * (1.0f / (float) pixelsPerMeter);
-        final AffineTransform fontTransform = AffineTransform.getScaleInstance(1.0, -1.0);
-        final Font font = g2d.getFont().deriveFont((float) fontHeight).deriveFont(fontTransform);
-        g2d.setFont(font);
-        for(double y = game.extents.getMinY(); y <= game.extents.getMaxY() ; y += 1.0)
-        {
-            g2d.drawString(String.format("%8.1f", y), 0.0f, (float) y);
-        }
-        for(double x = game.extents.getMinX(); x <= game.extents.getMaxX() ; x += 1.0)
-        {
-            g2d.drawString(String.format("%8.1f", x), (float) x, 0.0f);
-        }
-        */
+         * final double fontHeight = 12 * (1.0f / (float) pixelsPerMeter);
+         * final AffineTransform fontTransform = AffineTransform.getScaleInstance(1.0, -1.0);
+         * final Font font = g2d.getFont().deriveFont((float) fontHeight).deriveFont(fontTransform);
+         * g2d.setFont(font);
+         * for(double y = game.extents.getMinY(); y <= game.extents.getMaxY() ; y += 1.0)
+         * {
+         * g2d.drawString(String.format("%8.1f", y), 0.0f, (float) y);
+         * }
+         * for(double x = game.extents.getMinX(); x <= game.extents.getMaxX() ; x += 1.0)
+         * {
+         * g2d.drawString(String.format("%8.1f", x), (float) x, 0.0f);
+         * }
+         */
     }
-
+    
     private Graphics2D setupWorldTransform(final Graphics2D g2d)
     {
         final AffineTransform transform = new AffineTransform();
@@ -277,7 +291,7 @@ public class WorldPanel extends JPanel
         prepareFont(g2d, fontHeight);
         final Rectangle2D bounds = g2d.getFont().getStringBounds(robot.name, g2d.getFontRenderContext());
         g2d.setColor(Color.BLACK);
-        g2d.drawString(robot.name, (float)(-bounds.getWidth() / 2.0), (float)(-(fontHeight / 3.0)));
+        g2d.drawString(robot.name, (float) (-bounds.getWidth() / 2.0), (float) (-(fontHeight / 3.0)));
         
         g2d.dispose();
     }
@@ -293,7 +307,7 @@ public class WorldPanel extends JPanel
     private void drawObstacle(Graphics2D g2dIn, Shape shape)
     {
         final Graphics2D g2d = (Graphics2D) g2dIn.create();
-
+        
         drawShape(g2d, shape, Color.GRAY, Color.BLACK);
         g2d.dispose();
     }
@@ -302,8 +316,8 @@ public class WorldPanel extends JPanel
     {
         for(RadarRange range : robot.ranges)
         {
-            final Arc2D arc = new Arc2D.Double(-range.range, -range.range, 2 * range.range, 2 * range.range, 
-                                Math.toDegrees(-range.angle) - 1.0, 2.0, Arc2D.PIE);
+            final Arc2D arc = new Arc2D.Double(-range.range, -range.range, 2 * range.range, 2 * range.range,
+                    Math.toDegrees(-range.angle) - 1.0, 2.0, Arc2D.PIE);
             drawShape(g2dIn, arc, Color.GREEN, Color.GREEN);
         }
     }
@@ -328,7 +342,7 @@ public class WorldPanel extends JPanel
         g2d.drawString(waypoint.name, (float) (p.getX() - bounds.getWidth() / 2.0), (float) (p.getY() - fontHeight / 3.0));
         
         g2d.dispose();
-        //g2d.draw(new Line2D.Double(p.getX(), p.getY() - 1.5 * r, p.getX(), p.getY() + 1.5 * r));
-        //g2d.draw(new Line2D.Double(p.getX() - 1.5 * r, p.getY(), p.getX() + 1.5 * r, p.getY()));
-    }    
+        // g2d.draw(new Line2D.Double(p.getX(), p.getY() - 1.5 * r, p.getX(), p.getY() + 1.5 * r));
+        // g2d.draw(new Line2D.Double(p.getX() - 1.5 * r, p.getY(), p.getX() + 1.5 * r, p.getY()));
+    }
 }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +32,7 @@ public class ProductionFinderTest
     {
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -69,7 +68,7 @@ public class ProductionFinderTest
         assertEquals(2, finder.find("(<s> ^contacts <c>)(<c> ^contact)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
     }
-
+    
     @Test
     public void testRightHandSide() throws Exception
     {
@@ -88,6 +87,5 @@ public class ProductionFinderTest
         assertEquals(2, finder.find("(<s> ^contacts <cs>)(<cs> ^contact <c>)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
     }
-
     
 }

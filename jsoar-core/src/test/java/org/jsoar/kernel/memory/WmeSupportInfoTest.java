@@ -48,28 +48,28 @@ public class WmeSupportInfoTest
     {
         ProductionManager pm = agent.getProductions();
         
-        // Some productions (courtesy of Bob M.) that create two preferences 
+        // Some productions (courtesy of Bob M.) that create two preferences
         // for the same WME, one with i-support and one with o-support.
         pm.loadProduction("i-support\n" +
-            "(state <s> ^superstate nil ^io <io>)\n" +
-            "-->\n" +
-            "(<s> ^foo bar)");
-
+                "(state <s> ^superstate nil ^io <io>)\n" +
+                "-->\n" +
+                "(<s> ^foo bar)");
+        
         pm.loadProduction("propose\n" +
-            "(state <s> ^superstate nil)\n" +
-            "-->\n" +
-            "(<s> ^operator <o> +)");
-
+                "(state <s> ^superstate nil)\n" +
+                "-->\n" +
+                "(<s> ^operator <o> +)");
+        
         pm.loadProduction("o-support\n" +
-            "(state <s> ^operator <o> ^io <io>)\n" +
-            "-->\n" +
-            "(<s> ^foo bar)");
-
+                "(state <s> ^operator <o> ^io <io>)\n" +
+                "-->\n" +
+                "(<s> ^foo bar)");
+        
         agent.runFor(2, RunType.DECISIONS);
         
         final Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(s1);
-
+        
         final Wme foo = Wmes.matcher(agent).attr("foo").value("bar").find(s1);
         assertNotNull(foo);
         
@@ -86,5 +86,5 @@ public class WmeSupportInfoTest
         assertEquals("i-support", b.getSource().getName().toString());
         assertFalse(b.isOSupported());
     }
-
+    
 }

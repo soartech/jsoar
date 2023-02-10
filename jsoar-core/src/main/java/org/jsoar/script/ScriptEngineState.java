@@ -35,7 +35,7 @@ public class ScriptEngineState
     private final Adaptable context;
     private final String engineName;
     private final ScriptEngine engine;
-
+    
     public ScriptEngineState(Adaptable context, String engineName, ScriptEngine engine) throws SoarException
     {
         this.context = context;
@@ -46,8 +46,7 @@ public class ScriptEngineState
         
         installRhsFunction();
     }
-
-
+    
     public ScriptEngine getEngine()
     {
         return engine;
@@ -66,13 +65,13 @@ public class ScriptEngineState
         {
             return engine.eval(script);
         }
-        catch (ScriptException e)
+        catch(ScriptException e)
         {
             e.printStackTrace();
             throw new SoarException("Error executing script: " + e.getMessage(), e);
         }
     }
-
+    
     /**
      * Dispose the engine, cleaning up any hooks that have been added to the
      * agent.
@@ -83,7 +82,7 @@ public class ScriptEngineState
         
         invokeDisposeMethod();
     }
-
+    
     private void invokeDisposeMethod() throws SoarException
     {
         if(!(engine instanceof Invocable))
@@ -96,19 +95,19 @@ public class ScriptEngineState
         {
             invocable.invokeFunction("soar_dispose");
         }
-        catch (ScriptException e)
+        catch(ScriptException e)
         {
             logger.error(engineName + ": Error calling soar_dispose: " + e.getMessage(), e);
             throw new SoarException("Error executing script: " + e.getMessage(), e);
         }
-        catch (NoSuchMethodException e)
+        catch(NoSuchMethodException e)
         {
             // Fall back to just doing an eval...
             try
             {
                 engine.eval("soar_dispose()");
             }
-            catch (ScriptException die)
+            catch(ScriptException die)
             {
                 logger.error(engineName + ": soar_dispose method not defined. " + die.getMessage());
             }
@@ -128,11 +127,11 @@ public class ScriptEngineState
             {
                 engine.eval(reader);
             }
-            catch (ScriptException e)
+            catch(ScriptException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 throw new SoarException("While initializing '" + engineName + "' engine: " + e.getMessage(), e);
             }
@@ -146,7 +145,7 @@ public class ScriptEngineState
             engine.put("soar", new ScriptContext(context));
         }
     }
-
+    
     private void installRhsFunction()
     {
         final RhsFunctionManager rhsFunctions = Adaptables.adapt(context, RhsFunctionManager.class);
@@ -166,7 +165,9 @@ public class ScriptEngineState
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     public String toString()

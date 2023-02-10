@@ -8,13 +8,12 @@ package org.jsoar.kernel.modules;
 import org.jsoar.kernel.Agent;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */
 public class SoarModuleTest
 {
-
+    
     @Test
     public void testCanInitializeWithAgentAsContext()
     {

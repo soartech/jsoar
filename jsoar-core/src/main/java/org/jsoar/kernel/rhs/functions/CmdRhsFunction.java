@@ -1,8 +1,8 @@
- /*
- * Copyright (c) 2013 Soar Technology Inc.
- *
- * Created on January 07, 2013
- */
+/*
+* Copyright (c) 2013 Soar Technology Inc.
+*
+* Created on January 07, 2013
+*/
 package org.jsoar.kernel.rhs.functions;
 
 import java.io.StringWriter;
@@ -39,7 +39,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
  * sp {
  *     ...
  *     -->
- *     (write (cmd print -d 2 <s>)) }
+ * (write (cmd print -d 2 <s>)) }
  * }
  * </pre>
  * 
@@ -49,7 +49,7 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
 {
     private final SoarCommandInterpreter interp;
     private final Agent agent;
-
+    
     public CmdRhsFunction(SoarCommandInterpreter interp, Agent agent)
     {
         super("cmd", 1, Integer.MAX_VALUE);
@@ -57,7 +57,9 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
         this.agent = agent;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -93,7 +95,7 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             result = stringWriter.toString() + result;
             return context.getSymbols().createString(result);
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
@@ -111,7 +113,9 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
         return stringList;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
      */
     @Override
@@ -119,5 +123,5 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
     {
         return true;
     }
-
+    
 }

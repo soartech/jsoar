@@ -17,7 +17,9 @@ public class WallclockExecutionTimeSource implements ExecutionTimeSource
 {
     private long startNanos = System.nanoTime();
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimeSource#getMicroseconds()
      */
     @Override

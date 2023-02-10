@@ -57,7 +57,7 @@ public class Game
             handleCommand(output.getInputOutput().getSymbols(), command);
         }
     }
- 
+    
     public synchronized void reset()
     {
         this.pegs.clear();
@@ -82,7 +82,7 @@ public class Game
     private void handleCommand(SymbolFactory syms, Wme command)
     {
         final String name = command.getAttribute().toString();
-     
+        
         if(name.equals("move-disk"))
         {
             final Wme sourceWme = Wmes.matcher(syms).attr("source-peg").find(command);

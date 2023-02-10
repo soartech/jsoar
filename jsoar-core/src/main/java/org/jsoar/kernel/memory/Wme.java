@@ -21,7 +21,7 @@ import org.jsoar.util.adaptables.Adaptable;
  * <p>Instances of this class may be adaptable to:
  * <ul>
  * <li>{@link InputWme} if the WME was created on the input-link by
- *  environment code, i.e. {@link InputOutput#addInputWme(Identifier, Symbol, Symbol)}
+ * environment code, i.e. {@link InputOutput#addInputWme(Identifier, Symbol, Symbol)}
  * <li>{@link GoalDependencySet} if the WME is part of a GDS.
  * </ul>
  * 
@@ -53,19 +53,19 @@ public interface Wme extends Formattable, Adaptable
     
     /**
      * @return true iff this WME is an acceptable preference WME. This value
-     *      will never change.
+     * will never change.
      */
     boolean isAcceptable();
     
     /**
-     * @return An iterator over all the children of this WME, if any. If the 
-     *  value of the WME is not an identifier, returns an empty iterator.
+     * @return An iterator over all the children of this WME, if any. If the
+     * value of the WME is not an identifier, returns an empty iterator.
      */
     Iterator<Wme> getChildren();
     
     /**
-     * @return The preferences supporting this WME. Returns an empty iterator 
-     *      for architecture or I/O WMEs.
+     * @return The preferences supporting this WME. Returns an empty iterator
+     * for architecture or I/O WMEs.
      */
     Iterator<Preference> getPreferences();
 }

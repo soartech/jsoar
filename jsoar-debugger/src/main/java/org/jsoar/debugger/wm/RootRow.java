@@ -26,7 +26,7 @@ class RootRow extends Row
     final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
     final JButton deleteButton = new JButton();
     long ts;
-
+    
     public RootRow(long ts, Object key, Callable<Identifier> getter)
     {
         super(null, 0);
@@ -38,7 +38,7 @@ class RootRow extends Row
         {
             this.id = getter.call();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             if(e instanceof InterruptedException)
             {
@@ -55,7 +55,7 @@ class RootRow extends Row
         deleteButton.setContentAreaFilled(false);
         deleteButton.setIcon(Images.DELETE);
     }
-
+    
     public Identifier getId()
     {
         return id;
@@ -68,7 +68,7 @@ class RootRow extends Row
         {
             this.id = getter.call();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             if(e instanceof InterruptedException)
             {
@@ -83,7 +83,9 @@ class RootRow extends Row
         return oldId != id;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.wm.Row#asRoot()
      */
     @Override
@@ -101,10 +103,10 @@ class RootRow extends Row
         }
         return newRow;
     }
-
+    
     public void removeChild(WmeRow child)
     {
         children.remove(child.attr);
     }
-
+    
 }

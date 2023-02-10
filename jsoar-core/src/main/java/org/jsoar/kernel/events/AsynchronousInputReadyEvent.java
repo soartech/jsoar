@@ -8,7 +8,6 @@ package org.jsoar.kernel.events;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.runtime.WaitRhsFunction;
 
-
 /**
  * This event is fired by input components to notify run control components,
  * such as {@link WaitRhsFunction}, that new input is available for the agent.

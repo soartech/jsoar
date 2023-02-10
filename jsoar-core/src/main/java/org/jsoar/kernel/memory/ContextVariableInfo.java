@@ -41,45 +41,45 @@ public class ContextVariableInfo
     {
         Symbol attribute = null;
         int levels_up = 0;
-
+        
         Variable v = predefinedSyms.getSyms().find_variable(variable);
-        if (v == predefinedSyms.s_context_variable)
+        if(v == predefinedSyms.s_context_variable)
         {
             levels_up = 0;
             attribute = predefinedSyms.state_symbol;
         }
-        else if (v == predefinedSyms.o_context_variable)
+        else if(v == predefinedSyms.o_context_variable)
         {
             levels_up = 0;
             attribute = predefinedSyms.operator_symbol;
         }
-        else if (v == predefinedSyms.ss_context_variable)
+        else if(v == predefinedSyms.ss_context_variable)
         {
             levels_up = 1;
             attribute = predefinedSyms.state_symbol;
         }
-        else if (v == predefinedSyms.so_context_variable)
+        else if(v == predefinedSyms.so_context_variable)
         {
             levels_up = 1;
             attribute = predefinedSyms.operator_symbol;
         }
-        else if (v == predefinedSyms.sss_context_variable)
+        else if(v == predefinedSyms.sss_context_variable)
         {
             levels_up = 2;
             attribute = predefinedSyms.state_symbol;
         }
-        else if (v == predefinedSyms.sso_context_variable)
+        else if(v == predefinedSyms.sso_context_variable)
         {
             levels_up = 2;
             attribute = predefinedSyms.operator_symbol;
         }
-        else if (v == predefinedSyms.ts_context_variable)
+        else if(v == predefinedSyms.ts_context_variable)
         {
             levels_up = top_goal != null ? bottom_goal.level - top_goal.level
                     : 0;
             attribute = predefinedSyms.state_symbol;
         }
-        else if (v == predefinedSyms.to_context_variable)
+        else if(v == predefinedSyms.to_context_variable)
         {
             levels_up = top_goal != null ? bottom_goal.level - top_goal.level
                     : 0;
@@ -89,21 +89,21 @@ public class ContextVariableInfo
         {
             return new ContextVariableInfo(null, null, null);
         }
-
+        
         IdentifierImpl g = bottom_goal;
-        while (g != null && levels_up != 0)
+        while(g != null && levels_up != 0)
         {
             g = g.goalInfo.higher_goal;
             levels_up--;
         }
-
-        if (g == null)
+        
+        if(g == null)
         {
             return new ContextVariableInfo(g, attribute, null);
         }
-
+        
         Symbol value = null;
-        if (attribute == predefinedSyms.state_symbol)
+        if(attribute == predefinedSyms.state_symbol)
         {
             value = g;
         }
@@ -113,7 +113,7 @@ public class ContextVariableInfo
             value = w != null ? w.getValue() : null;
         }
         return new ContextVariableInfo(g, attribute, value);
-
+        
     }
     
     /**
@@ -127,7 +127,7 @@ public class ContextVariableInfo
         this.attribute = attribute;
         this.value = value;
     }
-
+    
     /**
      * @return the goal
      */
@@ -135,7 +135,7 @@ public class ContextVariableInfo
     {
         return goal;
     }
-
+    
     /**
      * @return the attribute
      */
@@ -143,7 +143,7 @@ public class ContextVariableInfo
     {
         return attribute;
     }
-
+    
     /**
      * @return the value
      */
@@ -151,6 +151,5 @@ public class ContextVariableInfo
     {
         return value;
     }
-    
     
 }

@@ -37,19 +37,20 @@ public abstract class Action
     }
     
     public abstract void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
-
+    
     public MakeAction asMakeAction()
     {
         return null;
     }
+    
     public FunctionAction asFunctionAction()
     {
         return null;
     }
-
+    
     /**
      * Tests whether two RHS's (i.e., action lists) are the same (except
-     * for function calls).  This is used for finding duplicate productions.
+     * for function calls). This is used for finding duplicate productions.
      * 
      * <p>rete.cpp:3374:same_rhs
      * 
@@ -61,74 +62,75 @@ public abstract class Action
     {
         // Scan through the two RHS's; make sure there's no function calls,
         // and make sure the actions are all the same.
-
+        
         /*
          * --- Warning: this relies on the representation of rhs_value's: two of
          * the same funcall will not be equal (==), but two of the same symbol,
          * reteloc, or unboundvar will be equal (==). ---
          */
-
+        
         Action a1 = rhs1;
         Action a2 = rhs2;
-
-        while (a1 != null && a2 != null)
+        
+        while(a1 != null && a2 != null)
         {
-            if (a1.asFunctionAction() != null)
+            if(a1.asFunctionAction() != null)
                 return false;
-            if (a2.asFunctionAction() != null)
+            if(a2.asFunctionAction() != null)
                 return false;
-            if (a1.preference_type != a2.preference_type)
+            if(a1.preference_type != a2.preference_type)
                 return false;
-
+            
             MakeAction ma1 = a1.asMakeAction();
             MakeAction ma2 = a2.asMakeAction();
-            if (!ma1.id.equals(ma2.id))
+            if(!ma1.id.equals(ma2.id))
                 return false;
-            if (!ma1.attr.equals(ma2.attr))
+            if(!ma1.attr.equals(ma2.attr))
                 return false;
-            if (!ma1.value.equals(ma2.value))
+            if(!ma1.value.equals(ma2.value))
                 return false;
-            if (ma1.preference_type.isBinary())
+            if(ma1.preference_type.isBinary())
             {
-                if (ma1.referent != ma2.referent)
-                //	Code added to conform to r12380	-	PL 8/21/2013
-                //	to implement the effect of the chunk-stop RL parameter
-          	  	{
-            	    boolean stop=true;
-            	    if (rl_chunk_stop)
-            	    {
-                	  if ( ma1.referent.asSymbolValue() != null
-                			  && ma2.referent.asSymbolValue() != null )
-            		  {
-                        final RhsSymbolValue a1r = ma1.referent.asSymbolValue();
-                        final RhsSymbolValue a2r = ma2.referent.asSymbolValue();
-
-            			if (((a1r.getSym().asInteger() != null) || (a1r.getSym().asDouble() != null)) &&
-                				((a2r.getSym().asInteger() != null) || (a2r.getSym().asDouble() != null)))
-            			{
-            				if (((a1==rhs1) && (a1.next == null)) && ((a2==rhs2) && (a2.next == null)))
-            			  {
-            			    stop=false;
-            			  }
-            			}
-            		  }
-            	    }
-            	    if (stop) return false;
-            	  }
+                if(ma1.referent != ma2.referent)
+                // Code added to conform to r12380 - PL 8/21/2013
+                // to implement the effect of the chunk-stop RL parameter
+                {
+                    boolean stop = true;
+                    if(rl_chunk_stop)
+                    {
+                        if(ma1.referent.asSymbolValue() != null
+                                && ma2.referent.asSymbolValue() != null)
+                        {
+                            final RhsSymbolValue a1r = ma1.referent.asSymbolValue();
+                            final RhsSymbolValue a2r = ma2.referent.asSymbolValue();
+                            
+                            if(((a1r.getSym().asInteger() != null) || (a1r.getSym().asDouble() != null)) &&
+                                    ((a2r.getSym().asInteger() != null) || (a2r.getSym().asDouble() != null)))
+                            {
+                                if(((a1 == rhs1) && (a1.next == null)) && ((a2 == rhs2) && (a2.next == null)))
+                                {
+                                    stop = false;
+                                }
+                            }
+                        }
+                    }
+                    if(stop)
+                        return false;
+                }
             }
             a1 = a1.next;
             a2 = a2.next;
         }
-
+        
         // If we reached the end of one RHS but not the other, then
-        //  they must be different
-        if (a1 != a2)
+        // they must be different
+        if(a1 != a2)
             return false;
-
+        
         // If we got this far, the RHS's must be identical.
         return true;
     }
-
+    
     /**
      * <p>production.cpp:1428:action_is_in_tc
      * 
@@ -139,10 +141,10 @@ public abstract class Action
     {
         // TODO Implement action_is_in_tc in sub-classes
         throw new UnsupportedOperationException("Not implemented");
-
-        //return false;
+        
+        // return false;
     }
-
+    
     /**
      * <p>production.cpp:1353:add_action_to_tc
      * 
@@ -158,7 +160,6 @@ public abstract class Action
         throw new UnsupportedOperationException("Not implemented");
     }
     
-
     /**
      * 
      * TODO This function doesn't belong here. Circular dependency on rete package
@@ -177,76 +178,76 @@ public abstract class Action
         Action first = null;
         Action old = actions;
         Action New = null;
-        while (old != null)
+        while(old != null)
         {
-            if (old instanceof MakeAction)
+            if(old instanceof MakeAction)
             {
                 MakeAction oldMake = (MakeAction) old;
                 MakeAction newMake = new MakeAction();
-
+                
                 newMake.id = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond, 's');
                 newMake.attr = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.attr, cond, 'a');
                 char first_letter = newMake.attr.getFirstLetter();
                 newMake.value = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
-                if (old.preference_type.isBinary())
+                if(old.preference_type.isBinary())
                 {
                     newMake.referent = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.referent, cond,
                             first_letter);
                 }
-
+                
                 New = newMake;
-
+                
             }
-            else if (old instanceof FunctionAction)
+            else if(old instanceof FunctionAction)
             {
                 FunctionAction oldFunc = (FunctionAction) old;
                 FunctionAction newFunc = new FunctionAction((RhsFunctionCall) RhsValues
                         .copy_rhs_value_and_substitute_varnames(rete, oldFunc.call, cond, 'v'));
-
+                
                 New = newFunc;
             }
             else
             {
                 throw new IllegalStateException("Unknown action type: " + old);
             }
-
-            if (prev != null)
+            
+            if(prev != null)
                 prev.next = New;
             else
                 first = New;
             prev = New;
-
+            
             New.preference_type = old.preference_type;
             New.support = old.support;
-
+            
             old = old.next;
         }
         
-        if (prev != null)
+        if(prev != null)
             prev.next = null;
         else
             first = null;
         return first;
     }
-
+    
     public static void print_action_list(Printer printer, Action actions, int indent, boolean internal)
     {
-        if (actions == null)
+        if(actions == null)
             return;
-
+        
         boolean did_one_line_already = false;
-
+        
         // build dl_list of all the actions
         LinkedList<Action> actions_not_yet_printed = new LinkedList<Action>();
-        for (Action a = actions; a != null; a = a.next)
+        for(Action a = actions; a != null; a = a.next)
         {
             actions_not_yet_printed.add(a);
         }
-
+        
         // main loop: find all actions for first id, print them together
-        while (!actions_not_yet_printed.isEmpty())
+        while(!actions_not_yet_printed.isEmpty())
         {
-            if (did_one_line_already)
+            if(did_one_line_already)
             {
                 printer.print("\n").spaces(indent);
             }
@@ -254,49 +255,49 @@ public abstract class Action
             {
                 did_one_line_already = true;
             }
-
+            
             Action a = actions_not_yet_printed.pop();
             FunctionAction fa = a.asFunctionAction();
-            if (fa != null)
+            if(fa != null)
             {
                 printer.print("%s", fa.call);
                 continue;
             }
-
+            
             // normal make actions
             // collect all actions whose id matches the first action's id
             final MakeAction ma = a.asMakeAction();
             final LinkedList<MakeAction> actions_for_this_id = new LinkedList<MakeAction>();
             actions_for_this_id.add(a.asMakeAction());
             SymbolImpl action_id_to_match = ma.id.asSymbolValue().getSym();
-            if (!internal)
+            if(!internal)
             {
                 Iterator<Action> it = actions_not_yet_printed.iterator();
-                while (it.hasNext())
+                while(it.hasNext())
                 {
                     final Action n = it.next();
-
+                    
                     // pick_conds_with_matching_id_test
                     MakeAction nma = n.asMakeAction();
-                    if (nma != null && nma.id.asSymbolValue().getSym() == action_id_to_match)
+                    if(nma != null && nma.id.asSymbolValue().getSym() == action_id_to_match)
                     {
                         actions_for_this_id.add(nma);
                         it.remove();
                     }
                 }
             }
-
+            
             // print the collected actions all together
             printer.print("(%s", action_id_to_match);
-            while (!actions_for_this_id.isEmpty())
+            while(!actions_for_this_id.isEmpty())
             {
                 MakeAction ma2 = actions_for_this_id.pop();
-
+                
                 { // build and print attr/value test for action a
                     StringBuilder gs = new StringBuilder();
                     gs.append(" ^");
                     gs.append(String.format("%s %s %c", ma2.attr, ma2.value, ma2.preference_type.getIndicator()));
-                    if (ma2.preference_type.isBinary())
+                    if(ma2.preference_type.isBinary())
                     {
                         gs.append(String.format(" %s", ma2.referent));
                     }

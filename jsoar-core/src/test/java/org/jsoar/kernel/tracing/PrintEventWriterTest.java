@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.tracing;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -25,7 +24,7 @@ public class PrintEventWriterTest
 {
     private SoarEventManager events;
     private Printer printer;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -33,12 +32,12 @@ public class PrintEventWriterTest
         this.printer = new Printer(new NullWriter());
         this.printer.addPersistentWriter(new PrintEventWriter(events));
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testPrintEventIsFiredOnFlush()
     {

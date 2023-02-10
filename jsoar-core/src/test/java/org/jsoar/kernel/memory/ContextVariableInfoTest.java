@@ -22,9 +22,10 @@ import org.junit.jupiter.api.Test;
  */
 public class ContextVariableInfoTest
 {
-
+    
     /**
-     * Test method for {@link org.jsoar.kernel.memory.ContextVariableInfo#get(org.jsoar.kernel.PredefinedSymbols, org.jsoar.kernel.symbols.IdentifierImpl, org.jsoar.kernel.symbols.IdentifierImpl, java.lang.String)}.
+     * Test method for
+     * {@link org.jsoar.kernel.memory.ContextVariableInfo#get(org.jsoar.kernel.PredefinedSymbols, org.jsoar.kernel.symbols.IdentifierImpl, org.jsoar.kernel.symbols.IdentifierImpl, java.lang.String)}.
      */
     @Test
     public void testGetCurrentOperator() throws Exception
@@ -46,5 +47,5 @@ public class ContextVariableInfoTest
         assertNotNull(o1);
         assertSame(o1, info.getValue());
     }
-
+    
 }

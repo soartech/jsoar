@@ -7,7 +7,6 @@ package org.jsoar.kernel.symbols;
 
 import org.jsoar.util.adaptables.Adaptable;
 
-
 /**
  * Base interface for Soar symbols.
  * 

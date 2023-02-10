@@ -15,16 +15,16 @@ import java.util.List;
  * 
  * @author ray
  */
-public final class ListHead <T> implements Iterable<T>
+public final class ListHead<T> implements Iterable<T>
 {
     /**
      * The first item in the list
      */
     public ListItem<T> first;
-
+    
     /**
      * Construct a new, empty instance. This function is provided rather than
-     * a constructor to simplify initialization with generic parameters. 
+     * a constructor to simplify initialization with generic parameters.
      * 
      * @param <T> The type of object store in the list
      * @return New list head
@@ -66,8 +66,8 @@ public final class ListHead <T> implements Iterable<T>
     
     /**
      * Make this list empty. Note that if other list heads are pointing at the
-     * same list, they will not be cleared. This effectively sets the 
-     * {@link #first} attribute to <code>null</code> 
+     * same list, they will not be cleared. This effectively sets the
+     * {@link #first} attribute to <code>null</code>
      */
     public void clear()
     {
@@ -84,7 +84,7 @@ public final class ListHead <T> implements Iterable<T>
     
     /**
      * @return The size of this list. Note that this function is <b>linear</b>
-     *      in the size of the list.
+     * in the size of the list.
      */
     public int size()
     {
@@ -163,7 +163,7 @@ public final class ListHead <T> implements Iterable<T>
      * @param <T> The type of elements in the list
      * @param collection The collection
      * @return New list head pointing at a list of elements from the given
-     *      collection. Elements are not copied.
+     * collection. Elements are not copied.
      */
     public static <T> ListHead<T> fromCollection(Collection<T> collection)
     {
@@ -178,39 +178,45 @@ public final class ListHead <T> implements Iterable<T>
         }
         return head;
     }
-
-    /*package*/ boolean containsAsListItem(ListItem<T> item)
+    
+    /* package */ boolean containsAsListItem(ListItem<T> item)
     {
         return first != null ? first.containsAsListItem(item) : false;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Iterable#iterator()
      */
     @Override
     public Iterator<T> iterator()
     {
-        return first != null ? first.iterator() : new Iterator<T>() {
-
+        return first != null ? first.iterator() : new Iterator<T>()
+        {
+            
             @Override
             public boolean hasNext()
             {
                 return false;
             }
-
+            
             @Override
             public T next()
             {
                 return null;
             }
-
+            
             @Override
             public void remove()
             {
-            }};
+            }
+        };
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -218,46 +224,46 @@ public final class ListHead <T> implements Iterable<T>
     {
         // Display like a Java collection
         return toList().toString();
-    }    
-    /*
-    public static void main(String args[])
-    {
-        long start = System.currentTimeMillis();
-        int total = 0;
-        for(int i = 0; i < 10000000; ++i)
-        {
-            //ListHead<Integer> list = ListHead.newInstance();
-            ArrayList<Integer> list = new ArrayList<Integer>();
-            //LinkedList<Integer> list = new LinkedList<Integer>();
-            for(int j = 0; j < 20; ++j)
-            {
-                //list.push(Integer.valueOf(j));
-                list.add(Integer.valueOf(j));
-            }
-//            for(Integer j : list)
-//            {
-//                total += j.intValue();
-//            }
-//            for(int j = 0; j < list.size(); ++j)
-//            {
-//                total += list.get(j).intValue();
-//            }
-//            for(AsListItem<Integer> j = list.first; j != null; j = j.next)
-//            {
-//                total += j.item.intValue();
-//            }
-            
-        }
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
-        System.out.println(total);
-        
-        // LinkedList - 9.922s
-        // LinkedList/Indexes - 10.203s
-        // ArrayList - 15.375s
-        // ArrayList/Indexes - 8.313
-        // ListHead - 5.093s
-        // ListHead/Iterator - 8.656s
     }
-    */
+    /*
+     * public static void main(String args[])
+     * {
+     * long start = System.currentTimeMillis();
+     * int total = 0;
+     * for(int i = 0; i < 10000000; ++i)
+     * {
+     * //ListHead<Integer> list = ListHead.newInstance();
+     * ArrayList<Integer> list = new ArrayList<Integer>();
+     * //LinkedList<Integer> list = new LinkedList<Integer>();
+     * for(int j = 0; j < 20; ++j)
+     * {
+     * //list.push(Integer.valueOf(j));
+     * list.add(Integer.valueOf(j));
+     * }
+     * // for(Integer j : list)
+     * // {
+     * // total += j.intValue();
+     * // }
+     * // for(int j = 0; j < list.size(); ++j)
+     * // {
+     * // total += list.get(j).intValue();
+     * // }
+     * // for(AsListItem<Integer> j = list.first; j != null; j = j.next)
+     * // {
+     * // total += j.item.intValue();
+     * // }
+     * 
+     * }
+     * long end = System.currentTimeMillis();
+     * System.out.println(end - start);
+     * System.out.println(total);
+     * 
+     * // LinkedList - 9.922s
+     * // LinkedList/Indexes - 10.203s
+     * // ArrayList - 15.375s
+     * // ArrayList/Indexes - 8.313
+     * // ListHead - 5.093s
+     * // ListHead/Iterator - 8.656s
+     * }
+     */
 }

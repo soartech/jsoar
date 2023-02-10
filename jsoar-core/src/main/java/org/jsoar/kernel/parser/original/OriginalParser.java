@@ -28,8 +28,10 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class OriginalParser extends AbstractAdaptable implements Parser
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.parser.Parser#parseProduction(org.jsoar.kernel.parser.ParserContext, java.io.Reader)
      */
     @Override
@@ -50,7 +52,7 @@ public class OriginalParser extends AbstractAdaptable implements Parser
             lexer.getNextLexeme();
             return parser.parseProduction();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new ParserException(e);
         }
@@ -73,7 +75,7 @@ public class OriginalParser extends AbstractAdaptable implements Parser
             lexer.getNextLexeme();
             return parser.parse_lhs();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new ParserException(e);
         }
@@ -99,14 +101,15 @@ public class OriginalParser extends AbstractAdaptable implements Parser
             lexer.getNextLexeme();
             return parser.parse_rhs();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new ParserException(e);
         }
         
-    }    
+    }
+    
     private <T> T require(ParserContext context, Class<T> klass)
     {
         return Adaptables.require(getClass(), context, klass);
-    } 
+    }
 }

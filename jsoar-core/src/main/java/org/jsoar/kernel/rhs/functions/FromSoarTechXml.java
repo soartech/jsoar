@@ -29,8 +29,10 @@ public class FromSoarTechXml extends AbstractRhsFunctionHandler
     {
         super("from-st-xml", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -49,11 +51,11 @@ public class FromSoarTechXml extends AbstractRhsFunctionHandler
         {
             doc = XmlTools.parse(xml);
         }
-        catch (SAXException e)
+        catch(SAXException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }

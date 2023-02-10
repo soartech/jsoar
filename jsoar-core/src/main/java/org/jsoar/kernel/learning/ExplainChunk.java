@@ -24,14 +24,17 @@ import org.jsoar.kernel.tracing.Printer;
  */
 public class ExplainChunk
 {
-    String name = "";                      /* Name of this chunk/justification */
-    Condition conds;                    /* Variablized list of conditions */
-    Action actions;                     /* Variablized list of actions */
-    Backtrace backtrace;  /* List of back traced productions */
+    String name = ""; /* Name of this chunk/justification */
+    Condition conds; /* Variablized list of conditions */
+    Action actions; /* Variablized list of actions */
+    Backtrace backtrace; /* List of back traced productions */
     ExplainChunk next_chunk; /* Next chunk in the list */
-    Condition all_grounds;             /* All conditions which go to LHS -- 
-                                           must be in same order as the chunk's 
-                                           conditions. */
+    Condition all_grounds; /*
+                            * All conditions which go to LHS --
+                            * must be in same order as the chunk's
+                            * conditions.
+                            */
+    
     /**
      * Find the numbered condition in the chunk.
      * 
@@ -41,13 +44,13 @@ public class ExplainChunk
     Condition find_ground(final Printer printer, int number)
     {
         Condition ground = null;
-        for (Condition cond = all_grounds; cond != null; cond = cond.next)
+        for(Condition cond = all_grounds; cond != null; cond = cond.next)
         {
             number--;
-            if (number == 0)
+            if(number == 0)
                 ground = cond;
         }
-        if (number > 0)
+        if(number > 0)
         {
             printer.print("Could not find this condition.\n");
             return null;
@@ -63,11 +66,11 @@ public class ExplainChunk
     {
         printer.print("Chunk : %s\n", name);
         Backtrace prod = backtrace;
-        while (prod != null)
+        while(prod != null)
         {
             printer.print("Backtrace production : %s\n", prod.prod_name);
             printer.print("Result : %s\n", prod.result);
-            if (prod.trace_cond != null)
+            if(prod.trace_cond != null)
             {
                 printer.print("Trace condition : %s", prod.trace_cond);
             }

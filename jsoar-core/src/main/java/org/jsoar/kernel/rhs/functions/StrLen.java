@@ -24,8 +24,10 @@ public class StrLen extends AbstractRhsFunctionHandler
     {
         super("strlen", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
@@ -35,5 +37,5 @@ public class StrLen extends AbstractRhsFunctionHandler
         
         return context.getSymbols().createInteger(String.format("%#s", arguments.get(0)).length());
     }
-
+    
 }

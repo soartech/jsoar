@@ -25,12 +25,14 @@ public class SoarUnitCommand extends PicocliSoarCommand
                 () -> agent.getPrinter().asPrintWriter(),
                 () -> Paths.get(agent.getInterpreter().getWorkingDirectory())));
     }
-
+    
     public static final String NAME = "soarunit";
     
     public static class Provider implements SoarCommandProvider
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.jsoar.util.commands.SoarCommandInterpreter)
          */
         @Override
@@ -40,5 +42,5 @@ public class SoarUnitCommand extends PicocliSoarCommand
         }
         
     }
-
+    
 }

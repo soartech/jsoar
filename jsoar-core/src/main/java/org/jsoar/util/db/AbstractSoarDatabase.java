@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 
 /**
- * Base class for Soar databases like SMEM and EPMEM. 
+ * Base class for Soar databases like SMEM and EPMEM.
  * 
  * @author ray
  */
@@ -42,12 +42,12 @@ public abstract class AbstractSoarDatabase
     private static final Logger logger = LoggerFactory.getLogger(AbstractSoarDatabase.class);
     
     // These are all the prepared statements shared by Soar databases. They're filled in via reflection
-    // from the statements.properties for the specific database 
+    // from the statements.properties for the specific database
     
     protected PreparedStatement begin;
     protected PreparedStatement commit;
     protected PreparedStatement rollback;
-
+    
     protected SoarPreparedStatement backup;
     protected SoarPreparedStatement restore;
     
@@ -80,13 +80,14 @@ public abstract class AbstractSoarDatabase
     }
     
     /**
-     * @return the filter map used to filter resources. Additional replacement 
-     *  entries can be added to this map.
+     * @return the filter map used to filter resources. Additional replacement
+     * entries can be added to this map.
      */
     public Map<String, String> getFilterMap()
     {
         return filterMap;
     }
+    
     /**
      * Load and prepare statements.
      * 
@@ -108,7 +109,7 @@ public abstract class AbstractSoarDatabase
      * @throws IOException
      */
     public boolean structure() throws SoarException, IOException
-    {   
+    {
         // Load the database structure by executing structures.sql
         final InputStream is = filter(getClass().getResourceAsStream("structures.sql"), getFilterMap());
         if(is == null)
@@ -119,14 +120,15 @@ public abstract class AbstractSoarDatabase
         {
             JdbcTools.executeSqlBatch(getConnection(), is, getDriver());
         }
-        catch(Exception e) {
-        	logger.error("Failed to created database", e);
+        catch(Exception e)
+        {
+            logger.error("Failed to created database", e);
         }
         finally
         {
             is.close();
         }
-                
+        
         return true;
     }
     
@@ -148,14 +150,14 @@ public abstract class AbstractSoarDatabase
         }
         try
         {
-            // Overwrite here rather than useing Properties delegation because 
+            // Overwrite here rather than useing Properties delegation because
             // we want to be able to iterate over the property keys. :(
             statements.load(is);
         }
         finally
         {
             is.close();
-        }        
+        }
     }
     
     private void assignStatements() throws SoarException
@@ -172,13 +174,14 @@ public abstract class AbstractSoarDatabase
         {
             assignStatementInternal(name);
         }
-        catch (SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException e)
+        catch(SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException e)
         {
             throw new SoarException("While assigning statement field '" + name + "': " + e.getMessage(), e);
         }
     }
     
-    private void assignStatementInternal(String name) throws IllegalArgumentException, IllegalAccessException, SoarException, NoSuchFieldException, SecurityException {
+    private void assignStatementInternal(String name) throws IllegalArgumentException, IllegalAccessException, SoarException, NoSuchFieldException, SecurityException
+    {
         try
         {
             // Reflectively find the field and assign the prepared statement
@@ -186,7 +189,8 @@ public abstract class AbstractSoarDatabase
             final Field field = getClass().getDeclaredField(name);
             setField(field);
         }
-        catch (NoSuchFieldException e) {
+        catch(NoSuchFieldException e)
+        {
             // check the superclass (i.e., this class)
             final Field field = getClass().getSuperclass().getDeclaredField(name);
             setField(field);
@@ -196,7 +200,7 @@ public abstract class AbstractSoarDatabase
     private void setField(Field field) throws SoarException, IllegalArgumentException, IllegalAccessException
     {
         // This is necessary since we're trying to set a possibly non-public
-        // field in a sub-class. Another option is to add a protected 
+        // field in a sub-class. Another option is to add a protected
         // abstract method, implemented by the sub-class that sets the field.
         // This works for now.
         field.setAccessible(true);
@@ -215,11 +219,11 @@ public abstract class AbstractSoarDatabase
         {
             // See sqlite-jdbc notes
             final String trimmed = sql.trim();
-            if (trimmed.startsWith("INSERT"))
+            if(trimmed.startsWith("INSERT"))
             {
                 return new SoarPreparedStatement(db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS), trimmed);
             }
-            else if (trimmed.startsWith("backup") || trimmed.startsWith("restore"))
+            else if(trimmed.startsWith("backup") || trimmed.startsWith("restore"))
             {
                 return new SoarPreparedStatement(trimmed);
             }
@@ -228,7 +232,7 @@ public abstract class AbstractSoarDatabase
                 return new SoarPreparedStatement(db.prepareStatement(trimmed), trimmed);
             }
         }
-        catch (SQLException e)
+        catch(SQLException e)
         {
             throw new SoarException("Failed to prepare statement '" + sql + "': " + e.getMessage(), e);
         }
@@ -264,7 +268,7 @@ public abstract class AbstractSoarDatabase
     {
         boolean returnValue = false;
         
-        if (this.getConnection().getAutoCommit())
+        if(this.getConnection().getAutoCommit())
         {
             commit.execute();
             begin.execute();
@@ -273,13 +277,14 @@ public abstract class AbstractSoarDatabase
         // See sqlite-jdbc notes
         File file = new File(fileName);
         String query = backup.getQuery() + " \"" + file.getAbsolutePath() + "\"";
-        try(Statement s = this.getConnection().createStatement()) {
+        try(Statement s = this.getConnection().createStatement())
+        {
             s.executeUpdate(query);
         }
         
         returnValue = true;
         
-        if (this.getConnection().getAutoCommit())
+        if(this.getConnection().getAutoCommit())
         {
             commit.execute();
             begin.execute();
@@ -288,24 +293,29 @@ public abstract class AbstractSoarDatabase
         return returnValue;
     }
     
-    public int beginExecuteUpdate() throws SQLException {
+    public int beginExecuteUpdate() throws SQLException
+    {
         return this.begin.executeUpdate();
     }
-
-    public int commitExecuteUpdate() throws SQLException {
+    
+    public int commitExecuteUpdate() throws SQLException
+    {
         return this.commit.executeUpdate();
     }
     
-    public int rollbackExecuteUpdate() throws SQLException {
+    public int rollbackExecuteUpdate() throws SQLException
+    {
         return this.rollback.executeUpdate();
     }
     
-    public int backupExecuteUpdate() throws SQLException {
+    public int backupExecuteUpdate() throws SQLException
+    {
         return this.backup.executeUpdate();
     }
     
-    public int restoreExecuteUpdate() throws SQLException {
+    public int restoreExecuteUpdate() throws SQLException
+    {
         return this.restore.executeUpdate();
     }
-
+    
 }

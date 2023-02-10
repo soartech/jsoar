@@ -24,21 +24,25 @@ public class NegativeCondition extends ThreeFieldCondition
     {
         super(positiveCondition);
     }
-
+    
     public PositiveCondition negate()
     {
         return new PositiveCondition(this);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#asNegativeCondition()
      */
     public NegativeCondition asNegativeCondition()
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
@@ -46,8 +50,10 @@ public class NegativeCondition extends ThreeFieldCondition
     {
         // Do nothing
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
@@ -56,7 +62,9 @@ public class NegativeCondition extends ThreeFieldCondition
         // Do nothing
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -66,6 +74,4 @@ public class NegativeCondition extends ThreeFieldCondition
         return "-(" + super.toString() + ")";
     }
     
-    
-
 }

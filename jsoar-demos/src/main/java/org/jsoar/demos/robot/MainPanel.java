@@ -5,7 +5,6 @@
  */
 package org.jsoar.demos.robot;
 
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -35,12 +34,10 @@ import javax.swing.Timer;
 import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.demos.robot.AsciiWorldLoader.Result;
 
-
-
-public class MainPanel extends JPanel 
+public class MainPanel extends JPanel
 {
     private static final long serialVersionUID = -8854842910096874773L;
-
+    
     private World world;
     private WorldPanel worldPanel;
     private Timer timer;
@@ -54,8 +51,7 @@ public class MainPanel extends JPanel
         this.worldPanel = new WorldPanel();
         loadWorld(MainPanel.class.getResource("/org/jsoar/demos/robot/default.world"));
         
-        timer = new Timer(100, e ->
-        {
+        timer = new Timer(100, e -> {
             world.update(0.1);
             for(RobotAgent agent : agents.values())
             {
@@ -70,63 +66,72 @@ public class MainPanel extends JPanel
         add(worldPanel, BorderLayout.CENTER);
         add(bar, BorderLayout.SOUTH);
         
-        bar.add(new AbstractAction("Run") {
-
+        bar.add(new AbstractAction("Run")
+        {
+            
             private static final long serialVersionUID = -139687130503326330L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 start();
-            }});
+            }
+        });
         
-        bar.add(new AbstractAction("Pause") {
-
+        bar.add(new AbstractAction("Pause")
+        {
+            
             private static final long serialVersionUID = -1100256461140715756L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 stop();
-            }});
-        bar.add(new AbstractAction("Fit") {
-
+            }
+        });
+        bar.add(new AbstractAction("Fit")
+        {
+            
             private static final long serialVersionUID = 6423267961582949320L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 worldPanel.fit();
-            }});
+            }
+        });
         
         final JCheckBox follow = new JCheckBox("Follow");
-        follow.addActionListener(e ->
-        {
+        follow.addActionListener(e -> {
             final Robot robot = !world.getRobots().isEmpty() ? world.getRobots().get(0) : null;
             worldPanel.setFollow(follow.isSelected() ? robot : null);
         });
         bar.add(follow);
-        //agents.put(robot, new RobotAgent(robot));
+        // agents.put(robot, new RobotAgent(robot));
         
-        bar.add(new AbstractAction("Paste World") {
-
+        bar.add(new AbstractAction("Paste World")
+        {
+            
             private static final long serialVersionUID = -2328953530526643612L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 loadWorldFromClipboard();
-            }});
+            }
+        });
         
-        bar.add(new AbstractAction("Debug") {
-
+        bar.add(new AbstractAction("Debug")
+        {
+            
             private static final long serialVersionUID = -8516939880295829579L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 debug();
-            }});
+            }
+        });
     }
     
     /**
@@ -148,7 +153,7 @@ public class MainPanel extends JPanel
         
         agent.debug();
     }
-
+    
     /**
      * 
      */
@@ -161,7 +166,7 @@ public class MainPanel extends JPanel
         }
         
     }
-
+    
     /**
      * 
      */
@@ -173,7 +178,7 @@ public class MainPanel extends JPanel
             agent.stop();
         }
     }
-
+    
     public void loadWorldFromClipboard()
     {
         try
@@ -181,23 +186,23 @@ public class MainPanel extends JPanel
             final String ascii = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor).toString();
             loadWorld(ascii);
         }
-        catch (HeadlessException e)
+        catch(HeadlessException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (UnsupportedFlavorException e)
+        catch(UnsupportedFlavorException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-
+    
     public void loadWorld(URL url) throws IOException
     {
         setWorld(new AsciiWorldLoader().load(url));
@@ -244,31 +249,32 @@ public class MainPanel extends JPanel
     
     public class GTextArea extends JTextArea
     {
-		private static final long serialVersionUID = 5765203814868709064L;
-
-		int y=0;
+        private static final long serialVersionUID = 5765203814868709064L;
+        
+        int y = 0;
         Color transcolor;
+        
         public GTextArea()
         {
-            super(5,10);
+            super(5, 10);
             this.setBackground(Color.GREEN);
             this.setOpaque(false);
-            this.transcolor=new Color(1,252,1,40);
+            this.transcolor = new Color(1, 252, 1, 40);
         }
+        
         public void paintComponent(Graphics g)
         {
-                g.setColor(this.transcolor);
-                g.fillRect(0,0,getWidth(),getHeight());
-                super.paintComponent(g);
+            g.setColor(this.transcolor);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            super.paintComponent(g);
         }
     }
-
+    
     public static void main(String[] args)
     {
         SwingTools.initializeLookAndFeel();
         
-        SwingUtilities.invokeLater(() -> 
-        {
+        SwingUtilities.invokeLater(() -> {
             JFrame f = new JFrame();
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             try
@@ -279,7 +285,7 @@ public class MainPanel extends JPanel
                 f.setVisible(true);
                 contentPane.worldPanel.fit();
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

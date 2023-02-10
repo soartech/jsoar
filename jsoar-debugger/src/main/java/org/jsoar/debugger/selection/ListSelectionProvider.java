@@ -24,6 +24,7 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
     
     /**
      * Construct a selection provider for a particular list
+     * 
      * @param list the list to connect to
      */
     public ListSelectionProvider(JList<T> list)
@@ -31,8 +32,10 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
         this.list = list;
         
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
@@ -41,8 +44,10 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
         this.manager = manager;
         this.list.addListSelectionListener(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
      */
     @Override
@@ -51,8 +56,10 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
         this.manager = null;
         this.list.removeListSelectionListener(this);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
      */
     @Override
@@ -60,8 +67,10 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
     {
         return this.list.getSelectedValue();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
      */
     @Override
@@ -74,8 +83,10 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
         }
         return result;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
     @Override
@@ -86,5 +97,5 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
             this.manager.fireSelectionChanged();
         }
     }
-
+    
 }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -70,7 +69,7 @@ public class GDSTests extends FunctionalTestHarness
         
         testMultiLevel();
     }
-
+    
     @Test
     public void testMultiLevel2() throws Exception
     {
@@ -90,24 +89,22 @@ public class GDSTests extends FunctionalTestHarness
         // top state
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
         assertNull(gds, "Expected first goal to have empty GDS");
-
         
-        // first substate        
-        //      (14: P1 ^name top)
-        //      (13: S1 ^problem-space P1)
-        //      (31: S3 ^attribute operator)
-        //      (32: S3 ^impasse no-change)
-        //      (16: S1 ^a a)
-        //      (17: S1 ^b b)
-        //      (18: S1 ^c c)
-        //      (23: S3 ^superstate S1)
-
+        // first substate
+        // (14: P1 ^name top)
+        // (13: S1 ^problem-space P1)
+        // (31: S3 ^attribute operator)
+        // (32: S3 ^impasse no-change)
+        // (16: S1 ^a a)
+        // (17: S1 ^b b)
+        // (18: S1 ^c c)
+        // (23: S3 ^superstate S1)
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
         assertNotNull(gds, "Expected second goal have non-empty GDS");
-
+        
         Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
-                
+        
         final SimpleMatcher matcher = new SimpleMatcher();
         matcher.addProduction("expectedGDS \n" +
                 "(<s3> ^attribute operator ^impasse no-change ^superstate <s1>) \n" +
@@ -116,7 +113,7 @@ public class GDSTests extends FunctionalTestHarness
                 "--> \n" +
                 "(write match)");
         
-        for (Wme actualWme : actual)
+        for(Wme actualWme : actual)
         {
             matcher.addWme(actualWme);
         }
@@ -129,16 +126,16 @@ public class GDSTests extends FunctionalTestHarness
         // reset matcher
         matcher.removeAllProductions();
         matcher.removeAllWmes();
-
+        
         // second substate
-        //        (36: P2 ^name second)
-        //        (35: S3 ^problem-space P2)
-        //        (40: O2 ^name operator-2)
-        //        (42: S3 ^operator O2)
-        //        (53: S5 ^impasse no-change)
-        //        (38: S3 ^d d)
-        //        (39: S3 ^e e)
-        //        (44: S5 ^superstate S3)
+        // (36: P2 ^name second)
+        // (35: S3 ^problem-space P2)
+        // (40: O2 ^name operator-2)
+        // (42: S3 ^operator O2)
+        // (53: S5 ^impasse no-change)
+        // (38: S3 ^d d)
+        // (39: S3 ^e e)
+        // (44: S5 ^superstate S3)
         
         gds = Adaptables.adapt(goals.get(2), GoalDependencySet.class);
         assertNotNull(gds, "Expected third goal have non-empty GDS");
@@ -152,7 +149,7 @@ public class GDSTests extends FunctionalTestHarness
                 "--> \n" +
                 "(write match)");
         
-        for (Wme actualWme : actual)
+        for(Wme actualWme : actual)
         {
             matcher.addWme(actualWme);
         }

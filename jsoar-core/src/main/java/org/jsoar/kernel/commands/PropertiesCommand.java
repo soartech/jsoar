@@ -15,37 +15,38 @@ import picocli.CommandLine.HelpCommand;
 
 /**
  * This is the implementation of the "properties" command.
+ * 
  * @author austin.brehob
  */
 public class PropertiesCommand extends PicocliSoarCommand
 {
-
+    
     public PropertiesCommand(Agent agent)
     {
         super(agent, new Properties(agent));
     }
     
     @Override
-    public Properties getCommand() {
-        return (Properties)super.getCommand();
+    public Properties getCommand()
+    {
+        return (Properties) super.getCommand();
     }
-
-    @Command(name="properties", description="Displays the agent's current properties",
-            subcommands={HelpCommand.class})
+    
+    @Command(name = "properties", description = "Displays the agent's current properties", subcommands = { HelpCommand.class })
     static public class Properties implements Runnable
     {
         private Agent agent;
-
+        
         public Properties(Agent agent)
         {
             this.agent = agent;
         }
-
+        
         @Override
         public void run()
         {
             final Printer p = agent.getPrinter();
-
+            
             // Obtain all properties and sort them
             p.startNewLine();
             final PropertyManager properties = agent.getProperties();
@@ -58,8 +59,8 @@ public class PropertiesCommand extends PicocliSoarCommand
                     return a.getName().compareTo(b.getName());
                 }
             });
-
-            for (PropertyKey<?> key : keys)
+            
+            for(PropertyKey<?> key : keys)
             {
                 p.print("%30s = %s%s\n", key.getName(), properties.get(key), key.isReadonly() ? " [RO]" : "");
             }

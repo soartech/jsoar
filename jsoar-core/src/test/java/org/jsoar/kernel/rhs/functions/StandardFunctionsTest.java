@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
@@ -27,7 +26,7 @@ public class StandardFunctionsTest
         this.agent.getPrinter().addPersistentWriter(outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
@@ -39,9 +38,9 @@ public class StandardFunctionsTest
     {
         this.agent.getProductions().loadProduction(
                 "testSucceededRhsFunction " +
-                "(state <s> ^superstate nil)" +
-                "-->" +
-                "(succeeded something nothing)");
+                        "(state <s> ^superstate nil)" +
+                        "-->" +
+                        "(succeeded something nothing)");
         this.agent.runForever();
         assertTrue(this.agent.getReasonForStop().contains("halted"));
         final String output = outputWriter.toString();
@@ -55,9 +54,9 @@ public class StandardFunctionsTest
     {
         this.agent.getProductions().loadProduction(
                 "testFailedRhsFunction " +
-                "(state <s> ^superstate nil)" +
-                "-->" +
-                "(succeeded nothing something)");
+                        "(state <s> ^superstate nil)" +
+                        "-->" +
+                        "(succeeded nothing something)");
         this.agent.runForever();
         assertTrue(this.agent.getReasonForStop().contains("halted"));
         final String output = outputWriter.toString();
@@ -66,5 +65,5 @@ public class StandardFunctionsTest
         assertTrue(output.matches("Succeeded: testFailedRhsFunction: nothing, something\n.*"), "Unexpected output: " + output);
         
     }
-
+    
 }

@@ -53,53 +53,53 @@ import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 
 /**
-   <h3>Grammar for left hand sides of productions</h3>
-   
-    <p><pre>{@code
-    <lhs> ::= <cond>+
-    <cond> ::= <positive_cond> | - <positive_cond>
-    <positive_cond> ::= <conds_for_one_id> | { <cond>+ }
-    <conds_for_one_id> ::= ( [state|impasse] [<id_test>] <attr_value_tests>* )
-    <id_test> ::= <test>
-    <attr_value_tests> ::= [-] ^ <attr_test> [.<attr_test>]* <value_test>*
-    <attr_test> ::= <test>
-    <value_test> ::= <test> [+] | <conds_for_one_id> [+]
-    
-    <test> ::= <conjunctive_test> | <simple_test>
-    <conjunctive_test> ::= { <simple_test>+ }
-    <simple_test> ::= <disjunction_test> | <relational_test>
-    <disjunction_test> ::= << <constant>* >>
-    <relational_test> ::= [<relation>] <single_test>
-    <relation> ::= <> | < | > | <= | >= | = | <=>
-    <single_test> ::= variable | <constant>
-    <constant> ::= sym_constant | int_constant | float_constant
-    }</pre>
-    
-  <h3>Grammar for right hand sides of productions</h3>
-   <p><pre>{@code
-   <rhs> ::= <rhs_action>*
-   <rhs_action> ::= ( variable <attr_value_make>+ ) | <function_call>
-   <function_call> ::= ( <function_name> <rhs_value>* )
-   <function_name> ::= sym_constant | + | -
-     (WARNING: might need others besides +, - here if the lexer changes)
-   <rhs_value> ::= <constant> | <function_call> | variable
-   <constant> ::= sym_constant | int_constant | float_constant
-   <attr_value_make> ::= ^ <rhs_value> <value_make>+
-   <value_make> ::= <rhs_value> <preferences>
+ * <h3>Grammar for left hand sides of productions</h3>
+ * 
+ * <p><pre>{@code
+ <lhs> ::= <cond>+
+ <cond> ::= <positive_cond> | - <positive_cond>
+ * <positive_cond> ::= <conds_for_one_id> | { <cond>+ }
+ * <conds_for_one_id> ::= ( [state|impasse] [<id_test>] <attr_value_tests>* )
+ * <id_test> ::= <test>
+ * <attr_value_tests> ::= [-] ^ <attr_test> [.<attr_test>]* <value_test>*
+ * <attr_test> ::= <test>
+ * <value_test> ::= <test> [+] | <conds_for_one_id> [+]
+ * 
+ * <test> ::= <conjunctive_test> | <simple_test>
+ * <conjunctive_test> ::= { <simple_test>+ }
+ * <simple_test> ::= <disjunction_test> | <relational_test>
+ * <disjunction_test> ::= << <constant>* >>
+ * <relational_test> ::= [<relation>] <single_test>
+ * <relation> ::= <> | < | > | <= | >= | = | <=>
+ * <single_test> ::= variable | <constant>
+ * <constant> ::= sym_constant | int_constant | float_constant
+ * }</pre>
+ * 
+ * <h3>Grammar for right hand sides of productions</h3>
+ * <p><pre>{@code
+ <rhs> ::= <rhs_action>*
+ <rhs_action> ::= ( variable <attr_value_make>+ ) | <function_call>
+ <function_call> ::= ( <function_name> <rhs_value>* )
+ <function_name> ::= sym_constant | + | -
+   (WARNING: might need others besides +, - here if the lexer changes)
+ <rhs_value> ::= <constant> | <function_call> | variable
+ <constant> ::= sym_constant | int_constant | float_constant
+ <attr_value_make> ::= ^ <rhs_value> <value_make>+
+ <value_make> ::= <rhs_value> <preferences>
 
-   <preferences> ::= [,] | <preference_specifier>+   
-   <preference-specifier> ::= <naturally-unary-preference> [,]
-                            | <forced-unary-preference>
-                            | <binary-preference> <rhs_value> [,]
-   <naturally-unary-preference> ::= + | - | ! | ~ | @
-   <binary-preference> ::= > | = | < | &
-   <any-preference> ::= <naturally-unary-preference> | <binary-preference>
-   <forced-unary-preference> ::= <binary-preference> 
-                                 {<any-preference> | , | ) | ^}  
-     ;but the parser shouldn't consume the <any-preference>, ")" or "^" 
-      lexeme here
-    }</pre>
-    
+ <preferences> ::= [,] | <preference_specifier>+   
+ <preference-specifier> ::= <naturally-unary-preference> [,]
+                          | <forced-unary-preference>
+                          | <binary-preference> <rhs_value> [,]
+ <naturally-unary-preference> ::= + | - | ! | ~ | @
+ <binary-preference> ::= > | = | < | &
+ <any-preference> ::= <naturally-unary-preference> | <binary-preference>
+ <forced-unary-preference> ::= <binary-preference>
+ * {<any-preference> | , | ) | ^}
+ * ;but the parser shouldn't consume the <any-preference>, ")" or "^"
+ * lexeme here
+ * }</pre>
+ * 
  * @author ray
  */
 class OriginalParserImpl
@@ -138,9 +138,9 @@ class OriginalParserImpl
     
     public void setSourceLocation(SourceLocation location)
     {
-        this.location  = location;
+        this.location = location;
     }
-
+    
     public void setLongTermIdSource(LongTermIdentifierSource ltis)
     {
         this.ltis = ltis != null ? ltis : new DefaultLtiSource();
@@ -167,9 +167,9 @@ class OriginalParserImpl
      */
     private void consume(LexemeType type) throws IOException
     {
-        if (currentType()==type)
-        { 
-            lexer.getNextLexeme(); 
+        if(currentType() == type)
+        {
+            lexer.getNextLexeme();
         }
     }
     
@@ -180,10 +180,10 @@ class OriginalParserImpl
     
     private void expect(LexemeType type, String context) throws ParserException, IOException
     {
-        if (currentType() != type)
+        if(currentType() != type)
         {
-            error("In production '" + 
-                    (currentProduction != null ? currentProduction : "unknown") + 
+            error("In production '" +
+                    (currentProduction != null ? currentProduction : "unknown") +
                     "', expected " + type.repr() + " " + context + "\n");
             throw new IllegalStateException("Unreachable code");
         }
@@ -204,16 +204,20 @@ class OriginalParserImpl
      * parser.cpp:make_symbol_for_current_lexeme
      * 
      */
-    private SymbolImpl make_symbol_for_current_lexeme (boolean idLti) throws ParserException 
+    private SymbolImpl make_symbol_for_current_lexeme(boolean idLti) throws ParserException
     {
-        switch (currentType()) 
+        switch(currentType())
         {
-        case SYM_CONSTANT:  return syms.createString (current().string);
-        case VARIABLE:  return syms.make_variable (current().string);
-        case INTEGER:  return syms.createInteger (current().int_val);
-        case FLOAT:  return syms.createDouble (current().float_val);
+        case SYM_CONSTANT:
+            return syms.createString(current().string);
+        case VARIABLE:
+            return syms.make_variable(current().string);
+        case INTEGER:
+            return syms.createInteger(current().int_val);
+        case FLOAT:
+            return syms.createDouble(current().float_val);
         
-        case IDENTIFIER: 
+        case IDENTIFIER:
         {
             if(!idLti)
             {
@@ -224,14 +228,15 @@ class OriginalParserImpl
                 return getLongTermIdForCurrentLexeme();
             }
         }
-        default: throw new IllegalStateException("bad lexeme type in make_symbol_for_current_lexeme: " + current());
+        default:
+            throw new IllegalStateException("bad lexeme type in make_symbol_for_current_lexeme: " + current());
         }
     }
     
     /**
      * Extracted duplicate code from parse_rhs_action and make_symbol_from_current_lexeme()
      * 
-     * @return a LTI for the current lexeme which must be of type LexemeType.IDENTIFIER. 
+     * @return a LTI for the current lexeme which must be of type LexemeType.IDENTIFIER.
      */
     private IdentifierImpl getLongTermIdForCurrentLexeme() throws ParserException
     {
@@ -239,46 +244,48 @@ class OriginalParserImpl
         
         try
         {
-            final long lti_id = ltis.smem_lti_get_id( current().id_letter, current().id_number );
-
-            if ( lti_id == 0 ) 
+            final long lti_id = ltis.smem_lti_get_id(current().id_letter, current().id_number);
+            
+            if(lti_id == 0)
             {
                 throw new ParserException("Internal error: invalid long-term identifier found: " + current().string);
             }
-            else 
+            else
             {
-                return ltis.smem_lti_soar_make( lti_id, current().id_letter, current().id_number, 
-                                               LongTermIdentifierSource.LTI_UNKNOWN_LEVEL );
+                return ltis.smem_lti_soar_make(lti_id, current().id_letter, current().id_number,
+                        LongTermIdentifierSource.LTI_UNKNOWN_LEVEL);
             }
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new ParserException("While retrieving long-term identifier '" + current().string + "': " + e.getMessage(), e);
         }
     }
-
     
     /**
      * parser.cpp:1800:parse_lti
      * 
      * @return true if the current lexeme is an LTI
      */
-    private boolean parse_lti() throws IOException {
-        switch(currentType()) {
+    private boolean parse_lti() throws IOException
+    {
+        switch(currentType())
+        {
         case AT:
-            {
-                final boolean saved = lexer.isAllowIds();
-                lexer.setAllowIds(true);
-                lexer.getNextLexeme();
-                lexer.setAllowIds(saved);
-            }
+        {
+            final boolean saved = lexer.isAllowIds();
+            lexer.setAllowIds(true);
+            lexer.getNextLexeme();
+            lexer.setAllowIds(saved);
+        }
             return true;
-
+        
         default:
             break;
         }
         return false;
     }
+    
     /**
      * In attribute paths (and some other places) we need to create dummy
      * variables. But we need to make sure these dummy variables don't
@@ -293,12 +300,12 @@ class OriginalParserImpl
      */
     private void reset_placeholder_variable_generator()
     {
-        for (int i = 0; i < placeholder_counter.length; i++)
+        for(int i = 0; i < placeholder_counter.length; i++)
         {
             placeholder_counter[i] = 1;
         }
     }
-
+    
     /**
      * Creates and returns a test for equality with a newly generated
      * placeholder variable.
@@ -307,19 +314,19 @@ class OriginalParserImpl
     private Test make_placeholder_test(char first_letter)
     {
         first_letter = Character.isLetter(first_letter) ? Character.toLowerCase(first_letter) : 'v';
-
-        // create variable with "#" in its name:  this couldn't possibly be a
+        
+        // create variable with "#" in its name: this couldn't possibly be a
         // variable in the user's code, since the lexer doesn't handle "#"
         final String namebuf = ("<#" + first_letter) + (placeholder_counter[first_letter - 'a']++ + ">");
-
+        
         final Variable new_var = syms.make_variable(namebuf);
         // indicate that there is no corresponding "real" variable yet
         new_var.current_binding_value = null;
-
+        
         // return an equality test for that variable
         return SymbolImpl.makeEqualityTest(new_var);
     }
-
+    
     /**
      * When done parsing the production, we go back and substitute "real"
      * variables for all the placeholders. This is done by walking all the LHS
@@ -339,25 +346,25 @@ class OriginalParserImpl
     {
         // if not a variable, do nothing
         final Variable asVar = sym.asVariable();
-        if (asVar == null)
+        if(asVar == null)
         {
             return sym;
         }
         // if not a placeholder variable, do nothing
-        if (asVar.name.charAt(1) != '#')
+        if(asVar.name.charAt(1) != '#')
         {
             return sym;
         }
-
-        if (asVar.current_binding_value == null)
+        
+        if(asVar.current_binding_value == null)
         {
             final String prefix = asVar.name.charAt(2) + "*";
             asVar.current_binding_value = varGen.generate_new_variable(prefix);
         }
-
+        
         return asVar.current_binding_value;
     }
-
+    
     /**
      * parser.cpp::substitute_for_placeholders_in_test
      * 
@@ -366,97 +373,97 @@ class OriginalParserImpl
      */
     private Test substitute_for_placeholders_in_test(Test t)
     {
-        if (Tests.isBlank(t))
+        if(Tests.isBlank(t))
             return t;
         
         EqualityTest eqTest = t.asEqualityTest();
-        if (eqTest != null)
+        if(eqTest != null)
         {
             return SymbolImpl.makeEqualityTest(substitute_for_placeholders_in_symbol(eqTest.getReferent()));
         }
-
-        if (t.asGoalIdTest() != null || t.asImpasseIdTest() != null || t.asDisjunctionTest() != null)
+        
+        if(t.asGoalIdTest() != null || t.asImpasseIdTest() != null || t.asDisjunctionTest() != null)
         {
             return t;
         }
         
         final ConjunctiveTest conjunctive = t.asConjunctiveTest();
-        if (conjunctive != null)
+        if(conjunctive != null)
         {
-            for (ListIterator<Test> it = conjunctive.conjunct_list.listIterator(); it.hasNext();)
+            for(ListIterator<Test> it = conjunctive.conjunct_list.listIterator(); it.hasNext();)
             {
                 final Test child = it.next();
                 it.set(substitute_for_placeholders_in_test(child));
             }
-
+            
             return conjunctive;
         }
         
         // relational tests other than equality
         final RelationalTest relational = t.asRelationalTest();
-        if (relational != null)
+        if(relational != null)
         {
             return relational.withNewReferent(substitute_for_placeholders_in_symbol(relational.referent));
         }
         
         throw new IllegalStateException("Unexpected complex test: " + t);
     }
-
+    
     /**
      * parser.cpp::substitute_for_placeholders_in_condition_list
      * 
      */
     private void substitute_for_placeholders_in_condition_list(Condition cond)
     {
-        for (; cond != null; cond = cond.next)
+        for(; cond != null; cond = cond.next)
         {
             final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
-            if (tfc != null)
+            if(tfc != null)
             {
                 tfc.id_test = substitute_for_placeholders_in_test(tfc.id_test);
                 tfc.attr_test = substitute_for_placeholders_in_test(tfc.attr_test);
                 tfc.value_test = substitute_for_placeholders_in_test(tfc.value_test);
             }
             final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
-            if (ncc != null)
+            if(ncc != null)
             {
                 substitute_for_placeholders_in_condition_list(ncc.top);
             }
         }
     }
-
+    
     /**
      * parser.cpp::substitute_for_placeholders_in_action_list
      * 
      */
     private void substitute_for_placeholders_in_action_list(Action a)
     {
-        for (; a != null; a = a.next)
+        for(; a != null; a = a.next)
         {
             final MakeAction ma = a.asMakeAction();
-            if (ma != null)
+            if(ma != null)
             {
                 final RhsSymbolValue id = ma.id.asSymbolValue();
-                if (id != null)
+                if(id != null)
                 {
                     ma.id = id.setSymbol(substitute_for_placeholders_in_symbol(id.sym));
                 }
                 
                 final RhsSymbolValue attr = ma.attr.asSymbolValue();
-                if (attr != null)
+                if(attr != null)
                 {
                     ma.attr = attr.setSymbol(substitute_for_placeholders_in_symbol(attr.sym));
                 }
                 
                 final RhsSymbolValue value = ma.value.asSymbolValue();
-                if (value != null)
+                if(value != null)
                 {
                     ma.value = value.setSymbol(substitute_for_placeholders_in_symbol(value.sym));
                 }
             }
         }
     }
-
+    
     /**
      * Parse Relational Test
      * 
@@ -475,16 +482,16 @@ class OriginalParserImpl
     {
         boolean use_equality_test = false;
         int test_type = RelationalTest.NOT_EQUAL_TEST;
-
+        
         // read optional relation symbol
         final LexemeType lexemeType = currentType();
-        switch (lexemeType)
+        switch(lexemeType)
         {
         case EQUAL:
             use_equality_test = true;
             lexer.getNextLexeme();
             break;
-
+        
         case NOT_EQUAL:
         case LESS:
         case GREATER:
@@ -494,16 +501,16 @@ class OriginalParserImpl
             test_type = lexemeType.getRelationalTestType();
             lexer.getNextLexeme();
             break;
-
+        
         default:
             use_equality_test = true;
             break;
         }
-
+        
         final boolean id_lti = parse_lti();
         
         // read variable or constant
-        switch (currentType())
+        switch(currentType())
         {
         case SYM_CONSTANT:
         case INTEGER:
@@ -520,7 +527,7 @@ class OriginalParserImpl
         }
         throw new IllegalStateException("Unreachable code");
     }
-
+    
     /**
      * Parse Disjunction Test
      * 
@@ -540,9 +547,9 @@ class OriginalParserImpl
         expect(LexemeType.LESS_LESS, "to begin disjunction test");
         
         List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>();
-        while (currentType() != LexemeType.GREATER_GREATER)
+        while(currentType() != LexemeType.GREATER_GREATER)
         {
-            switch (currentType())
+            switch(currentType())
             {
             case SYM_CONSTANT:
             case INTEGER:
@@ -558,7 +565,7 @@ class OriginalParserImpl
         
         return new DisjunctionTest(Collections.unmodifiableList(disjuncts));
     }
-
+    
     /**
      * Parse Simple Test
      * 
@@ -570,13 +577,13 @@ class OriginalParserImpl
      */
     Test parse_simple_test() throws IOException, ParserException
     {
-        if (currentType() == LexemeType.LESS_LESS)
+        if(currentType() == LexemeType.LESS_LESS)
         {
             return parse_disjunction_test();
         }
         return parse_relational_test();
     }
-
+    
     /**
      * Parse Test
      * 
@@ -591,7 +598,7 @@ class OriginalParserImpl
      */
     Test parse_test() throws IOException, ParserException
     {
-        if (currentType() != LexemeType.L_BRACE)
+        if(currentType() != LexemeType.L_BRACE)
         {
             return parse_simple_test();
         }
@@ -602,21 +609,21 @@ class OriginalParserImpl
         do
         {
             t = Tests.add_new_test_to_test(t, parse_simple_test());
-        } while (currentType() != LexemeType.R_BRACE);
+        } while(currentType() != LexemeType.R_BRACE);
         
         lexer.getNextLexeme(); // consume the "}"
-
+        
         // add_new_test_to_test() pushes tests onto the front of the
         // conjunt_list so we have to reverse them here.
         final ConjunctiveTest cjt = t.asConjunctiveTest();
-        if (cjt != null)
+        if(cjt != null)
         {
             Collections.reverse(cjt.conjunct_list);
         }
-
+        
         return t;
     }
-
+    
     /**
      * As low-level routines (e.g., parse_value_test_star) parse, they leave the
      * id (and sometimes attribute) test fields blank (null) in the condition
@@ -631,60 +638,60 @@ class OriginalParserImpl
     private void fill_in_id_tests(Condition conds, Test t)
     {
         PositiveCondition positive_c = null;
-
+        
         // see if there's at least one positive condition
-        for (Condition c = conds; c != null; c = c.next)
+        for(Condition c = conds; c != null; c = c.next)
         {
             positive_c = c.asPositiveCondition();
-            if (positive_c != null && (positive_c.id_test == null))
+            if(positive_c != null && (positive_c.id_test == null))
             {
                 break;
             }
         }
-
-        if (positive_c != null)
-        { 
+        
+        if(positive_c != null)
+        {
             // there is at least one positive condition
             // add just the equality test to most of the conditions
             final EqualityTest equality_test_from_t = Tests.copy_of_equality_test_found_in_test(t);
-            for (Condition c = conds; c != null; c = c.next)
+            for(Condition c = conds; c != null; c = c.next)
             {
                 ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
                 ThreeFieldCondition tfc = c.asThreeFieldCondition();
-                if (ncc != null)
+                if(ncc != null)
                 {
                     fill_in_id_tests(ncc.top, equality_test_from_t);
                 }
-                else if (tfc.id_test == null)
+                else if(tfc.id_test == null)
                 {
                     tfc.id_test = equality_test_from_t.copy();
                 }
             }
-
+            
             // add the whole test to one positive condition
             positive_c.id_test = t.copy();
             return;
         }
-
+        
         // all conditions are negative
-        for (Condition c = conds; c != null; c = c.next)
+        for(Condition c = conds; c != null; c = c.next)
         {
             final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             final ThreeFieldCondition tfc = c.asThreeFieldCondition();
-            if (ncc != null)
+            if(ncc != null)
             {
                 fill_in_id_tests(ncc.top, t);
             }
             else
             {
-                if (tfc.id_test == null)
+                if(tfc.id_test == null)
                 {
                     tfc.id_test = t.copy();
                 }
             }
         }
     }
-
+    
     /**
      * <p>parser.cpp::fill_in_attr_tests
      * 
@@ -692,31 +699,31 @@ class OriginalParserImpl
     private void fill_in_attr_tests(Condition conds, Test t)
     {
         PositiveCondition positive_c = null;
-
+        
         // see if there's at least one positive condition
-        for (Condition c = conds; c != null; c = c.next)
+        for(Condition c = conds; c != null; c = c.next)
         {
             positive_c = c.asPositiveCondition();
-            if (positive_c != null && (positive_c.attr_test == null))
+            if(positive_c != null && (positive_c.attr_test == null))
             {
                 break;
             }
         }
-
-        if (positive_c != null)
-        { 
+        
+        if(positive_c != null)
+        {
             // there is at least one positive condition
             // add just the equality test to most of the conditions
             EqualityTest equality_test_from_t = Tests.copy_of_equality_test_found_in_test(t);
-            for (Condition c = conds; c != null; c = c.next)
+            for(Condition c = conds; c != null; c = c.next)
             {
                 final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
                 final ThreeFieldCondition tfc = c.asThreeFieldCondition();
-                if (ncc != null)
+                if(ncc != null)
                 {
                     fill_in_attr_tests(ncc.top, equality_test_from_t);
                 }
-                else if (tfc.attr_test == null)
+                else if(tfc.attr_test == null)
                 {
                     tfc.attr_test = equality_test_from_t.copy();
                 }
@@ -725,27 +732,26 @@ class OriginalParserImpl
             positive_c.attr_test = t.copy();
             return;
         }
-
+        
         // all conditions are negative
-        for (Condition c = conds; c != null; c = c.next)
+        for(Condition c = conds; c != null; c = c.next)
         {
             final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             final ThreeFieldCondition tfc = c.asThreeFieldCondition();
-            if (ncc != null)
+            if(ncc != null)
             {
                 fill_in_attr_tests(ncc.top, t);
             }
             else
             {
-                if (tfc.attr_test == null)
+                if(tfc.attr_test == null)
                 {
                     tfc.attr_test = t.copy();
                 }
             }
         }
     }
-
-
+    
     /**
      * Returns the negation of the given condition list. If the given list is a
      * single positive or negative condition, it just toggles the type. If the
@@ -758,21 +764,21 @@ class OriginalParserImpl
      */
     private Condition negate_condition_list(Condition conds)
     {
-        if (conds.next == null)
+        if(conds.next == null)
         {
             // only one condition to negate, so toggle the type
             final PositiveCondition pc = conds.asPositiveCondition();
-            if (pc != null)
+            if(pc != null)
             {
                 return pc.negate();
             }
             final NegativeCondition nc = conds.asNegativeCondition();
-            if (nc != null)
+            if(nc != null)
             {
                 return nc.negate();
             }
             final ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
-            if (ncc != null)
+            if(ncc != null)
             {
                 return ncc.top;
             }
@@ -783,13 +789,13 @@ class OriginalParserImpl
         final ConjunctiveNegationCondition tempNcc = new ConjunctiveNegationCondition();
         tempNcc.top = conds;
         Condition last = conds;
-        for (; last.next != null; last = last.next)
+        for(; last.next != null; last = last.next)
         {
         }
         tempNcc.bottom = last;
         return tempNcc;
     }
-
+    
     /**
      * This routine parses {@code <value_test>* }, given as input the id_test and
      * attr_test already read.
@@ -802,20 +808,20 @@ class OriginalParserImpl
     Condition parse_value_test_star(char first_letter) throws IOException, ParserException
     {
         final EnumSet<LexemeType> endOfTest = EnumSet.of(LexemeType.MINUS, LexemeType.UP_ARROW, LexemeType.R_PAREN);
-        if (endOfTest.contains(currentType()))
+        if(endOfTest.contains(currentType()))
         {
             // value omitted, so create dummy value test
             PositiveCondition c = new PositiveCondition();
             c.value_test = make_placeholder_test(first_letter);
             return c;
         }
-
+        
         Condition last_c = null, first_c = null;
         ByRef<Test> value_test = ByRef.create(null);
         do
         {
             Condition new_conds;
-            if (currentType() == LexemeType.L_PAREN)
+            if(currentType() == LexemeType.L_PAREN)
             {
                 // read <conds_for_one_id>, take the id_test from it
                 new_conds = parse_conds_for_one_id(first_letter, value_test);
@@ -825,7 +831,7 @@ class OriginalParserImpl
                 // read <value_test>
                 new_conds = null;
                 value_test.value = parse_test();
-                if (!Tests.test_includes_equality_test_for_symbol(value_test.value, null))
+                if(!Tests.test_includes_equality_test_for_symbol(value_test.value, null))
                 {
                     value_test.value = Tests.add_new_test_to_test(value_test.value,
                             make_placeholder_test(first_letter));
@@ -834,7 +840,7 @@ class OriginalParserImpl
             
             // check for acceptable preference indicator
             boolean acceptable = false;
-            if (currentType() == LexemeType.PLUS)
+            if(currentType() == LexemeType.PLUS)
             {
                 acceptable = true;
                 lexer.getNextLexeme();
@@ -845,9 +851,9 @@ class OriginalParserImpl
             pc.value_test = value_test.value;
             pc.test_for_acceptable_preference = acceptable;
             new_conds = Condition.insertAtHead(new_conds, pc);
-
+            
             // add new conditions to the end of the list
-            if (last_c != null)
+            if(last_c != null)
             {
                 last_c.next = new_conds;
             }
@@ -857,15 +863,15 @@ class OriginalParserImpl
             }
             
             new_conds.prev = last_c;
-            for (last_c = new_conds; last_c.next != null; last_c = last_c.next)
+            for(last_c = new_conds; last_c.next != null; last_c = last_c.next)
             {
                 // nothing
             }
-        } while (!endOfTest.contains(currentType()));
+        } while(!endOfTest.contains(currentType()));
         
         return first_c;
     }
-
+    
     /**
      * This routine parses {@code <attr_value_tests>}, given as input the id_test already read.
      * 
@@ -873,7 +879,7 @@ class OriginalParserImpl
      * <attr_value_tests> ::= [-] ^ <attr_test> [.<attr_test>]* <value_test>*
      * <attr_test> ::= <test>
      * }</pre>
-     *  
+     * 
      * <p>parser.cpp::parse_attr_value_tests
      * 
      * @return new condition
@@ -881,37 +887,37 @@ class OriginalParserImpl
     Condition parse_attr_value_tests() throws IOException, ParserException
     {
         boolean negate_it;
-
+        
         // read optional minus sign
         negate_it = false;
-        if (currentType() == LexemeType.MINUS)
+        if(currentType() == LexemeType.MINUS)
         {
             negate_it = true;
             lexer.getNextLexeme();
         }
-
+        
         // read up arrow
         expect(LexemeType.UP_ARROW, "followed by attribute");
-
+        
         // read first <attr_test>
         Test attr_test = parse_test();
-        if (!Tests.test_includes_equality_test_for_symbol(attr_test, null))
+        if(!Tests.test_includes_equality_test_for_symbol(attr_test, null))
         {
             attr_test = Tests.add_new_test_to_test(attr_test, make_placeholder_test('a'));
         }
-
+        
         // read optional attribute path
         Condition first_c = null;
         Condition last_c = null;
         Test id_test_to_use = null;
-        while (currentType() == LexemeType.PERIOD)
+        while(currentType() == LexemeType.PERIOD)
         {
             lexer.getNextLexeme(); // consume the "."
             
-            // setup for next attribute in path:  make a dummy variable,
-            //   create a new condition in the path
+            // setup for next attribute in path: make a dummy variable,
+            // create a new condition in the path
             final PositiveCondition c = new PositiveCondition();
-            if (last_c != null)
+            if(last_c != null)
             {
                 last_c.next = c;
             }
@@ -922,7 +928,7 @@ class OriginalParserImpl
             c.next = null;
             c.prev = last_c;
             last_c = c;
-            if (id_test_to_use != null)
+            if(id_test_to_use != null)
             {
                 c.id_test = id_test_to_use.copy();
             }
@@ -931,28 +937,28 @@ class OriginalParserImpl
                 c.id_test = null;
             }
             c.attr_test = attr_test;
-
+            
             id_test_to_use = make_placeholder_test(Tests.first_letter_from_test(attr_test));
             c.value_test = id_test_to_use;
             c.test_for_acceptable_preference = false;
-
+            
             // update id and attr tests for the next path element
             attr_test = parse_test();
-            if (!Tests.test_includes_equality_test_for_symbol(attr_test, null))
+            if(!Tests.test_includes_equality_test_for_symbol(attr_test, null))
             {
                 attr_test = Tests.add_new_test_to_test(attr_test, make_placeholder_test('a'));
             }
         }
-
+        
         // finally, do the <value_test>* part
         Condition new_conds = parse_value_test_star(Tests.first_letter_from_test(attr_test));
         fill_in_attr_tests(new_conds, attr_test);
-        if (id_test_to_use != null)
+        if(id_test_to_use != null)
         {
             fill_in_id_tests(new_conds, id_test_to_use);
         }
-
-        if (last_c != null)
+        
+        if(last_c != null)
         {
             last_c.next = new_conds;
         }
@@ -962,19 +968,19 @@ class OriginalParserImpl
         }
         new_conds.prev = last_c;
         // should update last_c here, but it's not needed anymore
-
+        
         // negate everything if necessary
-        if (negate_it)
+        if(negate_it)
         {
             first_c = negate_condition_list(first_c);
         }
-
+        
         return first_c;
     }
-
+    
     /**
      * This routine parses the {@code "( [state|impasse] [<id_test>]" } part of
-     *  {@code <conds_for_one_id> } and returns the resulting id_test.
+     * {@code <conds_for_one_id> } and returns the resulting id_test.
      * 
      * <pre>{@code
      * <conds_for_one_id> ::= ( [state|impasse] [<id_test>] <attr_value_tests>* )
@@ -988,18 +994,18 @@ class OriginalParserImpl
     private Test parse_head_of_conds_for_one_id(char first_letter_if_no_id_given) throws IOException, ParserException
     {
         expect(LexemeType.L_PAREN, "to begin condition element");
-
+        
         Test id_goal_impasse_test = null;
         // look for goal/impasse indicator
-        if (currentType() == LexemeType.SYM_CONSTANT)
+        if(currentType() == LexemeType.SYM_CONSTANT)
         {
-            if (current().string.equals("state"))
+            if(current().string.equals("state"))
             {
                 id_goal_impasse_test = GoalIdTest.INSTANCE;
                 lexer.getNextLexeme();
                 first_letter_if_no_id_given = 's';
             }
-            else if (current().string.equals("impasse"))
+            else if(current().string.equals("impasse"))
             {
                 id_goal_impasse_test = ImpasseIdTest.INSTANCE;
                 lexer.getNextLexeme();
@@ -1014,17 +1020,17 @@ class OriginalParserImpl
         {
             id_goal_impasse_test = null; // make_blank_test();
         }
-
+        
         Test id_test = null; // blank test
         Test check_for_symconstant;
         SymbolImpl sym;
         // read optional id test; create dummy one if none given
-        if (currentType() != LexemeType.MINUS && 
-            currentType() != LexemeType.UP_ARROW && 
-            currentType() != LexemeType.R_PAREN)
+        if(currentType() != LexemeType.MINUS &&
+                currentType() != LexemeType.UP_ARROW &&
+                currentType() != LexemeType.R_PAREN)
         {
             id_test = parse_test();
-            if (!Tests.test_includes_equality_test_for_symbol(id_test, null))
+            if(!Tests.test_includes_equality_test_for_symbol(id_test, null))
             {
                 id_test = Tests.add_new_test_to_test(id_test,
                         make_placeholder_test(first_letter_if_no_id_given));
@@ -1033,7 +1039,7 @@ class OriginalParserImpl
             {
                 check_for_symconstant = Tests.copy_of_equality_test_found_in_test(id_test);
                 sym = check_for_symconstant.asEqualityTest().getReferent();
-                if (sym.asVariable() == null)
+                if(sym.asVariable() == null)
                 {
                     error(String.format("Warning: Constant %s in id field test.\n    This will never match.", sym));
                 }
@@ -1043,14 +1049,14 @@ class OriginalParserImpl
         {
             id_test = make_placeholder_test(first_letter_if_no_id_given);
         }
-
+        
         // add the goal/impasse test to the id test
         id_test = Tests.add_new_test_to_test(id_test, id_goal_impasse_test);
-
+        
         // return the resulting id test
         return id_test;
     }
-
+    
     /**
      * This routine parses the {@code "<attr_value_tests>* )" } part of {@code <conds_for_one_id>}
      * and returns the resulting conditions.
@@ -1068,7 +1074,7 @@ class OriginalParserImpl
     private Condition parse_tail_of_conds_for_one_id() throws IOException, ParserException
     {
         // if no <attr_value_tests> are given, create a dummy one
-        if (currentType() == LexemeType.R_PAREN)
+        if(currentType() == LexemeType.R_PAREN)
         {
             lexer.getNextLexeme(); // consume the right parenthesis
             final PositiveCondition c = new PositiveCondition();
@@ -1077,15 +1083,15 @@ class OriginalParserImpl
             c.test_for_acceptable_preference = false;
             return c;
         }
-
+        
         // read <attr_value_tests>*
         Condition first_c = null;
         Condition last_c = null;
         Condition new_conds = null;
-        while (currentType() != LexemeType.R_PAREN)
+        while(currentType() != LexemeType.R_PAREN)
         {
             new_conds = parse_attr_value_tests();
-            if (last_c != null)
+            if(last_c != null)
             {
                 last_c.next = new_conds;
             }
@@ -1094,18 +1100,18 @@ class OriginalParserImpl
                 first_c = new_conds;
             }
             new_conds.prev = last_c;
-            for (last_c = new_conds; last_c.next != null; last_c = last_c.next)
-            { 
+            for(last_c = new_conds; last_c.next != null; last_c = last_c.next)
+            {
                 // nothing
             }
         }
-
+        
         // reached the end of the condition
         lexer.getNextLexeme(); // consume the right parenthesis
-
+        
         return first_c;
     }
-
+    
     /**
      * This routine parses {@code <conds_for_one_id>} and returns the conditions (of
      * null if any error occurs).
@@ -1132,12 +1138,12 @@ class OriginalParserImpl
     {
         // parse the head
         Test id_test = parse_head_of_conds_for_one_id(first_letter_if_no_id_given);
-
+        
         // parse the tail
         Condition conds = parse_tail_of_conds_for_one_id();
-
+        
         // fill in the id test in all the conditions just read
-        if (dest_id_test != null)
+        if(dest_id_test != null)
         {
             dest_id_test.value = id_test;
             Test equality_test_from_id_test = Tests.copy_of_equality_test_found_in_test(id_test);
@@ -1147,10 +1153,10 @@ class OriginalParserImpl
         {
             fill_in_id_tests(conds, id_test);
         }
-
+        
         return conds;
     }
-
+    
     /**
      * Parse a condition
      * 
@@ -1166,15 +1172,15 @@ class OriginalParserImpl
     {
         // look for leading "-" sign
         boolean negate_it = false;
-        if (currentType() == LexemeType.MINUS)
+        if(currentType() == LexemeType.MINUS)
         {
             negate_it = true;
             lexer.getNextLexeme();
         }
-
+        
         Condition c = null;
         // parse <positive_cond>
-        if (currentType() == LexemeType.L_BRACE)
+        if(currentType() == LexemeType.L_BRACE)
         {
             // read conjunctive condition
             lexer.getNextLexeme();
@@ -1187,16 +1193,16 @@ class OriginalParserImpl
             // read conds for one id
             c = parse_conds_for_one_id('s', null);
         }
-
+        
         // if necessary, handle the negation
-        if (negate_it)
+        if(negate_it)
         {
             c = negate_condition_list(c);
         }
-
+        
         return c;
     }
-
+    
     /**
      * Parses {@code <cond>+} and builds a condition list.
      * 
@@ -1212,7 +1218,7 @@ class OriginalParserImpl
         {
             /* --- get individual <cond> --- */
             Condition new_conds = parse_cond();
-            if (last_c != null)
+            if(last_c != null)
             {
                 last_c.next = new_conds;
             }
@@ -1221,15 +1227,15 @@ class OriginalParserImpl
                 first_c = new_conds;
             }
             new_conds.prev = last_c;
-            for (last_c = new_conds; last_c.next != null; last_c = last_c.next)
-            { 
+            for(last_c = new_conds; last_c.next != null; last_c = last_c.next)
+            {
                 // nothing
             }
-        } while ((currentType() == LexemeType.MINUS) || (currentType() == LexemeType.L_PAREN)
+        } while((currentType() == LexemeType.MINUS) || (currentType() == LexemeType.L_PAREN)
                 || (currentType() == LexemeType.L_BRACE));
         return first_c;
     }
-
+    
     /**
      * Parses {@code <lhs>} and builds a condition list.
      * 
@@ -1243,7 +1249,7 @@ class OriginalParserImpl
     {
         return parse_cond_plus();
     }
-
+    
     /**
      * Parses a {@code <function_call> } after the "(" has already been consumed.
      * At entry, the current lexeme should be the function name.
@@ -1263,13 +1269,13 @@ class OriginalParserImpl
             ParserException
     {
         StringSymbolImpl fun_name;
-
+        
         // read function name, find the rhs_function structure
-        if (currentType() == LexemeType.PLUS)
+        if(currentType() == LexemeType.PLUS)
         {
             fun_name = syms.createString("+");
         }
-        else if (currentType() == LexemeType.MINUS)
+        else if(currentType() == LexemeType.MINUS)
         {
             fun_name = syms.createString("-");
         }
@@ -1279,30 +1285,30 @@ class OriginalParserImpl
         }
         
         RhsFunctionHandler handler = funcs.getHandler(fun_name.getValue());
-        if (handler == null)
+        if(handler == null)
         {
-        	if (!funcs.isDisabled(fun_name.getValue()))
-        		printer.warn("No RHS function named '%s'\n", fun_name);
+            if(!funcs.isDisabled(fun_name.getValue()))
+                printer.warn("No RHS function named '%s'\n", fun_name);
         }
-
+        
         // build list of rhs_function and arguments
         final RhsFunctionCall rfc = new RhsFunctionCall(fun_name, is_stand_alone_action);
         lexer.getNextLexeme(); // consume function name, advance to argument list
-        while (currentType() != LexemeType.R_PAREN)
+        while(currentType() != LexemeType.R_PAREN)
         {
             RhsValue arg_rv = parse_rhs_value();
             rfc.addArgument(arg_rv);
         }
-
+        
         if(handler != null)
         {
             // make sure stand-alone/rhs_value is appropriate
-            if (is_stand_alone_action && (!handler.mayBeStandalone()))
+            if(is_stand_alone_action && (!handler.mayBeStandalone()))
             {
                 printer.error("In '%s': Function %s cannot be used as a stand-alone action\n", currentProduction, fun_name);
                 // TODO print_location_of_most_recent_lexeme(thisAgent);
             }
-            if ((!is_stand_alone_action) && (!handler.mayBeValue()))
+            if((!is_stand_alone_action) && (!handler.mayBeValue()))
             {
                 printer.error("In '%s': Function %s can only be used as a stand-alone action\n", currentProduction, fun_name);
                 // print_location_of_most_recent_lexeme(thisAgent);
@@ -1328,7 +1334,7 @@ class OriginalParserImpl
         lexer.getNextLexeme(); // consume the right parenthesis
         return rfc;
     }
-
+    
     /**
      * Parses an {@code <rhs_value>}. Returns an rhs_value, or null if any error
      * occurred.
@@ -1343,15 +1349,15 @@ class OriginalParserImpl
      */
     RhsValue parse_rhs_value() throws IOException, ParserException
     {
-        if (currentType() == LexemeType.L_PAREN)
+        if(currentType() == LexemeType.L_PAREN)
         {
             lexer.getNextLexeme();
             return parse_function_call_after_lparen(false);
         }
         
         final boolean id_lti = parse_lti();
-
-        if ((currentType() == LexemeType.SYM_CONSTANT)
+        
+        if((currentType() == LexemeType.SYM_CONSTANT)
                 || (currentType() == LexemeType.INTEGER)
                 || (currentType() == LexemeType.FLOAT)
                 || (currentType() == LexemeType.VARIABLE)
@@ -1364,15 +1370,15 @@ class OriginalParserImpl
         error("Illegal value for RHS value");
         throw new IllegalStateException("Unreachable code");
     }
-
+    
     /**
-     * Parses a {@code <preference-specifier> }.  Returns the appropriate 
+     * Parses a {@code <preference-specifier> }. Returns the appropriate
      * xxx_PREFERENCE_TYPE (see soarkernel.h).
      * 
-     * <p>Note:  in addition to the grammar below, if there is no preference
+     * <p>Note: in addition to the grammar below, if there is no preference
      * specifier given, then this routine returns ACCEPTABLE_PREFERENCE_TYPE.
      * Also, for {@code <binary-preference>'s}, this routine *does not* read the
-     * {@code <rhs_value> } referent.  This must be done by the caller routine.
+     * {@code <rhs_value> } referent. This must be done by the caller routine.
      * 
      * <pre>{@code
      *    <preference-specifier> ::= <naturally-unary-preference> [,]
@@ -1381,10 +1387,10 @@ class OriginalParserImpl
      *    <naturally-unary-preference> ::= + | - | ! | ~ | @
      *    <binary-preference> ::= > | = | < | &
      *    <any-preference> ::= <naturally-unary-preference> | <binary-preference>
-     *    <forced-unary-preference> ::= <binary-preference> 
-     *                                  {<any-preference> | , | ) | ^}  
-     *      ;but the parser shouldn't consume the <any-preference>, ")" or "^" 
-     *       lexeme here
+     *    <forced-unary-preference> ::= <binary-preference>
+     * {<any-preference> | , | ) | ^}
+     * ;but the parser shouldn't consume the <any-preference>, ")" or "^"
+     * lexeme here
      * }</pre>
      * 
      * <p>parser.cpp::parse_preference_specifier_without_referent
@@ -1393,7 +1399,7 @@ class OriginalParserImpl
      */
     PreferenceType parse_preference_specifier_without_referent() throws IOException
     {
-        switch (currentType())
+        switch(currentType())
         {
         case PLUS:
         case MINUS:
@@ -1404,18 +1410,21 @@ class OriginalParserImpl
             lexer.getNextLexeme();
             consumeComma();
             return type;
-
+        
         /*******************************************************************
          * [Soar-Bugs #55] <forced-unary-preference> ::= <binary-preference> {<any-preference> | , | ) | ^}
          * 
          * Forced unary preferences can now occur when a binary preference
          * is followed by a ",", ")", "^" or any preference specifier
          ******************************************************************/
-
-        case GREATER:   return parseBetterBest();
-        case EQUAL:     return parseIndifferent();
-        case LESS:      return parseWorseWorst();
-
+        
+        case GREATER:
+            return parseBetterBest();
+        case EQUAL:
+            return parseIndifferent();
+        case LESS:
+            return parseWorseWorst();
+        
         default:
             // if no preference given, make it an acceptable preference
             return PreferenceType.ACCEPTABLE;
@@ -1425,11 +1434,11 @@ class OriginalParserImpl
     private PreferenceType parseBinaryOrUnaryPreference(PreferenceType bin, PreferenceType unary) throws IOException
     {
         lexer.getNextLexeme();
-        if (!lexer.isEof() && 
-            (currentType() != LexemeType.COMMA) && 
-            (currentType() != LexemeType.R_PAREN) && 
-            (currentType() != LexemeType.UP_ARROW) && 
-            (!currentType().isPreference()))
+        if(!lexer.isEof() &&
+                (currentType() != LexemeType.COMMA) &&
+                (currentType() != LexemeType.R_PAREN) &&
+                (currentType() != LexemeType.UP_ARROW) &&
+                (!currentType().isPreference()))
         {
             return bin;
         }
@@ -1437,7 +1446,7 @@ class OriginalParserImpl
         consumeComma();
         return unary;
     }
-
+    
     private PreferenceType parseWorseWorst() throws IOException
     {
         return parseBinaryOrUnaryPreference(PreferenceType.WORSE, PreferenceType.WORST);
@@ -1447,32 +1456,32 @@ class OriginalParserImpl
     {
         return parseBinaryOrUnaryPreference(PreferenceType.BETTER, PreferenceType.BEST);
     }
-
+    
     private PreferenceType parseIndifferent() throws IOException
     {
         lexer.getNextLexeme();
-        if (!lexer.isEof() && 
-            (currentType() != LexemeType.COMMA) && 
-            (currentType() != LexemeType.R_PAREN) && 
-            (currentType() != LexemeType.UP_ARROW) && 
-            (!currentType().isPreference()))
+        if(!lexer.isEof() &&
+                (currentType() != LexemeType.COMMA) &&
+                (currentType() != LexemeType.R_PAREN) &&
+                (currentType() != LexemeType.UP_ARROW) &&
+                (!currentType().isPreference()))
         {
-
-            if ((currentType() == LexemeType.INTEGER) || (currentType() == LexemeType.FLOAT))
+            
+            if((currentType() == LexemeType.INTEGER) || (currentType() == LexemeType.FLOAT))
                 return PreferenceType.NUMERIC_INDIFFERENT;
             else
                 return PreferenceType.BINARY_INDIFFERENT;
         }
-
+        
         // forced unary preference
         consumeComma();
         return PreferenceType.UNARY_INDIFFERENT;
     }
-
+    
     /**
      * Given the id, attribute, and value already read, this routine
-     * parses zero or more {@code <preference-specifier>'s }.  It builds and
-     * returns an action list for these RHS make's.  It returns null if
+     * parses zero or more {@code <preference-specifier>'s }. It builds and
+     * returns an action list for these RHS make's. It returns null if
      * any error occurred.
      * 
      * <pre>{@code
@@ -1482,7 +1491,7 @@ class OriginalParserImpl
      *                          | <forced-unary-preference>
      *                          | <binary-preference> <rhs_value> [,]
      * }</pre>
-     *     
+     * 
      * <p>parser.cpp::parse_preferences
      * 
      * @return an action list
@@ -1491,23 +1500,23 @@ class OriginalParserImpl
     {
         // Note: this routine is set up so if there's not preference type
         // indicator at all, we return a single acceptable preference make
-
+        
         boolean saw_plus_sign = (currentType() == LexemeType.PLUS);
         PreferenceType preference_type = parse_preference_specifier_without_referent();
-        if ((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
+        if((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
         {
             // If the routine gave us a + pref without seeing a + sign, then it's
-            // just giving us the default acceptable preference.  Look for optional
+            // just giving us the default acceptable preference. Look for optional
             // comma.
             consumeComma();
         }
-
+        
         Action prev_a = null;
-        while (true)
+        while(true)
         {
             // read referent
             final RhsValue referent;
-            if (preference_type.isBinary())
+            if(preference_type.isBinary())
             {
                 referent = parse_rhs_value();
                 consumeComma();
@@ -1516,7 +1525,7 @@ class OriginalParserImpl
             {
                 referent = null;
             }
-
+            
             // create the appropriate action
             final MakeAction a = new MakeAction();
             a.preference_type = preference_type;
@@ -1525,17 +1534,17 @@ class OriginalParserImpl
             a.id = id.toRhsValue();
             a.attr = attr.copy();
             a.value = value.copy();
-            if (preference_type.isBinary())
+            if(preference_type.isBinary())
             {
                 a.referent = referent;
             }
-
+            
             // look for another preference type specifier
             saw_plus_sign = (currentType() == LexemeType.PLUS);
             preference_type = parse_preference_specifier_without_referent();
-
+            
             // exit loop when done reading preferences
-            if ((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
+            if((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
             {
                 // If the routine gave us a + pref without seeing a + sign, then it's
                 // just giving us the default acceptable preference, it didn't see any
@@ -1544,17 +1553,17 @@ class OriginalParserImpl
             }
         }
     }
-
+    
     /**
      * Given the id, attribute, and value already read, this routine
-     * parses zero or more {@code <preference-specifier>'s}.  If preferences
+     * parses zero or more {@code <preference-specifier>'s}. If preferences
      * other than reject and acceptable are specified, it prints
-     * a warning message that they are being ignored.  It builds an
-     * action list for creating an ACCEPTABLE preference.  If binary 
-     * preferences are encountered, a warning message is printed and 
-     * the production is ignored (returns null).  It returns null if any 
-     * other error occurred.  This works in conjunction with the code
-     * that supports attribute_preferences_mode == 2.  Anywhere that
+     * a warning message that they are being ignored. It builds an
+     * action list for creating an ACCEPTABLE preference. If binary
+     * preferences are encountered, a warning message is printed and
+     * the production is ignored (returns null). It returns null if any
+     * other error occurred. This works in conjunction with the code
+     * that supports attribute_preferences_mode == 2. Anywhere that
      * attribute_preferences_mode == 2 is tested, the code now tests
      * for operand2_mode == true.
      * 
@@ -1565,52 +1574,56 @@ class OriginalParserImpl
      *                          | <forced-unary-preference>
      *                          | <binary-preference> <rhs_value> [,]
      * }</pre>
-     *                 
+     * 
      * <p>parser.cpp::parse_preferences_soar8_non_operator
      * 
      * @return action
      */
-    Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException 
+    Action parse_preferences_soar8_non_operator(SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException
     {
-        /* --- Note: this routine is set up so if there's not preference type
-           indicator at all, we return an acceptable preference make. For
-           non-operators, allow only REJECT_PREFERENCE_TYPE, (and ACCEPTABLE).
-           
-           If any other preference type indicator is found, a warning or
-           error msg (error only on binary prefs) is printed. --- */
-
+        /*
+         * --- Note: this routine is set up so if there's not preference type
+         * indicator at all, we return an acceptable preference make. For
+         * non-operators, allow only REJECT_PREFERENCE_TYPE, (and ACCEPTABLE).
+         * 
+         * If any other preference type indicator is found, a warning or
+         * error msg (error only on binary prefs) is printed. ---
+         */
+        
         boolean saw_plus_sign = (currentType() == LexemeType.PLUS);
         PreferenceType preference_type = parse_preference_specifier_without_referent();
-        if ((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
+        if((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
         {
-            /* If the routine gave us a + pref without seeing a + sign, then it's
-               just giving us the default acceptable preference.  Look for optional
-               comma. */
+            /*
+             * If the routine gave us a + pref without seeing a + sign, then it's
+             * just giving us the default acceptable preference. Look for optional
+             * comma.
+             */
             consumeComma();
         }
-
+        
         Action prev_a = null;
-
-        while (true)
+        
+        while(true)
         {
             /* step through the pref list, print warning messages when necessary. */
-
+            
             /* --- read referent --- */
-            if (preference_type.isBinary())
+            if(preference_type.isBinary())
             {
                 error(String.format("In Soar8, binary preference illegal for non-operator. "
                         + "(id = %s\t attr = %s\t value = %s)\n", id, attr, value));
             }
-
-            if ((preference_type != PreferenceType.ACCEPTABLE) && (preference_type != PreferenceType.REJECT))
+            
+            if((preference_type != PreferenceType.ACCEPTABLE) && (preference_type != PreferenceType.REJECT))
             {
                 printer.warn("\nWARNING: in Soar8, the only allowable non-operator preference \n"
                         + "is REJECT - .\nIgnoring specified preferences.\n" + "id = %s\t attr = %s\t value = %s\n",
                         id, attr, value);
                 // print_location_of_most_recent_lexeme(thisAgent);
             }
-
-            if (preference_type == PreferenceType.REJECT)
+            
+            if(preference_type == PreferenceType.REJECT)
             {
                 // create the appropriate action
                 MakeAction a = new MakeAction();
@@ -1621,23 +1634,27 @@ class OriginalParserImpl
                 a.attr = attr.copy();
                 a.value = value.copy();
             }
-
+            
             // look for another preference type specifier
             saw_plus_sign = (currentType() == LexemeType.PLUS);
             preference_type = parse_preference_specifier_without_referent();
-
+            
             // exit loop when done reading preferences
-            if ((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
+            if((preference_type == PreferenceType.ACCEPTABLE) && (!saw_plus_sign))
             {
-                /* If the routine gave us a + pref without seeing a + sign, then it's
-                   just giving us the default acceptable preference, it didn't see any
-                   more preferences specified. */
-
-                /* for soar8, if this wasn't a REJECT preference, then
-                	create acceptable preference makes.  */
-                if (prev_a == null)
+                /*
+                 * If the routine gave us a + pref without seeing a + sign, then it's
+                 * just giving us the default acceptable preference, it didn't see any
+                 * more preferences specified.
+                 */
+                
+                /*
+                 * for soar8, if this wasn't a REJECT preference, then
+                 * create acceptable preference makes.
+                 */
+                if(prev_a == null)
                 {
-
+                    
                     MakeAction a = new MakeAction();
                     a.next = prev_a;
                     prev_a = a;
@@ -1650,10 +1667,10 @@ class OriginalParserImpl
             }
         }
     }
-
+    
     /**
      * Given the id already read, this routine parses an {@code <attr_value_make>}.
-     * It builds and returns an action list for these RHS make's.  It
+     * It builds and returns an action list for these RHS make's. It
      * returns null if any error occurred.
      * 
      * <pre>{@code
@@ -1665,48 +1682,54 @@ class OriginalParserImpl
      * 
      * @return make action
      */
-    Action parse_attr_value_make (SymbolImpl id) throws IOException, ParserException 
+    Action parse_attr_value_make(SymbolImpl id) throws IOException, ParserException
     {
         RhsValue value;
         Action new_actions, last;
-
+        
         expect(LexemeType.UP_ARROW, "in RHS make action"); // consume up-arrow, advance to attribute
-
+        
         RhsValue attr = parse_rhs_value();
-        if (attr == null)
+        if(attr == null)
         {
             return null;
         }
-
+        
         String szAttribute = String.format("%s", attr); // (rhs_value_to_string)
-
+        
         Action all_actions = null;
-
-        /*  allow dot notation "." in RHS attribute path  10/15/98 KJC */
-        while (currentType() == LexemeType.PERIOD)
+        
+        /* allow dot notation "." in RHS attribute path 10/15/98 KJC */
+        while(currentType() == LexemeType.PERIOD)
         {
-            lexer.getNextLexeme(); /* consume the "."  */
-            /* set up for next attribute in path: make dummy variable,
-               and create new action in the path */
-
-            /* --- create variable with "#" in its name:  this couldn't possibly be a
-               variable in the user's code, since the lexer doesn't handle "#" --- */
+            lexer.getNextLexeme(); /* consume the "." */
+            /*
+             * set up for next attribute in path: make dummy variable,
+             * and create new action in the path
+             */
+            
+            /*
+             * --- create variable with "#" in its name: this couldn't possibly be a
+             * variable in the user's code, since the lexer doesn't handle "#" ---
+             */
             /* KJC used same format so could steal code... */
             char first_letter = Character.toLowerCase(attr.getFirstLetter());
             if(first_letter - 'a' < 0)
             {
-            	first_letter = 'v';
+                first_letter = 'v';
             }
             String namebuf = "<#" + first_letter + '*' + placeholder_counter[first_letter - 'a']++;
             Variable new_var = syms.make_variable(namebuf);
             /* --- indicate that there is no corresponding "real" variable yet --- */
             new_var.current_binding_value = null;
-
-            /* parse_preferences actually creates the action.  Even though
-             there aren't really any preferences to read, we need the default
-             acceptable prefs created for all attributes in path */
             
-            if (!"operator".equals(szAttribute))
+            /*
+             * parse_preferences actually creates the action. Even though
+             * there aren't really any preferences to read, we need the default
+             * acceptable prefs created for all attributes in path
+             */
+            
+            if(!"operator".equals(szAttribute))
             {
                 new_actions = parse_preferences_soar8_non_operator(id, attr, new_var.toRhsValue());
             }
@@ -1714,32 +1737,34 @@ class OriginalParserImpl
             {
                 new_actions = parse_preferences(id, attr, new_var.toRhsValue());
             }
-
-            for (last = new_actions; last.next != null; last = last.next)
+            
+            for(last = new_actions; last.next != null; last = last.next)
             {
                 // Do nothing
             }
-
+            
             last.next = all_actions;
             all_actions = new_actions;
-
-            /* if there was a "." then there must be another attribute
-               set id for next action and get the next attribute */
+            
+            /*
+             * if there was a "." then there must be another attribute
+             * set id for next action and get the next attribute
+             */
             id = new_var;
             attr = parse_rhs_value();
-            if (attr == null)
+            if(attr == null)
             {
                 return null;
             }
-
+            
             szAttribute = String.format("%s", attr); // rhs_value_to_string
         }
         /* end of while (currentType() == PERIOD_LEXEME */
-
+        
         do
         {
             value = parse_rhs_value();
-            if (!"operator".equals(szAttribute))
+            if(!"operator".equals(szAttribute))
             {
                 new_actions = parse_preferences_soar8_non_operator(id, attr, value);
             }
@@ -1747,17 +1772,17 @@ class OriginalParserImpl
             {
                 new_actions = parse_preferences(id, attr, value);
             }
-            for (last = new_actions; last.next != null; last = last.next)
+            for(last = new_actions; last.next != null; last = last.next)
             {
                 // nothing
             }
             last.next = all_actions;
             all_actions = new_actions;
-        } while ((currentType() != LexemeType.R_PAREN) && (currentType() != LexemeType.UP_ARROW));
-
+        } while((currentType() != LexemeType.R_PAREN) && (currentType() != LexemeType.UP_ARROW));
+        
         return all_actions;
     }
-
+    
     /**
      * Parses a {@code <rhs_action>} and returns an action list. If any error occurrs,
      * null is returned.
@@ -1773,12 +1798,12 @@ class OriginalParserImpl
         expect(LexemeType.L_PAREN, "to begin RHS action");
         
         final boolean id_lti = parse_lti();
-
-        if (currentType() != LexemeType.VARIABLE && currentType() != LexemeType.IDENTIFIER)
+        
+        if(currentType() != LexemeType.VARIABLE && currentType() != LexemeType.IDENTIFIER)
         {
             // the action is a function call
             RhsFunctionCall funcall_value = parse_function_call_after_lparen(true);
-            if (funcall_value == null)
+            if(funcall_value == null)
             {
                 return null;
             }
@@ -1796,14 +1821,13 @@ class OriginalParserImpl
             var = syms.make_variable(current().string);
         }
         
-        
         lexer.getNextLexeme();
         Action all_actions = null;
         Action last = null;
-        while (currentType() != LexemeType.R_PAREN)
+        while(currentType() != LexemeType.R_PAREN)
         {
             final Action new_actions = parse_attr_value_make(var);
-            for (last = new_actions; last.next != null; last = last.next)
+            for(last = new_actions; last.next != null; last = last.next)
             {
                 // nothing
             }
@@ -1813,7 +1837,7 @@ class OriginalParserImpl
         lexer.getNextLexeme(); // consume the right parenthesis
         return all_actions;
     }
-
+    
     /**
      * Parses the {@code <rhs>} and sets *actions to the resulting action list. Returns
      * true if successful, false if any error occurred.
@@ -1825,10 +1849,10 @@ class OriginalParserImpl
     {
         Action all_actions = null;
         Action last = null;
-        while (!lexer.isEof() && currentType() != LexemeType.R_PAREN)
+        while(!lexer.isEof() && currentType() != LexemeType.R_PAREN)
         {
             final Action new_actions = parse_rhs_action();
-            for (last = new_actions; last.next != null; last = last.next)
+            for(last = new_actions; last.next != null; last = last.next)
             {
                 // nothing
             }
@@ -1837,10 +1861,11 @@ class OriginalParserImpl
         }
         return all_actions;
     }
-
+    
     private String parseProductionName() throws ParserException, IOException
     {
-        if (currentType()!=LexemeType.SYM_CONSTANT) {
+        if(currentType() != LexemeType.SYM_CONSTANT)
+        {
             error("Expected symbol for production name\n");
             throw new IllegalStateException("Unreachable code");
         }
@@ -1854,13 +1879,14 @@ class OriginalParserImpl
     {
         String documentation = null;
         // read optional documentation string
-        if (currentType()==LexemeType.QUOTED_STRING) {
-          documentation = current().string;
-          lexer.getNextLexeme();
+        if(currentType() == LexemeType.QUOTED_STRING)
+        {
+            documentation = current().string;
+            lexer.getNextLexeme();
         }
         return documentation;
     }
-
+    
     /**
      * This routine reads a production (everything inside the body of the "sp"
      * command), builds a production, and adds it to the rete.
@@ -1874,40 +1900,40 @@ class OriginalParserImpl
     public Production parseProduction() throws IOException, ParserException
     {
         reset_placeholder_variable_generator();
-
+        
         final String name = parseProductionName();
         currentProduction = name;
-
+        
         // read optional documentation string
         final String documentation = parseDocumenation();
-
+        
         // read optional flags
         Support declared_support = Support.UNDECLARED;
         ProductionType prod_type = ProductionType.USER;
         boolean interrupt_on_match = false;
-        while (currentType() == LexemeType.SYM_CONSTANT)
+        while(currentType() == LexemeType.SYM_CONSTANT)
         {
-            if (":o-support".equals(current().string))
+            if(":o-support".equals(current().string))
             {
                 declared_support = Support.DECLARED_O_SUPPORT;
             }
-            else if (":i-support".equals(current().string))
+            else if(":i-support".equals(current().string))
             {
                 declared_support = Support.DECLARED_I_SUPPORT;
             }
-            else if (":chunk".equals(current().string))
+            else if(":chunk".equals(current().string))
             {
                 prod_type = ProductionType.CHUNK;
             }
-            else if (":default".equals(current().string))
+            else if(":default".equals(current().string))
             {
                 prod_type = ProductionType.DEFAULT;
             }
-            else if (":template".equals(current().string))
+            else if(":template".equals(current().string))
             {
                 prod_type = ProductionType.TEMPLATE;
             }
-            else if (":interrupt".equals(current().string))
+            else if(":interrupt".equals(current().string))
             {
                 interrupt_on_match = true;
             }
@@ -1917,14 +1943,14 @@ class OriginalParserImpl
             }
             lexer.getNextLexeme();
         }
-
+        
         final Condition lhs = parse_lhs();
-
+        
         // read the "-->"
         expect(LexemeType.RIGHT_ARROW, "in production");
-
+        
         final Action rhs = destructively_reverse_action_list(parse_rhs());
-
+        
         // TODO: DR: This makes no sense to me
         // /* --- finally, make sure there's a closing right parenthesis (but
         // don't consume it) --- */
@@ -1939,34 +1965,34 @@ class OriginalParserImpl
         // deallocate_action_list (thisAgent, rhs);
         // return null;
         // }
-
+        
         // replace placeholder variables with real variables
         varGen.reset(lhs, rhs);
         substitute_for_placeholders_in_condition_list(lhs);
         substitute_for_placeholders_in_action_list(rhs);
-
+        
         // everything parsed okay, so make the production structure
         final Condition lhs_top = lhs;
         Condition lhs_bottom = lhs;
-        for (; lhs_bottom.next != null; lhs_bottom = lhs_bottom.next)
+        for(; lhs_bottom.next != null; lhs_bottom = lhs_bottom.next)
         {
             // Nothing
         }
-
+        
         final Production p = Production.newBuilder()
-            .type(prod_type)
-            .location(location)
-            .name(name)
-            .documentation(documentation)
-            .conditions(lhs_top, lhs_bottom)
-            .actions(rhs)
-            .support(declared_support)
-            .interrupt(interrupt_on_match)
-            .build();
-
+                .type(prod_type)
+                .location(location)
+                .name(name)
+                .documentation(documentation)
+                .conditions(lhs_top, lhs_bottom)
+                .actions(rhs)
+                .support(declared_support)
+                .interrupt(interrupt_on_match)
+                .build();
+        
         return p;
-}
-
+    }
+    
     /**
      * As the parser builds the action list for the RHS, it adds each new action
      * onto the front of the list. This results in the order of the actions
@@ -1982,7 +2008,7 @@ class OriginalParserImpl
     {
         Action prev = null;
         Action current = a;
-        while (current != null)
+        while(current != null)
         {
             Action next = current.next;
             current.next = prev;
@@ -1994,7 +2020,9 @@ class OriginalParserImpl
     
     private static class DefaultLtiSource implements LongTermIdentifierSource
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.symbols.LongTermIdentifierSource#smem_lti_get_id(char, long)
          */
         @Override
@@ -2003,8 +2031,10 @@ class OriginalParserImpl
         {
             throw new IllegalStateException("Long term identifiers are not supported by this parser.");
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.symbols.LongTermIdentifierSource#smem_lti_soar_make(long, char, long, int)
          */
         @Override

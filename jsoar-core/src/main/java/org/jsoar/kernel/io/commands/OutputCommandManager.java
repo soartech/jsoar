@@ -23,41 +23,40 @@ public class OutputCommandManager
     private final Map<String, OutputCommandHandler> commandHandlers;
     private final SoarEventListener listener;
     private final SoarEventManager eventManager;
-
+    
     /**
      * Construct a new {@link OutputCommandManager} and attach it to an {@link SoarEventManager}.
      * 
      * @param eventManager
-     *            the event manager to listen to.
+     *     the event manager to listen to.
      */
     public OutputCommandManager(SoarEventManager eventManager)
     {
         commandHandlers = Maps.newConcurrentMap();
         this.eventManager = eventManager;
-        this.listener = soarEvent ->
-        {
+        this.listener = soarEvent -> {
             OutputEvent event = (OutputEvent) soarEvent;
-
+            
             Collection<Wme> pendingCommands = Collections2.filter(event.getInputOutput().getPendingCommands(), new ValidityPredicate());
-            for (final Wme wme1 : pendingCommands)
+            for(final Wme wme1 : pendingCommands)
             {
                 String name1 = wme1.getAttribute().asString().getValue();
                 Identifier identifier1 = wme1.getValue().asIdentifier();
                 OutputCommandHandler handler1 = commandHandlers.get(name1);
-                if (handler1 == null)
+                if(handler1 == null)
                 {
                     continue;
                 }
                 handler1.onCommandAdded(name1, identifier1);
             }
-
+            
             Collection<Wme> removingCommands = Collections2.filter(event.getInputOutput().getRemovingCommands(), new ValidityPredicate());
-            for (final Wme wme2 : removingCommands)
+            for(final Wme wme2 : removingCommands)
             {
                 String name2 = wme2.getAttribute().asString().getValue();
                 Identifier identifier2 = wme2.getValue().asIdentifier();
                 OutputCommandHandler handler2 = commandHandlers.get(name2);
-                if (handler2 == null)
+                if(handler2 == null)
                 {
                     continue;
                 }
@@ -66,15 +65,15 @@ public class OutputCommandManager
         };
         this.eventManager.addListener(OutputEvent.class, listener);
     }
-
+    
     /**
      * Add a new {@link OutputCommandHandler} that will be fired when the
      * specified command is added to the output link.
      * 
      * @param commandName
-     *            name of the command
+     *     name of the command
      * @param commandHandler
-     *            handler for the command.
+     *     handler for the command.
      */
     public void registerHandler(String commandName,
             OutputCommandHandler commandHandler)
@@ -100,12 +99,12 @@ public class OutputCommandManager
         public boolean apply(Wme wme)
         {
             // Attribute of wme should be a string.
-            if (wme.getAttribute().asString() == null)
+            if(wme.getAttribute().asString() == null)
             {
                 return false;
             }
             // Value of wme should be an identifier.
-            if (wme.getValue().asIdentifier() == null)
+            if(wme.getValue().asIdentifier() == null)
             {
                 return false;
             }

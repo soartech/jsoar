@@ -10,13 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */
 public class ByRefTest
 {
-
+    
     @Test
     public void testCreateFromNull()
     {

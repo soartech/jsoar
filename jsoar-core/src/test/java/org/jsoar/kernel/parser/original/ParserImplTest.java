@@ -51,6 +51,7 @@ public class ParserImplTest extends JSoarTest
         assertNotNull(sc);
         assertEquals(name, sc.name);
     }
+    
     private void verifyStringSymbol(SymbolImpl sym, String name)
     {
         StringSymbolImpl sc = sym.asString();
@@ -80,7 +81,6 @@ public class ParserImplTest extends JSoarTest
         lexer.getNextLexeme();
         return parser;
     }
-
     
     @Test
     public void testParseDisjunctionTest() throws Exception
@@ -108,7 +108,7 @@ public class ParserImplTest extends JSoarTest
         assertNotNull(rt);
         verifyStringSymbol(rt.getReferent(), "hello there");
     }
-
+    
     @Test
     public void testParseLessTest() throws Exception
     {
@@ -188,12 +188,12 @@ public class ParserImplTest extends JSoarTest
         assertNotNull(t0);
         assertEquals(RelationalTest.LESS_TEST, t0.type);
         verifyIntSymbol(t0.referent, 99);
-
+        
         RelationalTest t1 = ct.conjunct_list.get(1).asRelationalTest();
         assertNotNull(t1);
         assertEquals(RelationalTest.NOT_EQUAL_TEST, t1.type);
         verifyVariableSymbol(t1.referent, "<x>");
-
+        
         DisjunctionTest t2 = ct.conjunct_list.get(2).asDisjunctionTest();
         assertNotNull(t2);
         assertEquals(2, t2.disjunction_list.size());
@@ -223,8 +223,8 @@ public class ParserImplTest extends JSoarTest
     public void testParseCondsPlus() throws Exception
     {
         OriginalParserImpl parser = createParser("(state <s> ^superstate nil)\n" +
-        		"(<s> ^io <io> ^superstate <ss>)\n" +
-        		" -(<s> ^value 3)");
+                "(<s> ^io <io> ^superstate <ss>)\n" +
+                " -(<s> ^value 3)");
         
         Condition c0 = parser.parse_cond_plus(); // ^superstate nil
         assertNotNull(c0);
@@ -300,17 +300,17 @@ public class ParserImplTest extends JSoarTest
     @Test
     public void testParsePreferenceSpecifierWithoutReferent() throws Exception
     {
-        verifyParsePreference(" + " , PreferenceType.ACCEPTABLE);
-        verifyParsePreference(" - " , PreferenceType.REJECT);
-        verifyParsePreference(" ! " , PreferenceType.REQUIRE);
-        verifyParsePreference(" ~ " , PreferenceType.PROHIBIT);
-        verifyParsePreference(" > 5 " , PreferenceType.BETTER);
-        verifyParsePreference(" > " , PreferenceType.BEST);
-        verifyParsePreference(" = 5 " , PreferenceType.NUMERIC_INDIFFERENT);
-        verifyParsePreference(" = <x> " , PreferenceType.BINARY_INDIFFERENT);
-        verifyParsePreference(" =  " , PreferenceType.UNARY_INDIFFERENT);
-        verifyParsePreference(" < 5 " , PreferenceType.WORSE);
-        verifyParsePreference(" < " , PreferenceType.WORST);
+        verifyParsePreference(" + ", PreferenceType.ACCEPTABLE);
+        verifyParsePreference(" - ", PreferenceType.REJECT);
+        verifyParsePreference(" ! ", PreferenceType.REQUIRE);
+        verifyParsePreference(" ~ ", PreferenceType.PROHIBIT);
+        verifyParsePreference(" > 5 ", PreferenceType.BETTER);
+        verifyParsePreference(" > ", PreferenceType.BEST);
+        verifyParsePreference(" = 5 ", PreferenceType.NUMERIC_INDIFFERENT);
+        verifyParsePreference(" = <x> ", PreferenceType.BINARY_INDIFFERENT);
+        verifyParsePreference(" =  ", PreferenceType.UNARY_INDIFFERENT);
+        verifyParsePreference(" < 5 ", PreferenceType.WORSE);
+        verifyParsePreference(" < ", PreferenceType.WORST);
     }
     
     @Test
@@ -343,32 +343,32 @@ public class ParserImplTest extends JSoarTest
         // Just testing a larger production to exercise the parser more
         // blocks-opsub.soar:58
         OriginalParserImpl parser = createParser(
-        "    top-ps*propose*operator*build-tower\n" +
-        "    (state <s> ^name blocks-world\n" +
-        "               ^object <blockA> <blockB> <blockC> <table>)\n" +
-        "    (<blockA> ^name A ^type block)\n" +
-        "    (<blockB> ^name B ^type block)\n" +
-        "    (<blockC> ^name C ^type block)\n" +
-        "    (<table> ^name table ^type table)\n" +
-        "  -{(<s> ^ontop <ontopa1> <ontopa2> <ontopa3>)\n" +
-        "    (<ontopa1> ^top-block <blockA> \n" +
-        "               ^bottom-block <blockB>)\n" +
-        "    (<ontopa2> ^top-block <blockB> \n" +
-        "               ^bottom-block <blockC>)\n" +
-        "    (<ontopa3> ^top-block <blockC> \n" +
-        "               ^bottom-block <table>)}\n" +
-        "    -->\n" +
-        "    (<s> ^operator <o>)\n" +
-        "    (<o> ^name build-tower \n" +
-        "         ^desired <ds>)\n" +
-        "    (<ds> ^ontop <ontop1> <ontop2> <ontop3>)\n" +
-        "    (<ontop1> ^top-block <blockA> \n" +
-        "              ^bottom-block <blockB>)\n" +
-        "    (<ontop2> ^top-block <blockB> \n" +
-        "              ^bottom-block <blockC>)\n" +
-        "    (<ontop3> ^top-block <blockC> \n" +
-        "              ^bottom-block <table>)\n" +
-        "    (write (crlf) |The goal is to get A on B on C on the table.|)\n");
+                "    top-ps*propose*operator*build-tower\n" +
+                        "    (state <s> ^name blocks-world\n" +
+                        "               ^object <blockA> <blockB> <blockC> <table>)\n" +
+                        "    (<blockA> ^name A ^type block)\n" +
+                        "    (<blockB> ^name B ^type block)\n" +
+                        "    (<blockC> ^name C ^type block)\n" +
+                        "    (<table> ^name table ^type table)\n" +
+                        "  -{(<s> ^ontop <ontopa1> <ontopa2> <ontopa3>)\n" +
+                        "    (<ontopa1> ^top-block <blockA> \n" +
+                        "               ^bottom-block <blockB>)\n" +
+                        "    (<ontopa2> ^top-block <blockB> \n" +
+                        "               ^bottom-block <blockC>)\n" +
+                        "    (<ontopa3> ^top-block <blockC> \n" +
+                        "               ^bottom-block <table>)}\n" +
+                        "    -->\n" +
+                        "    (<s> ^operator <o>)\n" +
+                        "    (<o> ^name build-tower \n" +
+                        "         ^desired <ds>)\n" +
+                        "    (<ds> ^ontop <ontop1> <ontop2> <ontop3>)\n" +
+                        "    (<ontop1> ^top-block <blockA> \n" +
+                        "              ^bottom-block <blockB>)\n" +
+                        "    (<ontop2> ^top-block <blockB> \n" +
+                        "              ^bottom-block <blockC>)\n" +
+                        "    (<ontop3> ^top-block <blockC> \n" +
+                        "              ^bottom-block <table>)\n" +
+                        "    (write (crlf) |The goal is to get A on B on C on the table.|)\n");
         Production p = parser.parseProduction();
         assertNotNull(p);
     }
@@ -386,11 +386,11 @@ public class ParserImplTest extends JSoarTest
     {
         // Testing a problematic production from towers-of-hanoi
         OriginalParserImpl parser = createParser("towers-of-hanoi*propose*initialize\n" +
-"   (state <s> ^superstate nil\n" +
-"             -^name)\n" +
-"-->\n" +
-"   (<s> ^operator <o> +)\n" +
-"   (<o> ^name initialize-toh)");
+                "   (state <s> ^superstate nil\n" +
+                "             -^name)\n" +
+                "-->\n" +
+                "   (<s> ^operator <o> +)\n" +
+                "   (<o> ^name initialize-toh)");
         Production p = parser.parseProduction();
         assertNotNull(p);
     }
@@ -400,11 +400,11 @@ public class ParserImplTest extends JSoarTest
     {
         // Testing a problematic production from towers-of-hanoi
         OriginalParserImpl parser = createParser("production-with-comment\n" +
-"   (state <s> ^superstate nil\n" +
-"              #^commented-out 1\n" +
-"             ^name)\n" +
-"-->\n" +
-"   (write)");
+                "   (state <s> ^superstate nil\n" +
+                "              #^commented-out 1\n" +
+                "             ^name)\n" +
+                "-->\n" +
+                "   (write)");
         Production p = parser.parseProduction();
         assertNotNull(p);
     }
@@ -414,14 +414,15 @@ public class ParserImplTest extends JSoarTest
     {
         // Testing a problematic production from towers-of-hanoi
         OriginalParserImpl parser = createParser("production-with-comment\n" +
-"   (state <s> ^superstate nil\n" +
-"              ^attr 1 ;# trailing comment\n" +
-"             ^name)\n" +
-"-->\n" +
-"   (write)");
+                "   (state <s> ^superstate nil\n" +
+                "              ^attr 1 ;# trailing comment\n" +
+                "             ^name)\n" +
+                "-->\n" +
+                "   (write)");
         Production p = parser.parseProduction();
         assertNotNull(p);
-    }    
+    }
+    
     @Test
     public void testThrowsIllegalStateExceptionWithLtiAndNoLtiSource() throws Exception
     {
@@ -431,7 +432,7 @@ public class ParserImplTest extends JSoarTest
                 "(write hello)");
         assertThrows(IllegalStateException.class, () -> parser.parseProduction());
     }
-
+    
     @Test
     public void testCanParseLongTermIdentifierInTest() throws Exception
     {
@@ -519,10 +520,10 @@ public class ParserImplTest extends JSoarTest
     {
         // Testing that the parser successfully generates a variable from an attribute with a capital letter
         OriginalParserImpl parser = createParser("production-with-cap-letter\n" +
-"   (state <s> ^superstate nil\n)" +
-"-->\n" +
-"   (<s> ^A.b c)");
+                "   (state <s> ^superstate nil\n)" +
+                "-->\n" +
+                "   (<s> ^A.b c)");
         Production p = parser.parseProduction();
         assertNotNull(p);
-    } 
+    }
 }

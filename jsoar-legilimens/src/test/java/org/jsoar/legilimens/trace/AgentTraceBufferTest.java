@@ -5,7 +5,6 @@
  */
 package org.jsoar.legilimens.trace;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.kernel.Agent;

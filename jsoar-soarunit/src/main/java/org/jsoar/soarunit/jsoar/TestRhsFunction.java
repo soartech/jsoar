@@ -38,7 +38,7 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
         
         this.agent = agent;
     }
-
+    
     /**
      * @return the called
      */
@@ -46,7 +46,7 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
     {
         return called;
     }
-
+    
     /**
      * @return the arguments
      */
@@ -54,8 +54,10 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
     {
         return arguments;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -66,5 +68,5 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
         this.arguments = arguments;
         return agent.getRhsFunctions().getHandler("halt").execute(context, arguments);
     }
-
+    
 }

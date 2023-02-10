@@ -54,16 +54,16 @@ public class ReteNetReader
     // JSoar rete-net header information.
     protected static final String MAGIC_STRING = "JSoarCompactReteNet";
     protected static final int FORMAT_VERSION = 1;
-
+    
     private final Agent context;
     private final SymbolFactoryImpl syms;
     private final Rete rete;
     private final DefaultProductionManager productionManager;
     private final ReinforcementLearning rl;
-
+    
     private List<Symbol> symbolMap;
     private List<AlphaMemory> alphaMemories;
-
+    
     protected ReteNetReader(Agent context)
     {
         Arguments.checkNotNull(context, "context");
@@ -71,9 +71,9 @@ public class ReteNetReader
         this.syms = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
         this.rl = Adaptables.require(getClass(), context, ReinforcementLearning.class);
-        this.productionManager = (DefaultProductionManager)context.getProductions();
+        this.productionManager = (DefaultProductionManager) context.getProductions();
     }
-
+    
     /**
      * Load a rete network from the given input stream.
      * 
@@ -100,13 +100,13 @@ public class ReteNetReader
             throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d",
                     FORMAT_VERSION, version));
         }
-
+        
         readAllSymbols(dis);
         readAlphaMemories(dis);
         readChildrenOfNode(dis);
     }
-
-    /** 
+    
+    /**
      * @see ReteNetWriter#writeChildrenOfNode
      * 
      */
@@ -114,14 +114,14 @@ public class ReteNetReader
     {
         // Number of children.
         int numNodes = dis.readInt();
-
-        for (int i = 0; i < numNodes; i++)
+        
+        for(int i = 0; i < numNodes; i++)
         {
             readNodeAndChildren(dis, rete.dummy_top_node);
         }
     }
-
-    /** 
+    
+    /**
      * @see ReteNetWriter#writeNodeAndChildren
      * 
      * <p>rete.cpp:7377:reteload_node_and_children
@@ -141,26 +141,26 @@ public class ReteNetReader
             boolean left_unlinked_flag;
             ReteTest other_tests;
             Production prod;
-    
-            /* 
+            
+            /*
              * Initializing the left_hash_loc structure to flag values.
              * It gets passed into some of the various make_new_??? functions
              * below but is never used (hopefully) for UNHASHED node types.
              */
             VarLocation left_hash_loc = new VarLocation(-1, -1);
-    
-            switch (type)
+            
+            switch(type)
             {
             case MEMORY_BNODE:
                 left_hash_loc = readLeftHashLoc(dis);
-                // ... and fall through to the next case below ... 
+                // ... and fall through to the next case below ...
             case UNHASHED_MEMORY_BNODE:
                 New = ReteNode.make_new_mem_node(rete, currentParent, type, left_hash_loc);
                 break;
-    
+            
             case MP_BNODE:
                 left_hash_loc = readLeftHashLoc(dis);
-                // ... and fall through to the next case below ... 
+                // ... and fall through to the next case below ...
             case UNHASHED_MP_BNODE:
                 am = alphaMemories.get(dis.readInt());
                 am.reference_count++;
@@ -169,7 +169,7 @@ public class ReteNetReader
                 New = ReteNode.make_new_mp_node(rete, currentParent, type, left_hash_loc, am, other_tests,
                         left_unlinked_flag);
                 break;
-    
+            
             case POSITIVE_BNODE:
             case UNHASHED_POSITIVE_BNODE:
                 am = alphaMemories.get(dis.readInt());
@@ -179,25 +179,26 @@ public class ReteNetReader
                 New = ReteNode.make_new_positive_node(rete, currentParent, type, am, other_tests,
                         left_unlinked_flag);
                 break;
-    
+            
             case NEGATIVE_BNODE:
                 left_hash_loc = readLeftHashLoc(dis);
-                // ... and fall through to the next case below ... 
+                // ... and fall through to the next case below ...
             case UNHASHED_NEGATIVE_BNODE:
                 am = alphaMemories.get(dis.readInt());
                 am.reference_count++;
-    
+                
                 other_tests = readTestList(dis);
-                New = ReteNode.make_new_negative_node(rete, currentParent, type, left_hash_loc, am,other_tests);
+                New = ReteNode.make_new_negative_node(rete, currentParent, type, left_hash_loc, am, other_tests);
                 break;
-    
+            
             case CN_PARTNER_BNODE:
                 int count = dis.readInt();
                 ReteNode ncc_top = currentParent;
-                while (count-- > 0) ncc_top = ncc_top.real_parent_node();
+                while(count-- > 0)
+                    ncc_top = ncc_top.real_parent_node();
                 New = ReteNode.make_new_cn_node(rete, ncc_top, currentParent);
                 break;
-    
+            
             case P_BNODE:
                 String name = dis.readUTF();
                 String doc = dis.readUTF();
@@ -211,7 +212,7 @@ public class ReteNetReader
                         .support(declaredSupport)
                         .actions(actionList)
                         .build();
-    
+                
                 int numUnboundVariables = dis.readInt();
                 rete.update_max_rhs_unbound_variables(numUnboundVariables);
                 List<Variable> unboundVars = new ArrayList<Variable>(numUnboundVariables);
@@ -220,13 +221,13 @@ public class ReteNetReader
                     unboundVars.add(getSymbol(dis.readInt()).asVariable());
                 }
                 prod.setRhsUnboundVariables(unboundVars);
-    
+                
                 // Soar-RL stuff
                 rl.addProduction(prod);
-    
+                
                 New = ReteNode.make_new_production_node(rete, currentParent, prod);
                 boolean hasNodeVariableNames = dis.readBoolean();
-                if (hasNodeVariableNames)
+                if(hasNodeVariableNames)
                 {
                     New.b_p().parents_nvn = readNodeVarNames(dis, currentParent, symbolMap);
                 }
@@ -234,56 +235,56 @@ public class ReteNetReader
                 {
                     New.b_p().parents_nvn = null;
                 }
-    
-                // --- call new node's add_left routine with all the parent's tokens --- 
+                
+                // --- call new node's add_left routine with all the parent's tokens ---
                 rete.update_node_with_matches_from_above(New);
-    
+                
                 productionManager.addProductionToNameTypeMaps(prod);
-                // --- invoke callback on the production --- 
+                // --- invoke callback on the production ---
                 context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
                 break;
             default:
                 throw new SoarException("Unhandled ReteNodeType: " + type);
             }
-    
+            
             /* --- read in the children of the node --- */
             int count = dis.readInt();
-            while (count-- > 0) 
+            while(count-- > 0)
             {
                 stack.push(New);
             }
         }
     }
-
+    
     /**
-     * @see ReteNetWriter#writeLeftHashLoc 
+     * @see ReteNetWriter#writeLeftHashLoc
      */
     private VarLocation readLeftHashLoc(DataInputStream dis) throws IOException
     {
-        int field_num = dis.readInt(); 
+        int field_num = dis.readInt();
         int levels_up = dis.readInt();
-
+        
         return new VarLocation(levels_up, field_num);
     }
-
+    
     /**
      * <p>rete.cpp:7116:retesave_action_list
      * 
-     * @see ReteNetWriter#writeActionList 
+     * @see ReteNetWriter#writeActionList
      */
     private Action readActionList(DataInputStream dis) throws IOException, SoarException
     {
         Action a;
         Action prev_a = null;
         Action first_a = null;
-        int count; 
-
+        int count;
+        
         count = dis.readInt();
-
-        while (count-- > 0)
+        
+        while(count-- > 0)
         {
             a = readAction(dis);
-            if (prev_a != null)
+            if(prev_a != null)
             {
                 prev_a.next = a;
             }
@@ -293,32 +294,33 @@ public class ReteNetReader
             }
             prev_a = a;
         }
-        if (prev_a != null)
+        if(prev_a != null)
         {
-            prev_a.next = null; 
+            prev_a.next = null;
         }
         else
         {
             first_a = null;
         }
-        return first_a; 
+        return first_a;
     }
-
+    
     /**
      * <p>rete.cpp:7085:reteload_rhs_action
-     * @see ReteNetWriter#writeAction 
+     * 
+     * @see ReteNetWriter#writeAction
      */
     private Action readAction(DataInputStream dis) throws IOException, SoarException
     {
         Action a = null;
-
+        
         int type = dis.readInt();
         ReteNetConstants.Action actionType = ReteNetConstants.Action.fromOrdinal(type);
-        if (actionType == ReteNetConstants.Action.MAKE_ACTION)
+        if(actionType == ReteNetConstants.Action.MAKE_ACTION)
         {
             a = new MakeAction();
         }
-        else if (actionType == ReteNetConstants.Action.FUNCALL_ACTION)
+        else if(actionType == ReteNetConstants.Action.FUNCALL_ACTION)
         {
             a = new FunctionAction(null);
         }
@@ -326,9 +328,9 @@ public class ReteNetReader
         {
             throw new SoarException(String.format("Unknown Action type %d.", type));
         }
-
+        
         boolean hasPreferenceType = dis.readBoolean();
-        if (hasPreferenceType)
+        if(hasPreferenceType)
         {
             String preference_type = dis.readUTF();
             a.preference_type = PreferenceType.valueOf(preference_type);
@@ -338,19 +340,19 @@ public class ReteNetReader
             a.preference_type = null;
         }
         a.support = ActionSupport.valueOf(dis.readUTF());
-
-        if (actionType == ReteNetConstants.Action.FUNCALL_ACTION)
+        
+        if(actionType == ReteNetConstants.Action.FUNCALL_ACTION)
         {
             FunctionAction fa = a.asFunctionAction();
             fa.call = readRHSValue(dis).asFunctionCall();
         }
-        else if (actionType == ReteNetConstants.Action.MAKE_ACTION)
+        else if(actionType == ReteNetConstants.Action.MAKE_ACTION)
         {
             MakeAction ma = a.asMakeAction();
             ma.id = readRHSValue(dis);
             ma.attr = readRHSValue(dis);
             ma.value = readRHSValue(dis);
-            if (a.preference_type != null && a.preference_type.isBinary())
+            if(a.preference_type != null && a.preference_type.isBinary())
             {
                 ma.referent = readRHSValue(dis);
             }
@@ -359,13 +361,14 @@ public class ReteNetReader
                 ma.referent = null;
             }
         }
-
+        
         return a;
     }
-
+    
     /**
      * <p>rete.cpp:6983:reteload_rhs_value
-     * @see ReteNetWriter#writeRHSValue 
+     * 
+     * @see ReteNetWriter#writeRHSValue
      */
     private RhsValue readRHSValue(DataInputStream dis) throws IOException, SoarException
     {
@@ -374,10 +377,10 @@ public class ReteNetReader
         int field_num;
         int type;
         int levels_up;
-
+        
         type = dis.readInt();
         ReteNetConstants.RHS rhsType = ReteNetConstants.RHS.fromOrdinal(type);
-        switch (rhsType)
+        switch(rhsType)
         {
         case RHS_SYMBOL: // RhsSymbolValue
             sym = getSymbol(dis.readInt());
@@ -386,18 +389,18 @@ public class ReteNetReader
         case RHS_FUNCALL: // RhsFunctionCall
             sym = getSymbol(dis.readInt());
             boolean isStandalone = dis.readBoolean();
-
+            
             // Check if the RHS function sym exists.
             // Not worth throwing an exception here because the user could register the RHS
             // function after the rete is loaded.
-            if (context.getRhsFunctions().getHandler(sym.asString().getValue()) == null)
+            if(context.getRhsFunctions().getHandler(sym.asString().getValue()) == null)
             {
                 context.getPrinter().warn("\nWARNING: Loaded a rete network that references undefined RHS function %s\n",
                         sym.asString().getValue());
             }
             RhsFunctionCall funCall = new RhsFunctionCall(sym.asString(), isStandalone);
             int count = dis.readInt();
-            while (count-- > 0)
+            while(count-- > 0)
             {
                 funCall.addArgument(readRHSValue(dis));
             }
@@ -410,34 +413,35 @@ public class ReteNetReader
             break;
         case RHS_UNBOUND_VAR: // UnboundVariable
             int index = dis.readInt(); // Index of the unbound variable.
-            rete.update_max_rhs_unbound_variables(index+1);
+            rete.update_max_rhs_unbound_variables(index + 1);
             rv = UnboundVariable.create(index);
             break;
         default:
             throw new SoarException("Unhandled RHS type: " + type);
         }
-
+        
         return rv;
     }
-
+    
     /**
      * <p>rete.cpp:7205:reteload_rete_test_list
-     * @see ReteNetWriter#writeTestList 
+     * 
+     * @see ReteNetWriter#writeTestList
      */
     private ReteTest readTestList(DataInputStream dis) throws IOException, SoarException
-    {  
+    {
         ReteTest rt, prev_rt, first;
         int count;
-
+        
         prev_rt = null;
         first = null;
         count = dis.readInt();
-        while (count-- > 0)
+        while(count-- > 0)
         {
             rt = readTest(dis);
-            if (prev_rt != null)
+            if(prev_rt != null)
             {
-                prev_rt.next = rt; 
+                prev_rt.next = rt;
             }
             else
             {
@@ -445,8 +449,8 @@ public class ReteNetReader
             }
             prev_rt = rt;
         }
-
-        if (prev_rt != null)
+        
+        if(prev_rt != null)
         {
             prev_rt.next = null;
         }
@@ -454,51 +458,53 @@ public class ReteNetReader
         {
             first = null;
         }
-
+        
         return first;
     }
-
+    
     /**
      * <p>rete.cpp:7166:reteload_rete_test
-     * @see ReteNetWriter#writeTest 
-     */    private ReteTest readTest(DataInputStream dis) throws IOException, SoarException
+     * 
+     * @see ReteNetWriter#writeTest
+     */
+    private ReteTest readTest(DataInputStream dis) throws IOException, SoarException
     {
         SymbolImpl sym;
-
+        
         int type = dis.readInt();
         int right_field_num = dis.readInt();
-
+        
         ReteTest rt = new ReteTest(type);
-        if (rt.test_is_constant_relational_test())
+        if(rt.test_is_constant_relational_test())
         {
             type -= ReteTest.CONSTANT_RELATIONAL; // ReteTest's constructor will add this back in.
             sym = getSymbol(dis.readInt());
-            rt = ReteTest.createConstantTest(type, right_field_num, (SymbolImpl)sym);
+            rt = ReteTest.createConstantTest(type, right_field_num, (SymbolImpl) sym);
         }
-        else if (rt.test_is_variable_relational_test())
+        else if(rt.test_is_variable_relational_test())
         {
             type -= ReteTest.VARIABLE_RELATIONAL; // ReteTest's constructor will add this back in.
             int field_num = dis.readInt();
             int levels_up = dis.readInt();
             rt = ReteTest.createVariableTest(type, right_field_num, new VarLocation(levels_up, field_num));
         }
-        else if (type == ReteTest.DISJUNCTION)
+        else if(type == ReteTest.DISJUNCTION)
         {
             int count = dis.readInt();
             List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>(count);
-
-            while (count-- > 0)
+            
+            while(count-- > 0)
             {
                 sym = getSymbol(dis.readInt());
-                disjuncts.add((SymbolImpl)sym);
+                disjuncts.add((SymbolImpl) sym);
             }
             rt = ReteTest.createDisjunctionTest(right_field_num, disjuncts);
         }
-        else if (type == ReteTest.ID_IS_GOAL)
+        else if(type == ReteTest.ID_IS_GOAL)
         {
-            rt = ReteTest.createGoalIdTest(); 
+            rt = ReteTest.createGoalIdTest();
         }
-        else if (type == ReteTest.ID_IS_IMPASSE)
+        else if(type == ReteTest.ID_IS_IMPASSE)
         {
             rt = ReteTest.createImpasseIdTest();
         }
@@ -506,59 +512,67 @@ public class ReteNetReader
         {
             throw new SoarException("Unknown test type: " + rt + " (" + type + ")");
         }
-
+        
         return rt;
     }
-
+    
     private static interface SymbolReader<T extends Symbol>
     {
         T read(DataInputStream dis) throws IOException;
     }
-
+    
     /**
      * Read all symbols, indexed by their rete-net symbol table index.
      * 
      * <p>rete.cpp:6690:reteload_symbol_table
      * 
      * @param dis
-     * @throws IOException 
-     * @throws SoarException 
+     * @throws IOException
+     * @throws SoarException
      * @see ReteNetWriter#writeAllSymbols
      */
     private void readAllSymbols(DataInputStream dis) throws IOException, SoarException
     {
         final List<Symbol> result = new ArrayList<Symbol>();
         result.add(null); // symbol 0 is null (see writeAllSymbols)
-
-        result.addAll(readSymbolList(dis, new SymbolReader<StringSymbol>(){
-
+        
+        result.addAll(readSymbolList(dis, new SymbolReader<StringSymbol>()
+        {
+            
             public StringSymbol read(DataInputStream dis) throws IOException
             {
                 return syms.createString(dis.readUTF());
-            }}));
-        result.addAll(readSymbolList(dis, new SymbolReader<Variable>(){
-
+            }
+        }));
+        result.addAll(readSymbolList(dis, new SymbolReader<Variable>()
+        {
+            
             public Variable read(DataInputStream dis) throws IOException
             {
                 return syms.make_variable(dis.readUTF());
-            }}));
-        result.addAll(readSymbolList(dis, new SymbolReader<IntegerSymbol>(){
-
+            }
+        }));
+        result.addAll(readSymbolList(dis, new SymbolReader<IntegerSymbol>()
+        {
+            
             public IntegerSymbol read(DataInputStream dis) throws IOException
             {
                 return syms.createInteger(dis.readLong());
-            }}));
-        result.addAll(readSymbolList(dis, new SymbolReader<DoubleSymbol>(){
-
+            }
+        }));
+        result.addAll(readSymbolList(dis, new SymbolReader<DoubleSymbol>()
+        {
+            
             public DoubleSymbol read(DataInputStream dis) throws IOException
             {
                 return syms.createDouble(dis.readDouble());
-            }}));
+            }
+        }));
         this.symbolMap = result;
     }
-
+    
     /**
-     * @see ReteNetWriter#writeSymbolList 
+     * @see ReteNetWriter#writeSymbolList
      */
     private <T extends Symbol> List<T> readSymbolList(DataInputStream dis,
             SymbolReader<T> reader) throws IOException, SoarException
@@ -575,10 +589,10 @@ public class ReteNetReader
         }
         return result;
     }
-
+    
     /**
-     * @see ReteNetWriter#getSymbolIndex 
-     * @see ReteNetWriter#indexSymbol 
+     * @see ReteNetWriter#getSymbolIndex
+     * @see ReteNetWriter#indexSymbol
      */
     private SymbolImpl getSymbol(int index) throws SoarException
     {
@@ -588,10 +602,11 @@ public class ReteNetReader
         }
         return (SymbolImpl) symbolMap.get(index);
     }
-
+    
     /**
      * <p>rete.cpp:6804:reteload_alpha_memories
-     * @see ReteNetWriter#writeAlphaMemories 
+     * 
+     * @see ReteNetWriter#writeAlphaMemories
      */
     private void readAlphaMemories(DataInputStream dis) throws IOException, SoarException
     {
@@ -600,7 +615,7 @@ public class ReteNetReader
         {
             throw new SoarException(String.format("Invalid alpha memory list size %d", count));
         }
-
+        
         final List<AlphaMemory> ams = new ArrayList<AlphaMemory>(count);
         ams.add(null); // am index values start at 1. See writeAlphaMemories
         for(int i = 0; i < count; ++i)
@@ -613,17 +628,18 @@ public class ReteNetReader
         }
         this.alphaMemories = ams;
     }
-
+    
     /**
      * <p>rete.cpp:6878:reteload_node_varnames
+     * 
      * @see ReteNetWriter#writeVarNames
      */
     private Object readVarNames(DataInputStream dis) throws SoarException, IOException
     {
         final int type = dis.readInt();
         final ReteNetConstants.VarName varNameType = ReteNetConstants.VarName.fromOrdinal(type);
-
-        switch (varNameType)
+        
+        switch(varNameType)
         {
         case VARNAME_NULL:
         {
@@ -631,7 +647,7 @@ public class ReteNetReader
         }
         case VARNAME_ONE_VAR:
         {
-            final int index = dis.readInt(); 
+            final int index = dis.readInt();
             return VarNames.one_var_to_varnames(getSymbol(index).asVariable());
         }
         case VARNAME_LIST:
@@ -654,30 +670,31 @@ public class ReteNetReader
         }
         }
     }
-
+    
     /**
      * <p>rete.cpp:6918:reteload_node_varnames
-     * @see ReteNetWriter#writeNodeVarNames 
+     * 
+     * @see ReteNetWriter#writeNodeVarNames
      */
     private NodeVarNames readNodeVarNames(DataInputStream dis, ReteNode node,
-            List<Symbol> symbolMap) throws SoarException, IOException 
+            List<Symbol> symbolMap) throws SoarException, IOException
     {
-        if (node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
+        if(node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
         {
             return null;
         }
-        if (node.node_type == ReteNodeType.CN_BNODE) 
+        if(node.node_type == ReteNodeType.CN_BNODE)
         {
             ReteNode temp = node.b_cn().partner.parent;
             NodeVarNames nvn_for_ncc = readNodeVarNames(dis, temp, symbolMap);
             final NodeVarNames bottom_of_subconditions = nvn_for_ncc;
-            while (temp != node.parent)
+            while(temp != node.parent)
             {
                 temp = temp.real_parent_node();
                 nvn_for_ncc = nvn_for_ncc.parent;
             }
             return NodeVarNames.createForNcc(nvn_for_ncc, bottom_of_subconditions);
-        } 
+        }
         Object id = readVarNames(dis);
         Object attr = readVarNames(dis);
         Object value = readVarNames(dis);

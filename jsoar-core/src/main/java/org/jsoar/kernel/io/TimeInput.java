@@ -33,8 +33,8 @@ public class TimeInput
     private final Map<String, InputWme> childWmes = new HashMap<String, InputWme>();
     
     /**
-     * Construct a new world-time input object. This object will automatically 
-     * register for input events and update the input-link. 
+     * Construct a new world-time input object. This object will automatically
+     * register for input events and update the input-link.
      * 
      * @param io The I/O interface
      */
@@ -50,8 +50,8 @@ public class TimeInput
     }
     
     /**
-     * Dispose this object, removing its WMEs from the input link and 
-     * unregistering from the event manager if necessary 
+     * Dispose this object, removing its WMEs from the input link and
+     * unregistering from the event manager if necessary
      */
     public void dispose()
     {
@@ -63,7 +63,7 @@ public class TimeInput
         {
             this.wme.remove();
             this.wme = null;
-            for (InputWme childWme : childWmes.values())
+            for(InputWme childWme : childWmes.values())
             {
                 childWme.remove();
             }
@@ -73,7 +73,7 @@ public class TimeInput
     
     private void setChildWme(String name, int value)
     {
-        if (!childWmes.containsKey(name))
+        if(!childWmes.containsKey(name))
         {
             InputWme childWme = InputWmes.add(wme, name, value);
             childWmes.put(name, childWme);
@@ -89,12 +89,12 @@ public class TimeInput
      */
     private void update()
     {
-        if (startTime == null)
+        if(startTime == null)
         {
             startTime = Calendar.getInstance();
         }
         
-        if (wme == null)
+        if(wme == null)
         {
             wme = InputBuilder.create(io).push("time").getWme(null);
         }
@@ -108,12 +108,14 @@ public class TimeInput
         setChildWme("year", currentTime.get(Calendar.YEAR));
         
         long msecFromStart = currentTime.getTimeInMillis() - startTime.getTimeInMillis();
-        setChildWme("seconds-from-start", (int)(msecFromStart / 1000.0));
+        setChildWme("seconds-from-start", (int) (msecFromStart / 1000.0));
     }
     
     private class InputListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.events.SoarEventListener#onEvent(org.jsoar.kernel.events.SoarEvent)
          */
         @Override
@@ -125,7 +127,9 @@ public class TimeInput
     
     private class InitSoarListener implements SoarEventListener
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
          */
         @Override

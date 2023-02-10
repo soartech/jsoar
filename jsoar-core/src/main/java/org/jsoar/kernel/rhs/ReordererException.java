@@ -13,7 +13,7 @@ package org.jsoar.kernel.rhs;
 public class ReordererException extends Exception
 {
     private static final long serialVersionUID = 2012285532948797485L;
-
+    
     public ReordererException(String message)
     {
         super(message);

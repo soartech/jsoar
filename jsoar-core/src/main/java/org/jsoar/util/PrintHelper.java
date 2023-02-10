@@ -14,7 +14,7 @@ public class PrintHelper
     /**
      * cli_CommandLineInterface.cpp:569
      * 
-     * The original name is PrintCLIMessage_Item.  Renamed because this port doesn't
+     * The original name is PrintCLIMessage_Item. Renamed because this port doesn't
      * include the print part of the CSoar version.
      * 
      * @param prefixString
@@ -32,18 +32,18 @@ public class PrintHelper
         right_width = printString.length();
         middle_width = column_width - left_width - right_width;
         
-        if (middle_width < 0)
+        if(middle_width < 0)
             middle_width = 1;
         
         sep_string = Strings.repeat(" ", middle_width);
         
         return prefixString + sep_string + printString + "\n";
     }
-
+    
     /**
      * cli_CommandLineInterface.cpp:578
      * 
-     * The original name is PrintCLIMessage_Header.  Renamed because this port doesn't
+     * The original name is PrintCLIMessage_Header. Renamed because this port doesn't
      * include the print part of the CSoar version.
      * 
      * @param headerString
@@ -63,8 +63,8 @@ public class PrintHelper
         sep_string = Strings.repeat("=", column_width);
         
         String temp_string = sep_string + "\n" +
-                             left_string + " " + headerString + " " + right_string + "\n" +
-                             sep_string + "\n";
+                left_string + " " + headerString + " " + right_string + "\n" +
+                sep_string + "\n";
         
         return temp_string;
     }
@@ -72,7 +72,7 @@ public class PrintHelper
     /**
      * cli_CommandLineInterface.cpp:598
      * 
-     * The original name is PrintCLIMessage_Section.  Renamed because this doesn't
+     * The original name is PrintCLIMessage_Section. Renamed because this doesn't
      * include the print part of the CSoar version.
      * 
      * @param headerString

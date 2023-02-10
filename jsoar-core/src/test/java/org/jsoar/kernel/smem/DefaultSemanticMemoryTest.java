@@ -44,13 +44,13 @@ public class DefaultSemanticMemoryTest
         smem = new DefaultSemanticMemory(context, db);
         smem.initialize();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         conn.close();
     }
-
+    
     @Test
     public void testCanAddALongTermIdentifier() throws Exception
     {
@@ -68,11 +68,11 @@ public class DefaultSemanticMemoryTest
         assertEquals(expected2, smem.smem_lti_get_id('S', 2));
         assertFalse(expected == expected2);
     }
-
+    
     @Test
     public void testCanResetIdCountersInSymbolFactory() throws Exception
     {
-        long number = 1; 
+        long number = 1;
         for(char letter = 'A'; letter <= 'Z'; letter++)
         {
             smem.smem_lti_add_id(letter, number++);
@@ -142,6 +142,7 @@ public class DefaultSemanticMemoryTest
         assertNotNull(result);
         assertSame(syms.findString("yumyum"), result);
     }
+    
     @Test
     public void testCanParseAnIntegerConstant()
     {
@@ -154,6 +155,7 @@ public class DefaultSemanticMemoryTest
         assertNotNull(result);
         assertSame(syms.findInteger(456), result);
     }
+    
     @Test
     public void testCanParseADoubleConstant()
     {
@@ -174,11 +176,11 @@ public class DefaultSemanticMemoryTest
         smem.initialize();
         
         smem.smem_parse_chunks("{" +
-        		"(<arithmetic> ^add10-facts <a01> <a02> <a03>)\r\n" + 
-        		"(<a01> ^digit1 1 ^digit-10 11)\r\n" + 
-        		"(<a02> ^digit1 2 ^digit-10 12)\r\n" + 
-        		"(<a03> ^digit1 3 ^digit-10 13)" +
-        		"}");
+                "(<arithmetic> ^add10-facts <a01> <a02> <a03>)\r\n" +
+                "(<a01> ^digit1 1 ^digit-10 11)\r\n" +
+                "(<a02> ^digit1 2 ^digit-10 12)\r\n" +
+                "(<a03> ^digit1 3 ^digit-10 13)" +
+                "}");
         
         // TODO SMEM validate smem_parse_chunks
         

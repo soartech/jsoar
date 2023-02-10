@@ -18,7 +18,6 @@ import org.jsoar.kernel.SoarException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */
@@ -93,7 +92,7 @@ public class DefaultInterpreterParserTest
                 "   word");
         
         parser.skipWhitespaceAndComments(reader);
-        checkRemainder("word", reader);        
+        checkRemainder("word", reader);
     }
     
     @Test
@@ -115,16 +114,16 @@ public class DefaultInterpreterParserTest
         final String result = parser.parseWord(reader);
         
         assertEquals("word with\n \"quotes", result);
-        checkRemainder("  x ", reader);        
+        checkRemainder("  x ", reader);
     }
-
+    
     @Test
     public void testCanParseBracedWord() throws Exception
     {
         final ParserBuffer reader = reader("    { words {* words\\n\n \"} words }   end");
         final String result = parser.parseWord(reader);
         assertEquals(" words {* words\\n\n \"} words ", result);
-        checkRemainder("   end", reader);        
+        checkRemainder("   end", reader);
     }
     
     @Test()

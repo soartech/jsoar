@@ -21,7 +21,6 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
 {
     private final boolean allowsChildren;
     
-    
     /**
      * @param allowsChildren
      */
@@ -29,10 +28,12 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         this.allowsChildren = allowsChildren;
     }
-
+    
     protected abstract List<? extends TreeTableNode> getChildList();
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jdesktop.swingx.treetable.TreeTableNode#children()
      */
     @Override
@@ -40,8 +41,10 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         return Iterators.asEnumeration(getChildList().iterator());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jdesktop.swingx.treetable.TreeTableNode#getChildAt(int)
      */
     @Override
@@ -49,8 +52,10 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         return getChildList().get(index);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jdesktop.swingx.treetable.TreeTableNode#isEditable(int)
      */
     @Override
@@ -58,24 +63,30 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         return false;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jdesktop.swingx.treetable.TreeTableNode#setUserObject(java.lang.Object)
      */
     @Override
     public void setUserObject(Object arg0)
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jdesktop.swingx.treetable.TreeTableNode#setValueAt(java.lang.Object, int)
      */
     @Override
     public void setValueAt(Object arg0, int arg1)
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.tree.TreeNode#getAllowsChildren()
      */
     @Override
@@ -83,8 +94,10 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         return allowsChildren;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.tree.TreeNode#getChildCount()
      */
     @Override
@@ -92,8 +105,10 @@ public abstract class AbstractTreeTableNode implements TreeTableNode
     {
         return getChildList().size();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.tree.TreeNode#getIndex(javax.swing.tree.TreeNode)
      */
     @Override

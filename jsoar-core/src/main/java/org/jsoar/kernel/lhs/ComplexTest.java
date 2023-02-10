@@ -10,8 +10,10 @@ package org.jsoar.kernel.lhs;
  */
 public abstract class ComplexTest extends Test
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ComplexTest#asComplexTest()
      */
     @Override
@@ -19,5 +21,5 @@ public abstract class ComplexTest extends Test
     {
         return this;
     }
-
+    
 }

@@ -35,8 +35,10 @@ public class ListRhsFunction extends AbstractRhsFunctionHandler
     {
         super("list");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -45,5 +47,5 @@ public class ListRhsFunction extends AbstractRhsFunctionHandler
     {
         return Wmes.createLinkedList(context, arguments.iterator());
     }
-
+    
 }

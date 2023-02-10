@@ -20,6 +20,5 @@ public class RadarRange
     {
         this.angle = angle;
     }
-
-
+    
 }

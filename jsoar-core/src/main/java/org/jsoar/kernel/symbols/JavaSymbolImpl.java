@@ -16,7 +16,7 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
 {
     private final Object value;
     private final String classString;
-
+    
     /**
      * @param hash_id
      */
@@ -33,15 +33,17 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
         {
             this.classString = " (null Java Symbol)";
         }
-       
+        
     }
-
+    
     public Object getValue()
     {
         return value;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asJava()
      */
     @Override
@@ -50,7 +52,9 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -58,8 +62,10 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     {
         return factory.createJavaSymbol(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -69,7 +75,9 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
         return other.asJava() != null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -77,8 +85,10 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     {
         return value != null ? value.toString() + classString : "null";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
  */
 public class IntRhsFunctionTest extends JSoarTest
 {
-
+    
     @Test
     public void testConvertString() throws Exception
     {
@@ -34,7 +34,7 @@ public class IntRhsFunctionTest extends JSoarTest
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "-99"));
         assertEquals(-99, result.asInteger().getValue());
     }
-        
+    
     @Test
     public void testConvertStringWithLargeInteger() throws Exception
     {
@@ -68,7 +68,7 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, Double.toString(Double.NaN)));
             fail("NaN can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
@@ -83,7 +83,7 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, ""));
             fail("Empty string can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
@@ -98,12 +98,12 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, "abc123abc"));
             fail("String 'abc123abc' can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
     }
-        
+    
     @Test
     public void testConvertMinus() throws Exception
     {
@@ -113,7 +113,7 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, "-"));
             fail("String '-' can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
@@ -128,7 +128,7 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, "--"));
             fail("String '--' can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
@@ -143,11 +143,11 @@ public class IntRhsFunctionTest extends JSoarTest
             f.execute(rhsFuncContext, Symbols.asList(syms, Double.toString(Double.POSITIVE_INFINITY)));
             fail("Infinity can't be cast to an integer.");
         }
-        catch (RhsFunctionException e)
+        catch(RhsFunctionException e)
         {
             
         }
-    }   
+    }
     
     @Test
     public void testConvertDouble() throws Exception

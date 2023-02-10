@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.jsoar.JSoarTest;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class CumulativeNormalDistributionTest extends JSoarTest
 {
-    @Test 
+    @Test
     public void testZero() throws Exception
     {
         final CumulativeNormalDistribution cndf = new CumulativeNormalDistribution();
@@ -28,7 +27,7 @@ public class CumulativeNormalDistributionTest extends JSoarTest
         assertEquals(0.5d, result.asDouble().getValue(), .0001d);
     }
     
-    @Test 
+    @Test
     public void testOne() throws Exception
     {
         final CumulativeNormalDistribution cndf = new CumulativeNormalDistribution();

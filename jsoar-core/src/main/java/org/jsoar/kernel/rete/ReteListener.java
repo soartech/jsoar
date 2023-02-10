@@ -43,7 +43,7 @@ public interface ReteListener
      * @return true if the refracted instantiation matched, false otherwise
      */
     boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node);
-
+    
     /**
      * This method is called when a production matches.
      * 
@@ -70,18 +70,18 @@ public interface ReteListener
      * @param w
      */
     void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w);
-
+    
     /**
      * Called when a production is being excised. This is called after the p-node's
      * instantiations have been retracted (p_node_left_removal) but before the
      * node itself is actually removed from the rete.
      * 
      * <p>This method was extracted into this interface to decouple Soar-specific
-     * rete stuff from the general rete algorithm. See 
+     * rete stuff from the general rete algorithm. See
      * 
      * @param rete The rete
      * @param p_node The p-node
      */
     void removingProductionNode(Rete rete, ReteNode p_node);
-
+    
 }

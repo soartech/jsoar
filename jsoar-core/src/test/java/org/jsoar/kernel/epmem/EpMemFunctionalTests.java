@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 public class EpMemFunctionalTests extends FunctionalTestHarness
 {
     private static final Logger logger = LoggerFactory.getLogger(EpMemFunctionalTests.class);
-	
-	@Test
+    
+    @Test
     public void testCountEpMem() throws Exception
     {
         runTest("testCountEpMem", 1693);
@@ -85,119 +85,120 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testBeforeEpMem() throws Exception
     {
-    	runTest("testBeforeEpMem", 12);
+        runTest("testBeforeEpMem", 12);
     }
     
     @Test
     public void testAfterEpMem() throws Exception
     {
-    	runTest("testAfterEpMem", 12);
+        runTest("testAfterEpMem", 12);
     }
     
     @Test
     public void testAllNegQueriesEpMem() throws Exception
     {
-    	runTest("testAllNegQueriesEpMem", 12);
+        runTest("testAllNegQueriesEpMem", 12);
     }
     
     @Test
     public void testBeforeAfterProhibitEpMem() throws Exception
     {
-    	runTest("testBeforeAfterProhibitEpMem", 12);
+        runTest("testBeforeAfterProhibitEpMem", 12);
     }
     
     @Test
     public void testMaxDoublePrecision_Irrational() throws Exception
     {
-    	runTest("testMaxDoublePrecision-Irrational", 4);
+        runTest("testMaxDoublePrecision-Irrational", 4);
     }
     
     @Test
     public void testMaxDoublePrecisionEpMem() throws Exception
     {
-    	runTest("testMaxDoublePrecisionEpMem", 4);
+        runTest("testMaxDoublePrecisionEpMem", 4);
     }
     
     @Test
     public void testNegativeEpisode() throws Exception
     {
-    	runTest("testNegativeEpisode", 12);
+        runTest("testNegativeEpisode", 12);
     }
     
     @Test
     public void testNonExistingEpisode() throws Exception
     {
-    	runTest("testNonExistingEpisode", 12);
+        runTest("testNonExistingEpisode", 12);
     }
     
     @Test
     public void testSimpleFloatEpMem() throws Exception
     {
-    	runTest("testSimpleFloatEpMem", 4);
+        runTest("testSimpleFloatEpMem", 4);
     }
     
     @Test
     public void testCyclicQuery() throws Exception
     {
-    	runTest("testCyclicQuery", 4);
+        runTest("testCyclicQuery", 4);
     }
     
     @Test
     public void testWMELength_OneCycle() throws Exception
     {
-    	runTest("testWMELength_OneCycle", 4);
+        runTest("testWMELength_OneCycle", 4);
     }
     
     @Test
     public void testWMELength_FiveCycle() throws Exception
     {
-    	runTest("testWMELength_FiveCycle", 7);
+        runTest("testWMELength_FiveCycle", 7);
     }
     
     @Test
     public void testWMELength_InfiniteCycle() throws Exception
     {
-    	runTest("testWMELength_InfiniteCycle", 12);
+        runTest("testWMELength_InfiniteCycle", 12);
     }
     
     @Test
     public void testWMELength_MultiCycle() throws Exception
     {
-    	runTest("testWMELength_MultiCycle", 12);
+        runTest("testWMELength_MultiCycle", 12);
     }
     
     @Test
     public void testWMActivation_Balance0() throws Exception
     {
-    	runTest("testWMActivation_Balance0", 5);
+        runTest("testWMActivation_Balance0", 5);
     }
     
     @Test
     public void testEpMemEncodeOutput_NoWMA() throws Exception
     {
-    	runTest("testEpMemEncodeOutput_NoWMA", 4);
+        runTest("testEpMemEncodeOutput_NoWMA", 4);
     }
     
     @Test
     public void testEpMemEncodeOutput_WMA() throws Exception
     {
-    	runTest("testEpMemEncodeOutput_WMA", 4);
+        runTest("testEpMemEncodeOutput_WMA", 4);
     }
     
     @Test
     public void testEpMemEncodeSelection_NoWMA() throws Exception
     {
-    	runTest("testEpMemEncodeSelection_NoWMA", 5);
+        runTest("testEpMemEncodeSelection_NoWMA", 5);
     }
     
     @Test
     public void testEpMemEncodeSelection_WMA() throws Exception
     {
-    	runTest("testEpMemEncodeSelection_WMA", 5);
+        runTest("testEpMemEncodeSelection_WMA", 5);
     }
     
     @Test
-    public void testEpMemYRemoval() throws Exception{
+    public void testEpMemYRemoval() throws Exception
+    {
         runTest("testYRemoval", 9);
     }
     
@@ -223,10 +224,11 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         agent.getPrinter().popWriter();
         String actualResult = sw.toString();
         
-        String expectedResult = "(<id0> ^counter 2 ^io <id1> ^name Factorization ^needs-factorization true ^number-to-factor 2 ^number-to-factor-int 2 ^operator <id2> ^operator* <id2> ^reward-link <id3> ^superstate nil ^type state ^using-epmem true)\n" +
-                                "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
-                                "(<id2> ^name factor-number ^number-to-factor 2)\n";
-                
+        String expectedResult = "(<id0> ^counter 2 ^io <id1> ^name Factorization ^needs-factorization true ^number-to-factor 2 ^number-to-factor-int 2 ^operator <id2> ^operator* <id2> ^reward-link <id3> ^superstate nil ^type state ^using-epmem true)\n"
+                +
+                "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
+                "(<id2> ^name factor-number ^number-to-factor 2)\n";
+        
         logger.info("Epmem test actual result: " + actualResult);
         assertTrue(actualResult.equals(expectedResult), "Unexpected output from CSoar database! ");
     }
@@ -236,7 +238,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
         List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
         
-        for (int i = 1;i <= 250;i++)
+        for(int i = 1; i <= 250; i++)
         {
             ThreadedAgent t = ThreadedAgent.create("Agent " + i);
             t.getAgent().getTrace().setEnabled(true);
@@ -248,19 +250,19 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
             agents.add(t);
         }
         
-        for (ThreadedAgent a : agents)
+        for(ThreadedAgent a : agents)
         {
-            a.runFor(3+1, RunType.DECISIONS);
+            a.runFor(3 + 1, RunType.DECISIONS);
         }
         
         boolean allStopped = false;
-        while (!allStopped)
+        while(!allStopped)
         {
             allStopped = true;
             
-            for (ThreadedAgent a : agents)
+            for(ThreadedAgent a : agents)
             {
-                if (a.isRunning())
+                if(a.isRunning())
                 {
                     allStopped = false;
                     break;
@@ -268,9 +270,9 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
             }
         }
         
-        for (ThreadedAgent a : agents)
+        for(ThreadedAgent a : agents)
         {
-            if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 3)
+            if(a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 3)
             {
                 throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
             }
@@ -281,7 +283,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
             a.getPrinter().popWriter();
             String result = sw.toString();
             
-            if (!result.contains("Native"))
+            if(!result.contains("Native"))
             {
                 throw new AssertionError("Non Native Driver!");
             }

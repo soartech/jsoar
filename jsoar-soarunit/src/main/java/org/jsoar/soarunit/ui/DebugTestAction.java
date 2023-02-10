@@ -38,9 +38,10 @@ public class DebugTestAction extends AbstractAction
         this.agentFactory = agentFactory;
         this.test = test;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -52,14 +53,14 @@ public class DebugTestAction extends AbstractAction
             runner.debugTest(test.reload(), false);
             pw.close();
         }
-        catch (InterruptedException e)
+        catch(InterruptedException e)
         {
             Thread.currentThread().interrupt();
         }
-        catch (SoarException | IOException e)
+        catch(SoarException | IOException e)
         {
             LOG.error("Error handling action event", e);
         }
     }
-
+    
 }

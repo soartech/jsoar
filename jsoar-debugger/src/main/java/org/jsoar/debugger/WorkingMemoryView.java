@@ -28,7 +28,7 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
     private final JSoarDebugger debugger;
     private final JTextField roots = new JTextField("<s> <o>");
     private final WorkingMemoryTree tree;
-
+    
     public WorkingMemoryView(JSoarDebugger debugger)
     {
         super("workingMemory", "Working Memory");
@@ -42,7 +42,7 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
         header.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         header.add(new JLabel("Roots:"), BorderLayout.WEST);
         header.add(roots);
-        //PromptSupport.setPrompt("Enter ids and vars here, e.g. <s> <o> S1 I2 ...", roots);
+        // PromptSupport.setPrompt("Enter ids and vars here, e.g. <s> <o> S1 I2 ...", roots);
         roots.addActionListener(e -> addRoots());
         SwingTools.addSelectAllOnFocus(roots);
         
@@ -86,7 +86,9 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
         debugger.getAgent().execute(run);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -94,8 +96,10 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
     {
         return "ctrl shift W";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -104,7 +108,9 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
         tree.updateModel();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
      */
     @Override

@@ -27,6 +27,7 @@ import org.jsoar.util.TeeWriter;
  * <li>get_printer_output_column
  * <li>COLUMNS_PER_LINE
  * </ul>
+ * 
  * @author ray
  */
 public class Printer
@@ -48,14 +49,19 @@ public class Printer
     
     private TeeWriter teeWriter = null;
     
-    private final Writer startOfLineDetector = new Writer() {
-
+    private final Writer startOfLineDetector = new Writer()
+    {
+        
         @Override
-        public void close() throws IOException { }
-
+        public void close() throws IOException
+        {
+        }
+        
         @Override
-        public void flush() throws IOException { }
-
+        public void flush() throws IOException
+        {
+        }
+        
         @Override
         public void write(char[] cbuf, int off, int len) throws IOException
         {
@@ -67,7 +73,7 @@ public class Printer
     };
     
     private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
-
+    
     private List<String> warnings;
     
     /**
@@ -82,7 +88,7 @@ public class Printer
      * Construct a new printer that prints to the given writer
      * 
      * @param writer The writer to write to. If null, then a NullWriter is used
-     *          and all output will be dropped.
+     *     and all output will be dropped.
      */
     public Printer(Writer writer)
     {
@@ -90,16 +96,16 @@ public class Printer
         this.printWriter = new PrintWriter(internalWriter, true);
         
         addPersistentWriter(startOfLineDetector);
-
+        
         warnings = new ArrayList<>();
     }
     
     /**
      * Return the current writer. Writing to this is equivalent to calling
      * {@link #print(String)} and friends. That is, persistent writers will
-     * still be called. 
+     * still be called.
      * 
-     * <p>Note that this is not necessarily the same writer as was last passed 
+     * <p>Note that this is not necessarily the same writer as was last passed
      * to {@link #pushWriter(Writer)}.
      * 
      * @return The current writer
@@ -108,9 +114,10 @@ public class Printer
     {
         // Wrap in tee to ensure that persistent writers are still called when
         // this writer is used.
-    	if(teeWriter == null) {
-    		teeWriter = new TeeWriter(internalWriter, persistentWriters);
-    	}
+        if(teeWriter == null)
+        {
+            teeWriter = new TeeWriter(internalWriter, persistentWriters);
+        }
         return teeWriter;
     }
     
@@ -119,7 +126,7 @@ public class Printer
      * pushed onto a stack. It can be restored with {@link #popWriter()}
      * 
      * @param writer The new writer to write to. If null, the a NullWriter is
-     *      used and all output will be dropped.
+     *     used and all output will be dropped.
      */
     public void pushWriter(Writer writer)
     {
@@ -138,7 +145,8 @@ public class Printer
         return writer instanceof PrintWriter ? (PrintWriter) writer : new PrintWriter(writer, true);
     }
     
-    public PrintWriter asPrintWriter() {
+    public PrintWriter asPrintWriter()
+    {
         return this.asPrintWriter(this.getWriter());
     }
     
@@ -197,15 +205,17 @@ public class Printer
         return this;
     }
     
-    public Printer print(String format, Object ... args)
+    public Printer print(String format, Object... args)
     {
-    	try {
-    		this.printWriter.printf(format, args);
-    	}
-    	catch (RuntimeException e) {
-    		System.out.println("!!");
-    	}
-    	this.persistentPrintWriter.printf(format, args);
+        try
+        {
+            this.printWriter.printf(format, args);
+        }
+        catch(RuntimeException e)
+        {
+            System.out.println("!!");
+        }
+        this.persistentPrintWriter.printf(format, args);
         return this;
     }
     
@@ -240,18 +250,18 @@ public class Printer
         warnings.add(message);
         return this;
     }
-
-    public Printer warn(String format, Object ... args)
+    
+    public Printer warn(String format, Object... args)
     {
         if(printWarnings)
         {
             print(format, args);
         }
-
+        
         warnings.add(String.format(format, args));
         return this;
     }
-
+    
     /**
      * <p>gsysparam.h:132:PRINT_WARNINGS_SYSPARAM
      * 
@@ -261,7 +271,7 @@ public class Printer
     {
         return printWarnings;
     }
-
+    
     /**
      * <p>gsysparam.h:132:PRINT_WARNINGS_SYSPARAM
      * 
@@ -285,7 +295,7 @@ public class Printer
         print("\nError: " + message);
         return this;
     }
-
+    
     /**
      * Print an error
      * 
@@ -293,12 +303,12 @@ public class Printer
      * @param args arguments
      * @return this
      */
-    public Printer error(String format, Object ... args)
+    public Printer error(String format, Object... args)
     {
         print("\nError: " + format, args);
         return this;
     }
-
+    
     /**
      * Append n spaces to the printer
      * 
@@ -316,8 +326,9 @@ public class Printer
         }
         return this;
     }
-
-    public List<String> getWarningsAndClear() {
+    
+    public List<String> getWarningsAndClear()
+    {
         List<String> copy = new ArrayList<>(warnings);
         warnings.clear();
         return copy;

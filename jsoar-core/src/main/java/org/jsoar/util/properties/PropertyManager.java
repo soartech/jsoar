@@ -28,7 +28,7 @@ public class PropertyManager
     public PropertyManager()
     {
     }
-
+    
     /**
      * Add a listener for a particular property.
      * 
@@ -68,7 +68,7 @@ public class PropertyManager
      * 
      * <p>This method may be called from any thread
      * 
-     * @param <T> The property type 
+     * @param <T> The property type
      * @param key The property key
      * @param provider The provider
      * @see PropertyProvider
@@ -120,9 +120,9 @@ public class PropertyManager
     }
     
     /**
-     * Set the value of a property. A property changed event will be 
+     * Set the value of a property. A property changed event will be
      * fired. A default property provider will be created if one has
-     * not already been set.  If the property is readonly, an exception will be
+     * not already been set. If the property is readonly, an exception will be
      * thrown.
      * 
      * <p>This method may be called from any thread.
@@ -133,7 +133,7 @@ public class PropertyManager
      * @param value The new value
      * @return the old value
      * @throws IllegalArgumentException if the value is not compatible with the
-     *      property (out of range, null, etc)
+     *     property (out of range, null, etc)
      * @throws UnsupportedOperationException if the property is readonly
      */
     public <T, V extends T> T set(PropertyKey<T> key, V value)
@@ -148,7 +148,7 @@ public class PropertyManager
         
         return oldValue;
     }
-
+    
     /**
      * Manually fire a property change event.
      * 
@@ -169,7 +169,7 @@ public class PropertyManager
     
     private <T> PropertyProvider<T> getProvider(PropertyKey<T> key)
     {
-        synchronized(properties)
+        synchronized (properties)
         {
             @SuppressWarnings("unchecked")
             PropertyProvider<T> provider = (PropertyProvider<T>) properties.get(key);
@@ -184,7 +184,7 @@ public class PropertyManager
     
     private <T> List<PropertyListener<T>> getListenersForKey(PropertyKey<T> key)
     {
-        synchronized(listeners)
+        synchronized (listeners)
         {
             @SuppressWarnings("unchecked")
             List<PropertyListener<T>> list = (List<PropertyListener<T>>) listeners.get(key);

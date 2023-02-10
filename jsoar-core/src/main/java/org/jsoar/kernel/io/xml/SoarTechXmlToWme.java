@@ -36,7 +36,7 @@ public class SoarTechXmlToWme implements XmlToWme
     
     private final WmeFactory<?> wmeFactory;
     
-    private final Map<String, Symbol> linkMap = new HashMap<String, Symbol>(); 
+    private final Map<String, Symbol> linkMap = new HashMap<String, Symbol>();
     private final List<Link> links = new ArrayList<Link>();
     
     /**
@@ -55,7 +55,7 @@ public class SoarTechXmlToWme implements XmlToWme
      * Construct an XML to WME converter for RHS functions, i.e. it uses an
      * instance of {@link RhsFunctionContext} to generate symbols and WMEs.
      * 
-     * @param rhsContext the RHS function context to use 
+     * @param rhsContext the RHS function context to use
      * @return new converter
      */
     public static SoarTechXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
@@ -75,8 +75,9 @@ public class SoarTechXmlToWme implements XmlToWme
         this.wmeFactory = wmeFactory;
     }
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.xml.XmlToWme#fromXml(org.w3c.dom.Element)
      */
     public Identifier fromXml(Element element)
@@ -117,15 +118,16 @@ public class SoarTechXmlToWme implements XmlToWme
         
         for(Node node = element.getFirstChild(); node != null; node = node.getNextSibling())
         {
-            if(!(node instanceof Element)) continue;
+            if(!(node instanceof Element))
+                continue;
             
             final Element kid = (Element) node;
             final String linkTo = kid.getAttribute(SoarTechWmeToXml.LINK);
             final String tagName = kid.getTagName();
-            if (null == tagName)
+            if(null == tagName)
             {
-            	logger.warn("null tagName on node " + node);
-            	continue;
+                logger.warn("null tagName on node " + node);
+                continue;
             }
             final Symbol attribute = syms.createString(tagName);
             if(linkTo.length() == 0)
@@ -166,9 +168,9 @@ public class SoarTechXmlToWme implements XmlToWme
             value = element.getTextContent();
         }
         
-        if (null == value)
+        if(null == value)
         {
-        	return syms.createString("");
+            return syms.createString("");
         }
         else if(SoarTechWmeToXml.DOUBLE.equals(type))
         {

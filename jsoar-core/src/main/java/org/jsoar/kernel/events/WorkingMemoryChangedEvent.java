@@ -63,7 +63,7 @@ public class WorkingMemoryChangedEvent implements SoarEvent
     private static class WmeIterator implements Iterator<Wme>
     {
         private ListItem<WmeImpl> next;
-
+        
         /**
          * @param next
          */
@@ -71,8 +71,10 @@ public class WorkingMemoryChangedEvent implements SoarEvent
         {
             this.next = next;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#hasNext()
          */
         @Override
@@ -80,8 +82,10 @@ public class WorkingMemoryChangedEvent implements SoarEvent
         {
             return next != null;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#next()
          */
         @Override
@@ -95,8 +99,10 @@ public class WorkingMemoryChangedEvent implements SoarEvent
             next = next.next;
             return temp;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.util.Iterator#remove()
          */
         @Override

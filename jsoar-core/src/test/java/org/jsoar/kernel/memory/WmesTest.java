@@ -27,11 +27,13 @@ public class WmesTest
 {
     private SymbolFactory syms;
     private MockFactory factory;
+    
     private static class Triple
     {
         final Identifier id;
         final Symbol attr;
         final Symbol value;
+        
         public Triple(Identifier id, Symbol attr, Symbol value)
         {
             this.id = id;
@@ -39,6 +41,7 @@ public class WmesTest
             this.value = value;
         }
     }
+    
     private class MockFactory implements WmeFactory<Void>
     {
         final List<Triple> triples = new ArrayList<Triple>();
@@ -49,7 +52,7 @@ public class WmesTest
             triples.add(new Triple(id, attr, value));
             return null;
         }
-
+        
         @Override
         public SymbolFactory getSymbols()
         {
@@ -63,7 +66,7 @@ public class WmesTest
         syms = new SymbolFactoryImpl();
         factory = new MockFactory();
     }
-
+    
     @Test
     public void testCreateLinkedListWithEmptyListReturnsNil()
     {

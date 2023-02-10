@@ -34,14 +34,13 @@ public class WaitRhsFunctionTest
     {
         this.agent.detach();
     }
-
+    
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
         // Skip first input phase
-        agent.executeAndWait(() ->
-        {
+        agent.executeAndWait(() -> {
             agent.runFor(2, RunType.PHASES);
             return null;
         }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
@@ -52,8 +51,7 @@ public class WaitRhsFunctionTest
         
         // Now run some more. The agent shouldn't wait because input ready came before input phase
         
-        agent.executeAndWait(() -> 
-        {
+        agent.executeAndWait(() -> {
             agent.runFor(2, RunType.DECISIONS);
             return null;
         }, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
@@ -129,30 +127,28 @@ public class WaitRhsFunctionTest
         final AtomicBoolean signalled = new AtomicBoolean(false);
         final Object signal = new String("testNoWaitIfAgentHalts");
         
-        agent.execute(() ->
-        {
+        agent.execute(() -> {
             agent.runForever();
             return null;
         },
-        result -> 
-        {
-            synchronized(signal)
-            {
-                signal.notifyAll();
-                signalled.set(true);
-            }
-        });
+                result -> {
+                    synchronized (signal)
+                    {
+                        signal.notifyAll();
+                        signalled.set(true);
+                    }
+                });
         
         if(!signalled.get())
         {
-            synchronized(signal)
+            synchronized (signal)
             {
                 signal.wait();
             }
         }
     }
     
-    @Test //(timeout=10000)
+    @Test // (timeout=10000)
     public void testShortestWaitInDecisionCycleIsUsed() throws Exception
     {
         this.agent.getProductions().loadProduction("forever (state <s> ^superstate nil) --> (wait)");
@@ -183,5 +179,5 @@ public class WaitRhsFunctionTest
             Thread.sleep(50);
         }
     }
-
+    
 }

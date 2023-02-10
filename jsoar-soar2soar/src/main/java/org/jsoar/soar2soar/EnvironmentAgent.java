@@ -34,7 +34,7 @@ public class EnvironmentAgent
     private final ThreadedAgent env;
     private InputWme timeWme;
     private long timeAtStart;
-
+    
     public EnvironmentAgent(final String source) throws SoarException, InterruptedException, ExecutionException, TimeoutException
     {
         env = ThreadedAgent.create("env");
@@ -47,58 +47,57 @@ public class EnvironmentAgent
             return null;
         }, 20, TimeUnit.SECONDS);
         
-
         SoarEvents.listenForSingleEvent(env.getEvents(), InputEvent.class, event -> doFirstInput());
         
         env.getEvents().addListener(InputEvent.class, event -> updateInput());
         
         env.getEvents().addListener(OutputEvent.class, event -> doOutput((OutputEvent) event));
-	}
-
+    }
+    
     private void doFirstInput()
     {
         final InputBuilder ilBuilder = InputBuilder.create(env.getInputOutput());
         final InputBuilder olBuilder = InputBuilder.create(env.getInputOutput(), env.getInputOutput().getOutputLink());
-
+        
         ilBuilder.push("console")
-                     .add("time", 0).markWme("time")
-                     .pop()
-                 .push("agents").markId("agents");
-
+                .add("time", 0).markWme("time")
+                .pop()
+                .push("agents").markId("agents");
+        
         olBuilder.push("agents").markId("agents");
-
+        
         timeWme = ilBuilder.getWme("time");
         timeAtStart = System.currentTimeMillis();
-
+        
         // create structures for each agent
-        for (ClientAgent ca : agentMap.values())
+        for(ClientAgent ca : agentMap.values())
         {
             ilBuilder.jump("agents").push("agent")
-                           .add("id",ca.getId())
-                           .add("name", ca.getName())
-                           .push("commands").markId("commands");
-
+                    .add("id", ca.getId())
+                    .add("name", ca.getName())
+                    .push("commands").markId("commands");
+            
             olBuilder.jump("agents")
-                           .push("agent")
-                                 .add("id", ca.getId())
-                                 .add("name", ca.getName())
-                                 .push("feedback").markId("feedback")
-                                     .pop()
-                                 .push("input").markId("input");
-
+                    .push("agent")
+                    .add("id", ca.getId())
+                    .add("name", ca.getName())
+                    .push("feedback").markId("feedback")
+                    .pop()
+                    .push("input").markId("input");
+            
             ca.setEnvInCommands(ilBuilder.getId("commands"));
             ca.setEnvOutFeedback(olBuilder.getId("feedback"));
             ca.setEnvOutInput(olBuilder.getId("input"));
         }
     }
-
+    
     private void updateInput()
     {
-        InputWmes.update(timeWme, (System.currentTimeMillis()-timeAtStart) / 1000);
+        InputWmes.update(timeWme, (System.currentTimeMillis() - timeAtStart) / 1000);
         
-        for (ClientAgent agent : agentMap.values()) 
+        for(ClientAgent agent : agentMap.values())
         {
-            synchronized(agent)
+            synchronized (agent)
             {
                 processPendingClientOutput(agent);
             }
@@ -109,19 +108,19 @@ public class EnvironmentAgent
     {
         final List<OutputChange> changes = OutputChange.sortByTimeTag(event.getChanges());
         
-        for (ClientAgent agent : agentMap.values()) 
+        for(ClientAgent agent : agentMap.values())
         {
-            synchronized(agent)
+            synchronized (agent)
             {
-                for (OutputChange delta : changes) 
+                for(OutputChange delta : changes)
                 {
                     final Wme wme = delta.getWme();
-                    if (delta.isAdded() &&
-                        wme.getIdentifier() == agent.getEnvOutFeedback() &&
-                	    "add-wme".equals(wme.getAttribute().toString())) 
-                	{
+                    if(delta.isAdded() &&
+                            wme.getIdentifier() == agent.getEnvOutFeedback() &&
+                            "add-wme".equals(wme.getAttribute().toString()))
+                    {
                         agent.pushFeedback(createClientFeedbackWme(agent, wme));
-                	}
+                    }
                     else
                     {
                         agent.tryToPushInput(delta);
@@ -130,13 +129,13 @@ public class EnvironmentAgent
             }
         }
     }
-
+    
     private Wme createClientFeedbackWme(ClientAgent agent, Wme wme)
     {
         // ^add-wme
-        //   ^id    <id>
-        //   ^attr  <attr>
-        //   ^value <value>
+        // ^id <id>
+        // ^attr <attr>
+        // ^value <value>
         final Identifier addWme = wme.getValue().asIdentifier();
         
         final MatcherBuilder matcher = Wmes.matcher(env.getAgent());
@@ -148,34 +147,34 @@ public class EnvironmentAgent
         
         return new DummyWme(convertedId, attrWme.getValue(), valueWme.getValue());
     }
-
-    private void processPendingClientOutput(ClientAgent agentContainer) 
+    
+    private void processPendingClientOutput(ClientAgent agentContainer)
     {
         final Map<Identifier, Identifier> clientToEnv = agentContainer.getClientToEnv();
         final Queue<OutputChange> pendingOutputs = agentContainer.getPendingOutputs();
         final Map<Wme, InputWme> clientToEnvWmes = agentContainer.getClientToEnvWmes();
-    	
+        
         final SymbolFactory syms = env.getSymbols();
-    	while (!pendingOutputs.isEmpty()) 
-    	{
+        while(!pendingOutputs.isEmpty())
+        {
             final OutputChange delta = pendingOutputs.poll();
-            if (delta != null) 
+            if(delta != null)
             {
                 final Wme deltaWme = delta.getWme();
-                if (delta.isAdded()) 
+                if(delta.isAdded())
                 {
                     final Symbol deltaWmeValue = deltaWme.getValue();
                     final Symbol myAttr = syms.importSymbol(deltaWme.getAttribute());
                     Symbol myValue = null;
-                    if (deltaWmeValue.asIdentifier()==null) 
+                    if(deltaWmeValue.asIdentifier() == null)
                     {
                         myValue = syms.importSymbol(deltaWmeValue);
-                    } 
-                    else 
+                    }
+                    else
                     {
                         Identifier convertedId = clientToEnv.get(deltaWmeValue.asIdentifier());
                         
-                        if (convertedId==null) 
+                        if(convertedId == null)
                         {
                             convertedId = syms.createIdentifier(deltaWmeValue.asIdentifier().getNameLetter());
                             clientToEnv.put(deltaWmeValue.asIdentifier(), convertedId);
@@ -185,40 +184,40 @@ public class EnvironmentAgent
                     }
                     
                     clientToEnvWmes.put(deltaWme, env.getInputOutput().addInputWme(clientToEnv.get(deltaWme.getIdentifier()), myAttr, myValue));
-                } 
-                else 
+                }
+                else
                 {
-                	clientToEnvWmes.remove(deltaWme).remove();
+                    clientToEnvWmes.remove(deltaWme).remove();
                 }
             }
         }
-	}
-
-	public ClientAgent createClient(String source) throws SoarException, InterruptedException, ExecutionException, TimeoutException
+    }
+    
+    public ClientAgent createClient(String source) throws SoarException, InterruptedException, ExecutionException, TimeoutException
     {
         final int agentId = agentMap.size() + 1;
         final ClientAgent agent = new ClientAgent("a" + agentId, source, agentId);
         agentMap.put(agent.getName(), agent);
         return agent;
     }
-	
-	public ThreadedAgent getAgent()
-	{
-	    return env;
-	}
-
-	public Collection<ClientAgent> getClients()
-	{
-	    return agentMap.values();
-	}
-	
+    
+    public ThreadedAgent getAgent()
+    {
+        return env;
+    }
+    
+    public Collection<ClientAgent> getClients()
+    {
+        return agentMap.values();
+    }
+    
     // TODO: create common interface for ClientAgent and EnvironmentAgent
     // so can have common eval method cli can use
     public ThreadedAgent getThreadedAgent(String name)
     {
-        if (name.equalsIgnoreCase("env"))
+        if(name.equalsIgnoreCase("env"))
             return env;
-
+        
         ClientAgent clientAgent = agentMap.get(name);
         return clientAgent != null ? clientAgent.getAgent() : null;
     }

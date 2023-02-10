@@ -26,7 +26,7 @@ public abstract class AbstractProductionEvent extends AbstractAgentEvent
         super(agent);
         this.production = production;
     }
-
+    
     /**
      * @return the production
      */

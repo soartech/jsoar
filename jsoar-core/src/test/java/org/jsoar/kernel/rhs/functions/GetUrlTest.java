@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -23,7 +22,7 @@ import com.google.common.io.Resources;
 
 public class GetUrlTest extends JSoarTest
 {
-
+    
     @Test
     public void testCanReadTheContentsOfAUrl() throws Exception
     {

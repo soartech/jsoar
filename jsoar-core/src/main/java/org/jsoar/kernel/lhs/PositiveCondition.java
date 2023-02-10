@@ -29,7 +29,7 @@ public class PositiveCondition extends ThreeFieldCondition
     {
         super(negativeCondition);
     }
-
+    
     public PositiveCondition copy()
     {
         final PositiveCondition result = new PositiveCondition();
@@ -47,7 +47,7 @@ public class PositiveCondition extends ThreeFieldCondition
         return new NegativeCondition(this);
     }
     
-    public BackTraceInfo bt() 
+    public BackTraceInfo bt()
     {
         if(bt == null)
         {
@@ -56,7 +56,9 @@ public class PositiveCondition extends ThreeFieldCondition
         return bt;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#asPositiveCondition()
      */
     @Override
@@ -64,8 +66,10 @@ public class PositiveCondition extends ThreeFieldCondition
     {
         return this;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
@@ -75,8 +79,10 @@ public class PositiveCondition extends ThreeFieldCondition
         attr_test.addBoundVariables(tc_number, var_list);
         value_test.addBoundVariables(tc_number, var_list);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
@@ -85,5 +91,5 @@ public class PositiveCondition extends ThreeFieldCondition
         Tests.add_test_to_tc(id_test, tc, id_list, var_list);
         Tests.add_test_to_tc(value_test, tc, id_list, var_list);
     }
-
+    
 }

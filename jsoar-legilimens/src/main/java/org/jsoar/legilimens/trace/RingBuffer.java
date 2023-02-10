@@ -7,7 +7,6 @@ package org.jsoar.legilimens.trace;
 
 import java.util.Arrays;
 
-
 /**
  * @author ray
  */
@@ -42,6 +41,7 @@ class RingBuffer
             available = buffer.length - head;
         }
     }
+    
     public synchronized char[] getTail(int count)
     {
         return getTail(count, -1);
@@ -87,6 +87,7 @@ class RingBuffer
     {
         return head;
     }
+    
     char[] getRawBuffer()
     {
         return buffer;

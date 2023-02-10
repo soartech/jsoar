@@ -22,7 +22,7 @@ import org.jsoar.util.timing.ExecutionTimer;
  * 
  * @author bob.marinier
  */
-public class DefaultWorkingMemoryActivationTimers 
+public class DefaultWorkingMemoryActivationTimers
 {
     private final PropertyManager properties;
     
@@ -57,7 +57,7 @@ public class DefaultWorkingMemoryActivationTimers
             timer.start();
         }
     }
-
+    
     void pause(ExecutionTimer timer)
     {
         if(timerMap.get(properties.get(DefaultWorkingMemoryActivationParams.TIMERS)).contains(timer))

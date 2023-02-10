@@ -12,7 +12,7 @@ import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 
 /**
- * A buffer for a parser to read from. Keeps track of the current file, 
+ * A buffer for a parser to read from. Keeps track of the current file,
  * character offset and line number. Otherwise, just a wrapper for
  * {@code PushbackReader}.
  * 
@@ -40,7 +40,7 @@ public class ParserBuffer
     {
         return file;
     }
-
+    
     /**
      * @param file the file
      */
@@ -48,7 +48,7 @@ public class ParserBuffer
     {
         this.file = file;
     }
-
+    
     /**
      * @return the current character offset
      */
@@ -56,7 +56,7 @@ public class ParserBuffer
     {
         return currentOffset;
     }
-
+    
     /**
      * @param currentOffset the current character offset
      */
@@ -64,7 +64,7 @@ public class ParserBuffer
     {
         this.currentOffset = currentOffset;
     }
-
+    
     /**
      * @return the current line, starting at 0.
      */
@@ -72,7 +72,7 @@ public class ParserBuffer
     {
         return line;
     }
-
+    
     /**
      * @param line the current line, starting at 0.
      */
@@ -80,11 +80,11 @@ public class ParserBuffer
     {
         this.line = line;
     }
-
+    
     /**
      * Read a character.
      * 
-     * @return the character, or {@code -1} on eof. 
+     * @return the character, or {@code -1} on eof.
      * @throws IOException
      */
     public int read() throws IOException

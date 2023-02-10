@@ -17,7 +17,7 @@ import org.jsoar.util.markers.Marker;
  */
 public class RelationalTest extends ComplexTest
 {
-    public static final int NOT_EQUAL_TEST = 1;         /* various relational tests */
+    public static final int NOT_EQUAL_TEST = 1; /* various relational tests */
     public static final int LESS_TEST = 2;
     public static final int GREATER_TEST = 3;
     public static final int LESS_OR_EQUAL_TEST = 4;
@@ -38,19 +38,24 @@ public class RelationalTest extends ComplexTest
      */
     public static int reverse_direction_of_relational_test(int type)
     {
-        switch (type)
+        switch(type)
         {
-        case RelationalTest.NOT_EQUAL_TEST:        return RelationalTest.NOT_EQUAL_TEST;
-        case RelationalTest.LESS_TEST:             return RelationalTest.GREATER_TEST;
-        case RelationalTest.GREATER_TEST:          return RelationalTest.LESS_TEST;
-        case RelationalTest.LESS_OR_EQUAL_TEST:    return RelationalTest.GREATER_OR_EQUAL_TEST;
-        case RelationalTest.GREATER_OR_EQUAL_TEST: return RelationalTest.LESS_OR_EQUAL_TEST;
-        case RelationalTest.SAME_TYPE_TEST:        return RelationalTest.SAME_TYPE_TEST;
+        case RelationalTest.NOT_EQUAL_TEST:
+            return RelationalTest.NOT_EQUAL_TEST;
+        case RelationalTest.LESS_TEST:
+            return RelationalTest.GREATER_TEST;
+        case RelationalTest.GREATER_TEST:
+            return RelationalTest.LESS_TEST;
+        case RelationalTest.LESS_OR_EQUAL_TEST:
+            return RelationalTest.GREATER_OR_EQUAL_TEST;
+        case RelationalTest.GREATER_OR_EQUAL_TEST:
+            return RelationalTest.LESS_OR_EQUAL_TEST;
+        case RelationalTest.SAME_TYPE_TEST:
+            return RelationalTest.SAME_TYPE_TEST;
         default:
             throw new IllegalArgumentException("Unknown RelationalTest type " + type);
         }
     }
-
     
     /**
      * @param type
@@ -61,20 +66,18 @@ public class RelationalTest extends ComplexTest
         this.type = type;
         this.referent = referent;
     }
-
-
+    
     private RelationalTest(RelationalTest other)
     {
         this.type = other.type;
         this.referent = other.referent;
     }
-
-
+    
     public RelationalTest asRelationalTest()
     {
         return this;
     }
-
+    
     public RelationalTest withNewReferent(SymbolImpl referent)
     {
         if(referent == this.referent)
@@ -83,8 +86,10 @@ public class RelationalTest extends ComplexTest
         }
         return new RelationalTest(type, referent);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
@@ -92,9 +97,10 @@ public class RelationalTest extends ComplexTest
     {
         return new RelationalTest(this);
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
@@ -106,23 +112,36 @@ public class RelationalTest extends ComplexTest
             var.markIfUnmarked(tc_number, var_list);
         }
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
      */
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
         String op = "???";
-        switch (type)
+        switch(type)
         {
-        case RelationalTest.NOT_EQUAL_TEST:        op = "<>"; break;
-        case RelationalTest.LESS_TEST:             op = "<"; break;
-        case RelationalTest.GREATER_TEST:          op = ">"; break;
-        case RelationalTest.LESS_OR_EQUAL_TEST:    op = "<="; break;
-        case RelationalTest.GREATER_OR_EQUAL_TEST: op = ">="; break;
-        case RelationalTest.SAME_TYPE_TEST:        op = "<=>"; break;
+        case RelationalTest.NOT_EQUAL_TEST:
+            op = "<>";
+            break;
+        case RelationalTest.LESS_TEST:
+            op = "<";
+            break;
+        case RelationalTest.GREATER_TEST:
+            op = ">";
+            break;
+        case RelationalTest.LESS_OR_EQUAL_TEST:
+            op = "<=";
+            break;
+        case RelationalTest.GREATER_OR_EQUAL_TEST:
+            op = ">=";
+            break;
+        case RelationalTest.SAME_TYPE_TEST:
+            op = "<=>";
+            break;
         default:
             throw new IllegalArgumentException("Unknown RelationalTest type " + type);
         }

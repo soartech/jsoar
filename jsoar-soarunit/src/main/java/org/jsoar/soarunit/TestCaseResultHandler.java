@@ -8,7 +8,8 @@ package org.jsoar.soarunit;
  * @author dave
  *
  */
-public interface TestCaseResultHandler {
-
+public interface TestCaseResultHandler
+{
+    
     void handleTestCaseResult(TestCaseResult result);
 }

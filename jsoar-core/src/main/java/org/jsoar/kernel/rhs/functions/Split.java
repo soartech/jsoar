@@ -15,7 +15,7 @@ import com.google.common.collect.Iterators;
 /**
  * String split RHS function implementation.
  * 
- * <p>{@code (split <string> <regex>) } 
+ * <p>{@code (split <string> <regex>) }
  * 
  * <p>For example, {@code <s> ^result (split |string to split| | |))} will result in:
  * 
@@ -39,8 +39,10 @@ public class Split extends AbstractRhsFunctionHandler
     {
         super("split", 2, 2);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -53,5 +55,5 @@ public class Split extends AbstractRhsFunctionHandler
         final String regex = arguments.get(1).toString();
         return Wmes.createLinkedList(context, Iterators.forArray(target.split(regex, -1)));
     }
-
+    
 }

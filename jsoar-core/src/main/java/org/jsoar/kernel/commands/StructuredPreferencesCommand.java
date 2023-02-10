@@ -47,8 +47,8 @@ public class StructuredPreferencesCommand
         
         private String printResult = "";
         
-        private Result(Identifier queryId, Symbol queryAttr, Symbol queryValue, 
-                     List<ResultEntry> entries, List<Wme> impasseWmes, List<Wme> ioWmes)
+        private Result(Identifier queryId, Symbol queryAttr, Symbol queryValue,
+                List<ResultEntry> entries, List<Wme> impasseWmes, List<Wme> ioWmes)
         {
             this.error = null;
             this.queryId = queryId;
@@ -70,18 +70,50 @@ public class StructuredPreferencesCommand
             this.ioWmes = null;
         }
         
-        public String getError() { return error; }
+        public String getError()
+        {
+            return error;
+        }
         
-        public Identifier getQueryId() { return queryId; }
-        public Symbol getQueryAttribute() { return queryAttr; }
-        public Symbol getQueryValue() { return queryValue; }
-
-        public List<ResultEntry> getEntries() { return entries; }
-        public List<Wme> getImpasseWmes() { return impasseWmes; }
-        public List<Wme> getIoWmes() { return ioWmes; }
+        public Identifier getQueryId()
+        {
+            return queryId;
+        }
         
-        public String getPrintResult() { return this.printResult; }
-        private void setPrintResult(String result) { this.printResult = result; }
+        public Symbol getQueryAttribute()
+        {
+            return queryAttr;
+        }
+        
+        public Symbol getQueryValue()
+        {
+            return queryValue;
+        }
+        
+        public List<ResultEntry> getEntries()
+        {
+            return entries;
+        }
+        
+        public List<Wme> getImpasseWmes()
+        {
+            return impasseWmes;
+        }
+        
+        public List<Wme> getIoWmes()
+        {
+            return ioWmes;
+        }
+        
+        public String getPrintResult()
+        {
+            return this.printResult;
+        }
+        
+        private void setPrintResult(String result)
+        {
+            this.printResult = result;
+        }
     }
     
     public static class ResultEntry
@@ -107,15 +139,50 @@ public class StructuredPreferencesCommand
             this.sourceWmes = Collections.unmodifiableList(sourceWmes);
         }
         
-        public PreferenceType getType() { return pref.type; }
-        public Identifier getIdentifier() { return pref.id; }
-        public Symbol getAttribute() { return pref.attr; }
-        public Symbol getValue() { return pref.value; }
-        public String getValueTrace() { return valueTrace; }
-        public Symbol getReferent() { return pref.referent; }
-        public boolean isOSupported() { return osupported; }
-        public String getSource() { return source; }
-        public List<Wme> getSourceWmes() { return sourceWmes; }
+        public PreferenceType getType()
+        {
+            return pref.type;
+        }
+        
+        public Identifier getIdentifier()
+        {
+            return pref.id;
+        }
+        
+        public Symbol getAttribute()
+        {
+            return pref.attr;
+        }
+        
+        public Symbol getValue()
+        {
+            return pref.value;
+        }
+        
+        public String getValueTrace()
+        {
+            return valueTrace;
+        }
+        
+        public Symbol getReferent()
+        {
+            return pref.referent;
+        }
+        
+        public boolean isOSupported()
+        {
+            return osupported;
+        }
+        
+        public String getSource()
+        {
+            return source;
+        }
+        
+        public List<Wme> getSourceWmes()
+        {
+            return sourceWmes;
+        }
         
     }
     
@@ -124,7 +191,7 @@ public class StructuredPreferencesCommand
      * 
      * @param queryId The id. Must be non-<code>null</code>
      * @param queryAttr Optional attribute. If <code>null</code>, then prefs for all
-     *      WMES (id ^* *) will be returned.
+     *     WMES (id ^* *) will be returned.
      * @return Preferences for (id ^attr *)
      */
     public Result getPreferences(Agent agent, Identifier queryId, Symbol queryAttr)
@@ -138,21 +205,20 @@ public class StructuredPreferencesCommand
         {
             return getPreferencesForObject(agent, queryId);
         }
-               
         
         final IdentifierImpl id = (IdentifierImpl) queryId;
         final List<ResultEntry> entries = new ArrayList<ResultEntry>();
         
         Slot s = Slot.find_slot(id, queryAttr);
-        if (s == null)
+        if(s == null)
         {
             return new Result(String.format("No slot found for (%s ^%s *)", queryId, queryAttr));
         }
-        for (Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
+        for(Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
         {
             entries.add(createEntry(agent, p));
         }
-
+        
         final Result r = new Result(queryId, queryAttr, null, entries, new ArrayList<Wme>(), new ArrayList<Wme>());
         
         PrintPreferencesCommand ppc = new PrintPreferencesCommand();
@@ -211,20 +277,20 @@ public class StructuredPreferencesCommand
         final IdentifierImpl id = (IdentifierImpl) idIn;
         final List<ResultEntry> entries = new ArrayList<ResultEntry>();
         // step thru dll of slots for ID, printing prefs for each one
-        for (Slot s = id.slots; s != null; s = s.next)
+        for(Slot s = id.slots; s != null; s = s.next)
         {
-            for (Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
+            for(Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
             {
                 entries.add(createEntry(agent, p));
             }
         }
         final List<Wme> impasseWmes = new ArrayList<Wme>();
-        for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
+        for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
         {
             impasseWmes.add(w);
         }
         final List<Wme> ioWmes = new ArrayList<Wme>();
-        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+        for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
         {
             ioWmes.add(w);
         }
@@ -236,7 +302,7 @@ public class StructuredPreferencesCommand
         ppc.setId(id);
         
         addPrintResult(agent, r, ppc);
-
+        
         return r;
         
     }
@@ -256,7 +322,7 @@ public class StructuredPreferencesCommand
             {
                 traceFormats.print_object_trace(w, pref.value);
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 e.printStackTrace();
             }
@@ -284,10 +350,10 @@ public class StructuredPreferencesCommand
             ppc.print(agent, new Printer(s));
             r.setPrintResult(s.toString());
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             r.setPrintResult(e.getMessage());
         }
     }
-
+    
 }

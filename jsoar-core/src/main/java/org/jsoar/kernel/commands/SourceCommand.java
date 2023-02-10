@@ -22,7 +22,7 @@ import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
 /**
- * Implementation of the "source" command. 
+ * Implementation of the "source" command.
  * 
  * <p> Manages the following:
  * <ul>
@@ -51,8 +51,7 @@ public class SourceCommand
     
     /* package */ TopLevelState topLevelState;
     /* package */ final SoarEventManager events;
-    /* package */ final SoarEventListener eventListener = event ->
-    {
+    /* package */ final SoarEventListener eventListener = event -> {
         if(event instanceof ProductionAddedEvent)
         {
             topLevelState.productionAdded(((ProductionAddedEvent) event).getProduction());
@@ -70,7 +69,7 @@ public class SourceCommand
         this.events = events;
         fileStack.push("");
     }
-
+    
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
@@ -97,12 +96,14 @@ public class SourceCommand
         URL url = FileTools.asUrl(dirString);
         if(url != null || UrlTools.isClassPath(dirString))
         {
-            if (UrlTools.isClassPath(dirString))
+            if(UrlTools.isClassPath(dirString))
             {
                 try
                 {
                     url = UrlTools.lookupClassPathURL(dirString);
-                } catch (IOException e) {
+                }
+                catch(IOException e)
+                {
                     throw new SoarException(e);
                 }
             }
@@ -116,7 +117,7 @@ public class SourceCommand
             directoryStack.push(workingDirectory);
             workingDirectory = new DirStackEntry(joinUrl(workingDirectory.url, dirString));
         }
-        else 
+        else
         {
             if(!newDir.isAbsolute())
             {
@@ -126,7 +127,7 @@ public class SourceCommand
             
             if(!newDir.exists())
             {
-                throw new SoarException("Directory '" + newDir  + "' does not exist");
+                throw new SoarException("Directory '" + newDir + "' does not exist");
             }
             if(!newDir.isDirectory())
             {
@@ -145,7 +146,7 @@ public class SourceCommand
         }
         workingDirectory = directoryStack.pop();
     }
-
+    
     public void source(String fileString) throws SoarException
     {
         URL url = FileTools.asUrl(fileString);
@@ -155,7 +156,7 @@ public class SourceCommand
             pushd(getParentUrl(url).toExternalForm());
             evalUrlAndPop(url);
         }
-        else if (UrlTools.isClassPath(fileString))
+        else if(UrlTools.isClassPath(fileString))
         {
             try
             {
@@ -168,7 +169,9 @@ public class SourceCommand
                 }
                 
                 url = UrlTools.lookupClassPathURL(fileString);
-            } catch (IOException e) {
+            }
+            catch(IOException e)
+            {
                 throw new SoarException(e);
             }
             pushd(getParentUrl(url).toExternalForm());
@@ -185,7 +188,7 @@ public class SourceCommand
             pushd(getParentUrl(childUrl).toExternalForm());
             evalUrlAndPop(childUrl);
         }
-        else 
+        else
         {
             file = new File(workingDirectory.file, file.getPath());
             pushd(file.getParent());
@@ -202,7 +205,7 @@ public class SourceCommand
             throw new SoarException("Cannot determine parent of URL: " + url);
         }
         URL parent = FileTools.asUrl(s.substring(0, i));
-        if (parent != null)
+        if(parent != null)
         {
             return parent;
         }
@@ -219,7 +222,7 @@ public class SourceCommand
     {
         try
         {
-            //replace the system file separator to be a standard forward slash 
+            // replace the system file separator to be a standard forward slash
             sourcedFiles.add(file.getAbsolutePath().replace(File.separator, "/"));
             
             fileStack.push(file.getAbsolutePath());
@@ -235,7 +238,7 @@ public class SourceCommand
             popd();
         }
     }
-        
+    
     private void evalUrlAndPop(URL urlIn) throws SoarException
     {
         URL url = normalizeUrl(urlIn);
@@ -255,7 +258,7 @@ public class SourceCommand
             popd();
         }
     }
-
+    
     /**
      * Make sure an URL is normalized, i.e. does not contain any .. or .
      * path components.
@@ -270,11 +273,11 @@ public class SourceCommand
         {
             return url.toURI().normalize().toURL();
         }
-        catch (MalformedURLException e)
+        catch(MalformedURLException e)
         {
             throw new SoarException(e.getMessage(), e);
         }
-        catch (URISyntaxException e)
+        catch(URISyntaxException e)
         {
             throw new SoarException(e.getMessage(), e);
         }
@@ -286,8 +289,15 @@ public class SourceCommand
         File file;
         URL url;
         
-        public DirStackEntry(File file) { this.file = file; }
-        public DirStackEntry(URL url) { this.url = url; }
+        public DirStackEntry(File file)
+        {
+            this.file = file;
+        }
+        
+        public DirStackEntry(URL url)
+        {
+            this.url = url;
+        }
     }
     
     /* package */ static class FileInfo
@@ -307,18 +317,20 @@ public class SourceCommand
         final List<FileInfo> files = new ArrayList<FileInfo>();
         int totalProductionsAdded = 0;
         int totalProductionsExcised = 0;
-        //int totalProductionsIgnored = 0; // TODO implement totalProductionsIgnored
+        // int totalProductionsIgnored = 0; // TODO implement totalProductionsIgnored
         
         void productionAdded(Production p)
         {
             current().productionsAdded.add(p.getName());
             totalProductionsAdded++;
         }
+        
         void productionExcised(Production p)
         {
             current().productionsExcised.add(p.getName());
             totalProductionsExcised++;
         }
+        
         private FileInfo current()
         {
             return files.get(files.size() - 1);

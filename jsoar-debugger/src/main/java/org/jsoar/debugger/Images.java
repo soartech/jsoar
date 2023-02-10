@@ -35,7 +35,7 @@ public class Images
     public static final ImageIcon RETRACTION = loadImage("/org/jsoar/debugger/retract.png");
     public static final ImageIcon GOAL = loadImage("/org/jsoar/debugger/goal.png");
     public static final ImageIcon OPERATOR = loadImage("/org/jsoar/debugger/operator.png");
-
+    
     private static ImageIcon loadImage(String file)
     {
         URL url = Images.class.getResource(file);

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class StringToolsTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -27,7 +27,7 @@ public class StringToolsTest
     public void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -35,7 +35,7 @@ public class StringToolsTest
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     public void testJoiningEmptyCollectionReturnsEmptyString()
     {
@@ -53,5 +53,5 @@ public class StringToolsTest
     {
         assertEquals("1, 2, 3", StringTools.join(Arrays.asList(1, 2, 3), ", "));
     }
-
+    
 }

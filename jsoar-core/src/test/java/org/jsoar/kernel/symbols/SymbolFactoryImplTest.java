@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.symbols;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,7 +37,7 @@ public class SymbolFactoryImplTest
     {
         syms = new SymbolFactoryImpl();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -68,7 +67,7 @@ public class SymbolFactoryImplTest
         assertFalse(s.hash_id == 0);
         assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
     }
-
+    
     @Test
     public void testMakeFloatConstant()
     {
@@ -79,7 +78,7 @@ public class SymbolFactoryImplTest
         assertSame(s, syms.findDouble(s.getValue()));
         assertSame(s, syms.createDouble(s.getValue()));
     }
-
+    
     @Test
     public void testMakeIntConstant()
     {
@@ -101,7 +100,6 @@ public class SymbolFactoryImplTest
         assertSame(s, syms.findInteger(s.getValue()));
         assertSame(s, syms.createInteger(s.getValue()));
     }
-    
     
     @Test
     public void testMakeNewSymConstant()
@@ -191,6 +189,7 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
     public void testGetDoubleSymbols()
     {
@@ -203,6 +202,7 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
     public void testGetVariableSymbols()
     {
@@ -215,6 +215,7 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
     @Test
     public void testGetJavaSymbols()
     {
@@ -229,6 +230,7 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(b));
         assertTrue(values.contains(n));
     }
+    
     @Test
     public void testGetIdentifierSymbols()
     {

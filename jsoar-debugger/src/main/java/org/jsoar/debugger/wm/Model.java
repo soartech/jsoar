@@ -51,18 +51,25 @@ class Model
     
     public boolean hasRoot(Object id)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             return roots.containsKey(id);
         }
     }
     
-    public boolean isInputLink(Identifier id) { return agent.getInputOutput().getInputLink() == id; }
-    public boolean isOutputLink(Identifier id) { return agent.getInputOutput().getOutputLink() == id; }
+    public boolean isInputLink(Identifier id)
+    {
+        return agent.getInputOutput().getInputLink() == id;
+    }
+    
+    public boolean isOutputLink(Identifier id)
+    {
+        return agent.getInputOutput().getOutputLink() == id;
+    }
     
     public void addRoot(Object id, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(roots.containsKey(id))
             {
@@ -78,7 +85,7 @@ class Model
     
     public boolean removeRoot(Object id, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final RootRow root = roots.remove(id);
             if(root != null)
@@ -93,7 +100,7 @@ class Model
             return root != null;
         }
     }
-
+    
     private void removeRootRow(final RootRow root, boolean onlyChildren)
     {
         final ListIterator<Row> it = rows.listIterator(onlyChildren ? root.row + 1 : root.row);
@@ -114,7 +121,7 @@ class Model
     
     public void expandRow(WmeRow.Value v, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(v.expanded)
             {
@@ -156,7 +163,7 @@ class Model
                     followingRow.row = i;
                 }
             }
-
+            
             final Value existingValue = newRow.getValue(wme);
             if(existingValue == null)
             {
@@ -202,9 +209,8 @@ class Model
     
     private void expandId(final Object id, final WmeRow.Value parent, CompletionHandler<Void> finish)
     {
-        final Callable<Void> start = () ->
-        {
-            synchronized(lock)
+        final Callable<Void> start = () -> {
+            synchronized (lock)
             {
                 expandIdInternal(id, parent);
             }
@@ -212,11 +218,10 @@ class Model
         };
         agent.execute(start, finish);
     }
-
     
     private void removeRowAndChildren(WmeRow row)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final ListIterator<Row> it = rows.listIterator(row.row);
             cleanupRow(row);
@@ -243,7 +248,7 @@ class Model
     
     public void collapseRow(WmeRow.Value value, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             if(!value.expanded)
             {
@@ -299,7 +304,7 @@ class Model
     
     public void expandOrCollapseRow(WmeRow row, CompletionHandler<Void> finish)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             boolean expanded = false;
             for(WmeRow.Value v : row.values)
@@ -330,7 +335,7 @@ class Model
     
     private void cleanupRow(Row row)
     {
-        synchronized(lock)
+        synchronized (lock)
         {
             final WmeRow wmeRow = row.asWme();
             if(wmeRow != null)
@@ -431,9 +436,8 @@ class Model
     
     public void update(CompletionHandler<Void> finish)
     {
-        final Callable<Void> begin = () ->
-        {
-            synchronized(lock)
+        final Callable<Void> begin = () -> {
+            synchronized (lock)
             {
                 ts++;
                 updateRemovedWmes();
@@ -442,7 +446,7 @@ class Model
             return null;
         };
         agent.execute(begin, finish);
-    }    
+    }
     
     private boolean rowIndexesAreValid()
     {
@@ -464,8 +468,7 @@ class Model
         }
         else
         {
-            return () ->
-            {
+            return () -> {
                 final ContextVariableInfo info = agent.getAgent().getContextVariableInfo(var.toString());
                 final Symbol value = info.getValue();
                 return value != null ? value.asIdentifier() : null;
@@ -475,12 +478,14 @@ class Model
     
     private CompletionHandler<Void> timeIncrementCompletionHandler(final CompletionHandler<Void> inner)
     {
-        return new CompletionHandler<Void>() {
+        return new CompletionHandler<Void>()
+        {
             @Override
             public void finish(Void result)
             {
                 ts++;
-                if(inner != null) {
+                if(inner != null)
+                {
                     inner.finish(result);
                 }
             }

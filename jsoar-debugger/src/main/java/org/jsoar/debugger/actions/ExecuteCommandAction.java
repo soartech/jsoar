@@ -27,16 +27,20 @@ public class ExecuteCommandAction extends AbstractDebuggerAction
         this.debugger = debugger;
         this.command = command;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -44,5 +48,5 @@ public class ExecuteCommandAction extends AbstractDebuggerAction
     {
         debugger.getAgent().execute(new CommandLineRunnable(debugger, command), null);
     }
-
+    
 }

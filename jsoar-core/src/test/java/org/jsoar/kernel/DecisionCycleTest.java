@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,7 +37,7 @@ public class DecisionCycleTest
         
         this.decisionCycle = Adaptables.adapt(this.agent, DecisionCycle.class);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -47,7 +46,7 @@ public class DecisionCycleTest
     {
         this.agent.getPrinter().flush();
     }
-
+    
     @Test
     public void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
     {
@@ -66,7 +65,7 @@ public class DecisionCycleTest
             this.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that new states are being generated
-            assertEquals("S" + (1 + 2*i), decider.bottom_goal.toString());
+            assertEquals("S" + (1 + 2 * i), decider.bottom_goal.toString());
         }
     }
     
@@ -103,12 +102,12 @@ public class DecisionCycleTest
         // A production that just proposes a wait operator every cycle
         agent.getProductions().loadProduction(
                 "top-state*propose*wait\n" +
-                "   (state <s> ^attribute state\n" +
-                "              ^choices none\n" +
-                "             -^operator.name wait)\n" +
-                "-->\n" +
-                "   (<s> ^operator <o> +)\n" +
-                "   (<o> ^name wait)");
+                        "   (state <s> ^attribute state\n" +
+                        "              ^choices none\n" +
+                        "             -^operator.name wait)\n" +
+                        "-->\n" +
+                        "   (<s> ^operator <o> +)\n" +
+                        "   (<o> ^name wait)");
         
         for(int i = 1; i < 10; ++i)
         {
@@ -136,9 +135,9 @@ public class DecisionCycleTest
     {
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^operator.name halt)");
         agent.getProductions().loadProduction("test2 (state <s> ^operator.name halt) --> (halt)");
-        for (int i = 0; i < 3; i++)
+        for(int i = 0; i < 3; i++)
         {
-            if (i <= 3)
+            if(i <= 3)
             {
                 this.decisionCycle.runFor(1, RunType.PHASES);
                 assertFalse(decisionCycle.isHalted());

@@ -25,8 +25,10 @@ public class PrimitiveParam implements Param
         val_pred = valPred;
         prot_pred = protPred;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.modules.Param#get_name()
      */
     @Override
@@ -34,20 +36,25 @@ public class PrimitiveParam implements Param
     {
         return name;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.modules.Param#set_string(java.lang.String)
      */
     @Override
     public boolean set_string(String newString)
     {
-        if(!val_pred.apply(newString) || prot_pred.apply(newString)) return false;
+        if(!val_pred.apply(newString) || prot_pred.apply(newString))
+            return false;
         
         set_value(newString);
         return true;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.modules.Param#validate_string(java.lang.String)
      */
     @Override
@@ -55,7 +62,7 @@ public class PrimitiveParam implements Param
     {
         return val_pred.apply(newString);
     }
-
+    
     public void set_value(String newString)
     {
         value = newString;

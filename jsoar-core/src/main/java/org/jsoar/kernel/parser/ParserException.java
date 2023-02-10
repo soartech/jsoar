@@ -11,12 +11,12 @@ package org.jsoar.kernel.parser;
 public class ParserException extends Exception
 {
     private static final long serialVersionUID = -2467524213111939219L;
-
+    
     public ParserException(String message)
     {
         super(message);
     }
-
+    
     /**
      * 
      */
@@ -24,7 +24,7 @@ public class ParserException extends Exception
     {
         super();
     }
-
+    
     /**
      * @param message
      * @param cause
@@ -33,7 +33,7 @@ public class ParserException extends Exception
     {
         super(message, cause);
     }
-
+    
     /**
      * @param cause
      */

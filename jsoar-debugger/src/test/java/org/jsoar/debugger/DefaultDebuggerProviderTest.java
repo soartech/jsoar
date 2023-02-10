@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DefaultDebuggerProviderTest
 {
-
+    
     @Test
     public void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
     {
@@ -22,5 +22,5 @@ public class DefaultDebuggerProviderTest
                 org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS, DefaultDebuggerProvider.class.getCanonicalName(),
                 "The debugger provider's name or package has chanaged, but is referenced reflectively.");
     }
-
+    
 }

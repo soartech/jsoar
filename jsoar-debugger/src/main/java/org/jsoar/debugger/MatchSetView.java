@@ -68,8 +68,9 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         this.entryList.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.entryList.setCellRenderer(new CellRenderer());
         this.entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-
+        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            
             @Override
             public void valueChanged(ListSelectionEvent e)
             {
@@ -77,12 +78,12 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
                 {
                     tableSelectionChange();
                 }
-            }});
+            }
+        });
         
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.wmeTable.setShowGrid(false);
         this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
-        
         
         final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entryList), new JScrollPane(wmeTable));
         split.setDividerSize(5);
@@ -97,36 +98,40 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
-        bar.add(new AbstractDebuggerAction("Print match set to trace", Images.COPY) {
+        bar.add(new AbstractDebuggerAction("Print match set to trace", Images.COPY)
+        {
             private static final long serialVersionUID = -3614573079885324027L;
-
+            
             {
                 setToolTip("Print match set to trace");
             }
+            
             @Override
             public void update()
             {
             }
-
+            
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
                 final Agent a = agent.getAgent();
                 a.getPrinter().startNewLine();
                 a.printMatchSet(a.getPrinter(), WmeTraceType.FULL, EnumSet.allOf(MatchSetTraceType.class));
-            }});
+            }
+        });
         return bar;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
     public void refresh(boolean afterInitSoar)
     {
         final Callable<MatchSet> matchCall = () -> agent.getAgent().getMatchSet();
-        final CompletionHandler<MatchSet> finish = result ->
-        {
+        final CompletionHandler<MatchSet> finish = result -> {
             entryList.setModel(SwingTools.addAll(new DefaultListModel<MatchSetEntry>(), result.getEntries()));
             wmeModel.setWmes(null);
             
@@ -135,7 +140,9 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -143,7 +150,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     {
         return "ctrl shift M";
     }
-
+    
     private void tableSelectionChange()
     {
         final MatchSetEntry entry = (MatchSetEntry) entryList.getSelectedValue();
@@ -158,7 +165,6 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             }
         }
     }
-    
     
     private static class CellRenderer extends DefaultListCellRenderer
     {
@@ -179,9 +185,15 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             final MatchSetEntry entry = (MatchSetEntry) value;
             switch(entry.getType())
             {
-            case I_ASSERTION: setIcon(Images.IASSERTION); break;
-            case O_ASSERTION: setIcon(Images.OASSERTION); break;
-            case RETRACTION: setIcon(Images.RETRACTION);  break;
+            case I_ASSERTION:
+                setIcon(Images.IASSERTION);
+                break;
+            case O_ASSERTION:
+                setIcon(Images.OASSERTION);
+                break;
+            case RETRACTION:
+                setIcon(Images.RETRACTION);
+                break;
             }
             setFont(boldFont);
             setText(entry.getProduction() != null ? entry.getProduction().getName().toString() : "[dummy]");

@@ -9,7 +9,6 @@ import java.io.IOException;
 
 import org.jsoar.kernel.SoarException;
 
-
 /**
  * @author ray
  */
@@ -25,7 +24,6 @@ public class Test
         this.name = name;
         this.content = content;
     }
-
     
     /**
      * @return the owning test case
@@ -34,8 +32,7 @@ public class Test
     {
         return testCase;
     }
-
-
+    
     /**
      * @return the name
      */
@@ -43,7 +40,7 @@ public class Test
     {
         return name;
     }
-
+    
     /**
      * @return the content
      */
@@ -51,9 +48,10 @@ public class Test
     {
         return content;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -61,14 +59,12 @@ public class Test
     {
         return testCase + "/" + name;
     }
-
-
+    
     public Test reload() throws SoarException, IOException
     {
         final TestCase reloadedTestCase = getTestCase().reload();
         
         return reloadedTestCase.getTest(getName());
     }
-
     
 }

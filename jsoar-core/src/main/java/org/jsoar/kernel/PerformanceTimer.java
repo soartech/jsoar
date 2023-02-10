@@ -25,7 +25,7 @@ public class PerformanceTimer
     
     /**
      * @param args
-     * @throws SoarException 
+     * @throws SoarException
      */
     public static void main(String[] args) throws SoarException
     {
@@ -33,7 +33,7 @@ public class PerformanceTimer
         
         for(int i = 0; i < args.length; ++i)
         {
-            final String arg = args[i]; 
+            final String arg = args[i];
             if("--raw".equals(arg))
             {
                 System.out.println("TotalCPU, TotalKernel");
@@ -46,7 +46,7 @@ public class PerformanceTimer
             {
                 ++i;
                 boolean badArg = false;
-                if( i < args.length )
+                if(i < args.length)
                 {
                     numRuns = Integer.parseInt(args[i]);
                 }
@@ -54,8 +54,10 @@ public class PerformanceTimer
                 {
                     badArg = true;
                 }
-                if(numRuns <= 0) badArg = true;
-                if(badArg) System.out.println("Positive integer argument required for --runs option");
+                if(numRuns <= 0)
+                    badArg = true;
+                if(badArg)
+                    System.out.println("Positive integer argument required for --runs option");
             }
         }
         
@@ -70,15 +72,15 @@ public class PerformanceTimer
         Collections.sort(kernelTimes);
         Collections.sort(decisionCycles);
         Collections.sort(totalMemory);
-        System.out.printf("   CPU: min %f, med %f, max %f\n", cpuTimes.get(0), cpuTimes.get(cpuTimes.size() / 2) , cpuTimes.get(cpuTimes.size() - 1));
-        System.out.printf("Kernel: min %f, med %f, max %f\n", kernelTimes.get(0), kernelTimes.get(kernelTimes.size() / 2) , kernelTimes.get(kernelTimes.size() - 1));
-        System.out.printf("DecCyc: min %8d, med %8d, max %8d\n", decisionCycles.get(0), decisionCycles.get(decisionCycles.size() / 2) , decisionCycles.get(decisionCycles.size() - 1));
-        System.out.printf("TotMem: min %8d, med %8d, max %8d\n", totalMemory.get(0), totalMemory.get(totalMemory.size() / 2) , totalMemory.get(totalMemory.size() - 1));
+        System.out.printf("   CPU: min %f, med %f, max %f\n", cpuTimes.get(0), cpuTimes.get(cpuTimes.size() / 2), cpuTimes.get(cpuTimes.size() - 1));
+        System.out.printf("Kernel: min %f, med %f, max %f\n", kernelTimes.get(0), kernelTimes.get(kernelTimes.size() / 2), kernelTimes.get(kernelTimes.size() - 1));
+        System.out.printf("DecCyc: min %8d, med %8d, max %8d\n", decisionCycles.get(0), decisionCycles.get(decisionCycles.size() / 2), decisionCycles.get(decisionCycles.size() - 1));
+        System.out.printf("TotMem: min %8d, med %8d, max %8d\n", totalMemory.get(0), totalMemory.get(totalMemory.size() / 2), totalMemory.get(totalMemory.size() - 1));
         
     }
-
+    
     /**
-     * @throws SoarException 
+     * @throws SoarException
      */
     private static void doRun(String[] args) throws SoarException
     {
@@ -91,13 +93,16 @@ public class PerformanceTimer
         long decisions = -1;
         for(String arg : args)
         {
-            if(decisions == 0) 
+            if(decisions == 0)
             {
                 decisions = Integer.valueOf(arg);
-                if(decisions == 0) 
+                if(decisions == 0)
                     decisions = -1;
             }
-            else if(runs) { runs = false; /* skip arg */ }
+            else if(runs)
+            {
+                runs = false;
+                /* skip arg */ }
             else if("--raw".equals(arg))
             {
                 raw = true;
@@ -148,4 +153,3 @@ public class PerformanceTimer
         agent.dispose();
     }
 }
-

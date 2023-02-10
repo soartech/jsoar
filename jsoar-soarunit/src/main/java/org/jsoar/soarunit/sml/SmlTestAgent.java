@@ -43,7 +43,8 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private static TestRhsFunction failFunction;
     private static Random r = new Random();
     
-    static {
+    static
+    {
         port = getAvailablePort();
         kernel = Kernel.CreateKernelInNewThread(port);
         passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
@@ -53,7 +54,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private Agent agent;
     
     private final StringBuilder output = new StringBuilder();
-
+    
     // these used to put soarunit-specific input on the input-link
     // currently just the cycle count, which is very helpful for
     // writing some kinds of tests and being able to fail early
@@ -62,7 +63,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private IntElement cycleCountWme;
     
     private long updateHandlerId;
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -72,21 +73,21 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     public void dispose()
     {
         output.setLength(0);
-        if (agent != null)
+        if(agent != null)
         {
             kernel.DestroyAgent(agent);
             agent = null;
         }
-//        if (kernel != null)
-//        {
-//            kernel.Shutdown();
-//            kernel = null;
-//        }
+        // if (kernel != null)
+        // {
+        // kernel.Shutdown();
+        // kernel = null;
+        // }
         kernel.UnregisterForUpdateEvent(this.updateHandlerId);
         passFunction.Reset();
-        failFunction.Reset();        
+        failFunction.Reset();
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -101,7 +102,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         {
             return extractFiringCountsFromPrintedOutput(executeCommandLine("firing-counts", false));
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             e.printStackTrace();
             return new FiringCounts();
@@ -113,7 +114,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         final FiringCounts result = new FiringCounts();
         final Pattern pattern = Pattern.compile("^\\s*(\\d+):\\s*(.*)$", Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(in);
-        while (matcher.find())
+        while(matcher.find())
         {
             result.adjust(matcher.group(2), Long.parseLong(matcher.group(1)));
         }
@@ -141,7 +142,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     {
         return failFunction.isCalled();
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -165,14 +166,14 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // TODO use executeCommandLineXml to get list of user rules and print
         // matches output.append("\n" + executeCommandLine("matches pass"));
     }
-
+    
     @Override
     public SoarCommandInterpreter getInterpreter()
     {
         // No interpreter for SML interface?
         return null;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -205,40 +206,40 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     public void initialize(Test test) throws SoarException
     {
         output.setLength(0);
-
-//        if(kernel == null)
-//        {
-//            port = getAvailablePort();
-//            kernel = Kernel.CreateKernelInNewThread(port);
-//            //kernel.StopEventThread();
-//        }
+        
+        // if(kernel == null)
+        // {
+        // port = getAvailablePort();
+        // kernel = Kernel.CreateKernelInNewThread(port);
+        // //kernel.StopEventThread();
+        // }
         this.commonInitialize(test);
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
         loadTestCode(test);
     }
-
+    
     @Override
     public void reinitialize(Test test) throws SoarException
     {
         // Not supported for SML agents.
         initialize(test);
     }
-
+    
     private static int getAvailablePort()
     {
-        for (int tries = 0; tries < TRIES; ++tries)
+        for(int tries = 0; tries < TRIES; ++tries)
         {
             // Grab an IANA ephemeral port 49152 to 65535
             int port = r.nextInt(65535 - 49152) + 49152;
-
-            if (available(port))
+            
+            if(available(port))
             {
                 return port;
             }
         }
         throw new RuntimeException("It's taking more than " + TRIES + " tries to find a port to use.");
     }
-
+    
     private static boolean available(int port)
     {
         // http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
@@ -249,28 +250,28 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
             ss.setReuseAddress(true);
             return true;
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             // ignored: likely because port is already bound
         }
         finally
         {
-            if (ss != null)
+            if(ss != null)
             {
                 try
                 {
                     ss.close();
                 }
-                catch (IOException e)
+                catch(IOException e)
                 {
                     /* should not be thrown */
                 }
             }
         }
-
+        
         return false;
     }
-
+    
     /**
      * creates the agent, sets up update event, RHS functions assumes kernel has
      * already been created
@@ -279,24 +280,27 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
      */
     private void commonInitialize(Test test)
     {
-        //initializeRhsFunctions();
+        // initializeRhsFunctions();
         this.updateHandlerId = kernel.RegisterForUpdateEvent(
                 sml.smlUpdateEventId.smlEVENT_AFTER_ALL_OUTPUT_PHASES, this,
                 null);
         this.agent = kernel.CreateAgent(test.getName());
         this.inputLink = agent.GetInputLink();
         this.soarUnitWme = this.inputLink.CreateIdWME("soar-unit");
-        this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count",this.getCycleCount());
+        this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count", this.getCycleCount());
     }
     
     private void loadTestCode(Test test) throws SoarException
     {
-        try {
+        try
+        {
             executeCommandLine(String.format("pushd \"%s\"",
                     FileTools.getParent(UrlTools.toFile(test.getTestCase().getUrl())).replace('\\', '/')), true);
             executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
             executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
-        } catch (RuntimeException | MalformedURLException | URISyntaxException e) {
+        }
+        catch(RuntimeException | MalformedURLException | URISyntaxException e)
+        {
             throw new SoarException(e);
         }
     }
@@ -328,7 +332,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     @Override
     public long getCycleCount()
     {
-        return agent.GetDecisionCycleCounter()+1;
+        return agent.GetDecisionCycleCounter() + 1;
     }
     
     public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
@@ -339,27 +343,27 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
-//        if(kernel == null)
-//        {
-//            port = getAvailablePort();
-//            kernel = Kernel.CreateKernelInNewThread(port);
-//        }
+        // if(kernel == null)
+        // {
+        // port = getAvailablePort();
+        // kernel = Kernel.CreateKernelInNewThread(port);
+        // }
         this.commonInitialize(test);
-
+        
         // TODO SoarUnit SML: If this fails, there's really no way to tell.
         // TODO SoarUnit SML: This requires that soar/bin be on the system path
         String soarHome = System.getProperty("soar.home", null);
         // TODO SoarUnit SML: library path has to end with a slash. See
         // http://code.google.com/p/soar/issues/detail?id=82.
-        if (soarHome != null && !soarHome.endsWith("\\") && !soarHome.endsWith("/"))
+        if(soarHome != null && !soarHome.endsWith("\\") && !soarHome.endsWith("/"))
         {
             soarHome += File.separator;
         }
         soarHome += "SoarJavaDebugger.jar";
-
+        
         System.out.println("launching debugger on port " + port + " from: " + soarHome);
         boolean success = agent.SpawnDebugger(port, soarHome);
-        if (success)
+        if(success)
         {
             System.out.println("successfully launched debugger");
         }
@@ -367,9 +371,9 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         {
             System.out.println("failed to launch debugger; check that SOAR_HOME is set properly");
         }
-
+        
         loadTestCode(test);
-
+        
         // TODO SoarUnit SML: How do we clean up? Detect debugger detach?
         // There are several kernel functions for getting connection status,
         // etc.,
@@ -378,12 +382,12 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // connection closes, changes, etc.). Maybe we should just set up a
         // polling function here.
     }
-
+    
     private String executeCommandLine(String code, boolean echo)
             throws SoarException
     {
         final String result = agent.ExecuteCommandLine(code, echo);
-        if (!agent.GetLastCommandLineResult())
+        if(!agent.GetLastCommandLineResult())
         {
             throw new SoarException(result);
         }
@@ -398,5 +402,5 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         // System.out.print(message);
         // System.out.flush();
     }
-
+    
 }

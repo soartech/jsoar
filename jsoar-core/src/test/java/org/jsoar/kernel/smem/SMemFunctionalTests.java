@@ -224,9 +224,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         DefaultSemanticMemory smem = (DefaultSemanticMemory) agent.getAdapter(DefaultSemanticMemory.class);
         BasicWeightedCue bwc = smem.getLastCue();
         assertTrue(
-                bwc.cue.attr.asString().getValue().equals("name") && 
-                bwc.cue.value.asString().getValue().equals("val") &&
-                bwc.weight == 4,
+                bwc.cue.attr.asString().getValue().equals("name") &&
+                        bwc.cue.value.asString().getValue().equals("val") &&
+                        bwc.weight == 4,
                 "Incorrect cue selected");
     }
     
@@ -240,8 +240,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -255,10 +256,10 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationRecency functional test did not halt");
         
         String expected = "\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+6.0])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+5.0])\n";
+                "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+6.0])\n" +
+                "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+5.0])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -267,7 +268,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertEquals(expected, result, "testSimpleNonCueBasedRetrieval_ActivationRecency: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -279,8 +280,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -294,10 +296,10 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery functional test did not halt");
         
         String expected = "\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+5.0])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+3.0])\n";
+                "(@L1 ^x 1 ^y 2 ^z 3 [+2.0])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+5.0])\n" +
+                "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+3.0])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -306,7 +308,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertEquals(expected, result, "testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -318,8 +320,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -333,10 +336,10 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationFrequency functional test did not halt");
         
         String expected = "\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [+1.0])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+2.0])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+2.0])\n";
+                "(@L1 ^x 1 ^y 2 ^z 3 [+1.0])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+2.0])\n" +
+                "(@X1 ^name |foo| ^location @L1 [+1.0])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+2.0])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -345,7 +348,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertEquals(expected, result, "testSimpleNonCueBasedRetrieval_ActivationFrequency: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -355,14 +358,14 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String activation = "";
         boolean inActivationParse = false;
         
-        for (Character c : activationString.toCharArray())
+        for(Character c : activationString.toCharArray())
         {
-            if (c.equals('['))
+            if(c.equals('['))
             {
                 inActivationParse = true;
                 continue;
             }
-            else if (c.equals(']') && inActivationParse)
+            else if(c.equals(']') && inActivationParse)
             {
                 inActivationParse = false;
                 activationLevels.add(activation);
@@ -372,45 +375,45 @@ public class SMemFunctionalTests extends FunctionalTestHarness
                 continue;
             }
             
-            if (inActivationParse && (Character.isDigit(c) || c.equals('.') || c.equals('+') || c.equals('-')))
+            if(inActivationParse && (Character.isDigit(c) || c.equals('.') || c.equals('+') || c.equals('-')))
             {
-                if (activation.length() != 0 &&
-                    (c.equals('+') || c.equals('-')))
+                if(activation.length() != 0 &&
+                        (c.equals('+') || c.equals('-')))
                 {
                     throw new AssertionError("Found a +/- where there shouldn't be in Activation Levels!");
                 }
                 
                 activation += c;
             }
-            else if (inActivationParse)
+            else if(inActivationParse)
             {
                 throw new AssertionError("Non-Digit Character in Activation Level");
             }
         }
         
-        if (activationLevels.size() != lowEndExpectations.size())
+        if(activationLevels.size() != lowEndExpectations.size())
         {
             throw new AssertionError("Low End Expectations is not the same size as parsed Activation Levels!");
         }
-        else if (activationLevels.size() != highEndExpectations.size())
+        else if(activationLevels.size() != highEndExpectations.size())
         {
             throw new AssertionError("High End Expectations is not the same size as parsed Activation Levels!");
         }
         
         List<Double> activationLevelsAsDoubles = new ArrayList<Double>();
         
-        for (String a : activationLevels)
+        for(String a : activationLevels)
         {
             activationLevelsAsDoubles.add(Double.parseDouble(a));
         }
         
-        for (int i = 0;i < activationLevelsAsDoubles.size();i++)
+        for(int i = 0; i < activationLevelsAsDoubles.size(); i++)
         {
             Double a = activationLevelsAsDoubles.get(i);
             
-            if (!(a >= lowEndExpectations.get(i) && a <= highEndExpectations.get(i)))
+            if(!(a >= lowEndExpectations.get(i) && a <= highEndExpectations.get(i)))
             {
-                throw new AssertionError("Parsed Activation " + i+1 + " (" + a + ") is not within [" + lowEndExpectations.get(i) + ", " + highEndExpectations.get(i) + "]");
+                throw new AssertionError("Parsed Activation " + i + 1 + " (" + a + ") is not within [" + lowEndExpectations.get(i) + ", " + highEndExpectations.get(i) + "]");
             }
         }
         
@@ -425,8 +428,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -457,12 +461,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [+0.0])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
+                "            Semantic Memory             \n" +
+                "========================================\n" +
+                "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
+                "(@X1 ^name |foo| ^location @L1 [+0.0])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -471,7 +475,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertTrue(checkActivationValues(result, lowEndExpectations, highEndExpectations), "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -483,8 +487,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -515,12 +520,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [-0.693])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
+                "            Semantic Memory             \n" +
+                "========================================\n" +
+                "(@L1 ^x 1 ^y 2 ^z 3 [+0.0])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+0.456])\n" +
+                "(@X1 ^name |foo| ^location @L1 [-0.693])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+0.456])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -529,7 +534,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertTrue(checkActivationValues(result, lowEndExpectations, highEndExpectations), "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -541,8 +546,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -573,12 +579,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         // This is the expected output from print @ modified from CSoar to look like JSoar outputs it (reverse string attributes)
         @SuppressWarnings("unused")
         String expected = "========================================\n" +
-                          "            Semantic Memory             \n" +         
-                          "========================================\n" +
-                          "(@L1 ^x 1 ^y 2 ^z 3 [-0.347])\n" +
-                          "(@L2 ^x 2 ^y 3 ^z 1 [+0.405])\n" +
-                          "(@X1 ^name |foo| ^location @L1 [+0.109])\n" +
-                          "(@X2 ^name |foo| ^location @L2 [+0.144])\n";
+                "            Semantic Memory             \n" +
+                "========================================\n" +
+                "(@L1 ^x 1 ^y 2 ^z 3 [-0.347])\n" +
+                "(@L2 ^x 2 ^y 3 ^z 1 [+0.405])\n" +
+                "(@X1 ^name |foo| ^location @L1 [+0.109])\n" +
+                "(@X2 ^name |foo| ^location @L2 [+0.144])\n";
         
         StringWriter sw = new StringWriter();
         agent.getPrinter().pushWriter(sw);
@@ -587,7 +593,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String result = sw.toString();
         
         assertTrue(checkActivationValues(result, lowEndExpectations, highEndExpectations), "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental: Invalid Activation Values");
-    
+        
         halted = false;
     }
     
@@ -614,7 +620,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("smem --backup backup.sqlite");
         agent.getInterpreter().eval("smem --init");
         outputWriter.getBuffer().setLength(0);
-       
+        
         agent.getInterpreter().eval("p @");
         
         assertEquals("SMem| Semantic memory is empty.", outputWriter.toString(), "smem --init didn't init smem!");
@@ -625,7 +631,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         String resultOfP = outputWriter.toString();
         outputWriter.getBuffer().setLength(0);
-                
+        
         assertEquals(0, resultOfP.length(), "smem --init didn't excise all productions!");
         
         agent.getInterpreter().eval("p s1");
@@ -646,8 +652,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -665,14 +672,14 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         agent.getInterpreter().eval("p -d 2 @F197");
         
         String expectedResultOfPD2F197 = "\n" +
-                                         "(@F197 ^complete |true| ^number 100 ^factor @F48 @F198 [+368.0])\n" +
-                                         " (@F48 ^value 5 ^multiplicity 2 [+370.0])\n" +
-                                         " (@F198 ^value 2 ^multiplicity 2 [+369.0])\n";
+                "(@F197 ^complete |true| ^number 100 ^factor @F48 @F198 [+368.0])\n" +
+                " (@F48 ^value 5 ^multiplicity 2 [+370.0])\n" +
+                " (@F198 ^value 2 ^multiplicity 2 [+369.0])\n";
         
         String resultOfPD2F197 = outputWriter.toString();
         
         assertEquals(expectedResultOfPD2F197, resultOfPD2F197, "testFactorization: Test did not get the correct result!");
-    
+        
         agent.dispose();
         
         String pwd = agent.getInterpreter().eval("pwd");
@@ -700,12 +707,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         String actualResult = sw.toString();
         
         String expectedResult = "(@F1 ^number 2 ^complete |true| ^factor @F2 [+5.0])\n" +
-                                "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
-                                "(@F3 ^number 3 ^complete |true| ^factor @F4 [+3.0])\n" +
-                                "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
-                                "(@F5 ^number 4 ^complete |true| ^factor @F6 [+7.0])\n" +
-                                "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
-                
+                "(@F2 ^value 2 ^multiplicity 1 [+6.0])\n" +
+                "(@F3 ^number 3 ^complete |true| ^factor @F4 [+3.0])\n" +
+                "(@F4 ^value 3 ^multiplicity 1 [+4.0])\n" +
+                "(@F5 ^number 4 ^complete |true| ^factor @F6 [+7.0])\n" +
+                "(@F6 ^value 2 ^multiplicity 2 [+8.0])\n";
+        
         assertEquals(expectedResult, actualResult, "Unexpected output from CSoar database!");
     }
     
@@ -727,17 +734,17 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         List<String> ltis = new ArrayList<String>();
         
-        for (String lti : split)
+        for(String lti : split)
         {
-            if (lti.length() == 3 ||
-                lti.length() == 4)
+            if(lti.length() == 3 ||
+                    lti.length() == 4)
             {
-                if (lti.charAt(0) == '@')
+                if(lti.charAt(0) == '@')
                 {
                     ltis.add(lti);
                 }
-                else if (lti.charAt(0) == '(' &&
-                         lti.charAt(1) == '@')
+                else if(lti.charAt(0) == '(' &&
+                        lti.charAt(1) == '@')
                 {
                     ltis.add(lti.substring(1));
                 }
@@ -762,9 +769,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         String[] split_after = result_after.split("\\s+");
         
-        for (String lti : split_after)
+        for(String lti : split_after)
         {
-            if ((lti.length() == 3 || lti.length() == 4) && lti.charAt(0) == '@')
+            if((lti.length() == 3 || lti.length() == 4) && lti.charAt(0) == '@')
             {
                 String correctLti = lti.substring(0, 3);
                 assertTrue(ltis.contains(correctLti));
@@ -772,13 +779,12 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         }
     }
     
-
     @Test
     public void testMultiAgent() throws Exception
     {
         List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
         
-        for (int i = 1;i <= 250;i++)
+        for(int i = 1; i <= 250; i++)
         {
             ThreadedAgent t = ThreadedAgent.create("Agent " + i);
             t.getAgent().getTrace().setEnabled(true);
@@ -790,19 +796,19 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             agents.add(t);
         }
         
-        for (ThreadedAgent a : agents)
+        for(ThreadedAgent a : agents)
         {
-            a.runFor(4+1, RunType.DECISIONS);
+            a.runFor(4 + 1, RunType.DECISIONS);
         }
         
         boolean allStopped = false;
-        while (!allStopped)
+        while(!allStopped)
         {
             allStopped = true;
             
-            for (ThreadedAgent a : agents)
+            for(ThreadedAgent a : agents)
             {
-                if (a.isRunning())
+                if(a.isRunning())
                 {
                     allStopped = false;
                     break;
@@ -810,9 +816,9 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             }
         }
         
-        for (ThreadedAgent a : agents)
+        for(ThreadedAgent a : agents)
         {
-            if (a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 4)
+            if(a.getAgent().getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue() != 4)
             {
                 throw new AssertionError("Agent did not stop correctly! Ran too many cycles!");
             }
@@ -823,7 +829,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             a.getPrinter().popWriter();
             String result = sw.toString();
             
-            if (!result.contains("Native"))
+            if(!result.contains("Native"))
             {
                 throw new AssertionError("Non Native Driver!");
             }

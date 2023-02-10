@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PreferenceTypeTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.memory.PreferenceType#getDisplayName()}.
      */
@@ -31,8 +31,8 @@ public class PreferenceTypeTest
         assertEquals("binary indifferent", PreferenceType.BINARY_INDIFFERENT.getDisplayName());
         assertEquals("better", PreferenceType.BETTER.getDisplayName());
         assertEquals("worse", PreferenceType.WORSE.getDisplayName());
-        assertEquals("numeric indifferent",  PreferenceType.NUMERIC_INDIFFERENT.getDisplayName());
+        assertEquals("numeric indifferent", PreferenceType.NUMERIC_INDIFFERENT.getDisplayName());
         
     }
-
+    
 }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,13 +21,15 @@ import org.junit.jupiter.api.Test;
  */
 public class RandIntTest extends JSoarTest
 {
-    @Test public void testExpectedName()
+    @Test
+    public void testExpectedName()
     {
         final RandInt rf = new RandInt(new Random());
         assertEquals("rand-int", rf.getName());
     }
-
-    @Test public void testPositiveUpperBoundIsHonored() throws Exception
+    
+    @Test
+    public void testPositiveUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
         final RandInt ri = new RandInt(random);
@@ -43,7 +44,8 @@ public class RandIntTest extends JSoarTest
         }
     }
     
-    @Test public void testNegativeUpperBoundIsHonored() throws Exception
+    @Test
+    public void testNegativeUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
         final RandInt ri = new RandInt(random);

@@ -36,7 +36,7 @@ public class OutputCommandManagerTest
         this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -45,7 +45,7 @@ public class OutputCommandManagerTest
     {
         this.outputManager.dispose();
     }
-
+    
     @Test
     public void testRegisterHandler() throws Exception
     {
@@ -92,7 +92,7 @@ public class OutputCommandManagerTest
                 "");
         
         agent.runFor(1, RunType.DECISIONS);
-
+        
         assertTrue(removed.get());
     }
 }

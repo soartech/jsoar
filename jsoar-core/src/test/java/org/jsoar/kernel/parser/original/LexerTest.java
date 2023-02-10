@@ -16,7 +16,6 @@ import org.jsoar.kernel.parser.PossibleSymbolTypes;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.jupiter.api.Test;
 
-
 public class LexerTest
 {
     private Lexer createLexer(String contents) throws IOException
@@ -64,7 +63,8 @@ public class LexerTest
         assertEquals(LexemeType.INTEGER, lexeme.type);
         assertEquals(+123456L, lexeme.int_val);
         
-    }    
+    }
+    
     @Test
     public void testLexFloat() throws Exception
     {
@@ -125,14 +125,16 @@ public class LexerTest
         assertEquals(1000000000000L, lexeme.id_number);
     }
     
-    @Test public void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()
+    @Test
+    public void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()
     {
         final PossibleSymbolTypes pst = Lexer.determine_possible_symbol_types_for_string("5000000000");
         assertNotNull(pst);
         assertTrue(pst.possible_ic);
     }
     
-    @Test public void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
+    @Test
+    public void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
     {
         Lexer lexer = createLexer("5000000000000000000000000000000000000000000000000000000000000000000");
         lexer.getNextLexeme();

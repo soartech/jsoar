@@ -9,8 +9,8 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.runtime.ThreadedAgent;
 
 /**
- * Event fired when an unhandled exception is caught in the agent thread. Note 
- * that this event will never be fired by a raw {@link Agent} since there is no 
+ * Event fired when an unhandled exception is caught in the agent thread. Note
+ * that this event will never be fired by a raw {@link Agent} since there is no
  * concept of an agent thread. This event will typically be fired by a manager
  * object such as {@link ThreadedAgent}.
  * 
@@ -32,7 +32,7 @@ public class UncaughtExceptionEvent extends AbstractAgentEvent
         
         this.exception = exception;
     }
-
+    
     /**
      * @return the uncaught exception
      */

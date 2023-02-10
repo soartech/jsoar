@@ -13,21 +13,25 @@ import java.awt.event.ActionEvent;
 public class RestoreLayoutAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -7639843952865259437L;
-
+    
     public RestoreLayoutAction(ActionManager manager)
     {
         super(manager, "Restore layout");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -35,5 +39,5 @@ public class RestoreLayoutAction extends AbstractDebuggerAction
     {
         getApplication().restoreLayout();
     }
-
+    
 }

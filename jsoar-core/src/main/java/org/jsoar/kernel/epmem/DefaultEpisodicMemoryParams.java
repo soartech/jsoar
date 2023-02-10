@@ -30,10 +30,15 @@ class DefaultEpisodicMemoryParams
      * Set of attributes which are included in epmem.
      */
     Set<SymbolImpl> inclusions = new HashSet<SymbolImpl>();
+    
     /**
      * Policy for committing data to disk
      */
-    static enum Optimization { safety, performance };
+    static enum Optimization
+    {
+        safety, performance
+    };
+    
     /**
      * Size of pages used for SQLite
      */
@@ -44,7 +49,7 @@ class DefaultEpisodicMemoryParams
         @Override
         public String toString()
         {
-            switch (this)
+            switch(this)
             {
             case page_1k:
                 return "1k";
@@ -65,32 +70,63 @@ class DefaultEpisodicMemoryParams
             }
         }
     }
+    
     /**
      * Decision cycle phase to encode new episodes and process epmem link commands
      */
-    static enum Phase { output, selection };
+    static enum Phase
+    {
+        output, selection
+    };
+    
     /**
      * Episodic memory enabled
      */
-    static enum Learning { on, off };
+    static enum Learning
+    {
+        on, off
+    };
+    
     /**
      * Forces episode encoding/ignoring in the next storage phase
      */
-    static enum Force { remember, ignore, off };
+    static enum Force
+    {
+        remember, ignore, off
+    };
+    
     /**
      * How episode encoding is triggered
      */
-    static enum Trigger { none, output, dc };
+    static enum Trigger
+    {
+        none, output, dc
+    };
     
-    static enum MergeChoices { none, add };
+    static enum MergeChoices
+    {
+        none, add
+    };
     
-    static enum GraphMatchChoices { on, off };
+    static enum GraphMatchChoices
+    {
+        on, off
+    };
     
-    static enum GmOrderingChoices { undefined, dfs, mcv };
+    static enum GmOrderingChoices
+    {
+        undefined, dfs, mcv
+    };
     
-    static enum AppendDatabaseChoices { on, off };
+    static enum AppendDatabaseChoices
+    {
+        on, off
+    };
     
-    static enum LazyCommitChoices { on, off };
+    static enum LazyCommitChoices
+    {
+        on, off
+    };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -104,7 +140,7 @@ class DefaultEpisodicMemoryParams
     
     static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
-
+    
     static final PropertyKey<LazyCommitChoices> LAZY_COMMIT = key("lazy-commit", LazyCommitChoices.class).defaultValue(LazyCommitChoices.on).build();
     final EnumPropertyProvider<LazyCommitChoices> lazy_commit = new EnumPropertyProvider<LazyCommitChoices>(LAZY_COMMIT);
     
@@ -123,7 +159,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Optimization> OPTIMIZATION = key("optimization", Optimization.class).defaultValue(Optimization.performance).build();
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
     
-    static final PropertyKey<AppendDatabaseChoices> APPEND_DB= key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.off).build();
+    static final PropertyKey<AppendDatabaseChoices> APPEND_DB = key("append-database", AppendDatabaseChoices.class).defaultValue(AppendDatabaseChoices.off).build();
     final EnumPropertyProvider<AppendDatabaseChoices> append_database = new EnumPropertyProvider<AppendDatabaseChoices>(APPEND_DB);
     
     static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
@@ -144,11 +180,11 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph-match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
     final EnumPropertyProvider<GraphMatchChoices> graph_match = new EnumPropertyProvider<GraphMatchChoices>(GRAPH_MATCH);
     
-    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("graph-match-ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.undefined).build();
+    static final PropertyKey<GmOrderingChoices> GM_ORDERING = key("graph-match-ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.undefined).build();
     final EnumPropertyProvider<GmOrderingChoices> gm_ordering = new EnumPropertyProvider<GmOrderingChoices>(GM_ORDERING);
     
     private final PropertyManager properties;
-
+    
     public DefaultEpisodicMemoryParams(PropertyManager properties, SymbolFactory sf)
     {
         this.properties = properties;
@@ -156,7 +192,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PROTOCOL, protocol);
         properties.setProvider(PATH, path);
-
+        
         properties.setProvider(LAZY_COMMIT, lazy_commit);
         properties.setProvider(PAGE_SIZE, page_size);
         properties.setProvider(CACHE_SIZE, cache_size);
@@ -178,12 +214,12 @@ class DefaultEpisodicMemoryParams
         exclusions.add((SymbolImpl) sf.createString("epmem"));
         exclusions.add((SymbolImpl) sf.createString("smem"));
     }
-
+    
     public PropertyManager getProperties()
     {
         return properties;
     }
-
+    
     /**
      * Retrieve a property key for an EPMEM property. Appropriately adds necessary
      * prefixes to the name to find the right key.

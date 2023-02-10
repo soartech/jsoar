@@ -27,9 +27,10 @@ public class FunctionalTestHarness
     
     protected boolean halted = false;
     protected boolean failed = false;
-        
+    
     /**
      * Sources rules
+     * 
      * @param testName the test to perform
      * @throws SoarException
      */
@@ -63,9 +64,10 @@ public class FunctionalTestHarness
         agent.getInterpreter().eval("stats");
         
     }
+    
     protected void runTest(String testName, int expectedDecisions) throws Exception
     {
-        runTestSetup(testName);  
+        runTestSetup(testName);
         runTestExecute(testName, expectedDecisions);
     }
     
@@ -81,7 +83,7 @@ public class FunctionalTestHarness
         
         installRHS(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -92,7 +94,6 @@ public class FunctionalTestHarness
         agent.dispose();
     }
     
-    
     /**
      * Set up the agent with RHS functions common to these
      * FunctionalTests.
@@ -101,10 +102,11 @@ public class FunctionalTestHarness
     {
         // set up the agent with common RHS functions
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);     
+        assertNotNull(oldHalt);
         
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -118,8 +120,9 @@ public class FunctionalTestHarness
                 return true;
             }
         });
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -134,8 +137,9 @@ public class FunctionalTestHarness
                 return true;
             }
         });
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
-
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {

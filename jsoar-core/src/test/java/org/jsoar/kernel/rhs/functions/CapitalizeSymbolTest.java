@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  */
 public class CapitalizeSymbolTest extends JSoarTest
 {
-
+    
     @Test
     public void testExecute() throws Exception
     {
@@ -26,5 +26,5 @@ public class CapitalizeSymbolTest extends JSoarTest
         
         assertEquals("Foo bar", capitalizeSymbol.execute(rhsFuncContext, Symbols.asList(syms, "Foo bar")).asString().getValue());
     }
-
+    
 }

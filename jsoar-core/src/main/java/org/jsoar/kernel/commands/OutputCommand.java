@@ -23,6 +23,7 @@ import picocli.CommandLine.Spec;
 
 /**
  * This is the implementation of the "output" command.
+ * 
  * @author austin.brehob
  */
 public final class OutputCommand extends PicocliSoarCommand
@@ -33,11 +34,10 @@ public final class OutputCommand extends PicocliSoarCommand
         super(agent, new Output(agent, printCommand, new LinkedList<Writer>()));
     }
     
-    @Command(name="output", description="Commands related to handling output",
-            subcommands={HelpCommand.class,
-                         OutputCommand.Log.class,
-                         OutputCommand.PrintDepth.class,
-                         OutputCommand.Warnings.class})
+    @Command(name = "output", description = "Commands related to handling output", subcommands = { HelpCommand.class,
+            OutputCommand.Log.class,
+            OutputCommand.PrintDepth.class,
+            OutputCommand.Warnings.class })
     static public class Output implements Runnable
     {
         private Agent agent;
@@ -57,32 +57,29 @@ public final class OutputCommand extends PicocliSoarCommand
         {
             agent.getPrinter().startNewLine().print(
                     "=======================================================\n" +
-                    "-                    Output Status                    -\n" +
-                    "=======================================================\n"
-            );
+                            "-                    Output Status                    -\n" +
+                            "=======================================================\n");
         }
     }
     
-    
-    @Command(name="log", description="Changes output log settings",
-            subcommands={HelpCommand.class})
+    @Command(name = "log", description = "Changes output log settings", subcommands = { HelpCommand.class })
     static public class Log implements Runnable
     {
         @ParentCommand
         Output parent; // injected by picocli
-
-        @Option(names={"-c", "--close"}, arity="0..1", defaultValue="false", description="Closes the log file")
+        
+        @Option(names = { "-c", "--close" }, arity = "0..1", defaultValue = "false", description = "Closes the log file")
         boolean close;
         
-        @Parameters(index="0", arity="0..1", description="File name")
+        @Parameters(index = "0", arity = "0..1", description = "File name")
         String fileName;
         
         @Override
         public void run()
         {
-            if (close)
+            if(close)
             {
-                if (parent.writerStack.isEmpty())
+                if(parent.writerStack.isEmpty())
                 {
                     parent.agent.getPrinter().startNewLine().print("Log is not open.");
                 }
@@ -93,9 +90,9 @@ public final class OutputCommand extends PicocliSoarCommand
                     parent.agent.getPrinter().startNewLine().print("Log file closed.");
                 }
             }
-            else if (fileName != null)
+            else if(fileName != null)
             {
-                if (fileName.equals("stdout"))
+                if(fileName.equals("stdout"))
                 {
                     Writer w = new OutputStreamWriter(System.out);
                     parent.writerStack.push(null);
@@ -103,7 +100,7 @@ public final class OutputCommand extends PicocliSoarCommand
                             parent.agent.getPrinter().getWriter(), w));
                     parent.agent.getPrinter().startNewLine().print("Now writing to System.out");
                 }
-                else if (fileName.equals("stderr"))
+                else if(fileName.equals("stderr"))
                 {
                     Writer w = new OutputStreamWriter(System.err);
                     parent.writerStack.push(null);
@@ -123,7 +120,7 @@ public final class OutputCommand extends PicocliSoarCommand
                         // normally we would leave this up to the debugger or other display mechanism to figure out, but in this case it's going straight to a file.
                         parent.agent.getPrinter().startNewLine().print("Log file " + fileName + " open.").startNewLine();
                     }
-                    catch (IOException e)
+                    catch(IOException e)
                     {
                         parent.agent.getPrinter().startNewLine().print(
                                 "Failed to open file '" + fileName + "': " + e.getMessage());
@@ -138,9 +135,7 @@ public final class OutputCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="print-depth", description="Adjusts or displays the print-depth",
-            subcommands={HelpCommand.class})
+    @Command(name = "print-depth", description = "Adjusts or displays the print-depth", subcommands = { HelpCommand.class })
     static public class PrintDepth implements Runnable
     {
         @ParentCommand
@@ -149,13 +144,13 @@ public final class OutputCommand extends PicocliSoarCommand
         @Spec
         CommandSpec spec; // injected by picocli
         
-        @Parameters(index="0", arity="0..1", description="New print depth")
+        @Parameters(index = "0", arity = "0..1", description = "New print depth")
         Integer printDepth;
         
         @Override
         public void run()
         {
-            if (printDepth == null)
+            if(printDepth == null)
             {
                 parent.agent.getPrinter().startNewLine().print("print-depth is " +
                         Integer.toString(parent.printCommand.getDefaultDepth()));
@@ -163,9 +158,12 @@ public final class OutputCommand extends PicocliSoarCommand
             else
             {
                 int depth = printDepth;
-                try {
+                try
+                {
                     parent.printCommand.setDefaultDepth(depth);
-                } catch(SoarException e) {
+                }
+                catch(SoarException e)
+                {
                     throw new ParameterException(spec.commandLine(), e.getMessage(), e);
                 }
                 parent.agent.getPrinter().startNewLine().print("print-depth is now " + depth);
@@ -173,29 +171,27 @@ public final class OutputCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="warnings", description="Toggles output warnings",
-            subcommands={HelpCommand.class})
+    @Command(name = "warnings", description = "Toggles output warnings", subcommands = { HelpCommand.class })
     static public class Warnings implements Runnable
     {
         @ParentCommand
         Output parent; // injected by picocli
         
-        @Option(names={"on", "-e", "--on", "--enable"}, defaultValue="false", description="Enables output warnings")
+        @Option(names = { "on", "-e", "--on", "--enable" }, defaultValue = "false", description = "Enables output warnings")
         boolean enable;
         
-        @Option(names={"off", "-d", "--off", "--disable"}, defaultValue="false", description="Disables output warnings")
+        @Option(names = { "off", "-d", "--off", "--disable" }, defaultValue = "false", description = "Disables output warnings")
         boolean disable;
         
         @Override
         public void run()
         {
-            if (!enable && !disable)
+            if(!enable && !disable)
             {
                 parent.agent.getPrinter().print("warnings is " +
                         (parent.agent.getPrinter().isPrintWarnings() ? "on" : "off"));
             }
-            else if (enable)
+            else if(enable)
             {
                 parent.agent.getPrinter().setPrintWarnings(true);
                 parent.agent.getPrinter().print("warnings is now on");

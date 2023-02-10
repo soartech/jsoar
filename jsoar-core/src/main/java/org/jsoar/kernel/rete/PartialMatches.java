@@ -49,8 +49,7 @@ public class PartialMatches
         {
             this.condition = condition;
             this.matches = matches;
-            this.negatedSubConditions = negatedSubConditions != null ? 
-                    Collections.unmodifiableList(new ArrayList<Entry>(negatedSubConditions)) : null;
+            this.negatedSubConditions = negatedSubConditions != null ? Collections.unmodifiableList(new ArrayList<Entry>(negatedSubConditions)) : null;
         }
         
         public String toString()
@@ -80,8 +79,10 @@ public class PartialMatches
     {
         return entries;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

@@ -17,5 +17,5 @@ public class WaypointRemoved extends AbstractWaypointEvent
     {
         super(world, waypoint);
     }
-
+    
 }

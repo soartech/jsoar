@@ -72,7 +72,7 @@ public class LeftToken extends Token
         }
         return negrm_tokens;
     }
-
+    
     ListItem<RightToken> getFirstNegRightToken()
     {
         return negrm_tokens != null ? negrm_tokens.first : null;
@@ -88,7 +88,9 @@ public class LeftToken extends Token
         rt.negrm.remove(getNegRightTokens());
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -96,6 +98,5 @@ public class LeftToken extends Token
     {
         return w + "/" + referent;
     }
-    
     
 }

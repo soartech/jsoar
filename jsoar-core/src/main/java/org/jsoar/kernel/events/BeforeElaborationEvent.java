@@ -21,5 +21,5 @@ public class BeforeElaborationEvent extends AbstractAgentEvent
     {
         super(agent);
     }
-
+    
 }

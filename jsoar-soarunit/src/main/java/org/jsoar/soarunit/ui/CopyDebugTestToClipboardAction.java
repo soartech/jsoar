@@ -36,9 +36,10 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
         
         this.test = test;
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -54,12 +55,16 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
             final StringSelection ss = new StringSelection(command);
             final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();
             cb.setContents(ss, this);
-        } catch (RuntimeException | MalformedURLException | URISyntaxException e1) {
+        }
+        catch(RuntimeException | MalformedURLException | URISyntaxException e1)
+        {
             JOptionPane.showMessageDialog(null, e1.getMessage(), "Error creating debug test string", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
      */
     @Override

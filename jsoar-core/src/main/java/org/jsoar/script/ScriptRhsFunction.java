@@ -46,8 +46,10 @@ public class ScriptRhsFunction extends AbstractRhsFunctionHandler
         
         this.state = state;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -58,10 +60,10 @@ public class ScriptRhsFunction extends AbstractRhsFunctionHandler
         try
         {
             final Object result = state.eval(code);
-
+            
             return Symbols.create(context.getSymbols(), result);
         }
-        catch (SoarException e)
+        catch(SoarException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }

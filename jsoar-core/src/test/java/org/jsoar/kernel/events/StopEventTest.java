@@ -25,22 +25,22 @@ import org.junit.jupiter.api.Timeout;
 public class StopEventTest
 {
     private ThreadedAgent agent;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
         agent = ThreadedAgent.create(getClass().getName());
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
-        if (agent != null)
+        if(agent != null)
         {
             agent.dispose();
         }
     }
-
+    
     @Test
     @Timeout(value = 2, unit = TimeUnit.SECONDS)
     public void testEventFires() throws Exception
@@ -49,19 +49,18 @@ public class StopEventTest
         // and therefore requires synchronization for the assert.
         final BlockingQueue<Boolean> q = new SynchronousQueue<Boolean>();
         
-        agent.getEvents().addListener(StopEvent.class, event ->
-        {
+        agent.getEvents().addListener(StopEvent.class, event -> {
             assertEquals(event.getClass(), StopEvent.class);
             try
             {
                 // This blocks until q.take below
                 q.put(Boolean.TRUE);
             }
-            catch (InterruptedException ignored)
+            catch(InterruptedException ignored)
             {
             }
         });
-
+        
         agent.runFor(1, RunType.ELABORATIONS);
         
         // This blocks until q.put above

@@ -37,7 +37,7 @@ public class WaitInfo
      * The production that caused the wait, or <code>null</code> for none.
      */
     public final Production cause;
-
+    
     WaitInfo(long timeout, Production cause)
     {
         this(true, timeout, cause);
@@ -52,14 +52,15 @@ public class WaitInfo
         this.cause = cause;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        return waiting ? String.format("Waiting %s [%s]", 
-                                        timeout != Long.MAX_VALUE ? Long.toString(timeout)  + " ms" : "forever",
-                                        cause) : 
-                         "No wait";
+        return waiting ? String.format("Waiting %s [%s]",
+                timeout != Long.MAX_VALUE ? Long.toString(timeout) + " ms" : "forever",
+                cause) : "No wait";
     }
 }

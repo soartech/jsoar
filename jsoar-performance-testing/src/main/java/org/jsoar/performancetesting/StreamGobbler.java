@@ -18,15 +18,15 @@ import java.io.PrintWriter;
 public class StreamGobbler extends Thread
 {
     InputStream is;
-
+    
     PrintWriter output;
-
+    
     StreamGobbler(InputStream is, PrintWriter output)
     {
         this.is = is;
         this.output = output;
     }
-
+    
     /**
      * Run the thread for input but output each character as we get it.
      */
@@ -37,15 +37,15 @@ public class StreamGobbler extends Thread
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             int value;
-            while ((value = br.read()) != -1)
+            while((value = br.read()) != -1)
             {
                 char c = (char) value;
-
+                
                 output.print(c);
                 output.flush();
             }
         }
-        catch (IOException ioe)
+        catch(IOException ioe)
         {
             ioe.printStackTrace();
         }

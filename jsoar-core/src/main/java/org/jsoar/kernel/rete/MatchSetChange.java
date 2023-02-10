@@ -26,11 +26,11 @@ public class MatchSetChange
     public final WmeImpl w; // for assertions only
     
     public final Instantiation inst;   // for retractions only
-
+    
     public IdentifierImpl goal;
     public int level;              // Level of the match of the assertion or retraction
     public final ListItem<MatchSetChange> in_level = new ListItem<MatchSetChange>(this); // dll for goal level
-
+    
     public static MatchSetChange createAssertion(ReteNode p_node, Token tok, WmeImpl w)
     {
         return new MatchSetChange(p_node, tok, w);
@@ -78,7 +78,6 @@ public class MatchSetChange
         this.tok = null;
     }
     
-    
     /**
      * @return the production associated with this match set change
      */
@@ -86,7 +85,7 @@ public class MatchSetChange
     {
         return inst != null ? inst.prod : p_node.b_p().prod;
     }
-
+    
     /**
      * <p>rete.cpp:1011:find_goal_for_match_set_change_assertion
      * 
@@ -94,47 +93,55 @@ public class MatchSetChange
      * @return the goal
      * @throws IllegalStateException if the goal is not found
      */
-    public IdentifierImpl find_goal_for_match_set_change_assertion(Token dummy_top_token) {
-
-//      #ifdef DEBUG_WATERFALL
-//        print_with_symbols(thisAgent, "\nMatch goal for assertion: %y", msc->p_node->b.p.prod->name); 
-//      #endif
-
+    public IdentifierImpl find_goal_for_match_set_change_assertion(Token dummy_top_token)
+    {
+        
+        // #ifdef DEBUG_WATERFALL
+        // print_with_symbols(thisAgent, "\nMatch goal for assertion: %y", msc->p_node->b.p.prod->name);
+        // #endif
+        
         WmeImpl lowest_goal_wme = null;
-        //int lowest_level_so_far = -1;
-
-        if (this.w != null) {
-            if (this.w.id.isGoal()) {
-              lowest_goal_wme = this.w;
-              //lowest_level_so_far = this.w.id.level;
+        // int lowest_level_so_far = -1;
+        
+        if(this.w != null)
+        {
+            if(this.w.id.isGoal())
+            {
+                lowest_goal_wme = this.w;
+                // lowest_level_so_far = this.w.id.level;
             }
         }
-
-        for (Token tok=this.tok; tok!=dummy_top_token; tok=tok.parent) {
-          if (tok.w != null) {
-            /* print_wme(tok->w); */
-            if (tok.w.id.isGoal()) {
-
-              if (lowest_goal_wme == null)
-                lowest_goal_wme = tok.w;
-              
-              else {
-                if (tok.w.id.level > lowest_goal_wme.id.level)
-                  lowest_goal_wme = tok.w;
-              }
+        
+        for(Token tok = this.tok; tok != dummy_top_token; tok = tok.parent)
+        {
+            if(tok.w != null)
+            {
+                /* print_wme(tok->w); */
+                if(tok.w.id.isGoal())
+                {
+                    
+                    if(lowest_goal_wme == null)
+                        lowest_goal_wme = tok.w;
+                    
+                    else
+                    {
+                        if(tok.w.id.level > lowest_goal_wme.id.level)
+                            lowest_goal_wme = tok.w;
+                    }
+                }
+                
             }
-             
-          }
-        } 
-
-        if (lowest_goal_wme != null) {
-//      #ifdef DEBUG_WATERFALL
-//          print_with_symbols(thisAgent, " is [%y]", lowest_goal_wme->id);
-//      #endif
-             return lowest_goal_wme.id;
         }
-            throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p().prod.getName());
-      }
+        
+        if(lowest_goal_wme != null)
+        {
+            // #ifdef DEBUG_WATERFALL
+            // print_with_symbols(thisAgent, " is [%y]", lowest_goal_wme->id);
+            // #endif
+            return lowest_goal_wme.id;
+        }
+        throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p().prod.getName());
+    }
     
     /**
      * <p>rete.cpp:1065:find_goal_for_match_set_change_retraction
@@ -147,8 +154,8 @@ public class MatchSetChange
         // print_with_symbols(thisAgent, "\nMatch goal level for retraction:
         // %y", msc->inst->prod->name);
         // #endif
-
-        if (this.inst.match_goal != null)
+        
+        if(this.inst.match_goal != null)
         {
             // If there is a goal, just return the goal
             // #ifdef DEBUG_WATERFALL
@@ -160,14 +167,14 @@ public class MatchSetChange
         {
             // #ifdef DEBUG_WATERFALL
             // print(" is NIL (nil goal retraction)");
-            //        #endif 
+            // #endif
             return null;
         }
     }
     
     /**
      * Insert this MSC at the head of a list of MSC in a node.
-     *  
+     * 
      * @param currentHead the current list head
      * @return the new list head (this)
      * @see ProductionNodeData#tentative_assertions
@@ -186,7 +193,7 @@ public class MatchSetChange
     
     /**
      * Remove this MSC from a list of MSC in a node.
-     *  
+     * 
      * @param currentHead the current list head
      * @return the new list head
      * @see ProductionNodeData#tentative_assertions

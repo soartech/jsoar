@@ -17,13 +17,15 @@ import org.jsoar.kernel.symbols.SymbolFactory;
  */
 public class StringRhsFunction extends AbstractRhsFunctionHandler
 {
-
+    
     public StringRhsFunction()
     {
         super("string", 0, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -44,5 +46,5 @@ public class StringRhsFunction extends AbstractRhsFunctionHandler
             return arg.asString() != null ? arg : syms.createString(arg.toString());
         }
     }
-
+    
 }

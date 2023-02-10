@@ -42,7 +42,7 @@ public class TestCase
     {
         return fromURL(file.toURI().toURL(), prefixIndex);
     }
-
+    
     public static TestCase fromURL(URL url, int prefixIndex) throws SoarException, IOException
     {
         final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream()))));
@@ -69,7 +69,7 @@ public class TestCase
                 {
                     throw new SoarException(url.toString() + ": Unsupported SoarUnit command '" + name + "'");
                 }
-
+                
                 parsedCommand = parser.parseCommand(reader);
             }
             return testCase;
@@ -96,7 +96,7 @@ public class TestCase
         this.name = name;
         this.prefixIndex = prefixIndex;
     }
-
+    
     /**
      * @return the setup
      */
@@ -104,7 +104,7 @@ public class TestCase
     {
         return setup;
     }
-
+    
     /**
      * @param setup the setup to set
      */
@@ -112,7 +112,7 @@ public class TestCase
     {
         this.setup = setup;
     }
-
+    
     /**
      * @return the name
      */
@@ -128,12 +128,12 @@ public class TestCase
     {
         return url;
     }
-
+    
     public void addTest(Test test)
     {
         tests.add(test);
     }
- 
+    
     /**
      * @return the tests
      */
@@ -141,7 +141,7 @@ public class TestCase
     {
         return tests;
     }
-
+    
     public Test getTest(String name)
     {
         for(Test test : tests)
@@ -154,15 +154,16 @@ public class TestCase
         return null;
     }
     
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
         return name;
     }
-
+    
     public TestCase reload() throws SoarException, IOException
     {
         return fromURL(getUrl(), this.prefixIndex);

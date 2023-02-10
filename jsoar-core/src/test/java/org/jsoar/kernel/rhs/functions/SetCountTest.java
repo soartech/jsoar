@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public class SetCountTest
 {
-
+    
     private Agent agent;
     ByRef<Boolean> matched;
     
@@ -24,14 +24,16 @@ public class SetCountTest
     {
         this.agent = new Agent();
         this.matched = ByRef.create(Boolean.FALSE);
-        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match"){
-
+        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
                 matched.value = true;
                 return null;
-            }});
+            }
+        });
         
         // A production to create some set to count
         agent.getProductions().loadProduction("" +
@@ -87,7 +89,7 @@ public class SetCountTest
     public void TestTwoArgs() throws Exception
     {
         // A production to call set-count with two args: <tc> and foo,
-        // which means count how many WMEs have the identifier <tc> with the attribute "foo"  
+        // which means count how many WMEs have the identifier <tc> with the attribute "foo"
         agent.getProductions().loadProduction("" +
                 "countSet\n" +
                 "(state <s> ^superstate nil ^to-count <tc>)\n" +

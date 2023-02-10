@@ -12,8 +12,10 @@ package org.jsoar.kernel.exploration;
  */
 public class ExplorationValidateTemperature implements ExplorationValueFunction
 {
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.ExplorationValueFunction#call(double)
      */
     @Override
@@ -21,5 +23,5 @@ public class ExplorationValidateTemperature implements ExplorationValueFunction
     {
         return value > 0;
     }
-
+    
 }

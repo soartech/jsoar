@@ -55,18 +55,18 @@ import org.jsoar.util.commands.SoarCommands;
 public class WorkingMemoryTree extends JComponent
 {
     private static final long serialVersionUID = 8031999540064492987L;
-
+    
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private static final Stroke newWmeStroke = new BasicStroke(3);
     private static final Color newWmeColor = Color.GREEN.darker();
-
+    
     private final Model model;
     
     private final Font font;
     private final Font rootFont;
     private final Font rootNoteFont;
-    private Color backgroundColor = Color.white; //new Color(255, 255, 240);
+    private Color backgroundColor = Color.white; // new Color(255, 255, 240);
     private Color rootRowFillColor = new Color(70, 130, 180);
     private Color rootRowTextColor = Color.WHITE;
     private Color idTextColor = Color.BLACK;
@@ -79,7 +79,7 @@ public class WorkingMemoryTree extends JComponent
     private Color selectionSubColor = new Color(232, 242, 254);
     private Color markerColor = new Color(192, 192, 192);
     private Color stateIndicatorColor = new Color(0, 230, 0);
-    private Color operatorIndicatorColor = new Color(255, 160, 122 /*255, 99, 71*/);
+    private Color operatorIndicatorColor = new Color(255, 160, 122 /* 255, 99, 71 */);
     
     private Symbol symbolUnderMouse = null;
     private final List<Wme> selectedWmes = new ArrayList<Wme>();
@@ -105,77 +105,80 @@ public class WorkingMemoryTree extends JComponent
         font = Font.decode("Arial-BOLD-11");
         rootFont = font.deriveFont(font.getSize() * 1.5f);
         rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
-
+        
         this.model = new Model(agent, getTreeLock());
         this.backgroundColor = Highlighter.getInstance(null).getPatterns().getBackground();
-
+        
         setFont(font);
         setBackground(backgroundColor);
         setToolTipText("");
         
-        addMouseMotionListener(new MouseAdapter() {
+        addMouseMotionListener(new MouseAdapter()
+        {
             @Override
             public void mouseMoved(MouseEvent e)
             {
-                synchronized(model.lock)
+                synchronized (model.lock)
                 {
                     WorkingMemoryTree.this.mouseMoved(e);
                 }
             }
-
+            
             @Override
             public void mouseDragged(MouseEvent e)
             {
-                synchronized(model.lock)
+                synchronized (model.lock)
                 {
                     WorkingMemoryTree.this.mouseDragged(e);
                 }
             }
         });
-        addMouseWheelListener(e ->
-        {
+        addMouseWheelListener(e -> {
             synchronized (model.lock)
             {
                 WorkingMemoryTree.this.mouseScrolled(e);
             }
         });
-        addMouseListener(new MouseAdapter(){
-
+        addMouseListener(new MouseAdapter()
+        {
+            
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                synchronized(model.lock)
+                synchronized (model.lock)
                 {
                     WorkingMemoryTree.this.mouseClicked(e);
                 }
             }
-
+            
             @Override
             public void mousePressed(MouseEvent e)
             {
-                synchronized(model.lock)
+                synchronized (model.lock)
                 {
                     WorkingMemoryTree.this.mousePressed(e);
                 }
             }
-
+            
             @Override
             public void mouseReleased(MouseEvent e)
             {
-                synchronized(model.lock)
+                synchronized (model.lock)
                 {
                     WorkingMemoryTree.this.mouseReleased(e);
                 }
             }
-
-
+            
         });
     }
     
     /**
      * @return selection provider for the tree
      */
-    public SelectionProvider getSelectionProvider() { return selectionProvider; }
+    public SelectionProvider getSelectionProvider()
+    {
+        return selectionProvider;
+    }
     
     public void updateModel()
     {
@@ -213,7 +216,7 @@ public class WorkingMemoryTree extends JComponent
     {
         return selectedWmes.contains(wme);
     }
-
+    
     private boolean isRowSelected(WmeRow row)
     {
         for(WmeRow.Value v : row.values)
@@ -226,13 +229,15 @@ public class WorkingMemoryTree extends JComponent
         return false;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
      */
     @Override
     public String getToolTipText(MouseEvent event)
     {
-        synchronized(model.lock)
+        synchronized (model.lock)
         {
             final Point p = event.getPoint();
             final Row row = getRowAtPoint(p);
@@ -274,9 +279,10 @@ public class WorkingMemoryTree extends JComponent
             return super.getToolTipText(event);
         }
     }
-
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -290,7 +296,7 @@ public class WorkingMemoryTree extends JComponent
         
         final Graphics2D g2d = (Graphics2D) g;
         
-        synchronized(model.lock)
+        synchronized (model.lock)
         {
             paintComponentSafe(g2d);
         }
@@ -368,7 +374,7 @@ public class WorkingMemoryTree extends JComponent
             paintRow(g2d, asWme);
         }
     }
-
+    
     private Rectangle2D getCenteredTextBounds(Graphics2D g2d, String text, int x, int y)
     {
         final int rowHeight = getRowHeight();
@@ -395,15 +401,15 @@ public class WorkingMemoryTree extends JComponent
         final Rectangle2D bounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
         
         g2d.setColor(rootRowFillColor);
-        g2d.fillRect((int) asRoot.bounds.getX(), (int) asRoot.bounds.getY(), 
+        g2d.fillRect((int) asRoot.bounds.getX(), (int) asRoot.bounds.getY(),
                 (int) asRoot.bounds.getWidth(), (int) asRoot.bounds.getHeight() - 2);
         
-//        g2d.fillRoundRect((int) asRoot.bounds.getX() + 2, (int) asRoot.bounds.getY() + 2, 
-//                          (int) asRoot.bounds.getWidth() - 4, (int) asRoot.bounds.getHeight() - 4, 
-//                          6, 6);
+        // g2d.fillRoundRect((int) asRoot.bounds.getX() + 2, (int) asRoot.bounds.getY() + 2,
+        // (int) asRoot.bounds.getWidth() - 4, (int) asRoot.bounds.getHeight() - 4,
+        // 6, 6);
         g2d.setColor(rootRowTextColor);
-        g2d.drawString(text, (int) bounds.getX(), 
-                      (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
+        g2d.drawString(text, (int) bounds.getX(),
+                (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
         
         String notes = "";
         if(model.isInputLink(asRoot.getId()))
@@ -429,16 +435,15 @@ public class WorkingMemoryTree extends JComponent
         {
             g2d.setFont(rootNoteFont);
             final Rectangle2D noteBounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
-            g2d.drawString(notes, (int) bounds.getMaxX() + 10, 
-                          (int) (noteBounds.getMaxY() - g2d.getFontMetrics().getDescent()));
+            g2d.drawString(notes, (int) bounds.getMaxX() + 10,
+                    (int) (noteBounds.getMaxY() - g2d.getFontMetrics().getDescent()));
         }
         
         if(asRoot.deleteButton.getParent() == null)
         {
             add(asRoot.deleteButton);
             validate();
-            asRoot.deleteButton.addActionListener(e ->
-            {
+            asRoot.deleteButton.addActionListener(e -> {
                 remove(asRoot.deleteButton);
                 validate();
                 model.removeRoot(asRoot.key, repaint);
@@ -446,12 +451,12 @@ public class WorkingMemoryTree extends JComponent
         }
         asRoot.deleteButton.setBounds((int) asRoot.bounds.getMaxX() - 30, (int) (asRoot.bounds.getCenterY() - 20 / 2), 20, 20);
     }
-
+    
     private void paintRow(Graphics2D g2d, WmeRow row)
     {
         final int y = (int) row.bounds.getY();
         final int xpad = 15;
-        final int startX = 10 + getIndent() * row.level; 
+        final int startX = 10 + getIndent() * row.level;
         int x = startX;
         
         row.idBounds = paintSymbol(g2d, row.id, row.id.toString(), x, y);
@@ -484,10 +489,10 @@ public class WorkingMemoryTree extends JComponent
         }
         
         // Debug
-//        g2d.setColor(Color.BLACK);
-//        g2d.drawString(Integer.toString(row.row), getWidth() - 40, (int) row.idBounds.getMaxY());
+        // g2d.setColor(Color.BLACK);
+        // g2d.drawString(Integer.toString(row.row), getWidth() - 40, (int) row.idBounds.getMaxY());
     }
-
+    
     private void paintSelectionIndicator(Graphics2D g2d, WmeRow.Value value)
     {
         final Stroke oldStroke = g2d.getStroke();
@@ -496,27 +501,27 @@ public class WorkingMemoryTree extends JComponent
         final int top = ((int) value.bounds.getY() - fillPad);
         final int height = (int) value.bounds.getHeight() + fillPad * 2;
         g2d.setColor(selectionColor);
-        g2d.drawRoundRect((int) value.bounds.getX() - fillPad, top, 
-                          (int) value.bounds.getWidth() + fillPad * 2, height, 4, 4);
+        g2d.drawRoundRect((int) value.bounds.getX() - fillPad, top,
+                (int) value.bounds.getWidth() + fillPad * 2, height, 4, 4);
         g2d.setStroke(oldStroke);
     }
-
+    
     private void paintExpandedIdIndicator(Graphics2D g2d, WmeRow.Value value)
     {
         g2d.setColor(idFillColor);
-        g2d.fillArc((int) value.bounds.getX(), (int) value.bounds.getMaxY(), 
-                    (int) value.bounds.getWidth(), (int) (getRowHeight() - value.bounds.getHeight()), 
-                    45, 90);
+        g2d.fillArc((int) value.bounds.getX(), (int) value.bounds.getMaxY(),
+                (int) value.bounds.getWidth(), (int) (getRowHeight() - value.bounds.getHeight()),
+                45, 90);
     }
-
+    
     private void paintNewValueIndicator(Graphics2D g2d, WmeRow.Value value)
     {
         final Stroke oldStroke = g2d.getStroke();
         // Underline...
-        //g2d.setColor(Color.ORANGE);
-        //g2d.setStroke(newWmeStroke);
-        //g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 5, 
-        //             (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
+        // g2d.setColor(Color.ORANGE);
+        // g2d.setStroke(newWmeStroke);
+        // g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 5,
+        // (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
         
         // "plus" in upper right corner
         g2d.setColor(newWmeColor);
@@ -553,7 +558,7 @@ public class WorkingMemoryTree extends JComponent
         final Rectangle2D bounds = getCenteredTextBounds(g2d, string, x, y);
         
         final Color textColor = getSymbolTextColor(sym);
-
+        
         final Identifier id = sym.asIdentifier();
         if(id != null)
         {
@@ -563,22 +568,22 @@ public class WorkingMemoryTree extends JComponent
             final int topY = (int) bounds.getY() - fillPad;
             final int h = (int) bounds.getHeight() + fillPad * 2;
             final int w = (int) bounds.getWidth() + fillPad * 2;
-            g2d.fillRoundRect(leftX, topY, 
-                              w, h, 4, 4);
+            g2d.fillRoundRect(leftX, topY,
+                    w, h, 4, 4);
             
             if(id.isGoal())
             {
                 g2d.setColor(stateIndicatorColor);
-                //g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
-                g2d.fillArc(leftX + 2, topY + 2, 
-                            w - 4, h - 4, 0, 360);
+                // g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
+                g2d.fillArc(leftX + 2, topY + 2,
+                        w - 4, h - 4, 0, 360);
             }
             else if(id.isOperator())
             {
                 g2d.setColor(operatorIndicatorColor);
-                //g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
-                g2d.fillArc(leftX + 2, topY + 2, 
-                            w - 4, h - 4, 0, 360);
+                // g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
+                g2d.fillArc(leftX + 2, topY + 2,
+                        w - 4, h - 4, 0, 360);
                 
             }
         }
@@ -586,31 +591,33 @@ public class WorkingMemoryTree extends JComponent
         {
             final int fillPad = 3;
             g2d.setColor(textColor);
-            g2d.drawRoundRect((int) bounds.getX() - fillPad, ((int) bounds.getY() - fillPad), 
-                              (int) bounds.getWidth() + fillPad * 2, (int) bounds.getHeight() + fillPad * 2, 4, 4);
+            g2d.drawRoundRect((int) bounds.getX() - fillPad, ((int) bounds.getY() - fillPad),
+                    (int) bounds.getWidth() + fillPad * 2, (int) bounds.getHeight() + fillPad * 2, 4, 4);
         }
-
+        
         g2d.setColor(textColor);
         g2d.drawString(string, (int) bounds.getX(), (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
         
         return bounds;
     }
-
+    
     private void mouseScrolled(MouseWheelEvent e)
     {
         final int dy = getRowHeight() * -e.getWheelRotation();
         offset.y = Math.min(0, offset.y + dy);
         final int totalHeight = model.rows.size() * getRowHeight();
-        if (totalHeight < getHeight()) {
+        if(totalHeight < getHeight())
+        {
             offset.y = 0;
         }
-        if (totalHeight > getHeight() && offset.y + totalHeight < getHeight()) {
+        if(totalHeight > getHeight() && offset.y + totalHeight < getHeight())
+        {
             offset.y = getHeight() - totalHeight;
         }
-
+        
         repaint();
     }
-
+    
     private void mousePressed(MouseEvent e)
     {
         lastMouseDragPoint = e.getPoint();
@@ -678,7 +685,7 @@ public class WorkingMemoryTree extends JComponent
             repaint = symbolUnderMouse != null;
             symbolUnderMouse = null;
         }
-       
+        
         if(repaint)
         {
             repaint();
@@ -730,7 +737,7 @@ public class WorkingMemoryTree extends JComponent
             }
         }
     }
-
+    
     private void rowValueSingleClicked(MouseEvent e, WmeRow.Value value)
     {
         if(e.isControlDown())
@@ -748,7 +755,7 @@ public class WorkingMemoryTree extends JComponent
         selectionProvider.selectionChanged();
         repaint();
     }
-
+    
     private void rowValueDoubleClicked(WmeRow.Value value)
     {
         final Identifier valueId = value.wme.getValue().asIdentifier();
@@ -783,19 +790,19 @@ public class WorkingMemoryTree extends JComponent
         {
             this.manager = manager;
         }
-
+        
         @Override
         public void deactivate()
         {
             this.manager = null;
         }
-
+        
         @Override
         public Object getSelectedObject()
         {
             return !selectedWmes.isEmpty() ? selectedWmes.get(0) : null;
         }
-
+        
         @Override
         public List<Object> getSelection()
         {
@@ -810,15 +817,14 @@ public class WorkingMemoryTree extends JComponent
         
         final ThreadedAgent agent = ThreadedAgent.create();
         agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
-        agent.executeAndWait(() ->
-        {
-            SoarCommands.source(agent.getInterpreter(), 
-            "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
-//                agent.getInterpreter().eval(
-//                "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
-//                "(<s> ^55 hi) (<s> ^(random-float) yum)}");
-//                SoarCommands.source(agent.getInterpreter(), 
-//                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
+        agent.executeAndWait(() -> {
+            SoarCommands.source(agent.getInterpreter(),
+                    "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
+            // agent.getInterpreter().eval(
+            // "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
+            // "(<s> ^55 hi) (<s> ^(random-float) yum)}");
+            // SoarCommands.source(agent.getInterpreter(),
+            // "../jsoar-demos/demos/scripting/waterjugs-js.soar");
             agent.getTrace().setEnabled(Category.WM_CHANGES, true);
             agent.getAgent().runFor(1, RunType.DECISIONS);
             agent.getAgent().runFor(2, RunType.PHASES);
@@ -829,8 +835,7 @@ public class WorkingMemoryTree extends JComponent
         final JPanel panel = new JPanel(new BorderLayout());
         
         final JTextField idField = new JTextField("S1");
-        idField.addActionListener(e ->
-        {
+        idField.addActionListener(e -> {
             final String idString = idField.getText().trim();
             final Object idOrVar;
             if(!idString.startsWith("<"))
@@ -860,7 +865,7 @@ public class WorkingMemoryTree extends JComponent
         panel.add(new JButton(new AbstractAction("Step")
         {
             private static final long serialVersionUID = -3480585677989449955L;
-
+            
             @Override
             public void actionPerformed(ActionEvent e)
             {
@@ -875,17 +880,16 @@ public class WorkingMemoryTree extends JComponent
     
     public static void main(String[] args)
     {
-        SwingUtilities.invokeLater(() ->
-        {
+        SwingUtilities.invokeLater(() -> {
             try
             {
                 swingMain();
             }
-            catch (InterruptedException e1)
+            catch(InterruptedException e1)
             {
                 Thread.currentThread().interrupt();
             }
-            catch (ExecutionException | TimeoutException e2)
+            catch(ExecutionException | TimeoutException e2)
             {
                 // TODO Auto-generated catch block
                 e2.printStackTrace();

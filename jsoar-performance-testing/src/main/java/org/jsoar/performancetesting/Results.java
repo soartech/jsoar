@@ -54,58 +54,62 @@ public class Results
     @CsvBindByPosition(position = 19)
     public double memoryLoadsStdDeviation;
     
-    public static String[] header = {"Test", "Test File", "Soar Variant", "Soar Path",
+    public static String[] header = { "Test", "Test File", "Soar Variant", "Soar Path",
             "Total CPU Time (s)", "Average CPU Time Per Run (s)", "Median CPU Time Per Run (s)", "CPU Time Std Deviation (s)",
             "Total Kernel Time (s)", "Average Kernel Time Per Run (s)", "Median Kernel Time Per Run (s)", "Kernel Time Std Deviation (s)",
             "Total Decision Cycles", "Average Decision Cycles Per Run", "Median Decision Cycles Per Run", "Decision Cycles Std Deviation",
-            "Total Memory Used (M)", "Average Memory Used Per Run (M)", "Median Memory Used Per Run (M)", "Memory Std Deviation (M)"};
+            "Total Memory Used (M)", "Average Memory Used Per Run (M)", "Median Memory Used Per Run (M)", "Memory Std Deviation (M)" };
     
-    public Results(Test test) {
+    public Results(Test test)
+    {
         this.testName = test.getTestName();
         this.testFile = test.getTestFile();
         this.soarVariant = test.getSoarVariant();
-        this.soarPath = test.getTestSettings().isJsoarEnabled() 
-                ? test.getTestSettings().getJsoarCoreJars().get(0) 
+        this.soarPath = test.getTestSettings().isJsoarEnabled()
+                ? test.getTestSettings().getJsoarCoreJars().get(0)
                 : test.getTestSettings().getCsoarDirectories().get(0);
     }
     
-    public Results(String testName, Path testFile, String soarVariant, Path soarPath) {
+    public Results(String testName, Path testFile, String soarVariant, Path soarPath)
+    {
         this.testName = testName;
         this.testFile = testFile;
         this.soarVariant = soarVariant;
         this.soarPath = soarPath;
     }
     
-    public void updateStats(RawResults rawResults) {
-       // if(rawResults.cpuTimes.size() > 0) {
-            Stats cpuTimesStats = Stats.of(rawResults.cpuTimes);
-            this.cpuTimesTotal = cpuTimesStats.sum();
-            this.cpuTimesAverage = cpuTimesStats.mean();
-            this.cpuTimesMedian = Quantiles.median().compute(rawResults.cpuTimes);
-            this.cpuTimesStdDeviation = getStdDeviation(cpuTimesStats);
-            
-            Stats dcStats = Stats.of(rawResults.decisionCycles);
-            this.decisionCyclesTotal = dcStats.sum();
-            this.decisionCyclesAverage = dcStats.mean();
-            this.decisionCyclesMedian = Quantiles.median().compute(rawResults.decisionCycles);
-            this.decisionCyclesStdDeviation = getStdDeviation(dcStats);
-            
-            Stats kernelTimesStats = Stats.of(rawResults.kernelTimes);
-            this.kernelTimesTotal = kernelTimesStats.sum();
-            this.kernelTimesAverage = kernelTimesStats.mean();
-            this.kernelTimesMedian = Quantiles.median().compute(rawResults.kernelTimes);
-            this.kernelTimesStdDeviation = getStdDeviation(kernelTimesStats);
-            
-            // convert list from bytes to megabytes first
-            Stats memoryLoadsStats = Stats.of(rawResults.memoryLoads.stream().map(e -> (e / 1000.0 / 1000.0)).collect(Collectors.toList()));
-            this.memoryLoadsTotal = memoryLoadsStats.sum();
-            this.memoryLoadsAverage = memoryLoadsStats.mean();
-            this.memoryLoadsMedian = Quantiles.median().compute(rawResults.memoryLoads);
-            this.memoryLoadsStdDeviation = getStdDeviation(memoryLoadsStats);
-        //}
+    public void updateStats(RawResults rawResults)
+    {
+        // if(rawResults.cpuTimes.size() > 0) {
+        Stats cpuTimesStats = Stats.of(rawResults.cpuTimes);
+        this.cpuTimesTotal = cpuTimesStats.sum();
+        this.cpuTimesAverage = cpuTimesStats.mean();
+        this.cpuTimesMedian = Quantiles.median().compute(rawResults.cpuTimes);
+        this.cpuTimesStdDeviation = getStdDeviation(cpuTimesStats);
+        
+        Stats dcStats = Stats.of(rawResults.decisionCycles);
+        this.decisionCyclesTotal = dcStats.sum();
+        this.decisionCyclesAverage = dcStats.mean();
+        this.decisionCyclesMedian = Quantiles.median().compute(rawResults.decisionCycles);
+        this.decisionCyclesStdDeviation = getStdDeviation(dcStats);
+        
+        Stats kernelTimesStats = Stats.of(rawResults.kernelTimes);
+        this.kernelTimesTotal = kernelTimesStats.sum();
+        this.kernelTimesAverage = kernelTimesStats.mean();
+        this.kernelTimesMedian = Quantiles.median().compute(rawResults.kernelTimes);
+        this.kernelTimesStdDeviation = getStdDeviation(kernelTimesStats);
+        
+        // convert list from bytes to megabytes first
+        Stats memoryLoadsStats = Stats.of(rawResults.memoryLoads.stream().map(e -> (e / 1000.0 / 1000.0)).collect(Collectors.toList()));
+        this.memoryLoadsTotal = memoryLoadsStats.sum();
+        this.memoryLoadsAverage = memoryLoadsStats.mean();
+        this.memoryLoadsMedian = Quantiles.median().compute(rawResults.memoryLoads);
+        this.memoryLoadsStdDeviation = getStdDeviation(memoryLoadsStats);
+        // }
     }
     
-    private double getStdDeviation(Stats stats) {
+    private double getStdDeviation(Stats stats)
+    {
         return stats.count() > 1 ? stats.populationStandardDeviation() : 0.0;
     }
 }

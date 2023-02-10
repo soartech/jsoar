@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DefaultQMemoryTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#create()}.
      */
@@ -29,7 +29,7 @@ public class DefaultQMemoryTest
         QMemory q = DefaultQMemory.create();
         assertEquals(0, q.getPaths().size());
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#hasPath(java.lang.String)}.
      */
@@ -45,7 +45,7 @@ public class DefaultQMemoryTest
         assertTrue(q.hasPath("a.b.c.d"));
         assertTrue(q.hasPath("a.b.c.e"));
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#subMemory(java.lang.String)}.
      */
@@ -86,7 +86,7 @@ public class DefaultQMemoryTest
         q.setString("a.b[0]", "hi");
         q.setString("a.b[1]", "bye");
         
-        //assertEquals("hi", q.getString("a.b"));
+        // assertEquals("hi", q.getString("a.b"));
         assertEquals("hi", q.getString("a.b[0]"));
         assertEquals("bye", q.getString("a.b[1]"));
     }
@@ -95,7 +95,7 @@ public class DefaultQMemoryTest
     public void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -119,7 +119,7 @@ public class DefaultQMemoryTest
     public void testDoesNotFireChangeEventWhenChangingStringToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -143,7 +143,7 @@ public class DefaultQMemoryTest
     public void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
     {
         QMemory q = DefaultQMemory.create();
-     
+        
         final AtomicInteger count = new AtomicInteger();
         q.addListener(new QMemoryListener()
         {
@@ -175,7 +175,5 @@ public class DefaultQMemoryTest
         q.setInteger("integer", Integer.MAX_VALUE);
         assertEquals(Integer.MAX_VALUE, q.getInteger("integer"));
     }
-
-
-
+    
 }

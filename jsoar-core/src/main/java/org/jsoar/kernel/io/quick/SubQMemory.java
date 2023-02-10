@@ -8,7 +8,7 @@ package org.jsoar.kernel.io.quick;
 import java.util.Set;
 
 /**
- * Implementation of QMemory that accesses only the values of a QMemory on a 
+ * Implementation of QMemory that accesses only the values of a QMemory on a
  * particular prefix. Facade pattern.
  * 
  * <p>Note that because members are final and all methods delegate to synchronized
@@ -30,13 +30,15 @@ class SubQMemory implements QMemory
         this.source = source;
         this.prefix = prefix.endsWith(".") ? prefix : prefix + '.';
     }
-
+    
     private String getPath(String path)
     {
         return prefix + path;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getDouble(java.lang.String)
      */
     @Override
@@ -44,8 +46,10 @@ class SubQMemory implements QMemory
     {
         return source.getDouble(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getInteger(java.lang.String)
      */
     @Override
@@ -53,8 +57,10 @@ class SubQMemory implements QMemory
     {
         return source.getInteger(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getPaths()
      */
     @Override
@@ -62,8 +68,10 @@ class SubQMemory implements QMemory
     {
         return source.getPaths(prefix, true);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#getString(java.lang.String)
      */
     @Override
@@ -71,8 +79,10 @@ class SubQMemory implements QMemory
     {
         return source.getString(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#hasPath(java.lang.String)
      */
     @Override
@@ -80,8 +90,10 @@ class SubQMemory implements QMemory
     {
         return source.hasPath(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#subMemory(java.lang.String)
      */
     @Override
@@ -89,8 +101,10 @@ class SubQMemory implements QMemory
     {
         return new SubQMemory(source, this.prefix + prefix);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#clear(java.lang.String)
      */
     @Override
@@ -98,8 +112,10 @@ class SubQMemory implements QMemory
     {
         source.clear(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#remove(java.lang.String)
      */
     @Override
@@ -107,8 +123,10 @@ class SubQMemory implements QMemory
     {
         source.remove(getPath(path));
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setDouble(java.lang.String, double)
      */
     @Override
@@ -116,8 +134,10 @@ class SubQMemory implements QMemory
     {
         source.setDouble(getPath(path), doubleVal);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
      */
     @Override
@@ -125,8 +145,10 @@ class SubQMemory implements QMemory
     {
         source.setInteger(getPath(path), intVal);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
      */
     @Override
@@ -134,8 +156,10 @@ class SubQMemory implements QMemory
     {
         source.setInteger(getPath(path), longVal);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#setString(java.lang.String, java.lang.String)
      */
     @Override
@@ -143,8 +167,10 @@ class SubQMemory implements QMemory
     {
         source.setString(getPath(path), strVal);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#addListener(org.jsoar.kernel.io.quick.QMemoryListener)
      */
     @Override
@@ -152,8 +178,10 @@ class SubQMemory implements QMemory
     {
         source.addListener(listener);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.io.quick.QMemory#removeListener(org.jsoar.kernel.io.quick.QMemoryListener)
      */
     @Override
@@ -161,5 +189,5 @@ class SubQMemory implements QMemory
     {
         source.removeListener(listener);
     }
-
+    
 }

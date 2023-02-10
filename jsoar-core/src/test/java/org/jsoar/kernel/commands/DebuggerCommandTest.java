@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,13 +40,13 @@ public class DebuggerCommandTest
                 assertSame(agent, a);
                 called.set(true);
             }
-
+            
             @Override
             public void closeDebugger(Agent agent)
             {
                 throw new UnsupportedOperationException("closeDebugger not supported");
             }
-
+            
             @Override
             public Object getDebugger(Agent agent)
             {

@@ -18,17 +18,17 @@ import java.nio.file.Path;
 public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
 {
     private Object agentImpl;
-
+    
     private Class<?> agent;
-
+    
     private Method loadProductions;
-
+    
     private Method runSelfForever;
-
+    
     private Method runSelf;
-
+    
     private Method executeCommandLine;
-
+    
     /**
      * Initializes an agent and retrieves all the used methods via reflection.
      * 
@@ -39,7 +39,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
     {
         this.agentImpl = agentImpl;
         this.agent = agent;
-
+        
         try
         {
             loadProductions = this.agent.getDeclaredMethod("LoadProductions",
@@ -48,37 +48,37 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             executeCommandLine = this.agent.getDeclaredMethod(
                     "ExecuteCommandLine", String.class);
         }
-        catch (NoSuchMethodException | SecurityException e)
+        catch(NoSuchMethodException | SecurityException e)
         {
             System.out
                     .println("Failed to load methods for agent class! Everything will fail horribly!");
             System.out.println(e.getMessage());
         }
-
+        
         // 9.3.2 and later
         try
         {
             runSelf = this.agent.getDeclaredMethod("RunSelf", int.class);
             return;
         }
-        catch (NoSuchMethodException | SecurityException e)
+        catch(NoSuchMethodException | SecurityException e)
         {
         }
-
+        
         // 9.3.1 and earlier
         try
         {
             runSelf = this.agent.getDeclaredMethod("RunSelf", long.class);
             return;
         }
-        catch (NoSuchMethodException | SecurityException e)
+        catch(NoSuchMethodException | SecurityException e)
         {
         }
-
+        
         System.out
                 .println("Failed to load methods for agent class! Everything will fail horribly!");
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -94,7 +94,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             String path = file.toString().replace(File.separatorChar, '/');
             return (boolean) loadProductions.invoke(agentImpl, path);
         }
-        catch (IllegalAccessException | IllegalArgumentException
+        catch(IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)
         {
             System.out.println("Failed to load productions!");
@@ -102,7 +102,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return false;
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -116,7 +116,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         {
             return (String) runSelfForever.invoke(agentImpl);
         }
-        catch (IllegalAccessException | IllegalArgumentException
+        catch(IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)
         {
             System.out.println("Failed to run agent forever!");
@@ -124,7 +124,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -139,7 +139,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         {
             return (String) runSelf.invoke(agentImpl, decisionCyclesToRun);
         }
-        catch (IllegalAccessException | IllegalArgumentException
+        catch(IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)
         {
             System.out.println("Failed to runSelf() for decisions "
@@ -148,7 +148,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -163,7 +163,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         {
             return (String) executeCommandLine.invoke(agentImpl, command);
         }
-        catch (IllegalAccessException | IllegalArgumentException
+        catch(IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e)
         {
             System.out.println("Failed to execute command line on agent!");
@@ -171,7 +171,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * 

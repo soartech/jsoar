@@ -116,5 +116,5 @@ public class SoarCommands
             provider.registerCommands(interp, context);
         }
     }
-
+    
 }

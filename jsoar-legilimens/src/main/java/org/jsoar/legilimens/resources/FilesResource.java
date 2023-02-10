@@ -18,14 +18,16 @@ import org.jsoar.util.FileTools;
  */
 public class FilesResource extends BaseAgentResource
 {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
     public void setTemplateAttributes(Map<String, Object> attrs)
     {
         super.setTemplateAttributes(attrs);
-
+        
         final Set<File> files = new TreeSet<File>(new Comparator<File>()
         {
             @Override
@@ -49,7 +51,7 @@ public class FilesResource extends BaseAgentResource
         {
             this.location = location;
         }
-
+        
         /**
          * @return the location
          */
@@ -57,13 +59,15 @@ public class FilesResource extends BaseAgentResource
         {
             return location;
         }
-
+        
         public boolean isUrl()
         {
             return FileTools.asUrl(location) != null;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#hashCode()
          */
         @Override
@@ -75,30 +79,31 @@ public class FilesResource extends BaseAgentResource
                     + ((location == null) ? 0 : location.hashCode());
             return result;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
         public boolean equals(Object obj)
         {
-            if (this == obj)
+            if(this == obj)
                 return true;
-            if (obj == null)
+            if(obj == null)
                 return false;
-            if (!(obj instanceof File))
+            if(!(obj instanceof File))
                 return false;
             File other = (File) obj;
-            if (location == null)
+            if(location == null)
             {
-                if (other.location != null)
+                if(other.location != null)
                     return false;
             }
-            else if (!location.equals(other.location))
+            else if(!location.equals(other.location))
                 return false;
             return true;
         }
-        
         
     }
 }

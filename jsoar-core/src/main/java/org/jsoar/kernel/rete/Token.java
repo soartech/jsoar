@@ -15,10 +15,12 @@ import org.jsoar.kernel.memory.WmeImpl;
  */
 public class Token
 {
-    /* --- Note: "parent" is NIL on negative node negrm (local join result) 
-    tokens, non-NIL on all other tokens including CN and CN_P stuff.
-    I put "parent" at offset 0 in the structure, so that upward scans
-    are fast (saves doing an extra integer addition in the inner loop) --- */
+    /*
+     * --- Note: "parent" is NIL on negative node negrm (local join result)
+     * tokens, non-NIL on all other tokens including CN and CN_P stuff.
+     * I put "parent" at offset 0 in the structure, so that upward scans
+     * are fast (saves doing an extra integer addition in the inner loop) ---
+     */
     public final Token parent;
     ReteNode node;
     public final WmeImpl w;
@@ -95,7 +97,7 @@ public class Token
             parent.first_child = child;
         }
     }
-
+    
     public void removeFromWme()
     {
         if(w != null)
@@ -148,10 +150,9 @@ public class Token
         a_np.tokens = tok;
     }
     
-    
     private static void addToWme(WmeImpl wme, Token tok)
     {
-        if (wme != null)
+        if(wme != null)
         {
             tok.next_from_wme = wme.tokens;
             tok.previous_from_wme = null;

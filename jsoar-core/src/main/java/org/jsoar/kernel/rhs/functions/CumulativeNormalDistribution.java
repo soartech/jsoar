@@ -6,7 +6,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * Implementation of the Cumulative Normal Distribution function. 
+ * Implementation of the Cumulative Normal Distribution function.
  * 
  * <p> This function takes one floating point argument and returns the
  * value of the cumulative distribution function for a normal distribution
@@ -33,6 +33,7 @@ public class CumulativeNormalDistribution extends AbstractRhsFunctionHandler
     
     /*
      * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override

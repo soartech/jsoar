@@ -20,18 +20,18 @@ import org.junit.jupiter.api.Test;
 
 public class JdbcToolsTest
 {
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
     }
-
-    @Test 
+    
+    @Test
     public void testCanDetectIfATableExists() throws Exception
     {
         final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
@@ -48,6 +48,7 @@ public class JdbcToolsTest
         }
         
     }
+    
     @Test
     public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {
@@ -59,11 +60,11 @@ public class JdbcToolsTest
             stat.executeUpdate("create table people (name, occupation);");
             
             PreparedStatement prep = conn.prepareStatement("insert into people values (?, ?);");
-
+            
             final String[][] entries = new String[][] {
-                new String[] {"Gandhi", "politics" },
-                new String[] {"Turing", "computers" },
-                new String[] { "Wittgenstein", "smartypants" }
+                    new String[] { "Gandhi", "politics" },
+                    new String[] { "Turing", "computers" },
+                    new String[] { "Wittgenstein", "smartypants" }
             };
             
             for(String[] entry : entries)
@@ -72,14 +73,14 @@ public class JdbcToolsTest
                 prep.setString(2, entry[1]);
                 prep.addBatch();
             }
-
+            
             conn.setAutoCommit(false);
             prep.executeBatch();
             conn.setAutoCommit(true);
-
+            
             final ResultSet rs = stat.executeQuery("select * from people;");
             int index = 0;
-            while (rs.next()) 
+            while(rs.next())
             {
                 assertEquals(entries[index][0], rs.getString("name"));
                 assertEquals(entries[index][1], rs.getString("occupation"));
@@ -120,7 +121,7 @@ public class JdbcToolsTest
         {
             conn.close();
         }
-            
+        
     }
-
+    
 }

@@ -21,7 +21,7 @@ import org.jsoar.util.events.SoarEventManager;
 /**
  * @author ray
  */
-public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements JSoarDebuggerPlugin
+public class TowersOfHanoi extends /* AbstractAdaptableView */ JPanel implements JSoarDebuggerPlugin
 {
     private static final long serialVersionUID = -8069709839874209508L;
     
@@ -30,10 +30,12 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
     
     public TowersOfHanoi()
     {
-        //super("toh", "Towers of Hanoi");
+        // super("toh", "Towers of Hanoi");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.JSoarDebuggerPlugin#initialize(org.jsoar.debugger.LittleDebugger, java.lang.String[])
      */
     @Override
@@ -49,7 +51,7 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         
         initialize(em, args);
     }
-
+    
     /**
      * @param em
      * @param args
@@ -64,7 +66,7 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         }
         this.game = new Game(numPegs, numDisks);
         this.panel = new TohPanel(game);
-
+        
         setLayout(new BorderLayout());
         this.add(panel, BorderLayout.CENTER);
         
@@ -72,15 +74,13 @@ public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements J
         em.addListener(InputEvent.class, event -> game.update(((InputEvent) event).getInputOutput()));
         
         // handle output commands from the agent
-        em.addListener(OutputEvent.class, event ->
-        {
+        em.addListener(OutputEvent.class, event -> {
             game.handleCommands((OutputEvent) event);
             synchDisplay();
         });
         
         // when the agent is reinitialized (init-soar), reset the game
-        em.addListener(BeforeInitSoarEvent.class, event ->
-        {
+        em.addListener(BeforeInitSoarEvent.class, event -> {
             game.reset();
             synchDisplay();
         });

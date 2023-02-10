@@ -25,5 +25,5 @@ public class TclDictTest extends TclTestBase
         assertEquals("alice", ifc.eval("set value1"));
         assertEquals("bob", ifc.eval("set value2"));
     }
-
+    
 }

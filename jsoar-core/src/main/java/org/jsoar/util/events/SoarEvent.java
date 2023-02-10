@@ -12,5 +12,5 @@ package org.jsoar.util.events;
  */
 public interface SoarEvent
 {
-
+    
 }

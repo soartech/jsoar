@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
  */
 public class TeeWriterTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -26,7 +26,7 @@ public class TeeWriterTest
     public void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -34,7 +34,7 @@ public class TeeWriterTest
     public void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.util.TeeWriter#write(char[], int, int)}.
      */
@@ -46,7 +46,7 @@ public class TeeWriterTest
         StringWriter third = new StringWriter();
         
         TeeWriter tee = null;
-        try 
+        try
         {
             tee = new TeeWriter(first, second, third);
             
@@ -57,11 +57,11 @@ public class TeeWriterTest
             assertEquals(text, second.getBuffer().toString());
             assertEquals(text, third.getBuffer().toString());
         }
-        finally 
+        finally
         {
             tee.close();
         }
         
     }
-
+    
 }

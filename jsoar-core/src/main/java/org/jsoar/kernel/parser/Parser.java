@@ -33,7 +33,7 @@ public interface Parser
      * @return a parsed production
      * @throws ParserException on a parsing error
      * @throws IllegalStateException if a required resource cannot be obtained
-     *      from the parser context.
+     *     from the parser context.
      */
     Production parseProduction(ParserContext context, Reader reader) throws ParserException;
     

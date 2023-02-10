@@ -20,6 +20,8 @@ import org.jsoar.kernel.SoarException;
 public interface SourceCommandAdapter
 {
     void eval(File file) throws SoarException;
+    
     void eval(URL url) throws SoarException;
+    
     String eval(String code) throws SoarException;
 }

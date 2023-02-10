@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 public class WmeImplTest extends JSoarTest
 {
-
+    
     @Test
     public void testIsAdaptableToGoalDependencySet()
     {
@@ -31,5 +31,5 @@ public class WmeImplTest extends JSoarTest
         assertSame(id.goalInfo.gds, Adaptables.adapt(wme, GoalDependencySet.class));
         
     }
-
+    
 }

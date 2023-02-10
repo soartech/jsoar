@@ -31,7 +31,6 @@ public class Peg
         this.name = name;
     }
     
-    
     public void placeDisk(Disk disk)
     {
         disks.addLast(disk);
@@ -62,7 +61,7 @@ public class Peg
             below = disk;
         }
     }
-
+    
     public Disk getTopDisk()
     {
         return !disks.isEmpty() ? disks.getLast() : null;

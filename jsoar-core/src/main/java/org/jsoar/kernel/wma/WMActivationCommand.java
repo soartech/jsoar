@@ -29,33 +29,35 @@ import picocli.CommandLine.ParentCommand;
 
 /**
  * This is the implementation of the "wm activation" command.
+ * 
  * @author austin.brehob
  */
 public class WMActivationCommand extends PicocliSoarCommand
 {
     public static class Provider implements SoarCommandProvider
     {
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.jsoar.util.commands.SoarCommandInterpreter)
          */
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("wm", new WMActivationCommand((Agent)context));
+            interp.addCommand("wm", new WMActivationCommand((Agent) context));
         }
     }
     
     public WMActivationCommand(Agent agent)
     {
-        super(agent, new WMA( 
+        super(agent, new WMA(
                 Adaptables.require(WMActivationCommand.class, agent, DefaultWorkingMemoryActivation.class),
                 Adaptables.adapt(agent, Rete.class),
                 agent));
     }
-
-    @Command(name="wm", description="Commands and settings related to working memory",
-            subcommands={HelpCommand.class,
-                         WMActivationCommand.Activation.class})
+    
+    @Command(name = "wm", description = "Commands and settings related to working memory", subcommands = { HelpCommand.class,
+            WMActivationCommand.Activation.class })
     static public class WMA implements Runnable
     {
         private final DefaultWorkingMemoryActivation wma;
@@ -77,52 +79,51 @@ public class WMActivationCommand extends PicocliSoarCommand
         }
     }
     
-    
-    @Command(name="activation", description="Changes the behavior of and displays "
-            + "information about working memory activation", subcommands={HelpCommand.class})
+    @Command(name = "activation", description = "Changes the behavior of and displays "
+            + "information about working memory activation", subcommands = { HelpCommand.class })
     static public class Activation implements Runnable
     {
         @ParentCommand
         WMA parent; // injected by picocli
         
-        @Option(names={"-g", "--get"}, description="Print current parameter setting")
+        @Option(names = { "-g", "--get" }, description = "Print current parameter setting")
         String getParam = null;
         
-        @Option(names={"-s", "--set"}, description="Set parameter value")
+        @Option(names = { "-s", "--set" }, description = "Set parameter value")
         String setParam = null;
         
-        @Option(names={"-S", "--stats"}, description="Print statistic summary or specific statistic")
+        @Option(names = { "-S", "--stats" }, description = "Print statistic summary or specific statistic")
         boolean printStats = false;
         
-        @Option(names={"-t", "--timers"}, description="Print timer summary or specific timer")
+        @Option(names = { "-t", "--timers" }, description = "Print timer summary or specific timer")
         boolean printTimer = false;
         
-        @Option(names={"-h", "--history"}, description="Print reference history of a WME")
+        @Option(names = { "-h", "--history" }, description = "Print reference history of a WME")
         boolean printHistory = false;
         
-        @Parameters(arity="0..1", description="Set value, specific statistic, specific timer, or WME timetag")
+        @Parameters(arity = "0..1", description = "Set value, specific statistic, specific timer, or WME timetag")
         String param = null;
         
         @Override
         public void run()
         {
-            if (getParam != null)
+            if(getParam != null)
             {
                 doGet(getParam);
             }
-            else if (setParam != null)
+            else if(setParam != null)
             {
                 doSet(setParam, param);
             }
-            else if (printStats)
+            else if(printStats)
             {
                 doStats(param);
             }
-            else if (printTimer)
+            else if(printTimer)
             {
                 doTimers(param);
             }
-            else if (printHistory)
+            else if(printHistory)
             {
                 doHistory(param);
             }
@@ -131,13 +132,13 @@ public class WMActivationCommand extends PicocliSoarCommand
                 doWma();
             }
         }
-
+        
         private void doGet(String param)
         {
             // Print the value of the given parameter if it is valid
             final PropertyKey<?> key = DefaultWorkingMemoryActivationParams.getProperty(
                     parent.wma.getParams().getProperties(), param);
-            if (key == null)
+            if(key == null)
             {
                 parent.agent.getPrinter().startNewLine().print("Unknown parameter '" + param + "'");
                 return;
@@ -145,28 +146,28 @@ public class WMActivationCommand extends PicocliSoarCommand
             parent.agent.getPrinter().startNewLine().print(
                     parent.wma.getParams().getProperties().get(key).toString());
         }
-
+        
         private void doSet(String param, String value)
         {
             final PropertyManager props = parent.wma.getParams().getProperties();
-
+            
             // Set the value of the given parameter if possible
             try
             {
-                if (value == null)
+                if(value == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("Set value not specified");
                 }
-                else if (param.equals("activation"))
+                else if(param.equals("activation"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.ACTIVATION,
                             ActivationChoices.valueOf(value));
                 }
-                else if (param.equals("timers"))
+                else if(param.equals("timers"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
                 }
-                else if (props.get(DefaultWorkingMemoryActivationParams.ACTIVATION) == ActivationChoices.on)
+                else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION) == ActivationChoices.on)
                 {
                     // TODO: This check should be done in the property system
                     // For now, protected parameters come after this point in the if-else chain,
@@ -176,34 +177,34 @@ public class WMActivationCommand extends PicocliSoarCommand
                     parent.agent.getPrinter().startNewLine().print(
                             "This parameter is protected while WMA is on.");
                 }
-                else if (param.equals("decay-rate"))
+                else if(param.equals("decay-rate"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.DECAY_RATE, -Double.valueOf(value));
                 }
-                else if (param.equals("decay-thresh"))
+                else if(param.equals("decay-thresh"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.DECAY_THRESH, -Double.valueOf(value));
                 }
-                else if (param.equals("forgetting"))
+                else if(param.equals("forgetting"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.FORGETTING_CHOICES,
                             "on".equals(value) ? ForgettingChoices.approx : ForgettingChoices.valueOf(value));
                 }
-                else if (param.equals("forget-wme"))
+                else if(param.equals("forget-wme"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.FORGET_WME_CHOICES,
                             ForgetWmeChoices.valueOf(value));
                 }
-                else if (param.equals("fake-forgetting"))
+                else if(param.equals("fake-forgetting"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.FAKE_FORGETTING,
                             FakeForgettingChoices.valueOf(value));
                 }
-                else if (param.equals("max-pow-cache"))
+                else if(param.equals("max-pow-cache"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.MAX_POW_CACHE, Integer.valueOf(value));
                 }
-                else if (param.equals("petrov-approx"))
+                else if(param.equals("petrov-approx"))
                 {
                     props.set(DefaultWorkingMemoryActivationParams.PETROV_APPROX,
                             PetrovApproxChoices.valueOf(value));
@@ -213,20 +214,20 @@ public class WMActivationCommand extends PicocliSoarCommand
                     parent.agent.getPrinter().startNewLine().print("Unknown parameter '" + param + "'");
                 }
             }
-            catch (IllegalArgumentException e)
+            catch(IllegalArgumentException e)
             {
                 parent.agent.getPrinter().startNewLine().print("Invalid value.");
             }
         }
-
+        
         // Print all wm activation statistics, or just the stats of the parameter provided
         private void doStats(String param)
         {
             final StringWriter sw = new StringWriter();
             final PrintWriter pw = new PrintWriter(sw);
-
+            
             final DefaultWorkingMemoryActivationStats p = parent.wma.getStats();
-            if (param == null)
+            if(param == null)
             {
                 pw.printf("Forgotten WMEs: %d%n", p.forgotten_wmes.get());
             }
@@ -234,26 +235,26 @@ public class WMActivationCommand extends PicocliSoarCommand
             {
                 final PropertyKey<?> key = DefaultWorkingMemoryActivationStats.getProperty(
                         parent.wma.getParams().getProperties(), param);
-                if (key == null)
+                if(key == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("Unknown stat '" + param + "'");
                     return;
                 }
                 pw.printf("%s%n", parent.wma.getParams().getProperties().get(key).toString());
             }
-
+            
             pw.flush();
             parent.agent.getPrinter().startNewLine().print(sw.toString());
         }
-
+        
         // Print the values of all timers, or just the value of the timer provided
         private void doTimers(String param)
         {
             final StringWriter sw = new StringWriter();
             final PrintWriter pw = new PrintWriter(sw);
-
+            
             final DefaultWorkingMemoryActivationTimers t = parent.wma.getTimers();
-            if (param == null)
+            if(param == null)
             {
                 pw.printf("timers:\n");
                 pw.printf("%s: %f\n", t.forgetting.getName(), t.forgetting.getTotalSeconds());
@@ -262,67 +263,67 @@ public class WMActivationCommand extends PicocliSoarCommand
             else
             {
                 ExecutionTimer timer = t.get(param);
-                if (timer == null)
+                if(timer == null)
                 {
                     parent.agent.getPrinter().startNewLine().print("Unknown timer '" + param + "'");
                     return;
                 }
                 pw.printf("%f", timer.getTotalSeconds());
             }
-
+            
             pw.flush();
             parent.agent.getPrinter().startNewLine().print(sw.toString());
         }
-
+        
         // Print the decay history of the wme with the given timetag
         private void doHistory(String param)
         {
-            if (param == null)
+            if(param == null)
             {
                 parent.agent.getPrinter().startNewLine().print("Timetag argument required.");
                 return;
             }
-
+            
             long timetag;
             try
             {
                 timetag = Long.valueOf(param);
             }
-            catch (NumberFormatException ignored)
+            catch(NumberFormatException ignored)
             {
                 parent.agent.getPrinter().startNewLine().print("Timetag must be a valid integer.");
                 return;
             }
-            if (timetag == 0)
+            if(timetag == 0)
             {
                 parent.agent.getPrinter().startNewLine().print("Invalid timetag.");
                 return;
             }
-
+            
             Wme wme = null;
-            for (Wme tempwme : parent.rete.getAllWmes())
+            for(Wme tempwme : parent.rete.getAllWmes())
             {
-                if (tempwme.getTimetag() == timetag)
+                if(tempwme.getTimetag() == timetag)
                 {
                     wme = tempwme;
                     break;
                 }
             }
-
-            if (wme != null)
+            
+            if(wme != null)
             {
                 parent.agent.getPrinter().startNewLine().print(parent.wma.wma_get_wme_history(wme));
             }
-
+            
             parent.agent.getPrinter().startNewLine().print("WME has no decay history");
         }
-
+        
         // Print wm activation settings
         private void doWma()
         {
             final StringWriter sw = new StringWriter();
             final PrintWriter pw = new PrintWriter(sw);
-
+            
             final DefaultWorkingMemoryActivationParams p = parent.wma.getParams();
             pw.printf("WMA activation: %s%n", p.activation.get());
             pw.println();
@@ -342,7 +343,7 @@ public class WMActivationCommand extends PicocliSoarCommand
             pw.println("-----------");
             pw.printf("timers: %s%n", p.timers.get());
             pw.printf("max-pow-cache: %d%n", p.max_pow_cache.get());
-
+            
             pw.flush();
             parent.agent.getPrinter().startNewLine().print(sw.toString());
         }

@@ -15,7 +15,7 @@ import org.jsoar.util.markers.Marker;
 public class MakeAction extends Action
 {
     /**
-     * TODO Looking at the usage of this field in the kernel, it seems like it 
+     * TODO Looking at the usage of this field in the kernel, it seems like it
      * should always be RhsSymbol value, but {@code org.jsoar.kernel.rete.ReteBuilder#fixup_rhs_value_variable_references(Rete, RhsValue, int, List, Marker)}
      * seems like it can return a {@link ReteLocation} and I'm getting that in a simple
      * unit test, so...
@@ -30,14 +30,16 @@ public class MakeAction extends Action
         
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.Action#asMakeAction()
      */
     public MakeAction asMakeAction()
     {
         return this;
     }
-
+    
     private Variable getIdAsVariable()
     {
         RhsSymbolValue symVal = id.asSymbolValue();
@@ -45,7 +47,9 @@ public class MakeAction extends Action
         return symVal != null ? symVal.getSym().asVariable() : null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
      */
     @Override
@@ -63,8 +67,10 @@ public class MakeAction extends Action
             referent.addAllVariables(tc_number, var_list);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -73,6 +79,5 @@ public class MakeAction extends Action
         // For debugging only.
         return "(" + id + " ^" + attr + " " + value + " (" + referent + "))";
     }
-    
     
 }

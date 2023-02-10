@@ -27,15 +27,17 @@ public class TohPanel extends JPanel
     {
         this.game = game;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         
-        synchronized(game)
+        synchronized (game)
         {
             List<Peg> pegs = game.getPegs();
             final int towerSpacing = getWidth() / pegs.size();
@@ -61,5 +63,5 @@ public class TohPanel extends JPanel
             }
         }
     }
-
+    
 }

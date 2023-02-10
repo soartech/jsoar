@@ -22,13 +22,12 @@ public class Soar2SoarRunController implements AgentRunController
     private final ThreadedAgent env;
     private List<ThreadedAgent> clients;
     
-    
     public Soar2SoarRunController(ThreadedAgent env, Collection<ThreadedAgent> clients)
     {
         this.env = env;
         this.clients = new ArrayList<ThreadedAgent>(clients);
     }
-
+    
     public void stop()
     {
         this.env.stop();
@@ -38,7 +37,9 @@ public class Soar2SoarRunController implements AgentRunController
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#getStopPhase()
      */
     @Override
@@ -46,8 +47,10 @@ public class Soar2SoarRunController implements AgentRunController
     {
         return env.getStopPhase();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#runFor(long, org.jsoar.kernel.RunType)
      */
     @Override
@@ -59,8 +62,10 @@ public class Soar2SoarRunController implements AgentRunController
             client.runFor(n, runType);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.AgentRunController#setStopPhase(org.jsoar.kernel.Phase)
      */
     @Override
@@ -72,5 +77,5 @@ public class Soar2SoarRunController implements AgentRunController
             client.setStopPhase(phase);
         }
     }
-
+    
 }

@@ -7,7 +7,6 @@ package org.jsoar.kernel.events;
 
 import org.jsoar.kernel.io.InputOutput;
 
-
 /**
  * Event fired when the top-state is removed
  * 

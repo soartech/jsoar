@@ -19,22 +19,22 @@ public class ReteNetConstants
             return ReteNetConstants.fromOrdinal(Action.class, i);
         }
     }
-
+    
     // Used in {@link ReteNetReader#readRHSValue} and {@link ReteNetWriter#writeRHSValue}
     protected enum RHS
     {
-        RHS_SYMBOL, RHS_FUNCALL, RHS_RETELOC, RHS_UNBOUND_VAR; 
+        RHS_SYMBOL, RHS_FUNCALL, RHS_RETELOC, RHS_UNBOUND_VAR;
         
         public static RHS fromOrdinal(int i) throws SoarException
         {
             return ReteNetConstants.fromOrdinal(RHS.class, i);
-        }       
+        }
     }
-
+    
     // Used in {@link ReteNetReader#readVarNames} and {@link ReteNetWriter#writeVarNames}
     protected enum VarName
     {
-        VARNAME_NULL, VARNAME_ONE_VAR, VARNAME_LIST; 
+        VARNAME_NULL, VARNAME_ONE_VAR, VARNAME_LIST;
         
         public static VarName fromOrdinal(int i) throws SoarException
         {
@@ -51,7 +51,7 @@ public class ReteNetConstants
     private static <E extends Enum<E>> E fromOrdinal(Class<E> enm, int index) throws SoarException
     {
         E[] enumConstants = enm.getEnumConstants();
-        if (index >= enumConstants.length)
+        if(index >= enumConstants.length)
         {
             throw new SoarException(String.format("Unknown %s type %d. Expected value from 0 to %d.",
                     enm.getName(), index, enumConstants.length - 1));

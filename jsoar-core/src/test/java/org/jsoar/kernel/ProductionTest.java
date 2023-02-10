@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,17 +14,17 @@ import org.junit.jupiter.api.Test;
 
 public class ProductionTest
 {
-
+    
     @Test
     public void testSetBreakpointEnabledHasNoAffectWhenInterruptFlagIsSet()
     {
         final Production p = Production.newBuilder()
-            .type(ProductionType.USER)
-            .name("test")
-            .conditions(new PositiveCondition(), new PositiveCondition())
-            .actions(new MakeAction())
-            .interrupt(true)
-            .build();
+                .type(ProductionType.USER)
+                .name("test")
+                .conditions(new PositiveCondition(), new PositiveCondition())
+                .actions(new MakeAction())
+                .interrupt(true)
+                .build();
         
         assertTrue(p.isBreakpointEnabled());
         p.setBreakpointEnabled(false);
@@ -36,11 +35,11 @@ public class ProductionTest
     public void testSetBreakpointEnabledHasAffectWhenInterruptFlagIsNotSet()
     {
         final Production p = Production.newBuilder()
-            .type(ProductionType.USER)
-            .name("test")
-            .conditions(new PositiveCondition(), new PositiveCondition())
-            .actions(new MakeAction())
-            .build();
+                .type(ProductionType.USER)
+                .name("test")
+                .conditions(new PositiveCondition(), new PositiveCondition())
+                .actions(new MakeAction())
+                .build();
         
         assertFalse(p.isBreakpointEnabled());
         p.setBreakpointEnabled(true);

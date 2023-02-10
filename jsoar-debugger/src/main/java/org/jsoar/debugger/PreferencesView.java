@@ -69,10 +69,11 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         this.table.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.table.setColumnControlVisible(true);
         this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.table.setDefaultRenderer(PreferenceType.class, new DefaultTableCellRenderer() {
-
+        this.table.setDefaultRenderer(PreferenceType.class, new DefaultTableCellRenderer()
+        {
+            
             private static final long serialVersionUID = 7768070935030196160L;
-
+            
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                     boolean hasFocus, int row, int column)
@@ -80,15 +81,16 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setText(Character.toString(((PreferenceType) value).getIndicator()));
                 return c;
-            }});
+            }
+        });
         this.table.getColumnExt(5).setVisible(false);
         this.table.getColumnExt(3).setVisible(false);
         this.table.getColumnExt(2).setVisible(false);
         
         table.getColumn(0).setResizable(false);
-        table.getColumnExt(0).setMaxWidth((int) (40*JSoarDebugger.getFontScale()));
+        table.getColumnExt(0).setMaxWidth((int) (40 * JSoarDebugger.getFontScale()));
         table.getColumn(1).setResizable(false);
-        table.getColumn(1).setMaxWidth((int) (60*JSoarDebugger.getFontScale()));
+        table.getColumn(1).setMaxWidth((int) (60 * JSoarDebugger.getFontScale()));
         
         errorLabel.setVerticalAlignment(SwingConstants.TOP);
         errorLabel.setForeground(Color.RED);
@@ -103,27 +105,29 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         panel.add(tableScrollPane, BorderLayout.CENTER);
         
         getContentPane().add(panel);
-
+        
         this.selectionManager.addListener(this);
     }
-
+    
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
         bar.add(synch);
-        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
+        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY)
+        {
             private static final long serialVersionUID = -3614573079885324027L;
-
+            
             {
                 setToolTip("Print preferences to trace");
             }
+            
             @Override
             public void update()
             {
             }
-
+            
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
@@ -132,11 +136,14 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 {
                     agent.getPrinter().startNewLine().print(r.getPrintResult()).flush();
                 }
-            }});
+            }
+        });
         return bar;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
      */
     @Override
@@ -144,8 +151,10 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     {
         return "ctrl P";
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Disposable#dispose()
      */
     @Override
@@ -153,8 +162,10 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     {
         getPreferences().putBoolean("synch", synch.isSelected());
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
@@ -175,7 +186,9 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         }
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     @Override
@@ -187,7 +200,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
             getPreferences(lastGoal);
         }
     }
-
+    
     private Result getLastResult()
     {
         return tableModel.getResult();
@@ -196,9 +209,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     private void getPreferences(final Identifier id)
     {
         agent.execute(
-            () -> safeGetPreferences(id),
-            SwingCompletionHandler.newInstance(this::finishGetPreferences)
-        );
+                () -> safeGetPreferences(id),
+                SwingCompletionHandler.newInstance(this::finishGetPreferences));
     }
     
     private void finishGetPreferences(Result result)

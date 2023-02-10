@@ -17,6 +17,7 @@ import org.jsoar.util.properties.PropertyProvider;
  * 
  * <p>wma.h:114:wma_stat_container
  * <p>wma.cpp:163:wma_stat_container
+ * 
  * @author bob.marinier
  */
 public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivationStatistics
@@ -40,7 +41,7 @@ public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivat
     {
         return PropertyKey.builder(PREFIX + name, type);
     }
-
+    
     static final PropertyKey<Long> FORGOTTEN_WMES = key("forgotten-wmes", Long.class).defaultValue(0L).build();
     final DefaultPropertyProvider<Long> forgotten_wmes = new DefaultPropertyProvider<Long>(FORGOTTEN_WMES);
     
@@ -52,12 +53,12 @@ public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivat
         this.properties = properties;
         add(FORGOTTEN_WMES, forgotten_wmes);
     }
-
+    
     private <T> void add(PropertyKey<T> key, PropertyProvider<T> value)
     {
         this.properties.setProvider(key, value);
     }
-
+    
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void reset()
     {
@@ -66,11 +67,11 @@ public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivat
             properties.set(key, key.getDefaultValue());
         }
     }
-
+    
     @Override
     public long getForgottenWmes()
     {
         return forgotten_wmes.get();
     }
-
+    
 }

@@ -35,8 +35,10 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     public DefaultDebuggerProvider()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#getProperties()
      */
     @Override
@@ -44,8 +46,10 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         return new HashMap<String, Object>(properties);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#setProperties(java.util.Map)
      */
     @Override
@@ -53,8 +57,10 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         properties.putAll(props);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#openDebugger(org.jsoar.kernel.Agent)
      */
     @Override
@@ -62,15 +68,17 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(getOpenDebuggerRunnable(agent)); 
+            SwingUtilities.invokeLater(getOpenDebuggerRunnable(agent));
         }
         else
-        {        
+        {
             doOpenDebugger(agent);
         }
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.DebuggerProvider#openDebuggerAndWait(org.jsoar.kernel.Agent)
      */
     @Override
@@ -82,7 +90,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
             {
                 SwingUtilities.invokeAndWait(getOpenDebuggerRunnable(agent));
             }
-            catch (InvocationTargetException e)
+            catch(InvocationTargetException e)
             {
                 final Throwable cause = e.getCause();
                 if(cause instanceof SoarException)
@@ -93,29 +101,28 @@ public class DefaultDebuggerProvider implements DebuggerProvider
                 {
                     throw new SoarException(e);
                 }
-            } 
+            }
         }
         else
-        {        
+        {
             doOpenDebugger(agent);
         }
     }
     
     private Runnable getOpenDebuggerRunnable(final Agent agent)
     {
-        return () -> 
-        {
+        return () -> {
             try
             {
                 doOpenDebugger(agent);
             }
-            catch (SoarException e)
+            catch(SoarException e)
             {
                 logger.error("Failed to open new debugger: " + e.getMessage(), e);
             }
         };
     }
-
+    
     private void doOpenDebugger(Agent agent) throws SoarException
     {
         final ThreadedAgent ta = ThreadedAgent.find(agent);
@@ -125,20 +132,20 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         }
         JSoarDebugger.attach(ta, getProperties());
     }
-
+    
     @Override
     public void closeDebugger(Agent agent)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(() -> doCloseDebugger(agent)); 
+            SwingUtilities.invokeLater(() -> doCloseDebugger(agent));
         }
         else
-        {        
+        {
             doCloseDebugger(agent);
         }
     }
-
+    
     private void doCloseDebugger(Agent agent)
     {
         final ThreadedAgent ta = ThreadedAgent.find(agent);
@@ -150,7 +157,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         
         JSoarDebugger.exit(ta);
     }
-
+    
     @Override
     public JSoarDebugger getDebugger(Agent agent)
     {

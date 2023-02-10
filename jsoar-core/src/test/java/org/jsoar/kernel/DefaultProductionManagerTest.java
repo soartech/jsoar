@@ -20,6 +20,7 @@ public class DefaultProductionManagerTest extends JSoarTest
 {
     private Agent agent;
     private ProductionManager pm;
+    
     /**
      * @throws java.lang.Exception
      */
@@ -30,7 +31,7 @@ public class DefaultProductionManagerTest extends JSoarTest
         this.agent = new Agent();
         this.pm = this.agent.getProductions();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -38,7 +39,7 @@ public class DefaultProductionManagerTest extends JSoarTest
     public void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.DefaultProductionManager#getProduction(java.lang.String)}.
      */
@@ -50,5 +51,5 @@ public class DefaultProductionManagerTest extends JSoarTest
         assertSame(p, pm.getProduction("testGetProduction"));
         
     }
-
+    
 }

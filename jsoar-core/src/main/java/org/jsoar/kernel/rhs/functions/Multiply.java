@@ -9,7 +9,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 /**
  * Takes any number of int_constant or float_constant arguments, and
  * returns their product.
- *  
+ * 
  * <p>rhsfun_math.cpp:82:times_rhs_function_code
  */
 public final class Multiply extends AbstractRhsFunctionHandler
@@ -18,12 +18,12 @@ public final class Multiply extends AbstractRhsFunctionHandler
     {
         super("*");
     }
-
+    
     @Override
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
-
+        
         long i = 1;
         double f = 1.0;
         boolean float_found = false;

@@ -2,7 +2,8 @@
  * Copyright (c) 2013 Soar Technology Inc.
  *
  * Created on January 07, 2013
- */package org.jsoar.kernel.rhs.functions;
+ */
+package org.jsoar.kernel.rhs.functions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -20,7 +21,7 @@ public class CmdTest
 {
     private Agent agent;
     private StringWriter outputWriter;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
@@ -33,11 +34,11 @@ public class CmdTest
         // called.
         this.agent.initialize();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
-        if (this.agent != null)
+        if(this.agent != null)
         {
             this.agent.dispose();
             this.agent = null;

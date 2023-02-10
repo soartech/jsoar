@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.io.xml;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -31,11 +30,12 @@ public class XmlMessageQueueTest
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         int count = 0;
+        
         public MatchFunction()
         {
             super("match");
         }
-
+        
         @Override
         public Symbol execute(RhsFunctionContext context, List<Symbol> arguments)
                 throws RhsFunctionException
@@ -58,7 +58,7 @@ public class XmlMessageQueueTest
         new CycleCountInput(this.agent.getInputOutput());
         this.agent.initialize();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -69,7 +69,8 @@ public class XmlMessageQueueTest
         this.agent = null;
     }
     
-    @Test public void testMessageQueueRootIsCreated() throws Exception
+    @Test
+    public void testMessageQueueRootIsCreated() throws Exception
     {
         XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-queue-root").create();
         
@@ -79,17 +80,18 @@ public class XmlMessageQueueTest
         assertEquals(1, match.count);
     }
     
-    @Test public void testMessagesAreAddedToQueue() throws Exception
+    @Test
+    public void testMessagesAreAddedToQueue() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-messages").create();
         
         agent.getProductions().loadProduction("checkForMessages" +
-        		"(state <s> ^superstate nil ^io.input-link.test-messages <r>)" +
-        		"(<r> ^a <a> ^b <b> ^c <c>)" +
-        		"(<a> ^/text |message a| ^/next <b> -^/previous)" +
-        		"(<b> ^/text |message b| ^/previous <a> ^/next <c>)" +
-        		"(<c> ^/text |message c| ^/previous <b> -^/next)" +
-        		"--> (match)");
+                "(state <s> ^superstate nil ^io.input-link.test-messages <r>)" +
+                "(<r> ^a <a> ^b <b> ^c <c>)" +
+                "(<a> ^/text |message a| ^/next <b> -^/previous)" +
+                "(<b> ^/text |message b| ^/previous <a> ^/next <c>)" +
+                "(<c> ^/text |message c| ^/previous <b> -^/next)" +
+                "--> (match)");
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(0, match.count);
         
@@ -100,7 +102,8 @@ public class XmlMessageQueueTest
         assertEquals(1, match.count);
     }
     
-    @Test public void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
+    @Test
+    public void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).timeToLive(20).queueName("test-messages").create();
         

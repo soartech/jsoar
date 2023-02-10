@@ -47,15 +47,14 @@ public class ProductionTableModel extends AbstractTableModel
         eventManager.addListener(ProductionExcisedEvent.class, listener);
         
         // TODO does this need to block for any reason?
-        this.agent.execute(() ->
-        {
-            synchronized(productions)
+        this.agent.execute(() -> {
+            synchronized (productions)
             {
                 for(ProductionType pt : ProductionType.values())
                 {
                     // RPM: in general, justifications can come and go rapidly, so we're not going to try to show them in the debugger
-                    //      we will also ignore them below where new rules are added/removed
-                    //      in at least one project, this makes a significant performance/memory difference
+                    // we will also ignore them below where new rules are added/removed
+                    // in at least one project, this makes a significant performance/memory difference
                     if(pt == ProductionType.JUSTIFICATION)
                     {
                         continue;
@@ -74,7 +73,7 @@ public class ProductionTableModel extends AbstractTableModel
      */
     public Production getProduction(String name)
     {
-        synchronized(productions)
+        synchronized (productions)
         {
             for(Production p : productions)
             {
@@ -94,8 +93,10 @@ public class ProductionTableModel extends AbstractTableModel
     {
         return productions;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */
     @Override
@@ -103,14 +104,19 @@ public class ProductionTableModel extends AbstractTableModel
     {
         switch(c)
         {
-        case 0: return Production.class;
-        case 1: return Long.class;
-        case 2: return String.class;
+        case 0:
+            return Production.class;
+        case 1:
+            return Long.class;
+        case 2:
+            return String.class;
         }
         return super.getColumnClass(c);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.AbstractTableModel#getColumnName(int)
      */
     @Override
@@ -118,14 +124,19 @@ public class ProductionTableModel extends AbstractTableModel
     {
         switch(c)
         {
-        case 0: return "Name";
-        case 1: return "FC";
-        case 2: return "Type";
+        case 0:
+            return "Name";
+        case 1:
+            return "FC";
+        case 2:
+            return "Type";
         }
         return super.getColumnName(c);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getColumnCount()
      */
     @Override
@@ -133,8 +144,10 @@ public class ProductionTableModel extends AbstractTableModel
     {
         return 3;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getRowCount()
      */
     @Override
@@ -142,21 +155,26 @@ public class ProductionTableModel extends AbstractTableModel
     {
         return productions.size();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see javax.swing.table.TableModel#getValueAt(int, int)
      */
     @Override
     public Object getValueAt(int row, int column)
     {
-        synchronized(productions)
+        synchronized (productions)
         {
             Production p = productions.get(row);
             switch(column)
             {
-            case 0: return p;
-            case 1: return p.getFiringCount();
-            case 2: return p.getType().getDisplayString();
+            case 0:
+                return p;
+            case 1:
+                return p.getFiringCount();
+            case 2:
+                return p.getType().getDisplayString();
             }
         }
         return null;
@@ -197,14 +215,13 @@ public class ProductionTableModel extends AbstractTableModel
         }
         fireTableRowsDeleted(row, row);
     }
-
+    
     private class Listener implements SoarEventListener
     {
         @Override
         public void onEvent(final SoarEvent event)
         {
-            Runnable runnable = () ->
-            {
+            Runnable runnable = () -> {
                 if(event instanceof ProductionAddedEvent)
                 {
                     handleProductionAdded(((ProductionAddedEvent) event).getProduction());

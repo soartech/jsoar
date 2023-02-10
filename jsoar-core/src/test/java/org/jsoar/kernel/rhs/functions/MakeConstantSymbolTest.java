@@ -17,7 +17,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * @author ray
  */

@@ -27,7 +27,7 @@ public class PicocliSoarCommandTest
         this.agent = new Agent();
         this.agent.getPrinter().addPersistentWriter(this.outputWriter);
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
@@ -42,7 +42,7 @@ public class PicocliSoarCommandTest
     {
         outputWriter.getBuffer().setLength(0);
     }
-
+    
     /**
      * There was an issue where sometimes the fields from a previous command execution were not cleared when the command was run again,
      * which would result in the new command being run with some old values. It appeared to be tied to autocompletion.
@@ -53,7 +53,7 @@ public class PicocliSoarCommandTest
     @Test
     public void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
     {
-
+        
         // this command should echo it's last argument to output
         this.autoComplete("qmemory --set a foo");
         this.agent.getInterpreter().eval("qmemory --set a foo");
@@ -74,7 +74,8 @@ public class PicocliSoarCommandTest
      * This is similar to how the jsoar-debugger performs autocompletion, but without all the UI parts
      * Something about this seems to cause the command to not get reset between executions
      */
-    protected void autoComplete(String command) {
+    protected void autoComplete(String command)
+    {
         CommandLine commandLine = this.agent.getInterpreter().findCommand(command);
         
         ArrayList<CharSequence> longResults = new ArrayList<>();

@@ -30,7 +30,7 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         super(factory, hash_id);
         this.value = value;
     }
-
+    
     /**
      * @return the string value of this constant
      */
@@ -38,8 +38,10 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     {
         return value;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.Symbol#asSymConstant()
      */
     @Override
@@ -48,7 +50,9 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
      */
     @Override
@@ -56,8 +60,10 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     {
         return factory.createString(value);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -65,8 +71,10 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     {
         return other.asString() != null;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
@@ -74,8 +82,10 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     {
         return getValue().charAt(0);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
@@ -84,58 +94,66 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         StringSymbolImpl s = other.asString();
         if(s != null)
         {
-        	return (this.value.compareTo(s.value) < 0);
+            return (this.value.compareTo(s.value) < 0);
         }
         
         return super.numericLess(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericLessOrEqual(SymbolImpl other)
     {
-    	StringSymbolImpl s = other.asString();
+        StringSymbolImpl s = other.asString();
         if(s != null)
         {
-        	return (this.value.compareTo(s.value) <= 0);
+            return (this.value.compareTo(s.value) <= 0);
         }
         
         return super.numericLessOrEqual(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericGreater(SymbolImpl other)
     {
-    	StringSymbolImpl s = other.asString();
+        StringSymbolImpl s = other.asString();
         if(s != null)
         {
-        	return (this.value.compareTo(s.value) > 0);
+            return (this.value.compareTo(s.value) > 0);
         }
         
         return super.numericGreater(other);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericGreaterOrEqual(SymbolImpl other)
     {
-    	StringSymbolImpl s = other.asString();
+        StringSymbolImpl s = other.asString();
         if(s != null)
         {
-        	return (this.value.compareTo(s.value) >= 0);
+            return (this.value.compareTo(s.value) >= 0);
         }
         
         return super.numericGreaterOrEqual(other);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -143,11 +161,11 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     {
         return getValue();
     }
-
+    
     /**
      * Formattable implementation for symbolic constants. Use in conjunction
-     * with the %s format. Since the csoar kernel uses rereadable==true in 90% 
-     * of calls to symbol_to_string(), we'll make that the default format. To 
+     * with the %s format. Since the csoar kernel uses rereadable==true in 90%
+     * of calls to symbol_to_string(), we'll make that the default format. To
      * get the raw format, use the alternate, i.e. "%#s".
      * 
      * <p>print.cpp:216:symbol_to_string / SYM_CONSTANT_SYMBOL_TYPE
@@ -157,7 +175,7 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        // Since the csoar kernel uses rereadable==true in 90% of calls to 
+        // Since the csoar kernel uses rereadable==true in 90% of calls to
         // symbol_to_string, we'll make that the default format. To get the
         // raw format, use the alternate, i.e. "%#s".
         final boolean rereadable = (FormattableFlags.ALTERNATE & flags) == 0;
@@ -168,12 +186,12 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
             
             // If for any reason, the value could be interpreted as something other than
             // a string, escape it.
-            if(!possible.possible_sc  || 
-               (possible.possible_id && Character.isUpperCase(getValue().charAt(0))) || 
-                possible.possible_var || 
-                possible.possible_ic  || 
-                possible.possible_fc  ||
-               !possible.rereadable)
+            if(!possible.possible_sc ||
+                    (possible.possible_id && Character.isUpperCase(getValue().charAt(0))) ||
+                    possible.possible_var ||
+                    possible.possible_ic ||
+                    possible.possible_fc ||
+                    !possible.rereadable)
             {
                 stringToWrite = StringTools.string_to_escaped_string(getValue(), '|');
             }
@@ -186,15 +204,14 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         {
             stringToWrite = getValue();
         }
-
+        
         try
         {
             formatter.out().append(stringToWrite);
         }
-        catch (IOException e)
+        catch(IOException e)
         {
         }
     }
-    
     
 }

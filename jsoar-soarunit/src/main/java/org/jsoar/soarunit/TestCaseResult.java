@@ -23,7 +23,7 @@ public class TestCaseResult
     {
         this.testCase = testCase;
     }
-
+    
     /**
      * @return the parent test case
      */
@@ -31,7 +31,7 @@ public class TestCaseResult
     {
         return testCase;
     }
-
+    
     public void addTestResult(TestResult testResult)
     {
         results.add(testResult);
@@ -50,7 +50,7 @@ public class TestCaseResult
     {
         return results;
     }
-
+    
     /**
      * @return the passed
      */
@@ -58,7 +58,7 @@ public class TestCaseResult
     {
         return passed;
     }
-
+    
     /**
      * @return the failed
      */
@@ -66,7 +66,7 @@ public class TestCaseResult
     {
         return failed;
     }
-
+    
     /**
      * @return the firingCounts
      */

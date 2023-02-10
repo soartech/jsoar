@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PrinterTest
 {
-
+    
     /**
      * Test method for {@link org.jsoar.kernel.tracing.Printer#pushWriter(java.io.Writer)}.
      */
@@ -47,7 +47,7 @@ public class PrinterTest
         assertEquals("firstfirst", first.toString());
         assertEquals("second", second.toString());
     }
-
+    
     @Test
     public void testPopWriterThrowsNoSuchElementException()
     {
@@ -70,5 +70,5 @@ public class PrinterTest
         Arrays.fill(spaceArray, ' ');
         assertEquals(new String(spaceArray), result);
     }
-
+    
 }

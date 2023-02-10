@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.memory;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -55,8 +54,9 @@ public class RecognitionMemoryTest
         new CycleCountInput(agent.getInputOutput());
         
         // Add a RHS function that puts a structure in working memory
-        RhsFunctionHandler func = new AbstractRhsFunctionHandler("rhs-structure", 0, 0) {
-
+        RhsFunctionHandler func = new AbstractRhsFunctionHandler("rhs-structure", 0, 0)
+        {
+            
             @Override
             public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
@@ -69,16 +69,17 @@ public class RecognitionMemoryTest
                 context.addWme(r1, syms.createString("name"), syms.createString("hello"));
                 
                 return r1;
-            }};
-            
+            }
+        };
+        
         agent.getRhsFunctions().registerHandler(func);
         agent.getTrace().setEnabled(Category.WM_CHANGES, true);
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction("" +
-        		"testRhsFunctionThatCreatesStructure\n" +
-        		"(state <s> ^superstate nil ^io.input-link.cycle-count 1)\n" +
-        		"-->" +
-        		"(<s> ^result (rhs-structure))");
+                "testRhsFunctionThatCreatesStructure\n" +
+                "(state <s> ^superstate nil ^io.input-link.cycle-count 1)\n" +
+                "-->" +
+                "(<s> ^result (rhs-structure))");
         
         agent.runFor(1, RunType.DECISIONS);
         
@@ -95,7 +96,7 @@ public class RecognitionMemoryTest
         assertNotNull(z = m.reset().attr("z").value(3).find(r1));
         assertNotNull(name = m.reset().attr("name").value("hello").find(r1));
         
-        // Step again and verify that all the WMEs are retracted because of the test on 
+        // Step again and verify that all the WMEs are retracted because of the test on
         // cycle-count
         agent.runFor(1, RunType.DECISIONS);
         
@@ -105,7 +106,7 @@ public class RecognitionMemoryTest
         assertFalse(agent.getAllWmesInRete().contains(z));
         assertFalse(agent.getAllWmesInRete().contains(name));
     }
-
+    
     @Test
     public void testChunkedActionsAreCorrectlyConsideredAsNumericIndifferent() throws Exception
     {
@@ -133,8 +134,8 @@ public class RecognitionMemoryTest
          * RL rules. The patch fixes this behavior.
          */
         final SoarCommandInterpreter ifc = agent.getInterpreter();
-        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_r10460.soar"));
-
+        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/') + "_r10460.soar"));
+        
         agent.runFor(2, RunType.DECISIONS);
         
         final List<Production> chunks = agent.getProductions().getProductions(ProductionType.CHUNK);
@@ -153,8 +154,8 @@ public class RecognitionMemoryTest
          * The real test is whether this crashes with a stack overflow or not (it should not)
          */
         final SoarCommandInterpreter ifc = agent.getInterpreter();
-        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_count-and-die.soar"));
-
+        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/') + "_count-and-die.soar"));
+        
         agent.runFor(75006, RunType.DECISIONS);
         
         assertEquals(75005, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT), "did not halt when expected");

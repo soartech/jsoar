@@ -32,13 +32,13 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     public final int hash_id;
     private RhsSymbolValue rhsValue;
     
-    public /*smem_hash_id*/ long smem_hash;
-    public /*uintptr_t*/ long common_smem_valid;
+    public /* smem_hash_id */ long smem_hash;
+    public /* uintptr_t */ long common_smem_valid;
     
-    public /*epmem_hash_id*/ long epmem_hash_id;
-    public /*uint64_t*/ long epmem_valid;
+    public /* epmem_hash_id */ long epmem_hash_id;
+    public /* uint64_t */ long epmem_valid;
     
-    /*package*/ SymbolImpl(SymbolFactory factory, int hash_id)
+    /* package */ SymbolImpl(SymbolFactory factory, int hash_id)
     {
         this.factory = factory;
         this.hash_id = hash_id;
@@ -53,7 +53,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return rhsValue;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asFloatConstant()
      */
     public DoubleSymbolImpl asDouble()
@@ -61,7 +63,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asIntConstant()
      */
     public IntegerSymbolImpl asInteger()
@@ -69,7 +73,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asSymConstant()
      */
     public StringSymbolImpl asString()
@@ -80,15 +86,16 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /*
      * symtab.h: 423: inline bool symbol_is_constant( Symbol *sym )
      */
-    public boolean symbol_is_constant(){
-        return (
-                this.asInteger() != null ||
-                    this.asDouble() != null ||
-                    this.asString() != null
-               );
+    public boolean symbol_is_constant()
+    {
+        return (this.asInteger() != null ||
+                this.asDouble() != null ||
+                this.asString() != null);
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asVariable()
      */
     public Variable asVariable()
@@ -96,7 +103,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asIdentifier()
      */
     public IdentifierImpl asIdentifier()
@@ -104,7 +113,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.symbols.Symbol#asJava()
      */
     @Override
@@ -112,7 +123,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     {
         return null;
     }
-
+    
     /**
      * @return the first letter of the symbol
      */
@@ -177,7 +188,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     {
         return false;
     }
-
+    
     /**
      * <p>production.cpp:1299:add_symbol_to_tc
      * 
@@ -207,7 +218,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return sym;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.lhs.EqualityTest#getReferent()
      */
     @Override
@@ -216,16 +229,21 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return this;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.soartech.simjr.Adaptable#getAdapter(java.lang.Class)
      */
     public Object getAdapter(Class<?> klass)
     {
         return Adaptables.adapt(this, klass, false);
     }
-
+    
     abstract Symbol importInto(SymbolFactory factory);
     
-    public boolean belongsTo(SymbolFactory factory) { return this.factory == factory; }
+    public boolean belongsTo(SymbolFactory factory)
+    {
+        return this.factory == factory;
+    }
     
 }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -73,7 +72,7 @@ public class SetStopPhaseCommandTest
         verify(Phase.OUTPUT, "output");
     }
     
-    private void verify(Phase expectedPhase, String ... args) throws SoarException
+    private void verify(Phase expectedPhase, String... args) throws SoarException
     {
         final List<String> argsList = new ArrayList<String>(Arrays.asList(args));
         argsList.add(0, "soar");
@@ -81,5 +80,5 @@ public class SetStopPhaseCommandTest
         command.execute(DefaultSoarCommandContext.empty(), argsList.toArray(new String[] {}));
         assertSame(expectedPhase, props.get(SoarProperties.STOP_PHASE));
     }
-
+    
 }

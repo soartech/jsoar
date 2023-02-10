@@ -11,7 +11,6 @@ import java.io.Writer;
 import org.jsoar.kernel.events.PrintEvent;
 import org.jsoar.util.events.SoarEventManager;
 
-
 /**
  * @author ray
  * @see Printer
@@ -31,8 +30,10 @@ public class PrintEventWriter extends Writer
     {
         this.events = events;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#close()
      */
     @Override
@@ -40,8 +41,10 @@ public class PrintEventWriter extends Writer
     {
         flush();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#flush()
      */
     @Override
@@ -57,8 +60,10 @@ public class PrintEventWriter extends Writer
         buffer.setLength(0);
         events.fireEvent(event);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.io.Writer#write(char[], int, int)
      */
     @Override
@@ -66,5 +71,5 @@ public class PrintEventWriter extends Writer
     {
         buffer.append(cbuf, off, len);
     }
-
+    
 }

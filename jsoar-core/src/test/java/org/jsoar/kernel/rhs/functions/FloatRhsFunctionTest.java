@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 public class FloatRhsFunctionTest extends JSoarTest
 {
-
+    
     @Test
     public void testConvertString() throws Exception
     {
@@ -25,6 +25,7 @@ public class FloatRhsFunctionTest extends JSoarTest
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "3.14159"));
         assertEquals(3.14159, result.asDouble().getValue(), 0.0001);
     }
+    
     @Test
     public void testConvertInt() throws Exception
     {

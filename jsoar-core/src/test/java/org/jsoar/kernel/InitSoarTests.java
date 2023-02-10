@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -54,33 +53,34 @@ public class InitSoarTests extends FunctionalTestHarness
         assertEquals(13, props.get(SoarProperties.WME_ADDITION_COUNT), "WME_ADDITION_COUNT is not 13");
         assertEquals(0, props.get(SoarProperties.WME_REMOVAL_COUNT), "WME_REMOVAL_COUNT is non-zero");
         assertEquals(0, props.get(SoarProperties.NUM_WM_SIZES_ACCUMULATED), "NUM_WM_SIZES_ACCUMULATED is non-zero");
-        assertEquals(0, props.get(SoarProperties.CUMULATIVE_WM_SIZE), "CUMULATIVE_WM_SIZE is non-zero");;
+        assertEquals(0, props.get(SoarProperties.CUMULATIVE_WM_SIZE), "CUMULATIVE_WM_SIZE is non-zero");
+        ;
         assertEquals(0, props.get(SoarProperties.MAX_WM_SIZE), "MAX_WM_SIZE is non-zero");
         
         // confirm current phase is input
         assertEquals(Phase.INPUT, agent.getCurrentPhase(), "Current phase is not input");
-
+        
         // confirm proper wmes are in rete
         assertEquals(13, agent.getAllWmesInRete().size(), "Wrong number of wmes in rete");
         // BADBAD: really? is this the best way to check which wmes are in the rete?
         for(Wme w : agent.getAllWmesInRete())
         {
-            assertTrue( 
-                   (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("io") && w.getValue().toString().equals("I1"))
-                || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("reward-link") && w.getValue().toString().equals("R1"))
-                || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("epmem") && w.getValue().toString().equals("E1"))
-                || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("command") && w.getValue().toString().equals("C1"))
-                || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("present-id") && w.getValue().toString().equals("1"))
-                || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("result") && w.getValue().toString().equals("R2"))
-                || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("smem") && w.getValue().toString().equals("S2"))
-                || (w.getIdentifier().toString().equals("S2") && w.getAttribute().toString().equals("result") && w.getValue().toString().equals("R3"))
-                || (w.getIdentifier().toString().equals("S2") && w.getAttribute().toString().equals("command") && w.getValue().toString().equals("C2"))
-                || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("superstate") && w.getValue().toString().equals("nil"))
-                || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("type") && w.getValue().toString().equals("state"))
-                || (w.getIdentifier().toString().equals("I1") && w.getAttribute().toString().equals("input-link") && w.getValue().toString().equals("I2"))
-                || (w.getIdentifier().toString().equals("I1") && w.getAttribute().toString().equals("output-link") && w.getValue().toString().equals("I3")),
-                "Unexpected wme in rete");
-        }    
+            assertTrue(
+                    (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("io") && w.getValue().toString().equals("I1"))
+                            || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("reward-link") && w.getValue().toString().equals("R1"))
+                            || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("epmem") && w.getValue().toString().equals("E1"))
+                            || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("command") && w.getValue().toString().equals("C1"))
+                            || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("present-id") && w.getValue().toString().equals("1"))
+                            || (w.getIdentifier().toString().equals("E1") && w.getAttribute().toString().equals("result") && w.getValue().toString().equals("R2"))
+                            || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("smem") && w.getValue().toString().equals("S2"))
+                            || (w.getIdentifier().toString().equals("S2") && w.getAttribute().toString().equals("result") && w.getValue().toString().equals("R3"))
+                            || (w.getIdentifier().toString().equals("S2") && w.getAttribute().toString().equals("command") && w.getValue().toString().equals("C2"))
+                            || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("superstate") && w.getValue().toString().equals("nil"))
+                            || (w.getIdentifier().toString().equals("S1") && w.getAttribute().toString().equals("type") && w.getValue().toString().equals("state"))
+                            || (w.getIdentifier().toString().equals("I1") && w.getAttribute().toString().equals("input-link") && w.getValue().toString().equals("I2"))
+                            || (w.getIdentifier().toString().equals("I1") && w.getAttribute().toString().equals("output-link") && w.getValue().toString().equals("I3")),
+                    "Unexpected wme in rete");
+        }
     }
     
     @Test

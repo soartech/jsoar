@@ -28,7 +28,7 @@ public class TclLineContinuationTest extends TclTestBase
     {
         sourceTestFile(getClass(), "textExecute.soar");
     }
-   
+    
     /**
      * Test sourcing via a file.
      */

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-
 /**
  * data for all except positive nodes
  * 
@@ -16,7 +15,7 @@ package org.jsoar.kernel.rete;
 public class NonPosNodeData implements AReteNodeData
 {
     Token tokens = null; // dll of tokens at this node
-    boolean is_left_unlinked; //:1;           /* used on mp nodes only */
+    boolean is_left_unlinked; // :1; /* used on mp nodes only */
     
     /**
      * @return Shallow copy of this object
@@ -28,5 +27,5 @@ public class NonPosNodeData implements AReteNodeData
         n.is_left_unlinked = this.is_left_unlinked;
         return n;
     }
-
+    
 }

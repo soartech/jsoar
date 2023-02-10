@@ -25,7 +25,7 @@ import org.jsoar.soarunit.TestCaseCollector;
 public class MainFrame extends JFrame
 {
     private static final long serialVersionUID = -701720884093453648L;
-
+    
     private final JPanel contentPane = new JPanel(new BorderLayout());
     private final TestPanel testPanel;
     
@@ -50,21 +50,21 @@ public class MainFrame extends JFrame
         bar.add(new RunTestsAction(testPanel));
         return bar;
     }
-
+    
     private JMenuBar initMenuBar()
     {
         final JMenuBar bar = new JMenuBar();
         
         return bar;
     }
-
+    
     public void runTests()
     {
         testPanel.runTests();
     }
     
     /**
-     * Initialize the UI look and feel to the system look and feel. 
+     * Initialize the UI look and feel to the system look and feel.
      */
     public static void initializeLookAndFeel()
     {
@@ -72,14 +72,19 @@ public class MainFrame extends JFrame
         {
             // First try Nimbus because it looks nice. Then fall back to
             // the system L&F
-            try {
-                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                    if ("Nimbus".equals(info.getName())) {
+            try
+            {
+                for(LookAndFeelInfo info : UIManager.getInstalledLookAndFeels())
+                {
+                    if("Nimbus".equals(info.getName()))
+                    {
                         UIManager.setLookAndFeel(info.getClassName());
                         return;
                     }
                 }
-            } catch (RuntimeException e) {
+            }
+            catch(RuntimeException e)
+            {
                 // If Nimbus is not available, you can set the GUI to another look and feel.
             }
             
@@ -88,10 +93,18 @@ public class MainFrame extends JFrame
             // whatever L&F we get.
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
-        catch (UnsupportedLookAndFeelException e) { }
-        catch (ClassNotFoundException e) { }
-        catch (InstantiationException e) { }
-        catch (IllegalAccessException e) { }
+        catch(UnsupportedLookAndFeelException e)
+        {
+        }
+        catch(ClassNotFoundException e)
+        {
+        }
+        catch(InstantiationException e)
+        {
+        }
+        catch(IllegalAccessException e)
+        {
+        }
     }
     
 }

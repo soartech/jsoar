@@ -16,7 +16,7 @@ import org.jsoar.util.events.SoarEvent;
 public abstract class AbstractAgentEvent implements SoarEvent
 {
     private final Agent agent;
-
+    
     /**
      * Construct a new event
      * 
@@ -26,7 +26,7 @@ public abstract class AbstractAgentEvent implements SoarEvent
     {
         this.agent = agent;
     }
-
+    
     /**
      * @return the agent that is the source of this event
      */

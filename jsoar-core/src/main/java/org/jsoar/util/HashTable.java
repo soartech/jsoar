@@ -8,13 +8,12 @@ package org.jsoar.util;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * mem.h
  * 
  * @author ray
  */
-public class HashTable <T extends HashTableItem>
+public class HashTable<T extends HashTableItem>
 {
     /**
      * mem.cpp:487
@@ -29,14 +28,14 @@ public class HashTable <T extends HashTableItem>
             0x01FFFFFF, 0x03FFFFFF, 0x07FFFFFF, 0x0FFFFFFF,
             0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF };
     
-    private int count;      /* number of items in the table */
-    private int size;       /* number of buckets */
-    private int log2size;           /* log (base 2) of size */
-    private final int minimum_log2size;   /* table never shrinks below this size */
+    private int count; /* number of items in the table */
+    private int size; /* number of buckets */
+    private int log2size; /* log (base 2) of size */
+    private final int minimum_log2size; /* table never shrinks below this size */
     private HashTableItem[] buckets;
     private final HashFunction<T> h;          // call this to hash or rehash an item
     private final Class<T> itemClass;
-
+    
     /**
      * mem.cpp:497
      * 
@@ -69,6 +68,7 @@ public class HashTable <T extends HashTableItem>
         }
         return result;
     }
+    
     public int getLog2Size()
     {
         return log2size;
@@ -79,7 +79,7 @@ public class HashTable <T extends HashTableItem>
     {
         // TODO: Should there be a mask here, like this: hv = hv & masks_for_n_low_order_bits[getLog2Size()];
         // It seems like this is always done externally in the kernel code.
-
+        
         return (T) buckets[hv];
     }
     
@@ -91,9 +91,9 @@ public class HashTable <T extends HashTableItem>
     public void remove_from_hash_table(T item)
     {
         HashTableItem this_one = item;
-
+        
         int hash_value = h.calculate(item, log2size);
-        if (buckets[hash_value] == this_one)
+        if(buckets[hash_value] == this_one)
         {
             // hs is the first one on the list for the bucket
             buckets[hash_value] = this_one.next_in_hash_table;
@@ -102,11 +102,11 @@ public class HashTable <T extends HashTableItem>
         {
             // hs is not the first one on the list, so find its predecessor
             HashTableItem prev = buckets[hash_value];
-            while (prev != null && prev.next_in_hash_table != this_one)
+            while(prev != null && prev.next_in_hash_table != this_one)
             {
                 prev = prev.next_in_hash_table;
             }
-            if (prev == null)
+            if(prev == null)
             {
                 /* Reaching here means that we couldn't find this_one item */
                 // TODO: assert(prev && "Couldn't find item to remove from hash table!");
@@ -117,11 +117,11 @@ public class HashTable <T extends HashTableItem>
         this_one.next_in_hash_table = null; /* just for safety */
         // update count and possibly resize the table
         this.count--;
-        if ((this.count < this.size / 2) && (this.log2size > this.minimum_log2size))
+        if((this.count < this.size / 2) && (this.log2size > this.minimum_log2size))
         {
             resize_hash_table((int) (this.log2size - 1));
         }
-
+        
     }
     
     /**
@@ -133,7 +133,7 @@ public class HashTable <T extends HashTableItem>
     {
         HashTableItem this_one = item;
         this.count++;
-        if (this.count >= this.size * 2)
+        if(this.count >= this.size * 2)
         {
             resize_hash_table((int) (this.log2size + 1));
         }
@@ -141,16 +141,16 @@ public class HashTable <T extends HashTableItem>
         this_one.next_in_hash_table = buckets[hash_value];
         buckets[hash_value] = this_one;
     }
-
-//typedef Bool (*hash_table_callback_fn)(void *item);
-//typedef Bool (*hash_table_callback_fn2)(agent* thisAgent, void *item, FILE* f);
-//
-//extern void do_for_all_items_in_hash_table (agent* thisAgent, struct hash_table_struct *ht,
-//      hash_table_callback_fn2 f, FILE* fn);
-//extern void do_for_all_items_in_hash_bucket (struct hash_table_struct *ht,
-//       hash_table_callback_fn f,
-//       unsigned long hash_value);
-
+    
+    // typedef Bool (*hash_table_callback_fn)(void *item);
+    // typedef Bool (*hash_table_callback_fn2)(agent* thisAgent, void *item, FILE* f);
+    //
+    // extern void do_for_all_items_in_hash_table (agent* thisAgent, struct hash_table_struct *ht,
+    // hash_table_callback_fn2 f, FILE* fn);
+    // extern void do_for_all_items_in_hash_bucket (struct hash_table_struct *ht,
+    // hash_table_callback_fn f,
+    // unsigned long hash_value);
+    
     private static HashTableItem[] allocateBuckets(int size)
     {
         return new HashTableItem[size];
@@ -166,11 +166,11 @@ public class HashTable <T extends HashTableItem>
     {
         int new_size = 1 << new_log2size;
         HashTableItem[] new_buckets = allocateBuckets(new_size);
-
+        
         HashTableItem next = null;
-        for (int i = 0; i < size; i++)
+        for(int i = 0; i < size; i++)
         {
-            for (HashTableItem item = buckets[i]; item != null; item = next)
+            for(HashTableItem item = buckets[i]; item != null; item = next)
             {
                 next = item.next_in_hash_table;
                 /* --- insert item into new buckets --- */
@@ -179,13 +179,15 @@ public class HashTable <T extends HashTableItem>
                 new_buckets[hash_value] = item;
             }
         }
-
+        
         this.buckets = new_buckets;
         this.size = new_size;
         this.log2size = new_log2size;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -194,7 +196,7 @@ public class HashTable <T extends HashTableItem>
         // Display like a Java map, indexed by hash value
         StringBuilder builder = new StringBuilder();
         builder.append("{");
-        for(int hv = 0;  hv < buckets.length; ++hv)
+        for(int hv = 0; hv < buckets.length; ++hv)
         {
             if(hv != 0)
             {

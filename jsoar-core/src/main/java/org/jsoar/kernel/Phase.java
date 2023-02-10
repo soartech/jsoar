@@ -30,39 +30,41 @@ public enum Phase
      * The input phase of the agent where input is generated.
      * 
      * <p>init_soar.h:127:INPUT_PHASE
+     * 
      * @see InputEvent
      */
-    INPUT ("input", BeforeInput.class, AfterInput.class), 
+    INPUT("input", BeforeInput.class, AfterInput.class),
     
     /**
      * The operator proposal phase
      * 
      * <p>init_soar.h:127:PROPOSE_PHASE
      */
-    PROPOSE ("propose", BeforePropose.class, AfterPropose.class),
+    PROPOSE("propose", BeforePropose.class, AfterPropose.class),
     
     /**
      * The decision phase
      * 
      * <p>init_soar.h:127:DECISION_PHASE
      */
-    DECISION ("decision", BeforeDecision.class, AfterDecision.class),
+    DECISION("decision", BeforeDecision.class, AfterDecision.class),
     
     /**
      * The operator application phase
      * 
      * <p>init_soar.h:127:APPLY_PHASE
      */
-    APPLY ("apply", BeforeApply.class, AfterApply.class),
+    APPLY("apply", BeforeApply.class, AfterApply.class),
     
     /**
      * The output phase where the agent's output-link is processed.
      * 
      * <p>init_soar.h:127:OUTPUT_PHASE
+     * 
      * @see OutputEvent
      */
-    OUTPUT ("output", BeforeOutput.class, AfterOutput.class);
-        
+    OUTPUT("output", BeforeOutput.class, AfterOutput.class);
+    
     private final String traceName;
     private final String traceEndName;
     private final Class<? extends AbstractPhaseEvent> beforeEventType;
@@ -85,8 +87,8 @@ public enum Phase
      * Trace the start or end of this phase
      * 
      * @param trace The trace object
-     * @param startOfPhase <code>true</code> for start of phase, <code>false</code> 
-     *  for end of phase
+     * @param startOfPhase <code>true</code> for start of phase, <code>false</code>
+     *     for end of phase
      */
     public void trace(Trace trace, boolean startOfPhase)
     {
@@ -96,7 +98,7 @@ public enum Phase
             trace.startNewLine().print("--- " + getTraceName(startOfPhase) + " phase ---");
         }
     }
-
+    
     /**
      * Returns the class of the "before" event for this phase.
      * 
@@ -107,7 +109,7 @@ public enum Phase
     {
         return beforeEventType;
     }
-
+    
     /**
      * Returns the class of the "after" event for this phase
      * 
@@ -118,6 +120,5 @@ public enum Phase
     {
         return afterEventType;
     }
-    
     
 }

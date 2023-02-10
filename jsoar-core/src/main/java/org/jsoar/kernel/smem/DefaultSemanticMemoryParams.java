@@ -30,7 +30,7 @@ public class DefaultSemanticMemoryParams
         @Override
         public String toString()
         {
-            switch (this)
+            switch(this)
             {
             case page_1k:
                 return "1k";
@@ -51,11 +51,17 @@ public class DefaultSemanticMemoryParams
             }
         }
     }
-    static enum Optimization { safety, performance };
+    
+    static enum Optimization
+    {
+        safety, performance
+    };
+    
     static enum MergeChoices
     {
         none, add;
     }
+    
     static enum ActivationChoices
     {
         recency, frequency, base_level("base-level");
@@ -85,31 +91,38 @@ public class DefaultSemanticMemoryParams
                 throw new IllegalArgumentException();
             for(ActivationChoices ac : ActivationChoices.values())
             {
-                if(value.equals(ac.toString())) return ac;
+                if(value.equals(ac.toString()))
+                    return ac;
             }
             throw new IllegalArgumentException();
         }
     }
+    
     static enum BaseUpdateChoices
     {
         stable, naive, incremental;
     }
+    
     static enum ActivateOnQueryChoices
     {
         on, off
     }
+    
     static enum MirroringChoices
     {
         on, off
     }
+    
     static enum LazyCommitChoices
     {
         on, off
     }
+    
     static enum LearningChoices
     {
         on, off
     }
+    
     static enum AppendDatabaseChoices
     {
         on, off
@@ -135,7 +148,7 @@ public class DefaultSemanticMemoryParams
         return PropertyKey.builder(PREFIX + name, type);
     }
     
-    public static abstract class SetWrapper <T>
+    public static abstract class SetWrapper<T>
     {
         protected Set<T> set;
     }
@@ -186,7 +199,7 @@ public class DefaultSemanticMemoryParams
         {
             Long longValue = Long.parseLong(value);
             
-            if (set.contains(longValue))
+            if(set.contains(longValue))
             {
                 set.remove(longValue);
             }
@@ -212,7 +225,7 @@ public class DefaultSemanticMemoryParams
     
     static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
     final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
-
+    
     static final PropertyKey<String> PATH = key("path", String.class).defaultValue(SemanticMemoryDatabase.IN_MEMORY_PATH).build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     

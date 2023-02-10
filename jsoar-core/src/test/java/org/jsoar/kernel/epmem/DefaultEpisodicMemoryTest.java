@@ -31,9 +31,9 @@ public class DefaultEpisodicMemoryTest
         Agent temp = new Agent();
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), temp);
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-//        final EpisodicMemoryDatabase db = new EpisodicMemoryDatabase("org.sqlite.JDBC", conn);
-//        db.structure();
-//        db.prepare();
+        // final EpisodicMemoryDatabase db = new EpisodicMemoryDatabase("org.sqlite.JDBC", conn);
+        // db.structure();
+        // db.prepare();
         epmem = new DefaultEpisodicMemory(context);
         epmem.initialize();
     }
@@ -43,17 +43,17 @@ public class DefaultEpisodicMemoryTest
     {
         conn.close();
     }
-
+    
     @Test
     public void testCanInitializeTheDatabase() throws Exception
     {
-//        final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(context);
-//        epmem.initialize();
+        // final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(context);
+        // epmem.initialize();
         // TODO database is being initialized here, should it be somewhere else?
-//        assertNull(epmem.getDatabase());
+        // assertNull(epmem.getDatabase());
         epmem.epmem_init_db();
         assertNotNull(epmem.getDatabase());
         assertFalse(epmem.getDatabase().getConnection().isClosed());
     }
-
+    
 }

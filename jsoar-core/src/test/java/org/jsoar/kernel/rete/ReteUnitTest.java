@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -51,7 +50,9 @@ public class ReteUnitTest extends JSoarTest
     {
         Set<Production> matching = new HashSet<Production>();
         
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
          */
         @Override
@@ -59,8 +60,10 @@ public class ReteUnitTest extends JSoarTest
         {
             return false;
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_addition(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
@@ -68,8 +71,10 @@ public class ReteUnitTest extends JSoarTest
         {
             matching.add(node.b_p().prod);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_removal(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
@@ -77,16 +82,20 @@ public class ReteUnitTest extends JSoarTest
         {
             matching.remove(node.b_p().prod);
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#startRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
          */
         @Override
         public void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
         {
         }
-
-        /* (non-Javadoc)
+        
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
          */
         @Override
@@ -96,7 +105,9 @@ public class ReteUnitTest extends JSoarTest
         
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.JSoarTest#setUp()
      */
     @Override
@@ -111,7 +122,7 @@ public class ReteUnitTest extends JSoarTest
         this.episodicMemory.initialize();
         this.semanticMemory = new DefaultSemanticMemory(AdaptableContainer.from(syms, agent));
         this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory, semanticMemory,
-        				new ReinforcementLearningParams(new PropertyManager(), syms));
+                new ReinforcementLearningParams(new PropertyManager(), syms));
         this.rete.setReteListener(listener);
     }
     
@@ -119,8 +130,9 @@ public class ReteUnitTest extends JSoarTest
     {
         final OriginalParser parser = new OriginalParser();
         final StringReader reader = new StringReader(s);
-        final ParserContext context = new ParserContext() {
-
+        final ParserContext context = new ParserContext()
+        {
+            
             @Override
             public Object getAdapter(Class<?> klass)
             {
@@ -142,7 +154,7 @@ public class ReteUnitTest extends JSoarTest
         };
         return parser.parseProduction(context, reader);
     }
-
+    
     @Test
     public void testInitDummyTopNode() throws Exception
     {
@@ -153,25 +165,25 @@ public class ReteUnitTest extends JSoarTest
         assertNull(dummyTopToken.parent);
         assertSame(rete.dummy_top_node, dummyTopToken.node);
     }
-
+    
     @Test
     public void testAddProductionToRete() throws Exception
     {
         Production p = parseProduction(
-           "testAddProductionToRete \n" +
-           "(<root> ^integer 1 \n" +
-           "        ^float 3.14 \n" +
-           "        ^string |S| \n" +
-           "        ^id <id>) \n" +
-           "--> \n" +
-           "(write <root>)");
+                "testAddProductionToRete \n" +
+                        "(<root> ^integer 1 \n" +
+                        "        ^float 3.14 \n" +
+                        "        ^string |S| \n" +
+                        "        ^id <id>) \n" +
+                        "--> \n" +
+                        "(write <root>)");
         
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
         assertNotNull(result);
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
-
+        
         // TODO: Test structure of built rete
     }
     
@@ -179,10 +191,10 @@ public class ReteUnitTest extends JSoarTest
     public void testSimpleAddWmeToRete() throws Exception
     {
         Production p = parseProduction(
-           "testAddProductionToRete \n" +
-           "(<root> ^integer 1 ^float 3.14 ^string |S| ^id <id>)" +
-           "--> \n" +
-           "(write <root>)");
+                "testAddProductionToRete \n" +
+                        "(<root> ^integer 1 ^float 3.14 ^string |S| ^id <id>)" +
+                        "--> \n" +
+                        "(write <root>)");
         
         assertNotNull(p);
         
@@ -203,7 +215,7 @@ public class ReteUnitTest extends JSoarTest
         WmeImpl stringWme = new WmeImpl(root, syms.createString("string"), syms.createString("S"), false, 0);
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
-       
+        
         WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         assertTrue(listener.matching.contains(p));
@@ -211,7 +223,7 @@ public class ReteUnitTest extends JSoarTest
         // Remove int WME to verify the production unmatches
         rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
-       
+        
         // Re-add it to verify it re-matches
         rete.add_wme_to_rete(intWme);
         assertTrue(listener.matching.contains(p));
@@ -232,12 +244,12 @@ public class ReteUnitTest extends JSoarTest
     public void testReteWithNegatedConjunctiveCondition() throws Exception
     {
         Production p = parseProduction(
-           "testReteWithNegatedConjunctiveCondition \n" +
-           "(<root> ^integer 1 ^float 3.14)\n" +
-           "-{ (<root> ^string |S|) " +
-           "   (<root> ^id <id>)}\n" +
-           "--> \n" +
-           "(write <root>)");
+                "testReteWithNegatedConjunctiveCondition \n" +
+                        "(<root> ^integer 1 ^float 3.14)\n" +
+                        "-{ (<root> ^string |S|) " +
+                        "   (<root> ^id <id>)}\n" +
+                        "--> \n" +
+                        "(write <root>)");
         
         assertNotNull(p);
         
@@ -261,7 +273,7 @@ public class ReteUnitTest extends JSoarTest
         
         // NCC stays false when the string is added
         assertTrue(listener.matching.contains(p));
-       
+        
         WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         
@@ -271,7 +283,7 @@ public class ReteUnitTest extends JSoarTest
         // Remove int WME to verify the production re-matches
         rete.remove_wme_from_rete(stringWme);
         assertTrue(listener.matching.contains(p));
-       
+        
         // Re-add it to verify it unmatches
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
@@ -281,10 +293,10 @@ public class ReteUnitTest extends JSoarTest
     public void testSimpleReteTests() throws Exception
     {
         Production p = parseProduction(
-           "testAddProductionToRete \n" +
-           "(<root> ^integer  < 2 ^float >= 3.14 ^string << T UV S >> ^id <id>)" +
-           "--> \n" +
-           "(write <root>)");
+                "testAddProductionToRete \n" +
+                        "(<root> ^integer  < 2 ^float >= 3.14 ^string << T UV S >> ^id <id>)" +
+                        "--> \n" +
+                        "(write <root>)");
         
         assertNotNull(p);
         
@@ -305,7 +317,7 @@ public class ReteUnitTest extends JSoarTest
         WmeImpl stringWme = new WmeImpl(root, syms.createString("string"), syms.createString("S"), false, 0);
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
-       
+        
         WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         assertTrue(listener.matching.contains(p));
@@ -313,7 +325,7 @@ public class ReteUnitTest extends JSoarTest
         // Remove int WME to verify the production unmatches
         rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
-       
+        
         // Re-add it to verify it re-matches
         rete.add_wme_to_rete(intWme);
         assertTrue(listener.matching.contains(p));
@@ -329,21 +341,21 @@ public class ReteUnitTest extends JSoarTest
         rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
     }
-
+    
     @Test
     public void testAddProductionSimpleMakeAction() throws Exception
     {
         Production p = parseProduction(
                 "testAddProductionSimpleMakeAction \n" +
-                "(state <s> ^superstate nil)" +
-                "--> \n" +
-                "(<s> ^value 1)");
-             
-         assertNotNull(p);
-         
-         ProductionAddResult result = rete.add_production_to_rete(p);
-         assertNotNull(result);
-         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+                        "(state <s> ^superstate nil)" +
+                        "--> \n" +
+                        "(<s> ^value 1)");
+        
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
     }
     
     @Test
@@ -351,27 +363,27 @@ public class ReteUnitTest extends JSoarTest
     {
         Production p = parseProduction(
                 "testAddTwoProductionsToRete1 \n" +
-                "(state <s> ^superstate nil)" +
-                "--> \n" +
-                "(<s> ^value 1)");
-             
-         assertNotNull(p);
-         
-         ProductionAddResult result = rete.add_production_to_rete(p);
-         assertNotNull(result);
-         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
-         
-         Production p2 = parseProduction(
-                 "testAddTwoProductionsToRete2 \n" +
-                 "(state <s> ^superstate nil ^value 1)" +
-                 "--> \n" +
-                 "(<s> ^value 2)");
-              
-          assertNotNull(p2);
-          
-          result = rete.add_production_to_rete(p2);
-          assertNotNull(result);
-          assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+                        "(state <s> ^superstate nil)" +
+                        "--> \n" +
+                        "(<s> ^value 1)");
+        
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+        
+        Production p2 = parseProduction(
+                "testAddTwoProductionsToRete2 \n" +
+                        "(state <s> ^superstate nil ^value 1)" +
+                        "--> \n" +
+                        "(<s> ^value 2)");
+        
+        assertNotNull(p2);
+        
+        result = rete.add_production_to_rete(p2);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
     }
     
     @Test

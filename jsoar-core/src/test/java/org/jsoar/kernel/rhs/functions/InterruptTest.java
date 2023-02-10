@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.Timeout;
 public class InterruptTest
 {
     private Agent agent;
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -33,7 +32,7 @@ public class InterruptTest
     {
         this.agent = new Agent();
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -41,7 +40,7 @@ public class InterruptTest
     public void tearDown() throws Exception
     {
     }
-
+    
     @Test
     @Timeout(value = 3, unit = TimeUnit.SECONDS)
     public void testInterrupt() throws Exception

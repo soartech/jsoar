@@ -19,7 +19,9 @@ import org.jsoar.kernel.Phase;
  */
 public class PhaseEvents
 {
-    private PhaseEvents() {}
+    private PhaseEvents()
+    {
+    }
     
     /**
      * Create a map of immutable "before phase" events for the given agent
@@ -68,6 +70,7 @@ public class PhaseEvents
             super(agent, Phase.INPUT, true);
         }
     }
+    
     public static class AfterInput extends AbstractPhaseEvent
     {
         public AfterInput(Agent agent)
@@ -83,6 +86,7 @@ public class PhaseEvents
             super(agent, Phase.OUTPUT, true);
         }
     }
+    
     public static class AfterOutput extends AbstractPhaseEvent
     {
         public AfterOutput(Agent agent)
@@ -90,6 +94,7 @@ public class PhaseEvents
             super(agent, Phase.OUTPUT, false);
         }
     }
+    
     public static class BeforeApply extends AbstractPhaseEvent
     {
         public BeforeApply(Agent agent)
@@ -97,6 +102,7 @@ public class PhaseEvents
             super(agent, Phase.APPLY, true);
         }
     }
+    
     public static class AfterApply extends AbstractPhaseEvent
     {
         public AfterApply(Agent agent)
@@ -104,6 +110,7 @@ public class PhaseEvents
             super(agent, Phase.APPLY, false);
         }
     }
+    
     public static class BeforePropose extends AbstractPhaseEvent
     {
         public BeforePropose(Agent agent)
@@ -111,6 +118,7 @@ public class PhaseEvents
             super(agent, Phase.PROPOSE, true);
         }
     }
+    
     public static class AfterPropose extends AbstractPhaseEvent
     {
         public AfterPropose(Agent agent)
@@ -118,6 +126,7 @@ public class PhaseEvents
             super(agent, Phase.PROPOSE, false);
         }
     }
+    
     /**
      * callback.h::BEFORE_DECISION_PHASE_CALLBACK
      * 
@@ -130,6 +139,7 @@ public class PhaseEvents
             super(agent, Phase.INPUT, true);
         }
     }
+    
     public static class AfterDecision extends AbstractPhaseEvent
     {
         public AfterDecision(Agent agent)

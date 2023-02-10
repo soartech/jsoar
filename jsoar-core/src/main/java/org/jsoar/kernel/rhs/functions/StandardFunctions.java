@@ -25,11 +25,12 @@ public class StandardFunctions
     
     /**
      * Takes any number of arguments, and prints each one.
-     *  
+     * 
      * rhsfun.cpp:162:write_rhs_function_code
      */
-    public final RhsFunctionHandler write = new StandaloneRhsFunctionHandler("write") {
-
+    public final RhsFunctionHandler write = new StandaloneRhsFunctionHandler("write")
+    {
+        
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
@@ -44,11 +45,12 @@ public class StandardFunctions
     
     /**
      * Just returns a sym_constant whose print name is a line feed.
-     *  
+     * 
      * rhsfun.cpp:189:crlf_rhs_function_code
      */
-    public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf", 0, 0) {
-
+    public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf", 0, 0)
+    {
+        
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
@@ -60,13 +62,14 @@ public class StandardFunctions
     /**
      * RHS function that prints a failure message and halts the agent.
      */
-    public final RhsFunctionHandler failed = new StandaloneRhsFunctionHandler("failed") {
-
+    public final RhsFunctionHandler failed = new StandaloneRhsFunctionHandler("failed")
+    {
+        
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
-            context.getPrinter().error("Failed: %s: %s", 
-                    rhsContext.getProductionBeingFired().getName(), 
+            context.getPrinter().error("Failed: %s: %s",
+                    rhsContext.getProductionBeingFired().getName(),
                     StringTools.join(arguments, ", "));
             return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
@@ -76,45 +79,45 @@ public class StandardFunctions
     /**
      * RHS function that prints a success message and halts the agent.
      */
-    public final RhsFunctionHandler succeeded = new StandaloneRhsFunctionHandler("succeeded") {
-
+    public final RhsFunctionHandler succeeded = new StandaloneRhsFunctionHandler("succeeded")
+    {
+        
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
-            context.getPrinter().print("Succeeded: %s: %s", 
-                    rhsContext.getProductionBeingFired().getName(), 
+            context.getPrinter().print("Succeeded: %s: %s",
+                    rhsContext.getProductionBeingFired().getName(),
                     StringTools.join(arguments, ", "));
             return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
         
     };
     
-    private final List<RhsFunctionHandler> allInternal = 
-        new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
-                new CapitalizeSymbol(), new Concat(), new IfEq(), new MakeConstantSymbol(), new MakeIntegerSymbol(), new StrLen(), new Split(),
-                new DeepCopy(),
-                new StringRhsFunction(), new IntRhsFunction(), new FloatRhsFunction(),
-                new FromXml(), 
-                new ToXml(),
-                new FromSoarTechXml(),
-                new FromAutoTypeXml(),
-                new FromManualTypeXml(),
-                new ToSoarTechXml(),
-                new GetUrl(), 
-                new ListRhsFunction(),
-                new FormatRhsFunction(),
-                new Timestamp(),
-                new SetCount()));
+    private final List<RhsFunctionHandler> allInternal = new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
+            new CapitalizeSymbol(), new Concat(), new IfEq(), new MakeConstantSymbol(), new MakeIntegerSymbol(), new StrLen(), new Split(),
+            new DeepCopy(),
+            new StringRhsFunction(), new IntRhsFunction(), new FloatRhsFunction(),
+            new FromXml(),
+            new ToXml(),
+            new FromSoarTechXml(),
+            new FromAutoTypeXml(),
+            new FromManualTypeXml(),
+            new ToSoarTechXml(),
+            new GetUrl(),
+            new ListRhsFunction(),
+            new FormatRhsFunction(),
+            new Timestamp(),
+            new SetCount()));
     {
         allInternal.addAll(MathFunctions.all);
     }
     
     /**
-     * Unmodifiable list of all standard RHS function handlers, including those 
+     * Unmodifiable list of all standard RHS function handlers, including those
      * defined in {@link MathFunctions}
      */
     public final List<RhsFunctionHandler> all = Collections.unmodifiableList(allInternal);
-
+    
     /**
      * Construct an instance of this class and install standard RHS functions
      * 
@@ -140,6 +143,5 @@ public class StandardFunctions
             context.getRhsFunctions().registerHandler(handler);
         }
     }
-    
     
 }

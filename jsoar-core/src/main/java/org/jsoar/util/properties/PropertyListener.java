@@ -11,7 +11,7 @@ package org.jsoar.util.properties;
  * 
  * @author ray
  */
-public interface PropertyListener <T>
+public interface PropertyListener<T>
 {
     /**
      * Called when the value of a property changes.

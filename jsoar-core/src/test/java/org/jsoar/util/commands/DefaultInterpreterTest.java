@@ -5,7 +5,6 @@
  */
 package org.jsoar.util.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,7 +37,7 @@ public class DefaultInterpreterTest
         this.agent = new Agent();
         this.interp = new DefaultInterpreter(agent);
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -60,9 +59,11 @@ public class DefaultInterpreterTest
                 context.set(commandContext);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         });
@@ -76,7 +77,7 @@ public class DefaultInterpreterTest
         assertEquals(result.toExternalForm(), context.get().getSourceLocation().getFile());
         assertEquals(3, context.get().getSourceLocation().getLine() + 1);
     }
-
+    
     @Test
     public void testCanChooseACommandBasedOnAPrefix() throws Exception
     {
@@ -89,9 +90,11 @@ public class DefaultInterpreterTest
                 called.set(true);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         });
@@ -111,9 +114,11 @@ public class DefaultInterpreterTest
                 called.set(true);
                 return null;
             }
+            
             @Override
-            public Object getCommand() {
-                //todo - when implementing picocli, return the runnable
+            public Object getCommand()
+            {
+                // todo - when implementing picocli, return the runnable
                 return null;
             }
         };
@@ -148,7 +153,7 @@ public class DefaultInterpreterTest
         String inputFile = "jar:" + path + "!/test.soar";
         
         URL url = new URL(inputFile);
-        SoarCommands.source(agent.getInterpreter(), url );
+        SoarCommands.source(agent.getInterpreter(), url);
         
         assertEquals(1, agent.getProductions().getProductionCount(), "Expected a rule to be loaded");
     }

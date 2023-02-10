@@ -25,7 +25,7 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     
     /**
      * @return A new instance of this timer using the first source implementation
-     *    found by the ServiceLoader.
+     * found by the ServiceLoader.
      */
     public static ExecutionTimer newInstance()
     {
@@ -68,8 +68,10 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
         Arguments.checkNotNull(source, "source");
         this.source = source;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#getElapsedMicroseconds()
      */
     @Override
@@ -77,8 +79,10 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     {
         return total;
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#pause()
      */
     @Override
@@ -86,8 +90,10 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     {
         this.total += (source.getMicroseconds() - this.start);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#start()
      */
     @Override
@@ -95,8 +101,10 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     {
         this.start = source.getMicroseconds();
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.util.timing.ExecutionTimer#reset()
      */
     @Override
@@ -104,7 +112,7 @@ public class DefaultExecutionTimer extends AbstractExecutionTimer
     {
         this.total = 0;
     }
-
+    
     ExecutionTimeSource __testGetSource()
     {
         return source;

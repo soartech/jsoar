@@ -1,4 +1,5 @@
 package org.jsoar.util.properties;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 public class BooleanPropertyProviderTest
 {
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -24,7 +25,7 @@ public class BooleanPropertyProviderTest
     public void setUp() throws Exception
     {
     }
-
+    
     /**
      * @throws java.lang.Exception
      */
@@ -32,7 +33,7 @@ public class BooleanPropertyProviderTest
     public void tearDown() throws Exception
     {
     }
-
+    
     /**
      * Test method for {@link org.jsoar.util.properties.BooleanPropertyProvider#toString()}.
      */
@@ -45,5 +46,5 @@ public class BooleanPropertyProviderTest
         provider.set(false);
         assertEquals("false", provider.toString());
     }
-
+    
 }

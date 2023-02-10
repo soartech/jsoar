@@ -31,8 +31,10 @@ public class GetUrl extends AbstractRhsFunctionHandler
     {
         super("get-url", 1, 1);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -47,7 +49,7 @@ public class GetUrl extends AbstractRhsFunctionHandler
         {
             url = new URL(urlString);
         }
-        catch (MalformedURLException e)
+        catch(MalformedURLException e)
         {
             throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
         }
@@ -58,10 +60,10 @@ public class GetUrl extends AbstractRhsFunctionHandler
             ByteStreams.copy(is, out);
             return context.getSymbols().createString(out.toString("UTF-8"));
         }
-        catch (IOException e)
+        catch(IOException e)
         {
             throw new RhsFunctionException("In '" + getName() + "' RHS function: " + e.getMessage());
         }
-
+        
     }
 }

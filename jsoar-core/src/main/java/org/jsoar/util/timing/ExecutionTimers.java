@@ -52,16 +52,15 @@ public class ExecutionTimers
             timer.update();
         }
     }
-
+    
     public static void setEnabled(boolean enabled)
     {
         ExecutionTimers.enabled = enabled;
     }
-
-
+    
     public static boolean isEnabled()
     {
         return ExecutionTimers.enabled;
     }
-
+    
 }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -19,7 +18,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DivTest extends JSoarTest
 {
-
+    
     @Test
     public void testDiv() throws Exception
     {

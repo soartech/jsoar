@@ -12,7 +12,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbols;
 
 /**
- * A builder object for constructing input link structures. 
+ * A builder object for constructing input link structures.
  * 
  * <p>For example, to build the following input-link structure:
  * <pre>{@code
@@ -86,8 +86,8 @@ public class InputBuilder
         return create(io, io.getInputLink());
     }
     
-    private InputBuilder(InputOutput io, InputBuilder parent, Identifier id, 
-                          Map<String, Identifier> idMap, Map<String, InputWme> wmeMap)
+    private InputBuilder(InputOutput io, InputBuilder parent, Identifier id,
+            Map<String, Identifier> idMap, Map<String, InputWme> wmeMap)
     {
         this.io = io;
         this.parent = parent;
@@ -98,7 +98,7 @@ public class InputBuilder
     
     /**
      * Construct a new WME from the current id with the given attribute and
-     * value. The symbols for the attribute and value are constructed 
+     * value. The symbols for the attribute and value are constructed
      * according to the rules of {@link Symbols#create(org.jsoar.kernel.symbols.SymbolFactory, Object)}.
      * 
      * <p>This method does not change the current identifier.
@@ -115,8 +115,8 @@ public class InputBuilder
     
     /**
      * Construct a new object WME from the current id with the given attribute
-     * and a newly generated identifier. The symbols for the attribute 
-     * are constructed according to the rules of 
+     * and a newly generated identifier. The symbols for the attribute
+     * are constructed according to the rules of
      * {@link Symbols#create(org.jsoar.kernel.symbols.SymbolFactory, Object)}.
      * 
      * <p>This method returns a new InputBuilder rooted at the newly created
@@ -191,7 +191,7 @@ public class InputBuilder
      * Find a WME previously marked with {@link #markWme(String)}
      * 
      * @param name The name of the WME, or <code>null</code> for the most
-     *      recently created WME
+     *     recently created WME
      * @return the WME, or <code>null</code> if not found
      */
     public InputWme getWme(String name)
@@ -243,7 +243,7 @@ public class InputBuilder
      * @param idName The name of the identifier
      * @return builder rooted at the named identifier
      * @throws IllegalArgumentException if no identifier with the given name
-     *      exists.
+     *     exists.
      */
     public InputBuilder jump(String idName)
     {

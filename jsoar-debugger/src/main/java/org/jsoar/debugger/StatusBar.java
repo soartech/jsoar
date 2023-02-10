@@ -27,13 +27,13 @@ import org.jsoar.util.adaptables.Adaptables;
 public class StatusBar extends JXStatusBar implements Refreshable
 {
     private static final long serialVersionUID = 1501760828755152573L;
-
+    
     private final ThreadedAgent agent;
     private final JLabel runState = new JLabel("run state");
     private final JLabel phase = new JLabel("phase");
     private final JLabel decisions = new JLabel("decisions");
     private final JLabel settings = new JLabel("Status");
-        
+    
     public StatusBar(ThreadedAgent agent)
     {
         this.agent = agent;
@@ -43,21 +43,23 @@ public class StatusBar extends JXStatusBar implements Refreshable
         runState.setFont(boldStatusFont);
         runState.setBackground(new Color(102, 242, 96));
         
-        add(phase, fixed((int) (140*JSoarDebugger.getFontScale())));
+        add(phase, fixed((int) (140 * JSoarDebugger.getFontScale())));
         phase.setFont(boldStatusFont);
         
-        add(decisions, fixed((int) (120*JSoarDebugger.getFontScale())));
+        add(decisions, fixed((int) (120 * JSoarDebugger.getFontScale())));
         decisions.setFont(boldStatusFont);
         
         add(settings, fill());
         
-        // periodically refresh. this is so we get some feedback when the agent 
+        // periodically refresh. this is so we get some feedback when the agent
         // is running.
         final Timer timer = new Timer(1000, e -> refresh(false));
         timer.start();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */
     public void refresh(boolean afterInitSoar)
@@ -71,7 +73,7 @@ public class StatusBar extends JXStatusBar implements Refreshable
         };
         
         final CompletionHandler<Object> finish = result -> {
-
+            
             final boolean running = agent.isRunning();
             String runStateString = running ? "Running" : "Idle";
             if(a.getProperties().get(SoarProperties.WAIT_INFO).waiting)

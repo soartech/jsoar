@@ -13,21 +13,25 @@ import java.awt.event.ActionEvent;
 public class GarbageCollectorAction extends AbstractDebuggerAction
 {
     private static final long serialVersionUID = -663358241651603549L;
-
+    
     public GarbageCollectorAction(ActionManager manager)
     {
         super(manager, "Run Garbage Collector");
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
      */
     @Override
     public void update()
     {
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
@@ -36,5 +40,5 @@ public class GarbageCollectorAction extends AbstractDebuggerAction
         System.gc();
         System.runFinalization();
     }
-
+    
 }

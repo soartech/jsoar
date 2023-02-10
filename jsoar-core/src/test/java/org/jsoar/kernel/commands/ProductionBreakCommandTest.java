@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.commands;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,13 +20,13 @@ import org.junit.jupiter.api.Test;
 public class ProductionBreakCommandTest
 {
     private Agent agent;
-
+    
     @BeforeEach
     public void setUp() throws Exception
     {
         agent = new Agent();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
@@ -67,5 +66,5 @@ public class ProductionBreakCommandTest
         agent.getProductions().loadProduction("a (state <s> ^superstate nil) --> (write hi)");
         agent.getProductions().loadProduction("c (state <s> ^superstate nil) --> (write hi)");
     }
-
+    
 }

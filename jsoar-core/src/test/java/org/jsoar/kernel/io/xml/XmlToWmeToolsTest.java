@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.io.xml;
 
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.kernel.Agent;
@@ -36,13 +35,13 @@ public class XmlToWmeToolsTest
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
-
+    
     @AfterEach
     public void tearDown() throws Exception
     {
         this.agent.dispose();
     }
-
+    
     @Test
     public void testAddXmlInputWithDefaultAttribute() throws Exception
     {

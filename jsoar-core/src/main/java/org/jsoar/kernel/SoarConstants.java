@@ -20,7 +20,7 @@ public final class SoarConstants
     /**
      * kernel.h:207:ATTRIBUTE_IMPASSE_LEVEL
      */
-    public static final int ATTRIBUTE_IMPASSE_LEVEL = Integer.MAX_VALUE; 
+    public static final int ATTRIBUTE_IMPASSE_LEVEL = Integer.MAX_VALUE;
     
     /**
      * UNcomment the following line to have Soar maintain reference counts on

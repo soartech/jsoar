@@ -21,11 +21,11 @@ module org.jsoar.core
     
     provides org.jsoar.util.timing.ExecutionTimeSource with org.jsoar.util.timing.WallclockExecutionTimeSource;
     provides org.jsoar.util.commands.SoarCommandInterpreterFactory with org.jsoar.util.commands.DefaultInterpreterFactory;
-    provides org.jsoar.util.commands.SoarCommandProvider with org.jsoar.kernel.smem.SmemCommand.Provider, 
-                                                                org.jsoar.kernel.epmem.EpmemCommand.Provider,
-                                                                org.jsoar.script.ScriptCommand.Provider,
-                                                                org.jsoar.kernel.wma.WMActivationCommand.Provider,
-                                                                org.jsoar.kernel.learning.rl.RLCommand.Provider;
+    provides org.jsoar.util.commands.SoarCommandProvider with org.jsoar.kernel.smem.SmemCommand.Provider,
+            org.jsoar.kernel.epmem.EpmemCommand.Provider,
+            org.jsoar.script.ScriptCommand.Provider,
+            org.jsoar.kernel.wma.WMActivationCommand.Provider,
+            org.jsoar.kernel.learning.rl.RLCommand.Provider;
     
     exports org.jsoar.kernel;
     exports org.jsoar.kernel.commands;

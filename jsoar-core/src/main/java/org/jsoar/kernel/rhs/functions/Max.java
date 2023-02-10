@@ -14,7 +14,7 @@ import org.jsoar.kernel.symbols.Symbol;
 /**
  * Implementation of (max) RHS function. This is a JSoar-specific function.
  * 
- * <p>This function takes one or more numeric arguments and returns the maximum 
+ * <p>This function takes one or more numeric arguments and returns the maximum
  * value. In the case of mixed int/double arguments, the type of the maximum
  * argument is preserved.
  * 
@@ -33,8 +33,10 @@ public class Max extends AbstractRhsFunctionHandler
     {
         super("max", 1, Integer.MAX_VALUE);
     }
-
-    /* (non-Javadoc)
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
@@ -84,5 +86,5 @@ public class Max extends AbstractRhsFunctionHandler
         }
         return useDouble ? context.getSymbols().createDouble(maxDouble) : context.getSymbols().createInteger(maxInt);
     }
-
+    
 }
