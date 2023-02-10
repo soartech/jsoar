@@ -56,10 +56,10 @@ public class WorkingMemoryTree extends JComponent
 {
     private static final long serialVersionUID = 8031999540064492987L;
     
-    private static final Stroke selectionStroke = new BasicStroke(2);
-    private static final Stroke markerStroke = new BasicStroke(2);
-    private static final Stroke newWmeStroke = new BasicStroke(3);
-    private static final Color newWmeColor = Color.GREEN.darker();
+    private static final Stroke SELECTION_STROKE = new BasicStroke(2);
+    private static final Stroke MARKER_STROKE = new BasicStroke(2);
+    private static final Stroke NEW_WME_STROKE = new BasicStroke(3);
+    private static final Color NEW_WME_COLOR = Color.GREEN.darker();
     
     private final Model model;
     
@@ -352,7 +352,7 @@ public class WorkingMemoryTree extends JComponent
             }
             
             final Stroke oldStroke = g2d.getStroke();
-            g2d.setStroke(markerStroke);
+            g2d.setStroke(MARKER_STROKE);
             g2d.setColor(markerColor);
             final int y = (int) row.bounds.getY();
             if(start)
@@ -498,7 +498,7 @@ public class WorkingMemoryTree extends JComponent
     private void paintSelectionIndicator(Graphics2D g2d, WmeRow.Value value)
     {
         final Stroke oldStroke = g2d.getStroke();
-        g2d.setStroke(selectionStroke);
+        g2d.setStroke(SELECTION_STROKE);
         final int fillPad = 4;
         final int top = ((int) value.bounds.getY() - fillPad);
         final int height = (int) value.bounds.getHeight() + fillPad * 2;
@@ -526,8 +526,8 @@ public class WorkingMemoryTree extends JComponent
         // (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
         
         // "plus" in upper right corner
-        g2d.setColor(newWmeColor);
-        g2d.setStroke(newWmeStroke);
+        g2d.setColor(NEW_WME_COLOR);
+        g2d.setStroke(NEW_WME_STROKE);
         final Point c = new Point((int) value.bounds.getMaxX() + 2, (int) value.bounds.getMinY() - 2);
         g2d.drawLine(c.x - 3, c.y, c.x + 3, c.y);
         g2d.drawLine(c.x, c.y - 3, c.x, c.y + 3);

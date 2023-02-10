@@ -38,8 +38,8 @@ public class SyntaxPatternComponent extends JPanel
     private final CaptureGroupTableModel tableModel = new CaptureGroupTableModel();
     private final JXTable tblCaptureGroups;
     
-    private static final Color goodBackground = new Color(102, 242, 96);
-    private static final Color badBackground = new Color(242, 102, 96);
+    private static final Color GOOD_BACKGROUND = new Color(102, 242, 96);
+    private static final Color BAD_BACKGROUND = new Color(242, 102, 96);
     private final JButton btnDelete = new JButton("Delete");
     
     public SyntaxPatternComponent(final SyntaxPattern pattern, Set<String> styleNames, final JSoarDebugger debugger)
@@ -161,13 +161,13 @@ public class SyntaxPatternComponent extends JPanel
                 }
                 pattern.setRegex(txtRegex.getText());
                 tableModel.fireTableDataChanged();
-                txtRegex.setBackground(goodBackground);
+                txtRegex.setBackground(GOOD_BACKGROUND);
                 txtRegex.setToolTipText("<html><b>Detected " + groupCount + " groups in pattern:</b><br>" + text + "</html>");
                 
             }
             catch(PatternSyntaxException ex)
             {
-                txtRegex.setBackground(badBackground);
+                txtRegex.setBackground(BAD_BACKGROUND);
                 txtRegex.setToolTipText("<html><b>" + ex.getDescription() + "</b><br>" + text + "</html>");
             }
         });

@@ -42,7 +42,7 @@ public class LegilimensServer
     // See Effective Java, page 283
     private static class InstanceHolder
     {
-        static final LegilimensServer instance = new LegilimensServer();
+        static final LegilimensServer INSTANCE = new LegilimensServer();
     }
     
     private final Component component;
@@ -54,7 +54,7 @@ public class LegilimensServer
      */
     public static LegilimensServer start()
     {
-        return InstanceHolder.instance;
+        return InstanceHolder.INSTANCE;
     }
     
     private LegilimensServer()

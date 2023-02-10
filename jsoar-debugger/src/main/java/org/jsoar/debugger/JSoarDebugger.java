@@ -112,11 +112,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private static final Logger LOG = LoggerFactory.getLogger(JSoarDebugger.class);
     
-    private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
+    private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("jsoar");
     private static Preferences PREFERENCES;
     private static final PropertyKey<JSoarDebugger> CREATED_BY = PropertyKey.builder("JSoarDebugger.createdBy", JSoarDebugger.class).readonly(true).build();
     
-    private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
+    private static final Map<ThreadedAgent, JSoarDebugger> DEBUGGERS = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
     
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
@@ -665,8 +665,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         bar.add(toolsMenu);
         
         final JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
-        helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", resources.getString("csoar.site.url")));
+        helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", RESOURCES.getString("jsoar.site.url")));
+        helpMenu.add(new UrlAction(actionManager, "CSoar Home Page", RESOURCES.getString("csoar.site.url")));
         helpMenu.add(new AbstractAction("Command Help")
         {
             
@@ -748,9 +748,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger attach(ThreadedAgent proxy, Map<String, Object> properties)
     {
-        synchronized (debuggers)
+        synchronized (DEBUGGERS)
         {
-            JSoarDebugger debugger = debuggers.get(proxy);
+            JSoarDebugger debugger = DEBUGGERS.get(proxy);
             if(debugger == null)
             {
                 // DockingManager.setFloatingEnabled(true);
@@ -765,7 +765,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 
                 frame.setVisible(true);
                 
-                debuggers.put(proxy, debugger);
+                DEBUGGERS.put(proxy, debugger);
                 proxy.getEvents().addListener(ThreadedAgentDetachedEvent.class, new ThreadedAgentDetachedEventListener());
             }
             else
@@ -787,7 +787,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 ThreadedAgentDetachedEvent threadedAgentDetachedEvent = (ThreadedAgentDetachedEvent) event;
                 ThreadedAgent agent = threadedAgentDetachedEvent.getAgent();
-                JSoarDebugger debugger = JSoarDebugger.debuggers.get(agent);
+                JSoarDebugger debugger = JSoarDebugger.DEBUGGERS.get(agent);
                 if(debugger != null)
                 {
                     debugger.exit();
@@ -802,9 +802,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     public static void exit(ThreadedAgent proxy)
     {
-        synchronized (debuggers)
+        synchronized (DEBUGGERS)
         {
-            JSoarDebugger debugger = debuggers.get(proxy);
+            JSoarDebugger debugger = DEBUGGERS.get(proxy);
             if(debugger != null)
             {
                 debugger.exit();
@@ -818,7 +818,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     public static JSoarDebugger getDebugger(ThreadedAgent proxy)
     {
-        return debuggers.get(proxy);
+        return DEBUGGERS.get(proxy);
     }
     
     /**
@@ -826,7 +826,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public void detach()
     {
-        synchronized (debuggers)
+        synchronized (DEBUGGERS)
         {
             LOG.info(String.format("Detaching from agent '" + agent + "'"));
             
@@ -862,7 +862,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             plugins.clear();
             
-            debuggers.remove(agent);
+            DEBUGGERS.remove(agent);
             
             // If the agent was created by this debugger, dispose it. This is important
             // so things like SMEM database will be flushed at shutdown.

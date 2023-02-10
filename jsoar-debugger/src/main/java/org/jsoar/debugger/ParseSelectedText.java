@@ -202,9 +202,9 @@ public class ParseSelectedText
     
     // Soar functions on triplets (ID ^att value) so we often need to parse
     // the tokens before and after the current selection position
-    protected final static int kPrevToken = 0;
-    protected final static int kCurrToken = 1;
-    protected final static int kNextToken = 2;
+    protected final static int K_PREV_TOKEN = 0;
+    protected final static int K_CURR_TOKEN = 1;
+    protected final static int K_NEXT_TOKEN = 2;
     protected String[] m_Tokens = new String[3];
     protected final char[] kWhiteSpaceChars = new char[] { ' ', '|', '\n', '\r', ')', '(', '{', '}' };
     
@@ -362,7 +362,7 @@ public class ParseSelectedText
      **********************************************************************************************/
     public SelectedObject getParsedObject(JSoarDebugger debugger)
     {
-        String curr = m_Tokens[kCurrToken];
+        String curr = m_Tokens[K_CURR_TOKEN];
         
         if(curr == null)
         {
@@ -412,12 +412,12 @@ public class ParseSelectedText
                 
                 if(foundId != null)
                 {
-                    return new SelectedWme(foundId, curr, m_Tokens[kNextToken]);
+                    return new SelectedWme(foundId, curr, m_Tokens[K_NEXT_TOKEN]);
                 }
             }
             
             // Couldn't find an ID to connect to this wme.
-            return new SelectedWme(null, curr, m_Tokens[kNextToken]);
+            return new SelectedWme(null, curr, m_Tokens[K_NEXT_TOKEN]);
         }
         
         String foundId = isID(curr);
@@ -492,15 +492,15 @@ public class ParseSelectedText
         // Extract the three tokens
         if(back1 != -1)
         {
-            m_Tokens[kPrevToken] = m_FullText.substring(back2 + 1, back1);
+            m_Tokens[K_PREV_TOKEN] = m_FullText.substring(back2 + 1, back1);
         }
         if(fore2 != -1 && fore1 < fore2)
         {
-            m_Tokens[kNextToken] = m_FullText.substring(fore1 + 1, fore2);
+            m_Tokens[K_NEXT_TOKEN] = m_FullText.substring(fore1 + 1, fore2);
         }
         if(fore1 != -1)
         {
-            m_Tokens[kCurrToken] = m_FullText.substring(back1 + 1, fore1);
+            m_Tokens[K_CURR_TOKEN] = m_FullText.substring(back1 + 1, fore1);
         }
         
         // System.out.println(toString()) ;

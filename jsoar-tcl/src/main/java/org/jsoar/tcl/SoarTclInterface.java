@@ -64,7 +64,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     private static final Logger LOG = LoggerFactory.getLogger(SoarTclInterface.class);
     
-    private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
+    private final static ConcurrentMap<Agent, SoarTclInterface> INTERFACES = new MapMaker().weakKeys().makeMap();
     
     private SoarCommandContext context = DefaultSoarCommandContext.empty();
     
@@ -85,9 +85,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
      */
     public static SoarTclInterface find(Agent agent)
     {
-        synchronized (interfaces)
+        synchronized (INTERFACES)
         {
-            return interfaces.get(agent);
+            return INTERFACES.get(agent);
         }
     }
     
@@ -103,13 +103,13 @@ public class SoarTclInterface implements SoarCommandInterpreter
      */
     public static SoarTclInterface findOrCreate(Agent agent)
     {
-        synchronized (interfaces)
+        synchronized (INTERFACES)
         {
-            SoarTclInterface ifc = interfaces.get(agent);
+            SoarTclInterface ifc = INTERFACES.get(agent);
             if(ifc == null)
             {
                 ifc = new SoarTclInterface(agent);
-                interfaces.put(agent, ifc);
+                INTERFACES.put(agent, ifc);
             }
             return ifc;
         }
@@ -324,9 +324,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     public void dispose()
     {
-        synchronized (interfaces)
+        synchronized (INTERFACES)
         {
-            interfaces.remove(agent);
+            INTERFACES.remove(agent);
             agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
             agent = null;
         }

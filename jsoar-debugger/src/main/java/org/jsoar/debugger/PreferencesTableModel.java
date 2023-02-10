@@ -20,8 +20,8 @@ public class PreferencesTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 1244490544555893063L;
     
-    private static final String[] columns = { "Type", "Support", "Id", "Attr", "Value", "Referent" };
-    private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
+    private static final String[] COLUMNS = { "Type", "Support", "Id", "Attr", "Value", "Referent" };
+    private static final Class<?>[] CLASSES = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
     
     private Result result;
     
@@ -61,7 +61,7 @@ public class PreferencesTableModel extends AbstractTableModel
     @Override
     public Class<?> getColumnClass(int c)
     {
-        return classes[c];
+        return CLASSES[c];
     }
     
     /*
@@ -72,7 +72,7 @@ public class PreferencesTableModel extends AbstractTableModel
     @Override
     public String getColumnName(int c)
     {
-        return columns[c];
+        return COLUMNS[c];
     }
     
     /*
@@ -83,7 +83,7 @@ public class PreferencesTableModel extends AbstractTableModel
     @Override
     public int getColumnCount()
     {
-        return columns.length;
+        return COLUMNS.length;
     }
     
     /*
