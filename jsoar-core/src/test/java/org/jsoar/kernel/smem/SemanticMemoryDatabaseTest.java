@@ -121,8 +121,7 @@ public class SemanticMemoryDatabaseTest
                 SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_cycle",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
-                "sqlite_autoindex_versions_1"
-        ));
+                "sqlite_autoindex_versions_1"));
         
         for(Iterator<String> it = expectedTables.iterator(); it.hasNext();)
         {

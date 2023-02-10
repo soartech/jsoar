@@ -153,8 +153,7 @@ public class EpisodicMemoryDatabaseTest
                 "sqlite_autoindex_versions_1",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float_const",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_int_const",
-                EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const"
-        ));
+                EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const"));
         
         for(Iterator<String> it = expectedTables.iterator(); it.hasNext();)
         {
