@@ -23,7 +23,7 @@ public class PwdCommand extends PicocliSoarCommand
     public Object getCommand()
     {
         
-        return (Pwd) super.getCommand();
+        return super.getCommand();
     }
     
     @Command(name = "pwd", description = "Prints the working directory to the screen", subcommands = { HelpCommand.class })

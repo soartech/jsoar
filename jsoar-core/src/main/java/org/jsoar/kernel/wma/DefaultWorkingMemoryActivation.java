@@ -384,7 +384,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
         else
         {
-            return Math.pow((double) cycle_diff, params.decay_rate.get());
+            return Math.pow(cycle_diff, params.decay_rate.get());
         }
     }
     
@@ -427,7 +427,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 double d_inv = (1 + params.decay_rate.get());
                 
                 return_val += (((history.total_references - history.history_references)
-                        * (Math.pow((double) (current_cycle - history.first_reference), d_inv) - Math.pow((cycle_diff), d_inv))) /
+                        * (Math.pow(current_cycle - history.first_reference, d_inv) - Math.pow((cycle_diff), d_inv))) /
                         (d_inv * ((current_cycle - history.first_reference) - cycle_diff)));
             }
         }

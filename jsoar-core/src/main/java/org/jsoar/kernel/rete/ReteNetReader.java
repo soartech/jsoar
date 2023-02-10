@@ -481,7 +481,7 @@ public class ReteNetReader
         {
             type -= ReteTest.CONSTANT_RELATIONAL; // ReteTest's constructor will add this back in.
             sym = getSymbol(dis.readInt());
-            rt = ReteTest.createConstantTest(type, right_field_num, (SymbolImpl) sym);
+            rt = ReteTest.createConstantTest(type, right_field_num, sym);
         }
         else if(rt.test_is_variable_relational_test())
         {
@@ -498,7 +498,7 @@ public class ReteNetReader
             while(count-- > 0)
             {
                 sym = getSymbol(dis.readInt());
-                disjuncts.add((SymbolImpl) sym);
+                disjuncts.add(sym);
             }
             rt = ReteTest.createDisjunctionTest(right_field_num, disjuncts);
         }
