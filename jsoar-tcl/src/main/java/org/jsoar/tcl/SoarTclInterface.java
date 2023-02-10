@@ -404,8 +404,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         // Convert CRLFs (Windows line delimiters) to LFs.
         // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
         // See {@link TclLineContinuationTest}
-        command = command.replaceAll("\r\n", "\n");
-        command = command.replaceAll("\r", "\n");
+        command = command.replace("\r\n", "\n");
+        command = command.replace('\r', '\n');
         try
         {
             interp.eval(command);

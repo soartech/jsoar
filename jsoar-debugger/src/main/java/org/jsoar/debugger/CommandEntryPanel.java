@@ -552,15 +552,15 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 helpBuilder.append("<b>Parameters:</b>")
                         .append("<br>")
-                        .append(help.parameterList().replaceAll("\n", "<br>"))
+                        .append(help.parameterList().replace("\n", "<br>"))
                         .append("<br>");
             }
             helpBuilder.append("<b>Options:</b>")
                     .append("<br>")
-                    .append(help.optionList().replaceAll("\n", "<br>"))
+                    .append(help.optionList().replace("\n", "<br>"))
                     .append("<b>Commands:</b>")
                     .append("<br>")
-                    .append(help.commandList().replaceAll("\n", "<br>"))
+                    .append(help.commandList().replace("\n", "<br>"))
                     .append("</html>");
             
             return helpBuilder.toString();

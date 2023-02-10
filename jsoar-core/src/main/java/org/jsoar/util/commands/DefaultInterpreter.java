@@ -486,8 +486,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         // Replaces windows "\r\n" and old mac line "\r" endings with unix "\n"
         private String fixLineEndings(String code)
         {
-            code = code.replaceAll("\r\n", "\n");
-            code = code.replaceAll("\r", "\n");
+            code = code.replace("\r\n", "\n");
+            code = code.replace('\r', '\n');
             return code;
         }
     }
