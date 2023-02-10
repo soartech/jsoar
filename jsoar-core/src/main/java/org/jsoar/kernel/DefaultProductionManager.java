@@ -252,7 +252,7 @@ public class DefaultProductionManager implements ProductionManager
      */
     public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
-        if(productionsByName.values().contains(p))
+        if(productionsByName.containsValue(p))
         {
             throw new IllegalArgumentException("Production instance '" + p + " already added.");
         }

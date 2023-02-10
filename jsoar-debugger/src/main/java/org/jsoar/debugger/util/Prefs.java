@@ -84,13 +84,13 @@ public class Prefs extends AbstractPreferences
     @Override
     protected String[] keysSpi() throws BackingStoreException
     {
-        return root.keySet().toArray(new String[root.keySet().size()]);
+        return root.keySet().toArray(new String[root.size()]);
     }
     
     @Override
     protected String[] childrenNamesSpi() throws BackingStoreException
     {
-        return children.keySet().toArray(new String[children.keySet().size()]);
+        return children.keySet().toArray(new String[children.size()]);
     }
     
     @Override
