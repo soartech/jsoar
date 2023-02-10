@@ -815,7 +815,7 @@ public class Rete
     void add_wme_to_aht(HashTable<AlphaMemory> ht, int hash_value, WmeImpl w)
     {
         // TODO: Move this op into getBucket()
-        hash_value = hash_value & HashTable.masks_for_n_low_order_bits[ht.getLog2Size()];
+        hash_value = hash_value & HashTable.MASKS_FOR_N_LOW_ORDER_BITS[ht.getLog2Size()];
         AlphaMemory am = ht.getBucket(hash_value);
         while(am != null)
         {
@@ -2199,7 +2199,7 @@ public class Rete
             }
             else if(rt.test_is_constant_relational_test())
             {
-                final int test_type = ReteBuilder.relational_test_type_to_test_type[rt.kind_of_relational_test()];
+                final int test_type = ReteBuilder.RELATIONAL_TEST_TYPE_TO_TEST_TYPE[rt.kind_of_relational_test()];
                 SymbolImpl referent = rt.constant_referent;
                 if(test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
@@ -2212,7 +2212,7 @@ public class Rete
             }
             else if(rt.test_is_variable_relational_test())
             {
-                final int test_type = ReteBuilder.relational_test_type_to_test_type[rt.kind_of_relational_test()];
+                final int test_type = ReteBuilder.RELATIONAL_TEST_TYPE_TO_TEST_TYPE[rt.kind_of_relational_test()];
                 if(rt.variable_referent.levels_up == 0)
                 {
                     /*

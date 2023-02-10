@@ -30,7 +30,7 @@ import com.google.common.base.Joiner;
  */
 public class ScriptRhsFunction extends AbstractRhsFunctionHandler
 {
-    private static final Joiner joiner = Joiner.on("");
+    private static final Joiner JOINER = Joiner.on("");
     
     private final ScriptEngineState state;
     
@@ -56,7 +56,7 @@ public class ScriptRhsFunction extends AbstractRhsFunctionHandler
     public Symbol execute(RhsFunctionContext context, List<Symbol> arguments)
             throws RhsFunctionException
     {
-        final String code = joiner.join(arguments);
+        final String code = JOINER.join(arguments);
         try
         {
             final Object result = state.eval(code);

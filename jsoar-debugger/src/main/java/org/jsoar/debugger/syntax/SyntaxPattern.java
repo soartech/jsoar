@@ -29,7 +29,7 @@ public class SyntaxPattern
     private String regex;
     private List<String> components;
     @SuppressWarnings("unused")
-    private static final Logger logger = LoggerFactory.getLogger(SyntaxConfigurator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyntaxConfigurator.class);
     private boolean enabled = true;
     private String expandedRegex;
     private boolean important;

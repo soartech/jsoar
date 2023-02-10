@@ -110,7 +110,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
     
-    private static final Logger logger = LoggerFactory.getLogger(JSoarDebugger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JSoarDebugger.class);
     
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
     private static Preferences PREFERENCES;
@@ -163,7 +163,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     private void initialize(final JXFrame parentFrame, ThreadedAgent proxy)
     {
-        logger.info("Initializing debugger for agent '" + proxy + "'");
+        LOG.info("Initializing debugger for agent '" + proxy + "'");
         final float scaleUpFactor = 4.0f / 3.0f;
         final float scaleDownFactor = .75f;
         parentFrame.addMouseWheelListener(e -> {
@@ -379,7 +379,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         catch(IOException e)
         {
-            logger.error("Failed to load default debugger layout: " + e.getMessage(), e);
+            LOG.error("Failed to load default debugger layout: " + e.getMessage(), e);
         }
     }
     
@@ -496,7 +496,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             catch(BackingStoreException e)
             {
-                logger.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
             }
             try
             {
@@ -806,7 +806,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             else
             {
-                logger.warn("Tried to close debugger for agent {}, but no debugger is open.", proxy.getName());
+                LOG.warn("Tried to close debugger for agent {}, but no debugger is open.", proxy.getName());
             }
         }
     }
@@ -823,7 +823,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         synchronized (debuggers)
         {
-            logger.info(String.format("Detaching from agent '" + agent + "'"));
+            LOG.info(String.format("Detaching from agent '" + agent + "'"));
             
             // clean up soar prop listeners
             for(PropertyListenerHandle<?> listener : propertyListeners)
@@ -909,7 +909,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
                 catch(SoarException e)
                 {
-                    logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
+                    LOG.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
                     debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
                 }
             }

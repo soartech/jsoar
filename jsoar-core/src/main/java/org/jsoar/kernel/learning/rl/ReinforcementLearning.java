@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReinforcementLearning
 {
-    private static final Logger logger = LoggerFactory.getLogger(ReinforcementLearning.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReinforcementLearning.class);
     
     private final PropertyManager properties;
     private final ReinforcementLearningParams params;
@@ -591,7 +591,7 @@ public class ReinforcementLearning
                 }
                 catch(ReordererException e)
                 {
-                    logger.error("Failed to add template instance production to rete", e);
+                    LOG.error("Failed to add template instance production to rete", e);
                 }
                 
                 return_val = new_name_symbol;

@@ -39,7 +39,7 @@ public abstract class AbstractSoarDatabase
     private final Properties statements = new Properties();
     private final Map<String, String> filterMap = new HashMap<String, String>();
     
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSoarDatabase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSoarDatabase.class);
     
     // These are all the prepared statements shared by Soar databases. They're filled in via reflection
     // from the statements.properties for the specific database
@@ -122,7 +122,7 @@ public abstract class AbstractSoarDatabase
         }
         catch(Exception e)
         {
-            logger.error("Failed to created database", e);
+            LOG.error("Failed to created database", e);
         }
         finally
         {

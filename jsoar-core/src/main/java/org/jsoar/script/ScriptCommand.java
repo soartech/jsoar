@@ -41,7 +41,7 @@ import picocli.CommandLine.Spec;
  */
 public class ScriptCommand extends PicocliSoarCommand
 {
-    private static final Logger logger = LoggerFactory.getLogger(ScriptCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScriptCommand.class);
     
     public static class Provider implements SoarCommandProvider
     {
@@ -187,7 +187,7 @@ public class ScriptCommand extends PicocliSoarCommand
                 }
                 
                 final ScriptEngineFactory f = engine.getFactory();
-                logger.info(String.format("Loaded '%s' script engine for %s: "
+                LOG.info(String.format("Loaded '%s' script engine for %s: "
                         + "%s version %s, %s version %s",
                         name, agent, f.getEngineName(), f.getEngineVersion(),
                         f.getLanguageName(), f.getLanguageVersion()));

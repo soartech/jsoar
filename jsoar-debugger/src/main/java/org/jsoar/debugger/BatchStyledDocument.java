@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class BatchStyledDocument extends DefaultStyledDocument
 {
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LoggerFactory.getLogger(BatchStyledDocument.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BatchStyledDocument.class);
     
     private final Highlighter highlighter;
     private final JSoarDebugger debugger;
@@ -57,7 +57,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
                 }
                 catch(InterruptedException e)
                 {
-                    logger.error("Syntax highlighting thread interrupted!", e);
+                    LOG.error("Syntax highlighting thread interrupted!", e);
                     Thread.currentThread().interrupt();
                     break;
                 }
@@ -65,7 +65,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
                 // This shouldn't happen but just in case
                 if(newText == null)
                 {
-                    logger.error("Retrieved null from text queue!");
+                    LOG.error("Retrieved null from text queue!");
                     continue;
                 }
                 
@@ -100,7 +100,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
         }
         catch(BadLocationException e)
         {
-            BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", getEndPosition(), getLength(), e);
+            BatchStyledDocument.LOG.info("Bad Location offset = {} {} {}", getEndPosition(), getLength(), e);
         }
         finally
         {
@@ -112,7 +112,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
             boolean result = newTexts.offer(newText);
             if(!result)
             {
-                logger.error("This should never block so you should never see this message!");
+                LOG.error("This should never block so you should never see this message!");
             }
         }
     }
@@ -135,7 +135,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
         }
         catch(BadLocationException e)
         {
-            BatchStyledDocument.logger.info("Bad Location offset = {} {} {}", offset, getEndPosition(), getLength(), e);
+            BatchStyledDocument.LOG.info("Bad Location offset = {} {} {}", offset, getEndPosition(), getLength(), e);
         }
         finally
         {

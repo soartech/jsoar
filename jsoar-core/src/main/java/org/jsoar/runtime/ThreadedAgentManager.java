@@ -26,7 +26,7 @@ enum ThreadedAgentManager
 {
     INSTANCE;
     
-    private static final Logger logger = LoggerFactory.getLogger(ThreadedAgentManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadedAgentManager.class);
     
     private final Map<Agent, ThreadedAgent> agents = new MapMaker().weakKeys().makeMap();
     private final SoarEventManager events = new SoarEventManager();
@@ -58,7 +58,7 @@ enum ThreadedAgentManager
             }
             catch(InterruptedException e)
             {
-                logger.error("Interrupted waiting for new ThreadedAgent to initialize.", e);
+                LOG.error("Interrupted waiting for new ThreadedAgent to initialize.", e);
                 Thread.currentThread().interrupt(); // reset interrupt
             }
             

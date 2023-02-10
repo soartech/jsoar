@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ThreadedAgent extends AbstractAdaptable implements AgentRunController
 {
-    private static final Logger logger = LoggerFactory.getLogger(ThreadedAgent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadedAgent.class);
     
     private final Agent agent;
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
@@ -281,7 +281,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             }
             catch(InterruptedException e)
             {
-                logger.error("Interrupted while waiting for agent thread to exit", e);
+                LOG.error("Interrupted while waiting for agent thread to exit", e);
                 Thread.currentThread().interrupt();
             }
             waitFunction.detach();
@@ -711,7 +711,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         try
         {
             final Throwable cause = e.getCause();
-            logger.error("Agent thread caught unhandled exception", e);
+            LOG.error("Agent thread caught unhandled exception", e);
             agent.getPrinter().error("Agent thread caught unhandled exception: " +
                     (cause != null ? cause.getMessage() : e.getMessage()) + "\n" +
                     StringTools.getStackTrace(e));
@@ -719,7 +719,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         }
         catch(Exception otherException)
         {
-            logger.error("Exception thrown while handling uncaught exception", otherException);
+            LOG.error("Exception thrown while handling uncaught exception", otherException);
         }
     }
     

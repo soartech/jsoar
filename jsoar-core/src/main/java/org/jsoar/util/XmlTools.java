@@ -44,7 +44,7 @@ import org.xml.sax.SAXException;
  */
 public class XmlTools
 {
-    private static final Logger logger = LoggerFactory.getLogger(XmlTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XmlTools.class);
     
     /**
      * Construct a new document builder
@@ -166,13 +166,13 @@ public class XmlTools
             }
             else
             {
-                logger.warn("DOMConfiguration 'format-pretty-print' parameter isn't settable. Won't pretty print.");
+                LOG.warn("DOMConfiguration 'format-pretty-print' parameter isn't settable. Won't pretty print.");
                 write(node, out);
             }
         }
         else
         {
-            logger.warn("DOM 3.0 LS and/or DOM 2.0 Core not supported. Won't pretty print.");
+            LOG.warn("DOM 3.0 LS and/or DOM 2.0 Core not supported. Won't pretty print.");
             write(node, out);
         }
     }

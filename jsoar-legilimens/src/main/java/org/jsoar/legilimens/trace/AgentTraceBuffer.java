@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AgentTraceBuffer
 {
-    private static final Logger logger = LoggerFactory.getLogger(AgentTraceBuffer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AgentTraceBuffer.class);
     
     public static final PropertyKey<AgentTraceBuffer> KEY = PropertyKey.builder("legilimens.trace", AgentTraceBuffer.class).readonly(true).build();
     
@@ -75,7 +75,7 @@ public class AgentTraceBuffer
         {
             this.fileBuffer.getFile().deleteOnExit();
         }
-        logger.info("Attaching trace buffer to agent '" + agent + "' with ring buffer size " + bufferSize + " and perm buffer " + this.fileBuffer.getFile());
+        LOG.info("Attaching trace buffer to agent '" + agent + "' with ring buffer size " + bufferSize + " and perm buffer " + this.fileBuffer.getFile());
         
         agent.getPrinter().addPersistentWriter(fileBuffer);
         agent.getProperties().setProvider(KEY, new PropertyProvider<AgentTraceBuffer>()
@@ -142,7 +142,7 @@ public class AgentTraceBuffer
             // If entire range is in the ring buffer...
             if(start > traceLength)
             {
-                logger.error("Request for trace offset " + start + " which is beyond end of trace " + traceLength);
+                LOG.error("Request for trace offset " + start + " which is beyond end of trace " + traceLength);
                 return new TraceRange(traceLength, new char[] {});
             }
             
@@ -155,7 +155,7 @@ public class AgentTraceBuffer
             
             if(lengthToEndOfTrace <= ringBuffer.size())
             {
-                logger.trace("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
+                LOG.trace("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
                 ringBufferAccesses.incrementAndGet();
                 final char[] data = ringBuffer.getTail(lengthToEndOfTrace, max);
                 return new TraceRange(start, data);
@@ -165,7 +165,7 @@ public class AgentTraceBuffer
         // Fall back to permanent buffer. This is purposefully outside of the synchronized
         // block so we don't stop the agent while we do the potentially slow operation of
         // reading from the file. We're relying on the file system's thread-safety here.
-        logger.info("Retrieving " + start + " to " + (start + max) + " from permanent buffer");
+        LOG.info("Retrieving " + start + " to " + (start + max) + " from permanent buffer");
         permBufferAccesses.incrementAndGet();
         return fileBuffer.getRange(start, max);
     }

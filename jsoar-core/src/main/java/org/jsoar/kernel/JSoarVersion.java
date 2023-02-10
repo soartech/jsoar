@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class JSoarVersion
 {
-    private static final Logger logger = LoggerFactory.getLogger(JSoarVersion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JSoarVersion.class);
     
     private static final String PREFIX = "jsoar-core.buildinfo";
     
@@ -41,7 +41,7 @@ public final class JSoarVersion
             }
             catch(IOException e)
             {
-                logger.error("Failed to load buildinfo properties: " + e.getMessage());
+                LOG.error("Failed to load buildinfo properties: " + e.getMessage());
             }
             finally
             {

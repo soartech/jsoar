@@ -54,18 +54,18 @@ public class MathFunctions
      * 
      * @see java.lang.Math#PI
      */
-    public static final RhsFunctionHandler pi = new Constant("pi", Math.PI);
+    public static final RhsFunctionHandler PI = new Constant("pi", Math.PI);
     /**
      * RHS function that returns <i>e</i>
      * 
      * @see java.lang.Math#E
      */
-    public static final RhsFunctionHandler e = new Constant("e", Math.E);
+    public static final RhsFunctionHandler E = new Constant("e", Math.E);
     
     /**
      * <p>rhsfun_math.cpp:443:abs_rhs_function_code
      */
-    public static final RhsFunctionHandler abs = new AbstractRhsFunctionHandler("abs", 1, 1)
+    public static final RhsFunctionHandler ABS = new AbstractRhsFunctionHandler("abs", 1, 1)
     {
         
         /*
@@ -94,7 +94,7 @@ public class MathFunctions
     /**
      * <p>rhsfun_math.cpp:390:atan2_rhs_function_code
      */
-    public static final RhsFunctionHandler atan2 = new AbstractRhsFunctionHandler("atan2", 2, 2)
+    public static final RhsFunctionHandler ATAN2 = new AbstractRhsFunctionHandler("atan2", 2, 2)
     {
         
         /*
@@ -143,7 +143,7 @@ public class MathFunctions
     /**
      * <p>rhsfun_math.cpp:361:sqrt_rhs_function_code
      */
-    public static final RhsFunctionHandler sqrt = new OneArgMathFunction("sqrt")
+    public static final RhsFunctionHandler SQRT = new OneArgMathFunction("sqrt")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -152,7 +152,7 @@ public class MathFunctions
         }
     };
     
-    public static final RhsFunctionHandler sin = new OneArgMathFunction("sin")
+    public static final RhsFunctionHandler SIN = new OneArgMathFunction("sin")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -161,7 +161,7 @@ public class MathFunctions
         }
     };
     
-    public static final RhsFunctionHandler cos = new OneArgMathFunction("cos")
+    public static final RhsFunctionHandler COS = new OneArgMathFunction("cos")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -170,7 +170,7 @@ public class MathFunctions
         }
     };
     
-    public static final RhsFunctionHandler tan = new OneArgMathFunction("tan")
+    public static final RhsFunctionHandler TAN = new OneArgMathFunction("tan")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -180,7 +180,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#acos(double) */
-    public static final RhsFunctionHandler acos = new OneArgMathFunction("acos")
+    public static final RhsFunctionHandler ACOS = new OneArgMathFunction("acos")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -190,7 +190,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#asin(double) */
-    public static final RhsFunctionHandler asin = new OneArgMathFunction("asin")
+    public static final RhsFunctionHandler ASIN = new OneArgMathFunction("asin")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -200,7 +200,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#atan(double) */
-    public static final RhsFunctionHandler atan = new OneArgMathFunction("atan")
+    public static final RhsFunctionHandler ATAN = new OneArgMathFunction("atan")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -210,7 +210,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#cbrt(double) */
-    public static final RhsFunctionHandler cbrt = new OneArgMathFunction("cbrt")
+    public static final RhsFunctionHandler CBRT = new OneArgMathFunction("cbrt")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -220,7 +220,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#ceil(double) */
-    public static final RhsFunctionHandler ceil = new OneArgMathFunction("ceil")
+    public static final RhsFunctionHandler CEIL = new OneArgMathFunction("ceil")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -230,7 +230,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#cosh(double) */
-    public static final RhsFunctionHandler cosh = new OneArgMathFunction("cosh")
+    public static final RhsFunctionHandler COSH = new OneArgMathFunction("cosh")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -240,7 +240,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#exp(double) */
-    public static final RhsFunctionHandler exp = new OneArgMathFunction("exp")
+    public static final RhsFunctionHandler EXP = new OneArgMathFunction("exp")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -250,7 +250,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#expm1(double) */
-    public static final RhsFunctionHandler expm1 = new OneArgMathFunction("expm1")
+    public static final RhsFunctionHandler EXPM1 = new OneArgMathFunction("expm1")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -260,7 +260,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#floor(double) */
-    public static final RhsFunctionHandler floor = new OneArgMathFunction("floor")
+    public static final RhsFunctionHandler FLOOR = new OneArgMathFunction("floor")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -270,7 +270,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#log(double) */
-    public static final RhsFunctionHandler log = new OneArgMathFunction("log")
+    public static final RhsFunctionHandler LOG = new OneArgMathFunction("log")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -280,7 +280,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#log10(double) */
-    public static final RhsFunctionHandler log10 = new OneArgMathFunction("log10")
+    public static final RhsFunctionHandler LOG10 = new OneArgMathFunction("log10")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -290,7 +290,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#log1p(double) */
-    public static final RhsFunctionHandler log1p = new OneArgMathFunction("log1p")
+    public static final RhsFunctionHandler LOG1P = new OneArgMathFunction("log1p")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -300,7 +300,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#sinh(double) */
-    public static final RhsFunctionHandler sinh = new OneArgMathFunction("sinh")
+    public static final RhsFunctionHandler SINH = new OneArgMathFunction("sinh")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -310,7 +310,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#tanh(double) */
-    public static final RhsFunctionHandler tanh = new OneArgMathFunction("tanh")
+    public static final RhsFunctionHandler TANH = new OneArgMathFunction("tanh")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -320,7 +320,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#signum(double) */
-    public static final RhsFunctionHandler signum = new OneArgMathFunction("signum")
+    public static final RhsFunctionHandler SIGNUM = new OneArgMathFunction("signum")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -330,7 +330,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#toDegrees(double) */
-    public static final RhsFunctionHandler degrees = new OneArgMathFunction("degrees")
+    public static final RhsFunctionHandler DEGREES = new OneArgMathFunction("degrees")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -340,7 +340,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#toRadians(double) */
-    public static final RhsFunctionHandler radians = new OneArgMathFunction("radians")
+    public static final RhsFunctionHandler RADIANS = new OneArgMathFunction("radians")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -350,7 +350,7 @@ public class MathFunctions
     };
     
     /** @see java.lang.Math#ulp(double) */
-    public static final RhsFunctionHandler ulp = new OneArgMathFunction("ulp")
+    public static final RhsFunctionHandler ULP = new OneArgMathFunction("ulp")
     {
         @Override
         protected double call(double arg) throws RhsFunctionException
@@ -359,11 +359,11 @@ public class MathFunctions
         }
     };
     
-    public static final List<RhsFunctionHandler> all = Arrays.asList(
+    public static final List<RhsFunctionHandler> ALL = Arrays.asList(
             new Plus(), new Multiply(), new Minus(), new FloatingPointDivide(), new Mod(),
             new Min(), new Max(), new CumulativeNormalDistribution(), new Div(),
-            pi, e,
-            abs, atan2, cos, sin, tan, sqrt, acos, asin, atan, cbrt, ceil, cosh, exp, expm1, floor,
-            log, log10, log1p, sinh, tanh, degrees, radians, ulp);
+            PI, E,
+            ABS, ATAN2, COS, SIN, TAN, SQRT, ACOS, ASIN, ATAN, CBRT, CEIL, COSH, EXP, EXPM1, FLOOR,
+            LOG, LOG10, LOG1P, SINH, TANH, DEGREES, RADIANS, ULP);
     
 }

@@ -80,7 +80,7 @@ public class AlphaMemory extends HashTableItem
         return ((((i != null) ? (i).hash_id : 0) ^
                 ((a != null) ? (a).hash_id : 0) ^
                 ((v != null) ? (v).hash_id : 0)) &
-                HashTable.masks_for_n_low_order_bits[num_bits]);
+                HashTable.MASKS_FOR_N_LOW_ORDER_BITS[num_bits]);
     }
     
     /**

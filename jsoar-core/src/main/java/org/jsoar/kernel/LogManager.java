@@ -30,7 +30,7 @@ public class LogManager
     
     // private RhsFunctionHandler handler = null;
     
-    static private final SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    static private final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     
     public class LoggerException extends Exception
     {
@@ -294,7 +294,7 @@ public class LogManager
     
     public static String getTimestamp()
     {
-        return timestampFormatter.format(new Date(System.currentTimeMillis()));
+        return TIMESTAMP_FORMATTER.format(new Date(System.currentTimeMillis()));
     }
     
     public boolean isActive()

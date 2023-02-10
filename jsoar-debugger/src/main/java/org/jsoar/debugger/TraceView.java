@@ -66,7 +66,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private static final String LIMIT = "limit";
     private static final String SEARCH = "search";
     
-    private static final Logger logger = LoggerFactory.getLogger(TraceView.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TraceView.class);
     
     private final JSoarDebugger debugger;
     private final CommandEntryPanel commandPanel;
@@ -177,7 +177,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                     catch(InterruptedException e)
                     {
                         // Probably means we're shutting down
-                        logger.info("Interrupted while attempting to scroll to the end for text |{}| which may happen on shutdown", input);
+                        LOG.info("Interrupted while attempting to scroll to the end for text |{}| which may happen on shutdown", input);
                         Thread.currentThread().interrupt();
                     }
                 }

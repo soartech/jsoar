@@ -102,9 +102,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Agent extends AbstractAdaptable implements AgentRunController
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
     
-    private static final AtomicInteger nextName = new AtomicInteger(0);
+    private static final AtomicInteger NEXT_NAME = new AtomicInteger(0);
     
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new NullWriter());
@@ -226,7 +226,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public Agent(String name, boolean initializeAgent)
     {
-        setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
+        setName(name != null ? name : "JSoar Agent " + NEXT_NAME.incrementAndGet());
         
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
         
@@ -270,7 +270,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         catch(SoarException e)
         {
-            logger.error("While closing smem database: " + e.getMessage(), e);
+            LOG.error("While closing smem database: " + e.getMessage(), e);
         }
         
         try
@@ -279,10 +279,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         catch(SoarException e)
         {
-            logger.error("While closing epmem database: " + e.getMessage(), e);
+            LOG.error("While closing epmem database: " + e.getMessage(), e);
         }
         
-        logger.info("Agent '" + this + "' disposed.");
+        LOG.info("Agent '" + this + "' disposed.");
     }
     
     /**
@@ -402,7 +402,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             if(interp == null)
             {
                 interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "default"));
-                logger.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
+                LOG.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
                 {
@@ -410,7 +410,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 }
                 catch(SoarException e)
                 {
-                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
+                    LOG.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
                 }
             }
             return interp;
@@ -429,7 +429,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             }
         }
         
-        logger.warn("Could not find interpreter named '" + name + "'. Using default.");
+        LOG.warn("Could not find interpreter named '" + name + "'. Using default.");
         return new DefaultInterpreter(this);
     }
     
@@ -447,7 +447,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 this.interp.dispose();
             }
             this.interp = interp;
-            logger.info("Current command interpreter is '" + (interp != null ? interp.getClass() : "none") + "'");
+            LOG.info("Current command interpreter is '" + (interp != null ? interp.getClass() : "none") + "'");
         }
     }
     
@@ -862,7 +862,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             }
             catch(IOException e)
             {
-                logger.error("IOException while printing initial stack trace. Ignoring.", e);
+                LOG.error("IOException while printing initial stack trace. Ignoring.", e);
             }
         }
         decisionCycle.current_phase.set(Phase.INPUT);
@@ -988,7 +988,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         catch(SoarException e)
         {
-            logger.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
+            LOG.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
             printer.error("While trying to reset SMEM id counters: " + e.getMessage());
         }
         

@@ -18,7 +18,7 @@ public class HashTable<T extends HashTableItem>
     /**
      * mem.cpp:487
      */
-    public static final int masks_for_n_low_order_bits[] = { 0x00000000,
+    public static final int MASKS_FOR_N_LOW_ORDER_BITS[] = { 0x00000000,
             0x00000001, 0x00000003, 0x00000007, 0x0000000F,
             0x0000001F, 0x0000003F, 0x0000007F, 0x000000FF,
             0x000001FF, 0x000003FF, 0x000007FF, 0x00000FFF,

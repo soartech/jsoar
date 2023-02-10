@@ -37,7 +37,7 @@ import freemarker.template.Configuration;
  */
 public class LegilimensApplication extends Application
 {
-    private static final Logger logger = LoggerFactory.getLogger(LegilimensApplication.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LegilimensApplication.class);
     
     private final Configuration fmc = new Configuration(Configuration.VERSION_2_3_28);
     private final SoarEventListener attachListener = event -> agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
@@ -45,7 +45,7 @@ public class LegilimensApplication extends Application
     
     public LegilimensApplication()
     {
-        logger.info("Legilimens application constructed");
+        LOG.info("Legilimens application constructed");
         
         fmc.setURLEscapingCharset("UTF-8");
         fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
@@ -119,20 +119,20 @@ public class LegilimensApplication extends Application
     
     protected void agentAttached(ThreadedAgent agent)
     {
-        logger.info("Attaching to agent '" + agent + "' (agent's name may not be accurate if it isn't set yet)");
+        LOG.info("Attaching to agent '" + agent + "' (agent's name may not be accurate if it isn't set yet)");
         try
         {
             AgentTraceBuffer.attach(agent.getAgent());
         }
         catch(IOException e)
         {
-            logger.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
         }
     }
     
     protected void agentDetached(ThreadedAgent agent)
     {
-        logger.info("Detaching from agent '" + agent + "'");
+        LOG.info("Detaching from agent '" + agent + "'");
         final AgentTraceBuffer traceBuffer = agent.getProperties().get(AgentTraceBuffer.KEY);
         try
         {
@@ -140,7 +140,7 @@ public class LegilimensApplication extends Application
         }
         catch(IOException e)
         {
-            logger.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
         }
     }
     

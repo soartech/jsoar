@@ -109,7 +109,7 @@ public class StandardFunctions
             new Timestamp(),
             new SetCount()));
     {
-        allInternal.addAll(MathFunctions.all);
+        allInternal.addAll(MathFunctions.ALL);
     }
     
     /**

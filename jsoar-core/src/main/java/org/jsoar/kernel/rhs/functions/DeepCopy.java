@@ -36,7 +36,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
 {
     // Filter out impasse WMEs from the copy operation. Otherwise, there's a weird
     // crash. This is the behavior of the original SoarTech implementation anyway.
-    private static final EnumSet<WmeType> filter = EnumSet.complementOf(EnumSet.of(WmeType.IMPASSE));
+    private static final EnumSet<WmeType> FILTER = EnumSet.complementOf(EnumSet.of(WmeType.IMPASSE));
     
     /**
      */
@@ -86,7 +86,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
         targetId = context.getSymbols().createIdentifier(id.getNameLetter());
         idMap.put(id, targetId);
         
-        Iterator<Wme> it = id.getWmes(filter); // Don't copy impasse WMEs.
+        Iterator<Wme> it = id.getWmes(FILTER); // Don't copy impasse WMEs.
         while(it.hasNext())
         {
             final Wme w = it.next();

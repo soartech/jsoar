@@ -30,7 +30,7 @@ import com.google.common.base.Charsets;
  */
 public class ScriptEngineState
 {
-    private static final Logger logger = LoggerFactory.getLogger(ScriptEngineState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScriptEngineState.class);
     
     private final Adaptable context;
     private final String engineName;
@@ -97,7 +97,7 @@ public class ScriptEngineState
         }
         catch(ScriptException e)
         {
-            logger.error(engineName + ": Error calling soar_dispose: " + e.getMessage(), e);
+            LOG.error(engineName + ": Error calling soar_dispose: " + e.getMessage(), e);
             throw new SoarException("Error executing script: " + e.getMessage(), e);
         }
         catch(NoSuchMethodException e)
@@ -109,7 +109,7 @@ public class ScriptEngineState
             }
             catch(ScriptException die)
             {
-                logger.error(engineName + ": soar_dispose method not defined. " + die.getMessage());
+                LOG.error(engineName + ": soar_dispose method not defined. " + die.getMessage());
             }
         }
     }

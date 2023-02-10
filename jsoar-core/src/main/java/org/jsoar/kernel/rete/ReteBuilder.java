@@ -65,33 +65,33 @@ import org.jsoar.util.markers.Marker;
      */
     /* package */ static final int EQUAL_TEST_TYPE = 254;
     private static final int ERROR_TEST_TYPE = 255;
-    private static final int test_type_to_relational_test_type[];
-    /* package */ static final int relational_test_type_to_test_type[];
+    private static final int TEST_TYPE_TO_RELATIONAL_TEST_TYPE[];
+    /* package */ static final int RELATIONAL_TEST_TYPE_TO_TEST_TYPE[];
     
     static
     {
         // rete.cpp:2773:init_test_type_conversion_tables
-        test_type_to_relational_test_type = new int[256];
-        Arrays.fill(test_type_to_relational_test_type, ERROR_TEST_TYPE);
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE = new int[256];
+        Arrays.fill(TEST_TYPE_TO_RELATIONAL_TEST_TYPE, ERROR_TEST_TYPE);
         
-        relational_test_type_to_test_type = new int[256];
-        Arrays.fill(relational_test_type_to_test_type, ERROR_TEST_TYPE);
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE = new int[256];
+        Arrays.fill(RELATIONAL_TEST_TYPE_TO_TEST_TYPE, ERROR_TEST_TYPE);
         
         /* we don't need ...[equal test] */
-        test_type_to_relational_test_type[RelationalTest.NOT_EQUAL_TEST] = ReteTest.RELATIONAL_NOT_EQUAL;
-        test_type_to_relational_test_type[RelationalTest.LESS_TEST] = ReteTest.RELATIONAL_LESS;
-        test_type_to_relational_test_type[RelationalTest.GREATER_TEST] = ReteTest.RELATIONAL_GREATER;
-        test_type_to_relational_test_type[RelationalTest.LESS_OR_EQUAL_TEST] = ReteTest.RELATIONAL_LESS_OR_EQUAL;
-        test_type_to_relational_test_type[RelationalTest.GREATER_OR_EQUAL_TEST] = ReteTest.RELATIONAL_GREATER_OR_EQUAL;
-        test_type_to_relational_test_type[RelationalTest.SAME_TYPE_TEST] = ReteTest.RELATIONAL_SAME_TYPE;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.NOT_EQUAL_TEST] = ReteTest.RELATIONAL_NOT_EQUAL;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.LESS_TEST] = ReteTest.RELATIONAL_LESS;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.GREATER_TEST] = ReteTest.RELATIONAL_GREATER;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.LESS_OR_EQUAL_TEST] = ReteTest.RELATIONAL_LESS_OR_EQUAL;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.GREATER_OR_EQUAL_TEST] = ReteTest.RELATIONAL_GREATER_OR_EQUAL;
+        TEST_TYPE_TO_RELATIONAL_TEST_TYPE[RelationalTest.SAME_TYPE_TEST] = ReteTest.RELATIONAL_SAME_TYPE;
         
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_EQUAL] = EQUAL_TEST_TYPE;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_NOT_EQUAL] = RelationalTest.NOT_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS] = RelationalTest.LESS_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER] = RelationalTest.GREATER_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS_OR_EQUAL] = RelationalTest.LESS_OR_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER_OR_EQUAL] = RelationalTest.GREATER_OR_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_SAME_TYPE] = RelationalTest.SAME_TYPE_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_EQUAL] = EQUAL_TEST_TYPE;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_NOT_EQUAL] = RelationalTest.NOT_EQUAL_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_LESS] = RelationalTest.LESS_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_GREATER] = RelationalTest.GREATER_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_LESS_OR_EQUAL] = RelationalTest.LESS_OR_EQUAL_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_GREATER_OR_EQUAL] = RelationalTest.GREATER_OR_EQUAL_TEST;
+        RELATIONAL_TEST_TYPE_TO_TEST_TYPE[ReteTest.RELATIONAL_SAME_TYPE] = RelationalTest.SAME_TYPE_TEST;
     }
     
     private ReteBuilder()
@@ -182,7 +182,7 @@ import org.jsoar.util.markers.Marker;
             // if constant, make constant test
             if(relational.referent.asVariable() == null)
             {
-                ReteTest new_rt = ReteTest.createConstantTest(test_type_to_relational_test_type[relational.type], field_num, relational.referent);
+                ReteTest new_rt = ReteTest.createConstantTest(TEST_TYPE_TO_RELATIONAL_TEST_TYPE[relational.type], field_num, relational.referent);
                 
                 new_rt.next = rt.value;
                 rt.value = new_rt;
@@ -194,7 +194,7 @@ import org.jsoar.util.markers.Marker;
             {
                 throw new IllegalStateException("Error: Rete build found test of unbound var: " + relational.referent);
             }
-            ReteTest new_rt = ReteTest.createVariableTest(test_type_to_relational_test_type[relational.type], field_num, where);
+            ReteTest new_rt = ReteTest.createVariableTest(TEST_TYPE_TO_RELATIONAL_TEST_TYPE[relational.type], field_num, where);
             
             new_rt.next = rt.value;
             rt.value = new_rt;

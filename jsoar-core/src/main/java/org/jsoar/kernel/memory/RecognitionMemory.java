@@ -87,7 +87,7 @@ import com.google.common.collect.Lists;
  */
 public class RecognitionMemory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RecognitionMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RecognitionMemory.class);
     
     private final Agent context;
     private PredefinedSymbols predefinedSyms;
@@ -445,7 +445,7 @@ public class RecognitionMemory
             }
             catch(RhsFunctionException e)
             {
-                logger.error("Error executing RHS function '" + fc.getName() + "' with args " + arguments + ": " + e.getMessage(), e);
+                LOG.error("Error executing RHS function '" + fc.getName() + "' with args " + arguments + ": " + e.getMessage(), e);
                 context.getPrinter().error("Error executing RHS function '%s' with args %s: %s\n", fc.getName(), arguments, e.getMessage());
             }
             finally

@@ -33,7 +33,7 @@ public class SoarTechWmeToXml
     public static final String LINK = "link";
     public static final String LINK_ID = "link-id";
     
-    private static final DocumentBuilder builder = XmlTools.createDocumentBuilder();
+    private static final DocumentBuilder BUILDER = XmlTools.createDocumentBuilder();
     
     private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();
     
@@ -47,7 +47,7 @@ public class SoarTechWmeToXml
      */
     public Document toXml(Identifier root, String rootName)
     {
-        final Document doc = builder.getDOMImplementation().createDocument(null, rootName, null);
+        final Document doc = BUILDER.getDOMImplementation().createDocument(null, rootName, null);
         toXml(root, doc.getDocumentElement());
         return doc;
     }

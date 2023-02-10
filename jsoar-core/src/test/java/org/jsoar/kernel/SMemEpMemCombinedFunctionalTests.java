@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
 {
-    private static final Logger logger = LoggerFactory.getLogger(SMemEpMemCombinedFunctionalTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SMemEpMemCombinedFunctionalTests.class);
     
     @Test
     public void smemEpMemFactorizationCombinationTest() throws Exception
@@ -48,7 +48,7 @@ public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
                 "(@F17 ^complete true ^factor @F18 ^number 7)\n" +
                 "(@F18 ^multiplicity 1 ^value 7)\n";
         
-        logger.info("Epmem test actual result: " + actualResultEpMem);
+        LOG.info("Epmem test actual result: " + actualResultEpMem);
         assertEquals(expectedResultEpMem, actualResultEpMem, "Unexpected output from EpMem!\n" + actualResultEpMem);
     }
 }

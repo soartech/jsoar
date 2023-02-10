@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
  */
 public class SoarTechXmlToWme implements XmlToWme
 {
-    private static final Logger logger = LoggerFactory.getLogger(SoarTechXmlToWme.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarTechXmlToWme.class);
     
     private final WmeFactory<?> wmeFactory;
     
@@ -98,7 +98,7 @@ public class SoarTechXmlToWme implements XmlToWme
             }
             else
             {
-                logger.error("Unknown link target '" + link.linkTo + "'");
+                LOG.error("Unknown link target '" + link.linkTo + "'");
             }
         }
         
@@ -126,7 +126,7 @@ public class SoarTechXmlToWme implements XmlToWme
             final String tagName = kid.getTagName();
             if(null == tagName)
             {
-                logger.warn("null tagName on node " + node);
+                LOG.warn("null tagName on node " + node);
                 continue;
             }
             final Symbol attribute = syms.createString(tagName);

@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
  */
 public class JsonWmeUtils
 {
-    private static Logger logger = LoggerFactory.getLogger(JsonWmeUtils.class);
+    private static Logger LOG = LoggerFactory.getLogger(JsonWmeUtils.class);
     
     private JsonWmeUtils()
     {
@@ -282,7 +282,7 @@ public class JsonWmeUtils
                     }
                     else
                     {
-                        logger.error("Parsing identifier {} - Replacing value for key {} ({} -> {}). To make an array instead add a ^{} {} WME to the identifier.",
+                        LOG.error("Parsing identifier {} - Replacing value for key {} ({} -> {}). To make an array instead add a ^{} {} WME to the identifier.",
                                 root, attr, jsonObj.get(attr), jsonValue, JSON_ARRAY, attr);
                         jsonObj.put(attr, jsonValue);
                     }

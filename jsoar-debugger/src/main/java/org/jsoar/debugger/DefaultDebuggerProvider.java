@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultDebuggerProvider implements DebuggerProvider
 {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     private final Map<String, Object> properties = new HashMap<String, Object>();
     
@@ -118,7 +118,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
             }
             catch(SoarException e)
             {
-                logger.error("Failed to open new debugger: " + e.getMessage(), e);
+                LOG.error("Failed to open new debugger: " + e.getMessage(), e);
             }
         };
     }
@@ -151,7 +151,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         final ThreadedAgent ta = ThreadedAgent.find(agent);
         if(ta == null)
         {
-            logger.warn("Tried to close debugger for agent {} that does not have a debugger.", agent.getName());
+            LOG.warn("Tried to close debugger for agent {} that does not have a debugger.", agent.getName());
             return;
         }
         

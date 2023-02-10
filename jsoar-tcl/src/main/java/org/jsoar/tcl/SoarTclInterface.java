@@ -62,7 +62,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
 {
     private static final String DEFAULT_TCL_CODE = "/org/jsoar/tcl/jsoar.tcl";
     
-    private static final Logger logger = LoggerFactory.getLogger(SoarTclInterface.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarTclInterface.class);
     
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
@@ -167,7 +167,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         catch(TclException e)
         {
             final String message = "Failed to rename tcl built-in trace command to tcl-trace: " + interp.getResult();
-            logger.error(message, e);
+            LOG.error(message, e);
             agent.getPrinter().error(message).flush();
         }
         
@@ -182,7 +182,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         catch(SoarException e)
         {
             final String message = "Failed to get 'sp' command";
-            logger.error(message, e);
+            LOG.error(message, e);
             agent.getPrinter().error(message).flush();
         }
         
@@ -197,7 +197,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             final String message = "Failed to load resource " + DEFAULT_TCL_CODE +
                     ". Some commands may not work as expected: " + interp.getResult();
-            logger.error(message, e);
+            LOG.error(message, e);
             agent.getPrinter().error(message);
         }
     }
@@ -211,7 +211,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
         catch(SoarException e)
         {
-            logger.error("Unable to retreive alias information", e);
+            LOG.error("Unable to retreive alias information", e);
             return;
         }
     }
@@ -220,12 +220,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         ArrayList<String> curCommands = new ArrayList<>();
         String result = this.eval("info commands");
-        logger.info("Commands\n\n{}", result);
+        LOG.info("Commands\n\n{}", result);
         String[] cmds = result.split("\\s+");
         Collections.addAll(curCommands, cmds);
         
         result = this.eval("info procs");
-        logger.info("Procs\n{}", result);
+        LOG.info("Procs\n{}", result);
         String[] procs = result.split("\\s+");
         Collections.addAll(curCommands, procs);
         this.commandList = curCommands;
@@ -243,12 +243,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
             {
                 String alias = args[0].trim();
                 String cmd = args[1].trim().replace("{", "").replace("}", "");
-                logger.debug("args = {} -> {}", alias, cmd);
+                LOG.debug("args = {} -> {}", alias, cmd);
                 curAliases.put(alias, cmd);
             }
             else
             {
-                logger.error("Unable to parse alias = {}", line);
+                LOG.error("Unable to parse alias = {}", line);
             }
         }
         this.aliasMap = curAliases;
@@ -272,7 +272,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             catch(TclException ex)
             {
                 final String message = "Failed to set environment variable '" + e + "': " + interp.getResult();
-                logger.error(message);
+                LOG.error(message);
                 agent.getPrinter().error(message);
             }
         }

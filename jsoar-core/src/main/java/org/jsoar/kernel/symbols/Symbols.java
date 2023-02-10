@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Symbols
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
     private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
     
     public static final int IDENTIFIER_SYMBOL_TYPE = 1;
@@ -123,7 +123,7 @@ public class Symbols
         // else by accident. So we print a warning just in case.
         if(WARN_ON_JAVA_SYMBOLS)
         {
-            logger.warn("A Java symbol with value '" + value + "' is being created. " +
+            LOG.warn("A Java symbol with value '" + value + "' is being created. " +
                     "Are you sure this is what you want to do? " +
                     "Disable this message with -Djsoar.warnOnJavaSymbols=false.");
         }

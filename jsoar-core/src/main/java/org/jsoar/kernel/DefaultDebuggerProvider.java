@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultDebuggerProvider extends AbstractDebuggerProvider
 {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     public static final String PROPERTY = "jsoar.debugger.provider";
     public static final String DEFAULT_CLASS = "org.jsoar.debugger.DefaultDebuggerProvider";
@@ -79,18 +79,18 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
             }
             else
             {
-                logger.error("Expected instance of " + DebuggerProvider.class + ", got " + klass);
+                LOG.error("Expected instance of " + DebuggerProvider.class + ", got " + klass);
                 throw new SoarException("Expected instance of " + DebuggerProvider.class + ", got " + klass);
             }
         }
         catch(ClassNotFoundException e)
         {
-            logger.error("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
+            LOG.error("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
             throw new SoarException("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
         }
         catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
         {
-            logger.error("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
+            LOG.error("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
             throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
         }
         

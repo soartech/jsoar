@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EpMemFunctionalTests extends FunctionalTestHarness
 {
-    private static final Logger logger = LoggerFactory.getLogger(EpMemFunctionalTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EpMemFunctionalTests.class);
     
     @Test
     public void testCountEpMem() throws Exception
@@ -229,7 +229,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                 "(<id1> ^input-link <id5> ^output-link <id4>)\n" +
                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
         
-        logger.info("Epmem test actual result: " + actualResult);
+        LOG.info("Epmem test actual result: " + actualResult);
         assertTrue(actualResult.equals(expectedResult), "Unexpected output from CSoar database! ");
     }
     

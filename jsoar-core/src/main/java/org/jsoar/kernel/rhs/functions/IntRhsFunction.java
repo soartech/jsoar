@@ -20,7 +20,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class IntRhsFunction extends AbstractRhsFunctionHandler
 {
-    private static final Pattern number = Pattern.compile("^(-?\\d+).*?");
+    private static final Pattern NUMBER = Pattern.compile("^(-?\\d+).*?");
     
     public IntRhsFunction()
     {
@@ -77,7 +77,7 @@ public class IntRhsFunction extends AbstractRhsFunctionHandler
             // Truncate after the first non-digit character.
             // Handles mapping exponential notation (e.g., "45e-10" -> "45")
             // and also strtol()-style string handling ("123abc" -> "123").
-            Matcher matcher = number.matcher(s);
+            Matcher matcher = NUMBER.matcher(s);
             if(matcher.find() && matcher.groupCount() > 0)
             {
                 lng = Long.parseLong(matcher.group(1));

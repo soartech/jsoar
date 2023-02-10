@@ -31,8 +31,8 @@ public class DefaultWmeToXml
     public static final String TEXT = "/text";
     public static final String NEXT = "/next";
     
-    private static final Logger logger = LoggerFactory.getLogger(DefaultXmlToWme.class);
-    private static final DocumentBuilder builder = XmlTools.createDocumentBuilder();
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultXmlToWme.class);
+    private static final DocumentBuilder BUILDER = XmlTools.createDocumentBuilder();
     
     private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();
     
@@ -46,7 +46,7 @@ public class DefaultWmeToXml
      */
     public Document toXml(Identifier root, String rootName)
     {
-        final Document doc = builder.getDOMImplementation().createDocument(null, rootName, null);
+        final Document doc = BUILDER.getDOMImplementation().createDocument(null, rootName, null);
         toXml(root, doc.getDocumentElement());
         return doc;
     }
@@ -73,7 +73,7 @@ public class DefaultWmeToXml
         }
         else
         {
-            logger.warn("Don't know what to do with " + ATTRS + " element with non-id value: " + attrWme);
+            LOG.warn("Don't know what to do with " + ATTRS + " element with non-id value: " + attrWme);
         }
     }
     
@@ -99,7 +99,7 @@ public class DefaultWmeToXml
             if(valueElement != null)
             {
                 // TODO what should we do here? XLink?
-                logger.warn("Don't know what to do with non-tree memory structure: " + wme);
+                LOG.warn("Don't know what to do with non-tree memory structure: " + wme);
                 wmeElement.setTextContent(idValue.toString());
             }
             else

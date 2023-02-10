@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SoarBeanOutputManager
 {
-    private static final Logger logger = LoggerFactory.getLogger(SoarBeanOutputManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarBeanOutputManager.class);
     
     private final SoarEventManager eventManager;
     private final SoarEventListener listener;
@@ -146,7 +146,7 @@ public class SoarBeanOutputManager
             }
             else
             {
-                logger.error("While handling output command '" + name + "'", e);
+                LOG.error("While handling output command '" + name + "'", e);
             }
         }
     }

@@ -48,7 +48,7 @@ import com.google.common.collect.ForwardingList;
  */
 public class ProductionEditView extends AbstractAdaptableView implements Disposable
 {
-    private static final Logger logger = LoggerFactory.getLogger(ProductionEditView.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProductionEditView.class);
     
     private static final String DEFAULT_CONTENTS = "Double-click a production (or right-click) to edit, or just start typing.";
     private static final String LAST_CONTENT_KEY = "lastContent";
@@ -201,7 +201,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             }
             catch(SoarException e)
             {
-                logger.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return "ERROR: " + e.getMessage();
             }
         };
@@ -230,7 +230,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         {
             if(contents.length() > Preferences.MAX_VALUE_LENGTH)
             {
-                logger.warn("The contents of the {} are too long to be saved", this.getTitleText());
+                LOG.warn("The contents of the {} are too long to be saved", this.getTitleText());
             }
             else
             {

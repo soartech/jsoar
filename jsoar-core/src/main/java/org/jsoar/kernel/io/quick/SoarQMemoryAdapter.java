@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
 {
-    private static final Logger logger = LoggerFactory.getLogger(SoarQMemoryAdapter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SoarQMemoryAdapter.class);
     private static final Pattern INDEX_PATTERN = Pattern.compile("\\[[^]]+\\]$");
     
     static String getNameFromPath(String path)
@@ -73,7 +73,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         return (ix < 0) ? "" : path.substring(0, ix);
     }
     
-    private static final Comparator<String> increasingLengthComparator = new Comparator<String>()
+    private static final Comparator<String> INCREASING_LENGTH_COMPARATOR = new Comparator<String>()
     {
         public int compare(String s1, String s2)
         {
@@ -81,7 +81,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         }
     };
     
-    private static final Comparator<String> decreasingLengthComparator = new Comparator<String>()
+    private static final Comparator<String> DECREASING_LENGTH_COMPARATOR = new Comparator<String>()
     {
         public int compare(String s1, String s2)
         {
@@ -299,7 +299,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         // ... walk through in order of decreasing length
         // so that child WMEs are destroyed before their parents
         final List<String> oldPathsByLength = new ArrayList<String>(oldPaths);
-        Collections.sort(oldPathsByLength, decreasingLengthComparator);
+        Collections.sort(oldPathsByLength, DECREASING_LENGTH_COMPARATOR);
         
         for(String path : oldPathsByLength)
         {
@@ -308,7 +308,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         }
         
         final List<String> newPathsByLength = new ArrayList<String>(newPaths);
-        Collections.sort(newPathsByLength, increasingLengthComparator);
+        Collections.sort(newPathsByLength, INCREASING_LENGTH_COMPARATOR);
         
         // walk through paths in order of increasing length
         // (so prefixes are always hit first)
@@ -413,7 +413,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
     
     private void resetAfterInitSoar()
     {
-        logger.info("Repopulating after init-soar");
+        LOG.info("Repopulating after init-soar");
         
         memory.clear();
         sourceChanged = true;
@@ -425,7 +425,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
             if(rootId == null)
             {
                 rootId = io.getSymbols().findOrCreateIdentifier(oldRootId.getNameLetter(), oldRootId.getNameNumber());
-                logger.warn("After init-soar, could not find custom root identifier " + oldRootId + ". Using " + rootId + ".");
+                LOG.warn("After init-soar, could not find custom root identifier " + oldRootId + ". Using " + rootId + ".");
             }
             rootNode = new SoarMemoryNode(rootId);
         }

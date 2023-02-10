@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DecisionCycle
 {
-    private static final Logger logger = LoggerFactory.getLogger(DecisionCycle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DecisionCycle.class);
     
     private final Agent context;
     
@@ -288,7 +288,7 @@ public class DecisionCycle
             }
             catch(SoarException e)
             {
-                logger.error("While initializing smem: " + e.getMessage(), e);
+                LOG.error("While initializing smem: " + e.getMessage(), e);
                 this.context.getPrinter().error("While initializing smem: " + e.getMessage());
             }
         }
@@ -407,7 +407,7 @@ public class DecisionCycle
             }
             catch(IOException e)
             {
-                logger.warn("While printing current context: " + e);
+                LOG.warn("While printing current context: " + e);
             }
         }
         

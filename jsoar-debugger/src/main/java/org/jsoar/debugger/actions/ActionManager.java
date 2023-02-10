@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ActionManager
 {
-    private static final Logger logger = LoggerFactory.getLogger(ActionManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ActionManager.class);
     
     private JSoarDebugger app;
     private List<AbstractDebuggerAction> actions = new ArrayList<AbstractDebuggerAction>();
@@ -132,7 +132,7 @@ public class ActionManager
         }
         else
         {
-            logger.error("No action found with id '" + id + "'");
+            LOG.error("No action found with id '" + id + "'");
         }
     }
     

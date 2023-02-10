@@ -59,7 +59,7 @@ public class Lexer
     
     private Lexeme lexeme = new Lexeme();
     
-    private static final LexerRoutine lex_unknown = new LexerRoutine()
+    private static final LexerRoutine LEX_UNKNOWN = new LexerRoutine()
     {
         public void lex(Lexer lexer) throws IOException
         {
@@ -413,48 +413,48 @@ public class Lexer
     };
     
     private final LexerRoutine[] lexer_routines = new LexerRoutine[256];
-    static final boolean constituent_char[] = new boolean[256];
+    static final boolean CONSTITUENT_CHAR[] = new boolean[256];
     static
     {
         final String extra_constituents = "$%&*+-/:<=>?_";
-        for(int i = 0; i < constituent_char.length; i++)
+        for(int i = 0; i < CONSTITUENT_CHAR.length; i++)
         {
             // When i == 1, strchr returns true based on the terminating
             // character. This is not the intent, so we exclude that case here.
             if(i != 0 && extra_constituents.indexOf((char) i) != -1)
             {
-                constituent_char[i] = true;
+                CONSTITUENT_CHAR[i] = true;
             }
             else
             {
-                constituent_char[i] = Character.isLetterOrDigit((char) i);
+                CONSTITUENT_CHAR[i] = Character.isLetterOrDigit((char) i);
             }
         }
     }
     
     private static boolean isConstituentChar(char c)
     {
-        return c < constituent_char.length && constituent_char[c];
+        return c < CONSTITUENT_CHAR.length && CONSTITUENT_CHAR[c];
     }
     
-    static final boolean number_starters[] = new boolean[256];
+    static final boolean NUMBER_STARTERS[] = new boolean[256];
     static
     {
-        for(int i = 0; i < number_starters.length; i++)
+        for(int i = 0; i < NUMBER_STARTERS.length; i++)
         {
             switch(i)
             {
             case '+':
-                number_starters[i] = true;
+                NUMBER_STARTERS[i] = true;
                 break;
             case '-':
-                number_starters[i] = true;
+                NUMBER_STARTERS[i] = true;
                 break;
             case '.':
-                number_starters[i] = true;
+                NUMBER_STARTERS[i] = true;
                 break;
             default:
-                number_starters[i] = Character.isDigit((char) i);
+                NUMBER_STARTERS[i] = Character.isDigit((char) i);
             }
         }
     }
@@ -779,7 +779,7 @@ public class Lexer
                 }
                 else
                 {
-                    lexer_routines[i] = lex_unknown;
+                    lexer_routines[i] = LEX_UNKNOWN;
                 }
             }
         }
@@ -902,7 +902,7 @@ public class Lexer
         }
         
         /* --- check if it's an integer or floating point number --- */
-        if(Lexer.number_starters[s.charAt(0)])
+        if(Lexer.NUMBER_STARTERS[s.charAt(0)])
         {
             int ch = 0;
             if((s.charAt(ch) == '+') || (s.charAt(ch) == '-'))

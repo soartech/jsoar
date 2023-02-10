@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LegilimensServer
 {
-    private static final Logger logger = LoggerFactory.getLogger(LegilimensServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LegilimensServer.class);
     
     private static final String ROOT_PROPERTY = "jsoar.legilimens.root";
     private static final String DEFAULT_ROOT = "/jsoar";
@@ -77,7 +77,7 @@ public class LegilimensServer
             throw new RuntimeException("Failed to start server: " + e.getMessage(), e);
         }
         
-        logger.info("Legilimens web app running at http://localhost:" + port + root + "/");
+        LOG.info("Legilimens web app running at http://localhost:" + port + root + "/");
     }
     
     private String getRoot()

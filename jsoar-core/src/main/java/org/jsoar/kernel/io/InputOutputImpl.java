@@ -94,7 +94,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
 {
-    private static final Logger logger = LoggerFactory.getLogger(InputOutputImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InputOutputImpl.class);
     
     /**
      * io.cpp:387
@@ -358,7 +358,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         
         if(!w.isMemberOfList(w.id.getInputWmes()))
         {
-            logger.warn(String.format("removeInputWmeInternal: %s is not currently in working memory. Ignoring.", w));
+            LOG.warn(String.format("removeInputWmeInternal: %s is not currently in working memory. Ignoring.", w));
             return;
         }
         

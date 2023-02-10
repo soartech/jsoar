@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ThreadedAgentTest
 {
-    private static final Logger logger = LoggerFactory.getLogger(ThreadedAgentTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadedAgentTest.class);
     
     private final List<SoarEventListener> listeners = new ArrayList<SoarEventListener>();
     
@@ -47,7 +47,7 @@ public class ThreadedAgentTest
     @BeforeEach
     void setUp(TestInfo testInfo) throws Exception
     {
-        logger.debug("Starting test: {}", testInfo.getDisplayName());
+        LOG.debug("Starting test: {}", testInfo.getDisplayName());
     }
     
     /**
@@ -66,7 +66,7 @@ public class ThreadedAgentTest
             agent.dispose();
         }
         
-        logger.debug("Finished test: {}", testInfo.getDisplayName());
+        LOG.debug("Finished test: {}", testInfo.getDisplayName());
     }
     
     @Test
@@ -184,7 +184,7 @@ public class ThreadedAgentTest
         for(int i = 0; i < numAgents; i++)
         {
             ThreadedAgent ta = ThreadedAgent.create();
-            logger.debug("Sourcing agent: {}", ta.getName());
+            LOG.debug("Sourcing agent: {}", ta.getName());
             ta.getInterpreter().source(sourceUrl);
             agents.add(ta);
         }
@@ -193,12 +193,12 @@ public class ThreadedAgentTest
         Collections.shuffle(agents, rand);
         for(ThreadedAgent ta : agents)
         {
-            logger.debug("Running agent: {}", ta.getName());
+            LOG.debug("Running agent: {}", ta.getName());
             ta.runForever();
         }
         
         // Give the agents a chance to start
-        logger.debug("Giving agents a chance to start");
+        LOG.debug("Giving agents a chance to start");
         Thread.sleep(500);
         
         // Make sure the agents are running
@@ -214,28 +214,28 @@ public class ThreadedAgentTest
                 // If the agent successfully started, remove it from the list
                 if(ta.isRunning())
                 {
-                    logger.debug("Agent is running: {}", ta.getName());
+                    LOG.debug("Agent is running: {}", ta.getName());
                     iter.remove();
                 }
             }
         }
         
         // Let the threads run for a bit longer
-        logger.debug("Let agents run a bit");
+        LOG.debug("Let agents run a bit");
         Thread.sleep(500);
         
         // Stop the threads in a random order
-        logger.debug("Shuffling agents");
+        LOG.debug("Shuffling agents");
         Collections.shuffle(agents, rand);
         // Stop the threads
         for(ThreadedAgent ta : agents)
         {
-            logger.debug("Stopping agent: {}", ta.getName());
+            LOG.debug("Stopping agent: {}", ta.getName());
             ta.stop();
         }
         
         // Give the threads a chance to stop
-        logger.debug("Giving agents a chance to stop");
+        LOG.debug("Giving agents a chance to stop");
         Thread.sleep(500);
         
         // If the agents are unhappy or unresponsive, we will timeout in this
@@ -249,7 +249,7 @@ public class ThreadedAgentTest
                 // If the agent successfully stopped, remove it from the list
                 if(!ta.isRunning())
                 {
-                    logger.debug("Cleaning up stopped agent: {}", ta.getName());
+                    LOG.debug("Cleaning up stopped agent: {}", ta.getName());
                     ta.dispose();
                     iter.remove();
                 }

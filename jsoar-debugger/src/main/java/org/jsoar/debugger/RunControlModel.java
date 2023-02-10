@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RunControlModel implements Disposable
 {
-    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
     
     private PlainDocument count = new PlainDocument();
     {
@@ -74,7 +74,7 @@ public class RunControlModel implements Disposable
         }
         catch(BadLocationException e)
         {
-            logger.error("Failed to set count to " + count, e);
+            LOG.error("Failed to set count to " + count, e);
         }
     }
     
