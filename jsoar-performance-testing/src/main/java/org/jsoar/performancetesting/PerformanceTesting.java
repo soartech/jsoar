@@ -624,7 +624,10 @@ public class PerformanceTesting implements Runnable
                 {
                     // Make sure to always destroy the process if exceptions
                     // occur
-                    process.destroy();
+                    if(process != null)
+                    {
+                        process.destroy();
+                    }
                 }
 
                 try
