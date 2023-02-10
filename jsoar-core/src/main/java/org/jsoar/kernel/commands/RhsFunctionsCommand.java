@@ -42,14 +42,7 @@ public class RhsFunctionsCommand extends PicocliSoarCommand
             
             // Obtain all RHS functions and sort them
             final List<RhsFunctionHandler> handlers = agent.getRhsFunctions().getHandlers();
-            Collections.sort(handlers, new Comparator<RhsFunctionHandler>()
-            {
-                @Override
-                public int compare(RhsFunctionHandler a, RhsFunctionHandler b)
-                {
-                    return a.getName().compareTo(b.getName());
-                }
-            });
+            Collections.sort(handlers, Comparator.comparing(RhsFunctionHandler::getName));
             
             for(RhsFunctionHandler f : handlers)
             {

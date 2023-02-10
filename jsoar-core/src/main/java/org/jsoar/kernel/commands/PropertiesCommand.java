@@ -51,14 +51,7 @@ public class PropertiesCommand extends PicocliSoarCommand
             p.startNewLine();
             final PropertyManager properties = agent.getProperties();
             final List<PropertyKey<?>> keys = properties.getKeys();
-            Collections.sort(keys, new Comparator<PropertyKey<?>>()
-            {
-                @Override
-                public int compare(PropertyKey<?> a, PropertyKey<?> b)
-                {
-                    return a.getName().compareTo(b.getName());
-                }
-            });
+            Collections.sort(keys, Comparator.comparing(PropertyKey::getName));
             
             for(PropertyKey<?> key : keys)
             {

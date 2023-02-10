@@ -29,14 +29,7 @@ public class FilesResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
         
-        final Set<File> files = new TreeSet<File>(new Comparator<File>()
-        {
-            @Override
-            public int compare(File o1, File o2)
-            {
-                return o1.location.compareTo(o2.location);
-            }
-        });
+        final Set<File> files = new TreeSet<File>(Comparator.comparing((File o1) -> o1.location));
         for(Production p : agent.getProductions().getProductions(null))
         {
             files.add(new File(p.getLocation().getFile()));
