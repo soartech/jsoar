@@ -38,7 +38,7 @@ public class QMemoryCommand extends PicocliSoarCommand
         String getPath = "";
         
         @Option(names = { "-s", "--set" }, arity = "2", description = "Path and item to set in qmemory (2 parameters required)")
-        String[] setPathAndValue = new String[] {};
+        String[] setPathAndValue = {};
         
         @Option(names = { "-r", "--remove" }, description = "Removes item from qmemory at specified path")
         String removePath = "";

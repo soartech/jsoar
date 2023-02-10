@@ -129,7 +129,7 @@ public class EpisodicMemoryDatabaseTest
          * need to be redone anyways
          * - ALT
          */
-        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(new String[] {
+        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti_letter_num",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_id_start",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_start",
@@ -153,8 +153,8 @@ public class EpisodicMemoryDatabaseTest
                 "sqlite_autoindex_versions_1",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float_const",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_int_const",
-                EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const",
-        }));
+                EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const"
+        ));
         
         for(Iterator<String> it = expectedTables.iterator(); it.hasNext();)
         {

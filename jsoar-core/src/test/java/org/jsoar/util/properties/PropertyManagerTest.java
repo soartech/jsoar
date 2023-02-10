@@ -101,7 +101,7 @@ public class PropertyManagerTest
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
         PropertyManager pm = new PropertyManager();
-        final int[] key1Count = new int[] { 0 };
+        final int[] key1Count = { 0 };
         pm.addListener(KEY, new PropertyListener<String>()
         {
             
@@ -115,7 +115,7 @@ public class PropertyManagerTest
                 key1Count[0]++;
             }
         });
-        final int[] key2Count = new int[] { 0 };
+        final int[] key2Count = { 0 };
         pm.addListener(KEY2, new PropertyListener<Integer>()
         {
             

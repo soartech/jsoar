@@ -377,7 +377,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             private final Agent agent;
             
             @Parameters(description = "If no args, prints the list of aliases. If 1 arg, prints the command for that alias. If 2 or more args, defines an alias. The first arg is the alias name, and all following args are the command and options/parameters that it maps to.")
-            private String[] args = new String[0];
+            private String[] args = {};
             
             public Alias(Agent agent, Map<String, List<String>> aliases)
             {

@@ -65,7 +65,7 @@ public class SemanticMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final String[] expectedTables = new String[] {
+        final String[] expectedTables = {
                 SemanticMemoryDatabase.SMEM_SCHEMA + "persistent_variables",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_integer",
@@ -110,7 +110,7 @@ public class SemanticMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(new String[] {
+        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",
@@ -121,8 +121,8 @@ public class SemanticMemoryDatabaseTest
                 SemanticMemoryDatabase.SMEM_SCHEMA + "augmentations_attr_cycle",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "wmes_constant_frequency_attr_val",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
-                "sqlite_autoindex_versions_1",
-        }));
+                "sqlite_autoindex_versions_1"
+        ));
         
         for(Iterator<String> it = expectedTables.iterator(); it.hasNext();)
         {

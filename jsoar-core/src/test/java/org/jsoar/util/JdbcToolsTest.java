@@ -61,7 +61,7 @@ public class JdbcToolsTest
             
             PreparedStatement prep = conn.prepareStatement("insert into people values (?, ?);");
             
-            final String[][] entries = new String[][] {
+            final String[][] entries = {
                     new String[] { "Gandhi", "politics" },
                     new String[] { "Turing", "computers" },
                     new String[] { "Wittgenstein", "smartypants" }

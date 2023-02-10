@@ -293,8 +293,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private static final int EPMEM_RIT_OFFSET_INIT = -1;
     
     /** agent.h:904:epmem_rit_state_graph */
-    private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] { new epmem_rit_state(),
-            new epmem_rit_state() };
+    private final epmem_rit_state[] epmem_rit_state_graph = { new epmem_rit_state(), new epmem_rit_state() };
     
     private Trace trace;
     private Random random;
@@ -873,9 +872,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             long time_last = (time_max - 1);
             
-            final PreparedStatement[] now_select = new PreparedStatement[] { db.now_select_node, db.now_select_edge };
-            final PreparedStatement[] now_add = new PreparedStatement[] { db.add_epmem_wmes_constant_point, db.add_epmem_wmes_identifier_point };
-            final PreparedStatement[] now_delete = new PreparedStatement[] { db.now_delete_node, db.now_delete_edge };
+            final PreparedStatement[] now_select = { db.now_select_node, db.now_select_edge };
+            final PreparedStatement[] now_add = { db.add_epmem_wmes_constant_point, db.add_epmem_wmes_identifier_point };
+            final PreparedStatement[] now_delete = { db.now_delete_node, db.now_delete_edge };
             
             for(int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
             {
