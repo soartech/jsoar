@@ -90,12 +90,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
          * 
          * @see javax.swing.text.JTextComponent#paste()
          */
+        @Override
         public void paste()
         {
             executePastedInput();
         }
         
         // ensure that we always wrap the trace text so it fits horizontally within the visible trace window
+        @Override
         public boolean getScrollableTracksViewportWidth()
         {
             return true;
@@ -217,6 +219,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.addMouseListener(new MouseAdapter()
         {
             
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 if(e.isPopupTrigger())
@@ -225,6 +228,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
             }
             
+            @Override
             public void mouseReleased(MouseEvent e)
             {
                 if(e.isPopupTrigger())

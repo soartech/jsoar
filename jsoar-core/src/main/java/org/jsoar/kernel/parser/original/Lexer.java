@@ -98,6 +98,7 @@ public class Lexer
     
     private static LexerRoutine lex_lparen = new BasicLexerRoutine(LexemeType.L_PAREN)
     {
+        @Override
         public void lex(Lexer lexer) throws IOException
         {
             super.lex(lexer);
@@ -107,6 +108,7 @@ public class Lexer
     
     private static LexerRoutine lex_rparen = new BasicLexerRoutine(LexemeType.R_PAREN)
     {
+        @Override
         public void lex(Lexer lexer) throws IOException
         {
             super.lex(lexer);

@@ -45,17 +45,20 @@ public class ParseSelectedText
             m_Name = name;
         }
         
+        @Override
         public String toString()
         {
             return "Production " + m_Name;
         }
         
+        @Override
         public Object retrieveSelection(JSoarDebugger debugger)
         {
             return debugger.getAgent().getProductions().getProduction(m_Name);
         }
         
         /** Fills in menu items that are appropriate for this type of object */
+        @Override
         public void fillMenu(JSoarDebugger debugger, JMenu parent)
         {
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Name)));
@@ -80,17 +83,20 @@ public class ParseSelectedText
             m_Name = id;
         }
         
+        @Override
         public String toString()
         {
             return "ID " + m_Name;
         }
         
+        @Override
         public Object retrieveSelection(JSoarDebugger debugger)
         {
             return debugger.getAgent().getSymbols().findIdentifier(m_Name.charAt(0), Integer.parseInt(m_Name.substring(1)));
         }
         
         /** Fills in menu items that are appropriate for this type of object */
+        @Override
         public void fillMenu(JSoarDebugger debugger, JMenu parent)
         {
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Name)));
@@ -116,6 +122,7 @@ public class ParseSelectedText
             m_Value = value;
         }
         
+        @Override
         public Object retrieveSelection(JSoarDebugger debugger)
         {
             if(m_ID == null || m_Att == null || m_Value == null)
@@ -145,6 +152,7 @@ public class ParseSelectedText
         }
         
         /** Fills in menu items that are appropriate for this type of object */
+        @Override
         public void fillMenu(JSoarDebugger debugger, JMenu parent)
         {
             parent.add(new ExecuteCommandAction(debugger, String.format("preferences %s %s", m_ID, m_Att)));
@@ -163,6 +171,7 @@ public class ParseSelectedText
             parent.add(pfMenu);
         }
         
+        @Override
         public String toString()
         {
             return "WME " + m_ID + " " + m_Att + " " + m_Value;
@@ -190,10 +199,12 @@ public class ParseSelectedText
         }
         
         /** Fills in menu items that are appropriate for this type of object */
+        @Override
         public void fillMenu(JSoarDebugger debugger, JMenu parent)
         {
         }
         
+        @Override
         public String toString()
         {
             return "Unknown " + m_Name;
@@ -223,6 +234,7 @@ public class ParseSelectedText
         }
     }
     
+    @Override
     public String toString()
     {
         StringBuffer buffer = new StringBuffer();

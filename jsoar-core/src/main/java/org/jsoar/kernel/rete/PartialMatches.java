@@ -52,6 +52,7 @@ public class PartialMatches
             this.negatedSubConditions = negatedSubConditions != null ? Collections.unmodifiableList(new ArrayList<Entry>(negatedSubConditions)) : null;
         }
         
+        @Override
         public String toString()
         {
             if(negatedSubConditions == null)

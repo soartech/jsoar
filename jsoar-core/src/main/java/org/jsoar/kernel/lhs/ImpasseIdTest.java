@@ -19,6 +19,7 @@ public class ImpasseIdTest extends ComplexTest
         
     }
     
+    @Override
     public ImpasseIdTest asImpasseIdTest()
     {
         return this;

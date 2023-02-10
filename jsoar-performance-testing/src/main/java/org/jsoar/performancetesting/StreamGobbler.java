@@ -30,6 +30,7 @@ public class StreamGobbler extends Thread
     /**
      * Run the thread for input but output each character as we get it.
      */
+    @Override
     public void run()
     {
         try

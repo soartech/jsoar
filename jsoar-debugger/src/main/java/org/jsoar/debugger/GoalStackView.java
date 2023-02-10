@@ -39,6 +39,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
     {
         private static final long serialVersionUID = -1363240384388636598L;
         
+        @Override
         public String getToolTipText(MouseEvent event)
         {
             final int index = locationToIndex(event.getPoint());
@@ -216,6 +217,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
             this.label = label;
         }
         
+        @Override
         public String toString()
         {
             return label;

@@ -44,6 +44,7 @@ public class PrintCommand extends PicocliSoarCommand
         super(agent, new Print(agent));
     }
     
+    @Override
     public Print getCommand()
     {
         return (Print) super.getCommand();

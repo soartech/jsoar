@@ -73,6 +73,7 @@ public class RelationalTest extends ComplexTest
         this.referent = other.referent;
     }
     
+    @Override
     public RelationalTest asRelationalTest()
     {
         return this;

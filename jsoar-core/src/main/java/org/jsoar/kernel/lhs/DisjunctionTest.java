@@ -27,6 +27,7 @@ public class DisjunctionTest extends ComplexTest
         this.disjunction_list = disjunction;
     }
     
+    @Override
     public DisjunctionTest asDisjunctionTest()
     {
         return this;

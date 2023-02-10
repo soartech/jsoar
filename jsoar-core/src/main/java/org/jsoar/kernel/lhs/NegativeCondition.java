@@ -35,6 +35,7 @@ public class NegativeCondition extends ThreeFieldCondition
      * 
      * @see org.jsoar.kernel.Condition#asNegativeCondition()
      */
+    @Override
     public NegativeCondition asNegativeCondition()
     {
         return this;

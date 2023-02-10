@@ -114,6 +114,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             this.value_s_id = value_s_id;
         }
         
+        @Override
         public String toString()
         {
             return "ChildID: " + wc_id +
@@ -228,6 +229,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             this.symbol_value = symbol_value;
         }
         
+        @Override
         public String toString()
         {
             return "S_ID: " + s_id +
@@ -353,6 +355,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             this.last_episode_id = last_episode_id;
         }
         
+        @Override
         public String toString()
         {
             return "wi_id: " + wi_id +

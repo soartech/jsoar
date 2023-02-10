@@ -172,6 +172,7 @@ public final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     SoarPreparedStatement pool_find_lti_queries_1_2;
     public SoarPreparedStatement[][] pool_find_lti_queries;
     
+    @Override
     public void prepare() throws SoarException, IOException
     {
         // Reflect the prepared statements in

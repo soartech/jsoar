@@ -264,6 +264,7 @@ public class MainPanel extends JPanel
             this.transcolor = new Color(1, 252, 1, 40);
         }
         
+        @Override
         public void paintComponent(Graphics g)
         {
             g.setColor(this.transcolor);

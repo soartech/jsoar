@@ -19,6 +19,7 @@ public class GoalIdTest extends ComplexTest
         
     }
     
+    @Override
     public GoalIdTest asGoalIdTest()
     {
         return this;

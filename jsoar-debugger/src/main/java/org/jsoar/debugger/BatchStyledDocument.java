@@ -46,6 +46,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
     private final BatchStyledDocument self = this;
     private final Thread highlightingThread = new Thread("Document Highlight Thread")
     {
+        @Override
         public void run()
         {
             while(!Thread.interrupted())

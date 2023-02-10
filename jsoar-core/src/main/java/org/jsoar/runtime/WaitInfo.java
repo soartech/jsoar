@@ -57,6 +57,7 @@ public class WaitInfo
      * 
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString()
     {
         return waiting ? String.format("Waiting %s [%s]",

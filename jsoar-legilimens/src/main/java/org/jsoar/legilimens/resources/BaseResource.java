@@ -100,6 +100,7 @@ public class BaseResource extends ServerResource
      * 
      * @return the name of the resource
      */
+    @Override
     public String getName()
     {
         return getTemplateName(null);

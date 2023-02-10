@@ -264,6 +264,7 @@ public class SyntaxPatternComponent extends JPanel
             }
         }
         
+        @Override
         public String getColumnName(int col)
         {
             return columnNames[col];

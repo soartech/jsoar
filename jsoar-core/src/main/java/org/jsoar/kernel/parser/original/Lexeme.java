@@ -32,6 +32,7 @@ public class Lexeme
         return string.length();
     }
     
+    @Override
     public String toString()
     {
         return string;

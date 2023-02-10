@@ -84,6 +84,7 @@ public class InputOutputImplTest extends JSoarTest
     /**
      * @throws java.lang.Exception
      */
+    @Override
     @BeforeEach
     public void setUp() throws Exception
     {

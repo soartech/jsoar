@@ -44,6 +44,7 @@ public class ParsedCommand
         return args;
     }
     
+    @Override
     public String toString()
     {
         return location + ": " + args;
