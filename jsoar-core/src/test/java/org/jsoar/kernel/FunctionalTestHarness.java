@@ -110,7 +110,14 @@ public class FunctionalTestHarness
             {
                 halted = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
 
             @Override
@@ -119,7 +126,14 @@ public class FunctionalTestHarness
                 halted = true;
                 failed = true;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
 
             @Override
@@ -128,6 +142,13 @@ public class FunctionalTestHarness
                 halted = true;
                 failed = false;
                 return oldHalt.execute(rhsContext, arguments);
-            }});
+            }
+            
+            @Override
+            public boolean mayBeStandalone()
+            {
+                return true;
+            }
+        });
     }
 }
