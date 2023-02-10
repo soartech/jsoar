@@ -127,7 +127,7 @@ public class WaitRhsFunctionTest
         assertFalse(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting);
         
         final AtomicBoolean signalled = new AtomicBoolean(false);
-        final Object signal = new String("testNoWaitIfAgentHalts");
+        final Object signal = "testNoWaitIfAgentHalts";
         
         agent.execute(() ->
         {
