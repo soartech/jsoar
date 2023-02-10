@@ -41,14 +41,9 @@ public class AsciiWorldLoader
     
     public Result load(URL url) throws IOException
     {
-        final InputStream in = url.openStream();
-        try
+        try(InputStream in = url.openStream())
         {
             return load(in);
-        }
-        finally
-        {
-            in.close();
         }
     }
     

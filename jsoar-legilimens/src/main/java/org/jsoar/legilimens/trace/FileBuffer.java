@@ -56,8 +56,7 @@ class FileBuffer extends Writer
     
     public TraceRange getRange(int start, int max) throws IOException
     {
-        final BufferedReader reader = new BufferedReader(new FileReader(file));
-        try
+        try(BufferedReader reader = new BufferedReader(new FileReader(file)))
         {
             reader.skip(start);
             
@@ -73,10 +72,6 @@ class FileBuffer extends Writer
                 total += read;
             }
             return new TraceRange(start, buffer, total);
-        }
-        finally
-        {
-            reader.close();
         }
     }
     

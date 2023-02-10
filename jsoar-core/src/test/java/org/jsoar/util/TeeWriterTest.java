@@ -45,21 +45,14 @@ public class TeeWriterTest
         StringWriter second = new StringWriter();
         StringWriter third = new StringWriter();
         
-        TeeWriter tee = null;
-        try
+        try(TeeWriter tee = new TeeWriter(first, second, third))
         {
-            tee = new TeeWriter(first, second, third);
-            
             final String text = "This is some text";
             tee.append(text);
             tee.flush();
             assertEquals(text, first.getBuffer().toString());
             assertEquals(text, second.getBuffer().toString());
             assertEquals(text, third.getBuffer().toString());
-        }
-        finally
-        {
-            tee.close();
         }
         
     }
