@@ -6,6 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -161,10 +162,7 @@ public class SymbolFactoryImpl implements SymbolFactory
             }
         }
         
-        for(int i = 0; i < id_counter.length; ++i)
-        {
-            id_counter[i] = 1;
-        }
+        Arrays.fill(id_counter, 1);
         
         // SMEM - id counters are reset externally to this call.
     }

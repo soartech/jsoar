@@ -7,6 +7,7 @@ package org.jsoar.kernel.parser.original;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -300,10 +301,7 @@ class OriginalParserImpl
      */
     private void reset_placeholder_variable_generator()
     {
-        for(int i = 0; i < placeholder_counter.length; i++)
-        {
-            placeholder_counter[i] = 1;
-        }
+        Arrays.fill(placeholder_counter, 1);
     }
     
     /**
