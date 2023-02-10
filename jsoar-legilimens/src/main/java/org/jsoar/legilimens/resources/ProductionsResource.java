@@ -41,7 +41,7 @@ public class ProductionsResource extends BaseAgentResource
     {
         super.doInit();
         
-        internal = Boolean.valueOf(getQuery().getFirstValue("internal"));
+        internal = Boolean.parseBoolean(getQuery().getFirstValue("internal"));
     }
     
     /*

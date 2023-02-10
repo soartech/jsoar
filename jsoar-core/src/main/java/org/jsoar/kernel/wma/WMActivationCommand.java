@@ -287,7 +287,7 @@ public class WMActivationCommand extends PicocliSoarCommand
             long timetag;
             try
             {
-                timetag = Long.valueOf(param);
+                timetag = Long.parseLong(param);
             }
             catch(NumberFormatException ignored)
             {

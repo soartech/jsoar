@@ -33,7 +33,7 @@ public class LegilimensStarter
     public static void startIfAutoStartEnabled()
     {
         final String property = System.getProperty(AUTO_START_PROPERTY, "false");
-        if(Boolean.valueOf(property))
+        if(Boolean.parseBoolean(property))
         {
             start();
         }

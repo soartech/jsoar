@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class Symbols
 {
     private static final Logger LOG = LoggerFactory.getLogger(Agent.class);
-    private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
+    private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.parseBoolean(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
     
     public static final int IDENTIFIER_SYMBOL_TYPE = 1;
     public static final int SYM_CONSTANT_SYMBOL_TYPE = 2;

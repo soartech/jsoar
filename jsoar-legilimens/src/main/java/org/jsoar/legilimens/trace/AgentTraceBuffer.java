@@ -63,7 +63,7 @@ public class AgentTraceBuffer
     
     private static boolean getDeleteTraceOnExit()
     {
-        return Boolean.valueOf(System.getProperty("jsoar.legilimens.trace.deleteOnExit", "true"));
+        return Boolean.parseBoolean(System.getProperty("jsoar.legilimens.trace.deleteOnExit", "true"));
     }
     
     private AgentTraceBuffer(Agent agent, int bufferSize) throws IOException

@@ -61,8 +61,8 @@ public class TowersOfHanoi extends /* AbstractAdaptableView */ JPanel implements
         int numPegs = 3, numDisks = 11;
         if(args.length == 2)
         {
-            numPegs = Integer.valueOf(args[0]);
-            numDisks = Integer.valueOf(args[1]);
+            numPegs = Integer.parseInt(args[0]);
+            numDisks = Integer.parseInt(args[1]);
         }
         this.game = new Game(numPegs, numDisks);
         this.panel = new TohPanel(game);

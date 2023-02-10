@@ -233,7 +233,7 @@ public class RLTests extends FunctionalTestHarness
             {
                 int startOfIndex = p.getName().lastIndexOf('*') + 1;
                 int index = Integer.valueOf(p.getName().substring(startOfIndex)) - 1;
-                double value = Double.valueOf(p.getFirstAction().asMakeAction().referent.toString());
+                double value = Double.parseDouble(p.getFirstAction().asMakeAction().referent.toString());
                 
                 if(Math.abs(expectedValues[index] - value) > tolerance)
                 {

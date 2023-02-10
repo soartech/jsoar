@@ -99,7 +99,7 @@ public class PerformanceTimer
         {
             if(decisions == 0)
             {
-                decisions = Integer.valueOf(arg);
+                decisions = Integer.parseInt(arg);
                 if(decisions == 0)
                 {
                     decisions = -1;

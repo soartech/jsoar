@@ -594,7 +594,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         {
             try
             {
-                final int newLimit = Integer.valueOf(result);
+                final int newLimit = Integer.parseInt(result);
                 setLimit(newLimit >= 0 ? newLimit : -1);
             }
             catch(NumberFormatException e)

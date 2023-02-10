@@ -573,11 +573,11 @@ public class Lexer
                 lexeme.type = LexemeType.INTEGER;
                 if(lexeme.string.charAt(0) != '+')
                 {
-                    lexeme.int_val = Long.valueOf(lexeme.string);
+                    lexeme.int_val = Long.parseLong(lexeme.string);
                 }
                 else
                 {
-                    lexeme.int_val = Long.valueOf(lexeme.string.substring(1));
+                    lexeme.int_val = Long.parseLong(lexeme.string.substring(1));
                 }
             }
             catch(NumberFormatException e)
@@ -596,7 +596,7 @@ public class Lexer
             try
             {
                 lexeme.type = LexemeType.FLOAT;
-                lexeme.float_val = Double.valueOf(lexeme.string);
+                lexeme.float_val = Double.parseDouble(lexeme.string);
             }
             catch(NumberFormatException e)
             {
@@ -615,7 +615,7 @@ public class Lexer
             {
                 lexeme.id_letter = Character.toUpperCase(lexeme.string.charAt(0));
                 lexeme.type = LexemeType.IDENTIFIER;
-                lexeme.id_number = Long.valueOf(lexeme.string.substring(1));
+                lexeme.id_number = Long.parseLong(lexeme.string.substring(1));
             }
             catch(NumberFormatException e)
             {

@@ -54,7 +54,7 @@ public class RunControlModel implements Disposable
     {
         try
         {
-            return Long.valueOf(count.getText(0, count.getLength()));
+            return Long.parseLong(count.getText(0, count.getLength()));
         }
         catch(NumberFormatException e)
         {

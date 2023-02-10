@@ -176,11 +176,11 @@ public class SoarTechXmlToWme implements XmlToWme
         }
         else if(SoarTechWmeToXml.DOUBLE.equals(type))
         {
-            return syms.createDouble(Double.valueOf(value));
+            return syms.createDouble(Double.parseDouble(value));
         }
         else if(SoarTechWmeToXml.INTEGER.equals(type))
         {
-            return syms.createInteger(Long.valueOf(value));
+            return syms.createInteger(Long.parseLong(value));
         }
         else
         {
