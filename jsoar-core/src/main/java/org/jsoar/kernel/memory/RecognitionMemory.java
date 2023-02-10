@@ -968,6 +968,7 @@ public class RecognitionMemory
                                     if(clone.reference_count != 0)
                                     {
                                         has_active_clones = true;
+                                        break;
                                     }
                                 }
                                 if(has_active_clones)
@@ -979,6 +980,7 @@ public class RecognitionMemory
                                     if(clone.reference_count != 0)
                                     {
                                         has_active_clones = true;
+                                        break;
                                     }
                                 }
                                 if(has_active_clones)

@@ -107,6 +107,7 @@ public class ConjunctiveNegationCondition extends Condition
             if(!c.already_in_tc)
             {
                 result = false;
+                break;
             }
         }
         
