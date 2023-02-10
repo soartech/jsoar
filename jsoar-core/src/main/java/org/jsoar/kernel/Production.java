@@ -155,7 +155,7 @@ public class Production
     private final ProductionType type;
     private final SourceLocation location;
     private final String name;
-    private String documentation;	// This can be set by some of the RL stuff
+    private String documentation;    // This can be set by some of the RL stuff
     private final Support declared_support;
     private final boolean interrupt;
     

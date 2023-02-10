@@ -182,7 +182,7 @@ public class ReinforcementLearning
         {
             ReinforcementLearningInfo data = ((IdentifierImpl) goal).goalInfo.rl_info;
             data.eligibility_traces.clear();
-            data.prev_op_rl_rules.clear();	// rl_clear_refs(goal) in CSoar
+            data.prev_op_rl_rules.clear();    // rl_clear_refs(goal) in CSoar
             
             data.previous_q = 0;
             data.reward = 0;

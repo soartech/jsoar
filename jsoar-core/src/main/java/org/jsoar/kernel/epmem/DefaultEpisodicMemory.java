@@ -1852,17 +1852,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      ******************************************************************************
      * 
      * episodic_memory.cpp:2454:{@code inline void _epmem_store_level( agent* my_agent,
-    		                        std::queue< Symbol* >& parent_syms,
-    		                        std::queue< epmem_node_id >& parent_ids,
-    		                        tc_number tc,
-    		                        epmem_wme_list::iterator w_b,
-    		                        epmem_wme_list::iterator w_e,
-    		                        epmem_node_id parent_id,
-    		                        epmem_time_id time_counter,
-    		                        std::map< wme*, epmem_id_reservation* >& id_reservations,
-    		                        std::set< Symbol* >& new_identifiers,
-    		                        std::queue< epmem_node_id >& epmem_node,
-    		                        std::queue< epmem_node_id >& epmem_edge )}
+                                    std::queue< Symbol* >& parent_syms,
+                                    std::queue< epmem_node_id >& parent_ids,
+                                    tc_number tc,
+                                    epmem_wme_list::iterator w_b,
+                                    epmem_wme_list::iterator w_e,
+                                    epmem_node_id parent_id,
+                                    epmem_time_id time_counter,
+                                    std::map< wme*, epmem_id_reservation* >& id_reservations,
+                                    std::set< Symbol* >& new_identifiers,
+                                    std::queue< epmem_node_id >& epmem_node,
+                                    std::queue< epmem_node_id >& epmem_edge )}
      * 
      */
     void _epmem_store_level(

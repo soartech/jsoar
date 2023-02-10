@@ -2,10 +2,10 @@
 *
 * ParseText.java
 * 
-* Description:	
+* Description:
 * 
-* Created on 	Mar 18, 2005
-* @author 		Douglas Pearson
+* Created on     Mar 18, 2005
+* @author        Douglas Pearson
 * 
 * Developed by ThreePenny Software <a href="http://www.threepenny.net">www.threepenny.net</a>
 ********************************************************************************************/
