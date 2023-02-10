@@ -147,7 +147,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private enum smem_variable_key
     {
         var_max_cycle, var_num_nodes, var_num_edges, var_act_thresh, var_act_mode
-    };
+    }
     
     /**
      * semantic_memory.h:260:smem_storage_type
@@ -155,7 +155,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private enum smem_storage_type
     {
         store_level, store_recursive
-    };
+    }
     
     /**
      * semantic_memory.h:367:smem_query_levels
@@ -163,7 +163,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private enum smem_query_levels
     {
         qry_search, qry_full
-    };
+    }
     
     /**
      * semantic_memory.h:237:SMEM_ACT_MAX
@@ -1261,7 +1261,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
             }
         }
-        ;
         
         return action_counter == 0;
     }
@@ -2143,7 +2142,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     throw new IllegalStateException("Expected non-empty result");
                 }
-                ;
                 lti = smem_lti_soar_make(lti_id, (char) rs.getLong(0 + 1), rs.getLong(1 + 1), result_header.level);
             }
             finally

@@ -27,7 +27,7 @@ public class ScriptCommandTest
     
     public static class TestEvent implements SoarEvent
     {
-    };
+    }
     
     @BeforeEach
     public void setUp() throws Exception

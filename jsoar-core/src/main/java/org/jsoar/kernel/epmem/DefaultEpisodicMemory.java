@@ -5884,7 +5884,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         char val_letter;
         long val_num;
         
-    };
+    }
     
     private void epmem_install_memory(
             IdentifierImpl state,

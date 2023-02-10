@@ -54,7 +54,7 @@ public class InitSoarTests extends FunctionalTestHarness
         assertEquals(0, props.get(SoarProperties.WME_REMOVAL_COUNT), "WME_REMOVAL_COUNT is non-zero");
         assertEquals(0, props.get(SoarProperties.NUM_WM_SIZES_ACCUMULATED), "NUM_WM_SIZES_ACCUMULATED is non-zero");
         assertEquals(0, props.get(SoarProperties.CUMULATIVE_WM_SIZE), "CUMULATIVE_WM_SIZE is non-zero");
-        ;
+        
         assertEquals(0, props.get(SoarProperties.MAX_WM_SIZE), "MAX_WM_SIZE is non-zero");
         
         // confirm current phase is input

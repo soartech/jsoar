@@ -20,7 +20,7 @@ public class SoarEventsTest
 {
     private static class TestEvent implements SoarEvent
     {
-    };
+    }
     
     @Test
     public void testListenForSingleEvent()

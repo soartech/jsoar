@@ -55,7 +55,7 @@ public class DefaultSemanticMemoryParams
     enum Optimization
     {
         safety, performance
-    };
+    }
     
     enum MergeChoices
     {

@@ -15,5 +15,5 @@ public interface JSoarDebuggerPlugin
     
     default void shutdown()
     {
-    };
+    }
 }

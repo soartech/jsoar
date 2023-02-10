@@ -52,7 +52,7 @@ public class Utils
         
         commandLine.setOut(pw);
         commandLine.setErr(pw);
-        ;
+        
         int exitCode = commandLine.execute(
                 Arrays.copyOfRange(args, 1, args.length)); // picocli expects the first arg to be the first arg of the command, but for SoarCommands its the name of the command, so get the subarray
                                                            // starting at the second arg

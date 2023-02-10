@@ -565,7 +565,7 @@ public class Exploration
         case USER_SELECT_LAST:
             for(return_val = candidates; return_val.next_candidate != null; return_val = return_val.next_candidate)
             {
-                ;
+                
             }
             break;
         

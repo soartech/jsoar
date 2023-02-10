@@ -37,7 +37,7 @@ class DefaultEpisodicMemoryParams
     enum Optimization
     {
         safety, performance
-    };
+    }
     
     /**
      * Size of pages used for SQLite
@@ -77,7 +77,7 @@ class DefaultEpisodicMemoryParams
     enum Phase
     {
         output, selection
-    };
+    }
     
     /**
      * Episodic memory enabled
@@ -85,7 +85,7 @@ class DefaultEpisodicMemoryParams
     enum Learning
     {
         on, off
-    };
+    }
     
     /**
      * Forces episode encoding/ignoring in the next storage phase
@@ -93,7 +93,7 @@ class DefaultEpisodicMemoryParams
     enum Force
     {
         remember, ignore, off
-    };
+    }
     
     /**
      * How episode encoding is triggered
@@ -101,32 +101,32 @@ class DefaultEpisodicMemoryParams
     enum Trigger
     {
         none, output, dc
-    };
+    }
     
     enum MergeChoices
     {
         none, add
-    };
+    }
     
     enum GraphMatchChoices
     {
         on, off
-    };
+    }
     
     enum GmOrderingChoices
     {
         undefined, dfs, mcv
-    };
+    }
     
     enum AppendDatabaseChoices
     {
         on, off
-    };
+    }
     
     enum LazyCommitChoices
     {
         on, off
-    };
+    }
     
     private static final String PREFIX = "epmem.params.";
     

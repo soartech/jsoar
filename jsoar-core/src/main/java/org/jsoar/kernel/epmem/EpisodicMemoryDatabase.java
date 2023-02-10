@@ -24,7 +24,7 @@ public final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     enum value_type
     {
         null_t, int_t, double_t, text_t
-    };
+    }
     
     // empty table used to verify proper structure
     static final String EPMEM_SCHEMA = "epmem_";

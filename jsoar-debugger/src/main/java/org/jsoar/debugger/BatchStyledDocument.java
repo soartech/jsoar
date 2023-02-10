@@ -170,7 +170,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
                 index = end;
             }
         }
-    };
+    }
     
     private void highlightNewText(int offset, String text)
     {
@@ -196,7 +196,7 @@ public class BatchStyledDocument extends DefaultStyledDocument
                 index = end;
             }
         }
-    };
+    }
     
     public void trim(int limit, int limitTolerance)
     {

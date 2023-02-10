@@ -21,7 +21,7 @@ public class ReinforcementLearningParams
     public enum Learning
     {
         on, off
-    };
+    }
     
     /**
      * Options for temporal-extension
@@ -29,7 +29,7 @@ public class ReinforcementLearningParams
     public enum TemporalExtension
     {
         on, off
-    };
+    }
     
     /**
      * Options for RL algorithm learning policy
@@ -39,7 +39,7 @@ public class ReinforcementLearningParams
     public enum LearningPolicy
     {
         sarsa, q
-    };
+    }
     
     /**
      * Options to turn hrl-discount on and off
@@ -47,7 +47,7 @@ public class ReinforcementLearningParams
     public enum HrlDiscount
     {
         on, off
-    };
+    }
     
     /**
      * Options for temporal-discount
@@ -55,7 +55,7 @@ public class ReinforcementLearningParams
     public enum TemporalDiscount
     {
         on, off
-    };
+    }
     
     /**
      * Options for chunk-stop
@@ -63,7 +63,7 @@ public class ReinforcementLearningParams
     public enum ChunkStop
     {
         on, off
-    };
+    }
     
     /**
      * How the learning rate cools over time.
@@ -125,7 +125,7 @@ public class ReinforcementLearningParams
     public enum Meta
     {
         on, off
-    };
+    }
     
     /**
      * Options for apoptosis
@@ -180,7 +180,7 @@ public class ReinforcementLearningParams
     public enum Trace
     {
         on, off
-    };
+    }
     
     private static final String PREFIX = "rl.";
     

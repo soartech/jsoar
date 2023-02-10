@@ -33,7 +33,7 @@ public class ActionManager
         AbstractDebuggerAction action;
         Class<?> klass;
         public boolean adapt;
-    };
+    }
     
     private List<ObjectActionPair> objectActions = new ArrayList<ObjectActionPair>();
     

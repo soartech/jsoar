@@ -23,32 +23,32 @@ public class DefaultWorkingMemoryActivationParams
     public enum ActivationChoices
     {
         on, off
-    };
+    }
     
     public enum PetrovApproxChoices
     {
         on, off
-    };
+    }
     
     public enum ForgettingChoices
     {
         off, naive, bsearch, approx
-    };
+    }
     
     public enum ForgetWmeChoices
     {
         all, lti
-    };
+    }
     
     public enum FakeForgettingChoices
     {
         on, off
-    };
+    }
     
     public enum TimerLevels
     {
         off, one
-    };
+    }
     
     private static final String PREFIX = "wma.params.";
     

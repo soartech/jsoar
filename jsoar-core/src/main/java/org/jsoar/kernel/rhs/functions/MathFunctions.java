@@ -47,7 +47,7 @@ public class MathFunctions
             RhsFunctions.checkArgumentCount(this, arguments);
             return context.getSymbols().createDouble(value);
         }
-    };
+    }
     
     /**
      * RHS function that returns <i>pi</i>

@@ -139,7 +139,7 @@ public class SoarSettingsCommand extends PicocliSoarCommand
         enum CommandPhase
         {
             input, proposal, decide, apply, output
-        };
+        }
         
         @Parameters(index = "0", arity = "0..1", description = "Valid phases are: ${COMPLETION-CANDIDATES}")
         private CommandPhase phase;
