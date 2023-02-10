@@ -23,7 +23,7 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultSemanticMemoryParams
 {
-    static enum PageChoices
+    enum PageChoices
     {
         page_1k, page_2k, page_4k, page_8k, page_16k, page_32k, page_64k;
         
@@ -52,17 +52,17 @@ public class DefaultSemanticMemoryParams
         }
     }
     
-    static enum Optimization
+    enum Optimization
     {
         safety, performance
     };
     
-    static enum MergeChoices
+    enum MergeChoices
     {
         none, add;
     }
     
-    static enum ActivationChoices
+    enum ActivationChoices
     {
         recency, frequency, base_level("base-level");
         
@@ -102,32 +102,32 @@ public class DefaultSemanticMemoryParams
         }
     }
     
-    static enum BaseUpdateChoices
+    enum BaseUpdateChoices
     {
         stable, naive, incremental;
     }
     
-    static enum ActivateOnQueryChoices
+    enum ActivateOnQueryChoices
     {
         on, off
     }
     
-    static enum MirroringChoices
+    enum MirroringChoices
     {
         on, off
     }
     
-    static enum LazyCommitChoices
+    enum LazyCommitChoices
     {
         on, off
     }
     
-    static enum LearningChoices
+    enum LearningChoices
     {
         on, off
     }
     
-    static enum AppendDatabaseChoices
+    enum AppendDatabaseChoices
     {
         on, off
     }

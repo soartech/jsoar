@@ -27,7 +27,7 @@ public interface DebuggerProvider
      */
     public static final String CLOSE_ACTION = "closeAction";
     
-    public static enum CloseAction
+    public enum CloseAction
     {
         /**
          * The debugger should clean up and exit the Java VM.

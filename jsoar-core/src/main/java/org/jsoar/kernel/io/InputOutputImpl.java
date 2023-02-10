@@ -99,7 +99,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     /**
      * io.cpp:387
      */
-    private static enum OutputLinkStatus
+    private enum OutputLinkStatus
     {
         UNINITIALIZED_OL_STATUS,
         NEW_OL_STATUS, /* just created it */

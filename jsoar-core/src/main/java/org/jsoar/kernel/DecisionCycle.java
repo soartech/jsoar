@@ -72,7 +72,7 @@ public class DecisionCycle
     private EpisodicMemory epmem;
     private DefaultWorkingMemoryActivation wma;
     
-    private static enum GoType
+    private enum GoType
     {
         GO_PHASE, GO_ELABORATION, GO_DECISION,
         // unused: GO_STATE, GO_OPERATOR, GO_SLOT, GO_OUTPUT

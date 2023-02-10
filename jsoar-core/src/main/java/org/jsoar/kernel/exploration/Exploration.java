@@ -40,7 +40,7 @@ public class Exploration
      * 
      * @author ray
      */
-    public static enum NumericIndifferentMode
+    public enum NumericIndifferentMode
     {
         NUMERIC_INDIFFERENT_MODE_AVG("avg"),
         NUMERIC_INDIFFERENT_MODE_SUM("sum");
@@ -77,7 +77,7 @@ public class Exploration
      * 
      * @author ray
      */
-    public static enum Policy
+    public enum Policy
     {
         USER_SELECT_BOLTZMANN("boltzmann"), /* boltzmann algorithm, with respect to temperature */
         USER_SELECT_E_GREEDY("epsilon-greedy"), /* with probability epsilon choose random, otherwise greedy */

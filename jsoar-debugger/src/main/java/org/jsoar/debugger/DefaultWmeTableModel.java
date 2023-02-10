@@ -21,7 +21,7 @@ public class DefaultWmeTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = -8187445208277014970L;
     
-    public static enum Columns
+    public enum Columns
     {
         Id(Identifier.class), Attr(Symbol.class), Value(Symbol.class), Timetag(Integer.class), Acceptable(String.class);
         

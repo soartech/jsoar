@@ -34,7 +34,7 @@ class DefaultEpisodicMemoryParams
     /**
      * Policy for committing data to disk
      */
-    static enum Optimization
+    enum Optimization
     {
         safety, performance
     };
@@ -42,7 +42,7 @@ class DefaultEpisodicMemoryParams
     /**
      * Size of pages used for SQLite
      */
-    static enum PageChoices
+    enum PageChoices
     {
         page_1k, page_2k, page_4k, page_8k, page_16k, page_32k, page_64k;
         
@@ -74,7 +74,7 @@ class DefaultEpisodicMemoryParams
     /**
      * Decision cycle phase to encode new episodes and process epmem link commands
      */
-    static enum Phase
+    enum Phase
     {
         output, selection
     };
@@ -82,7 +82,7 @@ class DefaultEpisodicMemoryParams
     /**
      * Episodic memory enabled
      */
-    static enum Learning
+    enum Learning
     {
         on, off
     };
@@ -90,7 +90,7 @@ class DefaultEpisodicMemoryParams
     /**
      * Forces episode encoding/ignoring in the next storage phase
      */
-    static enum Force
+    enum Force
     {
         remember, ignore, off
     };
@@ -98,32 +98,32 @@ class DefaultEpisodicMemoryParams
     /**
      * How episode encoding is triggered
      */
-    static enum Trigger
+    enum Trigger
     {
         none, output, dc
     };
     
-    static enum MergeChoices
+    enum MergeChoices
     {
         none, add
     };
     
-    static enum GraphMatchChoices
+    enum GraphMatchChoices
     {
         on, off
     };
     
-    static enum GmOrderingChoices
+    enum GmOrderingChoices
     {
         undefined, dfs, mcv
     };
     
-    static enum AppendDatabaseChoices
+    enum AppendDatabaseChoices
     {
         on, off
     };
     
-    static enum LazyCommitChoices
+    enum LazyCommitChoices
     {
         on, off
     };

@@ -55,7 +55,7 @@ public class GetUrl extends AbstractRhsFunctionHandler
         }
         
         // Open an input stream
-        try(final InputStream is = new BufferedInputStream(url.openStream()); final ByteArrayOutputStream out = new ByteArrayOutputStream())
+        try(InputStream is = new BufferedInputStream(url.openStream()); ByteArrayOutputStream out = new ByteArrayOutputStream())
         {
             ByteStreams.copy(is, out);
             return context.getSymbols().createString(out.toString("UTF-8"));

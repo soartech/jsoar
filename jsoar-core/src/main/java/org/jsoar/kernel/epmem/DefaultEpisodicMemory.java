@@ -134,7 +134,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory.h:42:epmem_variable_key
      */
-    private static enum epmem_variable_key
+    private enum epmem_variable_key
     {
         var_rit_offset_1,
         var_rit_leftroot_1,
@@ -1127,7 +1127,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @return EpmemRitForkNodeResult In the C, there is a pass by reference int,
      * so Java will simulate that with a return class.
      */
-    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long upper, epmem_rit_state rit_state)
+    private EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long upper, epmem_rit_state rit_state)
     {
         // The cpp contains this set of comments:
         

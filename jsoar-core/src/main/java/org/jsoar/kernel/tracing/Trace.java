@@ -25,7 +25,7 @@ public class Trace
      * 
      * @author ray
      */
-    public static enum Category
+    public enum Category
     {
         /** gsysparam.h:92:TRACE_VERBOSE */
         VERBOSE(-1),
@@ -146,7 +146,7 @@ public class Trace
      * 
      * @author ray
      */
-    public static enum WmeTraceType
+    public enum WmeTraceType
     {
         /**
          * don't print anything
@@ -175,7 +175,7 @@ public class Trace
      * 
      * @author ray
      */
-    public static enum MatchSetTraceType
+    public enum MatchSetTraceType
     {
         MS_ASSERT, // print just assertions
         MS_RETRACT // print just retractions

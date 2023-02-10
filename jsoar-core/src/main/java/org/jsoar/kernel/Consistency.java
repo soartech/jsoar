@@ -30,7 +30,7 @@ public class Consistency
 {
     private static final boolean DEBUG_CONSISTENCY_CHECK = false;
     
-    private static enum LevelChangeType
+    private enum LevelChangeType
     {
         NEW_DECISION, SAME_LEVEL, HIGHER_LEVEL, LOWER_LEVEL, NIL_GOAL_RETRACTIONS
     }

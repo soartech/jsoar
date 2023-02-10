@@ -27,7 +27,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class OutputEvent extends AbstractInputOutputEvent
 {
-    public static enum OutputMode
+    public enum OutputMode
     {
         UNCHANGED_OUTPUT_COMMAND,
         ADDED_OUTPUT_COMMAND,

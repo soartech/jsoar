@@ -20,32 +20,32 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultWorkingMemoryActivationParams
 {
-    public static enum ActivationChoices
+    public enum ActivationChoices
     {
         on, off
     };
     
-    public static enum PetrovApproxChoices
+    public enum PetrovApproxChoices
     {
         on, off
     };
     
-    public static enum ForgettingChoices
+    public enum ForgettingChoices
     {
         off, naive, bsearch, approx
     };
     
-    public static enum ForgetWmeChoices
+    public enum ForgetWmeChoices
     {
         all, lti
     };
     
-    public static enum FakeForgettingChoices
+    public enum FakeForgettingChoices
     {
         on, off
     };
     
-    public static enum TimerLevels
+    public enum TimerLevels
     {
         off, one
     };

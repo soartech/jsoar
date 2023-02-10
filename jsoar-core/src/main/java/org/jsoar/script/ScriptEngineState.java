@@ -123,7 +123,7 @@ public class ScriptEngineState
             
             engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);
             
-            try(final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8)))
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8)))
             {
                 engine.eval(reader);
             }

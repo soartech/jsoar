@@ -18,7 +18,7 @@ public class ReinforcementLearningParams
     /**
      * Options to turn RL on and off
      */
-    public static enum Learning
+    public enum Learning
     {
         on, off
     };
@@ -26,7 +26,7 @@ public class ReinforcementLearningParams
     /**
      * Options for temporal-extension
      */
-    public static enum TemporalExtension
+    public enum TemporalExtension
     {
         on, off
     };
@@ -36,7 +36,7 @@ public class ReinforcementLearningParams
      */
     // TODO Soar Manual version 9.6.0 replaces "q" with "q-learning", and
     // adds "off-policy-gq-lambda" and "on-policy-gq-lambda"
-    public static enum LearningPolicy
+    public enum LearningPolicy
     {
         sarsa, q
     };
@@ -44,7 +44,7 @@ public class ReinforcementLearningParams
     /**
      * Options to turn hrl-discount on and off
      */
-    public static enum HrlDiscount
+    public enum HrlDiscount
     {
         on, off
     };
@@ -52,7 +52,7 @@ public class ReinforcementLearningParams
     /**
      * Options for temporal-discount
      */
-    public static enum TemporalDiscount
+    public enum TemporalDiscount
     {
         on, off
     };
@@ -60,7 +60,7 @@ public class ReinforcementLearningParams
     /**
      * Options for chunk-stop
      */
-    public static enum ChunkStop
+    public enum ChunkStop
     {
         on, off
     };
@@ -72,9 +72,9 @@ public class ReinforcementLearningParams
      * logarithmic_decay: rate = rate / log(# updates for this rule)
      * Miller, 11/14/2011
      */
-    // public static enum DecayMode { normal_decay, exponential_decay,
+    // public enum DecayMode { normal_decay, exponential_decay,
     // logarithmic_decay, delta_bar_delta_decay }
-    public static enum DecayMode
+    public enum DecayMode
     {
         // TODO Soar Manual version 9.6.0 replaces "exp" with "exponential" and
         // "log" with "logarithmic"
@@ -122,7 +122,7 @@ public class ReinforcementLearningParams
     /**
      * Options for meta
      */
-    public static enum Meta
+    public enum Meta
     {
         on, off
     };
@@ -133,8 +133,8 @@ public class ReinforcementLearningParams
      * The complicated implementation here is to show
      * a name with a dash in it.
      */
-    // static enum ApoptosisChoices { none, chunks, rl_chunks };
-    public static enum ApoptosisChoices
+    // enum ApoptosisChoices { none, chunks, rl_chunks };
+    public enum ApoptosisChoices
     {
         none, chunks, rl_chunks("rl-chunks");
         
@@ -177,7 +177,7 @@ public class ReinforcementLearningParams
     /**
      * Options for trace
      */
-    public static enum Trace
+    public enum Trace
     {
         on, off
     };

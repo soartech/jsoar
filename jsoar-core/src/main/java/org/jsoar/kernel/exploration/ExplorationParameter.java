@@ -20,7 +20,7 @@ public class ExplorationParameter
      * 
      * @author ray
      */
-    public static enum ReductionPolicy
+    public enum ReductionPolicy
     {
         EXPLORATION_REDUCTION_EXPONENTIAL("exponential")
         {

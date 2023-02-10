@@ -143,7 +143,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * semantic_memory.h:232:smem_variable_key
      */
-    private static enum smem_variable_key
+    private enum smem_variable_key
     {
         var_max_cycle, var_num_nodes, var_num_edges, var_act_thresh, var_act_mode
     };
@@ -151,7 +151,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * semantic_memory.h:260:smem_storage_type
      */
-    private static enum smem_storage_type
+    private enum smem_storage_type
     {
         store_level, store_recursive
     };
@@ -159,7 +159,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * semantic_memory.h:367:smem_query_levels
      */
-    private static enum smem_query_levels
+    private enum smem_query_levels
     {
         qry_search, qry_full
     };
@@ -3817,7 +3817,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     // ////////////////////////////////////////////////////////
     // ////////////////////////////////////////////////////////
     
-    private static enum path_type
+    private enum path_type
     {
         blank_slate, cmd_bad, cmd_retrieve, cmd_query, cmd_store
     }

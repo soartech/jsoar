@@ -238,7 +238,7 @@ public abstract class AbstractSoarDatabase
         }
     }
     
-    private static final InputStream filter(InputStream in, Map<String, String> replacements) throws IOException
+    private static InputStream filter(InputStream in, Map<String, String> replacements) throws IOException
     {
         if(in == null)
         {

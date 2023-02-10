@@ -40,7 +40,7 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class ProductionFinder
 {
-    public static enum Options
+    public enum Options
     {
         LHS, RHS
     }
