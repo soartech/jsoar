@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rhs;
 
 import java.util.Formatter;
+import java.util.Objects;
 
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.Token;
@@ -166,11 +167,7 @@ public class ReteLocation extends AbstractRhsValue
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + fieldNum;
-        result = prime * result + levelsUp;
-        return result;
+        return Objects.hash(fieldNum, levelsUp);
     }
     
     /*

@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -1573,11 +1574,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (hash_id ^ (hash_id >>> 32));
-            result = prime * result + (int) (second ^ (second >>> 32));
-            return result;
+            return Objects.hash(hash_id, second);
         }
         
         @Override
@@ -4978,11 +4975,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + depth;
-            result = prime * result + (int) (lti_id ^ (lti_id >>> 32));
-            return result;
+            return Objects.hash(depth, lti_id);
         }
         
         @Override

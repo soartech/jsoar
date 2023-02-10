@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rhs;
 
 import java.util.Formatter;
+import java.util.Objects;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
@@ -126,10 +127,7 @@ public class UnboundVariable extends AbstractRhsValue
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + index;
-        return result;
+        return Objects.hash(index);
     }
     
     /*

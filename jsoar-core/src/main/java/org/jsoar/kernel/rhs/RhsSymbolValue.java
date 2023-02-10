@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rhs;
 
 import java.util.Formatter;
+import java.util.Objects;
 
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
@@ -137,10 +138,7 @@ public class RhsSymbolValue extends AbstractRhsValue
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((sym == null) ? 0 : sym.hashCode());
-        return result;
+        return Objects.hash(sym);
     }
     
     /*

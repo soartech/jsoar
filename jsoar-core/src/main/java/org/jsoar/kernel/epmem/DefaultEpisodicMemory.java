@@ -5498,11 +5498,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (int) (node_id ^ (node_id >>> 32));
-            result = prime * result + ((pedge == null) ? 0 : pedge.hashCode());
-            return result;
+            return Objects.hash(node_id, pedge);
         }
         
         @Override
