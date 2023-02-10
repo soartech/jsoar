@@ -42,6 +42,8 @@
         <maven.shade.version>3.4.1</maven.shade.version>
         <maven.source.version>3.2.1</maven.source.version>
         <maven.surefire.version>3.0.0-M8</maven.surefire.version>
+        <maven.checkstyle.version>3.2.1</maven.checkstyle.version>
+        <checkstyle.version>10.7.0</checkstyle.version>
         
         <!-- dependency versions -->
         <classgraph.version>4.8.154</classgraph.version>
@@ -178,6 +180,31 @@
                         <id>report</id>
                         <goals>
                             <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <excludes>**/module-info.java</excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
