@@ -47,7 +47,7 @@ public class BooleanPropertyProvider implements PropertyProvider<Boolean>
     @Override
     public Boolean set(Boolean value)
     {
-        return this.value.getAndSet(value.booleanValue());
+        return this.value.getAndSet(value);
     }
     
     /*

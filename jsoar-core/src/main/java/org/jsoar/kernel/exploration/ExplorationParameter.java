@@ -109,7 +109,7 @@ public class ExplorationParameter
      */
     void update()
     {
-        double reduction_rate = rates.get(reduction_policy).doubleValue();
+        double reduction_rate = rates.get(reduction_policy);
         
         if(reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_EXPONENTIAL)
         {
@@ -131,7 +131,7 @@ public class ExplorationParameter
     
     public double getReductionRate(ReductionPolicy policy)
     {
-        return rates.get(policy).doubleValue();
+        return rates.get(policy);
     }
     
     public boolean setReductionRate(ReductionPolicy policy, double rate)

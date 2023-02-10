@@ -38,7 +38,7 @@ public class MultiAttributes
     public int getCost(Symbol referent, int defValue)
     {
         Integer cost = costMap.get(referent);
-        return cost != null ? cost.intValue() : defValue;
+        return cost != null ? cost : defValue;
     }
     
 }

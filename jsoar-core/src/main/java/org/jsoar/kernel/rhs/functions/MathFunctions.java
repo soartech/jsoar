@@ -134,7 +134,7 @@ public class MathFunctions
             RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
             
             Double v = RhsFunctions.asDouble(arguments.get(0));
-            return context.getSymbols().createDouble(call(v.doubleValue()));
+            return context.getSymbols().createDouble(call(v));
         }
         
         protected abstract double call(double arg) throws RhsFunctionException;

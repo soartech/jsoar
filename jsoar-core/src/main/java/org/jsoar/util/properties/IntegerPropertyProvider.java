@@ -32,7 +32,7 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
     
     public void reset()
     {
-        this.value.set(key.getDefaultValue().intValue());
+        this.value.set(key.getDefaultValue());
     }
     
     public int increment()
@@ -64,7 +64,7 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
     @Override
     public Integer set(Integer value)
     {
-        return this.value.getAndSet(value.intValue());
+        return this.value.getAndSet(value);
     }
     
     @Override

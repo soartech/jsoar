@@ -78,6 +78,6 @@ public class DebugTest
         });
         agent.getProductions().loadProduction("testDebugCallsOpenDebugger (state <s> ^superstate nil) --> (debug)");
         agent.runFor(1, RunType.DECISIONS);
-        assertTrue(called.value.booleanValue());
+        assertTrue(called.value);
     }
 }

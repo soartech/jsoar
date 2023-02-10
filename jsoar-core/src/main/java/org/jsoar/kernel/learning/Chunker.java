@@ -128,13 +128,13 @@ public class Chunker
      * <p>agent.h:516:chunk_count
      * <p>Defautls to 1 in create_soar_agent()
      */
-    private ByRef<Integer> chunk_count = ByRef.create(Integer.valueOf(1));
+    private ByRef<Integer> chunk_count = ByRef.create(1);
     
     /**
      * <p>agent.h:517:justification_count
      * <p>Defaults to 1 in create_soar_agent()
      */
-    private ByRef<Integer> justification_count = ByRef.create(Integer.valueOf(1));
+    private ByRef<Integer> justification_count = ByRef.create(1);
     /**
      * <p>gsysparam.h:123:LEARNING_ON_SYSPARAM
      * <p>Defaults to false in init_soar()
