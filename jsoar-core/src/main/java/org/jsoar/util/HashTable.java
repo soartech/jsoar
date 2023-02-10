@@ -59,9 +59,9 @@ public class HashTable<T extends HashTableItem>
     public List<T> getAllItems()
     {
         final List<T> result = new ArrayList<T>();
-        for(int i = 0; i < buckets.length; ++i)
+        for(HashTableItem bucket : buckets)
         {
-            for(HashTableItem item = buckets[i]; item != null; item = item.next_in_hash_table)
+            for(HashTableItem item = bucket; item != null; item = item.next_in_hash_table)
             {
                 result.add(itemClass.cast(item));
             }

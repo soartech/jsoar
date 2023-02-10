@@ -7,7 +7,6 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jsoar.kernel.SoarException;
@@ -109,9 +108,8 @@ public class SoarCommands
     public static void registerCustomCommands(SoarCommandInterpreter interp, Adaptable context)
     {
         final ServiceLoader<SoarCommandProvider> loader = ServiceLoader.load(SoarCommandProvider.class);
-        for(Iterator<SoarCommandProvider> it = loader.iterator(); it.hasNext();)
+        for(SoarCommandProvider provider : loader)
         {
-            final SoarCommandProvider provider = it.next();
             LOG.info("Registering custom commands from " + provider.getClass());
             provider.registerCommands(interp, context);
         }

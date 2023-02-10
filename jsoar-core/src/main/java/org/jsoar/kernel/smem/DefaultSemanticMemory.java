@@ -2398,10 +2398,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         // Use this set to track when certain elements have been added, so we don't add them twice
         Set<Symbol> uniqueMathQueryElements = new HashSet<Symbol>();
         List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
-        for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
+        for(WmeImpl cue_p : cue)
         {
-            WmeImpl cue_p = it.next();
-            
             List<WmeImpl> cueTypes = smem_get_direct_augs_of_id(cue_p.value);
             if(cueTypes.isEmpty())
             {
@@ -2551,9 +2549,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 
                 // for ( smem_wme_list::iterator cue_p=cue->begin();
                 // cue_p!=cue->end(); cue_p++ )
-                for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
+                for(WmeImpl cue_p : cue)
                 {
-                    WmeImpl cue_p = it.next();
                     cue_wmes.add(cue_p);
                     
                     if(good_cue)
@@ -2578,9 +2575,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 
                 // for ( smem_wme_list::iterator cue_p=cue->begin();
                 // cue_p!=cue->end(); cue_p++ )
-                for(Iterator<WmeImpl> it = cue.iterator(); it.hasNext();)
+                for(WmeImpl cue_p : cue)
                 {
-                    WmeImpl cue_p = it.next();
                     cue_wmes.add(cue_p);
                     
                     if(good_cue)
@@ -2618,10 +2614,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             // candidate set
             WeightedCueElement cand_set = null;
             
-            for(Iterator<WeightedCueElement> it = weighted_cue.iterator(); it.hasNext();)
+            for(WeightedCueElement next_element : weighted_cue)
             {
-                WeightedCueElement next_element = it.next();
-                
                 if(next_element.pos_element)
                 {
                     cand_set = next_element;

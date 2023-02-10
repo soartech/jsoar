@@ -227,11 +227,8 @@ public class JsonWmeUtils
         final JsonObject jsonObj = new JsonObject();
         final Map<String, JsonArray> arrayAttrs = Maps.newHashMap();
         
-        // Create empty arrays for all array attributes
-        Iterator<String> arrayAttributes = getJsonArrayAttributes(root).iterator();
-        while(arrayAttributes.hasNext())
+        for(String attr : getJsonArrayAttributes(root))
         {
-            String attr = arrayAttributes.next();
             JsonArray array = new JsonArray();
             jsonObj.put(attr, array);
             arrayAttrs.put(attr, array);

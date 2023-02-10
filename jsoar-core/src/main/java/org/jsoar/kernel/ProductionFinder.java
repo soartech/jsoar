@@ -291,11 +291,10 @@ public class ProductionFinder
             {
                 return false;
             }
-            final Iterator<Test> it1 = ct1.conjunct_list.iterator();
             final Iterator<Test> it2 = ct2.conjunct_list.iterator();
-            while(it1.hasNext())
+            for(Test element : ct1.conjunct_list)
             {
-                if(!tests_are_equal_with_bindings(it1.next(), it2.next(), bindings))
+                if(!tests_are_equal_with_bindings(element, it2.next(), bindings))
                 {
                     return false;
                 }

@@ -542,9 +542,9 @@ public class EpmemCommand extends PicocliSoarCommand
             
             String dbFile = "";
             
-            for(int i = 0; i < fileName.length; i++)
+            for(String element : fileName)
             {
-                dbFile += fileName[i] + " ";
+                dbFile += element + " ";
             }
             
             dbFile = dbFile.trim();

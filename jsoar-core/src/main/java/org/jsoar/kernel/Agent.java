@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -420,9 +419,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private SoarCommandInterpreter createInterpreter(String name)
     {
         final ServiceLoader<SoarCommandInterpreterFactory> loader = ServiceLoader.load(SoarCommandInterpreterFactory.class);
-        for(Iterator<SoarCommandInterpreterFactory> it = loader.iterator(); it.hasNext();)
+        for(SoarCommandInterpreterFactory factory : loader)
         {
-            final SoarCommandInterpreterFactory factory = it.next();
             if(name == null || name.equals(factory.getName()))
             {
                 return factory.create(this);

@@ -243,9 +243,9 @@ public class ParseSelectedText
     protected int indexOfSet(String string, char[] chars, int startPos)
     {
         int min = -1;
-        for(int i = 0; i < chars.length; i++)
+        for(char element : chars)
         {
-            int index = string.indexOf(chars[i], startPos);
+            int index = string.indexOf(element, startPos);
             if(index != -1 && (min == -1 || index < min))
             {
                 min = index;
@@ -258,9 +258,9 @@ public class ParseSelectedText
     protected int lastIndexOfSet(String string, char[] chars, int startPos)
     {
         int max = -1;
-        for(int i = 0; i < chars.length; i++)
+        for(char element : chars)
         {
-            int index = string.lastIndexOf(chars[i], startPos);
+            int index = string.lastIndexOf(element, startPos);
             if(index > max)
             {
                 max = index;
@@ -438,9 +438,9 @@ public class ParseSelectedText
     
     protected boolean isWhiteSpace(char ch)
     {
-        for(int i = 0; i < kWhiteSpaceChars.length; i++)
+        for(char kWhiteSpaceChar : kWhiteSpaceChars)
         {
-            if(kWhiteSpaceChars[i] == ch)
+            if(kWhiteSpaceChar == ch)
             {
                 return true;
             }
