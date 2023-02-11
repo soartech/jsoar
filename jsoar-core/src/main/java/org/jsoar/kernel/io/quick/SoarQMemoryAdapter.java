@@ -214,7 +214,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
             {
                 this.source.removeListener(this);
             }
-            this.sourceChanged = this.sourceChanged | (this.source != source);
+            this.sourceChanged = this.sourceChanged || (this.source != source);
             this.source = source;
             if(this.source != null)
             {
