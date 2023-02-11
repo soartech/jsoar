@@ -269,7 +269,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         catch(SoarException e)
         {
-            LOG.error("While closing smem database: " + e.getMessage(), e);
+            LOG.error("While closing smem database", e);
         }
         
         try
@@ -278,7 +278,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         catch(SoarException e)
         {
-            LOG.error("While closing epmem database: " + e.getMessage(), e);
+            LOG.error("While closing epmem database", e);
         }
         
         LOG.info("Agent '" + this + "' disposed.");
@@ -401,7 +401,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             if(interp == null)
             {
                 interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "default"));
-                LOG.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
+                LOG.info("Current command interpreter is '{}' : '{}'", interp.getName(), interp.getClass());
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
                 {
@@ -409,7 +409,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 }
                 catch(SoarException e)
                 {
-                    LOG.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
+                    LOG.error("Failed to load default aliases from '{}'", DEFAULT_ALIASES, e);
                 }
             }
             return interp;
@@ -427,7 +427,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             }
         }
         
-        LOG.warn("Could not find interpreter named '" + name + "'. Using default.");
+        LOG.warn("Could not find interpreter named '{}'. Using default.", name);
         return new DefaultInterpreter(this);
     }
     
@@ -445,7 +445,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 this.interp.dispose();
             }
             this.interp = interp;
-            LOG.info("Current command interpreter is '" + (interp != null ? interp.getClass() : "none") + "'");
+            LOG.info("Current command interpreter is '{}'", interp != null ? interp.getClass() : "none");
         }
     }
     
