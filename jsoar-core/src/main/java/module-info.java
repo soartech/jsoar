@@ -9,11 +9,17 @@ module org.jsoar.core
     requires transitive java.sql;
     requires java.xml;
     requires transitive json.simple;
-    requires org.graalvm.js.scriptengine;
-    requires org.graalvm.sdk;
+    
     requires transitive org.slf4j;
-    requires org.xerial.sqlitejdbc;
+    
     requires spring.core;
+    
+    // optional dependencies: required to build, but need not be present at runtime
+    // this is so projects using jsoar can exclude these dependencies if they don't need them
+    // e.g., if they aren't using javascript, smem, or epmem
+    requires static org.graalvm.js.scriptengine;
+    requires static org.graalvm.sdk;
+    requires static org.xerial.sqlitejdbc;
     
     uses org.jsoar.util.timing.ExecutionTimeSource;
     uses org.jsoar.util.commands.SoarCommandInterpreterFactory;
