@@ -4,7 +4,7 @@ module org.jsoar.debugger
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.google.common;
-    requires transitive docking.frames.common;
+    requires docking.frames.common;
     requires docking.frames.core;
     requires info.picocli;
     requires java.datatransfer;
