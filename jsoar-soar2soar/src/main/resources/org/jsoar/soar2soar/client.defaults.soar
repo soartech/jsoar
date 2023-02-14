@@ -1,7 +1,0 @@
-# Default rules loaded into client agents when they're created
-sp {soar2soar*init 
-  (state <s> ^superstate nil)
--->
-  (<s> ^soar2soar ready)
-}
-
