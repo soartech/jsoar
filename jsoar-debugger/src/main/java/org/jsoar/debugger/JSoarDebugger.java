@@ -365,20 +365,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private void readDefaultLayout()
     {
-        try
+        try(InputStream in = JSoarDebugger.class.getResourceAsStream("layout.xml"))
         {
-            final InputStream in = JSoarDebugger.class.getResourceAsStream("layout.xml");
             if(in != null)
             {
-                try
-                {
-                    final XElement xml = XIO.readUTF(in);
-                    this.docking.readXML(xml);
-                }
-                finally
-                {
-                    in.close();
-                }
+                final XElement xml = XIO.readUTF(in);
+                this.docking.readXML(xml);
             }
         }
         catch(IOException e)

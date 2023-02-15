@@ -45,10 +45,10 @@ public class TestCase
     
     public static TestCase fromURL(URL url, int prefixIndex) throws SoarException, IOException
     {
-        final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream()))));
-        reader.setFile(url.getPath());
-        try
+        
+        try(ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new InputStreamReader(url.openStream())))))
         {
+            reader.setFile(url.getPath());
             final TestCase testCase = new TestCase(url, getNameFromFile(url, prefixIndex), prefixIndex);
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             ParsedCommand parsedCommand = parser.parseCommand(reader);
@@ -73,10 +73,6 @@ public class TestCase
                 parsedCommand = parser.parseCommand(reader);
             }
             return testCase;
-        }
-        finally
-        {
-            reader.close();
         }
     }
     

@@ -111,22 +111,18 @@ public abstract class AbstractSoarDatabase
     public boolean structure() throws SoarException, IOException
     {
         // Load the database structure by executing structures.sql
-        final InputStream is = filter(getClass().getResourceAsStream("structures.sql"), getFilterMap());
-        if(is == null)
+        
+        try(InputStream is = filter(getClass().getResourceAsStream("structures.sql"), getFilterMap()))
         {
-            throw new FileNotFoundException("Failed to open '" + getResourcePath("structures.sql") + "' resource");
-        }
-        try
-        {
+            if(is == null)
+            {
+                throw new FileNotFoundException("Failed to open '" + getResourcePath("structures.sql") + "' resource");
+            }
             JdbcTools.executeSqlBatch(getConnection(), is, getDriver());
         }
         catch(Exception e)
         {
             LOG.error("Failed to created database", e);
-        }
-        finally
-        {
-            is.close();
         }
         
         return true;
@@ -139,24 +135,21 @@ public abstract class AbstractSoarDatabase
     
     private void loadStatementsFromResource(String resource, boolean required) throws IOException
     {
-        InputStream is = filter(getClass().getResourceAsStream(resource), filterMap);
-        if(is == null)
+        
+        try(InputStream is = filter(getClass().getResourceAsStream(resource), filterMap))
         {
-            if(required)
+            if(is == null)
             {
-                throw new FileNotFoundException("Failed to open '" + getResourcePath(resource) + "' resource");
+                if(required)
+                {
+                    throw new FileNotFoundException("Failed to open '" + getResourcePath(resource) + "' resource");
+                }
+                return;
             }
-            return;
-        }
-        try
-        {
-            // Overwrite here rather than useing Properties delegation because
+            
+            // Overwrite here rather than using Properties delegation because
             // we want to be able to iterate over the property keys. :(
             statements.load(is);
-        }
-        finally
-        {
-            is.close();
         }
     }
     

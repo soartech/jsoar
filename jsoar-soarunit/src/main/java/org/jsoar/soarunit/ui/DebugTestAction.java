@@ -51,7 +51,6 @@ public class DebugTestAction extends AbstractAction
         {
             final TestRunner runner = new TestRunner(agentFactory, () -> pw, null);
             runner.debugTest(test.reload(), false);
-            pw.close();
         }
         catch(InterruptedException e)
         {

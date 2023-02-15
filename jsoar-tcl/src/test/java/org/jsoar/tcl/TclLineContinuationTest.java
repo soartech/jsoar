@@ -39,9 +39,11 @@ public class TclLineContinuationTest extends TclTestBase
         final InputStream in = new BufferedInputStream(url.openStream());
         File tmp = File.createTempFile("TclLineContinuationTest", "testSource");
         tmp.deleteOnExit();
-        final FileOutputStream fos = new FileOutputStream(tmp);
-        ByteStreams.copy(in, fos);
-        fos.close();
+        try(FileOutputStream fos = new FileOutputStream(tmp))
+        {
+            ByteStreams.copy(in, fos);
+        }
+        
         ifc.source(tmp);
     }
     

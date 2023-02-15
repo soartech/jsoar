@@ -32,27 +32,16 @@ public final class JSoarVersion
     
     private JSoarVersion()
     {
-        InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties");
-        if(input != null)
+        try(InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties"))
         {
-            try
+            if(input != null)
             {
                 properties.load(input);
             }
-            catch(IOException e)
-            {
-                LOG.error("Failed to load buildinfo properties: " + e.getMessage());
-            }
-            finally
-            {
-                try
-                {
-                    input.close();
-                }
-                catch(IOException e)
-                {
-                }
-            }
+        }
+        catch(IOException e)
+        {
+            LOG.error("Failed to load buildinfo properties: " + e.getMessage());
         }
     }
     

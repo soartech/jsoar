@@ -34,26 +34,19 @@ public class JdbcToolsTest
     @Test
     public void testCanDetectIfATableExists() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             assertFalse(JdbcTools.tableExists(conn, "people"));
             Statement stat = conn.createStatement();
             stat.executeUpdate("create table people (name, occupation);");
             assertTrue(JdbcTools.tableExists(conn, "people"));
         }
-        finally
-        {
-            conn.close();
-        }
-        
     }
     
     @Test
     public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             Statement stat = conn.createStatement();
             stat.executeUpdate("drop table if exists people;");
@@ -78,27 +71,23 @@ public class JdbcToolsTest
             prep.executeBatch();
             conn.setAutoCommit(true);
             
-            final ResultSet rs = stat.executeQuery("select * from people;");
-            int index = 0;
-            while(rs.next())
+            try(ResultSet rs = stat.executeQuery("select * from people;"))
             {
-                assertEquals(entries[index][0], rs.getString("name"));
-                assertEquals(entries[index][1], rs.getString("occupation"));
-                index++;
+                int index = 0;
+                while(rs.next())
+                {
+                    assertEquals(entries[index][0], rs.getString("name"));
+                    assertEquals(entries[index][1], rs.getString("occupation"));
+                    index++;
+                }
             }
-            rs.close();
-        }
-        finally
-        {
-            conn.close();
         }
     }
     
     @Test
     public void testCanGetLastInsertedRowId() throws Exception
     {
-        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        try
+        try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
             Statement stat = conn.createStatement();
             stat.executeUpdate("drop table if exists people;");
@@ -117,11 +106,6 @@ public class JdbcToolsTest
             prep.setString(2, "bar");
             assertEquals(3, JdbcTools.insertAndGetRowId(prep));
         }
-        finally
-        {
-            conn.close();
-        }
-        
     }
     
 }

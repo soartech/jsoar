@@ -534,14 +534,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
             
-            final Statement s = db.getConnection().createStatement();
-            try
+            try(Statement s = db.getConnection().createStatement())
             {
                 s.execute("PRAGMA cache_size = " + cacheSize);
-            }
-            finally
-            {
-                s.close();
             }
         }
         
@@ -551,24 +546,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // If /org/jsoar/kernel/smem/<driver>.performance.sql is found on
             // the class path, execute the statements in it.
             final String perfResource = params.driver.get() + ".performance.sql";
-            final InputStream perfStream = getClass().getResourceAsStream(perfResource);
+            
             final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
-            if(perfStream != null)
+            LOG.info("Applying performance settings from '" + fullPath + "'.");
+            try(InputStream perfStream = getClass().getResourceAsStream(perfResource))
             {
-                LOG.info("Applying performance settings from '" + fullPath + "'.");
-                try
+                if(perfStream != null)
                 {
                     JdbcTools.executeSql(db.getConnection(), perfStream, null /* no filter */);
                 }
-                finally
+                else
                 {
-                    perfStream.close();
+                    LOG.warn("Could not find performance resource at '{}'. No performance settings applied.", fullPath);
                 }
-            }
-            else
-            {
-                LOG.warn("Could not find performance resource at '" + fullPath
-                        + "'. No performance settings applied.");
             }
         }
         
@@ -606,14 +596,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 break;
             }
             
-            final Statement s = db.getConnection().createStatement();
-            try
+            try(Statement s = db.getConnection().createStatement())
             {
                 s.execute("PRAGMA page_size = " + pageSizeLong);
-            }
-            finally
-            {
-                s.close();
             }
         }
     }
@@ -621,8 +606,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max,
             List<Long> minmax_min) throws SQLException
     {
-        final ResultSet rs = minmax_select.executeQuery();
-        try
+        try(ResultSet rs = minmax_select.executeQuery())
         {
             while(rs.next())
             {
@@ -650,10 +634,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
             }
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
@@ -697,8 +677,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // Make sure we do not have an incorrect database version
         if(!EpisodicMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
-            final ResultSet result = db.get_schema_version.executeQuery();
-            try
+            try(ResultSet result = db.get_schema_version.executeQuery())
             {
                 if(result.next())
                 {
@@ -723,10 +702,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         LOG.info("The selected database contained no data to append on.  New tables created.");
                     }
                 }
-            }
-            finally
-            {
-                result.close();
             }
         }
         db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION);
@@ -848,8 +823,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             final PreparedStatement temp_q = db.get_max_time;
             
-            final ResultSet rs = temp_q.executeQuery();
-            try
+            try(ResultSet rs = temp_q.executeQuery())
             {
                 if(rs.next())
                 {
@@ -857,10 +831,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // temp_q->column_int( 0 ) + 1 );
                     stats.time.set(rs.getLong(0 + 1) + 1);
                 }
-            }
-            finally
-            {
-                rs.close();
             }
         }
         
@@ -882,8 +852,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 temp_q.setLong(2, time_last);
                 
                 final PreparedStatement temp_q2 = now_select[i];
-                final ResultSet rs = temp_q2.executeQuery();
-                try
+                try(ResultSet rs = temp_q2.executeQuery())
                 {
                     // while ( temp_q2->execute() == soar_module::row )
                     while(rs.next())
@@ -903,10 +872,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     epmem_rit_state_graph[i]);
                         }
                     }
-                }
-                finally
-                {
-                    rs.close();
                 }
                 
                 // remove all NOW intervals
@@ -936,8 +901,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             LinkedList<EpisodicMemoryIdPair> ip;
             
             PreparedStatement temp_q = db.edge_unique_select;
-            final ResultSet rs = temp_q.executeQuery();
-            try
+            try(ResultSet rs = temp_q.executeQuery())
             {
                 // while ( temp_q->execute() == soar_module::row )
                 while(rs.next())
@@ -983,10 +947,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
             }
-            finally
-            {
-                rs.close();
-            }
         }
         
         // capture augmentations of top-state as the sole set of adds,
@@ -1001,15 +961,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
         decider.top_goal.epmem_valid = epmem_validation;
         
-        ResultSet r = db.database_version.executeQuery();
-        r.next();
-        try
+        try(ResultSet r = db.database_version.executeQuery())
         {
+            r.next();
             stats.db_version.set(r.getString(1));
-        }
-        finally
-        {
-            r.close();
         }
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent
@@ -1192,8 +1147,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final PreparedStatement var_get = db.var_get;
         
         var_get.setInt(1, variable_id.ordinal());
-        final ResultSet rs = var_get.executeQuery();
-        try
+        try(ResultSet rs = var_get.executeQuery())
         {
             if(rs.next())
             {
@@ -1204,10 +1158,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 return false;
             }
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
@@ -2042,17 +1992,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             final PreparedStatement ps = db.find_lti;
                             ps.setLong(1, wmeValueId.getNameLetter());
                             ps.setLong(2, wmeValueId.getNameNumber());
-                            final ResultSet rs = ps.executeQuery();
-                            try
+                            
+                            try(ResultSet rs = ps.executeQuery())
                             {
                                 if(rs.next())
                                 {
                                     wmeValueId.epmem_id = rs.getLong(0 + 1);
                                 }
-                            }
-                            finally
-                            {
-                                rs.close();
                             }
                             // CK: no reinitialize for PreparedStatement
                             // my_agent->epmem_stmts_graph->find_lti->reinitialize();
@@ -2102,18 +2048,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ps.setLong(2, my_hash);
                         ps.setLong(3, wmeValueId.epmem_id);
                         
-                        final ResultSet rs = ps.executeQuery();
-                        
-                        try
+                        try(ResultSet rs = ps.executeQuery())
                         {
                             if(rs.next())
                             {
                                 wme.epmem_id = rs.getLong(0 + 1);
                             }
-                        }
-                        finally
-                        {
-                            rs.close();
                         }
                         // CK: no reinitialize for PreparedStatement
                         // my_agent->epmem_stmts_graph->find_edge_unique_shared->reinitialize();
@@ -2309,8 +2249,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ps.setLong(4, Long.MAX_VALUE);
                     ps.execute();
                     // CK: not all database drivers support this
-                    final ResultSet rs = ps.getGeneratedKeys();
-                    try
+                    try(ResultSet rs = ps.getGeneratedKeys())
                     {
                         if(rs.next())
                         {
@@ -2321,10 +2260,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             // throw an exception if we were not able to get the row id of the insert
                             throw new SQLException("ps.getGeneratedKeys failed!");
                         }
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                     
                     // fprintf(stderr, " Incrementing and setting wme id to %d \n", (unsigned int) (*w_p)->epmem_id);
@@ -2411,17 +2346,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ps.setLong(2, my_hash);
                         ps.setLong(3, my_hash2);
                         
-                        final ResultSet rs = ps.executeQuery();
-                        try
+                        try(ResultSet rs = ps.executeQuery())
                         {
                             if(rs.next())
                             {
                                 wme.epmem_id = rs.getLong(0 + 1);
                             }
-                        }
-                        finally
-                        {
-                            rs.close();
                         }
                         
                         // CK: no reinitialize for PreparedStatment
@@ -2448,8 +2378,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ps.setLong(3, my_hash2);
                         ps.execute();
                         // CK: not all database drivers support this
-                        final ResultSet rs = ps.getGeneratedKeys();
-                        try
+                        try(ResultSet rs = ps.getGeneratedKeys())
                         {
                             if(rs.next())
                             {
@@ -2461,10 +2390,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 // throw an exception if we were not able to get the row id of the insert
                                 throw new SQLException("ps.getGeneratedKeys failed!");
                             }
-                        }
-                        finally
-                        {
-                            rs.close();
                         }
                         
                         // fprintf(stderr, " Setting wme id from last row to %d \n", (unsigned int) (*w_p)->epmem_id);
@@ -2563,15 +2488,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             db.hash_add_type.setInt(1, sym_type);
             db.hash_add_type.execute();
-            ResultSet rs = db.hash_add_type.getGeneratedKeys();
-            rs.next();
-            try
+            
+            try(ResultSet rs = db.hash_add_type.getGeneratedKeys())
             {
+                rs.next();
                 toReturn = rs.getLong(1);
-            }
-            finally
-            {
-                rs.close();
             }
         }
         catch(SQLException e)
@@ -2601,17 +2522,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             // search first
             db.hash_get_int.setLong(1, val);
-            ResultSet rs = db.hash_get_int.executeQuery();
-            try
+            
+            try(ResultSet rs = db.hash_get_int.executeQuery())
             {
                 if(rs.next())
                 {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
-                rs.close();
             }
         }
         catch(SQLException e)
@@ -2661,17 +2578,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             // search first
             db.hash_get_float.setDouble(1, val);
-            ResultSet rs = db.hash_get_float.executeQuery();
-            try
+            
+            try(ResultSet rs = db.hash_get_float.executeQuery())
             {
                 if(rs.next())
                 {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
-                rs.close();
             }
         }
         catch(SQLException e)
@@ -2721,17 +2634,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             // search first
             db.hash_get_str.setString(1, val);
-            ResultSet rs = db.hash_get_str.executeQuery();
-            try
+            try(ResultSet rs = db.hash_get_str.executeQuery())
             {
                 if(rs.next())
                 {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
-                rs.close();
             }
         }
         catch(SQLException e)
@@ -2773,23 +2681,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         try
         {
             db.hash_rev_int.setLong(1, s_id_lookup);
-            ResultSet res = db.hash_rev_int.executeQuery();
             // assert( res == soar_module::row );
             // We don't want this assertion to compile out. If we were to
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
+            try(ResultSet res = db.hash_rev_int.executeQuery())
             {
                 if(!res.next())
                 {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getLong(0 + 1);
-            }
-            finally
-            {
-                res.close();
             }
         }
         catch(SQLException e)
@@ -2812,23 +2715,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         try
         {
             db.hash_rev_float.setLong(1, s_id_lookup);
-            ResultSet res = db.hash_rev_float.executeQuery();
             // assert( res == soar_module::row );
             // We don't want this assertion to compile out. If we were to
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
+            try(ResultSet res = db.hash_rev_float.executeQuery())
             {
                 if(!res.next())
                 {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getDouble(0 + 1);
-            }
-            finally
-            {
-                res.close();
             }
         }
         catch(SQLException e)
@@ -2851,23 +2749,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         try
         {
             db.hash_rev_str.setLong(1, s_id_lookup);
-            ResultSet res = db.hash_rev_str.executeQuery();
             // assert( res == soar_module::row );
             // We don't want this assertion to compile out. If we were to
             // procceed from here
             // on bad data, we could potentially put bad symbols into working
             // memory. -ACN
-            try
+            try(ResultSet res = db.hash_rev_str.executeQuery())
             {
                 if(!res.next())
                 {
                     throw new AssertionError("Database query for unknown value");
                 }
                 return_val = res.getString(0 + 1);
-            }
-            finally
-            {
-                res.close();
             }
         }
         catch(SQLException e)
@@ -2927,23 +2820,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 
                 db.hash_get_type.setLong(1, s_id_lookup);
-                ResultSet res = db.hash_get_type.executeQuery();
                 // assert( res == soar_module::row );
                 // We don't want this assertion to compile out. If we were to
                 // procceed from here
                 // on bad data, we could potentially put bad symbols into working
                 // memory. -ACN
-                try
+                try(ResultSet res = db.hash_get_type.executeQuery())
                 {
                     if(!res.next())
                     {
                         throw new AssertionError("Database query for unknown value");
                     }
                     sym_type = res.getInt(0 + 1);
-                }
-                finally
-                {
-                    res.close();
                 }
             }
             catch(SQLException e)
@@ -3018,14 +2906,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             try
             {
                 db.hash_get_type.setLong(1, s_id_lookup);
-                ResultSet res = db.hash_get_type.executeQuery();
+                
                 // (void)res; // quells compiler warning
                 // assert( res == soar_module::row );
                 // We don't want this assertion to compile out. If we were to
                 // procceed from here
                 // on bad data, we could potentially put bad symbols into working
                 // memory. -ACN
-                try
+                try(ResultSet res = db.hash_get_type.executeQuery())
                 {
                     if(!res.next())
                     {
@@ -3033,10 +2921,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                     // check if should be column_int
                     sym_type = res.getInt(0 + 1);
-                }
-                finally
-                {
-                    res.close();
                 }
             }
             catch(SQLException e)
@@ -5597,9 +5481,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
           // my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
             db.find_lti.setLong(1, identifier.getNameLetter());
             db.find_lti.setLong(2, identifier.getNameNumber());
-            ResultSet results = db.find_lti.executeQuery();
             
-            try
+            try(ResultSet results = db.find_lti.executeQuery())
             {
                 if(results.next())
                 {
@@ -5621,11 +5504,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     return null;
                 }
             }
-            finally
-            {
-                results.close();
-            }
-            
         }
         else
         { // WME is a normal identifier
@@ -5760,21 +5638,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if(memory_id != EPMEM_MEMID_NONE)
         {
             // soar_module::sqlite_statement *my_q = my_agent->epmem_stmts_graph->prev_episode;
+            // don't use try-with-resources here as it will close myQuery, which we don't want
             final PreparedStatement myQuery = db.prev_episode;
             try
             {
                 myQuery.setLong(1, memory_id);
-                final ResultSet resultSet = myQuery.executeQuery();
-                try
+                try(ResultSet resultSet = myQuery.executeQuery())
                 {
                     if(resultSet.next())
                     {
                         return_val = resultSet.getLong(0 + 1);
                     }
-                }
-                finally
-                {
-                    resultSet.close();
                 }
             }
             catch(SQLException e)
@@ -5808,27 +5682,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         if(memory_id != EPMEM_MEMID_NONE)
         {
+            // don't use try-with-resources here as it will close myQuery, which we don't want
             final PreparedStatement myQuery = db.next_episode;
             try
             {
                 myQuery.setLong(1, memory_id);
-                final ResultSet resultSet = myQuery.executeQuery();
-                try
+                try(ResultSet resultSet = myQuery.executeQuery())
                 {
                     if(resultSet.next())
                     {
                         return_val = resultSet.getLong(0 + 1);
                     }
                 }
-                finally
-                {
-                    resultSet.close();
-                }
                 
             }
             catch(SQLException e)
             {
-                e.printStackTrace();
+                LOG.error("Error getting next episode", e);
             }
         }
         
@@ -7332,10 +7202,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 my_q.setLong(4, memory_id);
                 my_q.setLong(5, memory_id);
                 
-                ResultSet result = null;
-                try
+                try(ResultSet result = my_q.executeQuery())
                 {
-                    result = my_q.executeQuery();
                     while(result.next())
                     {
                         // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
@@ -7388,10 +7256,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         nestedList.add(temp_s2);
                     }
                 }
-                finally
-                {
-                    result.close();
-                }
+                
                 epmem_rit_clear_left_right();
             }
             
@@ -7405,9 +7270,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 my_q.setLong(2, memory_id);
                 my_q.setLong(3, memory_id);
                 my_q.setLong(4, memory_id);
-                ResultSet result;
-                result = my_q.executeQuery();
-                try
+                
+                try(ResultSet result = my_q.executeQuery())
                 {
                     while(result.next())
                     {
@@ -7431,10 +7295,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         nestedList.add(temp_s2);
                     }
                 }
-                finally
-                {
-                    result.close();
-                }
+                
                 epmem_rit_clear_left_right();
             }
         }

@@ -993,28 +993,16 @@ public class ReinforcementLearning
                             if(!log_path.isEmpty())
                             {
                                 File log = new File(log_path);
-                                BufferedWriter writer = null;
-                                try
+                                
+                                try(BufferedWriter writer = new BufferedWriter(new FileWriter(log)))
                                 {
                                     // TODO: Does this actually append to the file?
                                     // If not, fix so it does
-                                    writer = new BufferedWriter(new FileWriter(log));
                                     writer.write(String.format("%s%n", ss));
                                 }
                                 catch(IOException e)
                                 {
                                     e.printStackTrace();
-                                }
-                                finally
-                                {
-                                    try
-                                    {
-                                        writer.close();
-                                    }
-                                    catch(IOException e)
-                                    {
-                                        e.printStackTrace();
-                                    }
                                 }
                             }
                         }

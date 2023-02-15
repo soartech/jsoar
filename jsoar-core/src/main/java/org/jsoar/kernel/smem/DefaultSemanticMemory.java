@@ -421,17 +421,12 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         // search first
         db.hash_get_int.setLong(1, val);
-        final ResultSet rs = db.hash_get_int.executeQuery();
-        try
+        try(ResultSet rs = db.hash_get_int.executeQuery())
         {
             if(rs.next())
             {
                 return_val = rs.getLong(0 + 1);
             }
-        }
-        finally
-        {
-            rs.close();
         }
         
         // if fail and supposed to add
@@ -459,17 +454,12 @@ public class DefaultSemanticMemory implements SemanticMemory
         // search first
         // search first
         db.hash_get_float.setDouble(1, val);
-        final ResultSet rs = db.hash_get_float.executeQuery();
-        try
+        try(ResultSet rs = db.hash_get_float.executeQuery())
         {
             if(rs.next())
             {
                 return_val = rs.getLong(0 + 1);
             }
-        }
-        finally
-        {
-            rs.close();
         }
         
         // if fail and supposed to add
@@ -497,17 +487,12 @@ public class DefaultSemanticMemory implements SemanticMemory
         // search first
         // search first
         db.hash_get_str.setString(1, val);
-        final ResultSet rs = db.hash_get_str.executeQuery();
-        try
+        try(ResultSet rs = db.hash_get_str.executeQuery())
         {
             if(rs.next())
             {
                 return_val = rs.getLong(0 + 1);
             }
-        }
-        finally
-        {
-            rs.close();
         }
         
         // if fail and supposed to add
@@ -633,8 +618,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final PreparedStatement var_get = db.var_get;
         
         var_get.setInt(1, variable_id.ordinal());
-        final ResultSet rs = var_get.executeQuery();
-        try
+        try(ResultSet rs = var_get.executeQuery())
         {
             if(rs.next())
             {
@@ -645,10 +629,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 return false;
             }
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
@@ -756,54 +736,36 @@ public class DefaultSemanticMemory implements SemanticMemory
     private int /* long? */ smem_reverse_hash_int(long /* smem_hash_id */ hash_value) throws SQLException
     {
         db.hash_rev_int.setLong(1, hash_value);
-        final ResultSet rs = db.hash_rev_int.executeQuery();
-        try
+        try(ResultSet rs = db.hash_rev_int.executeQuery())
         {
             if(!rs.next())
             {
                 throw new IllegalStateException("Expected non-empty result");
             }
             int toReturn = rs.getInt(0 + 1);
-            rs.close();
             return toReturn;
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
     private double smem_reverse_hash_float(long /* smem_hash_id */ hash_value) throws SQLException
     {
         db.hash_rev_float.setLong(1, hash_value);
-        final ResultSet rs = db.hash_rev_float.executeQuery();
-        try
+        try(ResultSet rs = db.hash_rev_float.executeQuery())
         {
             rs.next();
             double toReturn = rs.getDouble(0 + 1);
-            rs.close();
             return toReturn;
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
     private String smem_reverse_hash_str(long /* smem_hash_id */ hash_value) throws SQLException
     {
         db.hash_rev_str.setLong(1, hash_value);
-        final ResultSet rs = db.hash_rev_str.executeQuery();
-        try
+        try(ResultSet rs = db.hash_rev_str.executeQuery())
         {
             rs.next();
             String toReturn = rs.getString(0 + 1);
-            rs.close();
             return toReturn;
-        }
-        finally
-        {
-            rs.close();
         }
     }
     
@@ -850,27 +812,18 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         if(n == 0)
         {
-            ResultSet rs = null;
-            try
+            db.lti_access_get.setLong(1, lti);
+            try(ResultSet rs = db.lti_access_get.executeQuery())
             {
-                db.lti_access_get.setLong(1, lti);
-                rs = db.lti_access_get.executeQuery();
-                
                 n = rs.getLong(1 + 1);
                 activations_first = rs.getLong(2 + 1);
-            }
-            finally
-            {
-                rs.close();
             }
         }
         
         // get all history
-        ResultSet rs = null;
-        try
+        db.history_get.setLong(1, lti);
+        try(ResultSet rs = db.history_get.executeQuery())
         {
-            db.history_get.setLong(1, lti);
-            rs = db.history_get.executeQuery();
             rs.next();
             int available_history = (int) (SMEM_ACT_HISTORY_ENTRIES < n ? (SMEM_ACT_HISTORY_ENTRIES) : (n));
             t_k = time_now - rs.getLong(available_history - 1 + 1);
@@ -879,10 +832,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 sum += Math.pow(time_now - rs.getLong(i + 1), -d);
             }
-        }
-        finally
-        {
-            rs.close();
         }
         
         // if available history was insufficient, approximate rest
@@ -942,24 +891,18 @@ public class DefaultSemanticMemory implements SemanticMemory
                         {
                             List<Long> to_update = new ArrayList<Long>();
                             
-                            ResultSet rs = null;
-                            try
+                            db.lti_get_t.setLong(1, time_diff);
+                            try(ResultSet rs = db.lti_get_t.executeQuery();)
                             {
-                                db.lti_get_t.setLong(1, time_diff);
                                 
                                 // while (
                                 // my_agent->smem_stmts->lti_get_t->execute() ==
                                 // soar_module::row )
-                                rs = db.lti_get_t.executeQuery();
                                 
                                 while(rs.next())
                                 {
                                     to_update.add(rs.getLong(0 + 1));
                                 }
-                            }
-                            finally
-                            {
-                                rs.close();
                             }
                             
                             // for ( std::list< smem_lti_id >::iterator
@@ -987,19 +930,13 @@ public class DefaultSemanticMemory implements SemanticMemory
         long prev_access_1 = 0;
         {
             // get old (potentially useful below)
-            ResultSet rs = null;
-            try
+            db.lti_access_get.setLong(1, lti);
+            try(ResultSet rs = db.lti_access_get.executeQuery())
             {
-                db.lti_access_get.setLong(1, lti);
-                rs = db.lti_access_get.executeQuery();
                 rs.next();
                 prev_access_n = rs.getLong(0 + 1);
                 prev_access_t = rs.getLong(1 + 1);
                 prev_access_1 = rs.getLong(2 + 1);
-            }
-            finally
-            {
-                rs.close();
             }
             
             // set new
@@ -1286,17 +1223,12 @@ public class DefaultSemanticMemory implements SemanticMemory
             db.lti_get.setLong(1, name_letter);
             db.lti_get.setLong(2, name_number);
             
-            final ResultSet rs = db.lti_get.executeQuery();
-            try
+            try(ResultSet rs = db.lti_get.executeQuery())
             {
                 if(rs.next())
                 {
                     return_val = rs.getLong(0 + 1);
                 }
-            }
-            finally
-            {
-                rs.close();
             }
         }
         catch(SQLException e)
@@ -1417,26 +1349,18 @@ public class DefaultSemanticMemory implements SemanticMemory
                        * soar_module::connected
                        */)
         {
-            try
+            try(ResultSet rs = db.lti_max.executeQuery())
             {
-                final ResultSet rs = db.lti_max.executeQuery();
-                try
+                while(rs.next())
                 {
-                    while(rs.next())
-                    {
-                        // soar_letter, max
-                        final long name_letter = rs.getLong(0 + 1);
-                        final long letter_max = rs.getLong(1 + 1);
-                        
-                        // shift to alphabet
-                        // name_letter -= (long)( 'A' );
-                        
-                        symbols.resetIdNumber((char) name_letter, letter_max);
-                    }
-                }
-                finally
-                {
-                    rs.close();
+                    // soar_letter, max
+                    final long name_letter = rs.getLong(0 + 1);
+                    final long letter_max = rs.getLong(1 + 1);
+                    
+                    // shift to alphabet
+                    // name_letter -= (long)( 'A' );
+                    
+                    symbols.resetIdNumber((char) name_letter, letter_max);
                 }
             }
             catch(SQLException e)
@@ -1465,8 +1389,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // pairs first, accumulate distinct attributes and pair count
             db.web_all.setLong(1, lti_id);
             
-            final ResultSet webAllCounts = db.web_all.executeQuery();
-            try
+            try(ResultSet webAllCounts = db.web_all.executeQuery())
             {
                 while(webAllCounts.next())
                 {
@@ -1497,10 +1420,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                         db.wmes_constant_frequency_update.executeUpdate();
                     }
                 }
-            }
-            finally
-            {
-                webAllCounts.close();
             }
             
             // now attributes
@@ -1644,16 +1563,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             db.act_lti_child_ct_get.setLong(1, lti_id);
             
-            ResultSet rs = null;
-            try
+            try(ResultSet rs = db.act_lti_child_ct_get.executeQuery())
             {
-                rs = db.act_lti_child_ct_get.executeQuery();
                 rs.next();
                 existing_edges = rs.getLong(0 + 1);
-            }
-            finally
-            {
-                rs.close();
             }
         }
         
@@ -1680,19 +1593,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                     db.web_attr_child.setLong(1, lti_id);
                     db.web_attr_child.setLong(2, attr_hash);
                     
-                    ResultSet rs = null;
-                    try
+                    try(ResultSet rs = db.web_attr_child.executeQuery())
                     {
-                        rs = db.web_attr_child.executeQuery();
-                        
                         if(!rs.next())
                         {
                             attr_new.add(attr_hash);
                         }
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                 }
                 
@@ -1714,19 +1620,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                             db.web_const_child.setLong(2, attr_hash);
                             db.web_const_child.setLong(3, value_hash);
                             
-                            ResultSet rs = null;
-                            try
+                            try(ResultSet rs = db.web_const_child.executeQuery())
                             {
-                                rs = db.web_const_child.executeQuery();
-                                
                                 if(!rs.next())
                                 {
                                     const_new.add(new SmemHashIdLongPair(attr_hash, value_hash));
                                 }
-                            }
-                            finally
-                            {
-                                rs.close();
                             }
                         }
                         
@@ -1766,19 +1665,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                             db.web_lti_child.setLong(2, attr_hash);
                             db.web_lti_child.setLong(3, value_lti);
                             
-                            ResultSet rs = null;
-                            try
+                            try(ResultSet rs = db.web_lti_child.executeQuery())
                             {
-                                rs = db.web_lti_child.executeQuery();
-                                
                                 if(!rs.next())
                                 {
                                     lti_new.add(new SmemHashIdLongPair(attr_hash, value_lti));
                                 }
-                            }
-                            finally
-                            {
-                                rs.close();
                             }
                         }
                         
@@ -1866,11 +1758,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                         db.wmes_constant_frequency_check.setLong(1, pair.getHashID());
                         db.wmes_constant_frequency_check.setLong(2, pair.getSecond());
                         
-                        ResultSet rs = null;
-                        try
+                        try(ResultSet rs = db.wmes_constant_frequency_check.executeQuery())
                         {
-                            rs = db.wmes_constant_frequency_check.executeQuery();
-                            
                             if(!rs.next())
                             {
                                 db.wmes_constant_frequency_add.setLong(1, pair.getHashID());
@@ -1888,10 +1777,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 
                                 db.wmes_constant_frequency_update.executeUpdate();
                             }
-                        }
-                        finally
-                        {
-                            rs.close();
                         }
                     }
                 }
@@ -1921,11 +1806,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                         db.wmes_lti_frequency_check.setLong(1, pair.getHashID());
                         db.wmes_lti_frequency_check.setLong(2, pair.getSecond());
                         
-                        ResultSet rs = null;
-                        try
+                        try(ResultSet rs = db.wmes_lti_frequency_check.executeQuery())
                         {
-                            rs = db.wmes_lti_frequency_check.executeQuery();
-                            
                             if(!rs.next())
                             {
                                 db.wmes_lti_frequency_add.setLong(1, pair.getHashID());
@@ -1944,10 +1826,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 db.wmes_lti_frequency_update.executeUpdate();
                             }
                         }
-                        finally
-                        {
-                            rs.close();
-                        }
                     }
                 }
             }
@@ -1960,11 +1838,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // attribute_s_id
                     db.attribute_frequency_check.setLong(1, a);
                     
-                    ResultSet rs = null;
-                    try
+                    try(ResultSet rs = db.attribute_frequency_check.executeQuery())
                     {
-                        rs = db.attribute_frequency_check.executeQuery();
-                        
                         if(!rs.next())
                         {
                             db.attribute_frequency_add.setLong(1, a);
@@ -1978,10 +1853,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                             
                             db.attribute_frequency_update.executeUpdate();
                         }
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                 }
             }
@@ -2135,18 +2006,13 @@ public class DefaultSemanticMemory implements SemanticMemory
         if(lti == null)
         {
             db.lti_letter_num.setLong(1, lti_id);
-            final ResultSet rs = db.lti_letter_num.executeQuery();
-            try
+            try(ResultSet rs = db.lti_letter_num.executeQuery())
             {
                 if(!rs.next())
                 {
                     throw new IllegalStateException("Expected non-empty result");
                 }
                 lti = smem_lti_soar_make(lti_id, (char) rs.getLong(0 + 1), rs.getLong(1 + 1), result_header.level);
-            }
-            finally
-            {
-                rs.close();
             }
             lti_created_here = true;
         }
@@ -2175,8 +2041,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // get direct children: attr_type, attr_hash, value_type,
             // value_hash, value_letter, value_num, value_lti
             db.web_expand.setLong(1, lti_id);
-            final ResultSet rs = db.web_expand.executeQuery();
-            try
+            try(ResultSet rs = db.web_expand.executeQuery())
             {
                 while(rs.next())
                 {
@@ -2205,10 +2070,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // symbol_remove_ref( my_agent, attr_sym );
                     // symbol_remove_ref( my_agent, value_sym );
                 }
-            }
-            finally
-            {
-                rs.close();
             }
             
         }
@@ -2332,8 +2193,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 
                 if(good_wme)
                 {
-                    ResultSet rs = q.executeQuery();
-                    try
+                    try(ResultSet rs = q.executeQuery())
                     {
                         if(rs.next())
                         {
@@ -2359,10 +2219,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 good_wme = false;
                             }
                         }
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                 }
             }
@@ -2643,17 +2499,12 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // alter the resultset of the query (isolation???)
                     Set<Long /* smem_lti_id */> to_update = new LinkedHashSet<Long>();
                     
-                    ResultSet rs = q.executeQuery();
-                    try
+                    try(ResultSet rs = q.executeQuery())
                     {
                         while(rs.next())
                         {
                             to_update.add(rs.getLong(0 + 1));
                         }
-                    }
-                    finally
-                    {
-                        rs.close();
                     }
                     
                     for(Long lti : to_update)
@@ -2668,8 +2519,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             lastCue = new BasicWeightedCue(cand_set.cue_element, cand_set.weight);
             
             // this becomes the minimal set to walk (till match or fail)
-            final ResultSet qrs = q.executeQuery();
-            try
+            try(ResultSet qrs = q.executeQuery())
             {
                 if(qrs.next())
                 {
@@ -2681,18 +2531,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                     while(more_rows && (qrs.getDouble(1 + 1) == SMEM_ACT_MAX))
                     {
                         db.act_lti_get.setLong(1, qrs.getLong(0 + 1));
-                        final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
-                        try
+                        try(ResultSet actLtiGetRs = db.act_lti_get.executeQuery())
                         {
                             if(!actLtiGetRs.next())
                             {
                                 throw new IllegalStateException("act_lti_get did not return a result");
                             }
                             plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong(0 + 1), qrs.getLong(0 + 1)));
-                        }
-                        finally
-                        {
-                            actLtiGetRs.close();
                         }
                         // my_agent->smem_stmts->act_lti_get->reinitialize();
                         
@@ -2772,8 +2617,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 q2.setLong(1, cand);
                                 q2.setLong(2, next_element.attr_hash);
                                 
-                                final ResultSet q2rs = q2.executeQuery();
-                                try
+                                try(ResultSet q2rs = q2.executeQuery())
                                 {
                                     has_feature = q2rs.next();
                                     boolean mathQueryMet = false;
@@ -2783,27 +2627,28 @@ public class DefaultSemanticMemory implements SemanticMemory
                                         {
                                             long valueHash = q2rs.getLong(2);
                                             db.hash_rev_type.setLong(1, valueHash);
-                                            ResultSet rs = db.hash_rev_type.executeQuery();
-                                            // If this hash wasn't in the table, there isn't a value to work with
-                                            if(!rs.next())
+                                            try(ResultSet rs = db.hash_rev_type.executeQuery())
                                             {
-                                                good_cand = false;
-                                            }
-                                            else
-                                            {
-                                                int valueType = rs.getInt(1);
-                                                // Not using the built in hash reverse because I want the raw type, not the symbol
-                                                switch(valueType)
+                                                // If this hash wasn't in the table, there isn't a value to work with
+                                                if(!rs.next())
                                                 {
-                                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                                    mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_float(valueHash));
-                                                    break;
-                                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                                    mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_int(valueHash));
-                                                    break;
+                                                    good_cand = false;
+                                                }
+                                                else
+                                                {
+                                                    int valueType = rs.getInt(1);
+                                                    // Not using the built in hash reverse because I want the raw type, not the symbol
+                                                    switch(valueType)
+                                                    {
+                                                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                                        mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_float(valueHash));
+                                                        break;
+                                                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                                        mathQueryMet |= next_element.mathElement.valueIsAcceptable(smem_reverse_hash_int(valueHash));
+                                                        break;
+                                                    }
                                                 }
                                             }
-                                            rs.close();
                                             // Go through the all the attribute records, to find the best match for a math query
                                         } while(q2rs.next());
                                         good_cand = mathQueryMet;
@@ -2816,10 +2661,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                     {
                                         break;
                                     }
-                                }
-                                finally
-                                {
-                                    q2rs.close();
                                 }
                             }
                             
@@ -2847,10 +2688,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
                     }
                 }
-            }
-            finally
-            {
-                qrs.close();
             }
             // q->reinitialize();
             
@@ -3044,8 +2881,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // Make sure we do not have an incorrect database version
         if(!SemanticMemoryDatabase.IN_MEMORY_PATH.equals(params.path.get()))
         {
-            final ResultSet result = db.get_schema_version.executeQuery();
-            try
+            try(ResultSet result = db.get_schema_version.executeQuery())
             {
                 if(result.next())
                 {
@@ -3070,10 +2906,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                         LOG.info("The selected database contained no data to append on.  New tables created.");
                     }
                 }
-            }
-            finally
-            {
-                result.close();
             }
         }
         db.set_schema_version.setString(1, SemanticMemoryDatabase.SMEM_SCHEMA_VERSION);
@@ -3168,14 +3000,9 @@ public class DefaultSemanticMemory implements SemanticMemory
             // TODO: Generalize this. Move to a resource somehow.
             final long cacheSize = params.cache_size.get();
             
-            final Statement s = db.getConnection().createStatement();
-            try
+            try(Statement s = db.getConnection().createStatement())
             {
                 s.execute("PRAGMA cache_size = " + cacheSize);
-            }
-            finally
-            {
-                s.close();
             }
         }
         
@@ -3185,26 +3012,22 @@ public class DefaultSemanticMemory implements SemanticMemory
             // If /org/jsoar/kernel/smem/<driver>.performance.sql is found on
             // the class path, execute the statements in it.
             final String perfResource = params.driver.get() + ".performance.sql";
-            final InputStream perfStream = getClass().getResourceAsStream(perfResource);
             final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
-            if(perfStream != null)
+            
+            LOG.info("Applying performance settings from '" + fullPath + "'.");
+            try(InputStream perfStream = getClass().getResourceAsStream(perfResource);)
             {
-                LOG.info("Applying performance settings from '" + fullPath + "'.");
-                try
+                if(perfStream != null)
                 {
                     JdbcTools.executeSql(db.getConnection(), perfStream, null /*
                                                                                * no
                                                                                * filter
                                                                                */);
                 }
-                finally
+                else
                 {
-                    perfStream.close();
+                    LOG.warn("Could not find performance resource at '" + fullPath + "'. No performance settings applied.");
                 }
-            }
-            else
-            {
-                LOG.warn("Could not find performance resource at '" + fullPath + "'. No performance settings applied.");
             }
         }
         
@@ -3242,14 +3065,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                 break;
             }
             
-            final Statement s = db.getConnection().createStatement();
-            try
+            try(Statement s = db.getConnection().createStatement())
             {
                 s.execute("PRAGMA page_size = " + pageSizeLong);
-            }
-            finally
-            {
-                s.close();
             }
         }
     }
@@ -4297,8 +4115,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             // id, soar_letter, number
             {
-                final ResultSet q = db.vis_lti.executeQuery();
-                try
+                try(ResultSet q = db.vis_lti.executeQuery())
                 {
                     while(q.next())
                     {
@@ -4324,10 +4141,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                         return_val.append("]\" ];\n");
                     }
                 }
-                finally
-                {
-                    q.close();
-                }
             }
             
             if(!lti_names.isEmpty())
@@ -4346,8 +4159,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     
                     {
                         // lti_id, attr_type, attr_hash, val_type, val_hash
-                        final ResultSet q = db.vis_value_const.executeQuery();
-                        try
+                        try(ResultSet q = db.vis_value_const.executeQuery())
                         {
                             while(q.next())
                             {
@@ -4423,10 +4235,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 return_val.append("\n");
                             }
                         }
-                        finally
-                        {
-                            q.close();
-                        }
                     }
                     
                     // output edges
@@ -4465,8 +4273,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     // lti_id, attr_type, attr_hash, value_lti_id
                     {
-                        final ResultSet q = db.vis_value_lti.executeQuery();
-                        try
+                        try(ResultSet q = db.vis_value_lti.executeQuery())
                         {
                             while(q.next())
                             {
@@ -4514,10 +4321,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                                 return_val.append("\" ];");
                                 return_val.append("\n");
                             }
-                        }
-                        finally
-                        {
-                            q.close();
                         }
                     }
                 }
@@ -4574,16 +4377,11 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 // get just this lti
                 db.lti_letter_num.setLong(1, lti_id);
-                final ResultSet lti_q = db.lti_letter_num.executeQuery();
                 
-                try
+                try(ResultSet lti_q = db.lti_letter_num.executeQuery())
                 {
                     // soar_letter
                     new_lti.lti_name = String.format("%c%d", (char) lti_q.getLong(0 + 1), lti_q.getLong(1 + 1));
-                }
-                finally
-                {
-                    lti_q.close();
                 }
             }
             
@@ -4602,8 +4400,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             // get direct children: attr_type, attr_hash, value_type,
             // value_hash, value_letter, value_num, value_lti
             db.web_expand.setLong(1, parent_lti.lti_id);
-            final ResultSet expand_q = db.web_expand.executeQuery();
-            try
+            
+            try(ResultSet expand_q = db.web_expand.executeQuery())
             {
                 while(expand_q.next())
                 {
@@ -4743,10 +4541,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                     }
                 }
             }
-            finally
-            {
-                expand_q.close();
-            }
         }
         
         // footer
@@ -4768,11 +4562,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                 return_val.append("\\n[");
                 
                 act_q.setLong(1, e.getKey());
-                ResultSet rs = null;
-                try
+                
+                try(ResultSet rs = act_q.executeQuery())
                 {
-                    rs = act_q.executeQuery();
-                    
                     if(rs.next())
                     {
                         Double temp_double = rs.getDouble(0 + 1);
@@ -4782,10 +4574,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
                         return_val.append(temp_double.toString());
                     }
-                }
-                finally
-                {
-                    rs.close();
                 }
                 
                 return_val.append("]\"");
@@ -4815,11 +4603,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         expand_q.setLong(1, lti_id);
         
-        ResultSet rs = null;
-        try
+        try(ResultSet rs = expand_q.executeQuery())
         {
-            rs = expand_q.executeQuery();
-            
             while(rs.next())
             {
                 switch(rs.getInt(0 + 1))
@@ -4887,10 +4672,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                     augmentations.get(temp_str).add(temp_str);
                 }
             }
-        }
-        finally
-        {
-            rs.close();
         }
         
         // output augmentations nicely
@@ -5035,13 +4816,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 lti_q.setLong(1, c.getLTIid());
                 act_q.setLong(1, c.getLTIid());
                 
-                ResultSet ltiRS = null;
-                ResultSet actRS = null;
-                try
+                try(ResultSet ltiRS = lti_q.executeQuery(); ResultSet actRS = act_q.executeQuery())
                 {
-                    ltiRS = lti_q.executeQuery();
-                    actRS = act_q.executeQuery();
-                    
                     next = _smem_print_lti(c.getLTIid(), (char) ltiRS.getLong(0 + 1), ltiRS.getLong(1 + 1), actRS.getDouble(0 + 1), return_val);
                     
                     // done with lookup
@@ -5058,11 +4834,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                             }
                         }
                     }
-                }
-                finally
-                {
-                    ltiRS.close();
-                    actRS.close();
                 }
             }
             catch(SQLException e)

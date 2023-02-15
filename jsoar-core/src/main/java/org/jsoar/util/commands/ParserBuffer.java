@@ -18,7 +18,7 @@ import org.jsoar.util.SourceLocation;
  * 
  * @author ray
  */
-public class ParserBuffer
+public class ParserBuffer implements AutoCloseable
 {
     private final PushbackReader reader;
     private String file;

@@ -60,16 +60,14 @@ public class SaveCommand extends PicocliSoarCommand
         @Override
         public void run()
         {
-            OutputStream os = null;
             if(!new File(fileName).isAbsolute())
             {
                 fileName = parent.sourceCommand.getWorkingDirectory() + "/" + fileName;
             }
-            try
+            
+            try(OutputStream os = compressIfNeeded(fileName, new FileOutputStream(fileName)))
             {
-                os = compressIfNeeded(fileName, new FileOutputStream(fileName));
                 ReteSerializer.saveRete(parent.agent, os);
-                os.close();
             }
             catch(IOException e)
             {
@@ -80,21 +78,6 @@ public class SaveCommand extends PicocliSoarCommand
             {
                 parent.agent.getPrinter().startNewLine().print(e.getMessage());
                 return;
-            }
-            finally
-            {
-                if(os != null)
-                {
-                    try
-                    {
-                        os.close();
-                    }
-                    catch(IOException e)
-                    {
-                        parent.agent.getPrinter().startNewLine().print(
-                                "IO error while closing the file.");
-                    }
-                }
             }
             
             parent.agent.getPrinter().startNewLine().print("Rete saved");

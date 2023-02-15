@@ -464,22 +464,14 @@ public class SmemCommand extends PicocliSoarCommand
                 return "";
             }
             
-            try
+            try(Statement s = smem.getDatabase().getConnection().createStatement())
             {
-                final Statement s = smem.getDatabase().getConnection().createStatement();
-                try
+                final StringWriter out = new StringWriter();
+                if(s.execute(sql))
                 {
-                    final StringWriter out = new StringWriter();
-                    if(s.execute(sql))
-                    {
-                        JdbcTools.printResultSet(s.getResultSet(), out);
-                    }
-                    return out.toString();
+                    JdbcTools.printResultSet(s.getResultSet(), out);
                 }
-                finally
-                {
-                    s.close();
-                }
+                return out.toString();
             }
             catch(SQLException e)
             {

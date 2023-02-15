@@ -218,11 +218,8 @@ public class LoadCommand extends PicocliSoarCommand
         @Override
         public void run()
         {
-            InputStream is = null;
-            
-            try
+            try(InputStream is = uncompressIfNeeded(fileName, findFile(fileName)))
             {
-                is = uncompressIfNeeded(fileName, findFile(fileName));
                 ReteSerializer.replaceRete(parent.agent, is);
             }
             catch(IOException e)
@@ -234,21 +231,6 @@ public class LoadCommand extends PicocliSoarCommand
             {
                 parent.agent.getPrinter().startNewLine().print("Error: " + e.getMessage());
                 return;
-            }
-            finally
-            {
-                if(is != null)
-                {
-                    try
-                    {
-                        is.close();
-                    }
-                    catch(IOException e)
-                    {
-                        parent.agent.getPrinter().startNewLine().print(
-                                "Error: IO error while closing the input source: " + e.getMessage());
-                    }
-                }
             }
             
             parent.agent.getPrinter().startNewLine().print("Rete loaded into agent");

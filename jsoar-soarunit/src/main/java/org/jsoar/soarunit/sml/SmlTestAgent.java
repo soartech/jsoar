@@ -243,30 +243,14 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
     private static boolean available(int port)
     {
         // http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
-        ServerSocket ss = null;
-        try
+        try(ServerSocket ss = new ServerSocket(port))
         {
-            ss = new ServerSocket(port);
             ss.setReuseAddress(true);
             return true;
         }
         catch(IOException e)
         {
             // ignored: likely because port is already bound
-        }
-        finally
-        {
-            if(ss != null)
-            {
-                try
-                {
-                    ss.close();
-                }
-                catch(IOException e)
-                {
-                    /* should not be thrown */
-                }
-            }
         }
         
         return false;
