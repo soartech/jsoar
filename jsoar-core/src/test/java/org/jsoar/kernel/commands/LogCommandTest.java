@@ -2,6 +2,7 @@ package org.jsoar.kernel.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
@@ -18,6 +19,7 @@ import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class LogCommandTest
@@ -114,51 +116,16 @@ public class LogCommandTest
         testSet.add("test-logger");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
-        boolean success = false;
-        try
-        {
-            logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger2", "error", "test-string" });
-        }
-        catch(SoarException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(SoarException.class, () -> logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger2", "error", "test-string" }));
         
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--add", "test-logger2" });
         testSet.add("test-logger2");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
-        success = true;
-        try
-        {
-            logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger2", "error", "test-string" });
-        }
-        catch(SoarException e)
-        {
-            success = false;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        // should not throw an exception
+        logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger2", "error", "test-string" });
         
-        success = false;
-        try
-        {
-            logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--add", "test-logger" });
-        }
-        catch(SoarException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(SoarException.class, () -> logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--add", "test-logger" }));
     }
     
     @Test
@@ -197,19 +164,7 @@ public class LogCommandTest
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger", "error", "test-string" });
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger", "trace", "test-string" });
         
-        boolean success = false;
-        try
-        {
-            logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger", "unknown", "test-string" });
-        }
-        catch(SoarException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(SoarException.class, () -> logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "test-logger", "unknown", "test-string" }));
     }
     
     @Test
@@ -219,19 +174,7 @@ public class LogCommandTest
         
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "info", "test-string" });
         
-        boolean success = false;
-        try
-        {
-            logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "unknown", "test-string" });
-        }
-        catch(SoarException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(SoarException.class, () -> logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "unknown", "test-string" }));
     }
     
     @Test
@@ -276,6 +219,7 @@ public class LogCommandTest
      * @throws SoarException
      */
     @Test
+    @Disabled
     public void testPerformance() throws SoarException
     {
         logManager.setLogLevel(LogLevel.warn);

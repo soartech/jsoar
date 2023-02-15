@@ -2,6 +2,7 @@ package org.jsoar.kernel;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -111,51 +112,16 @@ public class LogManagerTest
         testSet.add("test-logger");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
-        boolean success = false;
-        try
-        {
-            logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false);
-        }
-        catch(LoggerException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(LoggerException.class, () -> logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false));
         
         logManager.addLogger("test-logger2");
         testSet.add("test-logger2");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
-        success = true;
-        try
-        {
-            logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false);
-        }
-        catch(LoggerException e)
-        {
-            success = false;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        // shouldn't throw an exceptin
+        logManager.log("test-logger2", LogLevel.error, Arrays.asList("test-string"), false);
         
-        success = false;
-        try
-        {
-            logManager.addLogger("test-logger");
-        }
-        catch(LoggerException e)
-        {
-            success = true;
-        }
-        finally
-        {
-            assertTrue(success);
-        }
+        assertThrows(LoggerException.class, () -> logManager.addLogger("test-logger"));
     }
     
     @Test
