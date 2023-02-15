@@ -1,12 +1,13 @@
 package org.jsoar.soarunit;
 
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SoarUnitCommandTest
 {

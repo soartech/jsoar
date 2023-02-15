@@ -4,7 +4,6 @@ module org.jsoar.soarunit
     requires info.picocli;
     requires java.datatransfer;
     requires transitive java.desktop;
-    requires transitive junit;
     requires org.apache.commons.io;
     requires transitive org.jsoar.core;
     requires transitive sml;

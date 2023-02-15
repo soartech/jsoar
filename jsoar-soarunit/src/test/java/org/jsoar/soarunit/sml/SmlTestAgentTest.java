@@ -5,14 +5,14 @@
  */
 package org.jsoar.soarunit.sml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeNoException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.jsoar.soarunit.FiringCounts;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ray
@@ -77,9 +77,9 @@ public class SmlTestAgentTest
         }
         catch(UnsatisfiedLinkError e)
         {
-            assumeNoException(e); // for automated testing, e.g. on github, the SML native libraries will not be available.
-                                  // This is better than just disabling, because when the native libs are available (e.g., on someone's machine)
-                                  // then the test will actually run
+            // for automated testing, e.g. on github, the SML native libraries will not be available, so we'll just swallow the exception
+            // This is better than just disabling, because when the native libs are available (e.g., on someone's machine)
+            // then the test will actually run
         }
     }
 }
