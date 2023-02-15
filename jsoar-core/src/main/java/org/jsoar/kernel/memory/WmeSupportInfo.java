@@ -21,6 +21,8 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple class that retrieves support information for a particular WME.
@@ -32,6 +34,8 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class WmeSupportInfo
 {
+    private static final Logger LOG = LoggerFactory.getLogger(WmeSupportInfo.class);
+    
     private final Wme wme;
     private final List<Support> supports;
     
@@ -178,7 +182,7 @@ public class WmeSupportInfo
             }
             catch(IOException e)
             {
-                e.printStackTrace();
+                LOG.error("Error writing to string", e);
             }
             valueTrace = w.toString();
         }

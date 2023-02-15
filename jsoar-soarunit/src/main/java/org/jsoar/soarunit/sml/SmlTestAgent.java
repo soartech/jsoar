@@ -21,6 +21,8 @@ import org.jsoar.soarunit.TestAgent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.UrlTools;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import sml.Agent;
 import sml.Agent.PrintEventInterface;
@@ -36,6 +38,8 @@ import sml.smlPrintEventId;
 public class SmlTestAgent implements TestAgent, PrintEventInterface,
         UpdateEventInterface
 {
+    private static final Logger LOG = LoggerFactory.getLogger(SmlTestAgent.class);
+    
     private static final int TRIES = 10;
     private static Kernel kernel;
     private static int port;
@@ -104,7 +108,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         }
         catch(SoarException e)
         {
-            e.printStackTrace();
+            LOG.error("Error getting firing counts", e);
             return new FiringCounts();
         }
     }

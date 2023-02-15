@@ -492,7 +492,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             catch(BackingStoreException e)
             {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Error removing node from preferences", e);
             }
             try
             {
@@ -500,7 +500,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             catch(IOException e)
             {
-                e.printStackTrace();
+                LOG.error("Error getting layout file", e);
             }
         }
         
@@ -530,7 +530,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LOG.error("Error reading XML", e);
         }
         // TODO: Implement layout storage in a way that doesn't suck.
     }
@@ -602,10 +602,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     docking.writeXML(Prefs.getLayoutFile());
                 }
-                catch(IOException e1)
+                catch(IOException ex)
                 {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    LOG.error("Error writing XML", ex);
                 }
             }
         });

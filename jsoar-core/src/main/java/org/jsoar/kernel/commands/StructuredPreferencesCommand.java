@@ -26,6 +26,8 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO: This should be stripped down to only support what's needed by PreferencesView
@@ -34,6 +36,8 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class StructuredPreferencesCommand
 {
+    private static final Logger LOG = LoggerFactory.getLogger(StructuredPreferencesCommand.class);
+    
     public static class Result
     {
         private final String error;
@@ -118,6 +122,7 @@ public class StructuredPreferencesCommand
     
     public static class ResultEntry
     {
+        
         private final Preference pref;
         private final boolean osupported;
         private final String valueTrace;
@@ -324,7 +329,7 @@ public class StructuredPreferencesCommand
             }
             catch(IOException e)
             {
-                e.printStackTrace();
+                LOG.error("Error creating entry", e);
             }
             valueTrace = w.toString();
         }

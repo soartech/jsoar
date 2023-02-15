@@ -15,12 +15,16 @@ import java.util.concurrent.Future;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.SoarUnit.PrintWriterProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class TestRunner
 {
+    private static final Logger LOG = LoggerFactory.getLogger(TestRunner.class);
+    
     private final PrintWriterProxy out;
     private int total;
     private boolean haltOnFailure = false; // determines whether a test group stops when a test fails (so not all tests in the group execute)
@@ -176,7 +180,7 @@ public class TestRunner
             }
             catch(Throwable t)
             {
-                t.printStackTrace();
+                LOG.error("Error running test", t);
             }
             finally
             {

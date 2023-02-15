@@ -18,6 +18,8 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.TeeWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Soar agent print interface
@@ -32,6 +34,8 @@ import org.jsoar.util.TeeWriter;
  */
 public class Printer
 {
+    private static final Logger LOG = LoggerFactory.getLogger(Printer.class);
+    
     private static final char[] SPACES = new char[80];
     static
     {
@@ -213,7 +217,7 @@ public class Printer
         }
         catch(RuntimeException e)
         {
-            System.out.println("!!");
+            LOG.error("Error while printing", e);
         }
         this.persistentPrintWriter.printf(format, args);
         return this;

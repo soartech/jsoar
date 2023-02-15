@@ -5653,7 +5653,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             catch(SQLException e)
             {
-                e.printStackTrace();
+                LOG.error("Error getting previous episode", e);
             }
             /*
              * my_q->reinitialize();

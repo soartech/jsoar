@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.debugger.syntax.ui.SyntaxConfigurator;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.tcl.SoarTclInterface;
@@ -25,11 +24,11 @@ import com.google.re2j.Pattern;
 
 public class SyntaxPattern
 {
+    private static final Logger LOG = LoggerFactory.getLogger(SyntaxPattern.class);
+    
     private String comment = "";
     private String regex;
     private List<String> components;
-    @SuppressWarnings("unused")
-    private static final Logger LOG = LoggerFactory.getLogger(SyntaxConfigurator.class);
     private boolean enabled = true;
     private String expandedRegex;
     private boolean important;
@@ -183,7 +182,7 @@ public class SyntaxPattern
                 }
                 catch(SoarException e)
                 {
-                    e.printStackTrace();
+                    LOG.error("Error processing aliases for syntax highlighting", e);
                 }
             }
             expandedRegex = expandedRegex.replaceAll("%aliases%", Matcher.quoteReplacement(aliasesStr.toString()));
@@ -224,7 +223,7 @@ public class SyntaxPattern
                 }
                 catch(SoarException e)
                 {
-                    e.printStackTrace();
+                    LOG.error("Error getting commands and procs for syntax highlighting", e);
                 }
             }
             expandedRegex = expandedRegex.replaceAll("%commands%", Matcher.quoteReplacement(commandsStr.toString()));

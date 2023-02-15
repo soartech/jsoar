@@ -33,10 +33,14 @@ import javax.swing.Timer;
 
 import org.jsoar.debugger.util.SwingTools;
 import org.jsoar.demos.robot.AsciiWorldLoader.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainPanel extends JPanel
 {
     private static final long serialVersionUID = -8854842910096874773L;
+    
+    private static final Logger LOG = LoggerFactory.getLogger(MainPanel.class);
     
     private World world;
     private WorldPanel worldPanel;
@@ -188,20 +192,9 @@ public class MainPanel extends JPanel
             final String ascii = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor).toString();
             loadWorld(ascii);
         }
-        catch(HeadlessException e)
+        catch(HeadlessException | UnsupportedFlavorException | IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch(UnsupportedFlavorException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch(IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error loading world from clipboard", e);
         }
     }
     
@@ -291,8 +284,7 @@ public class MainPanel extends JPanel
             }
             catch(IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.error("Error setting up main panel", e);
             }
         });
     }

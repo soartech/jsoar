@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import javax.swing.text.SimpleAttributeSet;
 
 import org.jsoar.debugger.JSoarDebugger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.re2j.Matcher;
@@ -17,6 +19,8 @@ import com.google.re2j.Pattern;
 
 public class SyntaxSettings
 {
+    private static final Logger LOG = LoggerFactory.getLogger(SyntaxSettings.class);
+    
     public HashMap<String, TextStyle> componentStyles = new HashMap<>();
     public LinkedList<SyntaxPattern> syntaxPatterns = new LinkedList<>();
     private Color foreground;
@@ -105,8 +109,7 @@ public class SyntaxSettings
         }
         catch(RuntimeException e)
         {
-            System.err.println(e.getMessage());
-            System.err.println("attempted regex: " + regex);
+            LOG.error("attempted regex: {}", regex, e);
         }
         
         return matches;

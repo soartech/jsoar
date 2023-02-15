@@ -90,8 +90,7 @@ public class RobotAgent
         }
         catch(SoarException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error opening debugger", e);
         }
     }
     

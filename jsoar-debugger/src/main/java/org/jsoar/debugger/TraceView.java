@@ -175,7 +175,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                     }
                     catch(InvocationTargetException e)
                     {
-                        e.printStackTrace();
+                        LOG.error("Error during invokeAndWait", e);
                     }
                     catch(InterruptedException e)
                     {

@@ -67,7 +67,7 @@ public class ScriptEngineState
         }
         catch(ScriptException e)
         {
-            e.printStackTrace();
+            LOG.error("Error executing script", e);
             throw new SoarException("Error executing script: " + e.getMessage(), e);
         }
     }

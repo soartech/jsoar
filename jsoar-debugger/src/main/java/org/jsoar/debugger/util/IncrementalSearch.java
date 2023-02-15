@@ -20,11 +20,16 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.LayeredHighlighter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 
 public class IncrementalSearch implements DocumentListener, ActionListener
 {
+    private static final Logger LOG = LoggerFactory.getLogger(IncrementalSearch.class);
+    
     protected JEditorPane content;
     
     protected Matcher matcher;
@@ -50,7 +55,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         }
         catch(BadLocationException e)
         {
-            e.printStackTrace();
+            LOG.error("Error handing document insert", e);
         }
     }
     
@@ -63,7 +68,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         }
         catch(BadLocationException e)
         {
-            e.printStackTrace();
+            LOG.error("Error handing document remove", e);
         }
     }
     
@@ -76,7 +81,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         }
         catch(BadLocationException e)
         {
-            e.printStackTrace();
+            LOG.error("Error handing document change", e);
         }
     }
     
@@ -157,7 +162,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
             }
             catch(BadLocationException e)
             {
-                e.printStackTrace();
+                LOG.error("Error adding highlight", e);
                 break;
             }
         }
@@ -181,7 +186,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
                 }
                 catch(BadLocationException e)
                 {
-                    e.printStackTrace();
+                    LOG.error("Error adding highlight", e);
                 }
             }
         }
@@ -255,7 +260,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         }
         catch(BadLocationException e)
         {
-            e.printStackTrace();
+            LOG.error("Error removing highlight", e);
         }
         
         onMatch(currentMatch, matches.size());
@@ -275,7 +280,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
             }
             catch(BadLocationException e)
             {
-                e.printStackTrace();
+                LOG.error("Error removing highlight", e);
             }
         }
     }

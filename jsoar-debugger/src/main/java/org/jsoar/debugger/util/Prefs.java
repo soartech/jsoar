@@ -14,6 +14,8 @@ import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
 
 import org.jsoar.debugger.syntax.SyntaxSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class Prefs extends AbstractPreferences
 {
+    private static final Logger LOG = LoggerFactory.getLogger(Prefs.class);
     
     private static final String PREFS_FILENAME = "jsoar.properties";
     private static final String SYNTAX_FILENAME = "syntax.json";
@@ -44,7 +47,7 @@ public class Prefs extends AbstractPreferences
         }
         catch(BackingStoreException e)
         {
-            e.printStackTrace();
+            LOG.error("Error syncing", e);
         }
     }
     
@@ -58,7 +61,7 @@ public class Prefs extends AbstractPreferences
         }
         catch(BackingStoreException e)
         {
-            e.printStackTrace();
+            LOG.error("Error flushing", e);
         }
     }
     
@@ -262,7 +265,7 @@ public class Prefs extends AbstractPreferences
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LOG.error("Error getting preferences file", e);
         }
         return null;
     }
@@ -290,7 +293,7 @@ public class Prefs extends AbstractPreferences
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LOG.error("Error storing syntax", e);
         }
         return false;
     }

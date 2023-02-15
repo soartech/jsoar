@@ -1002,7 +1002,7 @@ public class ReinforcementLearning
                                 }
                                 catch(IOException e)
                                 {
-                                    e.printStackTrace();
+                                    LOG.error("Error writing RL trace info to {}", log.getAbsolutePath(), e);
                                 }
                             }
                         }

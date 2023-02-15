@@ -21,12 +21,16 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public class BaseAgentResource extends BaseResource
 {
+    private static final Logger LOG = LoggerFactory.getLogger(BaseAgentResource.class);
+    
     protected String agentName;
     protected ThreadedAgent agent;
     
@@ -87,13 +91,9 @@ public class BaseAgentResource extends BaseResource
             Thread.currentThread().interrupt();
             return new StringRepresentation(StringTools.getStackTrace(e), MediaType.TEXT_PLAIN);
         }
-        catch(ExecutionException e)
+        catch(ExecutionException | TimeoutException e)
         {
-            e.printStackTrace();
-            return new StringRepresentation(StringTools.getStackTrace(e), MediaType.TEXT_PLAIN);
-        }
-        catch(TimeoutException e)
-        {
+            LOG.error("Error executing on agent thread", e);
             return new StringRepresentation(StringTools.getStackTrace(e), MediaType.TEXT_PLAIN);
         }
     }

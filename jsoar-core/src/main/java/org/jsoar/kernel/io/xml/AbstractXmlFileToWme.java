@@ -21,6 +21,8 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -36,6 +38,7 @@ import org.xml.sax.SAXException;
  */
 abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractXmlFileToWme.class);
     
     private WmeBuilder<?> builder = null;
     
@@ -137,7 +140,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme
             Printer p = Adaptables.adapt(this.factory.getSymbols(), Printer.class);
             if(p == null)
             {
-                ex.printStackTrace();
+                LOG.error("Error getting root element", ex);
             }
             else
             {

@@ -451,7 +451,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             }
             catch(TclException e)
             {
-                e.printStackTrace();
+                LOG.error("Exception getting command", e);
             }
         }
         if(command instanceof SoarTclCommandAdapter)
