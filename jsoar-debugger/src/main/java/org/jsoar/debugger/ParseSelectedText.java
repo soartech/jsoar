@@ -237,7 +237,7 @@ public class ParseSelectedText
     @Override
     public String toString()
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for(int i = 0; i < 3; i++)
         {
             buffer.append("Token " + i + " is |" + m_Tokens[i] + "| ");

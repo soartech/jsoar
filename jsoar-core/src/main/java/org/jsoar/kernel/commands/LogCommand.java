@@ -400,7 +400,7 @@ public class LogCommand extends PicocliSoarCommand
         
         public String getGoalStackLocation(boolean abbreviate)
         {
-            final StringBuffer location = new StringBuffer();
+            final StringBuilder location = new StringBuilder();
             
             Iterator<Goal> it = agent.getGoalStack().iterator();
             if(it.hasNext())
