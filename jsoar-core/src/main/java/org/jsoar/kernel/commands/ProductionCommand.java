@@ -9,6 +9,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -27,8 +28,6 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.PicocliSoarCommand;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -378,20 +377,16 @@ public class ProductionCommand extends PicocliSoarCommand
         // Obtains all productions filtered by chunks, nochunks, or neither
         private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
         {
-            final Predicate<Production> filter = new Predicate<Production>()
-            {
-                @Override
-                public boolean apply(Production p)
-                {
-                    final ProductionType type = p.getType();
-                    return (type == ProductionType.CHUNK && chunks) ||
-                            (type != ProductionType.CHUNK && nochunks) ||
-                            (!chunks && !nochunks);
-                }
-            };
-            
-            final Collection<Production> productions = Collections2.filter(
-                    parent.agent.getProductions().getProductions(null), filter);
+            final Collection<Production> productions = parent.agent.getProductions().getProductions(null).stream()
+                    .filter(p -> 
+                    {
+                        final ProductionType type = p.getType();
+                        return (type == ProductionType.CHUNK && chunks) ||
+                                (type != ProductionType.CHUNK && nochunks) ||
+                                (!chunks && !nochunks);
+                    }
+                    ).collect(Collectors.toList());
+                    
             return productions;
         }
     }
