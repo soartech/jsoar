@@ -18,10 +18,10 @@ import org.jsoar.util.commands.SoarCommands;
  */
 public class PerformanceTimer
 {
-    private static List<Double> cpuTimes = new ArrayList<Double>();
-    private static List<Double> kernelTimes = new ArrayList<Double>();
-    private static List<Integer> decisionCycles = new ArrayList<Integer>();
-    private static List<Long> totalMemory = new ArrayList<Long>();
+    private static List<Double> cpuTimes = new ArrayList<>();
+    private static List<Double> kernelTimes = new ArrayList<>();
+    private static List<Integer> decisionCycles = new ArrayList<>();
+    private static List<Long> totalMemory = new ArrayList<>();
     
     /**
      * @param args

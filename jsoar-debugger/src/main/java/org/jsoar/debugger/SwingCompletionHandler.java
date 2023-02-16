@@ -22,7 +22,7 @@ public class SwingCompletionHandler<T> implements CompletionHandler<T>
     
     public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner)
     {
-        return new SwingCompletionHandler<V>(inner);
+        return new SwingCompletionHandler<>(inner);
     }
     
     private SwingCompletionHandler(CompletionHandler<T> inner)

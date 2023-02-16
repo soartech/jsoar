@@ -25,7 +25,7 @@ public class PropertyKey<T>
     /**
      * A comparator for sorting property keys by name
      */
-    public static Comparator<PropertyKey<?>> NAME_COMPARATOR = new Comparator<PropertyKey<?>>()
+    public static Comparator<PropertyKey<?>> NAME_COMPARATOR = new Comparator<>()
     {
         
         @Override
@@ -84,13 +84,13 @@ public class PropertyKey<T>
         
         public PropertyKey<T> build()
         {
-            return new PropertyKey<T>(this);
+            return new PropertyKey<>(this);
         }
     }
     
     public static <T> Builder<T> builder(String name, Class<T> type)
     {
-        return new Builder<T>(name, type);
+        return new Builder<>(name, type);
     }
     
     private PropertyKey(Builder<T> builder)

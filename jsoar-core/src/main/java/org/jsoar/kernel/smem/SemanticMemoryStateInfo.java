@@ -30,8 +30,8 @@ public class SemanticMemoryStateInfo
     public final long last_cmd_time[] = new long[2];         // last update to smem.command
     public final long last_cmd_count[] = new long[2];        // last update to smem.command
     
-    public final Set<WmeImpl> cue_wmes = new HashSet<WmeImpl>();                     // wmes in last cue
-    public final Deque<Preference> smem_wmes = new ArrayDeque<Preference>(); // wmes in last smem
+    public final Set<WmeImpl> cue_wmes = new HashSet<>();                     // wmes in last cue
+    public final Deque<Preference> smem_wmes = new ArrayDeque<>(); // wmes in last smem
     
     public final IdentifierImpl smem_header;
     public final IdentifierImpl smem_cmd_header;

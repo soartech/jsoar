@@ -82,7 +82,7 @@ public class IdentifierImplTest extends JSoarTest
         assertNotNull(test);
         
         // Now verify that all the sub-wmes are there.
-        List<Wme> kids = new ArrayList<Wme>();
+        List<Wme> kids = new ArrayList<>();
         final Identifier testId = test.getValue().asIdentifier();
         Iterators.addAll(kids, testId.getWmes());
         assertEquals(4, kids.size());

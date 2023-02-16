@@ -31,7 +31,7 @@ public class ChunkConditionSet
     /**
      * hash table buckets. Defaults to null, so no need to initialize
      */
-    final List<ListHead<ChunkCondition>> table = new ArrayList<ListHead<ChunkCondition>>(CHUNK_COND_HASH_TABLE_SIZE);
+    final List<ListHead<ChunkCondition>> table = new ArrayList<>(CHUNK_COND_HASH_TABLE_SIZE);
     {
         for(int i = 0; i < CHUNK_COND_HASH_TABLE_SIZE; ++i)
         {

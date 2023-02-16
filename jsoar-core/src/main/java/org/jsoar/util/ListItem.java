@@ -220,7 +220,7 @@ public final class ListItem<T> implements Iterable<T>
      */
     public Iterator<T> iterator()
     {
-        return new ItemIterator<T>(this);
+        return new ItemIterator<>(this);
     }
     
     private static class ItemIterator<T> implements Iterator<T>

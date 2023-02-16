@@ -31,7 +31,7 @@ public final class ListHead<T> implements Iterable<T>
      */
     public static <T> ListHead<T> newInstance()
     {
-        return new ListHead<T>();
+        return new ListHead<>();
     }
     
     /**
@@ -44,7 +44,7 @@ public final class ListHead<T> implements Iterable<T>
      */
     public static <T> ListHead<T> newInstance(ListHead<T> other)
     {
-        return new ListHead<T>(other);
+        return new ListHead<>(other);
     }
     
     private ListHead()
@@ -121,7 +121,7 @@ public final class ListHead<T> implements Iterable<T>
      */
     public ListItem<T> push(T value)
     {
-        final ListItem<T> item = new ListItem<T>(value);
+        final ListItem<T> item = new ListItem<>(value);
         item.insertAtHead(this);
         return item;
     }
@@ -149,7 +149,7 @@ public final class ListHead<T> implements Iterable<T>
      */
     public List<T> toList()
     {
-        List<T> r = new ArrayList<T>();
+        List<T> r = new ArrayList<>();
         for(T member : this)
         {
             r.add(member);
@@ -167,12 +167,12 @@ public final class ListHead<T> implements Iterable<T>
      */
     public static <T> ListHead<T> fromCollection(Collection<T> collection)
     {
-        ListHead<T> head = new ListHead<T>();
+        ListHead<T> head = new ListHead<>();
         
         ListItem<T> previous = null;
         for(T item : collection)
         {
-            ListItem<T> member = new ListItem<T>(item);
+            ListItem<T> member = new ListItem<>(item);
             member.insertAfter(head, previous);
             previous = member;
         }
@@ -192,7 +192,7 @@ public final class ListHead<T> implements Iterable<T>
     @Override
     public Iterator<T> iterator()
     {
-        return first != null ? first.iterator() : new Iterator<T>()
+        return first != null ? first.iterator() : new Iterator<>()
         {
             
             @Override

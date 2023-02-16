@@ -19,7 +19,7 @@ public class SoarEventManager
     /**
      * List of listeners for events of any type
      */
-    private List<SoarEventListener> listenersForAny = new CopyOnWriteArrayList<SoarEventListener>();
+    private List<SoarEventListener> listenersForAny = new CopyOnWriteArrayList<>();
     
     /**
      * Listeners indexed by event type
@@ -135,7 +135,7 @@ public class SoarEventManager
             List<SoarEventListener> list = listeners.get(klass);
             if(list == null)
             {
-                list = new CopyOnWriteArrayList<SoarEventListener>();
+                list = new CopyOnWriteArrayList<>();
                 listeners.put(klass, list);
             }
             return list;

@@ -68,7 +68,7 @@ public class AcceptRhsFunction extends AbstractRhsFunctionHandler
         }
         else
         {
-            final AtomicReference<String> result = new AtomicReference<String>();
+            final AtomicReference<String> result = new AtomicReference<>();
             SwingUtilities.invokeAndWait(() -> result.set(askUserForInputFromEventThread(context, message)));
             return result.get();
         }

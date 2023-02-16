@@ -132,7 +132,7 @@ public class AsciiWorldLoader
     
     private String[] readLines(BufferedReader reader, ByRef<Integer> maxLine) throws IOException
     {
-        final List<String> lines = new ArrayList<String>();
+        final List<String> lines = new ArrayList<>();
         int max = 0;
         String line = reader.readLine();
         while(line != null && !"---".equals(line.trim()))

@@ -83,7 +83,7 @@ public class Backtracer
     /**
      * <p>agent.h:520:grounds
      */
-    final LinkedList<Condition> grounds = new LinkedList<Condition>();
+    final LinkedList<Condition> grounds = new LinkedList<>();
     /**
      * <p>agent.h:521:grounds_tc
      * <p>Defaults to 0 in create_soar_agent()
@@ -93,7 +93,7 @@ public class Backtracer
     /**
      * <p>agent.h:523:locals
      */
-    final LinkedList<PositiveCondition> locals = new LinkedList<PositiveCondition>();
+    final LinkedList<PositiveCondition> locals = new LinkedList<>();
     /**
      * <p>agent.h:524:locals_tc
      */
@@ -101,7 +101,7 @@ public class Backtracer
     /**
      * <p>agent.h:525:positive_potentials
      */
-    final LinkedList<PositiveCondition> positive_potentials = new LinkedList<PositiveCondition>();
+    final LinkedList<PositiveCondition> positive_potentials = new LinkedList<>();
     /**
      * <p>agent.h:526:potentials_tc
      */
@@ -366,10 +366,10 @@ public class Backtracer
         }
         
         // scan through conditions, collect grounds, potentials, & locals
-        final LinkedList<Condition> grounds_to_print = new LinkedList<Condition>();
-        final LinkedList<Condition> pots_to_print = new LinkedList<Condition>();
-        final LinkedList<Condition> locals_to_print = new LinkedList<Condition>();
-        final LinkedList<Condition> negateds_to_print = new LinkedList<Condition>();
+        final LinkedList<Condition> grounds_to_print = new LinkedList<>();
+        final LinkedList<Condition> pots_to_print = new LinkedList<>();
+        final LinkedList<Condition> locals_to_print = new LinkedList<>();
+        final LinkedList<Condition> negateds_to_print = new LinkedList<>();
         
         // Record the conds in the print_lists even if not going to be printed
         final boolean traceBacktracingOrExplain = traceBacktracing || chunker.explain.isEnabled();
@@ -611,7 +611,7 @@ public class Backtracer
         
         // scan through positive potentials, pick out the ones that have
         // a preference we can backtrace through
-        final LinkedList<PositiveCondition> pots_to_bt = new LinkedList<PositiveCondition>();
+        final LinkedList<PositiveCondition> pots_to_bt = new LinkedList<>();
         final Iterator<PositiveCondition> it = positive_potentials.iterator();
         while(it.hasNext())
         {
@@ -671,7 +671,7 @@ public class Backtracer
         if(trace.isEnabled(Category.BACKTRACING))
         {
             // use the same code as the backtracing above
-            LinkedList<Condition> negated_to_print = new LinkedList<Condition>();
+            LinkedList<Condition> negated_to_print = new LinkedList<>();
             negated_to_print.push(c);
             
             trace.getPrinter().print("\n*** Chunk won't be formed due to local negation in backtrace ***\n");

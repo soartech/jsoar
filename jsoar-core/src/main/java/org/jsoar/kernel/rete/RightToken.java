@@ -13,7 +13,7 @@ import org.jsoar.util.ListItem;
  */
 public class RightToken extends Token
 {
-    final ListItem<RightToken> negrm = new ListItem<RightToken>(this); // part of other local join results dll
+    final ListItem<RightToken> negrm = new ListItem<>(this); // part of other local join results dll
     private LeftToken left_token; // token this is a local join result for
     
     public static RightToken create(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)

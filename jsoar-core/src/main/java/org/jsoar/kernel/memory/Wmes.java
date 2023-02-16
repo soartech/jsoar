@@ -123,7 +123,7 @@ public class Wmes
         final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
         final Pattern valuePattern = Pattern.compile(StringTools.createRegexFromGlob(value));
         
-        final Predicate<Wme> predicate = new Predicate<Wme>()
+        final Predicate<Wme> predicate = new Predicate<>()
         {
             
             @Override
@@ -239,7 +239,7 @@ public class Wmes
      */
     public static List<Wme> filter(Iterator<Wme> it, Predicate<Wme> pred)
     {
-        List<Wme> result = new ArrayList<Wme>();
+        List<Wme> result = new ArrayList<>();
         for(; it.hasNext();)
         {
             final Wme w = it.next();

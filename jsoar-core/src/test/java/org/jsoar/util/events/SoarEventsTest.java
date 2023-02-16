@@ -25,7 +25,7 @@ public class SoarEventsTest
     @Test
     public void testListenForSingleEvent()
     {
-        final List<TestEvent> caughtEvents = new ArrayList<TestEvent>();
+        final List<TestEvent> caughtEvents = new ArrayList<>();
         final SoarEventManager manager = new SoarEventManager();
         SoarEvents.listenForSingleEvent(manager, TestEvent.class, event -> caughtEvents.add((TestEvent) event));
         

@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class TeeWriter extends Writer
 {
-    private final List<Writer> writers = new CopyOnWriteArrayList<Writer>();
+    private final List<Writer> writers = new CopyOnWriteArrayList<>();
     
     /**
      * Construct a new TeeWriter

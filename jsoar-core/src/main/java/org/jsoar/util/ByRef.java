@@ -32,7 +32,7 @@ public class ByRef<T>
      */
     public static <T> ByRef<T> create(T value)
     {
-        return new ByRef<T>(value);
+        return new ByRef<>(value);
     }
     
     /**

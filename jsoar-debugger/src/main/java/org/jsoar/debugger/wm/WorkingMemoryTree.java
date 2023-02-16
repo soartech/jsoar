@@ -82,7 +82,7 @@ public class WorkingMemoryTree extends JComponent
     private Color operatorIndicatorColor = new Color(255, 160, 122 /* 255, 99, 71 */);
     
     private Symbol symbolUnderMouse = null;
-    private final List<Wme> selectedWmes = new ArrayList<Wme>();
+    private final List<Wme> selectedWmes = new ArrayList<>();
     private final Provider selectionProvider = new Provider();
     
     private int rowHeight = 26;
@@ -316,7 +316,7 @@ public class WorkingMemoryTree extends JComponent
     {
         doRowLayout(g2d);
         
-        final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
+        final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<>();
         
         for(Row row : model.rows)
         {
@@ -808,7 +808,7 @@ public class WorkingMemoryTree extends JComponent
         @Override
         public List<Object> getSelection()
         {
-            return new ArrayList<Object>(selectedWmes);
+            return new ArrayList<>(selectedWmes);
         }
     }
     

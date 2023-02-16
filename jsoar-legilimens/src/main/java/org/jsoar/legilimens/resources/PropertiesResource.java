@@ -27,7 +27,7 @@ public class PropertiesResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
         
-        final List<Property> props = new ArrayList<Property>();
+        final List<Property> props = new ArrayList<>();
         final List<PropertyKey<?>> keys = agent.getProperties().getKeys();
         Collections.sort(keys, PropertyKey.NAME_COMPARATOR);
         for(PropertyKey<?> key : keys)

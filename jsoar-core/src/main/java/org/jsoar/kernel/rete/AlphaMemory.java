@@ -31,7 +31,7 @@ public class AlphaMemory extends HashTableItem
     int reference_count = 1; /* number of beta nodes using this mem */
     int retesave_amindex;
     
-    public static HashFunction<AlphaMemory> HASH_FUNCTION = new HashFunction<AlphaMemory>()
+    public static HashFunction<AlphaMemory> HASH_FUNCTION = new HashFunction<>()
     {
         
         @Override

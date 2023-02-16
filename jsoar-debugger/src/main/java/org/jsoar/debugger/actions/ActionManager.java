@@ -25,8 +25,8 @@ public class ActionManager
     private static final Logger LOG = LoggerFactory.getLogger(ActionManager.class);
     
     private JSoarDebugger app;
-    private List<AbstractDebuggerAction> actions = new ArrayList<AbstractDebuggerAction>();
-    private Map<String, AbstractDebuggerAction> actionCache = new HashMap<String, AbstractDebuggerAction>();
+    private List<AbstractDebuggerAction> actions = new ArrayList<>();
+    private Map<String, AbstractDebuggerAction> actionCache = new HashMap<>();
     
     private static class ObjectActionPair
     {
@@ -35,7 +35,7 @@ public class ActionManager
         public boolean adapt;
     }
     
-    private List<ObjectActionPair> objectActions = new ArrayList<ObjectActionPair>();
+    private List<ObjectActionPair> objectActions = new ArrayList<>();
     
     /**
      * @param app The owning application
@@ -165,7 +165,7 @@ public class ActionManager
      */
     public List<AbstractDebuggerAction> getActionsForObject(Object o)
     {
-        List<AbstractDebuggerAction> result = new ArrayList<AbstractDebuggerAction>();
+        List<AbstractDebuggerAction> result = new ArrayList<>();
         for(ObjectActionPair pair : objectActions)
         {
             if(pair.adapt)

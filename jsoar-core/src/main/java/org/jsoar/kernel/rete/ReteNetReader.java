@@ -217,7 +217,7 @@ public class ReteNetReader
                 
                 int numUnboundVariables = dis.readInt();
                 rete.update_max_rhs_unbound_variables(numUnboundVariables);
-                List<Variable> unboundVars = new ArrayList<Variable>(numUnboundVariables);
+                List<Variable> unboundVars = new ArrayList<>(numUnboundVariables);
                 for(int i = 0; i < numUnboundVariables; i++)
                 {
                     unboundVars.add(getSymbol(dis.readInt()).asVariable());
@@ -493,7 +493,7 @@ public class ReteNetReader
         else if(type == ReteTest.DISJUNCTION)
         {
             int count = dis.readInt();
-            List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>(count);
+            List<SymbolImpl> disjuncts = new ArrayList<>(count);
             
             while(count-- > 0)
             {
@@ -535,7 +535,7 @@ public class ReteNetReader
      */
     private void readAllSymbols(DataInputStream dis) throws IOException, SoarException
     {
-        final List<Symbol> result = new ArrayList<Symbol>();
+        final List<Symbol> result = new ArrayList<>();
         result.add(null); // symbol 0 is null (see writeAllSymbols)
         
         result.addAll(readSymbolList(dis, new SymbolReader<StringSymbol>()
@@ -584,7 +584,7 @@ public class ReteNetReader
         {
             throw new SoarException(String.format("Invalid symbol list size %d", size));
         }
-        final List<T> result = new ArrayList<T>(size);
+        final List<T> result = new ArrayList<>(size);
         for(int i = 0; i < size; ++i)
         {
             result.add(reader.read(dis));
@@ -618,7 +618,7 @@ public class ReteNetReader
             throw new SoarException(String.format("Invalid alpha memory list size %d", count));
         }
         
-        final List<AlphaMemory> ams = new ArrayList<AlphaMemory>(count);
+        final List<AlphaMemory> ams = new ArrayList<>(count);
         ams.add(null); // am index values start at 1. See writeAlphaMemories
         for(int i = 0; i < count; ++i)
         {
@@ -659,7 +659,7 @@ public class ReteNetReader
             {
                 throw new SoarException(String.format("Count of varnames list record must be positive, got %d", count));
             }
-            final LinkedList<Variable> vars = new LinkedList<Variable>();
+            final LinkedList<Variable> vars = new LinkedList<>();
             for(int i = 0; i < count; ++i)
             {
                 vars.add(getSymbol(i).asVariable());

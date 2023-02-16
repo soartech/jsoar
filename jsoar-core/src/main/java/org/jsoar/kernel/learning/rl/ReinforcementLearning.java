@@ -523,7 +523,7 @@ public class ReinforcementLearning
         }
         
         // get constants
-        final Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<SymbolImpl, SymbolImpl>();
+        final Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<>();
         {
             rl_get_template_constants(rlInfo.rl_template_conds,
                     my_template_instance.top_of_instantiated_conditions,

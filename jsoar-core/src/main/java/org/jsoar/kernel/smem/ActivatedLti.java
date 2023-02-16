@@ -16,7 +16,7 @@ class ActivatedLti implements Comparable<ActivatedLti>
 {
     public static PriorityQueue<ActivatedLti> newPriorityQueue()
     {
-        return new PriorityQueue<ActivatedLti>();
+        return new PriorityQueue<>();
     }
     
     final /* double */ double first;

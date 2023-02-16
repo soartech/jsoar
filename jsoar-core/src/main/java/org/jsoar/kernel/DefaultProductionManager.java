@@ -63,14 +63,14 @@ public class DefaultProductionManager implements ProductionManager
     
     // note the initializer for this map immediately below -- ensures that the values start as empty collections
     // use of an initializer is confusing -- should just use a guava multimap instead
-    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
+    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<>(ProductionType.class);
     {
         for(ProductionType type : ProductionType.values())
         {
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
-    private Map<String, Production> productionsByName = new HashMap<String, Production>();
+    private Map<String, Production> productionsByName = new HashMap<>();
     
     public DefaultProductionManager(Agent context)
     {
@@ -175,11 +175,11 @@ public class DefaultProductionManager implements ProductionManager
         if(type != null)
         {
             Set<Production> ofType = productionsByType.get(type);
-            result = new ArrayList<Production>(ofType);
+            result = new ArrayList<>(ofType);
         }
         else
         {
-            result = new ArrayList<Production>(getProductionCount());
+            result = new ArrayList<>(getProductionCount());
             for(Set<Production> ofType : productionsByType.values())
             {
                 result.addAll(ofType);
@@ -328,7 +328,7 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public Map<ProductionType, Integer> getProductionCounts()
     {
-        Map<ProductionType, Integer> counts = new EnumMap<ProductionType, Integer>(ProductionType.class);
+        Map<ProductionType, Integer> counts = new EnumMap<>(ProductionType.class);
         for(ProductionType type : ProductionType.values())
         {
             counts.put(type, 0);

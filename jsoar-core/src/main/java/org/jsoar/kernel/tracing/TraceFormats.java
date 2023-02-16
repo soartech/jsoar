@@ -86,14 +86,14 @@ public class TraceFormats
     
     private static Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> createMap()
     {
-        return new EnumMap<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>>(TraceFormatRestriction.class);
+        return new EnumMap<>(TraceFormatRestriction.class);
     }
     
     // Converted to Java maps from Soar hashtables
     private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> stack_tr_ht = createMap();
     private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> object_tr_ht = createMap();
-    private Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
-    private Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
+    private Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything = new EnumMap<>(TraceFormatRestriction.class);
+    private Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything = new EnumMap<>(TraceFormatRestriction.class);
     
     /**
      * set to TRUE whenever an escape sequence result is undefined--for use with %ifdef

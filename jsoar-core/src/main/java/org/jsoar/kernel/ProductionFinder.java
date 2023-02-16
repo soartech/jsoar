@@ -101,7 +101,7 @@ public class ProductionFinder
      */
     public List<Production> find(String pattern, Collection<Production> productions) throws ParserException
     {
-        LinkedList<Production> current_pf_list = new LinkedList<Production>();
+        LinkedList<Production> current_pf_list = new LinkedList<>();
         
         if(options.contains(Options.LHS))
         {

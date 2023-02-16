@@ -33,8 +33,8 @@ class Model
 {
     final Object lock;
     final ThreadedAgent agent;
-    final Map<Object, RootRow> roots = new HashMap<Object, RootRow>();
-    final ArrayList<Row> rows = new ArrayList<Row>();
+    final Map<Object, RootRow> roots = new HashMap<>();
+    final ArrayList<Row> rows = new ArrayList<>();
     final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
     long ts = 0;
     
@@ -372,7 +372,7 @@ class Model
     private void updateRemovedWmes()
     {
         // For all removed WMEs, remove corresponding rows and sub-rows
-        final Set<Wme> removedWmes = new HashSet<Wme>();
+        final Set<Wme> removedWmes = new HashSet<>();
         for(Wme wme : wmeToRowValues.keys())
         {
             if(!agent.getAgent().isWmeInRete(wme))
@@ -416,7 +416,7 @@ class Model
         // For each remaining WME if it's value is an id and it's marked
         // as expanded, re-request the sub-wmes and add any new ones that
         // are missing from the tree.
-        final Set<Wme> currentWmes = new HashSet<Wme>(wmeToRowValues.keys());
+        final Set<Wme> currentWmes = new HashSet<>(wmeToRowValues.keys());
         for(Wme wme : currentWmes)
         {
             final Identifier valueId = wme.getValue().asIdentifier();
@@ -481,7 +481,7 @@ class Model
     
     private CompletionHandler<Void> timeIncrementCompletionHandler(final CompletionHandler<Void> inner)
     {
-        return new CompletionHandler<Void>()
+        return new CompletionHandler<>()
         {
             @Override
             public void finish(Void result)

@@ -27,7 +27,7 @@ public class DefaultInterpreterParser
         startOfCommand = -1;
         lineOfCommand = -1;
         
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         skipWhitespaceAndComments(reader);
         
         if(!atEndOfCommand(reader))

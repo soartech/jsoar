@@ -25,8 +25,8 @@ public class LogManager
     private boolean abbreviate = true;
     private SourceLocationMethod sourceLocationMethod = SourceLocationMethod.disk;
     private LogLevel currentLogLevel = LogLevel.info;
-    private final Map<String, Logger> loggers = new HashMap<String, Logger>();
-    private final Set<String> disabledLoggers = new HashSet<String>();
+    private final Map<String, Logger> loggers = new HashMap<>();
+    private final Set<String> disabledLoggers = new HashSet<>();
     
     // private RhsFunctionHandler handler = null;
     
@@ -199,7 +199,7 @@ public class LogManager
     
     public Set<String> getLoggerNames()
     {
-        return new HashSet<String>(loggers.keySet());
+        return new HashSet<>(loggers.keySet());
     }
     
     public int getLoggerCount()
@@ -243,7 +243,7 @@ public class LogManager
         result += "number of loggers: " + loggers.size() + "\n";
         result += "------- Loggers -------\n";
         
-        List<String> loggerList = new ArrayList<String>(getLoggerNames());
+        List<String> loggerList = new ArrayList<>(getLoggerNames());
         Collections.sort(loggerList);
         for(String loggerName : loggerList)
         {

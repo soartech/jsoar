@@ -74,7 +74,7 @@ public class SetStopPhaseCommandTest
     
     private void verify(Phase expectedPhase, String... args) throws SoarException
     {
-        final List<String> argsList = new ArrayList<String>(Arrays.asList(args));
+        final List<String> argsList = new ArrayList<>(Arrays.asList(args));
         argsList.add(0, "soar");
         argsList.add(1, "stop-phase");
         command.execute(DefaultSoarCommandContext.empty(), argsList.toArray(new String[] {}));

@@ -16,7 +16,7 @@ public class SelectionManager
 {
     private static final SelectionProvider NULL_PROVIDER = new NullProvider();
     
-    private List<SelectionListener> listeners = new CopyOnWriteArrayList<SelectionListener>();
+    private List<SelectionListener> listeners = new CopyOnWriteArrayList<>();
     private SelectionProvider provider = NULL_PROVIDER;
     
     public void addListener(SelectionListener listener)
@@ -88,7 +88,7 @@ public class SelectionManager
         @Override
         public List<Object> getSelection()
         {
-            return new ArrayList<Object>();
+            return new ArrayList<>();
         }
         
         /*

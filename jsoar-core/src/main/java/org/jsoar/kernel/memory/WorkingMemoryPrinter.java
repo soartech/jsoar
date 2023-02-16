@@ -75,7 +75,7 @@ public class WorkingMemoryPrinter
             {
                 // create a map of id -> wme so we can print out wmes with the
                 // same id together
-                Map<Symbol, List<Wme>> objects = new HashMap<Symbol, List<Wme>>();
+                Map<Symbol, List<Wme>> objects = new HashMap<>();
                 for(Wme w : wmes)
                 {
                     if(!objects.containsKey(w.getIdentifier()))
@@ -201,7 +201,7 @@ public class WorkingMemoryPrinter
     /**
      * sml_KernelHelpers.cpp:246:compare_attr
      */
-    private static final Comparator<WmeImpl> ATTRIBUTE_COMPARATOR = new Comparator<WmeImpl>()
+    private static final Comparator<WmeImpl> ATTRIBUTE_COMPARATOR = new Comparator<>()
     {
         
         @Override
@@ -351,7 +351,7 @@ public class WorkingMemoryPrinter
         
         /* --- first, count all direct augmentations of this id --- */
         /* --- next, construct the array of wme pointers and sort them --- */
-        List<WmeImpl> list = new ArrayList<WmeImpl>();
+        List<WmeImpl> list = new ArrayList<>();
         for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
         {
             list.add(w);

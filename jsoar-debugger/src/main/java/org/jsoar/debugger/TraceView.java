@@ -659,7 +659,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private class Provider implements SelectionProvider
     {
         SelectionManager manager;
-        List<Object> selection = new ArrayList<Object>();
+        List<Object> selection = new ArrayList<>();
         
         public void setSelection(Object o)
         {

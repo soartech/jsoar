@@ -138,7 +138,7 @@ public class Conditions
         }
         
         // build dl_list of all the actions
-        LinkedList<Condition> conds_not_yet_printed = new LinkedList<Condition>();
+        LinkedList<Condition> conds_not_yet_printed = new LinkedList<>();
         
         for(Condition c = conds; c != null; c = c.next)
         {
@@ -179,7 +179,7 @@ public class Conditions
             
             // collect all cond's whose id test matches this one, removing them
             // from the conds_not_yet_printed list
-            LinkedList<ThreeFieldCondition> conds_for_this_id = new LinkedList<ThreeFieldCondition>();
+            LinkedList<ThreeFieldCondition> conds_for_this_id = new LinkedList<>();
             conds_for_this_id.add(tfc);
             if(!internal)
             {

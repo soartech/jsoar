@@ -343,7 +343,7 @@ public class Explain
      */
     public List<ExplainChunk> getChunkExplanations()
     {
-        final List<ExplainChunk> result = new ArrayList<ExplainChunk>();
+        final List<ExplainChunk> result = new ArrayList<>();
         ExplainChunk c = explain_chunk_list;
         while(c != null)
         {

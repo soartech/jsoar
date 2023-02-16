@@ -137,7 +137,7 @@ public class RecognitionMemory
     /**
      * List of preferences created by currently executing RHS function
      */
-    private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<Preference>();
+    private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<>();
     
     /**
      * Preference type of currently executing action, used when instantiating preferences from
@@ -416,7 +416,7 @@ public class RecognitionMemory
         }
         
         // build up list of argument values
-        final List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
+        final List<Symbol> arguments = new ArrayList<>(fc.getArguments().size());
         boolean nil_arg_found = false;
         for(RhsValue arg : fc.getArguments())
         {
@@ -912,8 +912,8 @@ public class RecognitionMemory
         // Preference pref;
         int level;
         
-        Stack<Condition> cond_stack = new Stack<Condition>();
-        List<Instantiation> inst_list = new LinkedList<Instantiation>();
+        Stack<Condition> cond_stack = new Stack<>();
+        List<Instantiation> inst_list = new LinkedList<>();
         inst_list.add(inst);
         ListIterator<Instantiation> next_iter = inst_list.listIterator();
         
@@ -1223,7 +1223,7 @@ public class RecognitionMemory
         // Preference object. When I tried to do that, I was getting some occasional
         // weird behavior. So, since this list is really supposed to be independent
         // for this function anyway, why not just use a normal list? Yay.
-        final LinkedList<Preference> o_rejects = new LinkedList<Preference>();
+        final LinkedList<Preference> o_rejects = new LinkedList<>();
         
         trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
         

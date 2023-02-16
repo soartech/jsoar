@@ -71,7 +71,7 @@ public class XmlToWmeToolsTest
     @Test
     public void testAddXmlInputToInputWmeWithExplicitAttribute() throws Exception
     {
-        final ByRef<InputWme> loc = new ByRef<InputWme>();
+        final ByRef<InputWme> loc = new ByRef<>();
         SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,
                 event -> loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID));
         
@@ -94,7 +94,7 @@ public class XmlToWmeToolsTest
     @Test
     public void testAddXmlInputToInputWmeWithDefaultAttribute() throws Exception
     {
-        final ByRef<InputWme> loc = new ByRef<InputWme>();
+        final ByRef<InputWme> loc = new ByRef<>();
         SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,
                 event -> loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID));
         

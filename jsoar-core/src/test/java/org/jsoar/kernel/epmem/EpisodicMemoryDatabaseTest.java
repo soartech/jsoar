@@ -59,7 +59,7 @@ public class EpisodicMemoryDatabaseTest
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
         
-        final Set<String> tables = new HashSet<String>();
+        final Set<String> tables = new HashSet<>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] { "TABLE" });
         while(rs.next())
         {
@@ -67,7 +67,7 @@ public class EpisodicMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final Set<String> expectedTables = new HashSet<String>(Arrays.asList(
+        final Set<String> expectedTables = new HashSet<>(Arrays.asList(
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "episodes",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti",
@@ -108,7 +108,7 @@ public class EpisodicMemoryDatabaseTest
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
         
-        final Set<String> indexes = new HashSet<String>();
+        final Set<String> indexes = new HashSet<>();
         
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] { "TABLE" });
         while(rs.next())
@@ -129,7 +129,7 @@ public class EpisodicMemoryDatabaseTest
          * need to be redone anyways
          * - ALT
          */
-        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(
+        final List<String> expectedTables = new ArrayList<>(Arrays.asList(
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti_letter_num",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_id_start",
                 EpisodicMemoryDatabase.EPMEM_SCHEMA + "wmes_constant_now_start",

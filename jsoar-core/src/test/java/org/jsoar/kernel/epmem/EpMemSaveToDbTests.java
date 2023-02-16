@@ -44,7 +44,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
         /*
          * List index by id containing values
          */
-        final List<Long> expectedVals = new ArrayList<Long>();
+        final List<Long> expectedVals = new ArrayList<>();
         expectedVals.add(-1L);
         expectedVals.add(0L);
         expectedVals.add(1L);
@@ -81,7 +81,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
          * 1 operator*
          */
         
-        List<String> symbolsString = new ArrayList<String>();
+        List<String> symbolsString = new ArrayList<>();
         symbolsString.add("root");
         symbolsString.add("operator*");
         

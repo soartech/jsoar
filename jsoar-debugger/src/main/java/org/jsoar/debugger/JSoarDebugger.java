@@ -122,12 +122,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
     
-    private Map<String, Object> providerProperties = new HashMap<String, Object>();
+    private Map<String, Object> providerProperties = new HashMap<>();
     private boolean resetPreferencesAtExit = false;
     
     private ThreadedAgent agent;
     private final LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
-    private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
+    private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<>();
     
     public JFrame frame;
     private CControl docking;
@@ -135,8 +135,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private final List<CDockable> views = new ArrayList<>();
     
-    private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
-    private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
+    private final List<SoarEventListener> soarEventListeners = new ArrayList<>();
+    private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<>();
     private static float fontScale = 1.0f;
     private StopCommandViewFactory factory;
     

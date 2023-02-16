@@ -25,10 +25,10 @@ public class ChunkCondition
     Condition saved_prev_pointer_of_variablized_cond; /* don't ask */
     
     /* dll of all cond's in a set (i.e., a chunk_cond_set, or the grounds) */
-    final ListItem<ChunkCondition> next_prev = new ListItem<ChunkCondition>(this);
+    final ListItem<ChunkCondition> next_prev = new ListItem<>(this);
     
     /* dll of cond's in this particular hash bucket for this set */
-    final ListItem<ChunkCondition> in_bucket = new ListItem<ChunkCondition>(this);
+    final ListItem<ChunkCondition> in_bucket = new ListItem<>(this);
     
     int hash_value; /* equals hash_condition(cond) */
     int compressed_hash_value; /* above, compressed to a few bits */

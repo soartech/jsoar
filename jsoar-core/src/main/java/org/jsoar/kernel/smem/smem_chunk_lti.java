@@ -49,7 +49,7 @@ class smem_chunk_lti
         // TODO SMEM is this a good idea?
         // use a smaller default size since there usually aren't that many
         // attributes on an id
-        return new LinkedHashMap<SymbolImpl, List<Object>>(8);
+        return new LinkedHashMap<>(8);
     }
     
     /**

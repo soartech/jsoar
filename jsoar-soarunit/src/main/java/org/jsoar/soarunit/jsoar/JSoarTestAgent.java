@@ -326,7 +326,7 @@ public class JSoarTestAgent implements TestAgent
     {
         commonInitialize(test, true);
         
-        final Map<String, Object> debugProps = new HashMap<String, Object>();
+        final Map<String, Object> debugProps = new HashMap<>();
         debugProps.put(DebuggerProvider.CLOSE_ACTION, exitOnClose ? CloseAction.EXIT : CloseAction.DISPOSE);
         agent.getDebuggerProvider().setProperties(debugProps);
         agent.openDebuggerAndWait();

@@ -104,7 +104,7 @@ public class SoarBeanReader
     private static final Logger LOG = LoggerFactory.getLogger(SoarBeanReader.class);
     
     private final BeanUtilsBean util = new BeanUtilsBean();
-    private final Map<Identifier, Object> beanMap = new HashMap<Identifier, Object>();
+    private final Map<Identifier, Object> beanMap = new HashMap<>();
     
     // these are only for debugging purposes
     private Identifier debugId = null;

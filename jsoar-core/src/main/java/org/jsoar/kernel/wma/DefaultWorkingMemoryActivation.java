@@ -125,7 +125,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private Set<Wme> wma_touched_elements;
     private TreeMap<Long, Set<wma_decay_element>> wma_forget_pq; // using TreeMap because this needs to be sorted and we will use TreeMap-specific methods
     private Set<Long> wma_touched_sets;
-    private Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<Wme, wma_decay_element>();
+    private Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<>();
     
     private int wma_power_size;
     private double wma_power_array[];
@@ -474,7 +474,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         long return_val = 0;
         
         // this is a replacement for putting wma_tc_number on every wme
-        final Set<Wme> alreadyProcessed = new HashSet<Wme>();
+        final Set<Wme> alreadyProcessed = new HashSet<>();
         
         long num_cond_wmes = 0;
         double combined_time_sum = 0.0;
@@ -741,7 +741,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             final Set<wma_decay_element> pq = wma_forget_pq.get(new_cycle);
             if(pq == null)
             {
-                Set<wma_decay_element> newbie = new HashSet<wma_decay_element>();
+                Set<wma_decay_element> newbie = new HashSet<>();
                 
                 newbie.add(decay_el);
                 

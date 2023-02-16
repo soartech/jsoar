@@ -88,7 +88,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      */
     public List<Symbol> getAllSymbols()
     {
-        final List<Symbol> result = new ArrayList<Symbol>();
+        final List<Symbol> result = new ArrayList<>();
         result.addAll(identifiers.values());
         result.addAll(symConstants.values());
         result.addAll(intConstants.values());
@@ -110,27 +110,27 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         if(klass.isAssignableFrom(StringSymbolImpl.class))
         {
-            return new ArrayList<T>((Collection<? extends T>) symConstants.values());
+            return new ArrayList<>((Collection<? extends T>) symConstants.values());
         }
         else if(klass.isAssignableFrom(IntegerSymbolImpl.class))
         {
-            return new ArrayList<T>((Collection<? extends T>) intConstants.values());
+            return new ArrayList<>((Collection<? extends T>) intConstants.values());
         }
         else if(klass.isAssignableFrom(DoubleSymbol.class))
         {
-            return new ArrayList<T>((Collection<? extends T>) floatConstants.values());
+            return new ArrayList<>((Collection<? extends T>) floatConstants.values());
         }
         else if(klass.isAssignableFrom(IdentifierImpl.class))
         {
-            return new ArrayList<T>((Collection<? extends T>) identifiers.values());
+            return new ArrayList<>((Collection<? extends T>) identifiers.values());
         }
         else if(klass.isAssignableFrom(Variable.class))
         {
-            return new ArrayList<T>((Collection<? extends T>) variables.values());
+            return new ArrayList<>((Collection<? extends T>) variables.values());
         }
         else if(klass.isAssignableFrom(JavaSymbolImpl.class))
         {
-            List<T> result = new ArrayList<T>((Collection<? extends T>) javaSyms.values());
+            List<T> result = new ArrayList<>((Collection<? extends T>) javaSyms.values());
             result.add((T) nullJavaSym);
             return result;
         }

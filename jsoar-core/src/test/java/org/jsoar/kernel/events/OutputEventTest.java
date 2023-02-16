@@ -61,8 +61,8 @@ public class OutputEventTest
         agent.getInterpreter().source(getClass().getResource("OutputEventTest_testGetChanges.soar"));
         
         // Set up listener to cache changes during run
-        final List<List<OutputChange>> changes = new ArrayList<List<OutputChange>>();
-        final AtomicReference<Identifier> stuffId = new AtomicReference<Identifier>();
+        final List<List<OutputChange>> changes = new ArrayList<>();
+        final AtomicReference<Identifier> stuffId = new AtomicReference<>();
         agent.getEvents().addListener(OutputEvent.class, event ->
         {
             final OutputEvent oe = (OutputEvent) event;

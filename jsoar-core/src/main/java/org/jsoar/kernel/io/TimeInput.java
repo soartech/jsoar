@@ -30,7 +30,7 @@ public class TimeInput
     
     private Calendar startTime;
     private InputWme wme;
-    private final Map<String, InputWme> childWmes = new HashMap<String, InputWme>();
+    private final Map<String, InputWme> childWmes = new HashMap<>();
     
     /**
      * Construct a new world-time input object. This object will automatically

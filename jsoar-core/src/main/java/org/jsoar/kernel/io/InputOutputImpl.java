@@ -137,11 +137,11 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     
     private WmeImpl outputLinkWme;
     private OutputLinkStatus outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS; /* current xxx_OL_STATUS */
-    private Set<IdentifierImpl> ids_in_tc = new HashSet<IdentifierImpl>(); /* ids in TC(link) */
+    private Set<IdentifierImpl> ids_in_tc = new HashSet<>(); /* ids in TC(link) */
     private boolean output_link_changed = false;
     private Set<Wme> lastOutputSet = null;
-    private final Set<Wme> pendingCommands = new HashSet<Wme>();
-    private final Set<Wme> removingCommands = new HashSet<Wme>();
+    private final Set<Wme> pendingCommands = new HashSet<>();
+    private final Set<Wme> removingCommands = new HashSet<>();
     private Marker output_link_tc_num;
     
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
@@ -149,7 +149,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     private final InputEvent inputEvent = new InputEvent(this);
     private final AsynchronousInputReadyEvent asyncInputReadyEvent = new AsynchronousInputReadyEvent(this);
     
-    private final ConcurrentLinkedQueue<InputWmeImpl> wmesToRemove = new ConcurrentLinkedQueue<InputWmeImpl>();
+    private final ConcurrentLinkedQueue<InputWmeImpl> wmesToRemove = new ConcurrentLinkedQueue<>();
     
     // private final Set<InputWmeImpl> allInputWmes = new LinkedHashSet<InputWmeImpl>();
     
@@ -410,7 +410,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     @Override
     public List<Wme> getPendingCommands()
     {
-        return new ArrayList<Wme>(pendingCommands);
+        return new ArrayList<>(pendingCommands);
     }
     
     /*
@@ -421,7 +421,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     @Override
     public List<Wme> getRemovingCommands()
     {
-        return new ArrayList<Wme>(removingCommands);
+        return new ArrayList<>(removingCommands);
     }
     
     /*
@@ -711,7 +711,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      */
     private Set<Wme> get_io_wmes_for_output_link()
     {
-        LinkedHashSet<Wme> io_wmes = new LinkedHashSet<Wme>();
+        LinkedHashSet<Wme> io_wmes = new LinkedHashSet<>();
         io_wmes.add(outputLinkWme);
         
         for(IdentifierImpl id : ids_in_tc)

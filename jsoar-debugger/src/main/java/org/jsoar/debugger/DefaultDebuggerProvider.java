@@ -30,7 +30,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
 {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
-    private final Map<String, Object> properties = new HashMap<String, Object>();
+    private final Map<String, Object> properties = new HashMap<>();
     
     public DefaultDebuggerProvider()
     {
@@ -44,7 +44,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     @Override
     public synchronized Map<String, Object> getProperties()
     {
-        return new HashMap<String, Object>(properties);
+        return new HashMap<>(properties);
     }
     
     /*

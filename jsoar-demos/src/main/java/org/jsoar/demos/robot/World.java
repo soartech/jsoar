@@ -22,9 +22,9 @@ public class World
 {
     public final SoarEventManager events = new SoarEventManager();
     public final Rectangle2D extents = new Rectangle2D.Double(-5.0, -5.0, 10.0, 10.0);
-    private final List<Robot> robots = new ArrayList<Robot>();
-    private final List<Shape> obstacles = new ArrayList<Shape>();
-    private final List<Waypoint> waypoints = new ArrayList<Waypoint>();
+    private final List<Robot> robots = new ArrayList<>();
+    private final List<Shape> obstacles = new ArrayList<>();
+    private final List<Waypoint> waypoints = new ArrayList<>();
     
     public World()
     {

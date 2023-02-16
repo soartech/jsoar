@@ -54,7 +54,7 @@ public class WmeBuilder<T>
     public static <U> WmeBuilder<U> create(WmeFactory<U> wmeFactory,
             String rootName)
     {
-        return new WmeBuilder<U>(wmeFactory, null, rootName,
+        return new WmeBuilder<>(wmeFactory, null, rootName,
                 new HashMap<String, Identifier>(), new HashMap<String, U>());
     }
     
@@ -74,7 +74,7 @@ public class WmeBuilder<T>
     public static <U> WmeBuilder<U> create(WmeFactory<U> wmeFactory,
             Identifier root)
     {
-        return new WmeBuilder<U>(wmeFactory, null, root,
+        return new WmeBuilder<>(wmeFactory, null, root,
                 new HashMap<String, Identifier>(), new HashMap<String, U>());
     }
     
@@ -149,7 +149,7 @@ public class WmeBuilder<T>
                 null,
                 wmeFactory.addWme(id, Symbols.create(syms, attr),
                         Symbols.create(syms, newId)));
-        return new WmeBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
+        return new WmeBuilder<>(wmeFactory, this, newId, idMap, wmeMap);
     }
     
     /**
@@ -270,6 +270,6 @@ public class WmeBuilder<T>
             throw new IllegalArgumentException("No id with name '" + idName
                     + "'");
         }
-        return new WmeBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
+        return new WmeBuilder<>(wmeFactory, this, newId, idMap, wmeMap);
     }
 }

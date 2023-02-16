@@ -73,7 +73,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         return (ix < 0) ? "" : path.substring(0, ix);
     }
     
-    private static final Comparator<String> INCREASING_LENGTH_COMPARATOR = new Comparator<String>()
+    private static final Comparator<String> INCREASING_LENGTH_COMPARATOR = new Comparator<>()
     {
         public int compare(String s1, String s2)
         {
@@ -81,7 +81,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         }
     };
     
-    private static final Comparator<String> DECREASING_LENGTH_COMPARATOR = new Comparator<String>()
+    private static final Comparator<String> DECREASING_LENGTH_COMPARATOR = new Comparator<>()
     {
         public int compare(String s1, String s2)
         {
@@ -96,7 +96,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
     private Identifier rootId;
     private SoarMemoryNode rootNode;
     
-    private Map<String, SoarMemoryNode> memory = new HashMap<String, SoarMemoryNode>();
+    private Map<String, SoarMemoryNode> memory = new HashMap<>();
     
     /**
      * Attach the given source to the given agent. Each input cycle, the current contents
@@ -269,10 +269,10 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
             rootNode = new SoarMemoryNode(io.getInputLink());
         }
         
-        final Set<String> oldPaths = new HashSet<String>(memory.keySet());
+        final Set<String> oldPaths = new HashSet<>(memory.keySet());
         
-        final Set<String> newPaths = new HashSet<String>();
-        final Set<String> newInternalPaths = new HashSet<String>();
+        final Set<String> newPaths = new HashSet<>();
+        final Set<String> newInternalPaths = new HashSet<>();
         
         for(String fullPath : source.getPaths())
         {
@@ -298,7 +298,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
         // no longer present in the memory structure
         // ... walk through in order of decreasing length
         // so that child WMEs are destroyed before their parents
-        final List<String> oldPathsByLength = new ArrayList<String>(oldPaths);
+        final List<String> oldPathsByLength = new ArrayList<>(oldPaths);
         Collections.sort(oldPathsByLength, DECREASING_LENGTH_COMPARATOR);
         
         for(String path : oldPathsByLength)
@@ -307,7 +307,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
             oldNode.remove(io);
         }
         
-        final List<String> newPathsByLength = new ArrayList<String>(newPaths);
+        final List<String> newPathsByLength = new ArrayList<>(newPaths);
         Collections.sort(newPathsByLength, INCREASING_LENGTH_COMPARATOR);
         
         // walk through paths in order of increasing length

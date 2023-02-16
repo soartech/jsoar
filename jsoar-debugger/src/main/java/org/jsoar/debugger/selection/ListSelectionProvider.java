@@ -76,7 +76,7 @@ public class ListSelectionProvider<T> implements SelectionProvider, ListSelectio
     @Override
     public List<Object> getSelection()
     {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         for(int i : this.list.getSelectedIndices())
         {
             result.add(this.list.getModel().getElementAt(i));

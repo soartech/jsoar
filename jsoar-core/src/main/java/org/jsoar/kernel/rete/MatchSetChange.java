@@ -29,7 +29,7 @@ public class MatchSetChange
     
     public IdentifierImpl goal;
     public int level;              // Level of the match of the assertion or retraction
-    public final ListItem<MatchSetChange> in_level = new ListItem<MatchSetChange>(this); // dll for goal level
+    public final ListItem<MatchSetChange> in_level = new ListItem<>(this); // dll for goal level
     
     public static MatchSetChange createAssertion(ReteNode p_node, Token tok, WmeImpl w)
     {
@@ -158,21 +158,11 @@ public class MatchSetChange
         // %y", msc->inst->prod->name);
         // #endif
         
-        if(this.inst.match_goal != null)
-        {
-            // If there is a goal, just return the goal
-            // #ifdef DEBUG_WATERFALL
-            // print_with_symbols(thisAgent, " is [%y]", msc->inst->match_goal);
-            // #endif
-            return this.inst.match_goal;
-        }
-        else
-        {
-            // #ifdef DEBUG_WATERFALL
-            // print(" is NIL (nil goal retraction)");
-            // #endif
-            return null;
-        }
+        // If there is a goal, just return the goal
+        // #ifdef DEBUG_WATERFALL
+        // print_with_symbols(thisAgent, " is [%y]", msc->inst->match_goal);
+        // #endif
+        return this.inst.match_goal;
     }
     
     /**

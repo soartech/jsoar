@@ -28,7 +28,7 @@ class WmeRow extends Row
     final Symbol attr;
     Rectangle2D attrBounds;
     
-    final List<Value> values = new ArrayList<Value>();
+    final List<Value> values = new ArrayList<>();
     
     public WmeRow(RootRow root, Value parent, Identifier id, Symbol attr)
     {
@@ -76,7 +76,7 @@ class WmeRow extends Row
         final WmeRow row;
         final Wme wme;
         boolean expanded;
-        final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
+        final Map<Symbol, WmeRow> children = new HashMap<>();
         Rectangle2D bounds;
         
         private Value(long ts, WmeRow row, Wme wme)

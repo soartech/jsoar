@@ -50,7 +50,7 @@ public class DefaultInterpreterTest
     @Test
     public void testPassesCommandContextToCommand() throws Exception
     {
-        final AtomicReference<SoarCommandContext> context = new AtomicReference<SoarCommandContext>();
+        final AtomicReference<SoarCommandContext> context = new AtomicReference<>();
         interp.addCommand("testCommandContext", new SoarCommand()
         {
             @Override

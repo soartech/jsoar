@@ -50,7 +50,7 @@ public class SimpleMatcher
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final Listener listener = new Listener();
     private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
-    private final Map<String, Production> productions = new HashMap<String, Production>();
+    private final Map<String, Production> productions = new HashMap<>();
     
     /**
      * Creates an instance of SimpleMatcher.
@@ -186,7 +186,7 @@ public class SimpleMatcher
     public void removeAllWmes()
     {
         // need to make a copy since remove_wme_from_rete will destructively modify the collection returned by rete.getAllWmes
-        final Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
+        final Set<WmeImpl> wmes = new HashSet<>(rete.getAllWmes());
         
         for(WmeImpl w : wmes)
         {
@@ -304,7 +304,7 @@ public class SimpleMatcher
     
     private class Listener implements ReteListener
     {
-        Map<Production, Integer> matching = new HashMap<Production, Integer>();
+        Map<Production, Integer> matching = new HashMap<>();
         
         /*
          * (non-Javadoc)

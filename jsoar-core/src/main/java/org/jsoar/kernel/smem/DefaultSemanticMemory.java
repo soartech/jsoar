@@ -212,9 +212,9 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     /* private */SemanticMemorySymbols predefinedSyms;
     
-    private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new LinkedHashMap<IdentifierImpl, SemanticMemoryStateInfo>();
+    private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new LinkedHashMap<>();
     
-    private Set<IdentifierImpl> smem_changed_ids = new LinkedHashSet<IdentifierImpl>();
+    private Set<IdentifierImpl> smem_changed_ids = new LinkedHashSet<>();
     
     private boolean smem_ignore_changes;
     
@@ -348,7 +348,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                                                                 * NIL
                                                                                 */)
     {
-        final List<WmeImpl> return_val = new ArrayList<WmeImpl>();
+        final List<WmeImpl> return_val = new ArrayList<>();
         // augs only exist for identifiers
         final IdentifierImpl id = sym.asIdentifier();
         if(id != null)
@@ -889,7 +889,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         
                         if(time_diff > 0)
                         {
-                            List<Long> to_update = new ArrayList<Long>();
+                            List<Long> to_update = new ArrayList<>();
                             
                             db.lti_get_t.setLong(1, time_diff);
                             try(ResultSet rs = db.lti_get_t.executeQuery();)
@@ -1113,7 +1113,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     public static boolean smem_valid_production(Condition lhs_top, Action rhs_top)
     {
-        final Set<IdentifierImpl> valid_ltis = new LinkedHashSet<IdentifierImpl>();
+        final Set<IdentifierImpl> valid_ltis = new LinkedHashSet<>();
         
         // collect valid ltis
         for(Condition c = lhs_top; c != null; c = c.next)
@@ -1384,7 +1384,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             long pair_count = 0;
             
             long child_attr = 0;
-            Set<Long> distinct_attr = new LinkedHashSet<Long>();
+            Set<Long> distinct_attr = new LinkedHashSet<>();
             
             // pairs first, accumulate distinct attributes and pair count
             db.web_all.setLong(1, lti_id);
@@ -1572,9 +1572,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         // get new edges
         // if didn't disconnect, entails lookups in existing edges
-        Set<Long /* smem_hash_id */> attr_new = new LinkedHashSet<Long>();
-        Set<SmemHashIdLongPair /* smem_hash_id->smem_hash_id */> const_new = new LinkedHashSet<SmemHashIdLongPair>();
-        Set<SmemHashIdLongPair /* smem_hash_id->smem_lti_id */> lti_new = new LinkedHashSet<SmemHashIdLongPair>();
+        Set<Long /* smem_hash_id */> attr_new = new LinkedHashSet<>();
+        Set<SmemHashIdLongPair /* smem_hash_id->smem_hash_id */> const_new = new LinkedHashSet<>();
+        Set<SmemHashIdLongPair /* smem_hash_id->smem_lti_id */> lti_new = new LinkedHashSet<>();
         {
             long /* smem_hash_id */ attr_hash = 0;
             long /* smem_hash_id */ value_hash = 0;
@@ -1902,7 +1902,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             tc = DefaultMarker.create();
         }
-        List<SymbolImpl> shorties = new ArrayList<SymbolImpl>();
+        List<SymbolImpl> shorties = new ArrayList<>();
         
         // get level
         final List<WmeImpl> children = smem_get_direct_augs_of_id(id, tc);
@@ -1913,7 +1913,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         // encode this level
         {
-            final Map<IdentifierImpl, smem_chunk_lti> sym_to_chunk = new LinkedHashMap<IdentifierImpl, smem_chunk_lti>();
+            final Map<IdentifierImpl, smem_chunk_lti> sym_to_chunk = new LinkedHashMap<>();
             
             final Map<SymbolImpl, List<Object>> slots = smem_chunk_lti.newSlotMap();
             
@@ -2250,7 +2250,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     {
         boolean needFullSearch = false;
         // Use this set to track when certain elements have been added, so we don't add them twice
-        Set<Symbol> uniqueMathQueryElements = new HashSet<Symbol>();
+        Set<Symbol> uniqueMathQueryElements = new HashSet<>();
         List<WmeImpl> cue = smem_get_direct_augs_of_id(mathQuery);
         for(WmeImpl cue_p : cue)
         {
@@ -2377,7 +2377,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             smem_query_levels query_level) throws SQLException
     {
         final SemanticMemoryStateInfo smem_info = smem_info(state);
-        final List<WeightedCueElement> weighted_cue = new ArrayList<WeightedCueElement>();
+        final List<WeightedCueElement> weighted_cue = new ArrayList<>();
         boolean good_cue = true;
         
         // This is used when doing math queries that need to look at more that just the first valid element
@@ -2497,7 +2497,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // - not in loop because the effects of activation may
                     // actually
                     // alter the resultset of the query (isolation???)
-                    Set<Long /* smem_lti_id */> to_update = new LinkedHashSet<Long>();
+                    Set<Long /* smem_lti_id */> to_update = new LinkedHashSet<>();
                     
                     try(ResultSet rs = q.executeQuery())
                     {
@@ -3511,10 +3511,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         boolean good_chunk = true;
         
-        final Map<String, smem_chunk_lti> chunks = new LinkedHashMap<String, smem_chunk_lti>();
+        final Map<String, smem_chunk_lti> chunks = new LinkedHashMap<>();
         // smem_str_to_chunk_map::iterator c_old;
         
-        final Set<smem_chunk_lti> newbies = new LinkedHashSet<smem_chunk_lti>();
+        final Set<smem_chunk_lti> newbies = new LinkedHashSet<>();
         // smem_chunk_set::iterator c_new;
         
         // consume next token
@@ -3640,16 +3640,16 @@ public class DefaultSemanticMemory implements SemanticMemory
         // (could go in the opposite direction as well)
         IdentifierImpl state = decider.bottom_goal;
         
-        List<SymbolTriple> meta_wmes = new ArrayList<SymbolTriple>();
-        List<SymbolTriple> retrieval_wmes = new ArrayList<SymbolTriple>();
-        Set<WmeImpl> cue_wmes = new LinkedHashSet<WmeImpl>();
+        List<SymbolTriple> meta_wmes = new ArrayList<>();
+        List<SymbolTriple> retrieval_wmes = new ArrayList<>();
+        Set<WmeImpl> cue_wmes = new LinkedHashSet<>();
         
-        final List<IdentifierImpl> prohibit = new ArrayList<IdentifierImpl>();
-        final List<IdentifierImpl> store = new ArrayList<IdentifierImpl>();
+        final List<IdentifierImpl> prohibit = new ArrayList<>();
+        final List<IdentifierImpl> store = new ArrayList<>();
         
         final int time_slot = store_only ? 1 : 0;
-        final Queue<IdentifierImpl> syms = new ArrayDeque<IdentifierImpl>();
-        final Queue<Integer> levels = new ArrayDeque<Integer>();
+        final Queue<IdentifierImpl> syms = new ArrayDeque<>();
+        final Queue<Integer> levels = new ArrayDeque<>();
         
         boolean do_wm_phase = false;
         boolean mirroring_on = params.mirroring.get() == MirroringChoices.on;
@@ -3890,7 +3890,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // query
                     else if(path == path_type.cmd_query)
                     {
-                        final Set<Long> /* smem_lti_set */ prohibit_lti = new LinkedHashSet<Long>();
+                        final Set<Long> /* smem_lti_set */ prohibit_lti = new LinkedHashSet<>();
                         
                         for(IdentifierImpl sym_p : prohibit)
                         {
@@ -4111,7 +4111,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         return_val.append("node [ shape = doublecircle ];");
         return_val.append("\n");
         
-        final Map<Long, String> lti_names = new LinkedHashMap<Long, String>();
+        final Map<Long, String> lti_names = new LinkedHashMap<>();
         {
             // id, soar_letter, number
             {
@@ -4147,7 +4147,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 // terminal nodes first
                 {
-                    final Map<Long, List<String>> lti_terminals = new LinkedHashMap<Long, List<String>>();
+                    final Map<Long, List<String>> lti_terminals = new LinkedHashMap<>();
                     
                     List<String> my_terminals = null;
                     
@@ -4359,9 +4359,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         // buffer
         StringWriter return_val2 = new StringWriter();
         
-        final Queue<smem_vis_lti> bfs = new ArrayDeque<smem_vis_lti>();
+        final Queue<smem_vis_lti> bfs = new ArrayDeque<>();
         
-        final Map<Long /* smem_lti_id */, smem_vis_lti> close_list = new LinkedHashMap<Long, smem_vis_lti>();
+        final Map<Long /* smem_lti_id */, smem_vis_lti> close_list = new LinkedHashMap<>();
         
         // header
         return_val.append("digraph smem_lti {");
@@ -4588,12 +4588,12 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     Set<Long /* smem_lti_id */> _smem_print_lti(long /* smem_lti_id */ lti_id, char lti_letter, long lti_number, double lti_act, StringBuilder return_val) throws SQLException
     {
-        Set<Long /* smem_lti_id */> next = new LinkedHashSet<Long>();
+        Set<Long /* smem_lti_id */> next = new LinkedHashSet<>();
         
         String temp_str;
         StringBuilder temp_str2 = null;
         
-        Map<String, List<String>> augmentations = new LinkedHashMap<String, List<String>>();
+        Map<String, List<String>> augmentations = new LinkedHashMap<>();
         
         PreparedStatement expand_q = db.web_expand;
         
@@ -4781,12 +4781,12 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     public void smem_print_lti(long /* smem_lti_id */ lti_id, int depth, StringBuilder return_val) throws SoarException
     {
-        Set<Long /* smem_lti_id */> visited = new LinkedHashSet<Long>();
+        Set<Long /* smem_lti_id */> visited = new LinkedHashSet<>();
         
-        Queue<SmemLTIidDepthPair> to_visit = new ArrayDeque<SmemLTIidDepthPair>();
+        Queue<SmemLTIidDepthPair> to_visit = new ArrayDeque<>();
         SmemLTIidDepthPair c = null;
         
-        Set<Long /* smem_lti_id */> next = new LinkedHashSet<Long>();
+        Set<Long /* smem_lti_id */> next = new LinkedHashSet<>();
         
         PreparedStatement lti_q = db.lti_letter_num;
         PreparedStatement act_q = db.vis_lti_act;

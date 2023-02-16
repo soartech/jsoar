@@ -37,8 +37,8 @@ public class SourceCommand
 {
     private final SourceCommandAdapter interp;
     private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
-    private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
-    private Stack<String> fileStack = new Stack<String>();
+    private Stack<DirStackEntry> directoryStack = new Stack<>();
+    private Stack<String> fileStack = new Stack<>();
     
     /**
      * Save the path to each sourced file in this list.
@@ -47,7 +47,7 @@ public class SourceCommand
      * 
      * QUESTION: Should this also have urls added to it in evalUrlAndPop()?
      */
-    private List<String> sourcedFiles = new ArrayList<String>();
+    private List<String> sourcedFiles = new ArrayList<>();
     
     /* package */ TopLevelState topLevelState;
     /* package */ final SoarEventManager events;
@@ -304,8 +304,8 @@ public class SourceCommand
     /* package */ static class FileInfo
     {
         final String name;
-        final List<String> productionsAdded = new ArrayList<String>();
-        final List<String> productionsExcised = new ArrayList<String>();
+        final List<String> productionsAdded = new ArrayList<>();
+        final List<String> productionsExcised = new ArrayList<>();
         
         public FileInfo(String name)
         {
@@ -315,7 +315,7 @@ public class SourceCommand
     
     /* package */ static class TopLevelState
     {
-        final List<FileInfo> files = new ArrayList<FileInfo>();
+        final List<FileInfo> files = new ArrayList<>();
         int totalProductionsAdded = 0;
         int totalProductionsExcised = 0;
         // int totalProductionsIgnored = 0; // TODO implement totalProductionsIgnored

@@ -23,7 +23,7 @@ import org.jsoar.kernel.symbols.Symbol;
 class InputWmeImpl implements InputWme
 {
     private final InputOutputImpl io;
-    private final AtomicReference<WmeImpl> inner = new AtomicReference<WmeImpl>();
+    private final AtomicReference<WmeImpl> inner = new AtomicReference<>();
     
     InputWmeImpl(InputOutputImpl io, WmeImpl inner)
     {

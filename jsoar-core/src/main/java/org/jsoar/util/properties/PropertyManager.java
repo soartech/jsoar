@@ -45,7 +45,7 @@ public class PropertyManager
     public <T> PropertyListenerHandle<T> addListener(PropertyKey<T> key, PropertyListener<T> listener)
     {
         getListenersForKey(key).add(listener);
-        return new PropertyListenerHandle<T>(this, key, listener);
+        return new PropertyListenerHandle<>(this, key, listener);
     }
     
     /**
@@ -98,7 +98,7 @@ public class PropertyManager
      */
     public List<PropertyKey<?>> getKeys()
     {
-        return new ArrayList<PropertyKey<?>>(properties.keySet());
+        return new ArrayList<>(properties.keySet());
     }
     
     /**
@@ -160,7 +160,7 @@ public class PropertyManager
      */
     public <T, V extends T> void firePropertyChanged(PropertyKey<T> key, V value, final T oldValue)
     {
-        final PropertyChangeEvent<T> event = new PropertyChangeEvent<T>(key, oldValue, value);
+        final PropertyChangeEvent<T> event = new PropertyChangeEvent<>(key, oldValue, value);
         for(PropertyListener<T> listener : getListenersForKey(key))
         {
             listener.propertyChanged(event);
@@ -175,7 +175,7 @@ public class PropertyManager
             PropertyProvider<T> provider = (PropertyProvider<T>) properties.get(key);
             if(provider == null)
             {
-                provider = new DefaultPropertyProvider<T>(key);
+                provider = new DefaultPropertyProvider<>(key);
                 properties.put(key, provider);
             }
             return provider;
@@ -190,7 +190,7 @@ public class PropertyManager
             List<PropertyListener<T>> list = (List<PropertyListener<T>>) listeners.get(key);
             if(list == null)
             {
-                list = new CopyOnWriteArrayList<PropertyListener<T>>();
+                list = new CopyOnWriteArrayList<>();
                 listeners.put(key, list);
             }
             return list;

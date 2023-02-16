@@ -23,7 +23,7 @@ class RootRow extends Row
     final Object key;
     private final Callable<Identifier> getter;
     private Identifier id;
-    final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
+    final Map<Symbol, WmeRow> children = new HashMap<>();
     final JButton deleteButton = new JButton();
     long ts;
     

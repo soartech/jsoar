@@ -76,7 +76,7 @@ public class Printer
         }
     };
     
-    private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
+    private final LinkedList<StackEntry> stack = new LinkedList<>();
     
     private List<String> warnings;
     

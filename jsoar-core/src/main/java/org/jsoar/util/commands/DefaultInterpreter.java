@@ -54,8 +54,8 @@ import picocli.CommandLine.Parameters;
  */
 public class DefaultInterpreter implements SoarCommandInterpreter
 {
-    private final Map<String, SoarCommand> commands = new HashMap<String, SoarCommand>();
-    private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
+    private final Map<String, SoarCommand> commands = new HashMap<>();
+    private final Map<String, List<String>> aliases = new LinkedHashMap<>();
     
     private final SourceCommand sourceCommand;
     private final LoadCommand loadCommand;
@@ -98,14 +98,14 @@ public class DefaultInterpreter implements SoarCommandInterpreter
      */
     public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
     {
-        final List<String> command = new ArrayList<String>();
+        final List<String> command = new ArrayList<>();
         command.add(name);
         return getSoarCommand(ByRef.create(new ParsedCommand(srcLoc, command)));
     }
     
     public ParsedCommand getParsedCommand(String name, SourceLocation srcLoc)
     {
-        final List<String> command = new ArrayList<String>();
+        final List<String> command = new ArrayList<>();
         command.add(name);
         return resolveAliases(new ParsedCommand(srcLoc, command));
     }
@@ -272,7 +272,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     
     private String executeParsedCommand(ParsedCommand parsedCommand) throws SoarException
     {
-        final ByRef<ParsedCommand> parsedCommandRef = new ByRef<ParsedCommand>(parsedCommand);
+        final ByRef<ParsedCommand> parsedCommandRef = new ByRef<>(parsedCommand);
         final SoarCommand command = getSoarCommand(parsedCommandRef);
         final SoarCommandContext commandContext = new DefaultSoarCommandContext(parsedCommandRef.value.getLocation());
         return command.execute(commandContext, parsedCommandRef.value.getArgs().toArray(new String[] {}));
@@ -295,7 +295,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     
     private List<Map.Entry<String, SoarCommand>> resolvePossibleCommands(String prefix)
     {
-        final List<Map.Entry<String, SoarCommand>> result = new ArrayList<Map.Entry<String, SoarCommand>>();
+        final List<Map.Entry<String, SoarCommand>> result = new ArrayList<>();
         for(Map.Entry<String, SoarCommand> entry : commands.entrySet())
         {
             if(entry.getKey().startsWith(prefix))
@@ -308,7 +308,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     
     private List<String> getNames(List<Map.Entry<String, SoarCommand>> possible)
     {
-        final List<String> result = new ArrayList<String>(possible.size());
+        final List<String> result = new ArrayList<>(possible.size());
         for(Map.Entry<String, SoarCommand> e : possible)
         {
             result.add(e.getKey());
@@ -351,7 +351,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
         else
         {
-            final List<String> result = new ArrayList<String>(alias);
+            final List<String> result = new ArrayList<>(alias);
             result.addAll(parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size()));
             return new ParsedCommand(parsedCommand.getLocation(), result);
         }
@@ -410,7 +410,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
                 }
                 else
                 {
-                    final List<String> aliasArgs = new ArrayList<String>(args.length - 1);
+                    final List<String> aliasArgs = new ArrayList<>(args.length - 1);
                     for(int i = 1; i < args.length; ++i)
                     {
                         aliasArgs.add(args[i]);

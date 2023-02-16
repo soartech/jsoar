@@ -100,7 +100,7 @@ public class VarNames
         }
         if(varnames_is_one_var(old_varnames))
         {
-            LinkedList<Variable> new_varnames = new LinkedList<Variable>();
+            LinkedList<Variable> new_varnames = new LinkedList<>();
             new_varnames.add(var);
             new_varnames.add(varnames_to_one_var(old_varnames));
             return var_list_to_varnames(new_varnames);

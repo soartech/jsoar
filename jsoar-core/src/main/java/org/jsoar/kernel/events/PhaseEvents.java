@@ -31,7 +31,7 @@ public class PhaseEvents
      */
     public static Map<Phase, AbstractPhaseEvent> createBeforeEvents(Agent agent)
     {
-        EnumMap<Phase, AbstractPhaseEvent> events = new EnumMap<Phase, AbstractPhaseEvent>(Phase.class);
+        EnumMap<Phase, AbstractPhaseEvent> events = new EnumMap<>(Phase.class);
         events.put(Phase.APPLY, new BeforeApply(agent));
         events.put(Phase.DECISION, new BeforeDecision(agent));
         events.put(Phase.INPUT, new BeforeInput(agent));
@@ -51,7 +51,7 @@ public class PhaseEvents
      */
     public static Map<Phase, AbstractPhaseEvent> createAfterEvents(Agent agent)
     {
-        EnumMap<Phase, AbstractPhaseEvent> events = new EnumMap<Phase, AbstractPhaseEvent>(Phase.class);
+        EnumMap<Phase, AbstractPhaseEvent> events = new EnumMap<>(Phase.class);
         events.put(Phase.APPLY, new AfterApply(agent));
         events.put(Phase.DECISION, new AfterDecision(agent));
         events.put(Phase.INPUT, new AfterInput(agent));

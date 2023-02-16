@@ -36,8 +36,8 @@ public class SoarTechXmlToWme implements XmlToWme
     
     private final WmeFactory<?> wmeFactory;
     
-    private final Map<String, Symbol> linkMap = new HashMap<String, Symbol>();
-    private final List<Link> links = new ArrayList<Link>();
+    private final Map<String, Symbol> linkMap = new HashMap<>();
+    private final List<Link> links = new ArrayList<>();
     
     /**
      * Construct an XML to WME converter for I/O, i.e. it uses an instance of

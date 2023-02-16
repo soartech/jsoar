@@ -23,7 +23,7 @@ public class RhsFunctionCall extends AbstractRhsValue
 {
     private final StringSymbol name;
     private final boolean standalone;
-    private final List<RhsValue> arguments = new ArrayList<RhsValue>();
+    private final List<RhsValue> arguments = new ArrayList<>();
     
     /**
      * Construct a new RHS function call value

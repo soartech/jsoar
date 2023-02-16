@@ -37,7 +37,7 @@ public abstract class AbstractSoarDatabase
     private final String driver;
     private final Connection db;
     private final Properties statements = new Properties();
-    private final Map<String, String> filterMap = new HashMap<String, String>();
+    private final Map<String, String> filterMap = new HashMap<>();
     
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSoarDatabase.class);
     

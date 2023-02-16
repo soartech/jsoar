@@ -354,7 +354,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     
     private boolean checkActivationValues(String activationString, List<Double> lowEndExpectations, List<Double> highEndExpectations)
     {
-        List<String> activationLevels = new ArrayList<String>();
+        List<String> activationLevels = new ArrayList<>();
         String activation = "";
         boolean inActivationParse = false;
         
@@ -400,7 +400,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
             throw new AssertionError("High End Expectations is not the same size as parsed Activation Levels!");
         }
         
-        List<Double> activationLevelsAsDoubles = new ArrayList<Double>();
+        List<Double> activationLevelsAsDoubles = new ArrayList<>();
         
         for(String a : activationLevels)
         {
@@ -443,8 +443,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable functional test did not halt");
         
-        List<Double> lowEndExpectations = new ArrayList<Double>();
-        List<Double> highEndExpectations = new ArrayList<Double>();
+        List<Double> lowEndExpectations = new ArrayList<>();
+        List<Double> highEndExpectations = new ArrayList<>();
         
         lowEndExpectations.add(0.0);
         highEndExpectations.add(0.0);
@@ -502,8 +502,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive functional test did not halt");
         
-        List<Double> lowEndExpectations = new ArrayList<Double>();
-        List<Double> highEndExpectations = new ArrayList<Double>();
+        List<Double> lowEndExpectations = new ArrayList<>();
+        List<Double> highEndExpectations = new ArrayList<>();
         
         lowEndExpectations.add(0.0);
         highEndExpectations.add(0.0);
@@ -561,8 +561,8 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         assertTrue(halted, "testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental functional test did not halt");
         
-        List<Double> lowEndExpectations = new ArrayList<Double>();
-        List<Double> highEndExpectations = new ArrayList<Double>();
+        List<Double> lowEndExpectations = new ArrayList<>();
+        List<Double> highEndExpectations = new ArrayList<>();
         
         lowEndExpectations.add(-0.347);
         highEndExpectations.add(-0.346);
@@ -732,7 +732,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
         
         String[] split = result.split("\\s+");
         
-        List<String> ltis = new ArrayList<String>();
+        List<String> ltis = new ArrayList<>();
         
         for(String lti : split)
         {
@@ -782,7 +782,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testMultiAgent() throws Exception
     {
-        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        List<ThreadedAgent> agents = new ArrayList<>();
         
         for(int i = 1; i <= 250; i++)
         {

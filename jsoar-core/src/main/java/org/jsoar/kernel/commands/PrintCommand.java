@@ -144,7 +144,7 @@ public class PrintCommand extends PicocliSoarCommand
                 // the goal list, which is in top-to-bottom order by goal
                 
                 final List<Goal> goalsTopToBottom = agent.getGoalStack();
-                final List<Goal> goalsBottomtoTop = new ArrayList<Goal>(goalsTopToBottom);
+                final List<Goal> goalsBottomtoTop = new ArrayList<>(goalsTopToBottom);
                 Collections.reverse(goalsBottomtoTop);
                 
                 // list wmes from goals in bottom-to-top order
@@ -459,7 +459,7 @@ public class PrintCommand extends PicocliSoarCommand
         private List<Production> collectProductions()
         {
             final ProductionManager pm = agent.getProductions();
-            final List<Production> result = new ArrayList<Production>();
+            final List<Production> result = new ArrayList<>();
             
             if(printChunks)
             {

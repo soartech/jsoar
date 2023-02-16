@@ -48,7 +48,7 @@ public class ReteUnitTest extends JSoarTest
     
     private class Listener implements ReteListener
     {
-        Set<Production> matching = new HashSet<Production>();
+        Set<Production> matching = new HashSet<>();
         
         /*
          * (non-Javadoc)

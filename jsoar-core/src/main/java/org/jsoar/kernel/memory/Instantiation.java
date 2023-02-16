@@ -138,7 +138,7 @@ public class Instantiation implements Traceable
      */
     public List<Wme> getBacktraceWmes()
     {
-        final List<Wme> result = new ArrayList<Wme>();
+        final List<Wme> result = new ArrayList<>();
         for(Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();

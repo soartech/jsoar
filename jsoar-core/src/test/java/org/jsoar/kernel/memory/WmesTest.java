@@ -44,7 +44,7 @@ public class WmesTest
     
     private class MockFactory implements WmeFactory<Void>
     {
-        final List<Triple> triples = new ArrayList<Triple>();
+        final List<Triple> triples = new ArrayList<>();
         
         @Override
         public Void addWme(Identifier id, Symbol attr, Symbol value)

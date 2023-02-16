@@ -437,7 +437,7 @@ public class PerformanceTesting implements Runnable
     private void spawnChildJVMForTest(ConfigurationTest test, boolean jsoar) throws URISyntaxException
     {
         // Arguments to the process builder including the command to run
-        List<String> arguments = new ArrayList<String>();
+        List<String> arguments = new ArrayList<>();
         
         URL baseURL = PerformanceTesting.class.getProtectionDomain()
                 .getCodeSource().getLocation();
@@ -533,11 +533,11 @@ public class PerformanceTesting implements Runnable
         // Run the test in a new child JVM for each run
         for(int i = 1; i <= test.getTestSettings().getRunCount(); ++i)
         {
-            List<String> argumentsPerRun = new ArrayList<String>(arguments);
+            List<String> argumentsPerRun = new ArrayList<>(arguments);
             
             int soarLocation = argumentsPerRun.size() - 1;
             
-            List<String> soarArguments = new ArrayList<String>();
+            List<String> soarArguments = new ArrayList<>();
             
             soarArguments.add(argumentsPerRun.get(soarLocation));
             argumentsPerRun.remove(soarLocation);
@@ -559,7 +559,7 @@ public class PerformanceTesting implements Runnable
             // For each decision cycle count in the list, run a new child JVM
             for(Integer j : test.getTestSettings().getDecisionCycles())
             {
-                List<String> argumentsPerCycle = new ArrayList<String>(
+                List<String> argumentsPerCycle = new ArrayList<>(
                         argumentsPerRun);
                 argumentsPerCycle.add("--decisions");
                 argumentsPerCycle.add(j.toString());

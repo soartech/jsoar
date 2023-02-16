@@ -141,7 +141,7 @@ public class WmeSupportInfo
         Arguments.checkNotNull(agent, "agent");
         Arguments.checkNotNull(wme, "wme");
         
-        final List<Support> sources = new ArrayList<Support>();
+        final List<Support> sources = new ArrayList<>();
         final Iterator<Preference> prefIt = wme.getPreferences();
         while(prefIt.hasNext())
         {

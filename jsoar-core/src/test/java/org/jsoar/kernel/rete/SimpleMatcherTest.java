@@ -216,7 +216,7 @@ public class SimpleMatcherTest
         
         // add a bunch of wmes that will cause multiple matches
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
-        final List<Wme> wmes = new ArrayList<Wme>();
+        final List<Wme> wmes = new ArrayList<>();
         for(int i = 0; i < NUM_WMES; ++i)
         {
             final Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("number"), syms.createInteger(i), true, 0);

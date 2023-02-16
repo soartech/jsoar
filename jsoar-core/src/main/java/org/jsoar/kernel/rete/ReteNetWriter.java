@@ -512,7 +512,7 @@ public class ReteNetWriter
      */
     private void writeAllSymbols(DataOutputStream dos) throws IOException
     {
-        symbolIndex = new HashMap<Symbol, Integer>();
+        symbolIndex = new HashMap<>();
         
         // symbol index numbers start at one so we can use zero for "no symbol" in alpha memories
         int nextIndex = writeSymbolList(dos, 1,
@@ -604,7 +604,7 @@ public class ReteNetWriter
      */
     private void writeAlphaMemories(DataOutputStream dos, List<AlphaMemory> ams) throws IOException
     {
-        amIndex = new HashMap<AlphaMemory, Integer>();
+        amIndex = new HashMap<>();
         
         dos.writeInt(ams.size());
         int nextIndex = 1;

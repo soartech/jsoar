@@ -79,12 +79,12 @@ public class TestRunner
         
         final long startTime = System.nanoTime();
         int index = 0;
-        final List<Callable<TestCaseResult>> tasks = new ArrayList<Callable<TestCaseResult>>();
+        final List<Callable<TestCaseResult>> tasks = new ArrayList<>();
         for(TestCase testCase : all)
         {
             tasks.add(createTestCaseRunner(testCase, handler, ++index));
         }
-        final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
+        final List<TestCaseResult> results = new ArrayList<>();
         try
         {
             final List<Future<TestCaseResult>> futures = executor.invokeAll(tasks);

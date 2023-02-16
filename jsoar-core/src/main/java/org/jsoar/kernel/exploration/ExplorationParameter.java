@@ -102,7 +102,7 @@ public class ExplorationParameter
     String name;
     ReductionPolicy reduction_policy;
     ExplorationValueFunction val_func;
-    Map<ReductionPolicy, Double> rates = new EnumMap<ReductionPolicy, Double>(ReductionPolicy.class);
+    Map<ReductionPolicy, Double> rates = new EnumMap<>(ReductionPolicy.class);
     
     /**
      * exploration.cpp::exploration_update_parameters

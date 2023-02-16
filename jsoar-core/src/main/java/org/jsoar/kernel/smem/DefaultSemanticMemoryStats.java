@@ -43,7 +43,7 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
     }
     
     static final PropertyKey<String> DB_LIB_VERSION = key("db-lib-version", String.class).defaultValue(null).build();
-    final DefaultPropertyProvider<String> db_lib_version = new DefaultPropertyProvider<String>(DB_LIB_VERSION);
+    final DefaultPropertyProvider<String> db_lib_version = new DefaultPropertyProvider<>(DB_LIB_VERSION);
     
     static final PropertyKey<Long> MEM_USAGE = key("mem-usage", Long.class).defaultValue(0L).build();
     final LongPropertyProvider mem_usage = new LongPropertyProvider(MEM_USAGE);
@@ -73,7 +73,7 @@ class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
     final LongPropertyProvider edges = new LongPropertyProvider(EDGES);
     
     private final PropertyManager properties;
-    private final Set<PropertyKey<?>> keys = new HashSet<PropertyKey<?>>();
+    private final Set<PropertyKey<?>> keys = new HashSet<>();
     
     public DefaultSemanticMemoryStats(PropertyManager properties)
     {

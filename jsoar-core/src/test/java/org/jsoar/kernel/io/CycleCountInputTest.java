@@ -50,7 +50,7 @@ public class CycleCountInputTest
     @Test
     public void testCycleCountInput() throws Exception
     {
-        final List<Long> matches = new ArrayList<Long>();
+        final List<Long> matches = new ArrayList<>();
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")
         {
             

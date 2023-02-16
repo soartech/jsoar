@@ -95,7 +95,7 @@ public class DebugCommand extends PicocliSoarCommand
         
         private <T extends Symbol> List<String> collectSymbolsOfType(List<Symbol> in, Class<T> klass)
         {
-            final List<String> result = new ArrayList<String>();
+            final List<String> result = new ArrayList<>();
             for(Symbol s : in)
             {
                 if(klass.isInstance(s))

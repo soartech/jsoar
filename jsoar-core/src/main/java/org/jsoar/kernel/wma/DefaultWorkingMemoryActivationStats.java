@@ -43,10 +43,10 @@ public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivat
     }
     
     static final PropertyKey<Long> FORGOTTEN_WMES = key("forgotten-wmes", Long.class).defaultValue(0L).build();
-    final DefaultPropertyProvider<Long> forgotten_wmes = new DefaultPropertyProvider<Long>(FORGOTTEN_WMES);
+    final DefaultPropertyProvider<Long> forgotten_wmes = new DefaultPropertyProvider<>(FORGOTTEN_WMES);
     
     private final PropertyManager properties;
-    private final Set<PropertyKey<?>> keys = new HashSet<PropertyKey<?>>();
+    private final Set<PropertyKey<?>> keys = new HashSet<>();
     
     public DefaultWorkingMemoryActivationStats(PropertyManager properties)
     {

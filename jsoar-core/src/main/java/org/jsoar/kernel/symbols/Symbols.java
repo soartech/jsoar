@@ -192,7 +192,7 @@ public class Symbols
      */
     public static List<Symbol> asList(SymbolFactory factory, Object... objects)
     {
-        List<Symbol> result = new ArrayList<Symbol>(objects.length);
+        List<Symbol> result = new ArrayList<>(objects.length);
         for(Object o : objects)
         {
             result.add(create(factory, o));

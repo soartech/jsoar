@@ -52,7 +52,7 @@ public class CSoarKernelFactory
         // use.
         URLClassLoader child;
         
-        List<URL> urls = new ArrayList<URL>();
+        List<URL> urls = new ArrayList<>();
         for(Path p : smlPath)
         {
             try
@@ -218,7 +218,7 @@ public class CSoarKernelFactory
         Path[] paths = { Paths.get("java"), Paths.get("../share/java"), Paths.get("../lib") };
         Path[] files = { Paths.get("sml.jar"), Paths.get("soar-smljava-9.3.1.jar") };
         
-        List<Path> smlPaths = new LinkedList<Path>();
+        List<Path> smlPaths = new LinkedList<>();
         
         for(Path path : paths)
         {

@@ -212,7 +212,7 @@ public class StructuredPreferencesCommand
         }
         
         final IdentifierImpl id = (IdentifierImpl) queryId;
-        final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+        final List<ResultEntry> entries = new ArrayList<>();
         
         Slot s = Slot.find_slot(id, queryAttr);
         if(s == null)
@@ -253,7 +253,7 @@ public class StructuredPreferencesCommand
             throw new IllegalArgumentException("valueId");
         }
         
-        final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+        final List<ResultEntry> entries = new ArrayList<>();
         for(Wme w : agent.getAllWmesInRete())
         {
             if(w.getValue() == valueId)
@@ -280,7 +280,7 @@ public class StructuredPreferencesCommand
     private Result getPreferencesForObject(Agent agent, Identifier idIn)
     {
         final IdentifierImpl id = (IdentifierImpl) idIn;
-        final List<ResultEntry> entries = new ArrayList<ResultEntry>();
+        final List<ResultEntry> entries = new ArrayList<>();
         // step thru dll of slots for ID, printing prefs for each one
         for(Slot s = id.slots; s != null; s = s.next)
         {
@@ -289,12 +289,12 @@ public class StructuredPreferencesCommand
                 entries.add(createEntry(agent, p));
             }
         }
-        final List<Wme> impasseWmes = new ArrayList<Wme>();
+        final List<Wme> impasseWmes = new ArrayList<>();
         for(WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
         {
             impasseWmes.add(w);
         }
-        final List<Wme> ioWmes = new ArrayList<Wme>();
+        final List<Wme> ioWmes = new ArrayList<>();
         for(WmeImpl w = id.getInputWmes(); w != null; w = w.next)
         {
             ioWmes.add(w);

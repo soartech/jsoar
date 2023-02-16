@@ -47,7 +47,7 @@ public class DummyWme extends AbstractAdaptable implements Wme
             throw new IllegalArgumentException("wmes must be a multiple of 3");
         }
         
-        final Set<Wme> result = new LinkedHashSet<Wme>();
+        final Set<Wme> result = new LinkedHashSet<>();
         for(int i = 0; i < wmes.length; i += 3)
         {
             result.add(DummyWme.create(syms, wmes[i], wmes[i + 1], wmes[i + 2]));

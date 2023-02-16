@@ -34,7 +34,7 @@ public class DefaultWmeToXml
     private static final Logger LOG = LoggerFactory.getLogger(DefaultXmlToWme.class);
     private static final DocumentBuilder BUILDER = XmlTools.createDocumentBuilder();
     
-    private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();
+    private final Map<Identifier, Element> idMap = new HashMap<>();
     
     /**
      * Convert a working memory tree to an XML document starting at the given

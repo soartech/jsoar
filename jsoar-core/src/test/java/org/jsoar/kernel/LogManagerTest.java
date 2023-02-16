@@ -48,7 +48,7 @@ public class LogManagerTest
     {
         LogManager logManager = agent.getLogManager();
         
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
@@ -70,7 +70,7 @@ public class LogManagerTest
         logManager.setStrict(false);
         assertFalse(logManager.isStrict());
         
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
@@ -104,7 +104,7 @@ public class LogManagerTest
         logManager.setStrict(true);
         assertTrue(logManager.isStrict());
         
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         

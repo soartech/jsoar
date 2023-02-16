@@ -77,10 +77,10 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     private static final Logger LOG = LoggerFactory.getLogger(ThreadedAgent.class);
     
     private final Agent agent;
-    private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
+    private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicBoolean agentRunning = new AtomicBoolean(false);
-    private final PropertyProvider<Boolean> agentRunningProvider = new PropertyProvider<Boolean>()
+    private final PropertyProvider<Boolean> agentRunningProvider = new PropertyProvider<>()
     {
         
         @Override
@@ -667,7 +667,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      */
     public <V> V executeAndWait(final Callable<V> callable, long timeout, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException
     {
-        final FutureTask<V> task = new FutureTask<V>(callable);
+        final FutureTask<V> task = new FutureTask<>(callable);
         
         executeInternal(task);
         

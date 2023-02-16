@@ -19,7 +19,7 @@ import org.jsoar.kernel.memory.Wme;
 public class Peg
 {
     private final String name;
-    private final LinkedList<Disk> disks = new LinkedList<Disk>();
+    private final LinkedList<Disk> disks = new LinkedList<>();
     
     private Wme pegWme;
     
@@ -69,6 +69,6 @@ public class Peg
     
     public List<Disk> getDisks()
     {
-        return new ArrayList<Disk>(disks);
+        return new ArrayList<>(disks);
     }
 }

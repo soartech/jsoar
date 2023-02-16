@@ -70,7 +70,7 @@ public class SoarBeanOutputManagerTest
     public void testRegisterHandler() throws Exception
     {
         final ByRef<MoveToPoint> commandHolder = ByRef.create(null);
-        final SoarBeanOutputHandler<MoveToPoint> handler = new SoarBeanOutputHandler<MoveToPoint>()
+        final SoarBeanOutputHandler<MoveToPoint> handler = new SoarBeanOutputHandler<>()
         {
             
             @Override

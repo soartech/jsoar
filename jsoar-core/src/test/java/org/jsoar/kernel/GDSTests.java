@@ -103,7 +103,7 @@ public class GDSTests extends FunctionalTestHarness
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
         assertNotNull(gds, "Expected second goal have non-empty GDS");
         
-        Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
+        Set<Wme> actual = new LinkedHashSet<>(Lists.newArrayList(gds.getWmes()));
         
         final SimpleMatcher matcher = new SimpleMatcher();
         matcher.addProduction("expectedGDS \n" +

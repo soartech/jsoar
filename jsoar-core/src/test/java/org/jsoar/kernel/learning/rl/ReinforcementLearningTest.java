@@ -70,7 +70,7 @@ public class ReinforcementLearningTest
         boolean hrl_discount = agent.getProperties()
                 .get(ReinforcementLearningParams.HRL_DISCOUNT) == ReinforcementLearningParams.HrlDiscount.on;
         
-        final Map<String, List<Double>> expectedValues = new HashMap<String, List<Double>>();
+        final Map<String, List<Double>> expectedValues = new HashMap<>();
         if(hrl_discount)
         {
             // Check the values for hrl-discount = on

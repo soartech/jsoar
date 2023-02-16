@@ -36,7 +36,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
-        List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
+        List<List<Symbol>> calls = new ArrayList<>();
         
         public MatchFunction()
         {

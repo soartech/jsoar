@@ -53,7 +53,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
         }
     };
-    private final List<String> recentRemovals = new ArrayList<String>();
+    private final List<String> recentRemovals = new ArrayList<>();
     private final JLabel recentSummary = new JLabel("Recent removals: None");
     private final SoarEventListener removalListener = event -> updateRemovalSummary((GdsGoalRemovedEvent) event);
     
@@ -166,7 +166,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable, Dispo
     {
         final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
         
-        return gds != null ? Lists.newArrayList(gds.getWmes()) : new ArrayList<Wme>();
+        return gds != null ? Lists.newArrayList(gds.getWmes()) : new ArrayList<>();
     }
     
     /*

@@ -28,8 +28,8 @@ public class DefaultQMemory implements QMemory
      */
     static final int MAX_DEPTH = 20;
     
-    private Map<String, MemoryNode> memory = new HashMap<String, MemoryNode>();
-    private List<QMemoryListener> listeners = new CopyOnWriteArrayList<QMemoryListener>();
+    private Map<String, MemoryNode> memory = new HashMap<>();
+    private List<QMemoryListener> listeners = new CopyOnWriteArrayList<>();
     
     /**
      * @return A new empty QMemory
@@ -150,12 +150,12 @@ public class DefaultQMemory implements QMemory
      */
     public synchronized Set<String> getPaths()
     {
-        return new HashSet<String>(memory.keySet());
+        return new HashSet<>(memory.keySet());
     }
     
     synchronized Set<String> getPaths(String prefix, boolean strip)
     {
-        Set<String> paths = new HashSet<String>();
+        Set<String> paths = new HashSet<>();
         for(String path : memory.keySet())
         {
             if(path.startsWith(prefix))

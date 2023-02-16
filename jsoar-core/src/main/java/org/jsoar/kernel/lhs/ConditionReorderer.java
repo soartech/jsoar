@@ -47,7 +47,7 @@ public class ConditionReorderer
      * Originally this was just a field on Condition. Converted to a temporary
      * map to save memory. It just makes more sense anyway.
      */
-    private final Map<Condition, List<Variable>> reorder_vars_requiring_bindings = new HashMap<Condition, List<Variable>>();
+    private final Map<Condition, List<Variable>> reorder_vars_requiring_bindings = new HashMap<>();
     
     private static class SavedTest
     {
@@ -293,7 +293,7 @@ public class ConditionReorderer
     {
         // Originally condition::reorder_next_min_cost. Moved here to save memory, reduce
         // coupling, etc.
-        final Map<Condition, Condition> reorder_next_min_cost = new HashMap<Condition, Condition>();
+        final Map<Condition, Condition> reorder_next_min_cost = new HashMap<>();
         
         Condition remaining_conds = top_of_conds.value; // header of dll
         Condition first_cond = null;

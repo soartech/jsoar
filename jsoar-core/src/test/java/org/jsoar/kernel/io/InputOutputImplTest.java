@@ -53,7 +53,7 @@ public class InputOutputImplTest extends JSoarTest
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         boolean called = false;
-        List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
+        List<List<Symbol>> calls = new ArrayList<>();
         
         public MatchFunction()
         {
@@ -169,7 +169,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testBasicOutput() throws Exception
     {
         
-        final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
+        final List<Set<Wme>> outputs = new ArrayList<>();
         
         agent.getEvents().addListener(InputEvent.class, event ->
         {

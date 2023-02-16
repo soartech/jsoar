@@ -61,7 +61,7 @@ public class DeepCopy extends AbstractRhsFunctionHandler
             throw new RhsFunctionException("Only argument to '" + getName() + "' RHS function must be an identifier.");
         }
         
-        Map<Identifier, Identifier> idMap = new HashMap<Identifier, Identifier>();
+        Map<Identifier, Identifier> idMap = new HashMap<>();
         
         return copy(context, startId, idMap);
     }

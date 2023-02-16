@@ -62,7 +62,7 @@ public class WorkingMemoryView extends AbstractAdaptableView implements Refresha
         final String[] parts = roots.getText().trim().split("\\s+");
         final Runnable run = () ->
         {
-            final List<Object> newKeys = new ArrayList<Object>();
+            final List<Object> newKeys = new ArrayList<>();
             for(String p : parts)
             {
                 if(p.startsWith("<") && p.endsWith(">"))

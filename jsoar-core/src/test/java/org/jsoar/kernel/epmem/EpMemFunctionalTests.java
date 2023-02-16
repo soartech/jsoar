@@ -236,7 +236,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testMultiAgent() throws Exception
     {
-        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        List<ThreadedAgent> agents = new ArrayList<>();
         
         for(int i = 1; i <= 250; i++)
         {

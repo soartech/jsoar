@@ -537,7 +537,7 @@ public class EpmemCommand extends PicocliSoarCommand
         
         private String doBackup(String[] fileName)
         {
-            ByRef<String> err = new ByRef<String>("");
+            ByRef<String> err = new ByRef<>("");
             boolean success = false;
             
             String dbFile = "";

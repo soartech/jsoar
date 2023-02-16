@@ -19,7 +19,7 @@ public class WeightedCueElement implements Comparable<WeightedCueElement>
 {
     public static PriorityQueue<WeightedCueElement> newPriorityQueue()
     {
-        return new PriorityQueue<WeightedCueElement>();
+        return new PriorityQueue<>();
     }
     
     /* uint64_t */ long weight;

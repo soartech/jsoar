@@ -145,7 +145,7 @@ public class Exploration
      * 
      * agent.h:752:exploration_params
      */
-    private Map<String, ExplorationParameter> parameters = new HashMap<String, ExplorationParameter>();
+    private Map<String, ExplorationParameter> parameters = new HashMap<>();
     
     /**
      * @param context
@@ -705,7 +705,7 @@ public class Exploration
         }
         
         double exptotal = 0.0;
-        List<Double> expvals = new LinkedList<Double>();
+        List<Double> expvals = new LinkedList<>();
         
         for(c = candidates; c != null; c = c.next_candidate)
         {

@@ -302,7 +302,7 @@ public class JsonWmeUtils
      */
     private static Set<String> getJsonArrayAttributes(Identifier id)
     {
-        final Set<String> attrs = new HashSet<String>();
+        final Set<String> attrs = new HashSet<>();
         
         final Iterator<Wme> wmes = id.getWmes();
         while(wmes.hasNext())

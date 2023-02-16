@@ -162,19 +162,19 @@ public class Chunker
      * lists of symbols (PS names) declared chunk-free
      * <p>agent.h:312:chunk_free_problem_spaces
      */
-    private final LinkedList<IdentifierImpl> chunk_free_problem_spaces = new LinkedList<IdentifierImpl>();
+    private final LinkedList<IdentifierImpl> chunk_free_problem_spaces = new LinkedList<>();
     
     /**
      * lists of symbols (PS names) declared chunky
      * 
      * <p>agent.h:313:chunky_problem_spaces
      */
-    private final LinkedList<IdentifierImpl> chunky_problem_spaces = new LinkedList<IdentifierImpl>();
+    private final LinkedList<IdentifierImpl> chunky_problem_spaces = new LinkedList<>();
     
     /**
      * <p>agent.h:522:instantiations_with_nots
      */
-    final LinkedList<Instantiation> instantiations_with_nots = new LinkedList<Instantiation>();
+    final LinkedList<Instantiation> instantiations_with_nots = new LinkedList<>();
     
     /**
      * @param context
@@ -1265,7 +1265,7 @@ public class Chunker
         }
         
         final Trace trace = context.getTrace();
-        ByRef<Boolean> reliable = new ByRef<Boolean>(true);
+        ByRef<Boolean> reliable = new ByRef<>(true);
         
         /* --- backtrace through the instantiation that produced each result --- */
         for(pref = results; pref != null; pref = pref.next_result)

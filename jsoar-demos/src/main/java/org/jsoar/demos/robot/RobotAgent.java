@@ -38,7 +38,7 @@ public class RobotAgent
     {
         LOG.info("Creating robot agent ", this);
         this.agent = ThreadedAgent.create();
-        final Map<String, Object> props = new HashMap<String, Object>();
+        final Map<String, Object> props = new HashMap<>();
         props.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DETACH);
         this.agent.getDebuggerProvider().setProperties(props);
         

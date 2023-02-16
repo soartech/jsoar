@@ -35,7 +35,7 @@ public class SoarPreparedStatement implements PreparedStatement
     
     private final PreparedStatement ps;
     private final String query;
-    private final Map<Integer, Object> bindVariables = new HashMap<Integer, Object>();
+    private final Map<Integer, Object> bindVariables = new HashMap<>();
     
     public SoarPreparedStatement(PreparedStatement ps, String query)
     {

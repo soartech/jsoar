@@ -22,8 +22,8 @@ import org.jsoar.util.Arguments;
 public class RhsFunctionManager
 {
     private final RhsFunctionContext rhsContext;
-    private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
-    private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
+    private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<>();
+    private final Map<String, RhsFunctionHandler> disabledHandlers = new ConcurrentHashMap<>();
     
     /**
      * Construct a new RHS function manager with the given execution context
@@ -45,7 +45,7 @@ public class RhsFunctionManager
      */
     public List<RhsFunctionHandler> getHandlers()
     {
-        return new ArrayList<RhsFunctionHandler>(handlers.values());
+        return new ArrayList<>(handlers.values());
     }
     
     /**
@@ -135,7 +135,7 @@ public class RhsFunctionManager
     
     public List<RhsFunctionHandler> getDisabledHandlers()
     {
-        return new ArrayList<RhsFunctionHandler>(disabledHandlers.values());
+        return new ArrayList<>(disabledHandlers.values());
     }
     
     /**

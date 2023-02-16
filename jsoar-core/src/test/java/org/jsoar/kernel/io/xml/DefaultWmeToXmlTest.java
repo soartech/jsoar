@@ -45,7 +45,7 @@ public class DefaultWmeToXmlTest
                         "(<attrs> ^name |Ann Arbor| ^population 100000)" +
                         "(<person> ^name Bill ^where <loc>)");
         
-        final AtomicReference<String> result = new AtomicReference<String>();
+        final AtomicReference<String> result = new AtomicReference<>();
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("finish")
         {
             

@@ -68,7 +68,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public /* uint_ptr_t */ long id_smem_valid = 0;
     
     public /* epmem_node_id */ long epmem_id = 0;
-    //public /* uint64_t */ long epmem_valid = 0;
+    // public /* uint64_t */ long epmem_valid = 0;
     
     /**
      * @param hash_id

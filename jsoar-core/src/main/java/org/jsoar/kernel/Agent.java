@@ -786,7 +786,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public Set<Wme> getAllWmesInRete()
     {
-        return new LinkedHashSet<Wme>(rete.getAllWmes());
+        return new LinkedHashSet<>(rete.getAllWmes());
     }
     
     /**

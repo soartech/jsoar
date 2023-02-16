@@ -68,7 +68,7 @@ public class PropertyManagerTest
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final ByRef<String> storage = ByRef.create("hello");
-        final PropertyProvider<String> provider = new PropertyProvider<String>()
+        final PropertyProvider<String> provider = new PropertyProvider<>()
         {
             
             @Override

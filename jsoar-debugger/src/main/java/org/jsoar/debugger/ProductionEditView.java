@@ -76,7 +76,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
      * 
      * TODO: There are probably some synchronization issues here.
      */
-    private final ForwardingList<Production> productions = new ForwardingList<Production>()
+    private final ForwardingList<Production> productions = new ForwardingList<>()
     {
         
         @Override
@@ -85,7 +85,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             ProductionTableModel model = Adaptables.adapt(debugger, ProductionTableModel.class);
             if(model == null)
             {
-                return new ArrayList<Production>();
+                return new ArrayList<>();
             }
             return model.getProductions();
         }
@@ -208,7 +208,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
                 return "ERROR: " + e.getMessage();
             }
         };
-        final CompletionHandler<String> finish = new CompletionHandler<String>()
+        final CompletionHandler<String> finish = new CompletionHandler<>()
         {
             
             @Override

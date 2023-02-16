@@ -103,7 +103,7 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
     
     private List<String> mapSymbolListToStringList(List<Symbol> symList)
     {
-        ArrayList<String> stringList = new ArrayList<String>(symList.size());
+        ArrayList<String> stringList = new ArrayList<>(symList.size());
         
         for(Symbol s : symList)
         {

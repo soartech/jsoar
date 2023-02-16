@@ -257,7 +257,7 @@ public class CSoarTest implements Test
         
         List<String> splitString = Arrays.asList(result.split("\\s+"));
         
-        List<Long> numericsOnly = new ArrayList<Long>();
+        List<Long> numericsOnly = new ArrayList<>();
         
         for(int i = 0; i < splitString.size(); i++)
         {

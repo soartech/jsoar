@@ -63,7 +63,7 @@ public class BaseResource extends ServerResource
     
     public final TemplateRepresentation template(String name, MediaType type)
     {
-        final Map<String, Object> attrs = new LinkedHashMap<String, Object>();
+        final Map<String, Object> attrs = new LinkedHashMap<>();
         setTemplateAttributes(attrs);
         return new TemplateRepresentation(name, getLegilimens().getFreeMarker(), attrs, type);
     }

@@ -14,7 +14,7 @@ import java.util.List;
 public class TestCaseResult
 {
     private final TestCase testCase;
-    private final List<TestResult> results = new ArrayList<TestResult>();
+    private final List<TestResult> results = new ArrayList<>();
     private int passed = 0;
     private int failed = 0;
     private final FiringCounts firingCounts = new FiringCounts();

@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public abstract class AbstractDebuggerProvider implements DebuggerProvider
 {
-    private Map<String, Object> properties = new HashMap<String, Object>();
+    private Map<String, Object> properties = new HashMap<>();
     
     /*
      * (non-Javadoc)
@@ -25,7 +25,7 @@ public abstract class AbstractDebuggerProvider implements DebuggerProvider
     @Override
     public synchronized Map<String, Object> getProperties()
     {
-        return new HashMap<String, Object>(properties);
+        return new HashMap<>(properties);
     }
     
     /*

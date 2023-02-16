@@ -41,7 +41,7 @@ public class PrintEventWriterTest
     @Test
     public void testPrintEventIsFiredOnFlush()
     {
-        final AtomicReference<String> text = new AtomicReference<String>();
+        final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         printer.print("abcdefghijk");
@@ -53,7 +53,7 @@ public class PrintEventWriterTest
     @Test
     public void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
     {
-        final AtomicReference<String> text = new AtomicReference<String>();
+        final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
         
         assertNull(text.get());

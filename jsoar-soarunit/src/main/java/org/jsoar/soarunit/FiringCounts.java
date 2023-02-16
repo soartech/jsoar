@@ -15,7 +15,7 @@ import java.util.TreeMap;
  */
 public class FiringCounts
 {
-    final Map<String, Long> counts = new TreeMap<String, Long>();
+    final Map<String, Long> counts = new TreeMap<>();
     
     public double getCoverage()
     {
@@ -38,7 +38,7 @@ public class FiringCounts
     
     public List<String> getUncoveredRules()
     {
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         for(Map.Entry<String, Long> e : getEntries())
         {
             if(e.getValue().longValue() == 0L)

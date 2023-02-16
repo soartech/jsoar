@@ -64,7 +64,7 @@ public class StatusBar extends JXStatusBar implements Refreshable
      */
     public void refresh(boolean afterInitSoar)
     {
-        final AtomicReference<String> settingsString = new AtomicReference<String>();
+        final AtomicReference<String> settingsString = new AtomicReference<>();
         final Agent a = agent.getAgent();
         
         final Callable<Object> call = () ->

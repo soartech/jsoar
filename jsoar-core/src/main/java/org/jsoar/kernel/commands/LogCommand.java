@@ -457,7 +457,7 @@ public class LogCommand extends PicocliSoarCommand
         
         public static List<String> uberSplit(String file) throws IOException
         {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             
             File f = new File(file).getCanonicalFile();
             

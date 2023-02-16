@@ -14,7 +14,7 @@ public class Predicates
 {
     public static Predicate<Double> betweenDouble(final double min, final double max, final boolean inclusive)
     {
-        return new Predicate<Double>()
+        return new Predicate<>()
         {
             @Override
             public boolean apply(Double val)
@@ -36,7 +36,7 @@ public class Predicates
     
     public static Predicate<Integer> betweenInteger(final int min, final int max, final boolean inclusive)
     {
-        return new Predicate<Integer>()
+        return new Predicate<>()
         {
             @Override
             public boolean apply(Integer val)

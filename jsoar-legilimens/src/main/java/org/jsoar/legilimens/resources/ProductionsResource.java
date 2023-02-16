@@ -54,7 +54,7 @@ public class ProductionsResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
         
-        final List<Production> rules = new ArrayList<Production>();
+        final List<Production> rules = new ArrayList<>();
         for(Production p : agent.getProductions().getProductions(null))
         {
             rules.add(p);

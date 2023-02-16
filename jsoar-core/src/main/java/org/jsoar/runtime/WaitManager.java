@@ -35,8 +35,8 @@ public class WaitManager
     private SoarEventListener afterInputListener;
     private SoarEventListener afterDecisionCycleListener;
     private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
-    private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
-    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<WaitInfo>()
+    private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<>(WaitInfo.NOT_WAITING);
+    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<>()
     {
         
         @Override

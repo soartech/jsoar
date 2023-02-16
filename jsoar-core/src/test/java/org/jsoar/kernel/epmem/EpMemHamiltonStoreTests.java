@@ -36,7 +36,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * id start
          * 1-26 1
          */
-        final List<Long> expectedRowIds = new ArrayList<Long>();
+        final List<Long> expectedRowIds = new ArrayList<>();
         for(long i = 1; i <= 26; i++)
         {
             expectedRowIds.add(i);
@@ -68,7 +68,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * id start
          * 1-11 1
          */
-        final List<Long> expectedRowIds = new ArrayList<Long>();
+        final List<Long> expectedRowIds = new ArrayList<>();
         for(long i = 1; i <= 11; i++)
         {
             expectedRowIds.add(i);
@@ -175,7 +175,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11 1
          */
         
-        final Set<NodeUniqueRow> expectedRows = new HashSet<NodeUniqueRow>();
+        final Set<NodeUniqueRow> expectedRows = new HashSet<>();
         expectedRows.add(new NodeUniqueRow(1, 0, 2, 3));
         expectedRows.add(new NodeUniqueRow(2, 0, 4, 5));
         expectedRows.add(new NodeUniqueRow(3, 0, 7, 8));
@@ -287,7 +287,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11 1
          */
         
-        final Set<SymbolsStringRow> expectedRows = new HashSet<SymbolsStringRow>();
+        final Set<SymbolsStringRow> expectedRows = new HashSet<>();
         expectedRows.add(new SymbolsStringRow(20, "Albany"));
         expectedRows.add(new SymbolsStringRow(21, "Atlanta"));
         expectedRows.add(new SymbolsStringRow(22, "Boston"));
@@ -421,7 +421,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11 1
          */
         
-        final Set<WMEsIdentifierRow> expectedRows = new HashSet<WMEsIdentifierRow>();
+        final Set<WMEsIdentifierRow> expectedRows = new HashSet<>();
         expectedRows.add(new WMEsIdentifierRow(1, 0, 6, 1, Long.MAX_VALUE));
         expectedRows.add(new WMEsIdentifierRow(2, 0, 9, 2, Long.MAX_VALUE));
         
@@ -488,7 +488,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11 1
          */
         
-        final List<Long> expectedRows = new ArrayList<Long>();
+        final List<Long> expectedRows = new ArrayList<>();
         expectedRows.add(1L);
         
         final PreparedStatement p = getConnection().prepareStatement(
@@ -519,7 +519,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11 1
          */
         
-        final Map<Long, Long> expectedRows = new HashMap<Long, Long>();
+        final Map<Long, Long> expectedRows = new HashMap<>();
         expectedRows.put(0L, -1L);
         expectedRows.put(1L, 0L);
         expectedRows.put(2L, 1L);

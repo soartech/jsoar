@@ -146,7 +146,7 @@ public class ProductionCommand extends PicocliSoarCommand
         private List<String> collectAndSortRuleNames()
         {
             ProductionManager pm = parent.agent.getProductions();
-            final List<String> result = new ArrayList<String>();
+            final List<String> result = new ArrayList<>();
             
             for(Production p : pm.getProductions(null))
             {
@@ -217,7 +217,7 @@ public class ProductionCommand extends PicocliSoarCommand
             }
             else
             {
-                final Set<Production> toExcise = new LinkedHashSet<Production>();
+                final Set<Production> toExcise = new LinkedHashSet<>();
                 boolean doInit = false;
                 
                 // Determine which productions to excise based on the options provided
@@ -246,7 +246,7 @@ public class ProductionCommand extends PicocliSoarCommand
                 }
                 if(exciseRL)
                 {
-                    final Set<Production> maybeExcise = new LinkedHashSet<Production>();
+                    final Set<Production> maybeExcise = new LinkedHashSet<>();
                     maybeExcise.addAll(pm.getProductions(ProductionType.DEFAULT));
                     maybeExcise.addAll(pm.getProductions(ProductionType.USER));
                     maybeExcise.addAll(pm.getProductions(ProductionType.CHUNK));
@@ -378,15 +378,14 @@ public class ProductionCommand extends PicocliSoarCommand
         private Collection<Production> collectProductions(final boolean chunks, final boolean nochunks)
         {
             final Collection<Production> productions = parent.agent.getProductions().getProductions(null).stream()
-                    .filter(p -> 
+                    .filter(p ->
                     {
                         final ProductionType type = p.getType();
                         return (type == ProductionType.CHUNK && chunks) ||
                                 (type != ProductionType.CHUNK && nochunks) ||
                                 (!chunks && !nochunks);
-                    }
-                    ).collect(Collectors.toList());
-                    
+                    }).collect(Collectors.toList());
+            
             return productions;
         }
     }
@@ -450,7 +449,7 @@ public class ProductionCommand extends PicocliSoarCommand
                 if(topN == 0)
                 {
                     // Find and print all productions that have not fired yet
-                    List<Production> productionsNotFired = new ArrayList<Production>();
+                    List<Production> productionsNotFired = new ArrayList<>();
                     for(Production p : parent.agent.getProductions().getProductions(null))
                     {
                         if(p.getFiringCount() == 0)
@@ -734,7 +733,7 @@ public class ProductionCommand extends PicocliSoarCommand
         
         private void printTopProductions(EnumSet<ProductionType> types, int n)
         {
-            final List<Production> prods = new ArrayList<Production>();
+            final List<Production> prods = new ArrayList<>();
             for(ProductionType type : types)
             {
                 prods.addAll(parent.agent.getProductions().getProductions(type));
@@ -835,7 +834,7 @@ public class ProductionCommand extends PicocliSoarCommand
         
         private List<String> collectAndSortTracedRuleNames()
         {
-            final List<String> result = new ArrayList<String>();
+            final List<String> result = new ArrayList<>();
             for(Production p : parent.agent.getProductions().getProductions(null))
             {
                 if(p.isTraceFirings())

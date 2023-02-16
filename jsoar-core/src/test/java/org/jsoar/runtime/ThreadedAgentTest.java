@@ -39,7 +39,7 @@ public class ThreadedAgentTest
 {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadedAgentTest.class);
     
-    private final List<SoarEventListener> listeners = new ArrayList<SoarEventListener>();
+    private final List<SoarEventListener> listeners = new ArrayList<>();
     
     /**
      * @throws java.lang.Exception
@@ -96,7 +96,7 @@ public class ThreadedAgentTest
     @Test
     public void testAttachedEventIsFired() throws Exception
     {
-        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<ThreadedAgent>();
+        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<>();
         final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentAttachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentAttachedEvent.class, listener);
@@ -107,7 +107,7 @@ public class ThreadedAgentTest
     @Test
     public void testDetachedEventIsFired() throws Exception
     {
-        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<ThreadedAgent>();
+        final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<>();
         final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
         listeners.add(listener);
         ThreadedAgent.getEventManager().addListener(ThreadedAgentDetachedEvent.class, listener);
@@ -175,7 +175,7 @@ public class ThreadedAgentTest
     public void testMultipleAgents() throws Exception
     {
         final int numAgents = 100;
-        List<ThreadedAgent> agents = new ArrayList<ThreadedAgent>();
+        List<ThreadedAgent> agents = new ArrayList<>();
         Random rand = new Random();
         
         // Load the rules

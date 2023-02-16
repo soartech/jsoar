@@ -1113,7 +1113,7 @@ public class SoarReteListener implements ReteListener
     
     private MatchSetEntry getAssertion(MatchSetChange msc, EntryType type)
     {
-        final LinkedList<Wme> wmes = new LinkedList<Wme>();
+        final LinkedList<Wme> wmes = new LinkedList<>();
         Token tok = msc.tok;
         while(tok != rete.dummy_top_token)
         {
@@ -1133,7 +1133,7 @@ public class SoarReteListener implements ReteListener
     
     private List<MatchSetEntry> getAssertions(MatchSetChange assertions, EntryType type)
     {
-        List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        List<MatchSetEntry> entries = new ArrayList<>();
         for(MatchSetChange msc = assertions; msc != null; msc = msc.next_of_all)
         {
             entries.add(getAssertion(msc, type));
@@ -1148,7 +1148,7 @@ public class SoarReteListener implements ReteListener
     
     private List<MatchSetEntry> getRetractions()
     {
-        List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        List<MatchSetEntry> entries = new ArrayList<>();
         for(MatchSetChange msc = ms_retractions; msc != null; msc = msc.next_of_all)
         {
             entries.add(getRetraction(msc));
@@ -1158,7 +1158,7 @@ public class SoarReteListener implements ReteListener
     
     public MatchSet getMatchSet()
     {
-        final List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        final List<MatchSetEntry> entries = new ArrayList<>();
         entries.addAll(getAssertions(ms_i_assertions, EntryType.I_ASSERTION));
         entries.addAll(getAssertions(ms_o_assertions, EntryType.O_ASSERTION));
         entries.addAll(getRetractions());

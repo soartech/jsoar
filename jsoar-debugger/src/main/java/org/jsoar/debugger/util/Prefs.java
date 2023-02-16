@@ -315,7 +315,7 @@ public class Prefs extends AbstractPreferences
             }
             
             ObjectMapper mapper = new ObjectMapper();
-            TypeReference<SyntaxSettings> highlightsType = new TypeReference<SyntaxSettings>()
+            TypeReference<SyntaxSettings> highlightsType = new TypeReference<>()
             {
             };
             return mapper.readValue(file, highlightsType);
@@ -333,7 +333,7 @@ public class Prefs extends AbstractPreferences
         {
             InputStream resource = Prefs.class.getResourceAsStream("/org/jsoar/debugger/defaultsyntax.json");
             ObjectMapper mapper = new ObjectMapper();
-            TypeReference<SyntaxSettings> highlightsType = new TypeReference<SyntaxSettings>()
+            TypeReference<SyntaxSettings> highlightsType = new TypeReference<>()
             {
             };
             return mapper.readValue(resource, highlightsType);

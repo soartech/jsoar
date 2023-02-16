@@ -35,7 +35,7 @@ public class EpisodicMemoryStateInfo
     
     public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;         // last retrieved memory
     
-    public final Deque<Preference> epmem_wmes = new ArrayDeque<Preference>(); // wmes in last epmem
+    public final Deque<Preference> epmem_wmes = new ArrayDeque<>(); // wmes in last epmem
     
     public final IdentifierImpl epmem_header;
     public final IdentifierImpl epmem_cmd_header;

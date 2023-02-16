@@ -22,7 +22,7 @@ import org.jsoar.util.UrlTools;
 public class TestCaseCollector
 {
     private final PrintWriterProxy out;
-    private final List<Entry> entries = new ArrayList<Entry>();
+    private final List<Entry> entries = new ArrayList<>();
     
     public TestCaseCollector(PrintWriterProxy out)
     {
@@ -50,7 +50,7 @@ public class TestCaseCollector
     {
         final int prefixIndex = greatestCommonPrefixIndex();
         
-        final List<TestCase> all = new ArrayList<TestCase>();
+        final List<TestCase> all = new ArrayList<>();
         for(Entry entry : entries)
         {
             final URL input = entry.url;
@@ -80,7 +80,7 @@ public class TestCaseCollector
     {
         out.println("Collecting tests in directory '" + dir + "'");
         
-        final List<TestCase> result = new ArrayList<TestCase>();
+        final List<TestCase> result = new ArrayList<>();
         final File[] children = dir.listFiles();
         if(children != null)
         {

@@ -190,66 +190,66 @@ public class ReinforcementLearningParams
     }
     
     public static final PropertyKey<Learning> LEARNING = key("learning", Learning.class).defaultValue(Learning.off).build();
-    final EnumPropertyProvider<Learning> learning = new EnumPropertyProvider<Learning>(LEARNING);
+    final EnumPropertyProvider<Learning> learning = new EnumPropertyProvider<>(LEARNING);
     
     public static final PropertyKey<TemporalExtension> TEMPORAL_EXTENSION = key("temporal-extension", TemporalExtension.class).defaultValue(TemporalExtension.on).build();
-    final EnumPropertyProvider<TemporalExtension> temporal_extension = new EnumPropertyProvider<TemporalExtension>(TEMPORAL_EXTENSION);
+    final EnumPropertyProvider<TemporalExtension> temporal_extension = new EnumPropertyProvider<>(TEMPORAL_EXTENSION);
     
     public static final PropertyKey<Double> DISCOUNT_RATE = key("discount-rate", Double.class).defaultValue(0.9).build();
-    final DefaultPropertyProvider<Double> discount_rate = new DefaultPropertyProvider<Double>(DISCOUNT_RATE);
+    final DefaultPropertyProvider<Double> discount_rate = new DefaultPropertyProvider<>(DISCOUNT_RATE);
     
     public static final PropertyKey<LearningPolicy> LEARNING_POLICY = key("learning-policy", LearningPolicy.class).defaultValue(LearningPolicy.sarsa).build();
-    final DefaultPropertyProvider<LearningPolicy> learning_policy = new DefaultPropertyProvider<LearningPolicy>(LEARNING_POLICY);
+    final DefaultPropertyProvider<LearningPolicy> learning_policy = new DefaultPropertyProvider<>(LEARNING_POLICY);
     
     public static final PropertyKey<Double> LEARNING_RATE = key("learning-rate", Double.class).defaultValue(0.3).build();
-    final DefaultPropertyProvider<Double> learning_rate = new DefaultPropertyProvider<Double>(LEARNING_RATE);
+    final DefaultPropertyProvider<Double> learning_rate = new DefaultPropertyProvider<>(LEARNING_RATE);
     
     public static final PropertyKey<HrlDiscount> HRL_DISCOUNT = key("hrl-discount", HrlDiscount.class).defaultValue(HrlDiscount.off).build();
-    final EnumPropertyProvider<HrlDiscount> hrl_discount = new EnumPropertyProvider<HrlDiscount>(HRL_DISCOUNT);
+    final EnumPropertyProvider<HrlDiscount> hrl_discount = new EnumPropertyProvider<>(HRL_DISCOUNT);
     
     public static final PropertyKey<TemporalDiscount> TEMPORAL_DISCOUNT = key("temporal-discount", TemporalDiscount.class).defaultValue(TemporalDiscount.on).build();
-    final EnumPropertyProvider<TemporalDiscount> temporal_discount = new EnumPropertyProvider<TemporalDiscount>(TEMPORAL_DISCOUNT);
+    final EnumPropertyProvider<TemporalDiscount> temporal_discount = new EnumPropertyProvider<>(TEMPORAL_DISCOUNT);
     
     public static final PropertyKey<Double> ET_DECAY_RATE = key("eligibility-trace-decay-rate", Double.class).defaultValue(0.0).build();
-    final DefaultPropertyProvider<Double> et_decay_rate = new DefaultPropertyProvider<Double>(ET_DECAY_RATE);
+    final DefaultPropertyProvider<Double> et_decay_rate = new DefaultPropertyProvider<>(ET_DECAY_RATE);
     
     public static final PropertyKey<Double> ET_TOLERANCE = key("eligibility-trace-tolerance", Double.class).defaultValue(0.001).build();
-    final DefaultPropertyProvider<Double> et_tolerance = new DefaultPropertyProvider<Double>(ET_TOLERANCE);
+    final DefaultPropertyProvider<Double> et_tolerance = new DefaultPropertyProvider<>(ET_TOLERANCE);
     
     // -------------- EXPERIMENTAL -------------------
     
     public static final PropertyKey<ChunkStop> CHUNK_STOP = key("chunk-stop", ChunkStop.class).defaultValue(ChunkStop.on).build();
     // This is public so the rete can get it
-    public final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<ChunkStop>(CHUNK_STOP);
+    public final EnumPropertyProvider<ChunkStop> chunk_stop = new EnumPropertyProvider<>(CHUNK_STOP);
     
     public static final PropertyKey<DecayMode> DECAY_MODE = key("decay-mode", DecayMode.class).defaultValue(DecayMode.normal_decay).build();
-    final EnumPropertyProvider<DecayMode> decay_mode = new EnumPropertyProvider<DecayMode>(DECAY_MODE);
+    final EnumPropertyProvider<DecayMode> decay_mode = new EnumPropertyProvider<>(DECAY_MODE);
     
     // Whether doc strings are used for storing metadata.
     public static final PropertyKey<Meta> META = key("meta", Meta.class).defaultValue(Meta.off).build();
-    final EnumPropertyProvider<Meta> meta = new EnumPropertyProvider<Meta>(META);
+    final EnumPropertyProvider<Meta> meta = new EnumPropertyProvider<>(META);
     
     // NOTE: Documentation of the "meta-learning-rate" parameter appears to have been
     // inadvertently omitted from Soar Manual version 9.6.0
     public static final PropertyKey<Double> META_LEARNING_RATE = key("meta-learning-rate", Double.class).defaultValue(0.1).build();
-    final DefaultPropertyProvider<Double> meta_learning_rate = new DefaultPropertyProvider<Double>(META_LEARNING_RATE);
+    final DefaultPropertyProvider<Double> meta_learning_rate = new DefaultPropertyProvider<>(META_LEARNING_RATE);
     
     // If non-null and size > 0, log all RL updates to this file.
     public static final PropertyKey<String> UPDATE_LOG_PATH = key("update-log-path", String.class).defaultValue("").build();
-    final DefaultPropertyProvider<String> update_log_path = new DefaultPropertyProvider<String>(UPDATE_LOG_PATH);
+    final DefaultPropertyProvider<String> update_log_path = new DefaultPropertyProvider<>(UPDATE_LOG_PATH);
     
     // Parameters for apoptosis
     public static final PropertyKey<ApoptosisChoices> APOPTOSIS = key("apoptosis", ApoptosisChoices.class).defaultValue(ApoptosisChoices.none).build();
-    final EnumPropertyProvider<ApoptosisChoices> apoptosis = new EnumPropertyProvider<ApoptosisChoices>(APOPTOSIS);
+    final EnumPropertyProvider<ApoptosisChoices> apoptosis = new EnumPropertyProvider<>(APOPTOSIS);
     
     public static final PropertyKey<Double> APOPTOSIS_DECAY = key("apoptosis-decay", Double.class).defaultValue(0.5).build();
-    final DefaultPropertyProvider<Double> apoptosis_decay = new DefaultPropertyProvider<Double>(APOPTOSIS_DECAY);
+    final DefaultPropertyProvider<Double> apoptosis_decay = new DefaultPropertyProvider<>(APOPTOSIS_DECAY);
     
     public static final PropertyKey<Double> APOPTOSIS_THRESH = key("apoptosis-thresh", Double.class).defaultValue(-2.0).build();
-    final DefaultPropertyProvider<Double> apoptosis_thresh = new DefaultPropertyProvider<Double>(APOPTOSIS_THRESH);
+    final DefaultPropertyProvider<Double> apoptosis_thresh = new DefaultPropertyProvider<>(APOPTOSIS_THRESH);
     
     public static final PropertyKey<Trace> TRACE = key("trace", Trace.class).defaultValue(Trace.off).build();
-    final EnumPropertyProvider<Trace> trace = new EnumPropertyProvider<Trace>(TRACE);
+    final EnumPropertyProvider<Trace> trace = new EnumPropertyProvider<>(TRACE);
     
     private final PropertyManager properties;
     

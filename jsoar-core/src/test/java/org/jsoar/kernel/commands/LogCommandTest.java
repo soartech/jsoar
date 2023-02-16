@@ -56,7 +56,7 @@ public class LogCommandTest
     @Test
     public void testLogInit() throws Exception
     {
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
@@ -76,7 +76,7 @@ public class LogCommandTest
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--strict", "disable" });
         assertFalse(logManager.isStrict());
         
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         
@@ -108,7 +108,7 @@ public class LogCommandTest
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--strict", "enable" });
         assertTrue(logManager.isStrict());
         
-        Set<String> testSet = new HashSet<String>();
+        Set<String> testSet = new HashSet<>();
         testSet.add("default");
         assertTrue(logManager.getLoggerNames().equals(testSet));
         

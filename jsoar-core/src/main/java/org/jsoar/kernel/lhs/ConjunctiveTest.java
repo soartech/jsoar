@@ -19,7 +19,7 @@ import org.jsoar.util.markers.Marker;
 public class ConjunctiveTest extends ComplexTest
 {
     
-    public final List<Test> conjunct_list = new ArrayList<Test>(3);
+    public final List<Test> conjunct_list = new ArrayList<>(3);
     
     public ConjunctiveTest()
     {

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class AdaptableContainer extends AbstractAdaptable
 {
-    private final List<Object> adaptables = new ArrayList<Object>();
+    private final List<Object> adaptables = new ArrayList<>();
     
     public static AdaptableContainer from(Object... objects)
     {

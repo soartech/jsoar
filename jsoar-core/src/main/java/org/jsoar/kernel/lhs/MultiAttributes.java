@@ -16,7 +16,7 @@ import org.jsoar.util.Arguments;
  */
 public class MultiAttributes
 {
-    private Map<Symbol, Integer> costMap = new HashMap<Symbol, Integer>();
+    private Map<Symbol, Integer> costMap = new HashMap<>();
     
     public void setCost(Symbol referent, int value)
     {

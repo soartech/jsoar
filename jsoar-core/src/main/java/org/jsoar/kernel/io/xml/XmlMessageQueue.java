@@ -91,11 +91,11 @@ public class XmlMessageQueue
     private final String queueName;
     
     private final Listener listener = new Listener();
-    private final ConcurrentLinkedQueue<NewMessage> newMessages = new ConcurrentLinkedQueue<NewMessage>();
-    private final LinkedList<Entry> entries = new LinkedList<Entry>();
+    private final ConcurrentLinkedQueue<NewMessage> newMessages = new ConcurrentLinkedQueue<>();
+    private final LinkedList<Entry> entries = new LinkedList<>();
     
     /** the root WME of the queue, created on first input event */
-    private final AtomicReference<InputWme> queueWme = new AtomicReference<InputWme>();
+    private final AtomicReference<InputWme> queueWme = new AtomicReference<>();
     
     /**
      * Builder class for {@link XmlMessageQueue}. Instantiate with
@@ -292,7 +292,7 @@ public class XmlMessageQueue
         final Identifier messageId = converter.fromXml(nm.element);
         final InputWme messageWme = InputWmes.add(io, queueId, nm.name, messageId);
         final Entry lastMessage = getLastEntry();
-        final List<InputWme> support = new ArrayList<InputWme>();
+        final List<InputWme> support = new ArrayList<>();
         if(lastMessage != null)
         {
             support.add(InputWmes.add(io, lastMessage.getId(), "/next", messageId));

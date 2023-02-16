@@ -47,7 +47,7 @@ public class StopEventTest
     {
         // The event to start fires at some point after the call to runFor
         // and therefore requires synchronization for the assert.
-        final BlockingQueue<Boolean> q = new SynchronousQueue<Boolean>();
+        final BlockingQueue<Boolean> q = new SynchronousQueue<>();
         
         agent.getEvents().addListener(StopEvent.class, event ->
         {

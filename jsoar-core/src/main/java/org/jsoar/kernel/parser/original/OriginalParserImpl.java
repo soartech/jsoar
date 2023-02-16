@@ -546,7 +546,7 @@ class OriginalParserImpl
     {
         expect(LexemeType.LESS_LESS, "to begin disjunction test");
         
-        List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>();
+        List<SymbolImpl> disjuncts = new ArrayList<>();
         while(currentType() != LexemeType.GREATER_GREATER)
         {
             switch(currentType())

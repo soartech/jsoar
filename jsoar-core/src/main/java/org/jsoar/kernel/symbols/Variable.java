@@ -33,7 +33,7 @@ public class Variable extends SymbolImpl
     /**
      * See rete.cpp:2285 for why this is a stack.
      */
-    public final LinkedList<Integer> rete_binding_locations = new LinkedList<Integer>();
+    public final LinkedList<Integer> rete_binding_locations = new LinkedList<>();
     
     /**
      * @param hash_id the variable's hash id

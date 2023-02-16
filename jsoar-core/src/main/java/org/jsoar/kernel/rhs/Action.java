@@ -264,7 +264,7 @@ public abstract class Action
         boolean did_one_line_already = false;
         
         // build dl_list of all the actions
-        LinkedList<Action> actions_not_yet_printed = new LinkedList<Action>();
+        LinkedList<Action> actions_not_yet_printed = new LinkedList<>();
         for(Action a = actions; a != null; a = a.next)
         {
             actions_not_yet_printed.add(a);
@@ -293,7 +293,7 @@ public abstract class Action
             // normal make actions
             // collect all actions whose id matches the first action's id
             final MakeAction ma = a.asMakeAction();
-            final LinkedList<MakeAction> actions_for_this_id = new LinkedList<MakeAction>();
+            final LinkedList<MakeAction> actions_for_this_id = new LinkedList<>();
             actions_for_this_id.add(a.asMakeAction());
             SymbolImpl action_id_to_match = ma.id.asSymbolValue().getSym();
             if(!internal)

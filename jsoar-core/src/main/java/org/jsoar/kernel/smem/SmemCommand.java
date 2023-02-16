@@ -243,7 +243,7 @@ public class SmemCommand extends PicocliSoarCommand
         
         private String doBackup(String[] backupFileName)
         {
-            ByRef<String> err = new ByRef<String>("");
+            ByRef<String> err = new ByRef<>("");
             boolean success = false;
             
             String dbFile = "";

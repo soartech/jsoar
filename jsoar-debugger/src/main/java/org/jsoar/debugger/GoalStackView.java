@@ -35,7 +35,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
 {
     private final JSoarDebugger debugger;
     private final DefaultListModel<Entry> model = new DefaultListModel<>();
-    private final JList<Entry> list = new JList<Entry>(model)
+    private final JList<Entry> list = new JList<>(model)
     {
         private static final long serialVersionUID = -1363240384388636598L;
         
@@ -109,7 +109,7 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         final Callable<List<Entry>> start = () ->
         {
             final List<Goal> goals = debugger.getAgent().getAgent().getGoalStack();
-            final List<Entry> result = new ArrayList<Entry>();
+            final List<Entry> result = new ArrayList<>();
             for(Goal g : goals)
             {
                 result.add(createGoalEntry(g));

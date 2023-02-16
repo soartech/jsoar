@@ -50,7 +50,7 @@ public class TemporaryMemory
     /**
      * agent.h:605:slots_for_possible_removal
      */
-    private final LinkedList<Slot> slots_for_possible_removal = new LinkedList<Slot>();
+    private final LinkedList<Slot> slots_for_possible_removal = new LinkedList<>();
     
     /**
      * Mark_slot_as_changed() is called by the preference manager whenever the
@@ -82,7 +82,7 @@ public class TemporaryMemory
         {
             if(s.changed == null)
             {
-                ListItem<Slot> dc = new ListItem<Slot>(s);
+                ListItem<Slot> dc = new ListItem<>(s);
                 s.changed = dc;
                 dc.insertAtHead(changed_slots);
             }

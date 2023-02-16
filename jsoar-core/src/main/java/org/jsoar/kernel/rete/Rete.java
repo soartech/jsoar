@@ -87,7 +87,7 @@ public class Rete
      * 
      * all_wmes_in_rete
      */
-    private LinkedHashSet<WmeImpl> all_wmes_in_rete = new LinkedHashSet<WmeImpl>();
+    private LinkedHashSet<WmeImpl> all_wmes_in_rete = new LinkedHashSet<>();
     // private ListHead<WmeImpl> all_wmes_in_rete = ListHead.newInstance();
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
@@ -260,7 +260,7 @@ public class Rete
         // change variable names in RHS to Rete location references or
         // unbound variable indices
         
-        final List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
+        final List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<>(3);
         final Marker rhs_unbound_vars_tc = DefaultMarker.create();
         for(Action a = p.getFirstAction(); a != null; a = a.next)
         {
@@ -730,7 +730,7 @@ public class Rete
      */
     List<AlphaMemory> getAllAlphaMemories()
     {
-        final List<AlphaMemory> result = new ArrayList<AlphaMemory>();
+        final List<AlphaMemory> result = new ArrayList<>();
         for(HashTable<AlphaMemory> ht : alpha_hash_tables)
         {
             result.addAll(ht.getAllItems());

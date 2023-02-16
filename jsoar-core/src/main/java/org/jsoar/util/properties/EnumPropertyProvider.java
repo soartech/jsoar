@@ -20,7 +20,7 @@ public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider
     public EnumPropertyProvider(PropertyKey<T> key)
     {
         this.key = key;
-        this.value = new AtomicReference<T>(key.getDefaultValue());
+        this.value = new AtomicReference<>(key.getDefaultValue());
     }
     
     @Override

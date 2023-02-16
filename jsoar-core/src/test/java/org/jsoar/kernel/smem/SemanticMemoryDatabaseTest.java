@@ -57,7 +57,7 @@ public class SemanticMemoryDatabaseTest
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
-        final Set<String> tables = new HashSet<String>();
+        final Set<String> tables = new HashSet<>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] { "TABLE" });
         while(rs.next())
         {
@@ -95,7 +95,7 @@ public class SemanticMemoryDatabaseTest
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
-        final Set<String> indexes = new HashSet<String>();
+        final Set<String> indexes = new HashSet<>();
         
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] { "TABLE" });
         while(rs.next())
@@ -110,7 +110,7 @@ public class SemanticMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(
+        final List<String> expectedTables = new ArrayList<>(Arrays.asList(
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const",
                 SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const",

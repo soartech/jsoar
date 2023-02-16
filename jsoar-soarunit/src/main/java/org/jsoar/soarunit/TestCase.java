@@ -28,7 +28,7 @@ public class TestCase
     private final String name;
     private final int prefixIndex;
     private String setup = "";
-    private final List<Test> tests = new ArrayList<Test>();
+    private final List<Test> tests = new ArrayList<>();
     
     private static String getNameFromFile(URL url, int prefixIndex)
     {

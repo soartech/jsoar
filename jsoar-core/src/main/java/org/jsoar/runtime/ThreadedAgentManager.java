@@ -78,7 +78,7 @@ enum ThreadedAgentManager
     {
         synchronized (agents)
         {
-            return new ArrayList<ThreadedAgent>(agents.values());
+            return new ArrayList<>(agents.values());
         }
     }
     

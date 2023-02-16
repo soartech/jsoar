@@ -32,7 +32,7 @@ public class SoarBeanOutputManager
     private final SoarEventManager eventManager;
     private final SoarEventListener listener;
     private final SoarBeanReader reader = new SoarBeanReader();
-    private final Map<String, HandlerInfo> handlers = new ConcurrentHashMap<String, HandlerInfo>();
+    private final Map<String, HandlerInfo> handlers = new ConcurrentHashMap<>();
     
     /**
      * Construct a new output manager and register it with the given

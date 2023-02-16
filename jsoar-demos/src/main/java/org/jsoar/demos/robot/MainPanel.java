@@ -46,7 +46,7 @@ public class MainPanel extends JPanel
     private WorldPanel worldPanel;
     private Timer timer;
     
-    private Map<String, RobotAgent> agents = new HashMap<String, RobotAgent>();
+    private Map<String, RobotAgent> agents = new HashMap<>();
     
     public MainPanel() throws IOException
     {
@@ -218,7 +218,7 @@ public class MainPanel extends JPanel
     
     private void updateAgents(Properties config)
     {
-        final Set<RobotAgent> deadAgents = new HashSet<RobotAgent>(agents.values());
+        final Set<RobotAgent> deadAgents = new HashSet<>(agents.values());
         for(Robot robot : world.getRobots())
         {
             final RobotAgent existing = agents.get(robot.name);

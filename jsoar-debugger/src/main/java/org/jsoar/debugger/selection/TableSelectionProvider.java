@@ -77,7 +77,7 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
     @Override
     public List<Object> getSelection()
     {
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
         for(int row : table.getSelectedRows())
         {
             final Object value = getValueAt(row);

@@ -61,7 +61,7 @@ public class Adaptables
      */
     public static <T> List<T> adaptCollection(Collection<?> collection, Class<T> klass)
     {
-        List<T> r = new ArrayList<T>();
+        List<T> r = new ArrayList<>();
         
         for(Object o : collection)
         {
