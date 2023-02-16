@@ -12,7 +12,7 @@ module org.jsoar.core
     
     requires transitive org.slf4j;
     
-    requires spring.core;
+    requires transitive spring.core;
     
     // optional dependencies: required to build, but need not be present at runtime
     // this is so projects using jsoar can exclude these dependencies if they don't need them
