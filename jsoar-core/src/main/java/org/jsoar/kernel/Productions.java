@@ -15,6 +15,11 @@ import org.jsoar.util.ByRef;
  */
 public class Productions
 {
+    private Productions()
+    {
+        throw new IllegalStateException("Utility class");
+    }
+    
     public static String generateUniqueName(ProductionManager prods, String prefix, ByRef<Integer> number)
     {
         String name = prefix + number.value++;
