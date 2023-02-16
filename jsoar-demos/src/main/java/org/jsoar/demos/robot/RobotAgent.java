@@ -36,7 +36,7 @@ public class RobotAgent
     
     public RobotAgent()
     {
-        LOG.info("Creating robot agent " + this);
+        LOG.info("Creating robot agent ", this);
         this.agent = ThreadedAgent.create();
         final Map<String, Object> props = new HashMap<String, Object>();
         props.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DETACH);
@@ -55,7 +55,7 @@ public class RobotAgent
     
     public void setRobot(Robot robot, Properties config)
     {
-        LOG.info("Attaching robot agent " + this + " to robot " + robot.name);
+        LOG.info("Attaching robot agent {} to robot {}", this, robot.name);
         this.robot = robot;
         this.agent.setName(robot.name);
         this.agent.initialize(); // Do an init-soar
@@ -99,7 +99,7 @@ public class RobotAgent
      */
     public void dispose()
     {
-        LOG.info("Disposing robot agent " + this);
+        LOG.info("Disposing robot agent {}", this);
         this.agent.detach();
     }
     

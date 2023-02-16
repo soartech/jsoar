@@ -98,7 +98,7 @@ public class SoarTechXmlToWme implements XmlToWme
             }
             else
             {
-                LOG.error("Unknown link target '" + link.linkTo + "'");
+                LOG.error("Unknown link target '{}'", link.linkTo);
             }
         }
         
@@ -128,7 +128,7 @@ public class SoarTechXmlToWme implements XmlToWme
             final String tagName = kid.getTagName();
             if(null == tagName)
             {
-                LOG.warn("null tagName on node " + node);
+                LOG.warn("null tagName on node {}", node);
                 continue;
             }
             final Symbol attribute = syms.createString(tagName);

@@ -132,7 +132,7 @@ public class ActionManager
         }
         else
         {
-            LOG.error("No action found with id '" + id + "'");
+            LOG.error("No action found with id '{}'", id);
         }
     }
     

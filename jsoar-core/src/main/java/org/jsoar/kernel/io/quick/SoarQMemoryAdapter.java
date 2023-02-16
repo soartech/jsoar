@@ -425,7 +425,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
             if(rootId == null)
             {
                 rootId = io.getSymbols().findOrCreateIdentifier(oldRootId.getNameLetter(), oldRootId.getNameNumber());
-                LOG.warn("After init-soar, could not find custom root identifier " + oldRootId + ". Using " + rootId + ".");
+                LOG.warn("After init-soar, could not find custom root identifier {}. Using {}.", oldRootId, rootId);
             }
             rootNode = new SoarMemoryNode(rootId);
         }

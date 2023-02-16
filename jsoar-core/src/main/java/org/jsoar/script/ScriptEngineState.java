@@ -109,7 +109,7 @@ public class ScriptEngineState
             }
             catch(ScriptException die)
             {
-                LOG.error(engineName + ": soar_dispose method not defined. " + die.getMessage());
+                LOG.error("{}: soar_dispose method not defined.", engineName, die);
             }
         }
     }

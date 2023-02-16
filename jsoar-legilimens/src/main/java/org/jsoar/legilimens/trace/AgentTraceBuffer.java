@@ -75,7 +75,7 @@ public class AgentTraceBuffer
         {
             this.fileBuffer.getFile().deleteOnExit();
         }
-        LOG.info("Attaching trace buffer to agent '" + agent + "' with ring buffer size " + bufferSize + " and perm buffer " + this.fileBuffer.getFile());
+        LOG.info("Attaching trace buffer to agent '{}' with ring buffer size {} and perm buffer {}", agent, bufferSize, this.fileBuffer.getFile());
         
         agent.getPrinter().addPersistentWriter(fileBuffer);
         agent.getProperties().setProvider(KEY, new PropertyProvider<AgentTraceBuffer>()
@@ -142,7 +142,7 @@ public class AgentTraceBuffer
             // If entire range is in the ring buffer...
             if(start > traceLength)
             {
-                LOG.error("Request for trace offset " + start + " which is beyond end of trace " + traceLength);
+                LOG.error("Request for trace offset {} which is beyond end of trace {}", start, traceLength);
                 return new TraceRange(traceLength, new char[] {});
             }
             
@@ -155,7 +155,7 @@ public class AgentTraceBuffer
             
             if(lengthToEndOfTrace <= ringBuffer.size())
             {
-                LOG.trace("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
+                LOG.trace("Retrieving last {} chars from ring buffer", lengthToEndOfTrace);
                 ringBufferAccesses.incrementAndGet();
                 final char[] data = ringBuffer.getTail(lengthToEndOfTrace, max);
                 return new TraceRange(start, data);
@@ -165,7 +165,7 @@ public class AgentTraceBuffer
         // Fall back to permanent buffer. This is purposefully outside of the synchronized
         // block so we don't stop the agent while we do the potentially slow operation of
         // reading from the file. We're relying on the file system's thread-safety here.
-        LOG.info("Retrieving " + start + " to " + (start + max) + " from permanent buffer");
+        LOG.info("Retrieving {} to {} from permanent buffer", start, (start + max));
         permBufferAccesses.incrementAndGet();
         return fileBuffer.getRange(start, max);
     }

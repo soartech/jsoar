@@ -2854,7 +2854,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
         
-        LOG.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
+        LOG.info("Opened database '{}' with {}:{},", jdbcUrl, meta.getDriverName(), meta.getDriverVersion());
         
         if(params.path.get().equals(SemanticMemoryDatabase.IN_MEMORY_PATH))
         {
@@ -2888,7 +2888,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     String schemaVersion = result.getString(1);
                     if(!SemanticMemoryDatabase.SMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
-                        LOG.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
+                        LOG.error("Incorrect database version, switching to memory.  Found version: {}", schemaVersion);
                         params.path.set(SemanticMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
@@ -3014,7 +3014,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             final String perfResource = params.driver.get() + ".performance.sql";
             final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
             
-            LOG.info("Applying performance settings from '" + fullPath + "'.");
+            LOG.info("Applying performance settings from '{}'.", fullPath);
             try(InputStream perfStream = getClass().getResourceAsStream(perfResource);)
             {
                 if(perfStream != null)
@@ -3026,7 +3026,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    LOG.warn("Could not find performance resource at '" + fullPath + "'. No performance settings applied.");
+                    LOG.warn("Could not find performance resource at '{}'. No performance settings applied.", fullPath);
                 }
             }
         }
@@ -4617,7 +4617,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     break;
                 case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
                     temp_str = String.valueOf(smem_reverse_hash_float(rs.getLong(1 + 1)));
-                    
+                    break;
                 default:
                     temp_str = null;
                     break;

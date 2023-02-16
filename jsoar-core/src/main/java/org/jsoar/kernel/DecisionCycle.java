@@ -407,7 +407,7 @@ public class DecisionCycle
             }
             catch(IOException e)
             {
-                LOG.warn("While printing current context: " + e);
+                LOG.warn("While printing current context", e);
             }
         }
         
@@ -970,7 +970,7 @@ public class DecisionCycle
     private void run_for_n_decision_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
-        final Phase stopPhase = this.stopPhase.get(); // save in case this changes during run
+        final Phase stopPhaseAtRunStart = this.stopPhase.get(); // save in case this changes during run
         
         startTopLevelTimers();
         
@@ -993,7 +993,7 @@ public class DecisionCycle
             do_one_top_level_phase();
         }
         
-        while(!stop_soar && current_phase.get() != stopPhase)
+        while(!stop_soar && current_phase.get() != stopPhaseAtRunStart)
         {
             do_one_top_level_phase();
         }

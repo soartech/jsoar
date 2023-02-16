@@ -281,7 +281,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             LOG.error("While closing epmem database", e);
         }
         
-        LOG.info("Agent '" + this + "' disposed.");
+        LOG.info("Agent '{}' disposed.", this);
     }
     
     /**

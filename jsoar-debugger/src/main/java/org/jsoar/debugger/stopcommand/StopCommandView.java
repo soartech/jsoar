@@ -149,7 +149,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
         if(command != null && !command.trim().isEmpty())
         {
             
-            LOG.info("stopcommand " + command + " running...");
+            LOG.info("stopcommand {} running...", command);
             
             // most commands don't actually return a string, but print straight to the writer. We need to add our own writer to intercept the output
             StringWriter writer = new StringWriter();
@@ -163,7 +163,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
             }
             catch(SoarException e)
             {
-                LOG.info("stopcommand " + command + " error!");
+                LOG.info("stopcommand {} error!", command);
                 commandReturnResult = e.getMessage(); // print the error if there was one
             }
             
@@ -174,7 +174,7 @@ public class StopCommandView extends DefaultMultipleCDockable implements Selecti
             
             SwingUtilities.invokeLater(() -> txtResult.setText(result.trim()));
             
-            LOG.info("stopcommand " + command + " done!");
+            LOG.info("stopcommand {} done!", command);
             
         }
     }

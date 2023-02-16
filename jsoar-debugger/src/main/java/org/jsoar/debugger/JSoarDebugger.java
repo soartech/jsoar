@@ -163,7 +163,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     private void initialize(final JXFrame parentFrame, ThreadedAgent proxy)
     {
-        LOG.info("Initializing debugger for agent '" + proxy + "'");
+        LOG.info("Initializing debugger for agent '{}'", proxy);
         final float scaleUpFactor = 4.0f / 3.0f;
         final float scaleDownFactor = .75f;
         parentFrame.addMouseWheelListener(e ->
@@ -819,7 +819,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         synchronized (DEBUGGERS)
         {
-            LOG.info(String.format("Detaching from agent '" + agent + "'"));
+            LOG.info(String.format("Detaching from agent '{}'", agent));
             
             // clean up soar prop listeners
             for(PropertyListenerHandle<?> listener : propertyListeners)

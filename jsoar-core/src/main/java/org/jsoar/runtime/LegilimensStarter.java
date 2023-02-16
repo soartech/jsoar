@@ -99,12 +99,12 @@ public class LegilimensStarter
         }
         catch(SecurityException e)
         {
-            LOG.warn("Could not find start() method on LegilimensServer class: " + e.getMessage());
+            LOG.warn("Could not find start() method on LegilimensServer class", e);
             return null;
         }
         catch(NoSuchMethodException e)
         {
-            LOG.warn("Could not find start() method on LegilimensServer class: " + e.getMessage());
+            LOG.warn("Could not find start() method on LegilimensServer class", e);
             return null;
         }
     }

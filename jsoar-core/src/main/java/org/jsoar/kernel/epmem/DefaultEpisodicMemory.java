@@ -476,7 +476,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         catch(SoarException e)
         {
-            LOG.error("While initializing epmem: " + e.getMessage(), e);
+            LOG.error("While initializing epmem", e);
             agent.getPrinter().error("While initializing epmem: " + e.getMessage());
         }
     }
@@ -548,7 +548,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final String perfResource = params.driver.get() + ".performance.sql";
             
             final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
-            LOG.info("Applying performance settings from '" + fullPath + "'.");
+            LOG.info("Applying performance settings from '{}'.", fullPath);
             try(InputStream perfStream = getClass().getResourceAsStream(perfResource))
             {
                 if(perfStream != null)
@@ -662,7 +662,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         final DatabaseMetaData meta = connection.getMetaData();
         
-        LOG.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":" + meta.getDriverVersion());
+        LOG.info("Opened database '{}' with {}:{}", jdbcUrl, meta.getDriverName(), meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
         
         applyDatabasePerformanceOptions();
@@ -684,7 +684,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     String schemaVersion = result.getString(1);
                     if(!EpisodicMemoryDatabase.EPMEM_SCHEMA_VERSION.equals(schemaVersion))
                     {
-                        LOG.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
+                        LOG.error("Incorrect database version, switching to memory.  Found version: {}", schemaVersion);
                         params.path.set(EpisodicMemoryDatabase.IN_MEMORY_PATH);
                         // Switch to memory
                         // Undo what was done so far
@@ -1196,7 +1196,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 db.getConnection().close();
                 db = null;
                 
-                LOG.info("EpMem| Closing database " + params.path.get() + ".");
+                LOG.info("EpMem| Closing database {}.", params.path.get());
             }
             catch(SQLException e)
             {
@@ -1847,8 +1847,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if(LOG.isDebugEnabled())
         {
             LOG.debug("==================================================\n" +
-                    "DEBUG _epmem_store_level called for parent_id " + parent_id + "\n" +
-                    "==================================================\n");
+                    "DEBUG _epmem_store_level called for parent_id {}\n" +
+                    "==================================================\n",
+                    parent_id);
         }
         
         // find WME ID for WMEs whose value is an identifier and has a known epmem id
@@ -1862,7 +1863,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // (unsigned int) parent_id, symbol_to_string (my_agent, (*w_p)->attr, TRUE, NIL, 0), symbol_to_string (my_agent, (*w_p)->value, TRUE, NIL, 0)
                 
                 LOG.debug("--------------------------------------------\n" +
-                        "Processing WME: " + Long.toString(parent_id) + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
+                        "Processing WME: {} ^{} {}\n",
+                        parent_id, wme.getAttribute(), wme.getValue());
             }
             
             // skip over WMEs already in the system
@@ -1932,7 +1934,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if(LOG.isDebugEnabled())
             {
                 LOG.debug("--------------------------------------------\n" +
-                        "Processing WME: " + parent_id + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
+                        "Processing WME: {} ^{} {}\n",
+                        parent_id, wme.getAttribute(), wme.getValue());
             }
             
             // skip over WMEs already in the system
@@ -1941,7 +1944,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // fprintf(stderr, " WME already in system with id %d.\n", (unsigned int) (*w_p)->epmem_id);
                 if(LOG.isDebugEnabled())
                 {
-                    LOG.debug("   WME already in system with id " + wme.epmem_id + ".\n");
+                    LOG.debug("   WME already in system with id {}.\n", wme.epmem_id);
                 }
                 continue;
             }
@@ -2016,8 +2019,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             
                             if(LOG.isDebugEnabled())
                             {
-                                LOG.debug("   Adding new n_id and setting wme id to " + wmeValueId.epmem_id +
-                                        " for VALUE which is lti " + wmeValueId.getNameLetter() + wmeValueId.getNameNumber() + "\n");
+                                LOG.debug("   Adding new n_id and setting wme id to {} for VALUE which is lti {}\n", wmeValueId.epmem_id, wmeValueId);
                             }
                             
                             // add repository
@@ -2082,7 +2084,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
                                 
                                 // fprintf(stderr, " Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
-                                LOG.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
+                                LOG.debug("   Assigning id from existing pool: {}\n", wme.epmem_id);
                             }
                             
                             // delete reservation and map entry
@@ -2124,7 +2126,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             // fprintf(stderr, " Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
                                             if(LOG.isDebugEnabled())
                                             {
-                                                LOG.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
+                                                LOG.debug("   Assigning id from existing pool: {}\n", wme.epmem_id);
                                             }
                                             break;
                                         }
@@ -2218,7 +2220,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // fprintf(stderr, " Adding new n_id and setting wme id for VALUE to %d \n", (unsigned int) (*w_p)->value->id.epmem_id);
                         if(LOG.isDebugEnabled())
                         {
-                            LOG.debug("   Adding new n_id and setting wme id for VALUE to " + wmeValueId.epmem_id + " \n");
+                            LOG.debug("   Adding new n_id and setting wme id for VALUE to {}\n", wmeValueId.epmem_id);
                         }
                         
                         // Update the node database with the new n_id
@@ -2239,7 +2241,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // fprintf(stderr, " Adding wme to epmem_wmes_identifier table.\n");
                     if(LOG.isDebugEnabled())
                     {
-                        LOG.debug("   Performing database insertion: " + parent_id + " " + my_hash + " " + wmeValueId.epmem_id + "\n");
+                        LOG.debug("   Performing database insertion: {} {} {}\n", parent_id, my_hash, wmeValueId.epmem_id);
                         LOG.debug("   Adding wme to epmem_wmes_identifier table.\n");
                     }
                     final PreparedStatement ps = db.add_epmem_wmes_identifier;
@@ -2265,7 +2267,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // fprintf(stderr, " Incrementing and setting wme id to %d \n", (unsigned int) (*w_p)->epmem_id);
                     if(LOG.isDebugEnabled())
                     {
-                        LOG.debug("   Incrementing and setting wme id to " + wme.epmem_id + " \n");
+                        LOG.debug("   Incrementing and setting wme id to {}\n", wme.epmem_id);
                     }
                     
                     if(wmeValueId.smem_lti == 0)
@@ -2368,7 +2370,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if(LOG.isDebugEnabled())
                         {
                             LOG.debug("   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
-                            LOG.debug("   Performing database insertion: " + parent_id + " " + my_hash + " " + my_hash2 + "\n");
+                            LOG.debug("   Performing database insertion: {} {} {}\n", parent_id, my_hash, my_hash2);
                         }
                         
                         // insert (parent_id,attr,value)
@@ -2395,7 +2397,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // fprintf(stderr, " Setting wme id from last row to %d \n", (unsigned int) (*w_p)->epmem_id);
                         if(LOG.isDebugEnabled())
                         {
-                            LOG.debug("   Setting wme id from last row to  " + wme.epmem_id + " \n");
+                            LOG.debug("   Setting wme id from last row to  {}\n", wme.epmem_id);
                         }
                         
                         // new nodes definitely start
@@ -2410,7 +2412,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if(LOG.isDebugEnabled())
                         {
                             LOG.debug("Node found in database, definitely don't remove.\n");
-                            LOG.debug("   Setting wme id from existing node to  " + wme.epmem_id + " \n");
+                            LOG.debug("   Setting wme id from existing node to  {}\n", wme.epmem_id);
                         }
                         
                         // definitely don't remove
@@ -4049,7 +4051,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     
                     if(LOG.isDebugEnabled())
                     {
-                        LOG.debug("  EDGE " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
+                        LOG.debug("  EDGE {}-{}-{}", triple.parent_n_id, triple.attribute_s_id, triple.child_n_id);
                     }
                     
                     // create queries for the unique edge children of this partial edge
@@ -4292,7 +4294,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if(LOG.isDebugEnabled())
                     {
-                        LOG.debug("EPISODE " + current_episode);
+                        LOG.debug("EPISODE {}", current_episode);
                     }
                     
                     // process all interval endpoints at this time step
@@ -4304,7 +4306,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         if(LOG.isDebugEnabled())
                         {
-                            LOG.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
+                            LOG.debug("  INTERVAL ({}): {}-{}-{}", (interval.is_end_point != 0 ? "end" : "start"), triple.parent_n_id, triple.attribute_s_id, triple.child_n_id);
                         }
                         
                         if(interval.is_end_point != 0)
@@ -4892,7 +4894,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         if(LOG.isDebugEnabled())
         {
-            LOG.debug("      RECURSING ON " + parent + " " + child + " " + literal);
+            LOG.debug("      RECURSING ON {} {} {}", parent, child, literal);
         }
         // we only need things if this parent-child pair is matching the literal
         // epmem_node_pair_set::iterator lit_match_iter = literal->matches.find(std::make_pair(parent, child));
@@ -4918,7 +4920,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         current_cardinality.value -= (literal.is_neg_q != 0 ? -1 : 1);
                         if(LOG.isDebugEnabled())
                         {
-                            LOG.debug("          NEW SCORE: " + current_score + ", " + current_cardinality);
+                            LOG.debug("          NEW SCORE: {}, {}", current_score, current_cardinality);
                         }
                         return true;
                     }
@@ -4992,7 +4994,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         if(LOG.isDebugEnabled())
         {
-            LOG.debug("      RECURSING ON " + parent + " " + child + " " + literal);
+            LOG.debug("      RECURSING ON {} {} {}", parent, child, literal);
         }
         
         // check if the ancestors of this literal are satisfied
@@ -5026,7 +5028,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         current_cardinality.value += (literal.is_neg_q != 0 ? -1 : 1);
                         if(LOG.isDebugEnabled())
                         {
-                            LOG.debug("          NEW SCORE: " + current_score + ", " + current_cardinality);
+                            LOG.debug("          NEW SCORE: {}, {}",  current_score, current_cardinality);
                         }
                         return true;
                     }
@@ -5118,7 +5120,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         int is_edge = (int) literal.value_is_id;
         if(LOG.isDebugEnabled())
         {
-            LOG.debug("      RECURSING ON " + parent + " " + literal);
+            LOG.debug("      RECURSING ON {} {}", parent, literal);
         }
         // if the unique edge does not exist, create a new unique edge query
         // otherwse, if the pedge has not been registered with this literal
@@ -7396,15 +7398,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         catch(SQLException e)
         {
-            LOG.error("Failed to reinitialize database:" + e.getMessage());
+            LOG.error("Failed to reinitialize database", e);
         }
         catch(IOException e)
         {
-            LOG.error("Failed to reinitialize epmem:" + e.getMessage());
+            LOG.error("Failed to reinitialize epmem", e);
         }
         catch(SoarException e)
         {
-            LOG.error("Failed to reinitialize epmem:" + e.getMessage());
+            LOG.error("Failed to reinitialize epmem", e);
         }
     }
     

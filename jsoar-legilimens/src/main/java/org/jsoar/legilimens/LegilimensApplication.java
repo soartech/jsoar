@@ -119,20 +119,20 @@ public class LegilimensApplication extends Application
     
     protected void agentAttached(ThreadedAgent agent)
     {
-        LOG.info("Attaching to agent '" + agent + "' (agent's name may not be accurate if it isn't set yet)");
+        LOG.info("Attaching to agent '{}' (agent's name may not be accurate if it isn't set yet)", agent);
         try
         {
             AgentTraceBuffer.attach(agent.getAgent());
         }
         catch(IOException e)
         {
-            LOG.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to attach trace buffer to agent '{}'", agent, e);
         }
     }
     
     protected void agentDetached(ThreadedAgent agent)
     {
-        LOG.info("Detaching from agent '" + agent + "'");
+        LOG.info("Detaching from agent '{}'", agent);
         final AgentTraceBuffer traceBuffer = agent.getProperties().get(AgentTraceBuffer.KEY);
         try
         {
@@ -140,7 +140,7 @@ public class LegilimensApplication extends Application
         }
         catch(IOException e)
         {
-            LOG.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
+            LOG.error("Failed to detach trace buffer from agent '{}'", agent, e);
         }
     }
     

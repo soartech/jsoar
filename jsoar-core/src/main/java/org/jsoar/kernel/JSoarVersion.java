@@ -41,7 +41,7 @@ public final class JSoarVersion
         }
         catch(IOException e)
         {
-            LOG.error("Failed to load buildinfo properties: " + e.getMessage());
+            LOG.error("Failed to load buildinfo properties", e);
         }
     }
     

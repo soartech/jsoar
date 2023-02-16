@@ -77,7 +77,7 @@ public class LegilimensServer
             throw new RuntimeException("Failed to start server: " + e.getMessage(), e);
         }
         
-        LOG.info("Legilimens web app running at http://localhost:" + port + root + "/");
+        LOG.info("Legilimens web app running at http://localhost:{}{}/", port, root);
     }
     
     private String getRoot()

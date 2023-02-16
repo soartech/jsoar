@@ -39,22 +39,22 @@ public class UrlTools
         
         if(uri.getScheme().equals("jar"))
         {
-            LOG.debug("uri: " + uri);
+            LOG.debug("uri: {}", uri);
             // Suppose you have a URI: jar:file:test.jar!/./test2.soar
             URI ssp1 = new URI(uri.getRawSchemeSpecificPart());
             // ssp1: file:test2.jar!/./test2.soar
-            LOG.debug("ssp1: " + ssp1);
+            LOG.debug("ssp1: {}", ssp1);
             URI ssp2 = new URI(ssp1.getRawSchemeSpecificPart());
             // ssp2: test2.jar!/./test2.soar
-            LOG.debug("ssp2: " + ssp2);
+            LOG.debug("ssp2: {}", ssp2);
             String sspScheme = ssp1.getScheme();
             // sspScheme: file
-            LOG.debug("scheme: " + sspScheme);
+            LOG.debug("scheme: {}", sspScheme);
             URI normalizedSsp2 = new URI(ssp2.getRawSchemeSpecificPart()).normalize();
             // normalizedSsp2: test2.jar!/test2.soar
-            LOG.debug("normalzied ssp2: " + normalizedSsp2);
+            LOG.debug("normalzied ssp2: {}", normalizedSsp2);
             URI normalized = new URI("jar:" + sspScheme + ":" + normalizedSsp2);
-            LOG.debug("normalized: " + normalized);
+            LOG.debug("normalized: {}", normalized);
             // normalized: jar:file:test2.jar!/test2.soar
             url = normalized.toURL();
         }

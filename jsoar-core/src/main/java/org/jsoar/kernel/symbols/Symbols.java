@@ -123,9 +123,10 @@ public class Symbols
         // else by accident. So we print a warning just in case.
         if(WARN_ON_JAVA_SYMBOLS)
         {
-            LOG.warn("A Java symbol with value '" + value + "' is being created. " +
+            LOG.warn("A Java symbol with value '{}' is being created. " +
                     "Are you sure this is what you want to do? " +
-                    "Disable this message with -Djsoar.warnOnJavaSymbols=false.");
+                    "Disable this message with -Djsoar.warnOnJavaSymbols=false.",
+                    value);
         }
         
         return factory.createJavaSymbol(value);

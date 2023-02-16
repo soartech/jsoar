@@ -73,7 +73,7 @@ public class DefaultWmeToXml
         }
         else
         {
-            LOG.warn("Don't know what to do with " + ATTRS + " element with non-id value: " + attrWme);
+            LOG.warn("Don't know what to do with {} element with non-id value: {}", ATTRS, attrWme);
         }
     }
     
@@ -99,7 +99,7 @@ public class DefaultWmeToXml
             if(valueElement != null)
             {
                 // TODO what should we do here? XLink?
-                LOG.warn("Don't know what to do with non-tree memory structure: " + wme);
+                LOG.warn("Don't know what to do with non-tree memory structure: {}", wme);
                 wmeElement.setTextContent(idValue.toString());
             }
             else

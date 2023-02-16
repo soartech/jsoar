@@ -250,12 +250,12 @@ public class SoarBeanReader
             final int modifiers = field.getModifiers();
             if(Modifier.isStatic(modifiers))
             {
-                LOG.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is static. Ignoring.");
+                LOG.warn("SoarBean field {}.{} is static. Ignoring.", beanClass.getCanonicalName(), name);
                 return;
             }
             else if(Modifier.isPrivate(modifiers))
             {
-                LOG.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is private. Ignoring.");
+                LOG.warn("SoarBean field {}.{} is private. Ignoring.", beanClass.getCanonicalName(), name);
                 return;
             }
             final Class<?> type = getTargetType(field.getType());
@@ -264,7 +264,7 @@ public class SoarBeanReader
         }
         catch(NoSuchFieldException e)
         {
-            LOG.warn("Unknown property " + beanClass.getCanonicalName() + "." + name + ". Ignoring.");
+            LOG.warn("Unknown property {}.{}. Ignoring.", beanClass.getCanonicalName(), name);
             return;
         }
     }

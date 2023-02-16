@@ -79,19 +79,19 @@ public class DefaultDebuggerProvider extends AbstractDebuggerProvider
             }
             else
             {
-                LOG.error("Expected instance of " + DebuggerProvider.class + ", got " + klass);
+                LOG.error("Expected instance of {}, got {}", DebuggerProvider.class, klass);
                 throw new SoarException("Expected instance of " + DebuggerProvider.class + ", got " + klass);
             }
         }
         catch(ClassNotFoundException e)
         {
-            LOG.error("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
-            throw new SoarException("Could not find default debugger provider class '" + DEFAULT_CLASS + "'");
+            LOG.error("Could not find default debugger provider class '{}'", DEFAULT_CLASS, e);
+            throw new SoarException("Could not find default debugger provider class '" + DEFAULT_CLASS + "'", e);
         }
         catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
         {
-            LOG.error("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
-            throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "': " + e.getMessage(), e);
+            LOG.error("Error instantiating debugger provider class '{}'", DEFAULT_CLASS, e);
+            throw new SoarException("Error instantiating debugger provider class '" + DEFAULT_CLASS + "'", e);
         }
         
     }

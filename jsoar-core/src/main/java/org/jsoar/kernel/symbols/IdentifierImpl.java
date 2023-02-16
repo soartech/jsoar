@@ -38,7 +38,7 @@ import com.google.common.collect.Iterators;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    private final long name_number; // TODO make this a long
+    private final long name_number;
     private final char name_letter;
     
     /**
@@ -68,7 +68,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public /* uint_ptr_t */ long id_smem_valid = 0;
     
     public /* epmem_node_id */ long epmem_id = 0;
-    public /* uint64_t */ long epmem_valid = 0;
+    //public /* uint64_t */ long epmem_valid = 0;
     
     /**
      * @param hash_id
@@ -416,7 +416,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number));
+        formatter.format("%s%C%d", (smem_lti != 0 ? "@" : ""), name_letter, name_number);
     }
     
     /*

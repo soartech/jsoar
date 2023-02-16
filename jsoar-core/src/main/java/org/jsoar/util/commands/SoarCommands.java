@@ -110,7 +110,7 @@ public class SoarCommands
         final ServiceLoader<SoarCommandProvider> loader = ServiceLoader.load(SoarCommandProvider.class);
         for(SoarCommandProvider provider : loader)
         {
-            LOG.info("Registering custom commands from " + provider.getClass());
+            LOG.info("Registering custom commands from {}", provider.getClass());
             provider.registerCommands(interp, context);
         }
     }
