@@ -157,7 +157,7 @@ public class DebugCommand extends PicocliSoarCommand
             
             if(result == null)
             {
-                result = new String();
+                result = "";
             }
             result += "(-1s) proc - Note JSoar does not support measuring CPU time at the moment.\n";
             result += "(" + seconds + "s) real\n";
