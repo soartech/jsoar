@@ -53,9 +53,9 @@ public class HelpMainCommand extends PicocliSoarCommand
                 
                 try
                 {
-                    for(String command : agent.getInterpreter().getCommandStrings())
+                    for(String commandStr : agent.getInterpreter().getCommandStrings())
                     {
-                        agent.getPrinter().startNewLine().print(command);
+                        agent.getPrinter().startNewLine().print(commandStr);
                     }
                 }
                 catch(SoarException e)
