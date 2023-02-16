@@ -103,13 +103,13 @@ public class TestSettings
         this.jvmSettings = jvmSettings;
         
         // Sanity check
-        if(this.csoarEnabled && csoarDirectories.size() == 0)
+        if(this.csoarEnabled && csoarDirectories.isEmpty())
         {
             throw new RuntimeException(
                     "Sanity Check Failed!  CSoar is enabled but there are no directories specified for it!");
         }
         
-        if(this.jsoarEnabled && jsoarDirectories.size() == 0)
+        if(this.jsoarEnabled && jsoarDirectories.isEmpty())
         {
             throw new RuntimeException(
                     "Sanity Check Failed!  JSoar is enabled but there are no directories specified for it!");

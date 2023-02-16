@@ -41,7 +41,7 @@ public class CSoarKernelFactory
         CSoarKernelFactory.csoarDirectory = csoarDirectory;
         
         List<Path> smlPath = getPathToSml(csoarDirectory);
-        if(smlPath.size() == 0)
+        if(smlPath.isEmpty())
         {
             System.out
                     .println("Failed to find SML.jar.  Using assert version of it!");

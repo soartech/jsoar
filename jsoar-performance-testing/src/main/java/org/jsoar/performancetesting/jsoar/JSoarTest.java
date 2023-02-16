@@ -138,7 +138,7 @@ public class JSoarTest implements Test
         
         ifc.eval("soar stop-phase output");
         
-        if(settings.getDecisionCycles().size() == 0
+        if(settings.getDecisionCycles().isEmpty()
                 || settings.getDecisionCycles().get(0) == 0)
         {
             agent.runForever();

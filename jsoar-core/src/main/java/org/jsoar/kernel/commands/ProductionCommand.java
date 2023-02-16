@@ -481,7 +481,7 @@ public class ProductionCommand extends PicocliSoarCommand
         
         private void printResults(List<Production> productions, int n)
         {
-            if(productions.size() > 0 && n > 0)
+            if(!productions.isEmpty() && n > 0)
             {
                 Production p = productions.get(0);
                 final Printer printer = parent.agent.getPrinter();
@@ -791,7 +791,7 @@ public class ProductionCommand extends PicocliSoarCommand
             if(productionsToEnable == null && productionsToDisable == null)
             {
                 List<String> tracedRuleNames = collectAndSortTracedRuleNames();
-                if(tracedRuleNames.size() == 0)
+                if(tracedRuleNames.isEmpty())
                 {
                     parent.agent.getPrinter().startNewLine().print("No watched productions found.");
                 }

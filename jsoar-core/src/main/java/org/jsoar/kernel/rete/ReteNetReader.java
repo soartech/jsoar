@@ -131,7 +131,7 @@ public class ReteNetReader
         Stack<ReteNode> stack = new Stack<>();
         stack.push(parent);
         
-        while(stack.size() > 0)
+        while(!stack.isEmpty())
         {
             ReteNode currentParent = stack.pop();
             

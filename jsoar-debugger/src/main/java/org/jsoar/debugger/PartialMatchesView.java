@@ -131,7 +131,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 b.append("<h3>" + escape(p.getName()) + "</h3>");
                 final PartialMatches pm = p.getPartialMatches();
                 final List<Entry> entries = pm.getEntries();
-                if(entries.size() > 0)
+                if(!entries.isEmpty())
                 {
                     formatEntries(b, entries, 0);
                     b.append("<br>");

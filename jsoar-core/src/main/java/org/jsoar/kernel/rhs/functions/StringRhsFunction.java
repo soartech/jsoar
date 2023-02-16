@@ -35,7 +35,7 @@ public class StringRhsFunction extends AbstractRhsFunctionHandler
         RhsFunctions.checkArgumentCount(this, arguments);
         
         final SymbolFactory syms = context.getSymbols();
-        if(arguments.size() == 0)
+        if(arguments.isEmpty())
         {
             return syms.createString("");
         }

@@ -59,7 +59,7 @@ public class RandFloat extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-        if(arguments.size() == 0)
+        if(arguments.isEmpty())
         {
             return context.getSymbols().createDouble(random.nextDouble());
         }

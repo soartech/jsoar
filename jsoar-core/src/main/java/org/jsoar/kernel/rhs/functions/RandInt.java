@@ -53,7 +53,7 @@ public class RandInt extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-        if(arguments.size() == 0)
+        if(arguments.isEmpty())
         {
             return context.getSymbols().createInteger(random.nextInt());
         }
