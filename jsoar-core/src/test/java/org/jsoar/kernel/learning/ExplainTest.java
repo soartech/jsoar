@@ -7,7 +7,7 @@ package org.jsoar.kernel.learning;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ public class ExplainTest extends FunctionalTestHarness
         assertEquals(1, chunks.size());
         final ExplainChunk c = chunks.get(0);
         assertEquals("chunk-1*d4*opnochange*1", c.name);
-        assertTrue(c.conds.next.next == null, "Explanation should only have 2 conditions");
-        assertTrue(c.actions.next == null, "Explanation should only have 1 action");
+        assertNull(c.conds.next.next, "Explanation should only have 2 conditions");
+        assertNull(c.actions.next, "Explanation should only have 1 action");
     }
 }

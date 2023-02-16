@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.epmem;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 import java.net.URL;
@@ -230,7 +230,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
                 "(<id2> ^name factor-number ^number-to-factor 2)\n";
         
         LOG.info("Epmem test actual result: " + actualResult);
-        assertTrue(actualResult.equals(expectedResult), "Unexpected output from CSoar database! ");
+        assertEquals(expectedResult, actualResult, "Unexpected output from CSoar database! ");
     }
     
     @Test

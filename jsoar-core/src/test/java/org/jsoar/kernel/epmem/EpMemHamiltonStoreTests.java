@@ -1,5 +1,6 @@
 package org.jsoar.kernel.epmem;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
@@ -537,8 +538,8 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         
         while(results.next())
         {
-            assertTrue(
-                    expectedRows.get(results.getLong("variable_id")) == results.getLong("variable_value"),
+            assertEquals(
+                    expectedRows.get(results.getLong("variable_id")), results.getLong("variable_value"),
                     "epmem_persistent_variables contained unexpected " + results.getLong("variable_id") + ", " + results.getLong("variable_value"));
             expectedRows.remove(results.getLong("variable_id"));
         }

@@ -6,7 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -55,7 +55,7 @@ public class SymbolFactoryImplTest
         assertEquals('S', s.getNameLetter());
         assertEquals(1, s.getNameNumber());
         assertEquals(1, s.level);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
         
         // Make another id and make sure the id increments
@@ -64,7 +64,7 @@ public class SymbolFactoryImplTest
         assertEquals('S', s.getNameLetter());
         assertEquals(2, s.getNameNumber());
         assertEquals(4, s.level);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
     }
     
@@ -74,7 +74,7 @@ public class SymbolFactoryImplTest
         DoubleSymbolImpl s = syms.createDouble(3.14);
         assertNotNull(s);
         assertEquals(3.14, s.getValue(), 0.0001);
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findDouble(s.getValue()));
         assertSame(s, syms.createDouble(s.getValue()));
     }
@@ -85,7 +85,7 @@ public class SymbolFactoryImplTest
         IntegerSymbolImpl s = syms.createInteger(99);
         assertNotNull(s);
         assertEquals(99, s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findInteger(s.getValue()));
         assertSame(s, syms.createInteger(s.getValue()));
     }
@@ -96,7 +96,7 @@ public class SymbolFactoryImplTest
         IntegerSymbolImpl s = syms.createInteger(999999999999L);
         assertNotNull(s);
         assertEquals(999999999999L, s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findInteger(s.getValue()));
         assertSame(s, syms.createInteger(s.getValue()));
     }
@@ -107,7 +107,7 @@ public class SymbolFactoryImplTest
         StringSymbolImpl s = syms.createString("A sym constant");
         assertNotNull(s);
         assertEquals("A sym constant", s.getValue());
-        assertFalse(s.hash_id == 0);
+        assertNotEquals(0, s.hash_id);
         assertSame(s, syms.findString(s.getValue()));
         assertSame(s, syms.createString(s.getValue()));
     }

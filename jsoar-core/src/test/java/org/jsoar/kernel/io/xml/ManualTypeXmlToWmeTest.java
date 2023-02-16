@@ -7,6 +7,7 @@ package org.jsoar.kernel.io.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -76,15 +77,15 @@ public class ManualTypeXmlToWmeTest
         
         assertEquals("0.0", m.attr("TestFloat").find(msg).getValue().asString()
                 .getValue());
-        assertTrue(m.attr("TestFloat").find(msg).getValue().asInteger() == null);
-        assertTrue(m.attr("TestFloat").find(msg).getValue().asDouble() == null);
+        assertNull(m.attr("TestFloat").find(msg).getValue().asInteger());
+        assertNull(m.attr("TestFloat").find(msg).getValue().asDouble());
         
         assertEquals("0", m.attr("TestInt").find(msg).getValue().asString()
                 .getValue());
-        assertTrue(m.attr("TestInt").find(msg).getValue().asInteger() == null);
-        assertTrue(m.attr("TestInt").find(msg).getValue().asDouble() == null);
+        assertNull(m.attr("TestInt").find(msg).getValue().asInteger());
+        assertNull(m.attr("TestInt").find(msg).getValue().asDouble());
         
-        assertTrue(m.attr("Attribute").find(msg).getValue().asString() == null);
+        assertNull(m.attr("Attribute").find(msg).getValue().asString());
         final Identifier att = m.attr("Attribute").find(msg).getValue()
                 .asIdentifier();
         assertEquals("test", m.attr("myString").find(att).getValue().asString()
@@ -119,15 +120,15 @@ public class ManualTypeXmlToWmeTest
         
         assertEquals(0d, m.attr("TestFloat").find(msg).getValue().asDouble()
                 .getValue(), .000001);
-        assertTrue(m.attr("TestFloat").find(msg).getValue().asInteger() == null);
-        assertTrue(m.attr("TestFloat").find(msg).getValue().asString() == null);
+        assertNull(m.attr("TestFloat").find(msg).getValue().asInteger());
+        assertNull(m.attr("TestFloat").find(msg).getValue().asString());
         
         assertEquals(0, m.attr("TestInt").find(msg).getValue().asInteger()
                 .getValue());
-        assertTrue(m.attr("TestInt").find(msg).getValue().asString() == null);
-        assertTrue(m.attr("TestInt").find(msg).getValue().asDouble() == null);
+        assertNull(m.attr("TestInt").find(msg).getValue().asString());
+        assertNull(m.attr("TestInt").find(msg).getValue().asDouble());
         
-        assertTrue(m.attr("Attribute").find(msg).getValue().asString() == null);
+        assertNull(m.attr("Attribute").find(msg).getValue().asString());
         final Identifier att = m.attr("Attribute").find(msg).getValue()
                 .asIdentifier();
         assertEquals("test", m.attr("myString").find(att).getValue().asString()
@@ -217,6 +218,6 @@ public class ManualTypeXmlToWmeTest
         agent.runFor(1, RunType.DECISIONS);
         
         Wme msgNull = m.attr("Message").find(il);
-        assertTrue(msgNull == null);
+        assertNull(msgNull);
     }
 }

@@ -7,6 +7,7 @@ package org.jsoar.kernel.smem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -66,7 +67,7 @@ public class DefaultSemanticMemoryTest
         
         final long expected2 = smem.smem_lti_add_id('S', 2);
         assertEquals(expected2, smem.smem_lti_get_id('S', 2));
-        assertFalse(expected == expected2);
+        assertNotEquals(expected, expected2);
     }
     
     @Test
