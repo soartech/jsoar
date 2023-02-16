@@ -20,25 +20,25 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ListRhsFunctionTest
+class ListRhsFunctionTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         agent.getTrace().disableAll();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
     @Test
-    public void testEmptyList() throws Exception
+    void testEmptyList() throws Exception
     {
         final ByRef<Boolean> succeeded = ByRef.create(false);
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("succeeded")
@@ -66,7 +66,7 @@ public class ListRhsFunctionTest
     }
     
     @Test
-    public void testList() throws Exception
+    void testList() throws Exception
     {
         final ByRef<Boolean> succeeded = ByRef.create(false);
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("succeeded")

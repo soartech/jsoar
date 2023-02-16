@@ -19,17 +19,17 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RandFloatTest extends JSoarTest
+class RandFloatTest extends JSoarTest
 {
     @Test
-    public void testExpectedName()
+    void testExpectedName()
     {
         final RandFloat rf = new RandFloat(new Random());
         assertEquals("rand-float", rf.getName());
     }
     
     @Test
-    public void testRandomFloat() throws Exception
+    void testRandomFloat() throws Exception
     {
         final RandFloat rf = new RandFloat(new Random());
         for(int i = 0; i < 5000; ++i)

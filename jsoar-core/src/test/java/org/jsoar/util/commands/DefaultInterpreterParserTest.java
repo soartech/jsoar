@@ -26,13 +26,13 @@ public class DefaultInterpreterParserTest
     private DefaultInterpreterParser parser;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         parser = new DefaultInterpreterParser();
     }
     
     @Test
-    public void testParseCommandTerminatedByEndOfFile() throws Exception
+    void testParseCommandTerminatedByEndOfFile() throws Exception
     {
         final ParserBuffer reader = reader("    watch {5}");
         assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
@@ -40,7 +40,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testSpCommandParseCommandTerminatedByCarriageReturn() throws Exception
+    void testSpCommandParseCommandTerminatedByCarriageReturn() throws Exception
     {
         final ParserBuffer reader = reader("    sp {test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n}\r\nx");
         assertEquals(Arrays.asList("sp", "test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n"), parser.parseCommand(reader).getArgs());
@@ -48,7 +48,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testParseCommandTerminatedByLineFeed() throws Exception
+    void testParseCommandTerminatedByLineFeed() throws Exception
     {
         final ParserBuffer reader = reader("    watch {5}\nx");
         assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
@@ -56,7 +56,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testParseCommandTerminatedByComment() throws Exception
+    void testParseCommandTerminatedByComment() throws Exception
     {
         final ParserBuffer reader = reader("    watch {5} #comment");
         assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
@@ -64,7 +64,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testParseCommandReturnsEmptyListAtEof() throws Exception
+    void testParseCommandReturnsEmptyListAtEof() throws Exception
     {
         final ParserBuffer reader = reader("   #comment    \n");
         final ParsedCommand parsedCommand = parser.parseCommand(reader);
@@ -74,7 +74,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanSkipWhitespace() throws Exception
+    void testCanSkipWhitespace() throws Exception
     {
         final ParserBuffer reader = reader(" \n\t\t    xxx");
         
@@ -83,7 +83,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanSkipComments() throws Exception
+    void testCanSkipComments() throws Exception
     {
         final ParserBuffer reader = reader(" \n" +
                 "# this is a comment\n" +
@@ -96,7 +96,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseAnUnquotedWord() throws Exception
+    void testCanParseAnUnquotedWord() throws Exception
     {
         final ParserBuffer reader = reader("   1-word_with*no+quotes  x ");
         
@@ -107,7 +107,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseAQuotedWord() throws Exception
+    void testCanParseAQuotedWord() throws Exception
     {
         final ParserBuffer reader = reader("   \"word with\\n \\\"quotes\"  x ");
         
@@ -118,7 +118,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseBracedWord() throws Exception
+    void testCanParseBracedWord() throws Exception
     {
         final ParserBuffer reader = reader("    { words {* words\\n\n \"} words }   end");
         final String result = parser.parseWord(reader);
@@ -149,7 +149,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseSemicolon() throws Exception
+    void testCanParseSemicolon() throws Exception
     {
         final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)}; watch {5}");
         assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
@@ -157,7 +157,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseTrailingSemicolon() throws Exception
+    void testCanParseTrailingSemicolon() throws Exception
     {
         final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)};");
         assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
@@ -165,7 +165,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseMultipleCommandsOnOneLine() throws Exception
+    void testCanParseMultipleCommandsOnOneLine() throws Exception
     {
         final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)}; watch {5}");
         assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
@@ -174,7 +174,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseSemicolonHash() throws Exception
+    void testCanParseSemicolonHash() throws Exception
     {
         final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)} ;# a comment");
         assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
@@ -182,7 +182,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseSemicolonWithinCommand() throws Exception
+    void testCanParseSemicolonWithinCommand() throws Exception
     {
         final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil;) --> (<s> ^test true)};");
         assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil;) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
@@ -190,7 +190,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseEmptyCommand() throws Exception
+    void testCanParseEmptyCommand() throws Exception
     {
         final ParserBuffer reader = reader(";");
         assertEquals(Arrays.asList(), parser.parseCommand(reader).getArgs());
@@ -198,7 +198,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testCanParseEmptyCommands() throws Exception
+    void testCanParseEmptyCommands() throws Exception
     {
         final ParserBuffer reader = reader(";;;;");
         assertEquals(Arrays.asList(), parser.parseCommand(reader).getArgs());

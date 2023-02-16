@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Timeout;
 /**
  * @author ray
  */
-public class WaterfallTests
+class WaterfallTests
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
@@ -98,7 +98,7 @@ public class WaterfallTests
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         agent.getTrace().enableAll();
@@ -109,7 +109,7 @@ public class WaterfallTests
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.getPrinter().flush();
         agent.dispose();

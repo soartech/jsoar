@@ -19,17 +19,17 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RandIntTest extends JSoarTest
+class RandIntTest extends JSoarTest
 {
     @Test
-    public void testExpectedName()
+    void testExpectedName()
     {
         final RandInt rf = new RandInt(new Random());
         assertEquals("rand-int", rf.getName());
     }
     
     @Test
-    public void testPositiveUpperBoundIsHonored() throws Exception
+    void testPositiveUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
         final RandInt ri = new RandInt(random);
@@ -45,7 +45,7 @@ public class RandIntTest extends JSoarTest
     }
     
     @Test
-    public void testNegativeUpperBoundIsHonored() throws Exception
+    void testNegativeUpperBoundIsHonored() throws Exception
     {
         final Random random = new Random();
         final RandInt ri = new RandInt(random);

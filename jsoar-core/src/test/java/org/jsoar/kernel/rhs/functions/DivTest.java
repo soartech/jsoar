@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DivTest extends JSoarTest
+class DivTest extends JSoarTest
 {
     
     @Test
-    public void testDiv() throws Exception
+    void testDiv() throws Exception
     {
         for(int i = -100; i < 100; ++i)
         {

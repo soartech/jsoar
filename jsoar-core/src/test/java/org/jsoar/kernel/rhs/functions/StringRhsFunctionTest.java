@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class StringRhsFunctionTest extends JSoarTest
+class StringRhsFunctionTest extends JSoarTest
 {
     @Test
-    public void testReturnsEmptyStringWhenGivenNoArgs() throws Exception
+    void testReturnsEmptyStringWhenGivenNoArgs() throws Exception
     {
         final StringRhsFunction f = new StringRhsFunction();
         final Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms));
@@ -29,7 +29,7 @@ public class StringRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertsDoubleToString() throws Exception
+    void testConvertsDoubleToString() throws Exception
     {
         final StringRhsFunction f = new StringRhsFunction();
         final Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, 3.14159));
@@ -37,7 +37,7 @@ public class StringRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertsIntToString() throws Exception
+    void testConvertsIntToString() throws Exception
     {
         final StringRhsFunction f = new StringRhsFunction();
         final Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, -98));
@@ -45,7 +45,7 @@ public class StringRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertsJavaObjectToString() throws Exception
+    void testConvertsJavaObjectToString() throws Exception
     {
         final StringRhsFunction f = new StringRhsFunction();
         final File o = new File("/path/to/something");
@@ -54,7 +54,7 @@ public class StringRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertsIdentifierToString() throws Exception
+    void testConvertsIdentifierToString() throws Exception
     {
         final StringRhsFunction f = new StringRhsFunction();
         final Identifier id = syms.createIdentifier('T');

@@ -17,13 +17,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HandlerCommandTest
+class HandlerCommandTest
 {
     private Agent agent;
     private StringWriter outputWriter = new StringWriter();
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         
@@ -31,7 +31,7 @@ public class HandlerCommandTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
@@ -46,7 +46,7 @@ public class HandlerCommandTest
     }
     
     @Test
-    public void testHandlerEnableDisable() throws Exception
+    void testHandlerEnableDisable() throws Exception
     {
         RhsFunctionManager rhsFunctionManager = agent.getRhsFunctions();
         
@@ -61,7 +61,7 @@ public class HandlerCommandTest
     }
     
     @Test
-    public void testHandlerDisabledFunction() throws Exception
+    void testHandlerDisabledFunction() throws Exception
     {
         // Variables
         Pattern regex = Pattern.compile("^Simple test$", Pattern.MULTILINE);
@@ -96,7 +96,7 @@ public class HandlerCommandTest
     }
     
     @Test
-    public void testHandlerList() throws Exception
+    void testHandlerList() throws Exception
     {
         Pattern regex = Pattern.compile("^\\s*log\\s*$", Pattern.MULTILINE);
         HandlerCommand handlerCommand = new HandlerCommand(agent);

@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RhsFunctionCallTest
+class RhsFunctionCallTest
 {
     @Test
-    public void testPlusFunctionNameIsPrintedWithNoPipes()
+    void testPlusFunctionNameIsPrintedWithNoPipes()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final RhsFunctionCall f = new RhsFunctionCall(syms.createString("+"), false);
@@ -24,7 +24,7 @@ public class RhsFunctionCallTest
     }
     
     @Test
-    public void testMinusFunctionNameIsPrintedWithNoPipes()
+    void testMinusFunctionNameIsPrintedWithNoPipes()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final RhsFunctionCall f = new RhsFunctionCall(syms.createString("-"), false);
@@ -32,7 +32,7 @@ public class RhsFunctionCallTest
     }
     
     @Test
-    public void testDivFunctionNameIsPrintedWithNoPipes()
+    void testDivFunctionNameIsPrintedWithNoPipes()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final RhsFunctionCall f = new RhsFunctionCall(syms.createString("/"), false);

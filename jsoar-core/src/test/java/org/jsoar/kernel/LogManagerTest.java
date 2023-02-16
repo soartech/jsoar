@@ -16,19 +16,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LogManagerTest
+class LogManagerTest
 {
     
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
@@ -38,14 +38,14 @@ public class LogManagerTest
     }
     
     @Test
-    public void testLogManagerCreation() throws Exception
+    void testLogManagerCreation() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         assertNotNull(logManager);
     }
     
     @Test
-    public void testLogManagerInit() throws Exception
+    void testLogManagerInit() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         
@@ -64,7 +64,7 @@ public class LogManagerTest
     }
     
     @Test
-    public void testLogAdd() throws Exception
+    void testLogAdd() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         
@@ -98,7 +98,7 @@ public class LogManagerTest
     }
     
     @Test
-    public void testLogAddStrict() throws Exception
+    void testLogAddStrict() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         
@@ -126,7 +126,7 @@ public class LogManagerTest
     }
     
     @Test
-    public void testLogEnableDisable() throws Exception
+    void testLogEnableDisable() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         
@@ -141,7 +141,7 @@ public class LogManagerTest
     }
     
     @Test
-    public void testLogStrictEnableDisable() throws Exception
+    void testLogStrictEnableDisable() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         

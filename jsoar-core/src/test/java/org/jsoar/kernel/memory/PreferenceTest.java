@@ -11,14 +11,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PreferenceTest extends JSoarTest
+class PreferenceTest extends JSoarTest
 {
     
     /**
      * Test method for {@link org.jsoar.kernel.memory.Preference#formatTo(java.util.Formatter, int, int, int)}.
      */
     @Test
-    public void testFormatTo()
+    void testFormatTo()
     {
         
         // RPM 5/2010 commented this out since it tests a defunct preference type (which I'm removing)

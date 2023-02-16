@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ParserTests extends FunctionalTestHarness
+class ParserTests extends FunctionalTestHarness
 {
     
     @Test
-    public void testForBadBug517Fix() throws Exception
+    void testForBadBug517Fix() throws Exception
     {
         // Original fix for bug 517 (ca. r299) caused a bug in the following production.
         // This tests against the regression.
@@ -36,7 +36,7 @@ public class ParserTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testNegatedConjunctiveTestUnbound() throws Exception
+    void testNegatedConjunctiveTestUnbound() throws Exception
     {
         boolean success;
         

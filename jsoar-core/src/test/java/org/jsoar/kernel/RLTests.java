@@ -29,12 +29,12 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RLTests extends FunctionalTestHarness
+class RLTests extends FunctionalTestHarness
 {
     private static final double tolerance = 0.0000001;
     
     @Test
-    public void testTemplateVariableNameBug1121() throws Exception
+    void testTemplateVariableNameBug1121() throws Exception
     {
         runTest("testTemplateVariableNameBug1121", 1);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
@@ -56,7 +56,7 @@ public class RLTests extends FunctionalTestHarness
      * 
      */
     @Test
-    public void testRLUnitHrlDiscountOn() throws Exception
+    void testRLUnitHrlDiscountOn() throws Exception
     {
         // Set hrl-discount on
         agent.getProperties()
@@ -136,7 +136,7 @@ public class RLTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testRLUnitHrlDiscountOff() throws Exception
+    void testRLUnitHrlDiscountOff() throws Exception
     {
         // Set hrl-discount off
         agent.getProperties()
@@ -258,7 +258,7 @@ public class RLTests extends FunctionalTestHarness
             + "	(<s> ^operator <o> = 2)\n";
     
     @Test
-    public void testChunkStopOn() throws Exception
+    void testChunkStopOn() throws Exception
     {
         // Set chunk-stop on
         agent.getProperties()
@@ -274,7 +274,7 @@ public class RLTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testChunkStopOff() throws Exception
+    void testChunkStopOff() throws Exception
     {
         // Set chunk-stop off
         agent.getProperties()

@@ -22,17 +22,17 @@ public class JdbcToolsTest
 {
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testCanDetectIfATableExists() throws Exception
+    void testCanDetectIfATableExists() throws Exception
     {
         try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
@@ -44,7 +44,7 @@ public class JdbcToolsTest
     }
     
     @Test
-    public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
+    void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {
         try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {
@@ -85,7 +85,7 @@ public class JdbcToolsTest
     }
     
     @Test
-    public void testCanGetLastInsertedRowId() throws Exception
+    void testCanGetLastInsertedRowId() throws Exception
     {
         try(Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:"))
         {

@@ -14,13 +14,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LogTest
+class LogTest
 {
     private Agent agent;
     private StringWriter outputWriter = new StringWriter();
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         
@@ -28,7 +28,7 @@ public class LogTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
@@ -43,7 +43,7 @@ public class LogTest
     }
     
     @Test
-    public void testBasicLog() throws Exception
+    void testBasicLog() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         logManager.setEchoMode(EchoMode.simple);
@@ -59,7 +59,7 @@ public class LogTest
     }
     
     @Test
-    public void testDecoratedLog() throws Exception
+    void testDecoratedLog() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         logManager.setEchoMode(EchoMode.on);
@@ -75,7 +75,7 @@ public class LogTest
     }
     
     @Test
-    public void testLogNoTrace() throws Exception
+    void testLogNoTrace() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         logManager.setEchoMode(EchoMode.off);
@@ -91,7 +91,7 @@ public class LogTest
     }
     
     @Test
-    public void testLogReplacement() throws Exception
+    void testLogReplacement() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         logManager.setEchoMode(EchoMode.simple);
@@ -107,7 +107,7 @@ public class LogTest
     }
     
     @Test
-    public void testLogConcatenation() throws Exception
+    void testLogConcatenation() throws Exception
     {
         LogManager logManager = agent.getLogManager();
         logManager.setEchoMode(EchoMode.simple);

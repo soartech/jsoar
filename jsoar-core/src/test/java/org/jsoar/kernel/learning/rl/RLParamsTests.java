@@ -27,27 +27,27 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RLParamsTests
+class RLParamsTests
 {
     private Agent agent;
     
     private final double DELTA = 0.0000000001;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         this.agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown()
+    void tearDown()
     {
         this.agent.dispose();
         this.agent = null;
     }
     
     @Test
-    public void testRLLearningParameter() throws Exception
+    void testRLLearningParameter() throws Exception
     {
         // Test the default of off
         Learning learning = agent.getProperties().get(ReinforcementLearningParams.LEARNING);
@@ -65,7 +65,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testTemporalExtensionParameter() throws Exception
+    void testTemporalExtensionParameter() throws Exception
     {
         // Test the default of on
         TemporalExtension extension = agent.getProperties()
@@ -84,7 +84,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testDiscountRateParameter() throws Exception
+    void testDiscountRateParameter() throws Exception
     {
         // Test the default of 0.9
         double discount_rate = agent.getProperties()
@@ -108,7 +108,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testLearningPolicyParameter() throws Exception
+    void testLearningPolicyParameter() throws Exception
     {
         // Test the default of sarsa
         LearningPolicy extension = agent.getProperties()
@@ -127,7 +127,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testLearningRateParameter() throws Exception
+    void testLearningRateParameter() throws Exception
     {
         // Test the default of 0.3
         double learning_rate = agent.getProperties()
@@ -151,7 +151,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testHrlDiscountParameter() throws Exception
+    void testHrlDiscountParameter() throws Exception
     {
         // Test the default of off
         HrlDiscount hrl_discount = agent.getProperties().get(ReinforcementLearningParams.HRL_DISCOUNT);
@@ -169,7 +169,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testEligibilityTraceDecayRateParameter() throws Exception
+    void testEligibilityTraceDecayRateParameter() throws Exception
     {
         // Test the default of 0.0
         double discount_rate = agent.getProperties()
@@ -193,7 +193,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testEligibilityTraceToleranceParameter() throws Exception
+    void testEligibilityTraceToleranceParameter() throws Exception
     {
         // Test the default of 0.001
         double et_tolerance = agent.getProperties()
@@ -217,7 +217,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testChunkStopParameter() throws Exception
+    void testChunkStopParameter() throws Exception
     {
         // Test the default of on
         ChunkStop chunk_stop = agent.getProperties()
@@ -236,7 +236,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testDecayModeParameter() throws Exception
+    void testDecayModeParameter() throws Exception
     {
         // Test the default of normal-decay
         DecayMode extension = agent.getProperties()
@@ -265,7 +265,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testMetaParameter() throws Exception
+    void testMetaParameter() throws Exception
     {
         // Test the default of off
         Meta meta = agent.getProperties().get(ReinforcementLearningParams.META);
@@ -283,7 +283,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testMetaLearningRateParameter() throws Exception
+    void testMetaLearningRateParameter() throws Exception
     {
         // Test the default of 0.1
         double meta_learning_rate = agent.getProperties()
@@ -307,7 +307,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testUpdateLogPathParameter() throws Exception
+    void testUpdateLogPathParameter() throws Exception
     {
         // Test the default of ""
         String update_log_path = agent.getProperties()
@@ -331,7 +331,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testApoptosisParameter() throws Exception
+    void testApoptosisParameter() throws Exception
     {
         // Test the default of none
         ApoptosisChoices apoptosis = agent.getProperties()
@@ -355,7 +355,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testApoptosisDecayParameter() throws Exception
+    void testApoptosisDecayParameter() throws Exception
     {
         // Test the default of 0.5
         double apoptosis_decay = agent.getProperties()
@@ -384,7 +384,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testApoptosisThreshParameter() throws Exception
+    void testApoptosisThreshParameter() throws Exception
     {
         // Test the default of -2.0
         double apoptosis_thresh = agent.getProperties()
@@ -413,7 +413,7 @@ public class RLParamsTests
     }
     
     @Test
-    public void testTraceParameter() throws Exception
+    void testTraceParameter() throws Exception
     {
         // Test the default of off
         Trace trace = agent.getProperties().get(ReinforcementLearningParams.TRACE);

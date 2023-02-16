@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class MinusTest extends JSoarTest
+class MinusTest extends JSoarTest
 {
     
     @Test
-    public void testZeroArgs() throws Exception
+    void testZeroArgs() throws Exception
     {
         Minus minus = new Minus();
         
@@ -27,7 +27,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testOneIntArg() throws Exception
+    void testOneIntArg() throws Exception
     {
         Minus minus = new Minus();
         
@@ -35,7 +35,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testOneLargeIntArg() throws Exception
+    void testOneLargeIntArg() throws Exception
     {
         Minus minus = new Minus();
         
@@ -43,7 +43,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testOneFloatArg() throws Exception
+    void testOneFloatArg() throws Exception
     {
         Minus minus = new Minus();
         
@@ -51,7 +51,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testMixedArgs() throws Exception
+    void testMixedArgs() throws Exception
     {
         Minus minus = new Minus();
         
@@ -59,7 +59,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testIntArgs() throws Exception
+    void testIntArgs() throws Exception
     {
         Minus minus = new Minus();
         
@@ -67,7 +67,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testLargeIntArgs() throws Exception
+    void testLargeIntArgs() throws Exception
     {
         Minus minus = new Minus();
         
@@ -75,7 +75,7 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
-    public void testFloatArgs() throws Exception
+    void testFloatArgs() throws Exception
     {
         Minus minus = new Minus();
         

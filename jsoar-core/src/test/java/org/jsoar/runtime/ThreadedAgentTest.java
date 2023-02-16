@@ -70,7 +70,7 @@ public class ThreadedAgentTest
     }
     
     @Test
-    public void testMultipleCallsToAttachReturnSameInstance() throws Exception
+    void testMultipleCallsToAttachReturnSameInstance() throws Exception
     {
         final Agent agent = new Agent();
         assertNull(ThreadedAgent.find(agent));
@@ -94,7 +94,7 @@ public class ThreadedAgentTest
     }
     
     @Test
-    public void testAttachedEventIsFired() throws Exception
+    void testAttachedEventIsFired() throws Exception
     {
         final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<>();
         final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentAttachedEvent) event).getAgent());
@@ -105,7 +105,7 @@ public class ThreadedAgentTest
     }
     
     @Test
-    public void testDetachedEventIsFired() throws Exception
+    void testDetachedEventIsFired() throws Exception
     {
         final AtomicReference<ThreadedAgent> gotIt = new AtomicReference<>();
         final SoarEventListener listener = event -> gotIt.set(((ThreadedAgentDetachedEvent) event).getAgent());
@@ -118,7 +118,7 @@ public class ThreadedAgentTest
     }
     
     @Test
-    public void testAgentThreadCatchesUncaughtExceptions() throws Exception
+    void testAgentThreadCatchesUncaughtExceptions() throws Exception
     {
         final ThreadedAgent agent = ThreadedAgent.create();
         

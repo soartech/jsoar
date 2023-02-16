@@ -13,7 +13,7 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.jupiter.api.Test;
 
-public class EpMemSaveToDbTests extends FunctionalTestHarness
+class EpMemSaveToDbTests extends FunctionalTestHarness
 {
     protected Connection getConnection()
     {
@@ -24,7 +24,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testPersistentVariablesTable() throws Exception
+    void testPersistentVariablesTable() throws Exception
     {
         runTest("store", 2);
         /*
@@ -71,7 +71,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSymbolsStringTable() throws Exception
+    void testSymbolsStringTable() throws Exception
     {
         runTest("store", 2);
         /*

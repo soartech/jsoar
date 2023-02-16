@@ -25,18 +25,18 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class WmeSupportInfoTest
+class WmeSupportInfoTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown()
+    void tearDown()
     {
     }
     
@@ -44,7 +44,7 @@ public class WmeSupportInfoTest
      * Test method for {@link org.jsoar.kernel.memory.WmeSupportInfo#get(org.jsoar.kernel.Agent, org.jsoar.kernel.memory.Wme)}.
      */
     @Test
-    public void testGet() throws Exception
+    void testGet() throws Exception
     {
         ProductionManager pm = agent.getProductions();
         

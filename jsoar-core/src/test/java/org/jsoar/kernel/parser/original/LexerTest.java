@@ -16,7 +16,7 @@ import org.jsoar.kernel.parser.PossibleSymbolTypes;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.jupiter.api.Test;
 
-public class LexerTest
+class LexerTest
 {
     private Lexer createLexer(String contents) throws IOException
     {
@@ -24,7 +24,7 @@ public class LexerTest
     }
     
     @Test
-    public void testLexInteger() throws Exception
+    void testLexInteger() throws Exception
     {
         Lexer lexer = createLexer("123456");
         
@@ -38,7 +38,7 @@ public class LexerTest
     }
     
     @Test
-    public void testCanLexLargeInteger() throws Exception
+    void testCanLexLargeInteger() throws Exception
     {
         Lexer lexer = createLexer("12345678910");
         
@@ -52,7 +52,7 @@ public class LexerTest
     }
     
     @Test
-    public void testLexIntegerThatStartsWithPlus() throws Exception
+    void testLexIntegerThatStartsWithPlus() throws Exception
     {
         Lexer lexer = createLexer("+123456");
         
@@ -66,7 +66,7 @@ public class LexerTest
     }
     
     @Test
-    public void testLexFloat() throws Exception
+    void testLexFloat() throws Exception
     {
         Lexer lexer = createLexer("123.456");
         
@@ -80,7 +80,7 @@ public class LexerTest
     }
     
     @Test
-    public void testLexString() throws Exception
+    void testLexString() throws Exception
     {
         Lexer lexer = createLexer("|This is a string|");
         
@@ -94,7 +94,7 @@ public class LexerTest
     }
     
     @Test
-    public void testIdentifier() throws Exception
+    void testIdentifier() throws Exception
     {
         Lexer lexer = createLexer("S123");
         
@@ -110,7 +110,7 @@ public class LexerTest
     }
     
     @Test
-    public void testLexerCanParseIdentifiersWithLongNumbers() throws Exception
+    void testLexerCanParseIdentifiersWithLongNumbers() throws Exception
     {
         Lexer lexer = createLexer("S1000000000000"); // > size of integer
         
@@ -126,7 +126,7 @@ public class LexerTest
     }
     
     @Test
-    public void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()
+    void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()
     {
         final PossibleSymbolTypes pst = Lexer.determine_possible_symbol_types_for_string("5000000000");
         assertNotNull(pst);
@@ -134,7 +134,7 @@ public class LexerTest
     }
     
     @Test
-    public void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
+    void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
     {
         Lexer lexer = createLexer("5000000000000000000000000000000000000000000000000000000000000000000");
         lexer.getNextLexeme();

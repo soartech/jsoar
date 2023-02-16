@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class FloatRhsFunctionTest extends JSoarTest
+class FloatRhsFunctionTest extends JSoarTest
 {
     
     @Test
-    public void testConvertString() throws Exception
+    void testConvertString() throws Exception
     {
         FloatRhsFunction f = new FloatRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "3.14159"));
@@ -27,7 +27,7 @@ public class FloatRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertInt() throws Exception
+    void testConvertInt() throws Exception
     {
         FloatRhsFunction f = new FloatRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, 3));

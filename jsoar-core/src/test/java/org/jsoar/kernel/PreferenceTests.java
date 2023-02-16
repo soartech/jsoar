@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Timeout;
 /**
  * @author ray
  */
-public class PreferenceTests extends FunctionalTestHarness
+class PreferenceTests extends FunctionalTestHarness
 {
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
@@ -23,31 +23,31 @@ public class PreferenceTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testTieImpasse() throws Exception
+    void testTieImpasse() throws Exception
     {
         runTest("testTieImpasse", 1);
     }
     
     @Test
-    public void testConflictImpasse() throws Exception
+    void testConflictImpasse() throws Exception
     {
         runTest("testConflictImpasse", 1);
     }
     
     @Test
-    public void testConstraintFailureImpasse() throws Exception
+    void testConstraintFailureImpasse() throws Exception
     {
         runTest("testConstraintFailureImpasse", 1);
     }
     
     @Test
-    public void testOperatorNoChangeImpasse() throws Exception
+    void testOperatorNoChangeImpasse() throws Exception
     {
         runTest("testOperatorNoChangeImpasse", 2);
     }
     
     @Test
-    public void testStateNoChangeImpasse() throws Exception
+    void testStateNoChangeImpasse() throws Exception
     {
         runTest("testStateNoChangeImpasse", 1);
     }
@@ -60,7 +60,7 @@ public class PreferenceTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testDeallocation() throws Exception
+    void testDeallocation() throws Exception
     {
         runTest("testDeallocation", 6);
     }

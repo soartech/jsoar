@@ -29,7 +29,7 @@ import com.google.common.collect.Iterators;
 /**
  * @author ray
  */
-public class SoarQMemoryAdapterTest extends JSoarTest
+class SoarQMemoryAdapterTest extends JSoarTest
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
@@ -68,7 +68,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
         
@@ -82,13 +82,13 @@ public class SoarQMemoryAdapterTest extends JSoarTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
     @Test
-    public void testBasicInput() throws Exception
+    void testBasicInput() throws Exception
     {
         sourceTestFile("testBasicInput.soar");
         QMemory qmem = DefaultQMemory.create();
@@ -120,7 +120,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     }
     
     @Test
-    public void testBasicOutput() throws Exception
+    void testBasicOutput() throws Exception
     {
         sourceTestFile("testBasicOutput.soar");
         
@@ -138,7 +138,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     }
     
     @Test
-    public void testCircularReference() throws Exception
+    void testCircularReference() throws Exception
     {
         sourceTestFile("testCircularReference.soar");
         
@@ -156,7 +156,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     }
     
     @Test
-    public void testDetach() throws Exception
+    void testDetach() throws Exception
     {
         ifc.eval("soar wait-snc --on");
         
@@ -184,7 +184,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     }
     
     @Test
-    public void testGetNameFromPath()
+    void testGetNameFromPath()
     {
         assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[1]"));
         assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[hello there]"));

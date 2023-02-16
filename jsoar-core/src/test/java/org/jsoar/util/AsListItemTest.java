@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class AsListItemTest
 {
     @Test
-    public void testInsertAtHead()
+    void testInsertAtHead()
     {
         ListHead<String> head = ListHead.newInstance();
         assertTrue(head.isEmpty());
@@ -39,7 +39,7 @@ public class AsListItemTest
     }
     
     @Test
-    public void testRemove()
+    void testRemove()
     {
         ListHead<String> head = ListHead.fromCollection(Arrays.asList("a", "b", "c"));
         ListItem<String> a = head.first;

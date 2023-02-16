@@ -20,14 +20,14 @@ import org.junit.jupiter.api.Timeout;
  * @author charles.newton
  * @see org.jsoar.kernel.commands.LoadCommand.ReteNet
  */
-public class ReteNetCommandTest
+class ReteNetCommandTest
 {
     private Agent revivedAgent;
     private Agent originalAgent;
     private FunctionalTests funTests;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         funTests = new FunctionalTests();
         funTests.setUp();
@@ -38,7 +38,7 @@ public class ReteNetCommandTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         funTests.tearDown();
         revivedAgent.dispose();
@@ -71,13 +71,13 @@ public class ReteNetCommandTest
     }
     
     @Test
-    public void testTowersOfHanoi() throws Exception
+    void testTowersOfHanoi() throws Exception
     {
         runTest("testTowersOfHanoi", 2048, 0);
     }
     
     @Test
-    public void testTowersOfHanoiFast() throws Exception
+    void testTowersOfHanoiFast() throws Exception
     {
         runTest("testTowersOfHanoiFast", 2047, 0);
     }
@@ -111,7 +111,7 @@ public class ReteNetCommandTest
     }
     
     @Test
-    public void testBlocksWorldLookAhead2() throws Exception
+    void testBlocksWorldLookAhead2() throws Exception
     {
         runTest("testBlocksWorldLookAhead", 29, 100000000002L);
     }

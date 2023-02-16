@@ -14,7 +14,7 @@ import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.jupiter.api.Test;
 
-public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
+class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
 {
     protected Connection getConnection()
     {
@@ -330,7 +330,7 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
     }
     
     @Test
-    public void testRetrieval() throws Exception
+    void testRetrieval() throws Exception
     {
         // Since this is the retrieve tests, these tests have to stop after output
         // (ie. before INPUT). I changed this to Phase.APPLY so this broke all the tests.

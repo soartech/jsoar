@@ -23,7 +23,7 @@ public class SoarEventsTest
     }
     
     @Test
-    public void testListenForSingleEvent()
+    void testListenForSingleEvent()
     {
         final List<TestEvent> caughtEvents = new ArrayList<>();
         final SoarEventManager manager = new SoarEventManager();

@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class FloatingPointDivideTest extends JSoarTest
+class FloatingPointDivideTest extends JSoarTest
 {
     
     @Test
-    public void testZeroArgs()
+    void testZeroArgs()
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
@@ -27,7 +27,7 @@ public class FloatingPointDivideTest extends JSoarTest
     }
     
     @Test
-    public void testOneIntArg() throws Exception
+    void testOneIntArg() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
@@ -35,7 +35,7 @@ public class FloatingPointDivideTest extends JSoarTest
     }
     
     @Test
-    public void testOneFloatArg() throws Exception
+    void testOneFloatArg() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
@@ -43,7 +43,7 @@ public class FloatingPointDivideTest extends JSoarTest
     }
     
     @Test
-    public void testMixedArgs() throws Exception
+    void testMixedArgs() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
@@ -51,7 +51,7 @@ public class FloatingPointDivideTest extends JSoarTest
     }
     
     @Test
-    public void testIntArgs() throws Exception
+    void testIntArgs() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         
@@ -59,7 +59,7 @@ public class FloatingPointDivideTest extends JSoarTest
     }
     
     @Test
-    public void testFloatArgs() throws Exception
+    void testFloatArgs() throws Exception
     {
         FloatingPointDivide divide = new FloatingPointDivide();
         

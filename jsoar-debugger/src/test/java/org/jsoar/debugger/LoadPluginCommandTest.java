@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class LoadPluginCommandTest
+class LoadPluginCommandTest
 {
     public static class TestPlugin implements JSoarDebuggerPlugin
     {
@@ -29,7 +29,7 @@ public class LoadPluginCommandTest
     JSoarDebugger debugger;
     
     @Test
-    public void testLoadPlugin() throws SoarException
+    void testLoadPlugin() throws SoarException
     {
         Agent agent = new Agent();
         agent.getInterpreter().addCommand("load-plugin", new LoadPluginCommand(this.debugger));

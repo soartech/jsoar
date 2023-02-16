@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ReteBuilderTest
+class ReteBuilderTest
 {
     @Test
-    public void testDummy()
+    void testDummy()
     {
         
     }

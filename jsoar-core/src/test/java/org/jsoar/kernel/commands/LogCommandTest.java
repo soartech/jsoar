@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class LogCommandTest
+class LogCommandTest
 {
     private Agent agent;
     private StringWriter outputWriter = new StringWriter();
@@ -30,7 +30,7 @@ public class LogCommandTest
     private LogCommand logCommand;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         agent.getPrinter().addPersistentWriter(outputWriter);
@@ -39,7 +39,7 @@ public class LogCommandTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
@@ -54,7 +54,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogInit() throws Exception
+    void testLogInit() throws Exception
     {
         Set<String> testSet = new HashSet<>();
         testSet.add("default");
@@ -71,7 +71,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogAdd() throws Exception
+    void testLogAdd() throws Exception
     {
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--strict", "disable" });
         assertFalse(logManager.isStrict());
@@ -103,7 +103,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogAddStrict() throws Exception
+    void testLogAddStrict() throws Exception
     {
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--strict", "enable" });
         assertTrue(logManager.isStrict());
@@ -129,7 +129,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogEnableDisable() throws Exception
+    void testLogEnableDisable() throws Exception
     {
         logManager.setActive(true);
         assertTrue(logManager.isActive());
@@ -154,7 +154,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogLevel() throws Exception
+    void testLogLevel() throws Exception
     {
         logManager.setStrict(false);
         
@@ -168,7 +168,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testLogDefault() throws Exception
+    void testLogDefault() throws Exception
     {
         logManager.setStrict(false);
         
@@ -178,7 +178,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testEchoBasic() throws Exception
+    void testEchoBasic() throws Exception
     {
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--echo", "simple" });
         assertEquals(logManager.getEchoMode(), EchoMode.simple);
@@ -190,7 +190,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testEchoOff() throws Exception
+    void testEchoOff() throws Exception
     {
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--echo", "off" });
         assertEquals(logManager.getEchoMode(), EchoMode.off);
@@ -202,7 +202,7 @@ public class LogCommandTest
     }
     
     @Test
-    public void testEchoOn() throws Exception
+    void testEchoOn() throws Exception
     {
         logCommand.execute(DefaultSoarCommandContext.empty(), new String[] { "log", "--echo", "on" });
         assertEquals(logManager.getEchoMode(), EchoMode.on);

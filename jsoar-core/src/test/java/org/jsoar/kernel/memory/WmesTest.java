@@ -23,7 +23,7 @@ import org.jsoar.kernel.symbols.Symbols;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class WmesTest
+class WmesTest
 {
     private SymbolFactory syms;
     private MockFactory factory;
@@ -61,14 +61,14 @@ public class WmesTest
     }
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         syms = new SymbolFactoryImpl();
         factory = new MockFactory();
     }
     
     @Test
-    public void testCreateLinkedListWithEmptyListReturnsNil()
+    void testCreateLinkedListWithEmptyListReturnsNil()
     {
         final Symbol result = Wmes.createLinkedList(factory, Collections.emptyList().iterator());
         assertNotNull(result);
@@ -77,7 +77,7 @@ public class WmesTest
     }
     
     @Test
-    public void testCreateLinkedListWithOneEntry()
+    void testCreateLinkedListWithOneEntry()
     {
         final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first").iterator()).asIdentifier();
         assertNotNull(result);
@@ -87,7 +87,7 @@ public class WmesTest
     }
     
     @Test
-    public void testCreateLinkedListWithTwoEntries()
+    void testCreateLinkedListWithTwoEntries()
     {
         final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first", 99).iterator()).asIdentifier();
         assertNotNull(result);

@@ -18,10 +18,10 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.junit.jupiter.api.Test;
 
-public class SimpleMatcherTest
+class SimpleMatcherTest
 {
     @Test
-    public void testSimpleMatcherRefProdsByObject() throws Exception
+    void testSimpleMatcherRefProdsByObject() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -78,7 +78,7 @@ public class SimpleMatcherTest
     }
     
     @Test
-    public void testSimpleMatcherRefProdsByName() throws Exception
+    void testSimpleMatcherRefProdsByName() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -143,7 +143,7 @@ public class SimpleMatcherTest
     }
     
     @Test
-    public void testSimpleMatcherRemovalsByAll() throws Exception
+    void testSimpleMatcherRemovalsByAll() throws Exception
     {
         final SimpleMatcher matcher = new SimpleMatcher();
         
@@ -205,7 +205,7 @@ public class SimpleMatcherTest
     }
     
     @Test
-    public void testSimpleMatcherMultipleInstances() throws Exception
+    void testSimpleMatcherMultipleInstances() throws Exception
     {
         final int NUM_WMES = 10;
         final SimpleMatcher matcher = new SimpleMatcher();

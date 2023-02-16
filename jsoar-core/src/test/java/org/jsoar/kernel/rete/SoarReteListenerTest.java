@@ -18,25 +18,25 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SoarReteListenerTest
+class SoarReteListenerTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent("SoarReteListenerTest");
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
         agent = null;
     }
     
     @Test
-    public void testInterruptsTheAgentWhenTheInterruptFlagIsSet() throws Exception
+    void testInterruptsTheAgentWhenTheInterruptFlagIsSet() throws Exception
     {
         agent.getProductions().loadProduction(
                 "propose*init\n" +
@@ -63,7 +63,7 @@ public class SoarReteListenerTest
     }
     
     @Test
-    public void testInterruptsTheAgentWhenBreakpointIsEnabled() throws Exception
+    void testInterruptsTheAgentWhenBreakpointIsEnabled() throws Exception
     {
         agent.getProductions().loadProduction(
                 "propose*init\n" +

@@ -24,13 +24,13 @@ public class WaitRhsFunctionTest
     private ThreadedAgent agent;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         this.agent = ThreadedAgent.create();
     }
     
     @AfterEach
-    public void tearDown()
+    void tearDown()
     {
         this.agent.detach();
     }

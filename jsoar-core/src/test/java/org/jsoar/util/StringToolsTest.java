@@ -24,7 +24,7 @@ public class StringToolsTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -32,24 +32,24 @@ public class StringToolsTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testJoiningEmptyCollectionReturnsEmptyString()
+    void testJoiningEmptyCollectionReturnsEmptyString()
     {
         assertEquals("", StringTools.join(new ArrayList<String>(), ", "));
     }
     
     @Test
-    public void testJoiningSingleElementCollectionReturnsSingleString()
+    void testJoiningSingleElementCollectionReturnsSingleString()
     {
         assertEquals("hello there", StringTools.join(Arrays.asList("hello there"), ", "));
     }
     
     @Test
-    public void testJoinMultipleArguments()
+    void testJoinMultipleArguments()
     {
         assertEquals("1, 2, 3", StringTools.join(Arrays.asList(1, 2, 3), ", "));
     }

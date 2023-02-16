@@ -37,7 +37,7 @@ public abstract class TclTestBase
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.ifc = SoarTclInterface.findOrCreate(agent);
@@ -47,7 +47,7 @@ public abstract class TclTestBase
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         SoarTclInterface.dispose(ifc);
     }

@@ -17,7 +17,7 @@ public class ByRefTest
 {
     
     @Test
-    public void testCreateFromNull()
+    void testCreateFromNull()
     {
         ByRef<ByRefTest> ref = ByRef.create(null);
         assertNotNull(ref);

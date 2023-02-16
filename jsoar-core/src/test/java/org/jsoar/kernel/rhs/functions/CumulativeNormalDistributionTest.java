@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test;
  * @author chris.kawatsu
  *
  */
-public class CumulativeNormalDistributionTest extends JSoarTest
+class CumulativeNormalDistributionTest extends JSoarTest
 {
     @Test
-    public void testZero() throws Exception
+    void testZero() throws Exception
     {
         final CumulativeNormalDistribution cndf = new CumulativeNormalDistribution();
         final Symbol result = cndf.execute(rhsFuncContext, Symbols.asList(syms, 0.0d));
@@ -28,7 +28,7 @@ public class CumulativeNormalDistributionTest extends JSoarTest
     }
     
     @Test
-    public void testOne() throws Exception
+    void testOne() throws Exception
     {
         final CumulativeNormalDistribution cndf = new CumulativeNormalDistribution();
         final Symbol result = cndf.execute(rhsFuncContext, Symbols.asList(syms, 1.0d));

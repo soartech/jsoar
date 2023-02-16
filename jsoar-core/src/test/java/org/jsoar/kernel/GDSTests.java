@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
 /**
  * @author ray
  */
-public class GDSTests extends FunctionalTestHarness
+class GDSTests extends FunctionalTestHarness
 {
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
@@ -43,13 +43,13 @@ public class GDSTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimple() throws Exception
+    void testSimple() throws Exception
     {
         runTest("testSimple", 5);
     }
     
     @Test
-    public void testDoubleSupport() throws Exception
+    void testDoubleSupport() throws Exception
     {
         runTest("testDoubleSupport", 5);
         assertEquals(2, agent.getGoalStack().size());
@@ -63,7 +63,7 @@ public class GDSTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testMultiLevel1() throws Exception
+    void testMultiLevel1() throws Exception
     {
         runTest("testMultiLevel1", 5);
         
@@ -71,7 +71,7 @@ public class GDSTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testMultiLevel2() throws Exception
+    void testMultiLevel2() throws Exception
     {
         runTest("testMultiLevel2", 5);
         

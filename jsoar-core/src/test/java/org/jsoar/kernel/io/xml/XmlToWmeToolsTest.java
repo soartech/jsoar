@@ -25,25 +25,25 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class XmlToWmeToolsTest
+class XmlToWmeToolsTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testAddXmlInputWithDefaultAttribute() throws Exception
+    void testAddXmlInputWithDefaultAttribute() throws Exception
     {
         final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
         XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter);
@@ -56,7 +56,7 @@ public class XmlToWmeToolsTest
     }
     
     @Test
-    public void testAddXmlInputWithExplicitAttribute() throws Exception
+    void testAddXmlInputWithExplicitAttribute() throws Exception
     {
         final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
         XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter, "another-attr");
@@ -69,7 +69,7 @@ public class XmlToWmeToolsTest
     }
     
     @Test
-    public void testAddXmlInputToInputWmeWithExplicitAttribute() throws Exception
+    void testAddXmlInputToInputWmeWithExplicitAttribute() throws Exception
     {
         final ByRef<InputWme> loc = new ByRef<>();
         SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,
@@ -92,7 +92,7 @@ public class XmlToWmeToolsTest
     }
     
     @Test
-    public void testAddXmlInputToInputWmeWithDefaultAttribute() throws Exception
+    void testAddXmlInputToInputWmeWithDefaultAttribute() throws Exception
     {
         final ByRef<InputWme> loc = new ByRef<>();
         SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class,

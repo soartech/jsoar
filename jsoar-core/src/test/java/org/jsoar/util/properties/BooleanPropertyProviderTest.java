@@ -22,7 +22,7 @@ public class BooleanPropertyProviderTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -30,7 +30,7 @@ public class BooleanPropertyProviderTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
@@ -38,7 +38,7 @@ public class BooleanPropertyProviderTest
      * Test method for {@link org.jsoar.util.properties.BooleanPropertyProvider#toString()}.
      */
     @Test
-    public void testToString()
+    void testToString()
     {
         final PropertyKey<Boolean> key = PropertyKey.builder("testToString", Boolean.class).defaultValue(true).build();
         final BooleanPropertyProvider provider = new BooleanPropertyProvider(key);

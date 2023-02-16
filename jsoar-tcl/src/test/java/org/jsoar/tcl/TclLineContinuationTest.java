@@ -17,14 +17,14 @@ import com.google.common.io.ByteStreams;
  * 
  * @author charles.newton
  */
-public class TclLineContinuationTest extends TclTestBase
+class TclLineContinuationTest extends TclTestBase
 {
     
     /**
      * Test sourcing via a URL.
      */
     @Test
-    public void testSourceURL() throws Exception
+    void testSourceURL() throws Exception
     {
         sourceTestFile(getClass(), "textExecute.soar");
     }
@@ -33,7 +33,7 @@ public class TclLineContinuationTest extends TclTestBase
      * Test sourcing via a file.
      */
     @Test
-    public void testSourceFile() throws Exception
+    void testSourceFile() throws Exception
     {
         URL url = getSourceTestFile(getClass(), "textExecute.soar");
         final InputStream in = new BufferedInputStream(url.openStream());
@@ -51,7 +51,7 @@ public class TclLineContinuationTest extends TclTestBase
      * Test sourcing via a call to eval.
      */
     @Test
-    public void testSourceEval() throws Exception
+    void testSourceEval() throws Exception
     {
         URL url = getSourceTestFile(getClass(), "textExecute.soar");
         final InputStream in = new BufferedInputStream(url.openStream());

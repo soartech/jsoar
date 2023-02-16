@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class CapitalizeSymbolTest extends JSoarTest
+class CapitalizeSymbolTest extends JSoarTest
 {
     
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         CapitalizeSymbol capitalizeSymbol = new CapitalizeSymbol();
         

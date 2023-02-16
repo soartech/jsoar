@@ -13,7 +13,7 @@ package org.jsoar.kernel.commands;
  * import org.jsoar.kernel.commands.ExplainBacktracesCommand.Options;
  * import org.junit.Test;
  * 
- * public class ExplainBacktracesCommandTest
+ * class ExplainBacktracesCommandTest
  * {
  * 
  * @Test

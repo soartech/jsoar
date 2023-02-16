@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class IntRhsFunctionTest extends JSoarTest
+class IntRhsFunctionTest extends JSoarTest
 {
     
     @Test
-    public void testConvertString() throws Exception
+    void testConvertString() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "99"));
@@ -28,7 +28,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringNegative() throws Exception
+    void testConvertStringNegative() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "-99"));
@@ -36,7 +36,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringWithLargeInteger() throws Exception
+    void testConvertStringWithLargeInteger() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "999999999999999"));
@@ -44,7 +44,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringWithDouble() throws Exception
+    void testConvertStringWithDouble() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "3.14159"));
@@ -52,7 +52,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringWithRoundedDouble() throws Exception
+    void testConvertStringWithRoundedDouble() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "3.0"));
@@ -60,7 +60,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringWithNaN() throws Exception
+    void testConvertStringWithNaN() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -75,7 +75,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertEmptyString() throws Exception
+    void testConvertEmptyString() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -90,7 +90,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertNonSenseString() throws Exception
+    void testConvertNonSenseString() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -105,7 +105,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertMinus() throws Exception
+    void testConvertMinus() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -120,7 +120,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertDoubleMinus() throws Exception
+    void testConvertDoubleMinus() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -135,7 +135,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertStringWithInfinity() throws Exception
+    void testConvertStringWithInfinity() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         try
@@ -150,7 +150,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testConvertDouble() throws Exception
+    void testConvertDouble() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, 3.14159));
@@ -158,7 +158,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testExponential() throws Exception
+    void testExponential() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "3.14159e5"));
@@ -172,7 +172,7 @@ public class IntRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testStringBehavior() throws Exception
+    void testStringBehavior() throws Exception
     {
         IntRhsFunction f = new IntRhsFunction();
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "123abc"));

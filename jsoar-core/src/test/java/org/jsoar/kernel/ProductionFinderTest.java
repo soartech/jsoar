@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ProductionFinderTest
+class ProductionFinderTest
 {
     private Agent agent;
     
@@ -28,7 +28,7 @@ public class ProductionFinderTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
@@ -37,7 +37,7 @@ public class ProductionFinderTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
@@ -51,7 +51,7 @@ public class ProductionFinderTest
     }
     
     @Test
-    public void testLeftHandSide() throws Exception
+    void testLeftHandSide() throws Exception
     {
         loadFile("testLeftHandSide");
         
@@ -70,7 +70,7 @@ public class ProductionFinderTest
     }
     
     @Test
-    public void testRightHandSide() throws Exception
+    void testRightHandSide() throws Exception
     {
         loadFile("testRightHandSide");
         

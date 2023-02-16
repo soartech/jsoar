@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ReteUnitTest extends JSoarTest
+class ReteUnitTest extends JSoarTest
 {
     private Rete rete;
     private Listener listener;
@@ -112,7 +112,7 @@ public class ReteUnitTest extends JSoarTest
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
         
@@ -156,7 +156,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testInitDummyTopNode() throws Exception
+    void testInitDummyTopNode() throws Exception
     {
         assertNotNull(rete.dummy_top_node);
         assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
@@ -167,7 +167,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testAddProductionToRete() throws Exception
+    void testAddProductionToRete() throws Exception
     {
         Production p = parseProduction(
                 "testAddProductionToRete \n" +
@@ -188,7 +188,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testSimpleAddWmeToRete() throws Exception
+    void testSimpleAddWmeToRete() throws Exception
     {
         Production p = parseProduction(
                 "testAddProductionToRete \n" +
@@ -241,7 +241,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testReteWithNegatedConjunctiveCondition() throws Exception
+    void testReteWithNegatedConjunctiveCondition() throws Exception
     {
         Production p = parseProduction(
                 "testReteWithNegatedConjunctiveCondition \n" +
@@ -290,7 +290,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testSimpleReteTests() throws Exception
+    void testSimpleReteTests() throws Exception
     {
         Production p = parseProduction(
                 "testAddProductionToRete \n" +
@@ -343,7 +343,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testAddProductionSimpleMakeAction() throws Exception
+    void testAddProductionSimpleMakeAction() throws Exception
     {
         Production p = parseProduction(
                 "testAddProductionSimpleMakeAction \n" +
@@ -359,7 +359,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testAddTwoProductionsToRete() throws Exception
+    void testAddTwoProductionsToRete() throws Exception
     {
         Production p = parseProduction(
                 "testAddTwoProductionsToRete1 \n" +
@@ -387,7 +387,7 @@ public class ReteUnitTest extends JSoarTest
     }
     
     @Test
-    public void testAddProblematicTowersOfHanoiProduction() throws Exception
+    void testAddProblematicTowersOfHanoiProduction() throws Exception
     {
         Production p = parseProduction("towers-of-hanoi*propose*initialize\n" +
                 "   (state <s> ^superstate nil\n" +

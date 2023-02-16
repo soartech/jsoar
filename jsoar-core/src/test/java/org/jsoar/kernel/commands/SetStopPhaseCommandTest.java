@@ -21,13 +21,13 @@ import org.jsoar.util.properties.PropertyManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SetStopPhaseCommandTest
+class SetStopPhaseCommandTest
 {
     private PropertyManager props;
     private SoarSettingsCommand command;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         Agent agent = new Agent();
         props = agent.getProperties();
@@ -35,7 +35,7 @@ public class SetStopPhaseCommandTest
     }
     
     @Test
-    public void testThrowsExceptionOnUnknownOption()
+    void testThrowsExceptionOnUnknownOption()
     {
         assertThrows(SoarException.class, () -> verify(null, "unknown"));
     }
@@ -43,31 +43,31 @@ public class SetStopPhaseCommandTest
     // input -> propose -> decision -> apply -> output
     
     @Test
-    public void testSetToAfterInput() throws Exception
+    void testSetToAfterInput() throws Exception
     {
         verify(Phase.INPUT, "input");
     }
     
     @Test
-    public void testSetToAfterPropose() throws Exception
+    void testSetToAfterPropose() throws Exception
     {
         verify(Phase.PROPOSE, "proposal");
     }
     
     @Test
-    public void testSetToDecision() throws Exception
+    void testSetToDecision() throws Exception
     {
         verify(Phase.DECISION, "decide");
     }
     
     @Test
-    public void testSetToApply() throws Exception
+    void testSetToApply() throws Exception
     {
         verify(Phase.APPLY, "apply");
     }
     
     @Test
-    public void testSetToOutput() throws Exception
+    void testSetToOutput() throws Exception
     {
         verify(Phase.OUTPUT, "output");
     }

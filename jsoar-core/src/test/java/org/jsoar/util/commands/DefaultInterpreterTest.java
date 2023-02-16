@@ -32,7 +32,7 @@ public class DefaultInterpreterTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.interp = new DefaultInterpreter(agent);
@@ -42,13 +42,13 @@ public class DefaultInterpreterTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testPassesCommandContextToCommand() throws Exception
+    void testPassesCommandContextToCommand() throws Exception
     {
         final AtomicReference<SoarCommandContext> context = new AtomicReference<>();
         interp.addCommand("testCommandContext", new SoarCommand()
@@ -79,7 +79,7 @@ public class DefaultInterpreterTest
     }
     
     @Test
-    public void testCanChooseACommandBasedOnAPrefix() throws Exception
+    void testCanChooseACommandBasedOnAPrefix() throws Exception
     {
         final AtomicBoolean called = new AtomicBoolean(false);
         interp.addCommand("testCanChoose", new SoarCommand()
@@ -128,7 +128,7 @@ public class DefaultInterpreterTest
     }
     
     @Test
-    public void testCanLoadRelativePathInJar() throws Exception
+    void testCanLoadRelativePathInJar() throws Exception
     {
         // it turns out that loading a file from a jar whose path contains a "." causes problems
         // this problem can arise via a sequence like this (which NGS used to do):

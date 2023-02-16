@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class StrLenTest extends JSoarTest
+class StrLenTest extends JSoarTest
 {
     
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         StrLen strlen = new StrLen();
         

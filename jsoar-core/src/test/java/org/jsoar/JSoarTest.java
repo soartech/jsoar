@@ -63,18 +63,18 @@ public class JSoarTest
     };
     
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         this.syms = new SymbolFactoryImpl();
     }
     
     @BeforeAll
-    public static void configureLogging()
+    static void configureLogging()
     {
     }
     
     @AfterAll
-    public static void unconfigureLogging()
+    static void unconfigureLogging()
     {
     }
     

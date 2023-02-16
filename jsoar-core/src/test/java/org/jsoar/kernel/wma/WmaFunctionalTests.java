@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class WmaFunctionalTests extends FunctionalTestHarness
+class WmaFunctionalTests extends FunctionalTestHarness
 {
     @Test
-    public void testSimpleActivation() throws Exception
+    void testSimpleActivation() throws Exception
     {
         runTest("testSimpleActivation", 2679);
         final StringWriter sw = new StringWriter();

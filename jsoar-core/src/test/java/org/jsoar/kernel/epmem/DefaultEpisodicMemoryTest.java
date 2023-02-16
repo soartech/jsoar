@@ -19,14 +19,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DefaultEpisodicMemoryTest
+class DefaultEpisodicMemoryTest
 {
     private AdaptableContainer context;
     private Connection conn;
     private DefaultEpisodicMemory epmem;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         Agent temp = new Agent();
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), temp);
@@ -39,13 +39,13 @@ public class DefaultEpisodicMemoryTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         conn.close();
     }
     
     @Test
-    public void testCanInitializeTheDatabase() throws Exception
+    void testCanInitializeTheDatabase() throws Exception
     {
         // final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(context);
         // epmem.initialize();

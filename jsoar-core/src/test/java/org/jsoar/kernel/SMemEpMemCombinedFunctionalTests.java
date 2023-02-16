@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
+class SMemEpMemCombinedFunctionalTests extends FunctionalTestHarness
 {
     private static final Logger LOG = LoggerFactory.getLogger(SMemEpMemCombinedFunctionalTests.class);
     
     @Test
-    public void smemEpMemFactorizationCombinationTest() throws Exception
+    void smemEpMemFactorizationCombinationTest() throws Exception
     {
         runTestSetup("testSMemEpMemFactorization");
         

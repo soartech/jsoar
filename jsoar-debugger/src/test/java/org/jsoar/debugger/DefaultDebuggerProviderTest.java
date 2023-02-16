@@ -12,11 +12,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DefaultDebuggerProviderTest
+class DefaultDebuggerProviderTest
 {
     
     @Test
-    public void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
+    void testThatThisclassIsInTheRightPackageToAvoidBreakingReflection()
     {
         assertEquals(
                 org.jsoar.kernel.DefaultDebuggerProvider.DEFAULT_CLASS, DefaultDebuggerProvider.class.getCanonicalName(),

@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PrintEventWriterTest
+class PrintEventWriterTest
 {
     private SoarEventManager events;
     private Printer printer;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.events = new SoarEventManager();
         this.printer = new Printer(new NullWriter());
@@ -34,12 +34,12 @@ public class PrintEventWriterTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testPrintEventIsFiredOnFlush()
+    void testPrintEventIsFiredOnFlush()
     {
         final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));
@@ -51,7 +51,7 @@ public class PrintEventWriterTest
     }
     
     @Test
-    public void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
+    void testDoesNotFirePrintEventIfNothingHasBeenPrinted()
     {
         final AtomicReference<String> text = new AtomicReference<>();
         events.addListener(PrintEvent.class, event -> text.set(((PrintEvent) event).getText()));

@@ -17,25 +17,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ProductionBreakCommandTest
+class ProductionBreakCommandTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
         agent = null;
     }
     
     @Test
-    public void testCanEnableTracingOnARule() throws Exception
+    void testCanEnableTracingOnARule() throws Exception
     {
         loadRules();
         
@@ -48,7 +48,7 @@ public class ProductionBreakCommandTest
     }
     
     @Test
-    public void testCanListTracedRules() throws Exception
+    void testCanListTracedRules() throws Exception
     {
         loadRules();
         agent.getInterpreter().eval("production break --set b");

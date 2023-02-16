@@ -19,30 +19,30 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class AgentTest
+class AgentTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
     @Test
-    public void testDefaultStopPhaseIsApply()
+    void testDefaultStopPhaseIsApply()
     {
         assertEquals(Phase.APPLY, agent.getStopPhase());
     }
     
     @Test
-    public void testSetStopPhaseSetsTheStopPhaseProperty()
+    void testSetStopPhaseSetsTheStopPhaseProperty()
     {
         agent.setStopPhase(Phase.DECISION);
         assertEquals(Phase.DECISION, agent.getStopPhase());
@@ -50,7 +50,7 @@ public class AgentTest
     }
     
     @Test
-    public void testGetGoalStack()
+    void testGetGoalStack()
     {
         agent.runFor(3, RunType.DECISIONS);
         // We start with S1. Running three steps, gives three new states, S2, S3, S4

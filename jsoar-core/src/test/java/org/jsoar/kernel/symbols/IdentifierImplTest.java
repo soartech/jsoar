@@ -33,7 +33,7 @@ import com.google.common.collect.Iterators;
 /**
  * @author ray
  */
-public class IdentifierImplTest extends JSoarTest
+class IdentifierImplTest extends JSoarTest
 {
     private Agent agent;
     
@@ -42,7 +42,7 @@ public class IdentifierImplTest extends JSoarTest
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
         
@@ -53,7 +53,7 @@ public class IdentifierImplTest extends JSoarTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
@@ -61,7 +61,7 @@ public class IdentifierImplTest extends JSoarTest
      * Test method for {@link org.jsoar.kernel.symbols.IdentifierImpl#getWmes()}.
      */
     @Test
-    public void testGetWmes() throws Exception
+    void testGetWmes() throws Exception
     {
         // Load a production that creates some WMEs off of S1, then
         // test iterating over them.
@@ -93,7 +93,7 @@ public class IdentifierImplTest extends JSoarTest
     }
     
     @Test
-    public void testIsAdaptableToGoalDependencySet()
+    void testIsAdaptableToGoalDependencySet()
     {
         final IdentifierImpl id = syms.createIdentifier('S');
         id.goalInfo = new GoalIdentifierInfo(id);
@@ -103,7 +103,7 @@ public class IdentifierImplTest extends JSoarTest
     }
     
     @Test
-    public void testFormatsLongTermIdentifiersCorrectly()
+    void testFormatsLongTermIdentifiersCorrectly()
     {
         final IdentifierImpl id = syms.createIdentifier('S');
         id.smem_lti = 99;
@@ -111,7 +111,7 @@ public class IdentifierImplTest extends JSoarTest
     }
     
     @Test
-    public void testStateIsAdaptableToGoal()
+    void testStateIsAdaptableToGoal()
     {
         final Identifier state = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(state);
@@ -121,7 +121,7 @@ public class IdentifierImplTest extends JSoarTest
     }
     
     @Test
-    public void testNonStatesAreNotAdaptableToGoal()
+    void testNonStatesAreNotAdaptableToGoal()
     {
         final Identifier id = agent.getSymbols().createIdentifier('Z');
         assertNotNull(id);
@@ -132,7 +132,7 @@ public class IdentifierImplTest extends JSoarTest
     }
     
     @Test
-    public void testAdaptToGoalAndGetSelectedOperatorName() throws Exception
+    void testAdaptToGoalAndGetSelectedOperatorName() throws Exception
     {
         agent.getProductions().loadProduction("propose (state <s> ^superstate nil) --> (<s> ^operator.name test-operator)");
         agent.runFor(1, RunType.DECISIONS);

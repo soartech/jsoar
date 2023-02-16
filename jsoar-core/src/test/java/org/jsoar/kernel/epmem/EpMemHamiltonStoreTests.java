@@ -18,7 +18,7 @@ import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.jupiter.api.Test;
 
-public class EpMemHamiltonStoreTests extends FunctionalTestHarness
+class EpMemHamiltonStoreTests extends FunctionalTestHarness
 {
     protected Connection getConnection()
     {
@@ -29,7 +29,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testWMEsIdentifierNowTable() throws Exception
+    void testWMEsIdentifierNowTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -61,7 +61,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testWMEsConstantNowTable() throws Exception
+    void testWMEsConstantNowTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -167,7 +167,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testWMEsConstantTable() throws Exception
+    void testWMEsConstantTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -279,7 +279,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSymbolsStringTable() throws Exception
+    void testSymbolsStringTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -413,7 +413,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testWMEsIdentifierTable() throws Exception
+    void testWMEsIdentifierTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -480,7 +480,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testEpisodesTable() throws Exception
+    void testEpisodesTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -511,7 +511,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testPersistentVariablesTable() throws Exception
+    void testPersistentVariablesTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         

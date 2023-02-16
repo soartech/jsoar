@@ -17,7 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class OutputCommandManagerTest
+class OutputCommandManagerTest
 {
     private Agent agent;
     private OutputCommandManager outputManager;
@@ -26,7 +26,7 @@ public class OutputCommandManagerTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         
@@ -41,13 +41,13 @@ public class OutputCommandManagerTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.outputManager.dispose();
     }
     
     @Test
-    public void testRegisterHandler() throws Exception
+    void testRegisterHandler() throws Exception
     {
         final AtomicBoolean added = new AtomicBoolean();
         final AtomicBoolean removed = new AtomicBoolean();

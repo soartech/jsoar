@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DeepCopyTest
+class DeepCopyTest
 {
     private Agent agent;
     
@@ -28,13 +28,13 @@ public class DeepCopyTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
     
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         final ByRef<Boolean> matched = ByRef.create(Boolean.FALSE);
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")

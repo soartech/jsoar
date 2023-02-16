@@ -16,7 +16,7 @@ import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RunCommandTest
+class RunCommandTest
 {
     private MockRunControl mock;
     private RunCommand command;
@@ -52,51 +52,51 @@ public class RunCommandTest
     }
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         this.mock = new MockRunControl();
         this.command = new RunCommand(mock);
     }
     
     @Test
-    public void testThrowsExceptionOnNonNumericCount()
+    void testThrowsExceptionOnNonNumericCount()
     {
         assertThrows(SoarException.class, () -> execute("run", "-d", "xyz"));
     }
     
     @Test
-    public void testThrowsExceptionOnZeroCount()
+    void testThrowsExceptionOnZeroCount()
     {
         assertThrows(SoarException.class, () -> execute("run", "-e", "0"));
     }
     
     @Test
-    public void testThrowsExceptionNegativeCount()
+    void testThrowsExceptionNegativeCount()
     {
         assertThrows(SoarException.class, () -> execute("run", "-e", "-10"));
     }
     
     @Test
-    public void testThrowsExceptionWhenMultipleCountsGiven()
+    void testThrowsExceptionWhenMultipleCountsGiven()
     {
         assertThrows(SoarException.class, () -> execute("run", "5", "-e", "10"));
     }
     
     @Test
-    public void testThrowsExceptionWhenMultipleRunTypesGiven()
+    void testThrowsExceptionWhenMultipleRunTypesGiven()
     {
         assertThrows(SoarException.class, () -> execute("run", "-d", "-e"));
     }
     
     @Test
-    public void testDefaultsToRunForever() throws Exception
+    void testDefaultsToRunForever() throws Exception
     {
         execute("run");
         verify(1, RunType.FOREVER);
     }
     
     @Test
-    public void testRunForever() throws Exception
+    void testRunForever() throws Exception
     {
         execute("run", "-f");
         verify(1, RunType.FOREVER);
@@ -105,7 +105,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountDefaultsToOneDecisionIfNoIntegerArgumentIsGiven() throws Exception
+    void testCountDefaultsToOneDecisionIfNoIntegerArgumentIsGiven() throws Exception
     {
         execute("run", "-d");
         verify(1, RunType.DECISIONS);
@@ -114,7 +114,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountDefaultsToOneElaborationIfNoIntegerArgumentIsGiven() throws Exception
+    void testCountDefaultsToOneElaborationIfNoIntegerArgumentIsGiven() throws Exception
     {
         execute("run", "-e");
         verify(1, RunType.ELABORATIONS);
@@ -123,7 +123,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountDefaultsToOnePhaseIfNoIntegerArgumentIsGiven() throws Exception
+    void testCountDefaultsToOnePhaseIfNoIntegerArgumentIsGiven() throws Exception
     {
         execute("run", "-p");
         verify(1, RunType.PHASES);
@@ -132,7 +132,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountDecisions() throws Exception
+    void testCountDecisions() throws Exception
     {
         execute("run", "-d", "99");
         verify(99, RunType.DECISIONS);
@@ -141,7 +141,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountDecisionsReversed() throws Exception
+    void testCountDecisionsReversed() throws Exception
     {
         execute("run", "99", "-d");
         verify(99, RunType.DECISIONS);
@@ -150,7 +150,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountElaborations() throws Exception
+    void testCountElaborations() throws Exception
     {
         execute("run", "-e", "100");
         verify(100, RunType.ELABORATIONS);
@@ -159,7 +159,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountElaborationsReversed() throws Exception
+    void testCountElaborationsReversed() throws Exception
     {
         execute("run", "100", "-e");
         verify(100, RunType.ELABORATIONS);
@@ -168,7 +168,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountPhases() throws Exception
+    void testCountPhases() throws Exception
     {
         execute("run", "-p", "7654321");
         verify(7654321, RunType.PHASES);
@@ -177,7 +177,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountPhasesReversed() throws Exception
+    void testCountPhasesReversed() throws Exception
     {
         execute("run", "7654321", "-p");
         verify(7654321, RunType.PHASES);
@@ -186,7 +186,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountOutputMods() throws Exception
+    void testCountOutputMods() throws Exception
     {
         execute("run", "-o", "7654321");
         verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);
@@ -195,7 +195,7 @@ public class RunCommandTest
     }
     
     @Test
-    public void testCountOutputModsReversed() throws Exception
+    void testCountOutputModsReversed() throws Exception
     {
         execute("run", "7654321", "-o");
         verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);

@@ -21,7 +21,7 @@ public class IntegerPropertyProviderTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -29,7 +29,7 @@ public class IntegerPropertyProviderTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
@@ -37,7 +37,7 @@ public class IntegerPropertyProviderTest
      * Test method for {@link org.jsoar.util.properties.IntegerPropertyProvider#toString()}.
      */
     @Test
-    public void testToString()
+    void testToString()
     {
         final PropertyKey<Integer> key = PropertyKey.builder("testToString", Integer.class).defaultValue(1234).build();
         IntegerPropertyProvider provider = new IntegerPropertyProvider(key);

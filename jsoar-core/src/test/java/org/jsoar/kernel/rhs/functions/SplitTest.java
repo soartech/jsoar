@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SplitTest extends JSoarTest
+class SplitTest extends JSoarTest
 {
     @Test
-    public void testSplit() throws Exception
+    void testSplit() throws Exception
     {
         final ByRef<Boolean> succeeded = ByRef.create(false);
         final Agent agent = new Agent();

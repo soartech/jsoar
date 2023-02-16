@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ReteTests extends FunctionalTestHarness
+class ReteTests extends FunctionalTestHarness
 {
     @Test
-    public void testTowersOfHanoiProductionThatCrashesRete() throws Exception
+    void testTowersOfHanoiProductionThatCrashesRete() throws Exception
     {
         // 9/24/2008 - This production caused a crash in the initial match of the
         // production. Nothing to test other than that no exceptions are thrown.
@@ -29,7 +29,7 @@ public class ReteTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testTowersOfHanoiProductionThatCausesMaxElaborations() throws Exception
+    void testTowersOfHanoiProductionThatCausesMaxElaborations() throws Exception
     {
         // 9/24/2008 - This production caused a crash in the initial match of the
         // production. Nothing to test other than that no exceptions are thrown.
@@ -47,7 +47,7 @@ public class ReteTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSplitNode() throws Exception
+    void testSplitNode() throws Exception
     {
         agent.getProductions().loadProduction("first\n" +
                 "   (<s> ^foo1 nil)\n" +

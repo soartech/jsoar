@@ -45,7 +45,7 @@ import com.google.common.collect.Sets;
 /**
  * @author ray
  */
-public class InputOutputImplTest extends JSoarTest
+class InputOutputImplTest extends JSoarTest
 {
     private Agent agent;
     private SoarCommandInterpreter ifc;
@@ -86,7 +86,7 @@ public class InputOutputImplTest extends JSoarTest
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
         
@@ -105,13 +105,13 @@ public class InputOutputImplTest extends JSoarTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
     @Test
-    public void testBasicInput() throws Exception
+    void testBasicInput() throws Exception
     {
         final int listenerCallCount[] = { 0 };
         agent.getEvents().addListener(InputEvent.class, event ->
@@ -134,7 +134,7 @@ public class InputOutputImplTest extends JSoarTest
     }
     
     @Test
-    public void testAddAndRemoveInputWme() throws Exception
+    void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
         agent.getEvents().addListener(InputEvent.class, event ->
@@ -166,7 +166,7 @@ public class InputOutputImplTest extends JSoarTest
     }
     
     @Test
-    public void testBasicOutput() throws Exception
+    void testBasicOutput() throws Exception
     {
         
         final List<Set<Wme>> outputs = new ArrayList<>();
@@ -214,7 +214,7 @@ public class InputOutputImplTest extends JSoarTest
     }
     
     @Test
-    public void testGetPendingCommands() throws Exception
+    void testGetPendingCommands() throws Exception
     {
         final InputOutput io = agent.getInputOutput();
         new CycleCountInput(io);
@@ -278,7 +278,7 @@ public class InputOutputImplTest extends JSoarTest
      */
     
     @Test
-    public void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()
+    void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
@@ -286,7 +286,7 @@ public class InputOutputImplTest extends JSoarTest
     }
     
     @Test
-    public void testAddInputWmeThrowsAnExceptionIfAttributeComesFromAnotherSymbolFactory()
+    void testAddInputWmeThrowsAnExceptionIfAttributeComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();
@@ -294,7 +294,7 @@ public class InputOutputImplTest extends JSoarTest
     }
     
     @Test
-    public void testAddInputWmeThrowsAnExceptionIfValueComesFromAnotherSymbolFactory()
+    void testAddInputWmeThrowsAnExceptionIfValueComesFromAnotherSymbolFactory()
     {
         final SymbolFactory syms = agent.getSymbols();
         final SymbolFactory other = new SymbolFactoryImpl();

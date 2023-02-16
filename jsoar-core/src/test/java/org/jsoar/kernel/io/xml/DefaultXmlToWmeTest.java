@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterators;
 
-public class DefaultXmlToWmeTest
+class DefaultXmlToWmeTest
 {
     
     @Test
-    public void testFromXml() throws Exception
+    void testFromXml() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
@@ -61,7 +61,7 @@ public class DefaultXmlToWmeTest
     }
     
     @Test
-    public void testFromXmlWithOnlyText() throws Exception
+    void testFromXmlWithOnlyText() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
@@ -75,7 +75,7 @@ public class DefaultXmlToWmeTest
     }
     
     @Test
-    public void testFromXmlWithOnlyAttributes() throws Exception
+    void testFromXmlWithOnlyAttributes() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
@@ -94,7 +94,7 @@ public class DefaultXmlToWmeTest
     }
     
     @Test
-    public void testFromXmlWithAttributesAndText() throws Exception
+    void testFromXmlWithAttributesAndText() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
@@ -116,7 +116,7 @@ public class DefaultXmlToWmeTest
     }
     
     @Test
-    public void testElementOrderIsPreservedThroughNextPointers() throws Exception
+    void testElementOrderIsPreservedThroughNextPointers() throws Exception
     {
         final Agent agent = setUpAndRunAgent(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +

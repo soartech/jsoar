@@ -22,18 +22,18 @@ import org.junit.jupiter.api.Timeout;
 /**
  * @author jon.voigt
  */
-public class StopEventTest
+class StopEventTest
 {
     private ThreadedAgent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = ThreadedAgent.create(getClass().getName());
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {

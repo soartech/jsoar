@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RingBufferTest
+class RingBufferTest
 {
     
     @Test
-    public void testWrite()
+    void testWrite()
     {
         final RingBuffer b = new RingBuffer(4);
         b.write(new char[] { 1 }, 0, 1);
@@ -44,7 +44,7 @@ public class RingBufferTest
     }
     
     @Test
-    public void testGetBytes()
+    void testGetBytes()
     {
         final RingBuffer b = new RingBuffer(4);
         assertTrue(Arrays.equals(new char[] {}, b.getTail(0)));
@@ -75,7 +75,7 @@ public class RingBufferTest
     }
     
     @Test
-    public void getLimitedTail()
+    void getLimitedTail()
     {
         final RingBuffer b = new RingBuffer(4);
         b.write(new char[] { 1, 2, 3, 4, 5 }, 0, 5);

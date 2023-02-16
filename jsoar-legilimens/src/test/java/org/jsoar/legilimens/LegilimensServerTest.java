@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class LegilimensServerTest
+class LegilimensServerTest
 {
     @Test
-    public void testThatTheNameOfTheServerHasntChanged()
+    void testThatTheNameOfTheServerHasntChanged()
     {
         // The server is invoked reflectively from org.jsoar.runtime.LegilimensStarter
         // so if this test fails then we'll be reminded to go fix references there.

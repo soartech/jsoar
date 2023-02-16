@@ -17,13 +17,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CmdTest
+class CmdTest
 {
     private Agent agent;
     private StringWriter outputWriter;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         this.agent.getPrinter().pushWriter(outputWriter = new StringWriter());
@@ -36,7 +36,7 @@ public class CmdTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -46,7 +46,7 @@ public class CmdTest
     }
     
     @Test
-    public void testCmdPrintD1S1() throws Exception
+    void testCmdPrintD1S1() throws Exception
     {
         agent.getProductions().loadProduction("testCmdPrintD1S1 (state <s> ^superstate nil) --> (write (cmd print -d 1 <s>))");
         outputWriter.flush();
@@ -56,7 +56,7 @@ public class CmdTest
     }
     
     @Test
-    public void testCmdFC() throws Exception
+    void testCmdFC() throws Exception
     {
         agent.getProductions().loadProduction("testCmdPrintFC (state <s> ^superstate nil) --> (write (cmd fc))");
         outputWriter.flush();
@@ -66,7 +66,7 @@ public class CmdTest
     }
     
     @Test
-    public void testRHSFunction() throws Exception
+    void testRHSFunction() throws Exception
     {
         // cmd only takes in Soar commands as arguments, not RHS functions.
         agent.getProductions().loadProduction("testCmdRHSFunction (state <s> ^superstate nil) --> (write (cmd make-constant-symbol |test|))");
@@ -77,7 +77,7 @@ public class CmdTest
     }
     
     @Test
-    public void testNewline() throws Exception
+    void testNewline() throws Exception
     {
         // This shouldn't run both "print -d 1 S1" and "fc", i.e. \n should be
         // passed as an argument, not parsed as a command delimiter.

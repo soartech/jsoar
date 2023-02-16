@@ -36,13 +36,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ReinforcementLearningTest
+class ReinforcementLearningTest
 {
     private Agent agent;
     private ReinforcementLearning rl;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         this.agent = new Agent();
         this.rl = Adaptables.adapt(this.agent, ReinforcementLearning.class);
@@ -50,14 +50,14 @@ public class ReinforcementLearningTest
     }
     
     @AfterEach
-    public void tearDown()
+    void tearDown()
     {
         this.agent.dispose();
         this.agent = null;
     }
     
     @Test
-    public void testRunRLUnitTestSuite() throws Exception
+    void testRunRLUnitTestSuite() throws Exception
     {
         // See also RLTests.
         

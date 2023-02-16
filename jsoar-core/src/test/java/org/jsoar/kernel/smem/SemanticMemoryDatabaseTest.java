@@ -23,18 +23,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SemanticMemoryDatabaseTest
+class SemanticMemoryDatabaseTest
 {
     private Connection db;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         db.close();
     }
@@ -52,7 +52,7 @@ public class SemanticMemoryDatabaseTest
     // }
     
     @Test
-    public void testCanCreateInitialTables() throws Exception
+    void testCanCreateInitialTables() throws Exception
     {
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
@@ -90,7 +90,7 @@ public class SemanticMemoryDatabaseTest
     }
     
     @Test
-    public void testCanCreateInitialIndexes() throws Exception
+    void testCanCreateInitialIndexes() throws Exception
     {
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
@@ -138,7 +138,7 @@ public class SemanticMemoryDatabaseTest
     }
     
     @Test
-    public void testPreparesStatements() throws Exception
+    void testPreparesStatements() throws Exception
     {
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();

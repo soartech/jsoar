@@ -17,7 +17,7 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class ExplainTest extends FunctionalTestHarness
+class ExplainTest extends FunctionalTestHarness
 {
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)

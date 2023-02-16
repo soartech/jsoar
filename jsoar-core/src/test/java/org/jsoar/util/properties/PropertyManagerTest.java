@@ -24,7 +24,7 @@ public class PropertyManagerTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -32,12 +32,12 @@ public class PropertyManagerTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testGetReturnsDefaultValue()
+    void testGetReturnsDefaultValue()
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
@@ -48,7 +48,7 @@ public class PropertyManagerTest
     }
     
     @Test
-    public void testSetCreatesDefaultProvider()
+    void testSetCreatesDefaultProvider()
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
@@ -64,7 +64,7 @@ public class PropertyManagerTest
     }
     
     @Test
-    public void testCustomProvider()
+    void testCustomProvider()
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final ByRef<String> storage = ByRef.create("hello");
@@ -96,7 +96,7 @@ public class PropertyManagerTest
     }
     
     @Test
-    public void testEvents()
+    void testEvents()
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
@@ -143,7 +143,7 @@ public class PropertyManagerTest
     }
     
     @Test
-    public void testCanGetAKeyByName()
+    void testCanGetAKeyByName()
     {
         final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();

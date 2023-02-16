@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
-public class GetUrlTest extends JSoarTest
+class GetUrlTest extends JSoarTest
 {
     
     @Test
-    public void testCanReadTheContentsOfAUrl() throws Exception
+    void testCanReadTheContentsOfAUrl() throws Exception
     {
         final GetUrl get = new GetUrl();
         final URL urlToGet = GetUrlTest.class.getResource("GetUrlTest_testCanReadTheContentsOfAUrl.txt");

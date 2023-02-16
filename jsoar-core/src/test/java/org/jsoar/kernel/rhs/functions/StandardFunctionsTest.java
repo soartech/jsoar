@@ -14,13 +14,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StandardFunctionsTest
+class StandardFunctionsTest
 {
     private Agent agent;
     private StringWriter outputWriter;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(getClass().getSimpleName());
         this.agent.getPrinter().addPersistentWriter(outputWriter = new StringWriter());
@@ -28,13 +28,13 @@ public class StandardFunctionsTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testSucceededRhsFunctionPrintsAMessageAndHaltsTheAgent() throws Exception
+    void testSucceededRhsFunctionPrintsAMessageAndHaltsTheAgent() throws Exception
     {
         this.agent.getProductions().loadProduction(
                 "testSucceededRhsFunction " +
@@ -50,7 +50,7 @@ public class StandardFunctionsTest
     }
     
     @Test
-    public void testFailedRhsFunctionPrintsAMessageAndHaltsTheAgent() throws Exception
+    void testFailedRhsFunctionPrintsAMessageAndHaltsTheAgent() throws Exception
     {
         this.agent.getProductions().loadProduction(
                 "testFailedRhsFunction " +

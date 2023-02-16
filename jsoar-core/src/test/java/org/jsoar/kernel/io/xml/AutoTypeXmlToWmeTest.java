@@ -26,25 +26,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AutoTypeXmlToWmeTest
+class AutoTypeXmlToWmeTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testXmlToWme() throws URISyntaxException
+    void testXmlToWme() throws URISyntaxException
     {
         File testMsg = new File(this.getClass().getResource("testMessage.xml")
                 .toURI());
@@ -93,7 +93,7 @@ public class AutoTypeXmlToWmeTest
     }
     
     @Test
-    public void testXmlToWmeSp() throws URISyntaxException, ReordererException,
+    void testXmlToWmeSp() throws URISyntaxException, ReordererException,
             ParserException
     {
         agent.getProperties().set(SoarProperties.WAITSNC, true);

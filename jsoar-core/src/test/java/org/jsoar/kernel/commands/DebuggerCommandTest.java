@@ -17,10 +17,10 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.jupiter.api.Test;
 
-public class DebuggerCommandTest
+class DebuggerCommandTest
 {
     @Test
-    public void testDebuggerCommandCallsOpenDebuggerOnAgent() throws Exception
+    void testDebuggerCommandCallsOpenDebuggerOnAgent() throws Exception
     {
         final Agent agent = new Agent("testDebuggerCommandCallsOpenDebuggerOnAgent");
         final AtomicBoolean called = new AtomicBoolean(false);

@@ -15,26 +15,26 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SaveBacktracesCommandTest
+class SaveBacktracesCommandTest
 {
     private Agent agent;
     private SaveBacktracesCommand command;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.command = new SaveBacktracesCommand(agent);
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testEnableShouldSetExplainPropertyToTrue() throws Exception
+    void testEnableShouldSetExplainPropertyToTrue() throws Exception
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, false);
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "save-backtraces", "-e" });
@@ -42,7 +42,7 @@ public class SaveBacktracesCommandTest
     }
     
     @Test
-    public void testDisableShouldSetExplainPropertyToFalse() throws Exception
+    void testDisableShouldSetExplainPropertyToFalse() throws Exception
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, true);
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "save-backtraces", "--off" });

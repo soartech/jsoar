@@ -23,7 +23,7 @@ public class TeeWriterTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -31,7 +31,7 @@ public class TeeWriterTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
@@ -39,7 +39,7 @@ public class TeeWriterTest
      * Test method for {@link org.jsoar.util.TeeWriter#write(char[], int, int)}.
      */
     @Test
-    public void testWrite() throws Exception
+    void testWrite() throws Exception
     {
         StringWriter first = new StringWriter();
         StringWriter second = new StringWriter();

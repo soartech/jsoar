@@ -21,17 +21,17 @@ public class ListHeadTest
 {
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testFromCollection()
+    void testFromCollection()
     {
         List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
         ListHead<String> head = ListHead.fromCollection(strings);
@@ -41,7 +41,7 @@ public class ListHeadTest
     }
     
     @Test
-    public void testGetFirstItem()
+    void testGetFirstItem()
     {
         List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
         ListHead<String> head = ListHead.fromCollection(strings);
@@ -53,7 +53,7 @@ public class ListHeadTest
     }
     
     @Test
-    public void testPop()
+    void testPop()
     {
         List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
         ListHead<String> head = ListHead.fromCollection(strings);

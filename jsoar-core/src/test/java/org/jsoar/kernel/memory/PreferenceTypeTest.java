@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PreferenceTypeTest
+class PreferenceTypeTest
 {
     
     /**
      * Test method for {@link org.jsoar.kernel.memory.PreferenceType#getDisplayName()}.
      */
     @Test
-    public void testGetDisplayName()
+    void testGetDisplayName()
     {
         assertEquals("acceptable", PreferenceType.ACCEPTABLE.getDisplayName());
         assertEquals("require", PreferenceType.REQUIRE.getDisplayName());

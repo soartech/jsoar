@@ -31,7 +31,7 @@ public class SoarBeanOutputManagerTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         
@@ -49,7 +49,7 @@ public class SoarBeanOutputManagerTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.output.dispose();
     }
@@ -67,7 +67,7 @@ public class SoarBeanOutputManagerTest
     }
     
     @Test
-    public void testRegisterHandler() throws Exception
+    void testRegisterHandler() throws Exception
     {
         final ByRef<MoveToPoint> commandHolder = ByRef.create(null);
         final SoarBeanOutputHandler<MoveToPoint> handler = new SoarBeanOutputHandler<>()

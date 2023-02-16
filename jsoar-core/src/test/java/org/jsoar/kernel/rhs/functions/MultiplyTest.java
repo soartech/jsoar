@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class MultiplyTest extends JSoarTest
+class MultiplyTest extends JSoarTest
 {
     
     @Test
-    public void testZeroArgs() throws Exception
+    void testZeroArgs() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -26,7 +26,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testOneIntArg() throws Exception
+    void testOneIntArg() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -34,7 +34,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testOneFloatArg() throws Exception
+    void testOneFloatArg() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -42,7 +42,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testMixedArgs() throws Exception
+    void testMixedArgs() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -50,7 +50,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testIntArgs() throws Exception
+    void testIntArgs() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -58,7 +58,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testLargeIntArgs() throws Exception
+    void testLargeIntArgs() throws Exception
     {
         Multiply multiply = new Multiply();
         
@@ -66,7 +66,7 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
-    public void testFloatArgs() throws Exception
+    void testFloatArgs() throws Exception
     {
         Multiply multiply = new Multiply();
         

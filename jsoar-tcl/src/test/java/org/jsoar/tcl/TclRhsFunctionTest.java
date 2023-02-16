@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class TclRhsFunctionTest extends TclTestBase
+class TclRhsFunctionTest extends TclTestBase
 {
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         sourceTestFile(getClass(), "testExecute.soar");
         

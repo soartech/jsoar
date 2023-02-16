@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DefaultQMemoryTest
+class DefaultQMemoryTest
 {
     
     /**
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#create()}.
      */
     @Test
-    public void testCreate()
+    void testCreate()
     {
         QMemory q = DefaultQMemory.create();
         assertEquals(0, q.getPaths().size());
@@ -34,7 +34,7 @@ public class DefaultQMemoryTest
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#hasPath(java.lang.String)}.
      */
     @Test
-    public void testHasPath()
+    void testHasPath()
     {
         QMemory q = DefaultQMemory.create();
         assertEquals(0, q.getPaths().size());
@@ -50,7 +50,7 @@ public class DefaultQMemoryTest
      * Test method for {@link org.jsoar.kernel.io.quick.DefaultQMemory#subMemory(java.lang.String)}.
      */
     @Test
-    public void testSubMemory()
+    void testSubMemory()
     {
         QMemory top = DefaultQMemory.create();
         
@@ -79,7 +79,7 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testMultiAttribute()
+    void testMultiAttribute()
     {
         QMemory q = DefaultQMemory.create();
         
@@ -92,7 +92,7 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
+    void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
     {
         QMemory q = DefaultQMemory.create();
         
@@ -116,7 +116,7 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingStringToSameValue()
+    void testDoesNotFireChangeEventWhenChangingStringToSameValue()
     {
         QMemory q = DefaultQMemory.create();
         
@@ -140,7 +140,7 @@ public class DefaultQMemoryTest
     }
     
     @Test
-    public void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
+    void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
     {
         QMemory q = DefaultQMemory.create();
         
@@ -166,7 +166,7 @@ public class DefaultQMemoryTest
      * Check support for 64-bit integers
      */
     @Test
-    public void testSupportsLong()
+    void testSupportsLong()
     {
         QMemory q = DefaultQMemory.create();
         q.setInteger("long", Long.MAX_VALUE);

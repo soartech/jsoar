@@ -25,18 +25,18 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Sets;
 
-public class EpisodicMemoryDatabaseTest
+class EpisodicMemoryDatabaseTest
 {
     private Connection db;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         db = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         db.close();
     }
@@ -54,7 +54,7 @@ public class EpisodicMemoryDatabaseTest
     // }
     
     @Test
-    public void testCanCreateInitialTables() throws Exception
+    void testCanCreateInitialTables() throws Exception
     {
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
@@ -103,7 +103,7 @@ public class EpisodicMemoryDatabaseTest
     }
     
     @Test
-    public void testCanCreateInitialIndexes() throws Exception
+    void testCanCreateInitialIndexes() throws Exception
     {
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
@@ -170,7 +170,7 @@ public class EpisodicMemoryDatabaseTest
     }
     
     @Test
-    public void testPreparesStatements() throws Exception
+    void testPreparesStatements() throws Exception
     {
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();

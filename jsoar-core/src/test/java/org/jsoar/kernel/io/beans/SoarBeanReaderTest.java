@@ -29,14 +29,14 @@ public class SoarBeanReaderTest
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent = null;
     }
@@ -74,7 +74,7 @@ public class SoarBeanReaderTest
     }
     
     @Test
-    public void testReadBeanWithPublicFields() throws Exception
+    void testReadBeanWithPublicFields() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase
@@ -99,7 +99,7 @@ public class SoarBeanReaderTest
     }
     
     @Test
-    public void testConversionFromSoarToJavaStylePropertyNames() throws Exception
+    void testConversionFromSoarToJavaStylePropertyNames() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase
@@ -166,7 +166,7 @@ public class SoarBeanReaderTest
      * Test method for {@link org.jsoar.kernel.io.beans.SoarBeanReader#read(org.jsoar.kernel.symbols.Identifier, java.lang.Class)}.
      */
     @Test
-    public void testReadBeanWithNoSubObjects() throws Exception
+    void testReadBeanWithNoSubObjects() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase
@@ -217,7 +217,7 @@ public class SoarBeanReaderTest
     }
     
     @Test
-    public void testReadBeanWithSubObjects() throws Exception
+    void testReadBeanWithSubObjects() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase
@@ -266,7 +266,7 @@ public class SoarBeanReaderTest
     }
     
     @Test
-    public void testReadBeanWithArrayField() throws Exception
+    void testReadBeanWithArrayField() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase
@@ -314,7 +314,7 @@ public class SoarBeanReaderTest
     }
     
     @Test
-    public void testReadBeanWithSymbolField() throws Exception
+    void testReadBeanWithSymbolField() throws Exception
     {
         // Since this registers an InputOutput handler it requires that
         // running one decision run until just before the INPUT phase

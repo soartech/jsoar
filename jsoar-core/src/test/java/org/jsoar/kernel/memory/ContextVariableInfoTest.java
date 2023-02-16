@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ContextVariableInfoTest
+class ContextVariableInfoTest
 {
     
     /**
@@ -28,7 +28,7 @@ public class ContextVariableInfoTest
      * {@link org.jsoar.kernel.memory.ContextVariableInfo#get(org.jsoar.kernel.PredefinedSymbols, org.jsoar.kernel.symbols.IdentifierImpl, org.jsoar.kernel.symbols.IdentifierImpl, java.lang.String)}.
      */
     @Test
-    public void testGetCurrentOperator() throws Exception
+    void testGetCurrentOperator() throws Exception
     {
         final Agent agent = new Agent();
         

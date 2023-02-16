@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DebugTest
+class DebugTest
 {
     
     private Agent agent;
@@ -29,7 +29,7 @@ public class DebugTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
@@ -38,12 +38,12 @@ public class DebugTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testDebugCallsOpenDebugger() throws Exception
+    void testDebugCallsOpenDebugger() throws Exception
     {
         final ByRef<Boolean> called = ByRef.create(false);
         agent.setDebuggerProvider(new AbstractDebuggerProvider()

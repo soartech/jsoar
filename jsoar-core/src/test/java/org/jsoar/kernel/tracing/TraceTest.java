@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class TraceTest
+class TraceTest
 {
     private StringWriter output;
     private Printer printer;
     private Trace trace;
     
     @BeforeEach
-    public void setUp()
+    void setUp()
     {
         output = new StringWriter();
         printer = new Printer(output);
@@ -32,13 +32,13 @@ public class TraceTest
     }
     
     @Test
-    public void testEnabledByDefault()
+    void testEnabledByDefault()
     {
         assertTrue(trace.isEnabled());
     }
     
     @Test
-    public void testGlobalEnable()
+    void testGlobalEnable()
     {
         trace.setEnabled(Category.BACKTRACING, true);
         trace.setEnabled(false);
@@ -53,7 +53,7 @@ public class TraceTest
     }
     
     @Test
-    public void testPerCategoryEnable()
+    void testPerCategoryEnable()
     {
         trace.setEnabled(Category.BACKTRACING, true);
         trace.print(Category.BACKTRACING, "hello");

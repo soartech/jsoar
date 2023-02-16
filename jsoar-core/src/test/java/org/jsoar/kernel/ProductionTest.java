@@ -12,11 +12,11 @@ import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.junit.jupiter.api.Test;
 
-public class ProductionTest
+class ProductionTest
 {
     
     @Test
-    public void testSetBreakpointEnabledHasNoAffectWhenInterruptFlagIsSet()
+    void testSetBreakpointEnabledHasNoAffectWhenInterruptFlagIsSet()
     {
         final Production p = Production.newBuilder()
                 .type(ProductionType.USER)
@@ -32,7 +32,7 @@ public class ProductionTest
     }
     
     @Test
-    public void testSetBreakpointEnabledHasAffectWhenInterruptFlagIsNotSet()
+    void testSetBreakpointEnabledHasAffectWhenInterruptFlagIsNotSet()
     {
         final Production p = Production.newBuilder()
                 .type(ProductionType.USER)

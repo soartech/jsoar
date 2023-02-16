@@ -19,19 +19,19 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PreferencesCommandTest
+class PreferencesCommandTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -41,7 +41,7 @@ public class PreferencesCommandTest
     }
     
     @Test
-    public void testThatRequiredAgentInternalsArePresent()
+    void testThatRequiredAgentInternalsArePresent()
     {
         // PreferencesCommand relies on Decider and PredefinedSymbols
         assertNotNull(Adaptables.adapt(agent, Decider.class), "Decider not found in Agent");
@@ -49,7 +49,7 @@ public class PreferencesCommandTest
     }
     
     @Test
-    public void testThatAttributeParametersAreHandledCorrectly() throws Exception
+    void testThatAttributeParametersAreHandledCorrectly() throws Exception
     {
         agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (<s> ^foo 10)");
         agent.runFor(1, RunType.DECISIONS);
@@ -59,7 +59,7 @@ public class PreferencesCommandTest
     }
     
     @Test
-    public void testThatAttributeParametersWithHyphensAreHandledCorrectly() throws Exception
+    void testThatAttributeParametersWithHyphensAreHandledCorrectly() throws Exception
     {
         agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (<s> ^foo-bar 10)");
         agent.runFor(1, RunType.DECISIONS);

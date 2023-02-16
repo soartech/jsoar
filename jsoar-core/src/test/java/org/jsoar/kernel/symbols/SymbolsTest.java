@@ -20,87 +20,87 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SymbolsTest extends JSoarTest
+class SymbolsTest extends JSoarTest
 {
     @Test
-    public void testCreateWithNewIdCreatesANewIdentifier()
+    void testCreateWithNewIdCreatesANewIdentifier()
     {
         final Symbol s = Symbols.create(syms, Symbols.NEW_ID);
         assertNotNull(s.asIdentifier());
     }
     
     @Test
-    public void testCreateWithSymbolReturnsTheSymbol()
+    void testCreateWithSymbolReturnsTheSymbol()
     {
         final IntegerSymbol i = syms.createInteger(42);
         assertSame(i, Symbols.create(syms, i));
     }
     
     @Test
-    public void testCreateWithCharReturnsString()
+    void testCreateWithCharReturnsString()
     {
         final Symbol s = Symbols.create(syms, 'X');
         assertEquals("X", s.asString().getValue());
     }
     
     @Test
-    public void testCreateWithDoubleReturnsDouble()
+    void testCreateWithDoubleReturnsDouble()
     {
         final Symbol s = Symbols.create(syms, 98.765);
         assertEquals(98.765, s.asDouble().getValue(), 0.000001);
     }
     
     @Test
-    public void testCreateWithFloatReturnsDouble()
+    void testCreateWithFloatReturnsDouble()
     {
         final Symbol s = Symbols.create(syms, 98.765f);
         assertEquals(98.765, s.asDouble().getValue(), 0.000001);
     }
     
     @Test
-    public void testCreateWithIntegerReturnsInteger()
+    void testCreateWithIntegerReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, 98);
         assertEquals(98, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithLongReturnsInteger()
+    void testCreateWithLongReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, 98L);
         assertEquals(98, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithShortReturnsInteger()
+    void testCreateWithShortReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, (short) 98);
         assertEquals(98, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithByteReturnsInteger()
+    void testCreateWithByteReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, (byte) 34);
         assertEquals(34, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithAtomicIntegerReturnsInteger()
+    void testCreateWithAtomicIntegerReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, new AtomicInteger(42));
         assertEquals(42, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithAtomicLongReturnsInteger()
+    void testCreateWithAtomicLongReturnsInteger()
     {
         final Symbol s = Symbols.create(syms, new AtomicLong(43));
         assertEquals(43, s.asInteger().getValue());
     }
     
     @Test
-    public void testCreateWithNullReturnsJavaSymbol()
+    void testCreateWithNullReturnsJavaSymbol()
     {
         final JavaSymbol s = Symbols.create(syms, null).asJava();
         assertNotNull(s);
@@ -108,7 +108,7 @@ public class SymbolsTest extends JSoarTest
     }
     
     @Test
-    public void testCreateWithOtherReturnsJavaSymbol()
+    void testCreateWithOtherReturnsJavaSymbol()
     {
         final File f = new File("testCreateWithOtherReturnsJavaSymbol");
         final JavaSymbol s = Symbols.create(syms, f).asJava();
@@ -117,35 +117,35 @@ public class SymbolsTest extends JSoarTest
     }
     
     @Test
-    public void testValueOfIdentifierReturnsIdentifier()
+    void testValueOfIdentifierReturnsIdentifier()
     {
         final Identifier id = syms.createIdentifier('X');
         assertSame(id, Symbols.valueOf(id));
     }
     
     @Test
-    public void testValueOfInteger()
+    void testValueOfInteger()
     {
         final IntegerSymbol s = syms.createInteger(42);
         assertEquals(42L, Symbols.valueOf(s));
     }
     
     @Test
-    public void testValueOfDouble()
+    void testValueOfDouble()
     {
         final DoubleSymbol s = syms.createDouble(3.14159);
         assertEquals(3.14159, (Double) Symbols.valueOf(s), 0.0001);
     }
     
     @Test
-    public void testValueOfString()
+    void testValueOfString()
     {
         final StringSymbol s = syms.createString("testValueOfString");
         assertEquals("testValueOfString", Symbols.valueOf(s));
     }
     
     @Test
-    public void testValueOfNonNullJavaSymbol()
+    void testValueOfNonNullJavaSymbol()
     {
         final File f = new File("testValueOfJavaSymbol");
         final JavaSymbol s = syms.createJavaSymbol(f);
@@ -153,38 +153,38 @@ public class SymbolsTest extends JSoarTest
     }
     
     @Test
-    public void testValueOfNullJavaSymbol()
+    void testValueOfNullJavaSymbol()
     {
         final JavaSymbol s = syms.createJavaSymbol(null);
         assertNull(Symbols.valueOf(s));
     }
     
     @Test
-    public void testGetFirstLetterOfEmptyStringReturnsZ()
+    void testGetFirstLetterOfEmptyStringReturnsZ()
     {
         assertEquals('Z', Symbols.getFirstLetter(""));
     }
     
     @Test
-    public void testGetFirstLetterOfNonAlphabeticStringReturnsZ()
+    void testGetFirstLetterOfNonAlphabeticStringReturnsZ()
     {
         assertEquals('Z', Symbols.getFirstLetter("1234"));
     }
     
     @Test
-    public void testGetFirstLetterOfIntegerReturnsZ()
+    void testGetFirstLetterOfIntegerReturnsZ()
     {
         assertEquals('Z', Symbols.getFirstLetter(5678));
     }
     
     @Test
-    public void testGetFirstLetterOfDoubleReturnsZ()
+    void testGetFirstLetterOfDoubleReturnsZ()
     {
         assertEquals('Z', Symbols.getFirstLetter(3.14159));
     }
     
     @Test
-    public void testGetFirstLetterOfAlphabeticString()
+    void testGetFirstLetterOfAlphabeticString()
     {
         assertEquals('C', Symbols.getFirstLetter("Cat"));
     }

@@ -32,192 +32,192 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SMemFunctionalTests extends FunctionalTestHarness
+class SMemFunctionalTests extends FunctionalTestHarness
 {
     @Test
-    public void testSimpleCueBasedRetrieval() throws Exception
+    void testSimpleCueBasedRetrieval() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleCueBasedRetrieval", 1);
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval() throws Exception
+    void testSimpleNonCueBasedRetrieval() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleNonCueBasedRetrieval", 2);
     }
     
     @Test
-    public void testSimpleStore() throws Exception
+    void testSimpleStore() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleStore", 2);
     }
     
     @Test
-    public void testTrivialMathQuery() throws Exception
+    void testTrivialMathQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testTrivialMathQuery", 2);
     }
     
     @Test
-    public void testBadMathQuery() throws Exception
+    void testBadMathQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testBadMathQuery", 2);
     }
     
     @Test
-    public void testMaxQuery() throws Exception
+    void testMaxQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMax", 1);
     }
     
     @Test
-    public void testMaxMixedTypes() throws Exception
+    void testMaxMixedTypes() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMaxMixedTypes", 1);
     }
     
     @Test
-    public void testMaxMultivalued() throws Exception
+    void testMaxMultivalued() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMaxMultivalued", 1);
     }
     
     @Test
-    public void testMin() throws Exception
+    void testMin() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMin", 1);
     }
     
     @Test
-    public void testMaxNegQuery() throws Exception
+    void testMaxNegQuery() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMaxNegation", 1);
     }
     
     @Test
-    public void testGreater() throws Exception
+    void testGreater() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testGreater", 1);
     }
     
     @Test
-    public void testLess() throws Exception
+    void testLess() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testLess", 1);
     }
     
     @Test
-    public void testGreaterOrEqual() throws Exception
+    void testGreaterOrEqual() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testGreaterOrEqual", 1);
     }
     
     @Test
-    public void testLessOrEqual() throws Exception
+    void testLessOrEqual() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testLessOrEqual", 1);
     }
     
     @Test
-    public void testLessWithNeg() throws Exception
+    void testLessWithNeg() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testLessWithNeg", 1);
     }
     
     @Test
-    public void testLessNoSolution() throws Exception
+    void testLessNoSolution() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testLessNoSolution", 1);
     }
     
     @Test
-    public void testMirroring() throws Exception
+    void testMirroring() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMirroring", 4);
     }
     
     @Test
-    public void testMergeAdd() throws Exception
+    void testMergeAdd() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMergeAdd", 4);
     }
     
     @Test
-    public void testMergeNone() throws Exception
+    void testMergeNone() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testMergeNone", 4);
     }
     
     @Test
-    public void testSimpleStoreMultivaluedAttribute() throws Exception
+    void testSimpleStoreMultivaluedAttribute() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTest("testSimpleStoreMultivaluedAttribute", 2);
     }
     
     @Test
-    public void testSimpleFloat() throws Exception
+    void testSimpleFloat() throws Exception
     {
         runTest("testSimpleFloat", 5);
     }
     
     @Test
-    public void testMaxDoublePrecision_Irrational() throws Exception
+    void testMaxDoublePrecision_Irrational() throws Exception
     {
         runTest("testMaxDoublePrecision-Irrational", 5);
     }
     
     @Test
-    public void testMaxDoublePrecision() throws Exception
+    void testMaxDoublePrecision() throws Exception
     {
         runTest("testMaxDoublePrecision", 5);
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrievalOfNonExistingLTI() throws Exception
+    void testSimpleNonCueBasedRetrievalOfNonExistingLTI() throws Exception
     {
         runTest("testSimpleNonCueBasedRetrievalOfNonExistingLTI", 1);
     }
     
     @Test
-    public void testNegQuery() throws Exception
+    void testNegQuery() throws Exception
     {
         runTest("testNegQuery", 248);
     }
     
     @Test
-    public void testNegStringFloat() throws Exception
+    void testNegStringFloat() throws Exception
     {
         runTest("testNegStringFloat", 5);
     }
     
     @Test
-    public void testNegQueryNoHash() throws Exception
+    void testNegQueryNoHash() throws Exception
     {
         runTest("testNegQueryNoHash", 1);
     }
     
     @Test
-    public void testCueSelection() throws Exception
+    void testCueSelection() throws Exception
     {
         runTestSetup("testCueSelection");
         agent.runFor(2, RunType.DECISIONS);
@@ -233,7 +233,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     private boolean halted = false;
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationRecency() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationRecency() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency");
         
@@ -273,7 +273,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationRecency_WithoutActivateOnQuery");
         
@@ -313,7 +313,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationFrequency() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationFrequency() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationFrequency");
         
@@ -421,7 +421,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Stable");
         
@@ -480,7 +480,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Naive");
         
@@ -539,7 +539,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental() throws Exception
+    void testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental() throws Exception
     {
         runTestSetup("testSimpleNonCueBasedRetrieval_ActivationBaseLevel_Incremental");
         
@@ -598,7 +598,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void dbBackupAndLoadTests() throws Exception
+    void dbBackupAndLoadTests() throws Exception
     {
         StringWriter outputWriter = new StringWriter();
         agent.getPrinter().addPersistentWriter(outputWriter);
@@ -717,7 +717,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testSimpleStoreGC() throws Exception
+    void testSimpleStoreGC() throws Exception
     {
         agent.setStopPhase(Phase.OUTPUT);
         runTestSetup("testSimpleStoreGC");
@@ -780,7 +780,7 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testMultiAgent() throws Exception
+    void testMultiAgent() throws Exception
     {
         List<ThreadedAgent> agents = new ArrayList<>();
         

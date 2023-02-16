@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SymbolImplTest extends JSoarTest
+class SymbolImplTest extends JSoarTest
 {
     
     @Test
-    public void testNumericComparisons()
+    void testNumericComparisons()
     {
         SymbolImpl i5 = syms.createInteger(5);
         SymbolImpl im99 = syms.createInteger(-99);

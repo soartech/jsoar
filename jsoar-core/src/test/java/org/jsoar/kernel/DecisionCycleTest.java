@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DecisionCycleTest
+class DecisionCycleTest
 {
     private Agent agent;
     private DecisionCycle decisionCycle;
@@ -30,7 +30,7 @@ public class DecisionCycleTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().enableAll();
@@ -42,13 +42,13 @@ public class DecisionCycleTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.getPrinter().flush();
     }
     
     @Test
-    public void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
+    void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
     {
         final Decider decider = Adaptables.adapt(agent, Decider.class);
         for(int i = 1; i < 10; ++i)
@@ -70,7 +70,7 @@ public class DecisionCycleTest
     }
     
     @Test
-    public void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
+    void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
     {
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
         agent.getProductions().loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
@@ -97,7 +97,7 @@ public class DecisionCycleTest
     }
     
     @Test
-    public void testWaitOperatorOnStateNoChange() throws Exception
+    void testWaitOperatorOnStateNoChange() throws Exception
     {
         // A production that just proposes a wait operator every cycle
         agent.getProductions().loadProduction(
@@ -131,7 +131,7 @@ public class DecisionCycleTest
     }
     
     @Test
-    public void testHaltRHS() throws Exception
+    void testHaltRHS() throws Exception
     {
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^operator.name halt)");
         agent.getProductions().loadProduction("test2 (state <s> ^operator.name halt) --> (halt)");

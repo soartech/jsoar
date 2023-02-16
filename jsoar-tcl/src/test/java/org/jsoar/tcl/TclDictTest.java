@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author charles.newton
  */
-public class TclDictTest extends TclTestBase
+class TclDictTest extends TclTestBase
 {
     @Test
-    public void testExecute() throws Exception
+    void testExecute() throws Exception
     {
         sourceTestFile(getClass(), "testExecute.soar");
         

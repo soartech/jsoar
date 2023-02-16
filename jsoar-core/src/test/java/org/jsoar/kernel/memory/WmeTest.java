@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class WmeTest extends JSoarTest
+class WmeTest extends JSoarTest
 {
     
     /**
      * Test method for {@link org.jsoar.kernel.memory.WmeImpl#formatTo(java.util.Formatter, int, int, int)}.
      */
     @Test
-    public void testFormatTo()
+    void testFormatTo()
     {
         // Acceptable, with and without timetag
         WmeImpl w1 = new WmeImpl(syms.make_new_identifier('S', 0),

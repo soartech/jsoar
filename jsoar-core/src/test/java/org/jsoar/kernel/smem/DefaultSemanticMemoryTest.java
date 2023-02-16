@@ -28,14 +28,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DefaultSemanticMemoryTest
+class DefaultSemanticMemoryTest
 {
     private AdaptableContainer context;
     private Connection conn;
     private DefaultSemanticMemory smem;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), new Agent());
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
@@ -47,20 +47,20 @@ public class DefaultSemanticMemoryTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         conn.close();
     }
     
     @Test
-    public void testCanAddALongTermIdentifier() throws Exception
+    void testCanAddALongTermIdentifier() throws Exception
     {
         final long lti = smem.smem_lti_add_id('Z', 99);
         assertEquals(1, lti);
     }
     
     @Test
-    public void testCanRetrieveALongTermIdentifier() throws Exception
+    void testCanRetrieveALongTermIdentifier() throws Exception
     {
         final long expected = smem.smem_lti_add_id('Z', 99);
         assertEquals(expected, smem.smem_lti_get_id('Z', 99));
@@ -71,7 +71,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanResetIdCountersInSymbolFactory() throws Exception
+    void testCanResetIdCountersInSymbolFactory() throws Exception
     {
         long number = 1;
         for(char letter = 'A'; letter <= 'Z'; letter++)
@@ -91,7 +91,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanInitializeTheDatabase() throws Exception
+    void testCanInitializeTheDatabase() throws Exception
     {
         final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
         smem.initialize();
@@ -102,7 +102,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseAnLtiNameForIdentifierLexeme()
+    void testCanParseAnLtiNameForIdentifierLexeme()
     {
         final Lexeme lexeme = new Lexeme();
         lexeme.type = LexemeType.IDENTIFIER;
@@ -118,7 +118,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseAnLtiNameForNonIdentifierLexeme()
+    void testCanParseAnLtiNameForNonIdentifierLexeme()
     {
         final Lexeme lexeme = new Lexeme();
         lexeme.type = LexemeType.VARIABLE;
@@ -132,7 +132,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseAStringConstant()
+    void testCanParseAStringConstant()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final Lexeme lexeme = new Lexeme();
@@ -145,7 +145,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseAnIntegerConstant()
+    void testCanParseAnIntegerConstant()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final Lexeme lexeme = new Lexeme();
@@ -158,7 +158,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseADoubleConstant()
+    void testCanParseADoubleConstant()
     {
         final SymbolFactoryImpl syms = new SymbolFactoryImpl();
         final Lexeme lexeme = new Lexeme();
@@ -171,7 +171,7 @@ public class DefaultSemanticMemoryTest
     }
     
     @Test
-    public void testCanParseAChunk() throws Exception
+    void testCanParseAChunk() throws Exception
     {
         final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
         smem.initialize();

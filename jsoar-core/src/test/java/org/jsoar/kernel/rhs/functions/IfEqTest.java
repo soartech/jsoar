@@ -17,18 +17,18 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class IfEqTest extends JSoarTest
+class IfEqTest extends JSoarTest
 {
     
     @Test
-    public void testReturnThirdArgWhenFirstTwoEqual() throws Exception
+    void testReturnThirdArgWhenFirstTwoEqual() throws Exception
     {
         List<Symbol> args = Symbols.asList(syms, "a", "a", "b", "c");
         assertSame(args.get(2), new IfEq().execute(rhsFuncContext, args));
     }
     
     @Test
-    public void testReturnFourthArgWhenFirstTwoNotEqual() throws Exception
+    void testReturnFourthArgWhenFirstTwoNotEqual() throws Exception
     {
         List<Symbol> args = Symbols.asList(syms, "a", "x", "b", "c");
         assertSame(args.get(3), new IfEq().execute(rhsFuncContext, args));

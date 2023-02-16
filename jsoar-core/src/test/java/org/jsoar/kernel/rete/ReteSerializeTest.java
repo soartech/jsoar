@@ -27,24 +27,24 @@ import org.junit.jupiter.api.Test;
  * 
  * @author charles.newton
  */
-public class ReteSerializeTest
+class ReteSerializeTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         agent.dispose();
     }
     
     @Test
-    public void serializationTest() throws Exception
+    void serializationTest() throws Exception
     {
         serializationTestBuilder(false, false);
         serializationTestBuilder(false, true);
@@ -141,7 +141,7 @@ public class ReteSerializeTest
     }
     
     @Test
-    public void serializationStressTest() throws Exception
+    void serializationStressTest() throws Exception
     {
         // Verify we don't get a stack overflow for reasonably sized agents.
         final int SIZE = 5000;

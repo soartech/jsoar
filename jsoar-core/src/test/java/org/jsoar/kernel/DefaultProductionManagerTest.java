@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class DefaultProductionManagerTest extends JSoarTest
+class DefaultProductionManagerTest extends JSoarTest
 {
     private Agent agent;
     private ProductionManager pm;
@@ -26,7 +26,7 @@ public class DefaultProductionManagerTest extends JSoarTest
      */
     @Override
     @BeforeEach
-    public void setUp() throws Exception
+    protected void setUp() throws Exception
     {
         super.setUp();
         this.agent = new Agent();
@@ -37,7 +37,7 @@ public class DefaultProductionManagerTest extends JSoarTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
@@ -45,7 +45,7 @@ public class DefaultProductionManagerTest extends JSoarTest
      * Test method for {@link org.jsoar.kernel.DefaultProductionManager#getProduction(java.lang.String)}.
      */
     @Test
-    public void testGetProduction() throws Exception
+    void testGetProduction() throws Exception
     {
         final Production p = pm.loadProduction("   testGetProduction (state <s> ^superstate nil) --> (<s> ^foo bar)");
         assertNotNull(p);

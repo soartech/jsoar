@@ -16,14 +16,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SmlTestAgentTest
+class SmlTestAgentTest
 {
     
     /**
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
@@ -31,12 +31,12 @@ public class SmlTestAgentTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testCanExtractFiringCountsFromPrintedOutput()
+    void testCanExtractFiringCountsFromPrintedOutput()
     {
         try
         {

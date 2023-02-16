@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ModTest extends JSoarTest
+class ModTest extends JSoarTest
 {
     
     @Test
-    public void testMod() throws Exception
+    void testMod() throws Exception
     {
         for(int i = -100; i < 100; ++i)
         {
@@ -35,7 +35,7 @@ public class ModTest extends JSoarTest
     }
     
     @Test
-    public void testModThrowsExceptionOnDivideByZero()
+    void testModThrowsExceptionOnDivideByZero()
     {
         assertThrows(RhsFunctionException.class, () -> validateMod(1, 0));
     }

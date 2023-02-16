@@ -28,26 +28,26 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ManualTypeXmlToWmeTest
+class ManualTypeXmlToWmeTest
 {
     
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
     }
     
     @Test
-    public void testXmlToWmeAllString() throws URISyntaxException,
+    void testXmlToWmeAllString() throws URISyntaxException,
             TagAlreadyAddedException
     {
         File testMsg = new File(this.getClass().getResource("testMessage.xml")
@@ -97,7 +97,7 @@ public class ManualTypeXmlToWmeTest
     }
     
     @Test
-    public void testXmlToWmeManualSettings() throws URISyntaxException,
+    void testXmlToWmeManualSettings() throws URISyntaxException,
             TagAlreadyAddedException
     {
         File testMsg = new File(this.getClass().getResource("testMessage.xml")
@@ -142,7 +142,7 @@ public class ManualTypeXmlToWmeTest
     }
     
     @Test
-    public void testXmlToWmeSp() throws ReordererException, ParserException
+    void testXmlToWmeSp() throws ReordererException, ParserException
     {
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions()
@@ -193,7 +193,7 @@ public class ManualTypeXmlToWmeTest
     }
     
     @Test
-    public void testXmlToWmeRemoveMessage() throws URISyntaxException,
+    void testXmlToWmeRemoveMessage() throws URISyntaxException,
             TagAlreadyAddedException
     {
         File testMsg = new File(this.getClass().getResource("testMessage.xml")

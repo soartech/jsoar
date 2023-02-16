@@ -19,14 +19,14 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PrinterTest
+class PrinterTest
 {
     
     /**
      * Test method for {@link org.jsoar.kernel.tracing.Printer#pushWriter(java.io.Writer)}.
      */
     @Test
-    public void testPushWriter()
+    void testPushWriter()
     {
         StringWriter first = new StringWriter();
         StringWriter second = new StringWriter();
@@ -49,7 +49,7 @@ public class PrinterTest
     }
     
     @Test
-    public void testPopWriterThrowsNoSuchElementException()
+    void testPopWriterThrowsNoSuchElementException()
     {
         Printer printer = new Printer(new StringWriter());
         assertThrows(NoSuchElementException.class, () -> printer.popWriter());
@@ -59,7 +59,7 @@ public class PrinterTest
      * Test method for {@link org.jsoar.kernel.tracing.Printer#spaces(int)}.
      */
     @Test
-    public void testSpaces()
+    void testSpaces()
     {
         StringWriter first = new StringWriter();
         

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class XmlMessageQueueTest
+class XmlMessageQueueTest
 {
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
@@ -49,7 +49,7 @@ public class XmlMessageQueueTest
     private MatchFunction match;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         agent.getTrace().disableAll();
@@ -63,14 +63,14 @@ public class XmlMessageQueueTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         this.agent.dispose();
         this.agent = null;
     }
     
     @Test
-    public void testMessageQueueRootIsCreated() throws Exception
+    void testMessageQueueRootIsCreated() throws Exception
     {
         XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-queue-root").create();
         
@@ -81,7 +81,7 @@ public class XmlMessageQueueTest
     }
     
     @Test
-    public void testMessagesAreAddedToQueue() throws Exception
+    void testMessagesAreAddedToQueue() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).queueName("test-messages").create();
         
@@ -103,7 +103,7 @@ public class XmlMessageQueueTest
     }
     
     @Test
-    public void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
+    void testMessagesAreRemovedFromQueueAfterTimeToLiveExpires() throws Exception
     {
         final XmlMessageQueue queue = XmlMessageQueue.newBuilder(agent.getInputOutput()).timeToLive(20).queueName("test-messages").create();
         

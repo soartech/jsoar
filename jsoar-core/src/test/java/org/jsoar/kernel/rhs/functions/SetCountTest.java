@@ -13,14 +13,14 @@ import org.jsoar.util.ByRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SetCountTest
+class SetCountTest
 {
     
     private Agent agent;
     ByRef<Boolean> matched;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.matched = ByRef.create(Boolean.FALSE);
@@ -45,7 +45,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestNoArgs() throws Exception
+    void TestNoArgs() throws Exception
     {
         // A production to call set-count with bad args
         agent.getProductions().loadProduction("" +
@@ -63,7 +63,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestOneArg() throws Exception
+    void TestOneArg() throws Exception
     {
         // A production to call set-count with one arg, which will always return 0
         agent.getProductions().loadProduction("" +
@@ -86,7 +86,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestTwoArgs() throws Exception
+    void TestTwoArgs() throws Exception
     {
         // A production to call set-count with two args: <tc> and foo,
         // which means count how many WMEs have the identifier <tc> with the attribute "foo"
@@ -110,7 +110,7 @@ public class SetCountTest
     }
     
     @Test
-    public void TestThreeArgs() throws Exception
+    void TestThreeArgs() throws Exception
     {
         // A production to call set-count with bad args
         agent.getProductions().loadProduction("" +

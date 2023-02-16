@@ -30,32 +30,32 @@ public class ScriptCommandTest
     }
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent();
         command = new ScriptCommand(agent);
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testThrowsAnExceptionForUnknownScriptEngines()
+    void testThrowsAnExceptionForUnknownScriptEngines()
     {
         assertThrows(SoarException.class, () -> command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "unknown-script-engine" }));
     }
     
     @Test
-    public void testCanEvalScriptCode() throws Exception
+    void testCanEvalScriptCode() throws Exception
     {
         final String result = command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "javascript", "'hi there'" });
         assertEquals("hi there", result);
     }
     
     @Test
-    public void testInstallsRhsFunctionHandler() throws Exception
+    void testInstallsRhsFunctionHandler() throws Exception
     {
         // Initialize javascript engine
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "javascript" });
@@ -68,7 +68,7 @@ public class ScriptCommandTest
     }
     
     @Test
-    public void testCanCleanupRegisteredListenersWhenReset() throws Exception
+    void testCanCleanupRegisteredListenersWhenReset() throws Exception
     {
         final Agent agent = new Agent("testCanCleanupRegisteredListenersWhenReset");
         try
@@ -90,7 +90,7 @@ public class ScriptCommandTest
     }
     
     @Test
-    public void testCanCleanupRegistersRhsFunctionsWhenReset() throws Exception
+    void testCanCleanupRegistersRhsFunctionsWhenReset() throws Exception
     {
         final Agent agent = new Agent("testCanCleanupRegistersRhsFunctionsWhenReset");
         try

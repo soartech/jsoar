@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class SoarTclInterfaceTest
+class SoarTclInterfaceTest
 {
     private SoarTclInterface ifc;
     
@@ -37,7 +37,7 @@ public class SoarTclInterfaceTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         final Agent agent = new Agent();
         ifc = SoarTclInterface.findOrCreate(agent);
@@ -47,14 +47,14 @@ public class SoarTclInterfaceTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         SoarTclInterface.dispose(ifc);
         ifc = null;
     }
     
     @Test
-    public void testSourceResource() throws SoarException
+    void testSourceResource() throws SoarException
     {
         ifc.source(getClass().getResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar"));
         
@@ -62,7 +62,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testSrandCommand() throws Exception
+    void testSrandCommand() throws Exception
     {
         ifc.eval("decide srand 98765");
         List<Integer> firstInts = new ArrayList<>();
@@ -80,7 +80,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testEnvironmentVariablesAreAvailable() throws Exception
+    void testEnvironmentVariablesAreAvailable() throws Exception
     {
         final String path = ifc.eval("global env; set env(PATH)");
         assertEquals(System.getenv("PATH"), path);
@@ -101,7 +101,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testSetParserCommand() throws Exception
+    void testSetParserCommand() throws Exception
     {
         final Parser oldParser = ifc.getAgent().getProductions().getParser();
         assertNotNull(oldParser);
@@ -116,7 +116,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testCanLoadRelativePathInJar() throws Exception
+    void testCanLoadRelativePathInJar() throws Exception
     {
         // it turns out that loading a file from a jar whose path contains a "." causes problems
         // this problem can arise via a sequence like this (which NGS used to do):

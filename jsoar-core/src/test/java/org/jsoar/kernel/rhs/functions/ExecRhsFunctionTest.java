@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class ExecRhsFunctionTest extends JSoarTest
+class ExecRhsFunctionTest extends JSoarTest
 {
     @Test
-    public void testExecRequiresAtLeastOneArgument()
+    void testExecRequiresAtLeastOneArgument()
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
@@ -29,7 +29,7 @@ public class ExecRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testExecCantCallItself()
+    void testExecCantCallItself()
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         final ExecRhsFunction exec = new ExecRhsFunction(rhsFuncs);
@@ -37,7 +37,7 @@ public class ExecRhsFunctionTest extends JSoarTest
     }
     
     @Test
-    public void testExecCallsNamedFunctionWithRestOfArguments() throws Exception
+    void testExecCallsNamedFunctionWithRestOfArguments() throws Exception
     {
         final RhsFunctionManager rhsFuncs = new RhsFunctionManager(rhsFuncContext);
         rhsFuncs.registerHandler(new Plus());

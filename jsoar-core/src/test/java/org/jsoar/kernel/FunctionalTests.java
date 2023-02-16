@@ -40,13 +40,13 @@ public class FunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testTowersOfHanoi() throws Exception
+    void testTowersOfHanoi() throws Exception
     {
         runTest("testTowersOfHanoi", 2048);
     }
     
     @Test
-    public void testTowersOfHanoiFast() throws Exception
+    void testTowersOfHanoiFast() throws Exception
     {
         runTest("testTowersOfHanoiFast", 2047);
     }
@@ -83,7 +83,7 @@ public class FunctionalTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testBlocksWorldLookAhead2() throws Exception
+    void testBlocksWorldLookAhead2() throws Exception
     {
         String testName = "testBlocksWorldLookAhead";
         runTestSetup(testName);

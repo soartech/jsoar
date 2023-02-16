@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class RecognitionMemoryTest
+class RecognitionMemoryTest
 {
     private Agent agent;
     
@@ -42,14 +42,14 @@ public class RecognitionMemoryTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         agent.getTrace().disableAll();
     }
     
     @Test
-    public void testRhsFunctionThatCreatesStructure() throws Exception
+    void testRhsFunctionThatCreatesStructure() throws Exception
     {
         new CycleCountInput(agent.getInputOutput());
         
@@ -108,7 +108,7 @@ public class RecognitionMemoryTest
     }
     
     @Test
-    public void testChunkedActionsAreCorrectlyConsideredAsNumericIndifferent() throws Exception
+    void testChunkedActionsAreCorrectlyConsideredAsNumericIndifferent() throws Exception
     {
         /*
          * Test for Joseph's fix in csoar r10460
@@ -147,7 +147,7 @@ public class RecognitionMemoryTest
     }
     
     @Test
-    public void testInstiationDeallocationStackOverflow() throws Exception
+    void testInstiationDeallocationStackOverflow() throws Exception
     {
         /*
          * Test for jsoar issue 7 (port of recursion flattening from csoar)

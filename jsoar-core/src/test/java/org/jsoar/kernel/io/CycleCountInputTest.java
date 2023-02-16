@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class CycleCountInputTest
+class CycleCountInputTest
 {
     private Agent agent;
     
@@ -34,7 +34,7 @@ public class CycleCountInputTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
@@ -43,12 +43,12 @@ public class CycleCountInputTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testCycleCountInput() throws Exception
+    void testCycleCountInput() throws Exception
     {
         final List<Long> matches = new ArrayList<>();
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match")

@@ -22,14 +22,14 @@ public class PicocliSoarCommandTest
     private StringWriter outputWriter = new StringWriter();
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.getPrinter().addPersistentWriter(this.outputWriter);
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -51,7 +51,7 @@ public class PicocliSoarCommandTest
      * args). Note that this issue is not specific to the qmemory command; it's just easy to reproduce there.
      */
     @Test
-    public void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
+    void testFieldsReset() throws InterruptedException, ExecutionException, TimeoutException, SoarException
     {
         
         // this command should echo it's last argument to output

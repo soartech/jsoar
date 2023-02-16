@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Timeout;
 /**
  * @author ray
  */
-public class ChunkingTests extends FunctionalTestHarness
+class ChunkingTests extends FunctionalTestHarness
 {
     @Test
-    public void testJustifications() throws Exception
+    void testJustifications() throws Exception
     {
         runTest("testJustifications", 2);
         Production j = agent.getProductions().getProduction("justification-1");
@@ -30,7 +30,7 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testChunks() throws Exception
+    void testChunks() throws Exception
     {
         runTest("testChunks", 2);
         
@@ -64,7 +64,7 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testNegatedConjunctiveChunkLoopBug510() throws Exception
+    void testNegatedConjunctiveChunkLoopBug510() throws Exception
     {
         runTest("testNegatedConjunctiveChunkLoopBug510", 3);
         assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
@@ -72,7 +72,7 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
+    void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
     {
         // This tests for a bug in the chunking caused by a bug in add_cond_to_tc()
         // where the id and attr test for positive conditions were added to the tc
@@ -138,7 +138,7 @@ public class ChunkingTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testCDPS() throws Exception
+    void testCDPS() throws Exception
     {
         Chunker chunker = Adaptables.adapt(agent, Chunker.class);
         chunker.chunkThroughEvaluationRules = true;

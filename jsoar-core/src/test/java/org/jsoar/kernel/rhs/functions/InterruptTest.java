@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Timeout;
 /**
  * @author ray
  */
-public class InterruptTest
+class InterruptTest
 {
     private Agent agent;
     
@@ -28,7 +28,7 @@ public class InterruptTest
      * @throws java.lang.Exception
      */
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent();
     }
@@ -37,7 +37,7 @@ public class InterruptTest
      * @throws java.lang.Exception
      */
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     

@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class InitSoarTests extends FunctionalTestHarness
+class InitSoarTests extends FunctionalTestHarness
 {
     
     @Test
-    public void testInitSoar() throws Exception
+    void testInitSoar() throws Exception
     {
         agent.initialize();
         
@@ -84,7 +84,7 @@ public class InitSoarTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testTowersOfHanoiInit() throws Exception
+    void testTowersOfHanoiInit() throws Exception
     {
         String testName = "testTowersOfHanoiInit";
         int expectedDecisions = 2048;
@@ -95,7 +95,7 @@ public class InitSoarTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testBlocksWorldOperatorSubgoalingInit() throws Exception
+    void testBlocksWorldOperatorSubgoalingInit() throws Exception
     {
         String testName = "testBlocksWorldOperatorSubgoalingInit";
         runTest(testName, 5);
@@ -105,7 +105,7 @@ public class InitSoarTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testCountTestInit() throws Exception
+    void testCountTestInit() throws Exception
     {
         String testName = "testCountTestInit";
         runTest(testName, 45047);

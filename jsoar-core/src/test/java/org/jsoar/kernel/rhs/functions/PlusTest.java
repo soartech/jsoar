@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class PlusTest extends JSoarTest
+class PlusTest extends JSoarTest
 {
     
     @Test
-    public void testZeroArgs() throws Exception
+    void testZeroArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -26,7 +26,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testOneIntArg() throws Exception
+    void testOneIntArg() throws Exception
     {
         Plus plus = new Plus();
         
@@ -34,7 +34,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testOneFloatArg() throws Exception
+    void testOneFloatArg() throws Exception
     {
         Plus plus = new Plus();
         
@@ -42,7 +42,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testMixedArgs() throws Exception
+    void testMixedArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -50,7 +50,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testIntArgs() throws Exception
+    void testIntArgs() throws Exception
     {
         Plus plus = new Plus();
         
@@ -58,7 +58,7 @@ public class PlusTest extends JSoarTest
     }
     
     @Test
-    public void testFloatArgs() throws Exception
+    void testFloatArgs() throws Exception
     {
         Plus plus = new Plus();
         

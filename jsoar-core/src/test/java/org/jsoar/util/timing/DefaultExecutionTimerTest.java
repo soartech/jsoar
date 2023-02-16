@@ -19,7 +19,7 @@ public class DefaultExecutionTimerTest
      * Test method for {@link org.jsoar.util.timing.DefaultExecutionTimer#DefaultExecutionTimer()}.
      */
     @Test
-    public void testNewInstanceDefaultServiceLoader()
+    void testNewInstanceDefaultServiceLoader()
     {
         ExecutionTimer timer = DefaultExecutionTimer.newInstance();
         assertNotNull(timer);

@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 /**
  * @author ray
  */
-public class MinTest extends JSoarTest
+class MinTest extends JSoarTest
 {
     
     @Test
-    public void testMinWithAllIntegers() throws Exception
+    void testMinWithAllIntegers() throws Exception
     {
         final Min min = new Min();
         final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2, 1, -40, 99));
@@ -27,7 +27,7 @@ public class MinTest extends JSoarTest
     }
     
     @Test
-    public void testMinWithLargeIntegers() throws Exception
+    void testMinWithLargeIntegers() throws Exception
     {
         final Min min = new Min();
         final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2, 1, -40000000000L, 99));
@@ -35,7 +35,7 @@ public class MinTest extends JSoarTest
     }
     
     @Test
-    public void testMinWithAllDoubles() throws Exception
+    void testMinWithAllDoubles() throws Exception
     {
         final Min min = new Min();
         final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2., 1., -40., 99.));
@@ -43,7 +43,7 @@ public class MinTest extends JSoarTest
     }
     
     @Test
-    public void testMinWithMixedTypesAndIntResult() throws Exception
+    void testMinWithMixedTypesAndIntResult() throws Exception
     {
         final Min min = new Min();
         final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2., 1., -40, 99));
@@ -51,7 +51,7 @@ public class MinTest extends JSoarTest
     }
     
     @Test
-    public void testMinWithMixedTypesAndDoubleResult() throws Exception
+    void testMinWithMixedTypesAndDoubleResult() throws Exception
     {
         final Min min = new Min();
         final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2, 1., -40., 99));

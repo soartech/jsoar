@@ -21,21 +21,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SoarTechWmeToXmlTest
+class SoarTechWmeToXmlTest
 {
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
     }
     
     @Test
-    public void testToXml() throws Exception
+    void testToXml() throws Exception
     {
         final Agent agent = new Agent();
         agent.getProductions().loadProduction(

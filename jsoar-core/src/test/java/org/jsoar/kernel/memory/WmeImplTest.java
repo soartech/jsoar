@@ -16,11 +16,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.jupiter.api.Test;
 
-public class WmeImplTest extends JSoarTest
+class WmeImplTest extends JSoarTest
 {
     
     @Test
-    public void testIsAdaptableToGoalDependencySet()
+    void testIsAdaptableToGoalDependencySet()
     {
         final IdentifierImpl id = syms.createIdentifier('S');
         id.goalInfo = new GoalIdentifierInfo(id);

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PrintCommandTest
+class PrintCommandTest
 {
     private Agent agent;
     
@@ -24,7 +24,7 @@ public class PrintCommandTest
     private String prodTest = "test (state <s> ^superstate nil) -->";
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         this.agent = new Agent(false);
         this.agent.getPrinter().addPersistentWriter(
@@ -44,7 +44,7 @@ public class PrintCommandTest
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(this.agent != null)
         {
@@ -54,7 +54,7 @@ public class PrintCommandTest
     }
     
     @Test
-    public void testDefaultDepth() throws SoarException
+    void testDefaultDepth() throws SoarException
     {
         assertEquals(command.getCommand().getDefaultDepth(), 1);
         command.getCommand().setDefaultDepth(5);
@@ -62,19 +62,19 @@ public class PrintCommandTest
     }
     
     @Test
-    public void testZeroDefaultDepth() throws SoarException
+    void testZeroDefaultDepth() throws SoarException
     {
         assertThrows(SoarException.class, () -> command.getCommand().setDefaultDepth(0));
     }
     
     @Test
-    public void testNegativeDefaultDepth()
+    void testNegativeDefaultDepth()
     {
         assertThrows(SoarException.class, () -> command.getCommand().setDefaultDepth(-1));
     }
     
     @Test
-    public void testPrintS1() throws SoarException
+    void testPrintS1() throws SoarException
     {
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         System.out.println("'" + outputWriter.toString() + "'");
@@ -87,7 +87,7 @@ public class PrintCommandTest
     }
     
     @Test
-    public void testPrintS1Depth2() throws SoarException
+    void testPrintS1Depth2() throws SoarException
     {
         clearBuffer();
         
@@ -111,13 +111,13 @@ public class PrintCommandTest
     }
     
     @Test
-    public void testVarprintNotImplemented()
+    void testVarprintNotImplemented()
     {
         assertThrows(SoarException.class, () -> command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" }));
     }
     
     @Test
-    public void testPrintAll() throws SoarException
+    void testPrintAll() throws SoarException
     {
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print" });
         String a = outputWriter.toString();

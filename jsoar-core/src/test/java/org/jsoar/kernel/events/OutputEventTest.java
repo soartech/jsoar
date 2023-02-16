@@ -30,18 +30,18 @@ import com.google.common.collect.Lists;
 /**
  * @author ray
  */
-public class OutputEventTest
+class OutputEventTest
 {
     private Agent agent;
     
     @BeforeEach
-    public void setUp() throws Exception
+    void setUp() throws Exception
     {
         agent = new Agent(getClass().getName());
     }
     
     @AfterEach
-    public void tearDown() throws Exception
+    void tearDown() throws Exception
     {
         if(agent != null)
         {
