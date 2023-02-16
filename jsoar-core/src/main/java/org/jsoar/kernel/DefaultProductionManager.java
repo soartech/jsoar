@@ -61,6 +61,8 @@ public class DefaultProductionManager implements ProductionManager
     
     private Parser parser = new OriginalParser();
     
+    // note the initializer for this map immediately below -- ensures that the values start as empty collections
+    // use of an initializer is confusing -- should just use a guava multimap instead
     private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
     {
         for(ProductionType type : ProductionType.values())
