@@ -1,6 +1,0 @@
-#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Fri Feb 17 08:23:47 EST 2023
-https\://repo.maven.apache.org/maven2/.lastUpdated=1676639754567
-2d937a77abf394f3720df0bcbaed5d8907d4d50d@default-soartech-internal-releases-https\://nexus.soartech.com\:8443/nexus/content/repositories/releases/.lastUpdated=1676640227587
-https\://repo.maven.apache.org/maven2/.error=
-https\://nexus.soartech.com\:8443/nexus/content/repositories/releases/.error=Could not transfer artifact org.dockingframes\:docking-frames-base\:pom\:1.1.2 from/to soartech-internal-releases (https\://nexus.soartech.com\:8443/nexus/content/repositories/releases)\: Connect to nexus.soartech.com\:8443 [nexus.soartech.com/64.9.218.147] failed\: Connect timed out
