@@ -467,7 +467,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     }
     
     @Override
-    public String[] getCompletionList(String command, int cursorPosition)
+    public String[] getCompletionList(String command)
     {
         List<String> commandsList = new ArrayList<>();
         for(String s : this.commandList)

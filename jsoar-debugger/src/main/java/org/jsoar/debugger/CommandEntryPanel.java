@@ -364,11 +364,11 @@ public class CommandEntryPanel extends JPanel implements Disposable
             CommandLine commandLine = debugger.getAgent().getInterpreter().findCommand(trimmedCommand);
             if(commandLine == null)
             {
-                commands = debugger.getAgent().getInterpreter().getCompletionList(trimmedCommand, cursorPosition);
+                commands = debugger.getAgent().getInterpreter().getCompletionList(trimmedCommand);
             }
             else
             {
-                commands = SoarCommandCompletion.complete(commandLine, trimmedCommand, cursorPosition);
+                commands = SoarCommandCompletion.complete(commandLine, trimmedCommand);
             }
             
             final String[] finalCommands = commands;

@@ -155,7 +155,7 @@ public interface SoarCommandInterpreter
      * 
      * @param command
      */
-    String[] getCompletionList(String command, int cursorPosition);
+    String[] getCompletionList(String command);
     
     /**
      * Return the autocomplete list for a command with a command line

@@ -12,38 +12,37 @@ public class SoarCommandCompletion
      * 
      * @param commandLine The CommandLine to perform completion on
      * @param input The typed input to generate a completion list for
-     * @param cursorPosition The user's cursor position in the string
      */
-    public static String[] complete(CommandLine commandLine, String input, int cursorPosition)
+    public static String[] complete(CommandLine commandLine, String input)
     {
         if(commandLine != null)
         {
+            // picocli expects subcommands to be given as part of a full command
+            // so if this command is actually an alias for a subcommand of another command, we have to construct the full command
+            CommandLine parent = commandLine;
+            String parentCommands = "";
             
-            String[] parts = input.split(" ");
-            int argIndex = 0;
-            int positionInArg = 0;
-            // figure out argIndex
-            for(int i = 0; i < input.length(); i++)
+            while(parent.getParent() != null)
             {
-                char c = input.charAt(i);
-                if(i != 0)
-                {
-                    char prev = input.charAt(i - 1);
-                    if(c == ' ' && prev != ' ')
-                    {
-                        argIndex++;
-                        positionInArg = 0;
-                    }
-                }
-                if(c != ' ')
-                {
-                    positionInArg++;
-                }
+                parent = commandLine.getParent();
+                parentCommands = parent.getCommandName() + " ";
             }
+            
+            String fullCommand = parentCommands + input.trim();
+            
+            // now that we have the full command, we can identify the things picocli needs to generate auto complete candidates:
+            // the parts: an array of the command + subcommands)
+            // argIndex: which subcommand we're completing
+            // positionInArg: how much of the last arg has been typed
+            
+            String[] parts = fullCommand.split(" ");
+            
+            int argIndex = parts.length - 1;
+            int positionInArg = parts[argIndex].length();
             
             ArrayList<CharSequence> longResults = new ArrayList<>();
             
-            picocli.AutoComplete.complete(commandLine.getCommandSpec(), parts, argIndex, positionInArg, input.length(), longResults);
+            picocli.AutoComplete.complete(parent.getCommandSpec(), parts, argIndex, positionInArg, fullCommand.length(), longResults);
             
             for(int i = 0; i < longResults.size(); i++)
             {

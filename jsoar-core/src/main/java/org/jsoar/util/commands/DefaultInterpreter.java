@@ -205,7 +205,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     }
     
     @Override
-    public String[] getCompletionList(String command, int cursorPosition)
+    public String[] getCompletionList(String command)
     {
         String[] commands = null;
         List<String> commandsList = new ArrayList<>();
