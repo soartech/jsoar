@@ -10,9 +10,9 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.dockingframes</groupId>
+            <groupId>org.tros</groupId>
             <artifactId>docking-frames-common</artifactId>
-            <version>1.1.2</version>
+            <version>1.1.2-P19c</version>
         </dependency>
         <dependency>
             <groupId>com.soartech</groupId>
@@ -90,15 +90,4 @@
             </build>
         </profile>
     </profiles>
-    
-    <!-- local repo for docking frames dependencies -->
-    <repositories>
-        <repository>
-            <id>repo</id>
-            <url>file://${project.baseUri}/local-m2</url>
-            <releases>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-        </repository>
-    </repositories>
 </project>
