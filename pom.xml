@@ -63,7 +63,7 @@
         <re2j.version>1.7</re2j.version>
         <slf4j.version>2.0.6</slf4j.version>
         <spring.core.version>5.3.25</spring.core.version>
-        <sqlite.jdbc.version>3.40.1.0</sqlite.jdbc.version>
+        <sqlite.jdbc.version>3.41.0.0</sqlite.jdbc.version>
         
         <!-- sonarqube configuration -->
         <sonar.host.url>http://192.168.5.76:9000</sonar.host.url>
